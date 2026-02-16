@@ -20,7 +20,6 @@ namespace GameEngine
 namespace
 {
 const int NUM_SAMPLES = 100;
-
 struct SunBuffer
 {
     AlignWrapper<vec4> ndcSunPosition;                             // z - turn off, w -samples

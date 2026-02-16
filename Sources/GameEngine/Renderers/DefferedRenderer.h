@@ -5,6 +5,7 @@
 #include "GameEngine/Renderers/Postproccesing/LightShafts/LightShaftOclusionRenderer.h"
 #include "GraphicsApi/IFrameBuffer.h"
 #include "SkyPassRenderer/SkyPassRenderer.h"
+#include "GameEngine/Renderers/Postproccesing/SSAO/SSAORenderer.h"
 #include "Types.h"
 
 namespace GameEngine
@@ -33,6 +34,7 @@ private:
     std::optional<vec2ui> defferedFrameBufferSize_;
     PostProcessingManager postprocessingRenderersManager_;
 
+    SSAORenderer ssaoRenderer;
     SkyPassRenderer skyPassRenderer;
     LightShaftOclusionRenderer lightShaftRenderer_;
     bool isReady_;

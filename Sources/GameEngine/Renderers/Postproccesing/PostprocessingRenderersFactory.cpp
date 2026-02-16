@@ -5,7 +5,6 @@
 #include "DefferedLighting/DefferedLighting.h"
 #include "Fxaa/Fxaa.h"
 #include "Outline/Outline.h"
-#include "SSAO/SSAO.h"
 #include "ToneMapping/ToneMapping.h"
 
 namespace GameEngine
@@ -18,8 +17,6 @@ std::unique_ptr<PostprocessingRenderer> PostprocessingRenderersFactory::Create(P
 {
     switch (type)
     {
-        case PostprocessingRendererType::SSAO:
-            return std::make_unique<SSAORenderer>(context_);
         case PostprocessingRendererType::TONE_MAPPING:
             return std::make_unique<ToneMapping>(context_);
         case PostprocessingRendererType::BLUR:

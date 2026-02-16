@@ -19,6 +19,7 @@ DefferedRenderer::DefferedRenderer(RendererContext& context)
     : BaseRenderer(context)
     , defferedFrameBuffer_(nullptr)
     , postprocessingRenderersManager_(context)
+    , ssaoRenderer(context)
     , skyPassRenderer(context)
     , lightShaftRenderer_(context)
     , isReady_(false)
@@ -77,6 +78,7 @@ void DefferedRenderer::cleanUp()
         defferedFrameBuffer_ = nullptr;
     }
 
+    ssaoRenderer.CleanUp();
     skyPassRenderer.CleanUp();
     lightShaftRenderer_.CleanUp();
     postprocessingRenderersManager_.CleanUp();
@@ -90,6 +92,7 @@ void DefferedRenderer::reloadShaders()
 
     postprocessingRenderersManager_.ReloadShaders();
     skyPassRenderer.ReloadShaders();
+    ssaoRenderer.ReloadShaders();
     lightShaftRenderer_.ReloadShaders();
 }
 void DefferedRenderer::setViewPort()
@@ -106,6 +109,10 @@ void DefferedRenderer::unbindDefferedFbo()
 {
     if (auto depthTextureId = defferedFrameBuffer_->GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Depth))
     {
+        // if (auto normalTextureId = defferedFrameBuffer_->GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Color2))
+        // {
+        //     ssaoRenderer.Render(*depthTextureId, *normalTextureId);
+        // }
         skyPassRenderer.Render(*depthTextureId);
         lightShaftRenderer_.Render(*depthTextureId);
     }
@@ -136,6 +143,7 @@ void DefferedRenderer::createOrUpdateDefferedFrameBufferIfNeeded()
     {
         context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::FullDefferedRendering);
         createFrameBuffer();
+        ssaoRenderer.Init();
         skyPassRenderer.Init();
         lightShaftRenderer_.Init();
         postprocessingRenderersManager_.Init();
@@ -155,10 +163,16 @@ void DefferedRenderer::createOrUpdateDefferedFrameBufferIfNeeded()
     context_.graphicsApi_.DeleteFrameBuffer(*defferedFrameBuffer_);
     createFrameBuffer();
     context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::FullDefferedRendering);
+
     skyPassRenderer.CleanUp();
     skyPassRenderer.Init();
+
     lightShaftRenderer_.CleanUp();
     lightShaftRenderer_.Init();
+
+    ssaoRenderer.CleanUp();
+    ssaoRenderer.Init();
+
     postprocessingRenderersManager_.OnSizeChanged();
     context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::SimpleForwardRendering);
 }

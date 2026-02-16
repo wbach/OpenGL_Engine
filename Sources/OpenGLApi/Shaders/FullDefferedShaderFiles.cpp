@@ -243,6 +243,13 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
         }
     },
     {
+        GraphicsApi::ShaderProgramType::SsaoBlure,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/SSAO/SSAOShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "PostProcess/SSAO/SSAOBlur.frag"}
+        }
+    },
+    {
         GraphicsApi::ShaderProgramType::LightShaftOclusion,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/LightShafts/LightShaftsOclusion.vert"},

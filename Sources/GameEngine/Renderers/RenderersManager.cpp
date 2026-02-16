@@ -211,6 +211,8 @@ void RenderersManager::renderScene(Scene& scene)
         debugRenderer_.renderTextures(textures);
     }
 
+    //debugRenderer_.renderTextures({rendererContext_.sharedTextures[magic_enum::enum_index(SharedTextures::ssao).value()]});
+
     *frustrumCheckCount_ = std::to_string(frustrumCheckInFrame);
 
     if (unsubscribeAllCallback_)
@@ -381,11 +383,11 @@ void RenderersManager::updatePerFrameBuffer(ICamera& camera)
     if (perFrameId_)
     {
         // const auto& buffer = camera.GetPerFrameBuffer();
-        time +=  rendererContext_.time_.deltaTime;
+        time += rendererContext_.time_.deltaTime;
 
         auto bufferCopy                 = camera.GetPerFrameBuffer();
         bufferCopy.ProjectionViewMatrix = rendererContext_.graphicsApi_.PrepareMatrixToLoad(bufferCopy.ProjectionViewMatrix);
-        bufferCopy.time.value.x = time;
+        bufferCopy.time.value.x         = time;
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &bufferCopy);
         graphicsApi_.BindShaderBuffer(*perFrameId_);
     }

@@ -3,7 +3,6 @@ namespace GameEngine
 {
 enum class PostprocessingRendererType
 {
-    SSAO,
     FXAA,
     BLUR,
     COLOR_FLIPER,

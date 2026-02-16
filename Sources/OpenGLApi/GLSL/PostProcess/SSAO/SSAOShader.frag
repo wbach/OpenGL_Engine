@@ -1,38 +1,69 @@
-#version 400 core
+#version 450 core
 
-in vec2 TexCoord;
+layout (location = 0) out float FragColor;
 
-out vec4 OutColor;
+in vec2 textureCoords;
 
-const int MAX_KERNEL_SIZE = 128;
-uniform vec3 Kernel[MAX_KERNEL_SIZE];
-uniform sampler2D PositionTexture;
-uniform float SampleRadius;
-uniform mat4 ProjectionMatrix;
+// Tekstury z G-Buffera
+layout (binding = 0) uniform sampler2D gPosition; // Pozycje w View Space
+layout (binding = 1) uniform sampler2D gNormal;   // Normalne w View Space
+layout (binding = 2) uniform sampler2D texNoise;  // Tekstura szumu 4x4
 
-void main(void)
-{    
-	vec4 pos = texture(PositionTexture, TexCoord);
+// Uniform Buffer Object - slot 6
+layout (std140, binding = 6) uniform SsaoBuffer
+{
+    mat4 projection;
+    vec4 params; // x: noiseScale.x, y: noiseScale.y, z: radius, w: bias
+    vec4 samples[64];
+} ssao;
 
-	float AO = 0.0;
+void main()
+{
+    const float radius = ssao.params.z;
+    const float bias   = ssao.params.w;
+    const vec2 noiseScale = ssao.params.xy;
 
-    for (int i = 0 ; i < MAX_KERNEL_SIZE ; i++)
+    // 1. Pobranie danych wejściowych
+    vec3 fragPos   = texture(gPosition, textureCoords).xyz;
+    vec3 normal    = normalize(texture(gNormal, textureCoords).rgb);
+
+    // Pobranie szumu i skalowanie go do rozmiaru ekranu
+    vec3 randomVec = normalize(texture(texNoise, textureCoords * ssao.noiseScale).xyz);
+
+    // 2. Utworzenie macierzy TBN (Tangent-Bitangent-Normal)
+    // Budujemy bazę wokół normalnej fragmentu, używając szumu do losowej rotacji
+    vec3 tangent   = normalize(randomVec - normal * dot(randomVec, normal));
+    vec3 bitangent = cross(normal, tangent);
+    mat3 TBN       = mat3(tangent, bitangent, normal);
+
+    // 3. Obliczanie okluzji
+    float occlusion = 0.0;
+
+    for(int i = 0; i < 64; ++i)
     {
-        vec3 samplePos = pos.xyz + Kernel[i]; // generate a random point
-        vec4 offset = vec4(samplePos, 1.0); // make it a 4-vector
-        offset = ProjectionMatrix * offset; // project on the near clipping plane
-        offset.xy /= offset.w; // perform perspective divide
-        offset.xy = offset.xy * 0.5 + vec2(0.5); // transform to (0,1) range
+        // Pobieramy próbkę z kernela i przenosimy do View Space (za pomocą TBN)
+        vec3 samplePos = TBN * ssao.samples[i].xyz;
+        samplePos = fragPos + samplePos * ssao.radius;
 
-        float sampleDepth = texture(PositionTexture, offset.xy).b;
+        // 4. Projekcja próbki na współrzędne ekranowe (UV)
+        vec4 offset = vec4(samplePos, 1.0);
+        offset = ssao.projection * offset;    // Transformacja do Clip Space
+        offset.xyz /= offset.w;               // Perspective divide [-1, 1]
+        offset.xyz = offset.xyz * 0.5 + 0.5;  // Transformacja do [0, 1] (UV)
 
-        if (abs(pos.z - sampleDepth) < SampleRadius)
-        {
-            AO += step(sampleDepth,samplePos.z);
-        }
+        // 5. Pobranie rzeczywistej głębokości (Z) z G-Buffera w punkcie próbki
+        float sampleDepth = texture(gPosition, offset.xy).z;
+
+        // 6. Test okluzji
+        // Sprawdzamy, czy rzeczywista geometria jest "bliżej" kamery niż nasza próbka
+        // Range Check: wygasza okluzję, jeśli różnica głębi jest zbyt duża (zapobiega artefaktom na krawędziach tła)
+        float rangeCheck = smoothstep(0.0, 1.0, ssao.radius / abs(fragPos.z - sampleDepth));
+
+        // Jeśli sampleDepth jest "większe" (bliżej 0, bo Z jest ujemne), to mamy zasłonięcie
+        occlusion += (sampleDepth >= samplePos.z + ssao.bias ? 1.0 : 0.0) * rangeCheck;
     }
 
-    AO = 1.0 - AO / 128.0;
-
-    OutColor = vec4(pow(AO, 2.0));
+    // Normalizacja wyniku: 0.0 (pełna okluzja) do 1.0 (brak okluzji)
+    occlusion = 1.0 - (occlusion / 64.0);
+    FragColor = occlusion;
 }

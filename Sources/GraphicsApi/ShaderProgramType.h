@@ -33,6 +33,7 @@ enum class ShaderProgramType
     LightShaftBlure,
     Water,
     SSAO,
+    SsaoBlure,
     ColorFilper,
     Blur,
     Deffered,

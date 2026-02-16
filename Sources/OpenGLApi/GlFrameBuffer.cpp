@@ -39,6 +39,9 @@ const std::unordered_map<GraphicsApi::FrameBuffer::Type, GLint> DrawBufferIndex 
                                                                                    {GraphicsApi::FrameBuffer::Type::Depth, 0}};
 
 const std::unordered_map<GraphicsApi::FrameBuffer::Format, GLint> InternalFormat = {
+    {GraphicsApi::FrameBuffer::Format::R8f, GL_R8},
+    {GraphicsApi::FrameBuffer::Format::R16f, GL_R16F},
+    {GraphicsApi::FrameBuffer::Format::R32f, GL_R32F},
     {GraphicsApi::FrameBuffer::Format::Rgba8, GL_RGBA8},
     {GraphicsApi::FrameBuffer::Format::Rgba16f, GL_RGBA16F},
     {GraphicsApi::FrameBuffer::Format::Rgba32f, GL_RGBA32F},

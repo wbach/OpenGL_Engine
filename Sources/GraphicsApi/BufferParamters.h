@@ -28,6 +28,9 @@ enum class Format
     Rgba8,
     Rgba16f,
     Rgba32f,
+    R8f,
+    R16f,
+    R32f,
     Depth
 };
 
