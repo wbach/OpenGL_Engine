@@ -49,11 +49,17 @@ const std::unordered_map<GraphicsApi::FrameBuffer::Format, GLint> InternalFormat
 
 const std::unordered_map<GraphicsApi::FrameBuffer::Format, GLint> DataType = {
     {GraphicsApi::FrameBuffer::Format::Rgba8, GL_UNSIGNED_BYTE},
+    {GraphicsApi::FrameBuffer::Format::R8f, GL_FLOAT},
+    {GraphicsApi::FrameBuffer::Format::R16f, GL_FLOAT},
+    {GraphicsApi::FrameBuffer::Format::R32f, GL_FLOAT},
     {GraphicsApi::FrameBuffer::Format::Rgba16f, GL_FLOAT},
     {GraphicsApi::FrameBuffer::Format::Rgba32f, GL_FLOAT},
     {GraphicsApi::FrameBuffer::Format::Depth, GL_FLOAT}};
 
 const std::unordered_map<GraphicsApi::FrameBuffer::Format, GLint> Channels = {{GraphicsApi::FrameBuffer::Format::Rgba8, 4},
+                                                                              {GraphicsApi::FrameBuffer::Format::R8f, 1},
+                                                                              {GraphicsApi::FrameBuffer::Format::R16f, 1},
+                                                                              {GraphicsApi::FrameBuffer::Format::R32f, 1},
                                                                               {GraphicsApi::FrameBuffer::Format::Rgba16f, 4},
                                                                               {GraphicsApi::FrameBuffer::Format::Rgba32f, 4},
                                                                               {GraphicsApi::FrameBuffer::Format::Depth, 4}};
@@ -238,6 +244,8 @@ void FrameBuffer::CreateGlAttachments(const std::vector<GraphicsApi::FrameBuffer
     {
         size = attachments.front().size;
     }
+
+    LOG_DEBUG << "CreateGlAttachments";
 
     for (auto& attachment : attachments)
     {

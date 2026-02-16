@@ -214,16 +214,19 @@ GraphicsApi::IFrameBuffer *SSAORenderer::createFrameBuffer()
 {
     using namespace GraphicsApi::FrameBuffer;
 
-    Attachment color(*frameBufferSize, Type::Color0, Format::Rgba32f);
+    Attachment color(*frameBufferSize, Type::Color0, Format::R32f);
     color.filter = GraphicsApi::FrameBuffer::Filter::Linear;
 
+    LOG_DEBUG << "1";
     auto frameBuffer = &context.graphicsApi_.CreateFrameBuffer({color});
+    LOG_DEBUG << "2";
     if (not frameBuffer->Init())
     {
         LOG_DEBUG << "Framebuffer creation error";
         context.graphicsApi_.DeleteFrameBuffer(*frameBuffer);
         return nullptr;
     }
+    LOG_DEBUG << "3";
 
     return frameBuffer;
 }

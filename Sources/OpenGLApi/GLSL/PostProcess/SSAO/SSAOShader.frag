@@ -13,7 +13,7 @@ layout (binding = 2) uniform sampler2D texNoise;
 
 in vec2 textureCoords;
 
-layout (location = 0) out vec4 FragColor;
+layout (location = 0) out float FragColor;
 
 vec3 getPosViewSpace(vec2 uv)
 {
@@ -72,5 +72,5 @@ void main()
     // Normalizacja wyniku: 0.0 (pełna okluzja) do 1.0 (brak okluzji)
     occlusion = 1.0 - (occlusion / 64.0);
 
-    FragColor = vec4(occlusion, occlusion, occlusion, 1.f);
+    FragColor = occlusion;
 }
