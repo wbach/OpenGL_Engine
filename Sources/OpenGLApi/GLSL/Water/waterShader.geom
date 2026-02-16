@@ -21,11 +21,6 @@ layout (std140, align=16, binding=8) uniform WaterTileMeshBuffer
     vec4 waterDepthVisibility; // x - maxVisibleDepth, y = scaleDepth
 } waterTileMeshBuffer;
 
-layout (std140, binding=3) uniform PerObjectUpdate
-{
-    mat4 transformationMatrix;
-} perObjectUpdate;
-
 in VS_OUT
 {
     vec4 worldPos;
@@ -60,7 +55,7 @@ float waveHeight(vec2 worldPos, float time, float amplitude)
     float dist = max(d.x / halfX, d.y / halfY);
 
     // fade-out przy brzegu (0–1 → wewn.:0, krawedz:1)
-    float edgeFactor = 1.0 - smoothstep(0.85, 1.0, dist);
+    //float edgeFactor = 1.0 - smoothstep(0.85, 1.0, dist);
 
     // falowanie
     float waveFreq = waterTileMeshBuffer.waveParams.y;
@@ -71,7 +66,7 @@ float waveHeight(vec2 worldPos, float time, float amplitude)
     float wave3 = sin((p.x + p.y) * 0.4 + time * 1.2) * 0.2;
     float wave4 = cos((p.x - p.y) * 0.6 + time * 0.8) * 0.15;
 
-    return amplitude * edgeFactor * (wave1 + wave2 + wave3 + wave4);
+    return amplitude * (wave1 + wave2 + wave3 + wave4);
 }
 
 vec3 calculateVertexNormal(vec3 worldPos, float time, float amplitude)
