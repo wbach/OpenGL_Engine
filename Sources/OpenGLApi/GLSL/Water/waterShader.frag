@@ -1,17 +1,10 @@
 #version 440
+#extension GL_GOOGLE_include_directive : enable
+#include "../Common/PerFrameBuffer.glsl"
 
 const float waveStrength = 0.02 ;
 const float shineDamper  = 20.0f;
 const float reflectivity = 0.6f;
-
-layout (std140, align=16, binding=1) uniform PerFrame
-{
-    mat4 projectionViewMatrix;
-    vec3 cameraPosition;
-    vec4 clipPlane;
-    vec4 projection;
-    vec4 time;
-} perFrame;
 
 layout (std140, align=16, binding=8) uniform WaterTileMeshBuffer
 {
@@ -20,7 +13,7 @@ layout (std140, align=16, binding=8) uniform WaterTileMeshBuffer
     vec4 params; // x - deltaTime, y - waveSpeed, z - tiledValue, w - isSimpleRender
     vec4 waveParams;
     vec4 projParams;
-    vec4 waterDepthVisibility; // x - maxVisibleDepth, y = scaleDepth
+    vec4 waterDepthVisibility; // x - maxVisibleDepth, y = scaleDepth z - waterColorBlendFactor, w - softEdgeDistance
 } waterTileMeshBuffer;
 
 in GS_OUT
@@ -44,11 +37,6 @@ layout (location = 1) out vec4 DiffuseOut;
 layout (location = 2) out vec4 NormalOut;
 layout (location = 3) out vec4 MaterialSpecular;
 
-
-const float EDGE_DEPTH_SCALE = 50.0;
-const float EDGE_MIN_FACTOR  = 0.01;
-const float EDGE_MAX_FACTOR  = 0.09;
-
 bool Is(float v)
 {
     return v > .5f;
@@ -63,9 +51,11 @@ float calculateDistance(float depth)
 
 float calculateEdgesFactor(float waterDepth)
 {
-    float factor = waterDepth / EDGE_DEPTH_SCALE;
-    return clamp(factor, EDGE_MIN_FACTOR, EDGE_MAX_FACTOR);
+    const float SOFT_EDGE_DEPTH = waterTileMeshBuffer.waterDepthVisibility.w;
+    float factor = clamp(waterDepth / SOFT_EDGE_DEPTH, 0.0, 1.0);
+    return factor;
 }
+
 float calculateWaterDepth(vec2 refractTexCoords)
 {
     float floorDistance = calculateDistance(texture(depthMap, refractTexCoords).r);
@@ -135,6 +125,41 @@ float CalculateRefractionWithWaterColorBlendFactor(float waterDepth)
     return max(waterTileMeshBuffer.waterDepthVisibility.z, colorInte);
 }
 
+float dither4x4(vec2 position)
+{
+    int x = int(mod(position.x, 4.0));
+    int y = int(mod(position.y, 4.0));
+    int index = x + y * 4;
+
+    float bayer[16] = float[](
+        0.0/16.0, 8.0/16.0, 2.0/16.0, 10.0/16.0,
+        12.0/16.0, 4.0/16.0, 14.0/16.0, 6.0/16.0,
+        3.0/16.0, 11.0/16.0, 1.0/16.0, 9.0/16.0,
+        15.0/16.0, 7.0/16.0, 13.0/16.0, 5.0/16.0
+    );
+
+    return bayer[index];
+}
+
+float dither8x8(vec2 position) {
+    int x = int(mod(position.x, 8.0));
+    int y = int(mod(position.y, 8.0));
+
+    // Matryca 8x8 (64 wartości)
+    const int bayer8[64] = int[](
+         0, 32,  8, 40,  2, 34, 10, 42,
+        48, 16, 56, 24, 50, 18, 58, 26,
+        12, 44,  4, 36, 14, 46,  6, 38,
+        60, 28, 52, 20, 62, 30, 54, 22,
+         3, 35, 11, 43,  1, 33,  9, 41,
+        51, 19, 59, 27, 49, 17, 57, 25,
+        15, 47,  7, 39, 13, 45,  5, 37,
+        63, 31, 55, 23, 61, 29, 53, 21
+    );
+
+    return float(bayer8[x + y * 8]) / 64.0;
+}
+
 void main(void)
 {
     MaterialSpecular = vec4(vec3(1.f), 255.f / 255.f);
@@ -149,11 +174,10 @@ void main(void)
     DiffuseOut       = vec4(waterTileMeshBuffer.waterColor.xyz, 1.0f);
     NormalOut        = vec4(normal, 1.f);
 
-
     float isSimpleRender = waterTileMeshBuffer.params.w;
     if (Is(isSimpleRender))
     {
-       //DiffuseOut       = vec4(waterTileMeshBuffer.waterColor.xyz, 0.5f);
+        DiffuseOut       = vec4(waterTileMeshBuffer.waterColor.xyz, 0.5f);
         return;
     }
 
@@ -161,10 +185,18 @@ void main(void)
     vec2 refractTexCoords = vec2(ndc.x, ndc.y);
     vec2 reflectTexCoords = vec2(ndc.x, -ndc.y);
 
-    const float far          = waterTileMeshBuffer.projParams.y;
-    float waterDepth = calculateWaterDepth(refractTexCoords)  / far;
+    float waterDepth = calculateWaterDepth(refractTexCoords);
+    if (waterDepth < 0.0)
+    {
+        waterDepth = calculateWaterDepth(distortedTexCoords);
+    }
 
     float edgesFactor    = calculateEdgesFactor(waterDepth);
+    float ditherThreshold = dither8x8(gl_FragCoord.xy);
+    if (edgesFactor < ditherThreshold)
+    {
+        discard;
+    }
 
     vec2 totalDistortion =  (texture(dudvMap, distortedTexCoords).rg * 2.f - 1.f) * waveStrength * edgesFactor;
 
@@ -176,7 +208,6 @@ void main(void)
     refractTexCoords = clamp(refractTexCoords, 0.001f, 0.999f);
 
     vec3 toCameraVector = normalize(perFrame.cameraPosition - gs_out.worldPos.xyz);
-    //float cosTheta = dot(toCameraVector, normalGS);
     float cosTheta = dot(toCameraVector, normal);
     const float R0 = 0.02;
     float fresnel = R0 + (1.0 - R0) * pow(1.0 - max(cosTheta, 0.0), 4.0);
@@ -184,7 +215,8 @@ void main(void)
     vec4 refractColor = texture(refractionTexture, refractTexCoords);
     vec4 reflectColor = texture(reflectionTexture, reflectTexCoords);
 
-    bool isUnderwater = waterDepth < 0.5f;
+    const float far = waterTileMeshBuffer.projParams.y;
+    bool isUnderwater = waterDepth / far < 0.5f;
     if (!isUnderwater)
     {
        refractColor = vec4(0, 0 ,0, 1);

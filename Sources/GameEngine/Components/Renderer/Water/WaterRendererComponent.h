@@ -30,6 +30,7 @@ public:
     float maxDepthVisibility{15.f};
     float depthBlendScale{2.f};
     float waterColorBlendFactor{0.1f};
+    float softEdgeDistance{1.f};
     vec4 waterColor;
     File dudvMap;
     File normalMap;
@@ -49,6 +50,7 @@ public:
         FIELD_FLOAT(maxDepthVisibility)
         FIELD_FLOAT(depthBlendScale)
         FIELD_FLOAT(waterColorBlendFactor)
+        FIELD_FLOAT(softEdgeDistance)
         FIELD_UINT(meshResolution)
     END_FIELDS()
     // clang-format on
