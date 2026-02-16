@@ -19,7 +19,7 @@ namespace
 {
 struct SsaoBuffer
 {
-    AlignWrapper<mat4> projection;
+    mat4 projection;
     AlignWrapper<vec4> params{vec4{1.f}};  // xy - noiseScale, z - radius, w - bias
     AlignWrapper<vec4> samples[64];
 };
@@ -33,6 +33,12 @@ SSAORenderer::SSAORenderer(RendererContext &context)
 }
 void SSAORenderer::Init()
 {
+    if (not context.camera_)
+    {
+        LOG_ERROR << "Camera not set during intialization!";
+        return;
+    }
+
     const uint32 renderingScale = 1;
     const auto &camera          = *context.camera_;
     frameBufferSize             = camera.GetProjection().GetRenderingSize() / renderingScale;
@@ -44,6 +50,8 @@ void SSAORenderer::Init()
     GenerateNoiseTexture();
     CreateFbos();
     CreateUniformBuffer();
+
+    LOG_DEBUG << "Init done.";
 }
 void SSAORenderer::CleanUp()
 {
@@ -58,11 +66,32 @@ void SSAORenderer::CleanUp()
         context.graphicsApi_.DeleteFrameBuffer(*ssaBlurFbo);
         ssaBlurFbo = nullptr;
     }
+
+    if (noiseTextureId)
+    {
+        context.graphicsApi_.DeleteObject(*noiseTextureId);
+        noiseTextureId.reset();
+    }
+
+    kernel.clear();
+    blurShader_.Clear();
+    ssaoShader_.Clear();
+
+    if (ubuffer)
+    {
+        context.graphicsApi_.DeleteShaderBuffer(*ubuffer);
+        ubuffer.reset();
+    }
+
+    LOG_DEBUG << "CleanUp done.";
 }
 void SSAORenderer::Render(uint32 depthTextureId, uint32 normalTextureId)
 {
     if (not ssaFbo or not ssaBlurFbo)
+    {
+        LOG_WARN << "fbos not ready";
         return;
+    }
 
     SSAOPass(depthTextureId, normalTextureId);
     BlurPass();
@@ -75,10 +104,13 @@ void SSAORenderer::ReloadShaders()
 void SSAORenderer::SSAOPass(uint32 depthTextureId, uint32 normalTextureId)
 {
     if (not noiseTextureId)
+    {
+        LOG_WARN << "noise texture not ready";
         return;
+    }
 
     ssaFbo->Clear();
-    ssaFbo->Bind();
+    ssaFbo->Bind(GraphicsApi::FrameBuffer::BindType::Write);
     ssaoShader_.Start();
     context.graphicsApi_.BindShaderBuffer(*ubuffer);
     context.graphicsApi_.ActiveTexture(0, depthTextureId);
@@ -91,11 +123,12 @@ void SSAORenderer::BlurPass()
 {
     if (not ssaColorTextureId)
     {
+        LOG_WARN << "ssaColorTexture not ready";
         return;
     }
 
     ssaBlurFbo->Clear();
-    ssaBlurFbo->Bind();
+    ssaBlurFbo->Bind(GraphicsApi::FrameBuffer::BindType::Write);
     blurShader_.Start();
     context.graphicsApi_.ActiveTexture(0, *ssaColorTextureId);
     context.graphicsApi_.RenderProcedural(3);
@@ -107,6 +140,8 @@ void SSAORenderer::GenKernel()
     std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
     std::default_random_engine generator;
 
+    kernel.clear();
+    kernel.reserve(kernelSize);
     for (int i = 0; i < kernelSize; ++i)
     {
         vec3 sample(randomFloats(generator) * 2.0 - 1.0,  // X: -1.0 do 1.0
@@ -146,6 +181,11 @@ void SSAORenderer::GenerateNoiseTexture()
     // GL_REPEAT is by default
     noiseTextureId =
         context.graphicsApi_.CreateTexture(noiseImage, GraphicsApi::TextureFilter::NEAREST, GraphicsApi::TextureMipmap::NONE);
+
+    if (not noiseTextureId)
+    {
+        LOG_WARN << "Noise texture creation error";
+    }
 }
 void SSAORenderer::CreateFbos()
 {
@@ -169,15 +209,12 @@ void SSAORenderer::CreateFbos()
             context.sharedTextures[magic_enum::enum_index(SharedTextures::ssao).value()] = atachmentId;
         }
     }
-
-    if (ssaColorTextureId)
-        context.sharedTextures[magic_enum::enum_index(SharedTextures::ssao).value()] = *ssaColorTextureId;  // debug
 }
 GraphicsApi::IFrameBuffer *SSAORenderer::createFrameBuffer()
 {
     using namespace GraphicsApi::FrameBuffer;
 
-    Attachment color(*frameBufferSize, Type::Color0, Format::R32f);
+    Attachment color(*frameBufferSize, Type::Color0, Format::Rgba32f);
     color.filter = GraphicsApi::FrameBuffer::Filter::Linear;
 
     auto frameBuffer = &context.graphicsApi_.CreateFrameBuffer({color});

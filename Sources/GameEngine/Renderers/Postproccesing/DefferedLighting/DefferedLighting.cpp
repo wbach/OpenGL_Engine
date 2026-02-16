@@ -96,6 +96,12 @@ void DefferedLighting::Render(const Scene& scene)
     {
         rendererContext_.graphicsApi_.ActiveTexture(uniformLightshaftTextureIndex, *lightShaftTextureId);
     }
+    const uint32 uniformSssaoTextureIndex = 7;
+    auto ssaoTextureId = rendererContext_.sharedTextures[magic_enum::enum_index(SharedTextures::ssao).value()];
+    if (ssaoTextureId)
+    {
+        rendererContext_.graphicsApi_.ActiveTexture(uniformSssaoTextureIndex, *ssaoTextureId);
+    }
 
     bindShadowMapCascades();
 
@@ -107,7 +113,7 @@ void DefferedLighting::bindShadowMapCascades() const
 {
     for (uint32 cascadeIndex = 0; cascadeIndex < Params::MAX_SHADOW_MAP_CASADES; ++cascadeIndex)
     {
-        const uint32 uniformShadowMapIndex = 7;
+        const uint32 uniformShadowMapIndex = 8;
         rendererContext_.graphicsApi_.ActiveTexture(uniformShadowMapIndex + cascadeIndex);
         auto shadomapIndex = magic_enum::enum_index(SharedTextures::shadowCascade0).value() + cascadeIndex;
         auto shadowmapId   = rendererContext_.sharedTextures[shadomapIndex];

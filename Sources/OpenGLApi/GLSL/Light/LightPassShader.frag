@@ -6,6 +6,7 @@
 #define MAX_POINT_LIGHTS 64
 #define MAX_SPOT_LIGHTS  32
 const int MAX_SHADOW_MAP_CASADES = 4;
+const float ssaoStrength = 2.0f;
 
 struct SMaterial
 {
@@ -87,10 +88,11 @@ layout(binding = 3) uniform sampler2D SurfaceParamsMap;
 layout(binding = 4) uniform sampler2D DepthTexture;
 layout(binding = 5) uniform sampler2D SkyTexture;
 layout(binding = 6) uniform sampler2D LightshaftTexture;
-layout(binding = 7) uniform sampler2DShadow shadowMap0;
-layout(binding = 8) uniform sampler2DShadow shadowMap1;
-layout(binding = 9) uniform sampler2DShadow shadowMap2;
-layout(binding = 10) uniform sampler2DShadow shadowMap3;
+layout(binding = 7) uniform sampler2D SsaoTexture;
+layout(binding = 8) uniform sampler2DShadow shadowMap0;
+layout(binding = 9) uniform sampler2DShadow shadowMap1;
+layout(binding = 10) uniform sampler2DShadow shadowMap2;
+layout(binding = 11) uniform sampler2DShadow shadowMap3;
 
 in VS_OUT
 {
@@ -183,16 +185,15 @@ vec4 CalculateBaseLight(
     // Direct light
     vec3 directLight = (diffuse + specular) * lightColor * NdotL;
 
-    // ------------------------------------------------------------------
-    // FAKE INDIRECT (zamiast ambient = 0.1)
-    // tylko albedo, AO i brak speculara
-    vec3 fakeIndirect = baseColor * 0.15 * AO;
+    float dynamicSSAO = texture(SsaoTexture, vs_in.textureCoords).r;
+    float finalSSAO = pow(dynamicSSAO, ssaoStrength);
+    float combinedAO = AO * finalSSAO;
+    vec3 fakeIndirect = baseColor * 0.15 * combinedAO;
 
     vec3 color = directLight + fakeIndirect;
 
     return vec4(color, 1.0);
 }
-
 
 vec4 CalculatePointLight(SMaterial material, int idx, vec3 worldPosition, vec3 unitNormal)
 {

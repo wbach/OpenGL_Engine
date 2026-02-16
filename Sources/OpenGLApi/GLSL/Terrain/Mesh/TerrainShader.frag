@@ -40,7 +40,7 @@ vec3 BlendNormalsRNM(vec3 n1, vec3 n2)
 bool NormalMaping()
 {
     float dist = length(perFrame.cameraPosition - fs_in.worldPos.xyz);
-    return Is(perApp.useTextures.y) && (dist < perApp.viewDistance.y);
+    return Is(perApp.useTextures.y) && (dist < 3.f * perApp.viewDistance.y);
 }
 
 // vec4 textureColor(sampler2D baseTexture, sampler2D ambientOcclusionTexture, vec2 coords, vec2 useThatTexture)

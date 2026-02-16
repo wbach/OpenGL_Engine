@@ -211,8 +211,6 @@ void RenderersManager::renderScene(Scene& scene)
         debugRenderer_.renderTextures(textures);
     }
 
-    //debugRenderer_.renderTextures({rendererContext_.sharedTextures[magic_enum::enum_index(SharedTextures::ssao).value()]});
-
     *frustrumCheckCount_ = std::to_string(frustrumCheckInFrame);
 
     if (unsubscribeAllCallback_)

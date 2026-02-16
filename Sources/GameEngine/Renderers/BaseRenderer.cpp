@@ -107,8 +107,8 @@ void BaseRenderer::createBaseRenderers()
 }
 void BaseRenderer::renderImpl()
 {
-    if (isSimpleRender)
-        context_.graphicsApi_.EnableBlend();
+    // if (isSimpleRender)
+    //     context_.graphicsApi_.EnableBlend();
 
     for (auto& renderer : renderers)
     {

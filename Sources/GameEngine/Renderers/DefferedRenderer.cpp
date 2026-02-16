@@ -109,10 +109,10 @@ void DefferedRenderer::unbindDefferedFbo()
 {
     if (auto depthTextureId = defferedFrameBuffer_->GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Depth))
     {
-        // if (auto normalTextureId = defferedFrameBuffer_->GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Color2))
-        // {
-        //     ssaoRenderer.Render(*depthTextureId, *normalTextureId);
-        // }
+        if (auto normalTextureId = defferedFrameBuffer_->GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Color2))
+        {
+            ssaoRenderer.Render(*depthTextureId, *normalTextureId);
+        }
         skyPassRenderer.Render(*depthTextureId);
         lightShaftRenderer_.Render(*depthTextureId);
     }

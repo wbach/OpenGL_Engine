@@ -140,7 +140,8 @@ float dither4x4(vec2 position)
     return bayer[index];
 }
 
-float dither8x8(vec2 position) {
+float dither8x8(vec2 position)
+{
     int x = int(mod(position.x, 8.0));
     int y = int(mod(position.y, 8.0));
 
