@@ -50,6 +50,7 @@ extern const std::string CSTR_SSSAO_BIAS;
 // Shadows
 extern const std::string CSTR_SHADOWS;
 extern const std::string CSTR_SHADOWS_ENABLED;
+extern const std::string CSTR_SHADOWS_USE_FULL_TREES;
 extern const std::string CSTR_SHADOWS_VIEW_DISTANCE;
 extern const std::string CSTR_SHADOWS_MAP_SIZE;
 extern const std::string CSTR_CASCADE_SIZE;

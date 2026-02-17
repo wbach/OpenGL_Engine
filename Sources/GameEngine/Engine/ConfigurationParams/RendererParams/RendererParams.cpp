@@ -76,6 +76,7 @@ Renderer::Renderer()
                     shadows.isEnabled               = false;
                     shadows.distance                = 0.f;
                     shadows.mapSize                 = 16;
+                    shadows.useFullTrees            = false;
                     shadows.cascadesSize            = 1;
                     terrain.resolutionDivideFactor  = 2;
                     terrain.meshPartsCount          = 8;
@@ -106,6 +107,7 @@ Renderer::Renderer()
                     terrain.meshPartsCount          = 8;
                     ssao.isEnabled                  = false;
                     lightshafts.isEnabled           = false;
+                    shadows.useFullTrees            = false;
                     break;
                 case PresetSettings::Medium:
                     type                            = GraphicsApi::RendererType::FULL;
@@ -130,6 +132,7 @@ Renderer::Renderer()
                     shadows.cascadesSize            = 4;
                     terrain.resolutionDivideFactor  = 1;
                     terrain.meshPartsCount          = 8;
+                    shadows.useFullTrees            = false;
                     ssao.isEnabled                  = false;
                     lightshafts.isEnabled           = false;
                     break;
@@ -154,6 +157,7 @@ Renderer::Renderer()
                     shadows.firstCascadeDistance    = 13.f;
                     shadows.mapSize                 = 4096;
                     shadows.cascadesSize            = 4;
+                    shadows.useFullTrees            = false;
                     terrain.resolutionDivideFactor  = 1;
                     terrain.meshPartsCount          = 8;
                     ssao.isEnabled                  = true;
@@ -181,6 +185,7 @@ Renderer::Renderer()
                     shadows.firstCascadeDistance    = 21.f;
                     shadows.mapSize                 = 8192;
                     shadows.cascadesSize            = 4;
+                    shadows.useFullTrees            = true;
                     terrain.resolutionDivideFactor  = 1;
                     terrain.meshPartsCount          = 8;
                     ssao.isEnabled                  = true;

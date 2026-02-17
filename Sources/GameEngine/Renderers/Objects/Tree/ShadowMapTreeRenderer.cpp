@@ -29,8 +29,7 @@ void ShadowMapTreeRenderer::init()
     leafsBilboardsShader_.Init();
     trunkShader_.Init();
 }
-void ShadowMapTreeRenderer::RenderTree(const Components::TreeRendererComponent& treeRendererComponent,
-                                       float distanceToCamera)
+void ShadowMapTreeRenderer::RenderTree(const Components::TreeRendererComponent& treeRendererComponent, float distanceToCamera)
 {
     auto lvl = getLevelOfDetail(distanceToCamera);
     RenderTrunk(treeRendererComponent, lvl);
@@ -38,6 +37,12 @@ void ShadowMapTreeRenderer::RenderTree(const Components::TreeRendererComponent& 
 }
 void ShadowMapTreeRenderer::RenderLeafs(const Components::TreeRendererComponent& treeRendererComponent, LevelOfDetail lvl) const
 {
+    if (EngineConf.renderer.shadows.useFullTrees)
+    {
+        RenderLeafs(treeRendererComponent);
+        return;
+    }
+
     if (auto model = treeRendererComponent.GetLeafBilboardsModel())
     {
         leafsBilboardsShader_.Start();
@@ -46,14 +51,34 @@ void ShadowMapTreeRenderer::RenderLeafs(const Components::TreeRendererComponent&
 }
 void ShadowMapTreeRenderer::RenderTrunk(const Components::TreeRendererComponent& treeRendererComponent, LevelOfDetail lvl) const
 {
-    if (auto model = treeRendererComponent.GetTrunkModel().Get(LevelOfDetail::L2))
+    auto finalLvl = EngineConf.renderer.shadows.useFullTrees and lvl == LevelOfDetail::L1 ? LevelOfDetail::L1 : LevelOfDetail::L2;
+    if (auto model = treeRendererComponent.GetTrunkModel().Get(finalLvl))
     {
         trunkShader_.Start();
         RenderModel(*model);
     }
 }
-LevelOfDetail ShadowMapTreeRenderer::getLevelOfDetail(float) const
+LevelOfDetail ShadowMapTreeRenderer::getLevelOfDetail(float distanceToCamera) const
 {
-    return LevelOfDetail::L2;
+    if (distanceToCamera > EngineConf.renderer.lodDistance0)
+    {
+        return LevelOfDetail::L2;
+    }
+    return LevelOfDetail::L1;
+}
+void ShadowMapTreeRenderer::RenderLeafs(const Components::TreeRendererComponent& treeRendererComponent) const
+{
+    if (auto id = treeRendererComponent.GetLeafsShaderBufferId())
+    {
+        context_.graphicsApi_.BindShaderBuffer(*id);
+    }
+
+    if (treeRendererComponent.GetLeafsCount() > 0)
+    {
+        leafsShader_.Start();
+        BindMaterial(treeRendererComponent.GetLeafMaterial());
+        context_.graphicsApi_.RenderProcedural(treeRendererComponent.GetLeafsCount() * 6);
+        leafsShader_.Stop();
+    }
 }
 }  // namespace GameEngine

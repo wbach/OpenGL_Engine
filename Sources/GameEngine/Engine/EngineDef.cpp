@@ -50,6 +50,7 @@ const std::string CSTR_SSSAO_BIAS   = "bias";
 const std::string CSTR_SHADOWS                   = "Shadows";
 const std::string CSTR_SHADOWS_ENABLED           = "enabled";
 const std::string CSTR_SHADOWS_VIEW_DISTANCE     = "viewDistance";
+const std::string CSTR_SHADOWS_USE_FULL_TREES    = "useFullTrees";
 const std::string CSTR_SHADOWS_MAP_SIZE          = "shadowMapSize";
 const std::string CSTR_CASCADE_SIZE              = "cascadesSize";
 const std::string CSTR_CASCADE_FIRST_DISTANCE    = "firstCascadeDistance";

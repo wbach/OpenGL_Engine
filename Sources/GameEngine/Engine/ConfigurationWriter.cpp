@@ -69,6 +69,7 @@ void Create(TreeNode& node, const Params::Lightshafts& param)
 void Create(TreeNode& node, const Params::Shadows& param)
 {
     node.attributes_[CSTR_SHADOWS_ENABLED]           = Utils::BoolToString(param.isEnabled);
+    node.attributes_[CSTR_SHADOWS_USE_FULL_TREES]    = Utils::BoolToString(param.useFullTrees);
     node.attributes_[CSTR_SHADOWS_VIEW_DISTANCE]     = std::to_string(param.distance);
     node.attributes_[CSTR_SHADOWS_MAP_SIZE]          = std::to_string(param.mapSize);
     node.attributes_[CSTR_CASCADE_SIZE]              = std::to_string(param.cascadesSize);

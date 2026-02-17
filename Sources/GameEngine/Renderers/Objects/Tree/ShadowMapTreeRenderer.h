@@ -14,6 +14,7 @@ public:
 
 private:
     void RenderTrunk(const Components::TreeRendererComponent&, LevelOfDetail) const;
+    void RenderLeafs(const Components::TreeRendererComponent&) const;
     void RenderLeafs(const Components::TreeRendererComponent&, LevelOfDetail) const;
     LevelOfDetail getLevelOfDetail(float) const;
 

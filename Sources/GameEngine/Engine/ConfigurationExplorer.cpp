@@ -55,6 +55,7 @@ ConfigurationExplorer::ConfigurationExplorer()
              {"Shadow map size", EngineConf.renderer.shadows.mapSize, ApplyPolicy::RestartRequired},
              {"Shadows cascades size", EngineConf.renderer.shadows.cascadesSize, ApplyPolicy::RestartRequired},
              {"Shadows cascades distance func", EngineConf.renderer.shadows.cascadeDistanceFunc, ApplyPolicy::RestartRequired},
+             {"Shadows use full trees", EngineConf.renderer.shadows.useFullTrees, ApplyPolicy::RestartNotNeeded},
              {"Terrain mesh resolution divide factor", EngineConf.renderer.terrain.resolutionDivideFactor, ApplyPolicy::RestartNotNeeded},
              {"Terrain mesh parts count", EngineConf.renderer.terrain.meshPartsCount, ApplyPolicy::RestartNotNeeded},
              {"SSAO", EngineConf.renderer.ssao.isEnabled, ApplyPolicy::RestartNotNeeded},

@@ -21,6 +21,7 @@ struct Shadows
 
     Shadows();
     ConfigurationParam<bool> isEnabled;
+    ConfigurationParam<bool> useFullTrees;
     ConfigurationParam<float> distance;
     ConfigurationParam<uint32> mapSize;
     ConfigurationParam<float> firstCascadeDistance;

@@ -187,6 +187,7 @@ void Read(TreeNode& node, Params::Shadows& shadows)
     SetParamIfExist(shadows.cascadesSize, node.attributes_, CSTR_CASCADE_SIZE);
     SetParamIfExist(shadows.firstCascadeDistance, node.attributes_, CSTR_CASCADE_FIRST_DISTANCE);
     SetParamIfExist(shadows.cascadeDistanceFunc, node.attributes_, CSTR_CASCADE_DISTANCE_FUNCTION);
+    SetParamIfExist(shadows.useFullTrees, node.attributes_, CSTR_SHADOWS_USE_FULL_TREES);
 
     if (*shadows.cascadesSize < 1)
     {
@@ -318,7 +319,7 @@ void Read(TreeNode& node, Params::Renderer& renderer)
     if (auto child = node.getChild(CSTR_LIGHT_SHAFTS))
         Read(*child, renderer.lightshafts);
     if (auto child = node.getChild(CSTR_TEXTURES))
-        Read(*node.getChild(CSTR_TEXTURES), renderer.textures);
+        Read(*child, renderer.textures);
     if (auto child = node.getChild(CSTR_PARTICLES))
         Read(*child, renderer.particles);
 }
