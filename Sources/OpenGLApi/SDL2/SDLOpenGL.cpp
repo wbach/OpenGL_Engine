@@ -57,6 +57,9 @@ struct SdlOpenGlApi::Pimpl
 SdlOpenGlApi::SdlOpenGlApi()
     : inputManager_()
 {
+//#ifdef USE_GNU
+    SDL_setenv("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0", 1);
+//#endif
     impl_ = std::make_unique<Pimpl>();
 }
 
@@ -148,9 +151,9 @@ void SdlOpenGlApi::UnsubscribeForEvent(IdType id)
 void SdlOpenGlApi::SetFullScreen(bool full_screen)
 {
     if (full_screen)
-        SDL_SetWindowFullscreen(impl_->window, SDL_TRUE);
+        SDL_SetWindowFullscreen(impl_->window, SDL_WINDOW_FULLSCREEN_DESKTOP);
     else
-        SDL_SetWindowFullscreen(impl_->window, SDL_FALSE);
+        SDL_SetWindowFullscreen(impl_->window, 0);
 }
 
 bool SdlOpenGlApi::CheckActiveWindow()
@@ -239,7 +242,7 @@ uint32 SdlOpenGlApi::CreateWindowFlags(GraphicsApi::WindowType type) const
             flags |= SDL_WINDOW_BORDERLESS;
             break;
         case GraphicsApi::WindowType::FULL_SCREEN:
-            flags |= SDL_WINDOW_FULLSCREEN;
+            flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
             break;
         case GraphicsApi::WindowType::WINDOW:
             break;

@@ -1,4 +1,6 @@
 #version 440
+#extension GL_GOOGLE_include_directive : enable
+#include "../Common/PerFrameBuffer.glsl"
 
 const float tiling = 10.0;
 const float viewDistance = 450.0 ;
@@ -10,15 +12,6 @@ layout (location = 0) in vec3 Position;
 layout (location = 1) in vec2 TexCoord;
 layout (location = 2) in vec3 Normal;
 layout (location = 3) in vec3 Tangent;
-
-layout (std140, align=16, binding=1) uniform PerFrame
-{
-    mat4 projectionViewMatrix;
-    vec3 cameraPosition;
-    vec4 clipPlane;
-    vec4 projection;
-    vec4 time;
-} perFrame;
 
 layout (std140, binding=3) uniform PerObjectUpdate
 {

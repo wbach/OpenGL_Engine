@@ -1,4 +1,4 @@
-layout (std140,binding=1) uniform PerFrame
+layout (std140, align=16, binding=1) uniform PerFrame
 {
     mat4 projectionViewMatrix;
     vec3 cameraPosition;

@@ -1,15 +1,9 @@
 #version 440 core
+#extension GL_GOOGLE_include_directive : enable
+#include "../Common/PerFrameBuffer.glsl"
+
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
-
-layout (std140, align=16, binding=1) uniform PerFrame
-{
-    mat4 projectionViewMatrix;
-    vec3 cameraPosition;
-    vec4 clipPlane;
-    vec4 projection;
-    vec4 time;
-} perFrame;
 
 layout (std140, align=16, binding=8) uniform WaterTileMeshBuffer
 {
