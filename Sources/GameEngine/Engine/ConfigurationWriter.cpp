@@ -83,7 +83,8 @@ void Create(TreeNode& node, const Params::Flora& param)
 }
 void Create(TreeNode& node, const Params::Water& param)
 {
-    node.attributes_[CSTR_WATER_TYPE] = std::to_string(static_cast<uint32>(*param.type));
+    node.attributes_[CSTR_WATER_TYPE]      = std::to_string(static_cast<uint32>(*param.type));
+    node.attributes_[CSTR_RENDER_DISTANCE] = std::to_string(param.renderDistance);
 
     auto& reflection                                     = node.addChild(CSTR_WATER_REFLECTION);
     reflection.attributes_[CSTR_WATER_REFLECTION_WIDTH]  = std::to_string(param.waterReflectionResolution->x);

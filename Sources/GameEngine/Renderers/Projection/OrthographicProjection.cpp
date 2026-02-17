@@ -1,6 +1,6 @@
-#include <GLM/GLMUtils.h>
-
 #include "OrthographicProjection.h"
+
+#include <GLM/GLMUtils.h>
 
 namespace GameEngine
 {
@@ -9,9 +9,7 @@ void OrthographicProjection::UpdateMatrix()
     float halfHeight = zoom * REFERENCE_ORTHO_DISTANCE;
     float halfWidth  = halfHeight * GetAspectRatio();
 
-    matrix_ = glm::ortho(-halfWidth, halfWidth,
-                         -halfHeight, halfHeight,
-                         nearPlane_, farPlane_);
+    matrix_ = glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, nearPlane_, farPlane_);
 }
 void OrthographicProjection::SetZoom(float z)
 {
@@ -32,5 +30,9 @@ float OrthographicProjection::DecreaseZoom(float dz)
 ProjectionType OrthographicProjection::GetType() const
 {
     return ProjectionType::Orthographic;
+}
+std::unique_ptr<IProjection> OrthographicProjection::Clone() const
+{
+    return std::make_unique<OrthographicProjection>(renderingSize_, nearPlane_, farPlane_);
 }
 }  // namespace GameEngine

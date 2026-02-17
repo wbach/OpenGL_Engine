@@ -24,6 +24,7 @@ public:
     float GetFoV() const;
 
     ProjectionType GetType() const override;
+    std::unique_ptr<IProjection> Clone() const override;
 
 private:
     float fov_;

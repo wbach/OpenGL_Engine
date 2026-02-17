@@ -71,6 +71,7 @@ Renderer::Renderer()
                     normalMappingDistance           = 0.f;
                     particles.useParticles          = false;
                     water.type                      = GameEngine::Params::WaterType::SIMPLE;
+                    water.renderDistance            = 0.f;
                     water.waterReflectionResolution = vec2ui(16, 16);
                     water.waterRefractionResolution = vec2ui(16, 16);
                     shadows.isEnabled               = false;
@@ -97,6 +98,7 @@ Renderer::Renderer()
                     normalMappingDistance           = 0.f;
                     particles.useParticles          = true;
                     water.type                      = GameEngine::Params::WaterType::SIMPLE;
+                    water.renderDistance            = 0.f;
                     water.waterReflectionResolution = vec2ui(16, 16);
                     water.waterRefractionResolution = vec2ui(16, 16);
                     shadows.isEnabled               = false;
@@ -123,6 +125,7 @@ Renderer::Renderer()
                     normalMappingDistance           = 100.f;
                     particles.useParticles          = true;
                     water.type                      = GameEngine::Params::WaterType::SIMPLE;
+                    water.renderDistance            = 0.f;
                     water.waterReflectionResolution = vec2ui(16, 16);
                     water.waterRefractionResolution = vec2ui(16, 16);
                     shadows.isEnabled               = true;
@@ -150,6 +153,7 @@ Renderer::Renderer()
                     normalMappingDistance           = 150.f;
                     particles.useParticles          = true;
                     water.type                      = GameEngine::Params::WaterType::REFLECTED_REFRACTED;
+                    water.renderDistance            = 100.f;
                     water.waterReflectionResolution = vec2ui(1366, 768);
                     water.waterRefractionResolution = vec2ui(1366, 768);
                     shadows.isEnabled               = true;
@@ -178,6 +182,7 @@ Renderer::Renderer()
                     normalMappingDistance           = 300.f;
                     particles.useParticles          = true;
                     water.type                      = GameEngine::Params::WaterType::REFLECTED_REFRACTED;
+                    water.renderDistance            = -1.f; // MainCamera Distance
                     water.waterReflectionResolution = vec2ui(1920, 1080);
                     water.waterRefractionResolution = vec2ui(1920, 1080);
                     shadows.isEnabled               = true;

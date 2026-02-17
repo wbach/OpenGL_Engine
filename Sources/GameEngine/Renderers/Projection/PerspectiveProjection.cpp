@@ -1,6 +1,7 @@
 #include "PerspectiveProjection.h"
 
 #include <Logger/Log.h>
+#include <memory>
 #include "GameEngine/Engine/Configuration.h"
 
 namespace GameEngine
@@ -60,5 +61,9 @@ float PerspectiveProjection::GetFoV() const
 ProjectionType PerspectiveProjection::GetType() const
 {
     return ProjectionType::Perspective;
+}
+std::unique_ptr<IProjection> PerspectiveProjection::Clone() const
+{
+    return std::make_unique<PerspectiveProjection>(renderingSize_, nearPlane_, farPlane_, fov_);
 }
 }  // namespace GameEngine

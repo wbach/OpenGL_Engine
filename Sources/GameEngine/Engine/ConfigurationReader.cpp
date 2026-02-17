@@ -245,6 +245,8 @@ void Read(TreeNode& node, Params::Water& water)
         SetParamIfExist(water.waterRefractionResolution, node.getChild(CSTR_WATER_REFRACTION)->attributes_,
                         CSTR_WATER_REFRACTION_WIDTH, CSTR_WATER_REFRACTION_HEIGHT);
     }
+
+    SetParamIfExist(water.renderDistance, node.attributes_, CSTR_RENDER_DISTANCE);
 }
 
 void Read(TreeNode& node, Params::Textures& textures)

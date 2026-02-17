@@ -13,12 +13,13 @@ public:
     Projection(const vec2ui& renderingSize);
     Projection(const vec2ui& renderingSize, float near, float far);
 
-    Projection(const Projection& p);
+    Projection(const Projection&);
     ~Projection() override;
 
     Projection& operator=(const Projection& p);
 
     const glm::mat4& GetMatrix() const override;
+    void SetFar(float) override;
     float GetNear() const override;
     float GetFar() const override;
     const vec2ui& GetRenderingSize() const override;

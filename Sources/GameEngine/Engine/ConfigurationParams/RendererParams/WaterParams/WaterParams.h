@@ -11,6 +11,7 @@ struct Water
 {
     Water();
     ConfigurationParam<WaterType> type;
+    ConfigurationParam<float> renderDistance;
     ConfigurationParam<vec2ui> waterReflectionResolution;
     ConfigurationParam<vec2ui> waterRefractionResolution;
 };

@@ -4,6 +4,7 @@
 // Config
 extern const std::string CSTR_CONFIG;
 extern const std::string CSTR_ENABLED;
+extern const std::string CSTR_RENDER_DISTANCE;
 extern const std::string CSTR_RESOLUTION_DEVIDER;
 // Window
 extern const std::string CSTR_WINDOW;

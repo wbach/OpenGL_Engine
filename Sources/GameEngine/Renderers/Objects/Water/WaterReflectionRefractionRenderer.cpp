@@ -5,7 +5,9 @@
 #include <Utils/Time/Timer.h>
 
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection/IProjection.h"
+#include "GameEngine/Renderers/Projection/PerspectiveProjection.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 
@@ -326,6 +328,7 @@ void WaterReflectionRefractionRenderer::renderScene()
     terrainShader_.Start();
     waterTexturesRendererdMeshesCounter_ += terrainMeshRenderer_.renderSubscribers();
     treeRenderer_.render();
+    waterTexturesRendererdMeshesCounter_ += treeRenderer_.getRendererdMeshesCount();
 }
 void WaterReflectionRefractionRenderer::createRefractionTexture(WaterFbo& fbo, float amplitude)
 {
@@ -373,9 +376,17 @@ void WaterReflectionRefractionRenderer::createReflectionTexture(WaterFbo& fbo, f
     cameraPosition.y -= distance;
     glm::vec3 newforward = glm::reflect(camera.GetDirection(), VECTOR_UP);
 
-    auto rotation             = Utils::lookAt(newforward + cameraPosition, cameraPosition);
-    auto viewMatrix           = Utils::createViewMatrix(rotation, cameraPosition);
-    auto projectionViewMatrix = camera.GetProjectionMatrix() * viewMatrix;
+    auto rotation         = Utils::lookAt(newforward + cameraPosition, cameraPosition);
+    auto viewMatrix       = Utils::createViewMatrix(rotation, cameraPosition);
+    auto projectionMatrix = camera.GetProjectionMatrix();
+    if (EngineConf.renderer.water.renderDistance >= 0.f)
+    {
+        auto projection = camera.GetProjection().Clone();
+        projection->SetFar(EngineConf.renderer.water.renderDistance);
+        projectionMatrix = projection->GetMatrix();
+    }
+
+    auto projectionViewMatrix = projectionMatrix * viewMatrix;
 
     PerFrameBuffer perFrameBuffer;
     perFrameBuffer.ProjectionViewMatrix = context_.graphicsApi_.PrepareMatrixToLoad(projectionViewMatrix);

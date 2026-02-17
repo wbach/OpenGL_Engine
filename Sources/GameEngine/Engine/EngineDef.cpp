@@ -3,6 +3,7 @@
 // Config
 const std::string CSTR_CONFIG             = "Config";
 const std::string CSTR_ENABLED            = "enabled";
+const std::string CSTR_RENDER_DISTANCE    = "renderDistance";
 const std::string CSTR_RESOLUTION_DEVIDER = "resolutionDevider";
 // Window
 const std::string CSTR_WINDOW            = "Window";

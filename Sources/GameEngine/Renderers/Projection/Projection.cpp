@@ -138,4 +138,9 @@ void Projection::SubscribeForGlobalConfigChange()
             UpdateMatrix();
         });
 }
+void Projection::SetFar(float f)
+{
+    farPlane_ = f;
+    UpdateMatrix();
+}
 }  // namespace GameEngine

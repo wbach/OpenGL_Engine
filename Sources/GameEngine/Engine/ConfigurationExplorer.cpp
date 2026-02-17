@@ -47,6 +47,7 @@ ConfigurationExplorer::ConfigurationExplorer()
              {"Normal mapping distance", EngineConf.renderer.normalMappingDistance, ApplyPolicy::RestartRequired},
              {"Use particles", EngineConf.renderer.particles.useParticles, ApplyPolicy::RestartRequired},
              {"Water type", EngineConf.renderer.water.type, ApplyPolicy::RestartNotNeeded},
+             {"Water reflection render distance", EngineConf.renderer.water.renderDistance, ApplyPolicy::RestartNotNeeded},
              {"Water reflection texture size", EngineConf.renderer.water.waterReflectionResolution, ApplyPolicy::RestartNotNeeded},
              {"Water refraction texture size", EngineConf.renderer.water.waterRefractionResolution, ApplyPolicy::RestartNotNeeded},
              {"Shadows", EngineConf.renderer.shadows.isEnabled, ApplyPolicy::RestartNotNeeded},

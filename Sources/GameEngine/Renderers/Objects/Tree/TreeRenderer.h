@@ -47,6 +47,7 @@ public:
     void unSubscribeAll() override;
     void render() override;
     void cleanUp() override;
+    int getRendererdMeshesCount() const;
 
 protected:
     float getDistanceToCamera(Components::IComponent&) const;
@@ -67,7 +68,8 @@ protected:
     std::optional<IdType> paramBufferId_;
     std::optional<IdType> perObjectConstantsBufferId;
 
-    float startFade = 20.0;
-    float endFade   = 30.0;
+    float startFade    = 20.0;
+    float endFade      = 30.0;
+    int rendererModels = 0;
 };
 }  // namespace GameEngine

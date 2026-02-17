@@ -19,6 +19,8 @@ public:
 
     ProjectionType GetType() const override;
 
+    std::unique_ptr<IProjection> Clone() const override;
+
 private:
     float zoom{1.f};
 };

@@ -66,7 +66,7 @@ void TreeRenderer::init()
 
 void TreeRenderer::render()
 {
-    int rendererModels = 0;
+    rendererModels = 0;
 
     if (subscribes_.empty())
         return;
@@ -222,5 +222,9 @@ void TreeRenderer::cleanUp()
         context_.graphicsApi_.DeleteShaderBuffer(*perObjectConstantsBufferId);
         perObjectConstantsBufferId.reset();
     }
+}
+int TreeRenderer::getRendererdMeshesCount() const
+{
+    return rendererModels;
 }
 }  // namespace GameEngine
