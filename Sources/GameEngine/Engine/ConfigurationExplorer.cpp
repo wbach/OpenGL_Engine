@@ -56,7 +56,11 @@ ConfigurationExplorer::ConfigurationExplorer()
              {"Shadows cascades size", EngineConf.renderer.shadows.cascadesSize, ApplyPolicy::RestartRequired},
              {"Shadows cascades distance func", EngineConf.renderer.shadows.cascadeDistanceFunc, ApplyPolicy::RestartRequired},
              {"Terrain mesh resolution divide factor", EngineConf.renderer.terrain.resolutionDivideFactor, ApplyPolicy::RestartNotNeeded},
-             {"Terrain mesh parts count", EngineConf.renderer.terrain.meshPartsCount, ApplyPolicy::RestartNotNeeded}
+             {"Terrain mesh parts count", EngineConf.renderer.terrain.meshPartsCount, ApplyPolicy::RestartNotNeeded},
+             {"SSAO", EngineConf.renderer.ssao.isEnabled, ApplyPolicy::RestartNotNeeded},
+             {"SSAO radius", EngineConf.renderer.ssao.radius, ApplyPolicy::RestartRequired},
+             {"SSAO bias", EngineConf.renderer.ssao.bias, ApplyPolicy::RestartRequired},
+             //{"SSAO resolution devider", EngineConf.renderer.ssao.resolutionDevider, ApplyPolicy::RestartRequired} TO DO
           }
         });
     categories.push_back({"Sound",

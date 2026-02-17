@@ -21,6 +21,7 @@ class DefferedLighting : public PostprocessingRenderer
 private:
     struct LightPass
     {
+        AlignWrapper<vec4> effectsEnabledIndicators; // x - ssao, y - lightshafs
         AlignWrapper<vec4> skyColor;
         AlignWrapper<vec2> screenSize;
         AlignWrapper<float> viewDistance;
@@ -35,9 +36,9 @@ private:
 
     struct PointlLights
     {
-        AlignWrapper<vec4> color[MAX_POINT_LIGHTS];   // rgb, a-intensity
-        AlignWrapper<vec4> params[MAX_POINT_LIGHTS];  // x- intensity, y - range, z - falloffExponent
-        AlignWrapper<vec4> worldPosition[MAX_POINT_LIGHTS]; // w - not used
+        AlignWrapper<vec4> color[MAX_POINT_LIGHTS];          // rgb, a-intensity
+        AlignWrapper<vec4> params[MAX_POINT_LIGHTS];         // x- intensity, y - range, z - falloffExponent
+        AlignWrapper<vec4> worldPosition[MAX_POINT_LIGHTS];  // w - not used
     };
 
     struct SpotLights
@@ -45,8 +46,8 @@ private:
         AlignWrapper<vec4> color[MAX_SPOT_LIGHTS];   // rgb, a-intensity
         AlignWrapper<vec4> params[MAX_SPOT_LIGHTS];  // x- intensity, y - range, z - falloffExponent
         AlignWrapper<vec3> direction[MAX_SPOT_LIGHTS];
-        AlignWrapper<vec4> cutoff[MAX_SPOT_LIGHTS];  // x - inter, y - outer
-        AlignWrapper<vec4> worldPosition[MAX_POINT_LIGHTS]; // w - not used
+        AlignWrapper<vec4> cutoff[MAX_SPOT_LIGHTS];          // x - inter, y - outer
+        AlignWrapper<vec4> worldPosition[MAX_POINT_LIGHTS];  // w - not used
     };
 
 public:

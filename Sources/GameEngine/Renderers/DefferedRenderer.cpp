@@ -147,7 +147,6 @@ void DefferedRenderer::createOrUpdateDefferedFrameBufferIfNeeded()
         skyPassRenderer.Init();
         lightShaftRenderer_.Init();
         postprocessingRenderersManager_.Init();
-        context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::SimpleForwardRendering);
         return;
     }
 
@@ -174,7 +173,6 @@ void DefferedRenderer::createOrUpdateDefferedFrameBufferIfNeeded()
     ssaoRenderer.Init();
 
     postprocessingRenderersManager_.OnSizeChanged();
-    context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::SimpleForwardRendering);
 }
 
 }  // namespace GameEngine

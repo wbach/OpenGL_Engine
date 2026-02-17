@@ -10,8 +10,10 @@
 #include <vector>
 
 #include "GameEngine/Camera/ICamera.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Renderers/RendererContext.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -29,22 +31,51 @@ SSAORenderer::SSAORenderer(RendererContext &context)
     : context(context)
     , ssaoShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::SSAO)
     , blurShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::SsaoBlure)
+    , isEnabled(EngineConf.renderer.ssao.isEnabled)
 {
+    enabledSubId =
+        EngineConf.renderer.ssao.isEnabled.subscribeForChange([&]() { isEnabled = EngineConf.renderer.ssao.isEnabled; });
+}
+SSAORenderer::~SSAORenderer()
+{
+    if (enabledSubId)
+    {
+        EngineConf.renderer.ssao.isEnabled.unsubscribe(*enabledSubId);
+        enabledSubId.reset();
+    }
 }
 void SSAORenderer::Init()
 {
+    initStatus = InitStatus::ok;
+
     if (not context.camera_)
     {
         LOG_ERROR << "Camera not set during intialization!";
+        initStatus = InitStatus::failure;
         return;
     }
 
-    const uint32 renderingScale = 1;
-    const auto &camera          = *context.camera_;
-    frameBufferSize             = camera.GetProjection().GetRenderingSize() / renderingScale;
+    const auto &camera        = *context.camera_;
+    const auto &renderingSize = camera.GetProjection().GetRenderingSize();
+    // float width               = static_cast<float>(renderingSize.x) / EngineConf.renderer.ssao.resolutionDevider.get();
+    // float height              = static_cast<float>(renderingSize.y) / EngineConf.renderer.ssao.resolutionDevider.get();
+    frameBufferSize = renderingSize;  // TO DO:vec2ui(static_cast<uint32>(width), static_cast<uint32>(height));
 
     blurShader_.Init();
+
+    if (not blurShader_.IsReady())
+    {
+        initStatus = InitStatus::failure;
+        return;
+    }
+
     ssaoShader_.Init();
+
+    if (not ssaoShader_.IsReady())
+    {
+        initStatus = InitStatus::failure;
+        return;
+    }
 
     GenKernel();
     GenerateNoiseTexture();
@@ -83,13 +114,26 @@ void SSAORenderer::CleanUp()
         ubuffer.reset();
     }
 
+    context.sharedTextures[magic_enum::enum_index(SharedTextures::ssao).value()].reset();
+    initStatus.reset();
+
     LOG_DEBUG << "CleanUp done.";
 }
 void SSAORenderer::Render(uint32 depthTextureId, uint32 normalTextureId)
 {
-    if (not ssaFbo or not ssaBlurFbo)
+    if (isEnabled and not initStatus)
     {
-        LOG_WARN << "fbos not ready";
+        LOG_DEBUG << "Enabling ssao renderer";
+        Init();
+    }
+    else if (not isEnabled and initStatus == InitStatus::ok)
+    {
+        LOG_DEBUG << "Disabling ssao renderer";
+        CleanUp();
+    }
+
+    if (not initStatus or initStatus == InitStatus::failure)
+    {
         return;
     }
 
@@ -185,6 +229,7 @@ void SSAORenderer::GenerateNoiseTexture()
     if (not noiseTextureId)
     {
         LOG_WARN << "Noise texture creation error";
+        initStatus = InitStatus::failure;
     }
 }
 void SSAORenderer::CreateFbos()
@@ -197,6 +242,10 @@ void SSAORenderer::CreateFbos()
         {
             ssaColorTextureId = ssaFbo->GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Color0);
         }
+        else
+        {
+            initStatus = InitStatus::failure;
+        }
     }
 
     if (not ssaBlurFbo)
@@ -208,6 +257,10 @@ void SSAORenderer::CreateFbos()
             auto atachmentId = ssaBlurFbo->GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Color0);
             context.sharedTextures[magic_enum::enum_index(SharedTextures::ssao).value()] = atachmentId;
         }
+        else
+        {
+            initStatus = InitStatus::failure;
+        }
     }
 }
 GraphicsApi::IFrameBuffer *SSAORenderer::createFrameBuffer()
@@ -217,16 +270,13 @@ GraphicsApi::IFrameBuffer *SSAORenderer::createFrameBuffer()
     Attachment color(*frameBufferSize, Type::Color0, Format::R32f);
     color.filter = GraphicsApi::FrameBuffer::Filter::Linear;
 
-    LOG_DEBUG << "1";
     auto frameBuffer = &context.graphicsApi_.CreateFrameBuffer({color});
-    LOG_DEBUG << "2";
     if (not frameBuffer->Init())
     {
         LOG_DEBUG << "Framebuffer creation error";
         context.graphicsApi_.DeleteFrameBuffer(*frameBuffer);
         return nullptr;
     }
-    LOG_DEBUG << "3";
 
     return frameBuffer;
 }
@@ -240,8 +290,8 @@ void SSAORenderer::CreateUniformBuffer()
         if (ubuffer)
         {
             SsaoBuffer buffer;
-            const float radius = 0.5f;
-            const float bias   = 0.025f;
+            const float radius = EngineConf.renderer.ssao.radius;
+            const float bias   = EngineConf.renderer.ssao.bias;
             const auto &camera = *context.camera_;
             buffer.projection  = camera.GetProjection().GetMatrix();
             buffer.params      = vec4((float)frameBufferSize->x / 4.0f, (float)frameBufferSize->y / 4.0f, radius, bias);
@@ -252,6 +302,10 @@ void SSAORenderer::CreateUniformBuffer()
             }
 
             context.graphicsApi_.UpdateShaderBuffer(*ubuffer, &buffer);
+        }
+        else
+        {
+            initStatus = InitStatus::failure;
         }
     }
 }

@@ -9,6 +9,7 @@
 #include "Configuration.h"
 #include "EngineDef.h"
 #include "GameEngine/Engine/ConfigurationParams/ConfigurationEnumParam.h"
+#include "GameEngine/Engine/ConfigurationParams/RendererParams/SsaoParams/SsaoParams.h"
 
 #ifdef USE_GNU
 #include <pwd.h>
@@ -202,6 +203,14 @@ void Read(TreeNode& node, Params::Shadows& shadows)
     }
 }
 
+void Read(TreeNode& node, Params::Ssao& ssao)
+{
+    SetParamIfExist(ssao.isEnabled, node.attributes_, CSTR_ENABLED);
+    SetParamIfExist(ssao.radius, node.attributes_, CSTR_SSSAO_RADIUS);
+    SetParamIfExist(ssao.bias, node.attributes_, CSTR_SSSAO_BIAS);
+    SetParamIfExist(ssao.resolutionDevider, node.attributes_, CSTR_SSSAO_RESOLUTION_DEVIDER);
+}
+
 void Read(TreeNode& node, Params::Particles& particles)
 {
     SetParamIfExist(particles.useParticles, node.attributes_, CSTR_PARTICLES_ENABLED);
@@ -291,16 +300,18 @@ void Read(TreeNode& node, Params::Renderer& renderer)
 
     Read(node.getChild(CSTR_TERRAIN), renderer.terrain);
 
-    if (node.getChild(CSTR_WATER))
-        Read(*node.getChild(CSTR_WATER), renderer.water);
-    if (node.getChild(CSTR_FLORA))
-        Read(*node.getChild(CSTR_FLORA), renderer.flora);
-    if (node.getChild(CSTR_SHADOWS))
-        Read(*node.getChild(CSTR_SHADOWS), renderer.shadows);
-    if (node.getChild(CSTR_TEXTURES))
+    if (auto child = node.getChild(CSTR_WATER))
+        Read(*child, renderer.water);
+    if (auto child = node.getChild(CSTR_FLORA))
+        Read(*child, renderer.flora);
+    if (auto child = node.getChild(CSTR_SHADOWS))
+        Read(*child, renderer.shadows);
+    if (auto child = node.getChild(CSTR_SSSAO))
+        Read(*child, renderer.ssao);
+    if (auto child = node.getChild(CSTR_TEXTURES))
         Read(*node.getChild(CSTR_TEXTURES), renderer.textures);
-    if (node.getChild(CSTR_PARTICLES))
-        Read(*node.getChild(CSTR_PARTICLES), renderer.particles);
+    if (auto child = node.getChild(CSTR_PARTICLES))
+        Read(*child, renderer.particles);
 }
 
 void Read(TreeNode& node, Params::Files& files)

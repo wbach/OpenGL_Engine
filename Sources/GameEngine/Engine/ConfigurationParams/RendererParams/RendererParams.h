@@ -10,6 +10,7 @@
 #include "TerrainParam/TerrainParam.h"
 #include "TexturesParams/TexturesParams.h"
 #include "WaterParams/WaterParams.h"
+#include "SsaoParams/SsaoParams.h"
 
 namespace GameEngine
 {
@@ -44,6 +45,7 @@ struct Renderer
     ConfigurationParam<float> lodDistance2;
     ConfigurationParam<bool> useInstanceRendering;
 
+    Ssao ssao;
     Terrain terrain;
     Water water;
     Flora flora;

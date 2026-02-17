@@ -78,11 +78,6 @@ void DefferedLighting::Render(const Scene& scene)
 {
     PrepareApiStateToRender();
     shader_.Start();
-    LoadLights(scene);
-    rendererContext_.graphicsApi_.BindShaderBuffer(*lightPassID_);
-    rendererContext_.graphicsApi_.BindShaderBuffer(*directionalLightsId_);
-    rendererContext_.graphicsApi_.BindShaderBuffer(*pointLightsId_);
-    rendererContext_.graphicsApi_.BindShaderBuffer(*spotLightsId_);
 
     const uint32 uniformSkyTextureIndex = 5;
     auto skyTextureId = rendererContext_.sharedTextures[magic_enum::enum_index(SharedTextures::skyTexture).value()];
@@ -95,13 +90,29 @@ void DefferedLighting::Render(const Scene& scene)
     if (lightShaftTextureId)
     {
         rendererContext_.graphicsApi_.ActiveTexture(uniformLightshaftTextureIndex, *lightShaftTextureId);
+        lightPass_.effectsEnabledIndicators.value.y = 1.f;
+    }
+    else
+    {
+        lightPass_.effectsEnabledIndicators.value.y = 0.f;
     }
     const uint32 uniformSssaoTextureIndex = 7;
-    auto ssaoTextureId = rendererContext_.sharedTextures[magic_enum::enum_index(SharedTextures::ssao).value()];
+    auto ssaoTextureId                    = rendererContext_.sharedTextures[magic_enum::enum_index(SharedTextures::ssao).value()];
     if (ssaoTextureId)
     {
         rendererContext_.graphicsApi_.ActiveTexture(uniformSssaoTextureIndex, *ssaoTextureId);
+        lightPass_.effectsEnabledIndicators.value.x = 1.f;
     }
+    else
+    {
+        lightPass_.effectsEnabledIndicators.value.x = 0.f;
+    }
+
+    LoadLights(scene);
+    rendererContext_.graphicsApi_.BindShaderBuffer(*lightPassID_);
+    rendererContext_.graphicsApi_.BindShaderBuffer(*directionalLightsId_);
+    rendererContext_.graphicsApi_.BindShaderBuffer(*pointLightsId_);
+    rendererContext_.graphicsApi_.BindShaderBuffer(*spotLightsId_);
 
     bindShadowMapCascades();
 

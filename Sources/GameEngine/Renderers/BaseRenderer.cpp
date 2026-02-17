@@ -32,7 +32,12 @@ void BaseRenderer::init()
     createBaseRenderers();
     initRenderers();
 
-    isSimpleRender = true;
+    isSimpleRender = EngineConf.renderer.type == GraphicsApi::RendererType::SIMPLE;
+
+    if (not isSimpleRender)
+    {
+        context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::FullDefferedRendering);
+    }
 }
 void BaseRenderer::prepare()
 {
@@ -107,8 +112,8 @@ void BaseRenderer::createBaseRenderers()
 }
 void BaseRenderer::renderImpl()
 {
-    // if (isSimpleRender)
-    //     context_.graphicsApi_.EnableBlend();
+    if (isSimpleRender)
+        context_.graphicsApi_.EnableBlend();
 
     for (auto& renderer : renderers)
     {

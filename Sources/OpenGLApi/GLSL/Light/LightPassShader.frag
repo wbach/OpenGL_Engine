@@ -46,6 +46,7 @@ layout (std140, align=16, binding=1) uniform PerFrame
 
 layout (std140, align=16, binding=6) uniform LightPass
 {
+    vec4 effectsEnabledIndicators;
     vec4 skyColor;
     vec2 screenSize;
     float viewDistance;
@@ -185,10 +186,14 @@ vec4 CalculateBaseLight(
     // Direct light
     vec3 directLight = (diffuse + specular) * lightColor * NdotL;
 
-    float dynamicSSAO = texture(SsaoTexture, vs_in.textureCoords).r;
-    float finalSSAO = pow(dynamicSSAO, ssaoStrength);
-    float combinedAO = AO * finalSSAO;
-    vec3 fakeIndirect = baseColor * 0.15 * combinedAO;
+    vec3 fakeIndirect = baseColor * 0.15 * AO;
+
+    if (Is(lightsPass.effectsEnabledIndicators.x))
+    {
+       float dynamicSSAO = texture(SsaoTexture, vs_in.textureCoords).r;
+       float finalSSAO = pow(dynamicSSAO, ssaoStrength);
+       fakeIndirect *= finalSSAO;
+    }
 
     vec3 color = directLight + fakeIndirect;
 

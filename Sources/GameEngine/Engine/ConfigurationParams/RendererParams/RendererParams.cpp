@@ -79,6 +79,7 @@ Renderer::Renderer()
                     shadows.cascadesSize            = 1;
                     terrain.resolutionDivideFactor  = 2;
                     terrain.meshPartsCount          = 8;
+                    ssao.isEnabled                  = false;
                     break;
                 case PresetSettings::Low:
                     type                            = GraphicsApi::RendererType::SIMPLE;
@@ -102,6 +103,7 @@ Renderer::Renderer()
                     shadows.cascadesSize            = 1;
                     terrain.resolutionDivideFactor  = 1;
                     terrain.meshPartsCount          = 8;
+                    ssao.isEnabled                  = false;
                     break;
                 case PresetSettings::Medium:
                     type                            = GraphicsApi::RendererType::FULL;
@@ -114,7 +116,7 @@ Renderer::Renderer()
                     flora.isEnabled                 = false;
                     flora.viewDistance              = 0.f;
                     textures.useNormal              = true;
-                    normalMappingDistance           = 10.f;
+                    normalMappingDistance           = 100.f;
                     particles.useParticles          = true;
                     water.type                      = GameEngine::Params::WaterType::SIMPLE;
                     water.waterReflectionResolution = vec2ui(16, 16);
@@ -126,6 +128,7 @@ Renderer::Renderer()
                     shadows.cascadesSize            = 4;
                     terrain.resolutionDivideFactor  = 1;
                     terrain.meshPartsCount          = 8;
+                    ssao.isEnabled                  = false;
                     break;
                 case PresetSettings::High:
                     type                            = GraphicsApi::RendererType::FULL;
@@ -138,7 +141,7 @@ Renderer::Renderer()
                     flora.isEnabled                 = true;
                     flora.viewDistance              = 50.f;
                     textures.useNormal              = true;
-                    normalMappingDistance           = 50.f;
+                    normalMappingDistance           = 150.f;
                     particles.useParticles          = true;
                     water.type                      = GameEngine::Params::WaterType::REFLECTED_REFRACTED;
                     water.waterReflectionResolution = vec2ui(1366, 768);
@@ -150,6 +153,8 @@ Renderer::Renderer()
                     shadows.cascadesSize            = 4;
                     terrain.resolutionDivideFactor  = 1;
                     terrain.meshPartsCount          = 8;
+                    ssao.isEnabled                  = true;
+                    ssao.resolutionDevider          = 1.33f;
                     break;
                 case PresetSettings::Ultra:
                     type                            = GraphicsApi::RendererType::FULL;
@@ -162,7 +167,7 @@ Renderer::Renderer()
                     flora.isEnabled                 = true;
                     flora.viewDistance              = 100.f;
                     textures.useNormal              = true;
-                    normalMappingDistance           = 50.f;
+                    normalMappingDistance           = 300.f;
                     particles.useParticles          = true;
                     water.type                      = GameEngine::Params::WaterType::REFLECTED_REFRACTED;
                     water.waterReflectionResolution = vec2ui(1920, 1080);
@@ -174,6 +179,7 @@ Renderer::Renderer()
                     shadows.cascadesSize            = 4;
                     terrain.resolutionDivideFactor  = 1;
                     terrain.meshPartsCount          = 8;
+                    ssao.isEnabled                  = true;
                     break;
             }
         });

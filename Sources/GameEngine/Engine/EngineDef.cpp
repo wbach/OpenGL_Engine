@@ -1,7 +1,8 @@
 #include "EngineDef.h"
 
 // Config
-const std::string CSTR_CONFIG = "Config";
+const std::string CSTR_CONFIG  = "Config";
+const std::string CSTR_ENABLED = "enabled";
 // Window
 const std::string CSTR_WINDOW            = "Window";
 const std::string CSTR_WINDOW_NAME       = "name";
@@ -38,6 +39,11 @@ const std::string CSTR_RENDERER_NORMALMAPPING_DISTANCE = "normalMappingDistance"
 const std::string CSTR_RENDERER_FPS_LIMIT              = "fpsLimit";
 const std::string CSTR_RENDERER_RESOLUTION_X           = "resolutionX";
 const std::string CSTR_RENDERER_RESOLUTION_Y           = "resolutionY";
+// Ssao
+const std::string CSTR_SSSAO                    = "Ssao";
+const std::string CSTR_SSSAO_RADIUS             = "radius";
+const std::string CSTR_SSSAO_BIAS               = "bias";
+const std::string CSTR_SSSAO_RESOLUTION_DEVIDER = "resolutionDevider";
 // Shadows
 const std::string CSTR_SHADOWS                   = "Shadows";
 const std::string CSTR_SHADOWS_ENABLED           = "enabled";
