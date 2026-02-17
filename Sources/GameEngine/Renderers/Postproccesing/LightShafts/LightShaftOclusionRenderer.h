@@ -13,6 +13,12 @@ class DirectionalLightComponent;
 }
 class LightShaftOclusionRenderer
 {
+    enum class InitStatus
+    {
+        ok,
+        failure,
+    };
+
 public:
     LightShaftOclusionRenderer(RendererContext&);
     ~LightShaftOclusionRenderer();
@@ -25,6 +31,7 @@ public:
     vec4 calculateSunPosition(const Components::DirectionalLightComponent&);
 
 private:
+    void DynamicEnableDisable();
     void Render(ShaderProgram&, GraphicsApi::IFrameBuffer&, uint32);
     GraphicsApi::IFrameBuffer* createFrameBuffer();
 
@@ -38,5 +45,9 @@ private:
     std::optional<vec2ui> frameBufferSize;
     std::optional<IdType> sunBufferId;
     std::optional<IdType> oclusionTextureId;
+
+    bool isEnabled{false};
+    std::optional<IdType> enabledSubId;
+    std::optional<InitStatus> initStatus;
 };
 }  // namespace GameEngine

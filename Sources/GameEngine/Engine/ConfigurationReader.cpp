@@ -9,6 +9,7 @@
 #include "Configuration.h"
 #include "EngineDef.h"
 #include "GameEngine/Engine/ConfigurationParams/ConfigurationEnumParam.h"
+#include "GameEngine/Engine/ConfigurationParams/RendererParams/LightshaftsParams/LightshaftsParams.h"
 #include "GameEngine/Engine/ConfigurationParams/RendererParams/SsaoParams/SsaoParams.h"
 
 #ifdef USE_GNU
@@ -208,7 +209,13 @@ void Read(TreeNode& node, Params::Ssao& ssao)
     SetParamIfExist(ssao.isEnabled, node.attributes_, CSTR_ENABLED);
     SetParamIfExist(ssao.radius, node.attributes_, CSTR_SSSAO_RADIUS);
     SetParamIfExist(ssao.bias, node.attributes_, CSTR_SSSAO_BIAS);
-    SetParamIfExist(ssao.resolutionDevider, node.attributes_, CSTR_SSSAO_RESOLUTION_DEVIDER);
+    SetParamIfExist(ssao.resolutionDevider, node.attributes_, CSTR_RESOLUTION_DEVIDER);
+}
+
+void Read(TreeNode& node, Params::Lightshafts& param)
+{
+    SetParamIfExist(param.isEnabled, node.attributes_, CSTR_ENABLED);
+    SetParamIfExist(param.resolutionDevider, node.attributes_, CSTR_RESOLUTION_DEVIDER);
 }
 
 void Read(TreeNode& node, Params::Particles& particles)
@@ -308,6 +315,8 @@ void Read(TreeNode& node, Params::Renderer& renderer)
         Read(*child, renderer.shadows);
     if (auto child = node.getChild(CSTR_SSSAO))
         Read(*child, renderer.ssao);
+    if (auto child = node.getChild(CSTR_LIGHT_SHAFTS))
+        Read(*child, renderer.lightshafts);
     if (auto child = node.getChild(CSTR_TEXTURES))
         Read(*node.getChild(CSTR_TEXTURES), renderer.textures);
     if (auto child = node.getChild(CSTR_PARTICLES))

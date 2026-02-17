@@ -25,6 +25,7 @@ public:
     void CleanUp();
 
 private:
+    void DynamicEnableDisable();
     void GenKernel();
     void GenerateNoiseTexture();
     void CreateFbos();

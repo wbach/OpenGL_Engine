@@ -80,6 +80,7 @@ Renderer::Renderer()
                     terrain.resolutionDivideFactor  = 2;
                     terrain.meshPartsCount          = 8;
                     ssao.isEnabled                  = false;
+                    lightshafts.isEnabled           = false;
                     break;
                 case PresetSettings::Low:
                     type                            = GraphicsApi::RendererType::SIMPLE;
@@ -104,6 +105,7 @@ Renderer::Renderer()
                     terrain.resolutionDivideFactor  = 1;
                     terrain.meshPartsCount          = 8;
                     ssao.isEnabled                  = false;
+                    lightshafts.isEnabled           = false;
                     break;
                 case PresetSettings::Medium:
                     type                            = GraphicsApi::RendererType::FULL;
@@ -129,6 +131,7 @@ Renderer::Renderer()
                     terrain.resolutionDivideFactor  = 1;
                     terrain.meshPartsCount          = 8;
                     ssao.isEnabled                  = false;
+                    lightshafts.isEnabled           = false;
                     break;
                 case PresetSettings::High:
                     type                            = GraphicsApi::RendererType::FULL;
@@ -155,6 +158,7 @@ Renderer::Renderer()
                     terrain.meshPartsCount          = 8;
                     ssao.isEnabled                  = true;
                     ssao.resolutionDevider          = 1.33f;
+                    lightshafts.isEnabled           = true;
                     break;
                 case PresetSettings::Ultra:
                     type                            = GraphicsApi::RendererType::FULL;
@@ -180,6 +184,7 @@ Renderer::Renderer()
                     terrain.resolutionDivideFactor  = 1;
                     terrain.meshPartsCount          = 8;
                     ssao.isEnabled                  = true;
+                    lightshafts.isEnabled           = true;
                     break;
             }
         });

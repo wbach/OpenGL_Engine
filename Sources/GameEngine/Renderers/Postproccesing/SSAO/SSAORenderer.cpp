@@ -121,16 +121,7 @@ void SSAORenderer::CleanUp()
 }
 void SSAORenderer::Render(uint32 depthTextureId, uint32 normalTextureId)
 {
-    if (isEnabled and not initStatus)
-    {
-        LOG_DEBUG << "Enabling ssao renderer";
-        Init();
-    }
-    else if (not isEnabled and initStatus == InitStatus::ok)
-    {
-        LOG_DEBUG << "Disabling ssao renderer";
-        CleanUp();
-    }
+    DynamicEnableDisable();
 
     if (not initStatus or initStatus == InitStatus::failure)
     {
@@ -307,6 +298,19 @@ void SSAORenderer::CreateUniformBuffer()
         {
             initStatus = InitStatus::failure;
         }
+    }
+}
+void SSAORenderer::DynamicEnableDisable()
+{
+    if (isEnabled and not initStatus)
+    {
+        LOG_DEBUG << "Enabling ssao renderer";
+        Init();
+    }
+    else if (not isEnabled and initStatus == InitStatus::ok)
+    {
+        LOG_DEBUG << "Disabling ssao renderer";
+        CleanUp();
     }
 }
 }  // namespace GameEngine

@@ -60,6 +60,7 @@ ConfigurationExplorer::ConfigurationExplorer()
              {"SSAO", EngineConf.renderer.ssao.isEnabled, ApplyPolicy::RestartNotNeeded},
              {"SSAO radius", EngineConf.renderer.ssao.radius, ApplyPolicy::RestartRequired},
              {"SSAO bias", EngineConf.renderer.ssao.bias, ApplyPolicy::RestartRequired},
+             {"Light shafts", EngineConf.renderer.lightshafts.isEnabled, ApplyPolicy::RestartNotNeeded}
              //{"SSAO resolution devider", EngineConf.renderer.ssao.resolutionDevider, ApplyPolicy::RestartRequired} TO DO
           }
         });

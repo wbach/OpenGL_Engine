@@ -442,6 +442,11 @@ void main()
     vec4 finalColor = CalculateColor(material, worldPosition, normal) * shadowFactor;
     finalColor      = CreateFog(finalColor, normal4.a);
 
-    vec3 rays = texture(LightshaftTexture, vs_in.textureCoords).rgb;
-    FragColor = vec4(finalColor.rgb + rays, 1.0);
+    if (Is(lightsPass.effectsEnabledIndicators.y))
+    {
+        vec3 rays = texture(LightshaftTexture, vs_in.textureCoords).rgb;
+        finalColor.rgb = finalColor.rgb + rays;
+    }
+
+    FragColor = vec4(finalColor.rgb, 1.0);
 }

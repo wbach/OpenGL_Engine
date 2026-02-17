@@ -4,6 +4,7 @@
 // Config
 extern const std::string CSTR_CONFIG;
 extern const std::string CSTR_ENABLED;
+extern const std::string CSTR_RESOLUTION_DEVIDER;
 // Window
 extern const std::string CSTR_WINDOW;
 extern const std::string CSTR_WINDOW_NAME;
@@ -40,11 +41,12 @@ extern const std::string CSTR_RENDERER_RESOLUTION_Y;
 extern const std::string CSTR_RENDERER_LOD0_DISTANCE;
 extern const std::string CSTR_RENDERER_LOD1_DISTANCE;
 extern const std::string CSTR_RENDERER_LOD2_DISTANCE;
-//Ssao
+// Lightshafts
+extern const std::string CSTR_LIGHT_SHAFTS;
+// Ssao
 extern const std::string CSTR_SSSAO;
 extern const std::string CSTR_SSSAO_RADIUS;
 extern const std::string CSTR_SSSAO_BIAS;
-extern const std::string CSTR_SSSAO_RESOLUTION_DEVIDER;
 // Shadows
 extern const std::string CSTR_SHADOWS;
 extern const std::string CSTR_SHADOWS_ENABLED;

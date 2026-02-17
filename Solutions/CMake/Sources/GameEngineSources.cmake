@@ -375,6 +375,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ExternalComponentsRe
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/Configuration.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/EngineDef.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/EngineContext.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/LightshaftsParams/LightshaftsParams.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/RendererParams.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/ShadowsParams/ShadowsParams.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/FloraParams/FloraParams.cpp

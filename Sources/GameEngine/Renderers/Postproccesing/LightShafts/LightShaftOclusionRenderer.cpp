@@ -22,8 +22,8 @@ namespace
 const int NUM_SAMPLES = 100;
 struct SunBuffer
 {
-    AlignWrapper<vec4> ndcSunPosition;                             // z - turn off, w -samples
-    AlignWrapper<vec4> sunColor{vec4{1.f}};                        // w is night
+    AlignWrapper<vec4> ndcSunPosition;                              // z - turn off, w -samples
+    AlignWrapper<vec4> sunColor{vec4{1.f}};                         // w is night
     AlignWrapper<vec4> blurParams{vec4{0.2f, 0.97f, 2.0f, 0.05f}};  // x- exposure, y - decay, z - density, w - weight
 };
 
@@ -32,22 +32,59 @@ LightShaftOclusionRenderer::LightShaftOclusionRenderer(RendererContext& context)
     : context(context)
     , oclusionShader(context.graphicsApi_, GraphicsApi::ShaderProgramType::LightShaftOclusion)
     , blurShader(context.graphicsApi_, GraphicsApi::ShaderProgramType::LightShaftBlure)
+    , isEnabled(EngineConf.renderer.ssao.isEnabled)
 {
+    enabledSubId = EngineConf.renderer.lightshafts.isEnabled.subscribeForChange(
+        [&]() { isEnabled = EngineConf.renderer.lightshafts.isEnabled; });
+}
+LightShaftOclusionRenderer::~LightShaftOclusionRenderer()
+{
+    if (enabledSubId)
+    {
+        EngineConf.renderer.lightshafts.isEnabled.unsubscribe(*enabledSubId);
+        enabledSubId.reset();
+    }
+
+    CleanUp();
 }
 void LightShaftOclusionRenderer::Init()
 {
+    initStatus = InitStatus::ok;
+
     if (not context.camera_)
     {
         LOG_ERROR << "Camera not set during intialization!";
+        initStatus = InitStatus::failure;
         return;
     }
+
     oclusionShader.Init();
+    if (not oclusionShader.IsReady())
+    {
+        initStatus = InitStatus::failure;
+        CleanUp();
+        return;
+    }
+
     blurShader.Init();
+    if (not blurShader.IsReady())
+    {
+        initStatus = InitStatus::failure;
+        CleanUp();
+        return;
+    }
 
     if (not sunBufferId)
     {
         const uint32 BIND_LOCATION{6};
         sunBufferId = context.graphicsApi_.CreateShaderBuffer(BIND_LOCATION, sizeof(SunBuffer), GraphicsApi::DrawFlag::Dynamic);
+    }
+
+    if (not sunBufferId)
+    {
+        initStatus = InitStatus::failure;
+        CleanUp();
+        return;
     }
 
     const uint32 renderingScale = 1;
@@ -59,7 +96,15 @@ void LightShaftOclusionRenderer::Init()
         oclusionFrameBuffer = createFrameBuffer();
 
         if (oclusionFrameBuffer)
+        {
             oclusionTextureId = oclusionFrameBuffer->GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Color0);
+        }
+        else
+        {
+            initStatus = InitStatus::failure;
+            CleanUp();
+            return;
+        }
     }
 
     if (not blurFrameBuffer)
@@ -71,12 +116,22 @@ void LightShaftOclusionRenderer::Init()
             auto atachmentId = blurFrameBuffer->GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Color0);
             context.sharedTextures[magic_enum::enum_index(SharedTextures::lightShafts).value()] = atachmentId;
         }
+        else
+        {
+            initStatus = InitStatus::failure;
+            CleanUp();
+            return;
+        }
     }
 }
 void LightShaftOclusionRenderer::Render(uint32 depthTextureId)
 {
-    if (not oclusionFrameBuffer or not blurFrameBuffer)
+    DynamicEnableDisable();
+
+    if (not initStatus or initStatus == InitStatus::failure)
+    {
         return;
+    }
 
     if (not context.camera_)
     {
@@ -123,10 +178,6 @@ void LightShaftOclusionRenderer::ReloadShaders()
     oclusionShader.Reload();
     blurShader.Reload();
 }
-LightShaftOclusionRenderer::~LightShaftOclusionRenderer()
-{
-    CleanUp();
-}
 void LightShaftOclusionRenderer::CleanUp()
 {
     if (sunBufferId)
@@ -149,6 +200,8 @@ void LightShaftOclusionRenderer::CleanUp()
         context.graphicsApi_.DeleteFrameBuffer(*blurFrameBuffer);
         blurFrameBuffer = nullptr;
     }
+
+    initStatus.reset();
 }
 vec4 LightShaftOclusionRenderer::calculateSunPosition(const Components::DirectionalLightComponent& light)
 {
@@ -171,7 +224,7 @@ GraphicsApi::IFrameBuffer* LightShaftOclusionRenderer::createFrameBuffer()
     using namespace GraphicsApi::FrameBuffer;
 
     Attachment color(*frameBufferSize, Type::Color0, Format::Rgba32f);
-    color.filter =  GraphicsApi::FrameBuffer::Filter::Linear;
+    color.filter = GraphicsApi::FrameBuffer::Filter::Linear;
 
     auto frameBuffer = &context.graphicsApi_.CreateFrameBuffer({color});
     if (not frameBuffer->Init())
@@ -182,5 +235,18 @@ GraphicsApi::IFrameBuffer* LightShaftOclusionRenderer::createFrameBuffer()
     }
 
     return frameBuffer;
+}
+void LightShaftOclusionRenderer::DynamicEnableDisable()
+{
+    if (isEnabled and not initStatus)
+    {
+        LOG_DEBUG << "Enabling ssao renderer";
+        Init();
+    }
+    else if (not isEnabled and initStatus == InitStatus::ok)
+    {
+        LOG_DEBUG << "Disabling ssao renderer";
+        CleanUp();
+    }
 }
 }  // namespace GameEngine

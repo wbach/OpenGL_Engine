@@ -5,6 +5,7 @@
 #include "../ConfigurationParam.h"
 #include "../ConfigurationEnumParam.h"
 #include "FloraParams/FloraParams.h"
+#include "LightshaftsParams/LightshaftsParams.h"
 #include "ParticlesParams/ParticlesParams.h"
 #include "ShadowsParams/ShadowsParams.h"
 #include "TerrainParam/TerrainParam.h"
@@ -46,6 +47,7 @@ struct Renderer
     ConfigurationParam<bool> useInstanceRendering;
 
     Ssao ssao;
+    Lightshafts lightshafts;
     Terrain terrain;
     Water water;
     Flora flora;

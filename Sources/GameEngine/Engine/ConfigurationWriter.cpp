@@ -6,6 +6,7 @@
 #include "ConfigurationParams/ParamToString.h"
 #include "EngineDef.h"
 #include "GameEngine/Engine/ConfigurationParams/DebugParams/LineMeshVisualizatorParams.h"
+#include "GameEngine/Engine/ConfigurationParams/RendererParams/LightshaftsParams/LightshaftsParams.h"
 #include "GameEngine/Engine/ConfigurationParams/RendererParams/SsaoParams/SsaoParams.h"
 #include "Utils/XML/XmlWriter.h"
 
@@ -55,10 +56,15 @@ void Create(TreeNode& node, const Params::Particles& param)
 }
 void Create(TreeNode& node, const Params::Ssao& param)
 {
-    node.attributes_[CSTR_ENABLED]                  = Utils::BoolToString(param.isEnabled);
-    node.attributes_[CSTR_SSSAO_RADIUS]             = std::to_string(param.radius);
-    node.attributes_[CSTR_SSSAO_BIAS]               = std::to_string(param.bias);
-    node.attributes_[CSTR_SSSAO_RESOLUTION_DEVIDER] = std::to_string(param.resolutionDevider);
+    node.attributes_[CSTR_ENABLED]            = Utils::BoolToString(param.isEnabled);
+    node.attributes_[CSTR_SSSAO_RADIUS]       = std::to_string(param.radius);
+    node.attributes_[CSTR_SSSAO_BIAS]         = std::to_string(param.bias);
+    node.attributes_[CSTR_RESOLUTION_DEVIDER] = std::to_string(param.resolutionDevider);
+}
+void Create(TreeNode& node, const Params::Lightshafts& param)
+{
+    node.attributes_[CSTR_ENABLED]            = Utils::BoolToString(param.isEnabled);
+    node.attributes_[CSTR_RESOLUTION_DEVIDER] = std::to_string(param.resolutionDevider);
 }
 void Create(TreeNode& node, const Params::Shadows& param)
 {
@@ -118,6 +124,7 @@ void Create(TreeNode& node, const Params::Renderer& param)
     Create(node.addChild(CSTR_FLORA), param.flora);
     Create(node.addChild(CSTR_SHADOWS), param.shadows);
     Create(node.addChild(CSTR_SSSAO), param.ssao);
+    Create(node.addChild(CSTR_LIGHT_SHAFTS), param.lightshafts);
     Create(node.addChild(CSTR_TEXTURES), param.textures);
     Create(node.addChild(CSTR_PARTICLES), param.particles);
 }
