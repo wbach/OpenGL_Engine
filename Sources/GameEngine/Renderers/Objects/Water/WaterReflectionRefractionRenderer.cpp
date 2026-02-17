@@ -21,6 +21,7 @@ WaterReflectionRefractionRenderer::WaterReflectionRefractionRenderer(RendererCon
     , terrainMeshRenderer_(context)
     , skyBoxRenderer_(context)
     , forwadSkyRenderer_(context)
+    , treeRenderer_(context)
     , entityShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::SimpleForwadEntity)
     , instancedEntityShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::InstancesSimpleForwadEntity)
     , terrainShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::SimpleForwardTerrainMesh)
@@ -104,6 +105,7 @@ void WaterReflectionRefractionRenderer::initResources()
     }
 
     forwadSkyRenderer_.init();
+    treeRenderer_.init();
 
     entityRenderer_.init();
 
@@ -141,6 +143,7 @@ void WaterReflectionRefractionRenderer::cleanUp()
     skyBoxShader_.Clear();
     instancedEntityShader_.Clear();
     skyBoxRenderer_.cleanUp();
+    treeRenderer_.cleanUp();
 
     entityRenderer_.cleanUp();
     forwadSkyRenderer_.cleanUp();
@@ -219,6 +222,7 @@ void WaterReflectionRefractionRenderer::subscribe(GameObject& gameObject)
     skyBoxRenderer_.subscribe(gameObject);
     entityRenderer_.subscribe(gameObject);
     terrainMeshRenderer_.subscribe(gameObject);
+    treeRenderer_.subscribe(gameObject);
 
     auto waterComponent = gameObject.GetComponent<Components::WaterRendererComponent>();
 
@@ -233,6 +237,7 @@ void WaterReflectionRefractionRenderer::unSubscribe(GameObject& gameObject)
     skyBoxRenderer_.unSubscribe(gameObject);
     entityRenderer_.unSubscribe(gameObject);
     terrainMeshRenderer_.unSubscribe(gameObject);
+    treeRenderer_.unSubscribe(gameObject);
 
     std::lock_guard<std::mutex> lk(subscriberMutex_);
     subscribers_.erase(gameObject.GetId());
@@ -248,6 +253,7 @@ void WaterReflectionRefractionRenderer::unSubscribeAll()
     skyBoxRenderer_.unSubscribeAll();
     entityRenderer_.unSubscribeAll();
     terrainMeshRenderer_.unSubscribeAll();
+    treeRenderer_.unSubscribeAll();
 
     std::lock_guard<std::mutex> lk(subscriberMutex_);
     subscribers_.clear();
@@ -260,6 +266,7 @@ void WaterReflectionRefractionRenderer::unSubscribeAll()
 void WaterReflectionRefractionRenderer::reloadShaders()
 {
     forwadSkyRenderer_.reloadShaders();
+    treeRenderer_.reloadShaders();
     skyBoxShader_.Reload();
     entityShader_.Reload();
     instancedEntityShader_.Reload();
@@ -318,6 +325,7 @@ void WaterReflectionRefractionRenderer::renderScene()
 
     terrainShader_.Start();
     waterTexturesRendererdMeshesCounter_ += terrainMeshRenderer_.renderSubscribers();
+    treeRenderer_.render();
 }
 void WaterReflectionRefractionRenderer::createRefractionTexture(WaterFbo& fbo, float amplitude)
 {

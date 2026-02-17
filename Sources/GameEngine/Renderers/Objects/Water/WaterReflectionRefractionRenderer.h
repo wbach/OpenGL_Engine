@@ -7,6 +7,7 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/Objects/Entity/EntityRenderer.h"
+#include "GameEngine/Renderers/Objects/Tree/RefletionTreeRenderer.h"
 #include "GameEngine/Renderers/Objects/SkyBox/ForwadSkyRenderer.h"
 #include "GameEngine/Renderers/Objects/SkyBox/SkyBoxRenderer.h"
 #include "GameEngine/Renderers/Objects/Terrain/Mesh/TerrainMeshRenderer.h"
@@ -88,6 +89,7 @@ private:
     TerrainMeshRenderer terrainMeshRenderer_;
     SkyBoxRenderer skyBoxRenderer_;
     ForwadSkyRenderer forwadSkyRenderer_;
+    RefletionTreeRenderer treeRenderer_;
 
     ShaderProgram entityShader_;
     ShaderProgram instancedEntityShader_;

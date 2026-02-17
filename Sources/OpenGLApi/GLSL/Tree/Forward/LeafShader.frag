@@ -74,14 +74,14 @@ void main()
     if (Is(perApp.useTextures.x))
     {
         baseColor  = texture(BaseColorTexture, GetAtlasUV(fs_in.texCoord, textureIndex));
-        
+
         // Opacity
         vec4 opacityTex = texture(OpacityTexture, GetAtlasUV(fs_in.texCoord, textureIndex));
         if(opacityTex.x < 0.5) discard;
         baseColor.a = opacityTex.x;
     }
 
-    vec3 albedo = baseColor.rgb * fs_in.colorRandomness;
+    vec3 albedo = baseColor.rgb ;//* fs_in.colorRandomness;
     albedo *= 0.9 + 0.1 * ao;
 
     outputColor      = vec4(albedo, baseColor.a);
