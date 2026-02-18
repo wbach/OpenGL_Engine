@@ -128,6 +128,9 @@ private:
     void OnRename(wxCommandEvent&);
     void CloneGameObject(wxCommandEvent&);
     void SetValuesFromCameraEditor(wxCommandEvent&);
+    void AdjustParentPosition(wxCommandEvent&);
+    void DragSelectedObject(wxCommandEvent&);
+    void ResetDragObject(wxCommandEvent&);
 
     void OnPageChanged(wxNotebookEvent&);
 
@@ -180,6 +183,9 @@ private:
     void LoadPrefab(const std::string&);
     void CenterOnPrimaryMonitor();
     void SetLastSessionContext();
+
+    void OnKeyUp(wxKeyEvent& event);
+    void OnKeyDown(wxKeyEvent& event);
 
 private:
     std::mutex componentsViewMutex;

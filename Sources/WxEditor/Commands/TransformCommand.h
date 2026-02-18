@@ -6,48 +6,64 @@
 #include <Types.h>
 
 #include <GameEngine/Scene/Scene.hpp>
+#include <vector>
 
 #include "Command.h"
 
 class TransformCommand : public Command
 {
 public:
+    struct Context
+    {
+        IdType gameObjectId;
+        common::Transform oldTransform;
+        common::Transform newTransform;
+    };
+
     TransformCommand(GameEngine::Scene& scene, IdType gameObjectId, const common::Transform& old,
                      const common::Transform& newTransform)
         : scene(scene)
-        , gameObjectId{gameObjectId}
-        , oldTransform{old}
-        , newTransform{newTransform}
+    {
+        contexts.push_back(Context{.gameObjectId = gameObjectId, .oldTransform = old, .newTransform = newTransform});
+    }
+
+    TransformCommand(GameEngine::Scene& scene, std::vector<Context>&& contexts)
+        : scene(scene)
+        , contexts(std::move(contexts))
     {
     }
 
     void redo() override
     {
-        if (auto go = scene.GetGameObject(gameObjectId))
+        for (auto& context : contexts)
         {
-            go->SetLocalTransform(newTransform);
-        }
-        else
-        {
-            LOG_WARN << "GameObject with Id" << gameObjectId << " no longer exist!";
+            if (auto go = scene.GetGameObject(context.gameObjectId))
+            {
+                go->SetLocalTransform(context.newTransform);
+            }
+            else
+            {
+                LOG_WARN << "GameObject with Id" << context.gameObjectId << " no longer exist!";
+            }
         }
     }
 
     void undo() override
     {
-        if (auto go = scene.GetGameObject(gameObjectId))
+        for (auto& context : contexts)
         {
-            go->SetLocalTransform(oldTransform);
-        }
-        else
-        {
-            LOG_WARN << "GameObject with Id" << gameObjectId << " no longer exist!";
+            if (auto go = scene.GetGameObject(context.gameObjectId))
+            {
+                go->SetLocalTransform(context.oldTransform);
+            }
+            else
+            {
+                LOG_WARN << "GameObject with Id" << context.gameObjectId << " no longer exist!";
+            }
         }
     }
 
 private:
     GameEngine::Scene& scene;
-    IdType gameObjectId;
-    common::Transform oldTransform;
-    common::Transform newTransform;
+    std::vector<Context> contexts;
 };

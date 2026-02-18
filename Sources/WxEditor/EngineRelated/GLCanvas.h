@@ -51,7 +51,7 @@ public:
     void AddGameObject(std::unique_ptr<GameEngine::GameObject>, GameEngine::GameObject* = nullptr);
     void RemoveGameObject(IdType);
 
-    void GameObjectSelectChange(GameEngine::GameObject&);
+    void SetDragObject(GameEngine::GameObject&);
     void ResetDragObject();
     GameEngine::GameObject& GetRootObject();
     GameEngine::Engine& GetEngine();

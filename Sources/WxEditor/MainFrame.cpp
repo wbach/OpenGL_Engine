@@ -35,6 +35,7 @@
 #include <magic_enum/magic_enum.hpp>
 #include <memory>
 #include <string>
+#include <unordered_map>
 
 #include "AnimationViewer/AnimationViwerIcon.h"
 #include "Commands/TransformCommand.h"
@@ -46,6 +47,7 @@
 #include "ComponentPanel/TransformPanel.h"
 #include "Components/Renderer/Water/WaterRendererComponent.h"
 #include "ControlsIds.h"
+#include "Objects/GameObject.h"
 #include "OptionsFrame/OptionsFrame.h"
 #include "OptionsFrame/Theme.h"
 #include "ProjectManager.h"
@@ -58,6 +60,7 @@
 #include "WxEditor/TreeGeneration/TreeGeneration.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
 #include "WxEditor/WxHelpers/LoadingDialog.h"
+#include "wx/event.h"
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -200,6 +203,9 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_TREE_MENU_RENAME, MainFrame::OnRename)
     EVT_MENU(ID_TREE_MENU_CLONE, MainFrame::CloneGameObject)
     EVT_MENU(ID_TREE_SET_VALUES_FROM_CAMERA_EDITOR, MainFrame::SetValuesFromCameraEditor)
+    EVT_MENU(ID_TREE_MENU_ADJUST_PARENT_POS, MainFrame::AdjustParentPosition)
+    EVT_MENU(ID_TREE_MENU_DRAG_OBJECT, MainFrame::DragSelectedObject)
+    EVT_MENU(ID_TREE_MENU_RESET_DRAG_OBJECT, MainFrame::ResetDragObject)
 wxEND_EVENT_TABLE()
 
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
@@ -365,13 +371,17 @@ void MainFrame::Init()
                                     {wxACCEL_CTRL, (int)'Z', ID_UNDO},
                                     {wxACCEL_CTRL, (int)'Y', ID_REDO},
                                     {wxACCEL_CTRL | wxACCEL_SHIFT, (int)'Z', ID_REDO},
-                                    {wxACCEL_NORMAL, WXK_DELETE, ID_TREE_MENU_REMOVE}};
+                                    {wxACCEL_NORMAL, WXK_DELETE, ID_TREE_MENU_REMOVE},
+                                    {wxACCEL_NORMAL, (int)'G', ID_TREE_MENU_DRAG_OBJECT}};
     wxAcceleratorTable accel(std::size(entries), entries);
     SetAcceleratorTable(accel);
 
     Bind(wxEVT_MENU, &MainFrame::MenuFileSaveScene, this, ID_SAVE);
     Bind(wxEVT_MENU, &MainFrame::OnUndo, this, ID_UNDO);
     Bind(wxEVT_MENU, &MainFrame::OnRedo, this, ID_REDO);
+
+    Bind(wxEVT_KEY_DOWN, &MainFrame::OnKeyDown, this);
+    Bind(wxEVT_KEY_UP, &MainFrame::OnKeyUp, this);
 }
 
 void MainFrame::OnUndo(wxCommandEvent& event)
@@ -1297,12 +1307,12 @@ void MainFrame::OnFileActivated(const wxString& fullpath)
 
     if (is3dModelFile(file))
     {
-        auto& scene                       = canvas->GetScene();
-        auto newGameObject                = scene.CreateGameObject(file.GetBaseName());
-        auto newGameObjectPtr             = newGameObject.get();
-        auto& rendererComponent           = newGameObject->AddComponent<GameEngine::Components::RendererComponent>();
-        //auto& animator                    = newGameObject->AddComponent<GameEngine::Components::Animator>();
-        //animator.startupAnimationClipName = "noname";
+        auto& scene             = canvas->GetScene();
+        auto newGameObject      = scene.CreateGameObject(file.GetBaseName());
+        auto newGameObjectPtr   = newGameObject.get();
+        auto& rendererComponent = newGameObject->AddComponent<GameEngine::Components::RendererComponent>();
+        // auto& animator                    = newGameObject->AddComponent<GameEngine::Components::Animator>();
+        // animator.startupAnimationClipName = "noname";
         rendererComponent.AddModel(file.GetAbsolutePath().string());
 
         newGameObject->SetLocalPosition(canvas->GetWorldPosFromCamera());
@@ -2128,4 +2138,61 @@ void MainFrame::SetValuesFromCameraEditor(wxCommandEvent&)
             }
         }
     }
+}
+void MainFrame::AdjustParentPosition(wxCommandEvent&)
+{
+    if (auto maybeGo = GetSelectedGameObject())
+    {
+        if (maybeGo->GetChildren().empty())
+            return;
+
+        vec3 childrenPos(0);
+        std::unordered_map<GameEngine::GameObject*, vec3> childWorldPosToRestore;
+        for (const auto& child : maybeGo->GetChildren())
+        {
+            const vec3& childPos = child->GetWorldTransform().GetPosition();
+            childWorldPosToRestore.insert({child.get(), childPos});
+            childrenPos += childPos;
+        }
+        childrenPos /= maybeGo->GetChildren().size();
+
+        std::vector<TransformCommand::Context> transformCommandContext;
+        const auto oldTransform = maybeGo->GetLocalTransform();
+        maybeGo->SetWorldPosition(childrenPos);
+
+        transformCommandContext.push_back(TransformCommand::Context{
+            .gameObjectId = maybeGo->GetId(), .oldTransform = oldTransform, .newTransform = maybeGo->GetLocalTransform()});
+
+        for (auto& [child, orgnalPos] : childWorldPosToRestore)
+        {
+            const auto oldTransform = child->GetLocalTransform();
+            child->SetWorldPosition(orgnalPos);
+
+            transformCommandContext.push_back(TransformCommand::Context{
+                .gameObjectId = child->GetId(), .oldTransform = oldTransform, .newTransform = child->GetLocalTransform()});
+        }
+
+        auto cmd = std::make_unique<TransformCommand>(canvas->GetScene(), std::move(transformCommandContext));
+        UndoManager::Get().Push(std::move(cmd));
+    }
+}
+void MainFrame::DragSelectedObject(wxCommandEvent&)
+{
+    if (auto maybeGo = GetSelectedGameObject())
+    {
+        canvas->SetDragObject(*maybeGo);
+        canvas->SetFocus();
+    }
+}
+void MainFrame::ResetDragObject(wxCommandEvent&)
+{
+    canvas->ResetDragObject();
+}
+void MainFrame::OnKeyUp(wxKeyEvent& event)
+{
+    event.Skip();
+}
+void MainFrame::OnKeyDown(wxKeyEvent& event)
+{
+    event.Skip();
 }

@@ -293,6 +293,11 @@ void GLCanvas::OnKeyUp(wxKeyEvent& event)
     if (not engine)
         return;
 
+    if (event.GetKeyCode() == 'G' or event.GetKeyCode() == 'g')
+    {
+        ResetDragObject();
+    }
+
     auto keyCode = event.GetKeyCode();
     if (wxGetKeyState((wxKeyCode)keyCode))
     {
@@ -362,7 +367,7 @@ void GLCanvas::OnMouseLeftDown(wxMouseEvent& event)
     inputManager.AddKeyEvent(WxEditor::WX_KEY_DOWN, WxEditor::WxKeySpecialKodes::WX_MOUSE_LEFT);
     wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{WxEditor::WxKeySpecialKodes::WX_MOUSE_LEFT}, true);
 
-    if (useMousePicker and engine->GetSceneManager().GetActiveScene() and not mousePicker)
+    if (useMousePicker and engine->GetSceneManager().GetActiveScene() and not mousePicker and not dragGameObject)
     {
         mousePicker          = std::make_unique<GameEngine::MousePicker>(*GetScene().GetCameraManager().GetMainCamera(),
                                                                 GameEngine::MousePicker::IntersectMode::FrontOnly);
@@ -370,7 +375,7 @@ void GLCanvas::OnMouseLeftDown(wxMouseEvent& event)
                                                          GetScene().GetGameObjects());
         if (maybeGameObject)
         {
-            GameObjectSelectChange(*maybeGameObject);
+            SetDragObject(*maybeGameObject);
             selectItemInGameObjectTree(maybeGameObject->GetId(), true);
         }
     }
@@ -508,7 +513,7 @@ bool GLCanvas::OpenScene(const GameEngine::File& file, std::function<void()> cal
     return engine->GetSceneManager().GetActiveScene() != nullptr;
 }
 
-void GLCanvas::GameObjectSelectChange(GameEngine::GameObject& gameObject)
+void GLCanvas::SetDragObject(GameEngine::GameObject& gameObject)
 {
     if (engine and engine->GetSceneManager().GetActiveScene())
     {
