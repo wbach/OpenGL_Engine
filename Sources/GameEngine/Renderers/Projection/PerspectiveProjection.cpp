@@ -50,8 +50,6 @@ PerspectiveProjection &PerspectiveProjection::operator=(const PerspectiveProject
 }
 void PerspectiveProjection::UpdateMatrix()
 {
-    LOG_DEBUG << "Create PerspectiveProjection matrix. FOV: " << fov_ << ", AR: " << aspectRatio_ << ", NEAR: " << nearPlane_
-              << ", FAR: " << farPlane_;
     matrix_ = glm::perspective(glm::radians(fov_), aspectRatio_, nearPlane_, farPlane_);
 }
 float PerspectiveProjection::GetFoV() const

@@ -81,7 +81,6 @@ const mat4 &Projection::GetMatrix() const
 float Projection::CalculateAspectRatio() const
 {
     auto result = static_cast<float>(renderingSize_.x) / static_cast<float>(renderingSize_.y);
-    LOG_DEBUG << "New aspect ratio: " << result;
     return result;
 }
 

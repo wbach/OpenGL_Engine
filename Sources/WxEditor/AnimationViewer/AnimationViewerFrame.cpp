@@ -29,9 +29,9 @@
 
 #include "AnimationFileDropTarget.h"
 #include "WxEditor/EngineRelated/GLCanvas.h"
+#include "WxEditor/EngineRelated/WxScenesDef.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
-#include "WxEditor/EngineRelated/WxScenesDef.h"
 
 AnimationViewerFrame::AnimationViewerFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(nullptr, wxID_ANY, title, pos, size)
@@ -54,8 +54,8 @@ void AnimationViewerFrame::Init()
     {
         canvas->SetCameraStartupPosition(vec3(-0.75, 0.5, 0.75), vec3(0, 0.5, 0));
 
-        auto lightGo                             = canvas->GetScene().CreateGameObject("Light");
-        auto& lightComponent                     = lightGo->AddComponent<GameEngine::Components::DirectionalLightComponent>();
+        auto lightGo         = canvas->GetScene().CreateGameObject("Light");
+        auto& lightComponent = lightGo->AddComponent<GameEngine::Components::DirectionalLightComponent>();
         lightGo->SetWorldPosition(vec3(1000, 1500, 1000));
         lightComponent.isDayNightCycleControlled = false;
         canvas->GetScene().AddGameObject(std::move(lightGo));
@@ -119,10 +119,12 @@ void AnimationViewerFrame::CreateMainMenu()
     int ID_EXPORT_SELECTED_CLIP   = wxWindow::NewControlId();
     int ID_EXPORT_ALL_CLIPS       = wxWindow::NewControlId();
     int ID_CREATE_PREFAB          = wxWindow::NewControlId();
+    int ID_REFRESH_CLIPS          = wxWindow::NewControlId();
 
     wxMenu* fileMenu = new wxMenu();
     fileMenu->Append(ID_OPEN_FILE, "Open model");
     fileMenu->Append(ID_READ_ANIMATIONS_FOLDER, "Import animations from directory");
+    fileMenu->Append(ID_REFRESH_CLIPS, "Refresh animation clips");
     fileMenu->Append(ID_EXPORT_SELECTED_CLIP, "Export slected clip");
     fileMenu->Append(ID_EXPORT_ALL_CLIPS, "Export all animation clips");
     fileMenu->Append(ID_CREATE_PREFAB, "Create prefab from current object");
@@ -162,18 +164,38 @@ void AnimationViewerFrame::CreateMainMenu()
         },
         ID_READ_ANIMATIONS_FOLDER);
 
-    Bind(wxEVT_MENU, [this](wxCommandEvent& e) { OnExportToFile(e); }, ID_EXPORT_SELECTED_CLIP);
+    Bind(
+        wxEVT_MENU,
+        [this](wxCommandEvent&)
+        {
+            animList->Clear();
+            if (currentGameObject)
+            {
+                const auto& animationClips = currentGameObject->animator.getAnimationClips();
+                for (const auto& [name, _] : animationClips)
+                {
+                    animList->Append(name);
+                }
+            }
+        },
+        ID_REFRESH_CLIPS);
 
-    Bind(wxEVT_MENU, [this](wxCommandEvent& e) { OnExportAll(e); }, ID_EXPORT_ALL_CLIPS);
+    Bind(
+        wxEVT_MENU, [this](wxCommandEvent& e) { OnExportToFile(e); }, ID_EXPORT_SELECTED_CLIP);
 
-    Bind(wxEVT_MENU, [this](wxCommandEvent& e) { CreatePrefab(e); }, ID_CREATE_PREFAB);
+    Bind(
+        wxEVT_MENU, [this](wxCommandEvent& e) { OnExportAll(e); }, ID_EXPORT_ALL_CLIPS);
+
+    Bind(
+        wxEVT_MENU, [this](wxCommandEvent& e) { CreatePrefab(e); }, ID_CREATE_PREFAB);
 
     fileMenu->AppendSeparator();
     fileMenu->Append(wxID_EXIT);
 
     menuBar->Append(fileMenu, "&File");
 
-    Bind(wxEVT_MENU, [this](wxCommandEvent&) { Close(true); }, wxID_EXIT);
+    Bind(
+        wxEVT_MENU, [this](wxCommandEvent&) { Close(true); }, wxID_EXIT);
 
     SetMenuBar(menuBar);
 }

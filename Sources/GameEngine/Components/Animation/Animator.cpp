@@ -360,6 +360,9 @@ void Animator::GetSkeletonAndAnimations()
                 LOG_WARN << "Montion joint not found : " << montionJointName;
             }
         }
+        else {
+            LOG_DEBUG << "No root joint " << thisObject_.GetName();
+        }
     }
     else
     {
@@ -491,6 +494,7 @@ void Animator::createShaderJointBuffers()
 }
 void Animator::initAnimationClips(const Model& model)
 {
+    LOG_DEBUG << "Models based animation clips count: " <<  model.animationClips_.size();
     for (const auto& [name, clip] : model.animationClips_)
     {
         LOG_DEBUG << "Add model based clip : " << name;
