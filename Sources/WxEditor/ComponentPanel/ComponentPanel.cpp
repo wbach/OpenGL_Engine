@@ -6,6 +6,7 @@
 #include <GameEngine/Objects/GameObject.h>
 #include <GameEngine/Resources/File.h>
 #include <Logger/Log.h>
+#include <Utils/XML/XmlReader.h>
 #include <wx/artprov.h>
 #include <wx/dnd.h>
 #include <wx/propgrid/propgrid.h>
@@ -287,8 +288,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
         break;
         case GameEngine::Components::FieldType::VectorOfAnimationClips:
             CreateUIForVector<GameEngine::Components::ReadAnimationInfo>(
-                component, pane, sizer, field,
-                [this, &component](auto p, auto v, auto i, auto r, auto del)
+                component, pane, sizer, field, [this, &component](auto p, auto v, auto i, auto r, auto del)
                 { return this->CreateAnimationClipItem(component, p, v, i, r, del); });
             break;
         case FieldType::UInt:
@@ -341,6 +341,19 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                        {
                            *val = evt.GetString().ToStdString();
                            component.Reload();
+                           evt.Skip();
+                       });
+
+            ctrl->Bind(wxEVT_TEXT_PASTE,
+                       [this, &component, ctrl, val](wxClipboardTextEvent& event)
+                       {
+                           event.Skip();
+                           this->CallAfter(
+                               [this, &component, ctrl, val]()
+                               {
+                                   *val = ctrl->GetValue().ToStdString();
+                                   component.Reload();
+                               });
                        });
             break;
         }
@@ -377,6 +390,15 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
 
             // Enter w polu
             row.textCtrl->Bind(wxEVT_TEXT_ENTER,
+                               [this, &component, val, txt = row.textCtrl, warningIcon = row.warningIcon](auto& evt)
+                               {
+                                   val->Init(evt.GetString().ToStdString());
+                                   component.Reload();
+                                   txt->SetToolTip(txt->GetValue());
+                                   UpdateFileWarning(warningIcon, val->GetAbsolutePath());
+                               });
+
+            row.textCtrl->Bind(wxEVT_TEXT_PASTE,
                                [this, &component, val, txt = row.textCtrl, warningIcon = row.warningIcon](auto& evt)
                                {
                                    val->Init(evt.GetString().ToStdString());
@@ -439,7 +461,17 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                                    txt->SetValue(val->GetDataRelativePath().string());
                                    UpdateFileWarning(warningIcon, val->GetAbsolutePath().string());
                                });
-
+            row.textCtrl->Bind(wxEVT_TEXT_PASTE,
+                               [this, &component, val, prev = row.preview, pane, txt = row.textCtrl,
+                                warningIcon = row.warningIcon](wxCommandEvent& evt)
+                               {
+                                   val->Init(evt.GetString().ToStdString());
+                                   component.Reload();
+                                   SetPreviewBitmap(prev, GameEngine::File{evt.GetString().ToStdString()}, pane);
+                                   txt->SetToolTip(txt->GetValue());
+                                   txt->SetValue(val->GetDataRelativePath().string());
+                                   UpdateFileWarning(warningIcon, val->GetAbsolutePath().string());
+                               });
             row.textCtrl->SetDropTarget(new FileDropTarget(
                 [this, &component, pane, val, warningIcon = row.warningIcon, prev = row.preview,
                  ctrl = row.textCtrl](const std::string& path)
@@ -560,9 +592,8 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                     ctrl->SetIncrement(0.01);
                     ctrl->SetValue(v);
                 },
-                [](wxSpinDoubleEvent& e) { return static_cast<float>(e.GetValue()); },
-                [](wxSpinCtrlDouble* ctrl, auto handler) { ctrl->Bind(wxEVT_SPINCTRLDOUBLE, handler); },
-                {"R:", "G:", "B:", "A:"});
+                [](wxSpinDoubleEvent& e) { return static_cast<float>(e.GetValue()); }, [](wxSpinCtrlDouble* ctrl, auto handler)
+                { ctrl->Bind(wxEVT_SPINCTRLDOUBLE, handler); }, {"R:", "G:", "B:", "A:"});
             break;
         }
         // == Wektory ==
@@ -573,14 +604,12 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
             break;
 
         case FieldType::VectorOfInt:
-            CreateUIForVector<int>(component, pane, sizer, field,
-                                   [this, &component](auto p, auto v, auto i, auto r, auto del)
+            CreateUIForVector<int>(component, pane, sizer, field, [this, &component](auto p, auto v, auto i, auto r, auto del)
                                    { return this->CreateIntItem(component, p, v, i, r, del); });
             break;
 
         case FieldType::VectorOfFloat:
-            CreateUIForVector<float>(component, pane, sizer, field,
-                                     [this, &component](auto p, auto v, auto i, auto r, auto del)
+            CreateUIForVector<float>(component, pane, sizer, field, [this, &component](auto p, auto v, auto i, auto r, auto del)
                                      { return this->CreateFloatItem(component, p, v, i, r, del); });
             break;
 
@@ -598,10 +627,8 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
 
         case FieldType::ConstVectorOfTextures:
             CreateUIForVector<GameEngine::File>(
-                component, pane, sizer, field,
-                [this, &component](auto p, auto v, auto i, auto r, auto del)
-                { return this->CreateTextureItem(component, p, v, i, r, del); },
-                false);
+                component, pane, sizer, field, [this, &component](auto p, auto v, auto i, auto r, auto del)
+                { return this->CreateTextureItem(component, p, v, i, r, del); }, false);
             break;
 
         case FieldType::ConstMapOfMaterials:
@@ -789,6 +816,17 @@ wxBoxSizer* ComponentPanel::CreateStringItem(GameEngine::Components::IComponent&
 
     stringCtrl->SetToolTip(stringCtrl->GetValue());
     stringCtrl->Bind(wxEVT_TEXT_ENTER,
+                     [&component, val, index, stringCtrl](wxCommandEvent& evt)
+                     {
+                         if (index < val->size())
+                         {
+                             (*val)[index] = evt.GetString().ToStdString();
+                             stringCtrl->SetToolTip(evt.GetString().ToStdString());
+                             component.Reload();
+                         }
+                         evt.Skip();
+                     });
+    stringCtrl->Bind(wxEVT_TEXT_PASTE,
                      [&component, val, index, stringCtrl](wxCommandEvent& evt)
                      {
                          if (index < val->size())
@@ -1144,33 +1182,67 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
     wxBoxSizer* clipSizer = new wxBoxSizer(wxVERTICAL);
 
     // name
-    {
-        wxTextCtrl* ctrl = createTextEnterCtrl(pane, val->name);
-        wxBoxSizer* row  = CreateLabeledRow(pane, "Name", ctrl);
-        clipSizer->Add(row, 0, wxEXPAND | wxALL, 2);
+    wxTextCtrl* ctrl = createTextEnterCtrl(pane, val->name);
+    wxBoxSizer* row  = CreateLabeledRow(pane, "Name", ctrl);
+    clipSizer->Add(row, 0, wxEXPAND | wxALL, 2);
 
-        ctrl->Bind(wxEVT_TEXT_ENTER,
-                   [this, &component, val, ctrl](wxCommandEvent& evt)
-                   {
-                       val->name = evt.GetString().ToStdString();
-                       component.Reload();
-                       ctrl->SetToolTip(val->name);
-                   });
-    }
+    ctrl->Bind(wxEVT_TEXT_ENTER,
+               [this, &component, val, ctrl](wxCommandEvent& evt)
+               {
+                   val->name = evt.GetString().ToStdString();
+                   component.Reload();
+                   ctrl->SetToolTip(val->name);
+               });
+
+    ctrl->Bind(wxEVT_TEXT_PASTE,
+               [this, &component, val, ctrl](wxCommandEvent& evt)
+               {
+                   val->name = evt.GetString().ToStdString();
+                   component.Reload();
+                   ctrl->SetToolTip(val->name);
+               });
 
     // file
     {
         auto row = CreateBrowseFileRow(pane, "File", val->file.GetDataRelativePath().string());
         clipSizer->Add(row.row, 0, wxEXPAND | wxALL, 2);
 
-        row.browseBtn->Bind(wxEVT_BUTTON,
-                            [this, &component, txt = row.textCtrl, pane, val, warningIcon = row.warningIcon](wxCommandEvent& evt)
-                            {
-                                this->browseFileControlAction(evt, component, txt, pane, &val->file);
-                                UpdateFileWarning(warningIcon, val->file.GetAbsolutePath());
-                            });
+        row.browseBtn->Bind(
+            wxEVT_BUTTON,
+            [this, &component, ctrl, txt = row.textCtrl, pane, val, warningIcon = row.warningIcon](wxCommandEvent& evt)
+            {
+                this->browseFileControlAction(evt, component, txt, pane, &val->file);
+
+                Utils::XmlReader xmlReader;
+                xmlReader.Read(val->file.GetAbsolutePath());
+                LOG_DEBUG << "Try check anim file " << val->file.GetAbsolutePath();
+                if (auto node = xmlReader.Get("AnimationClip"))
+                {
+                    auto iter = node->attributes_.find("name");
+                    if (iter != node->attributes_.end())
+                    {
+                        val->name = iter->second;
+                        ctrl->SetValue(val->name);
+                        LOG_DEBUG << "Found name = " << val->name;
+                        component.Reload();
+                    }
+                    else
+                    {
+                        LOG_DEBUG << "Not found";
+                    }
+                }
+                UpdateFileWarning(warningIcon, val->file.GetAbsolutePath());
+            });
 
         row.textCtrl->Bind(wxEVT_TEXT_ENTER,
+                           [this, &component, val, txt = row.textCtrl, warningIcon = row.warningIcon](wxCommandEvent& evt)
+                           {
+                               val->file.Init(evt.GetString().ToStdString());
+                               component.Reload();
+                               txt->SetToolTip(txt->GetValue());
+                               UpdateFileWarning(warningIcon, val->file.GetAbsolutePath());
+                           });
+        row.textCtrl->Bind(wxEVT_TEXT_PASTE,
                            [this, &component, val, txt = row.textCtrl, warningIcon = row.warningIcon](wxCommandEvent& evt)
                            {
                                val->file.Init(evt.GetString().ToStdString());
