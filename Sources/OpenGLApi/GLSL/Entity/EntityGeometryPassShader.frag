@@ -95,7 +95,9 @@ void main()
     const bool hasBaseColorTexture = perMaterial.hasTextures.x > 0.5f;
     if(hasBaseColorTexture && perApp.useTextures.x > 0.5f)
     {
-       baseColor = texture(BaseColorTexture, uv).rgb;
+       vec4 fullbaseColor = texture(BaseColorTexture, uv);
+       baseColor = fullbaseColor.rgb;
+       if(IsTransparent(fullbaseColor.a)) discard;
     }
 
     float ambientOcclusion  = perMaterial.params.z;
