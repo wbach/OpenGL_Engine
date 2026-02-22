@@ -71,6 +71,7 @@ public:
 
 public:
     RendererComponent(ComponentContext&, GameObject&);
+    ~RendererComponent();
 
     void CleanUp() override;
     void ReqisterFunctions() override;

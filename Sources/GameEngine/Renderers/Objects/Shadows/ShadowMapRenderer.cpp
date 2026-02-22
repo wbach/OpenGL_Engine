@@ -218,6 +218,13 @@ void ShadowMapRenderer::unSubscribe(GameObject& gameObject)
     treeRenderer_.unSubscribe(gameObject);
 }
 
+void ShadowMapRenderer::unSubscribe(const Components::IComponent& component)
+{
+    LOG_DEBUG << "unSubscribe";
+    entityRenderer_.unSubscribe(component);
+    treeRenderer_.unSubscribe(component);
+}
+
 void ShadowMapRenderer::unSubscribeAll()
 {
     entityRenderer_.unSubscribeAll();

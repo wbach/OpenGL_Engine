@@ -4,15 +4,18 @@
 
 #include "GameEngine/Components/Animation/BowPoseUpdater.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
+#include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
 {
-TransformDataEvent::TransformDataEvent(Components::RendererComponent& renderComponent)
-    : renderComponent_{renderComponent}
+TransformDataEvent::TransformDataEvent(GameObject& gameObject)
+    : gameObject{gameObject}
 {
 }
 void TransformDataEvent::Execute()
 {
-    renderComponent_.get().UpdateBuffers();
+    auto rendererComponents = gameObject.get().GetComponents<Components::RendererComponent>();
+    for (auto rendererComponent : rendererComponents)
+        rendererComponent->UpdateBuffers();
 }
 }  // namespace GameEngine

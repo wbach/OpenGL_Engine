@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <variant>
+#include <vector>
 
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
@@ -192,37 +193,40 @@ void DebugRenderer::init()
             result.positions_.clear();
             result.colors_.clear();
 
-            for (auto& [_, sub] : meshDebugInfoSubscribers_)
+            for (auto& [_, infos] : meshDebugInfoSubscribers_)
             {
-                static const vec3 color(1, 0, 0);
-                auto lineMesh = std::visit(
-                    visitor{[](const Components::RendererComponent* rc)
-                            {
-                                if (not rc)
-                                    return GraphicsApi::LineMesh{};
-                                return CreateLineMeshFromBoundingBox(rc->getWorldSpaceBoundingBox(), color);
-                            },
-                            [](const Components::TreeRendererComponent* trc)
-                            {
-                                if (not trc)
-                                    return GraphicsApi::LineMesh{};
-                                return CreateLineMeshFromBoundingBox(trc->GetWorldBoundingBox(), color);
-                            },
-                            [](const Components::TerrainRendererComponent* tc)
-                            {
-                                if (tc and tc->GetRendererType() != Components::TerrainRendererComponent::RendererType::Mesh)
-                                    return GraphicsApi::LineMesh{};
-
-                                GraphicsApi::LineMesh result;
-                                for (const auto& bb : tc->GetMeshTerrain()->getMeshesBoundingBoxes())
+                for (auto& info : infos)
+                {
+                    static const vec3 color(1, 0, 0);
+                    auto lineMesh = std::visit(
+                        visitor{[](const Components::RendererComponent* rc)
                                 {
-                                    result = appendLineMesh(result, CreateLineMeshFromBoundingBox(bb, color));
-                                }
-                                return result;
-                            }},
-                    sub.component);
+                                    if (not rc)
+                                        return GraphicsApi::LineMesh{};
+                                    return CreateLineMeshFromBoundingBox(rc->getWorldSpaceBoundingBox(), color);
+                                },
+                                [](const Components::TreeRendererComponent* trc)
+                                {
+                                    if (not trc)
+                                        return GraphicsApi::LineMesh{};
+                                    return CreateLineMeshFromBoundingBox(trc->GetWorldBoundingBox(), color);
+                                },
+                                [](const Components::TerrainRendererComponent* tc)
+                                {
+                                    if (tc and tc->GetRendererType() != Components::TerrainRendererComponent::RendererType::Mesh)
+                                        return GraphicsApi::LineMesh{};
 
-                result = appendLineMesh(result, lineMesh);
+                                    GraphicsApi::LineMesh result;
+                                    for (const auto& bb : tc->GetMeshTerrain()->getMeshesBoundingBoxes())
+                                    {
+                                        result = appendLineMesh(result, CreateLineMeshFromBoundingBox(bb, color));
+                                    }
+                                    return result;
+                                }},
+                        info.component);
+
+                    result = appendLineMesh(result, lineMesh);
+                }
             }
             return result;
         });
@@ -363,23 +367,25 @@ void DebugRenderer::subscribe(GameObject& gameObject)
         {
             meshDebugInfoSubscribers_.insert(
                 {gameObject.GetId(),
-                 {.gameObject = gameObject, .modelWrapper = terrainMeshComponent->GetModel(), .component = terrain}});
+                 {{.gameObject = gameObject, .modelWrapper = terrainMeshComponent->GetModel(), .component = terrain}}});
         }
     }
-    auto rc = gameObject.GetComponent<Components::RendererComponent>();
+    auto rcs = gameObject.GetComponents<Components::RendererComponent>();
 
-    if (rc)
+    std::vector<DebugMeshInfo> infos;
+    for (auto rc : rcs)
     {
-        meshDebugInfoSubscribers_.insert(
-            {gameObject.GetId(), {.gameObject = gameObject, .modelWrapper = rc->GetModelWrapper(), .component = rc}});
+        infos.push_back({.gameObject = gameObject, .modelWrapper = rc->GetModelWrapper(), .component = rc});
     }
+
+    meshDebugInfoSubscribers_.insert({gameObject.GetId(), infos});
 
     auto trc = gameObject.GetComponent<Components::TreeRendererComponent>();
 
     if (trc)
     {
         meshDebugInfoSubscribers_.insert(
-            {gameObject.GetId(), {.gameObject = gameObject, .modelWrapper = trc->GetTrunkModel(), .component = trc}});
+            {gameObject.GetId(), {{.gameObject = gameObject, .modelWrapper = trc->GetTrunkModel(), .component = trc}}});
     }
 }
 
@@ -392,6 +398,37 @@ void DebugRenderer::unSubscribe(GameObject& gameObject)
     if (iter != meshDebugInfoSubscribers_.end())
     {
         meshDebugInfoSubscribers_.erase(iter);
+    }
+}
+
+void DebugRenderer::unSubscribe(const Components::IComponent& inputComponent)
+{
+    std::lock_guard<std::mutex> lk(meshInfoDebugObjectsMutex_);
+    std::vector<uint32> toRemove;
+    for (auto& [id, debugInfos] : meshDebugInfoSubscribers_)
+    {
+        auto iter = std::find_if(
+            debugInfos.begin(), debugInfos.end(),
+            [&inputComponent](const auto& debugInfo)
+            {
+                return std::visit(visitor{[&inputComponent](const auto* component) { return component == &inputComponent; }},
+                                  debugInfo.component);
+            });
+
+        if (iter != debugInfos.end())
+        {
+            debugInfos.erase(iter);
+        }
+
+        if (debugInfos.empty())
+        {
+            toRemove.push_back(id);
+        }
+    }
+
+    for (auto id : toRemove)
+    {
+        meshDebugInfoSubscribers_.erase(id);
     }
 }
 
@@ -569,22 +606,26 @@ void DebugRenderer::DrawNormals()
     {
         debugNormalShader_.Start();
         std::lock_guard<std::mutex> lk(meshInfoDebugObjectsMutex_);
-        for (auto& [id, debugInfoMesh] : meshDebugInfoSubscribers_)
+        for (auto& [id, debugInfoMeshes] : meshDebugInfoSubscribers_)
         {
-            auto model = debugInfoMesh.modelWrapper.Get(LevelOfDetail::L1);
-            if (model)
+            for (auto& debugInfoMesh : debugInfoMeshes)
             {
-                for (auto& mesh : model->GetMeshes())
+                auto model = debugInfoMesh.modelWrapper.get().Get(LevelOfDetail::L1);
+                if (model)
                 {
-                    auto meshId = mesh.GetGraphicsObjectId();
-                    if (meshId)
+                    for (auto& mesh : model->GetMeshes())
                     {
-                        PerObjectUpdate update{rendererContext_.graphicsApi_.PrepareMatrixToLoad(
-                            debugInfoMesh.gameObject.GetWorldTransform().CalculateCurrentMatrix() * mesh.GetMeshTransform())};
+                        auto meshId = mesh.GetGraphicsObjectId();
+                        if (meshId)
+                        {
+                            PerObjectUpdate update{rendererContext_.graphicsApi_.PrepareMatrixToLoad(
+                                debugInfoMesh.gameObject.get().GetWorldTransform().CalculateCurrentMatrix() *
+                                mesh.GetMeshTransform())};
 
-                        rendererContext_.graphicsApi_.UpdateShaderBuffer(*meshDebugPerObjectBufferId_, &update);
-                        rendererContext_.graphicsApi_.BindShaderBuffer(*meshDebugPerObjectBufferId_);
-                        rendererContext_.graphicsApi_.RenderDebugNormals(*meshId);
+                            rendererContext_.graphicsApi_.UpdateShaderBuffer(*meshDebugPerObjectBufferId_, &update);
+                            rendererContext_.graphicsApi_.BindShaderBuffer(*meshDebugPerObjectBufferId_);
+                            rendererContext_.graphicsApi_.RenderDebugNormals(*meshId);
+                        }
                     }
                 }
             }

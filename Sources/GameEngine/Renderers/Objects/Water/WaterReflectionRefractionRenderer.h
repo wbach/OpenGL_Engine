@@ -7,10 +7,10 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/Objects/Entity/EntityRenderer.h"
-#include "GameEngine/Renderers/Objects/Tree/RefletionTreeRenderer.h"
 #include "GameEngine/Renderers/Objects/SkyBox/ForwadSkyRenderer.h"
 #include "GameEngine/Renderers/Objects/SkyBox/SkyBoxRenderer.h"
 #include "GameEngine/Renderers/Objects/Terrain/Mesh/TerrainMeshRenderer.h"
+#include "GameEngine/Renderers/Objects/Tree/RefletionTreeRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/ShaderBuffers/ShadowsBuffer.h"
 #include "GameEngine/Scene/Scene.hpp"
@@ -66,6 +66,7 @@ public:
     void prepare() override;
     void subscribe(GameObject&) override;
     void unSubscribe(GameObject&) override;
+    void unSubscribe(const Components::IComponent&) override;
     void unSubscribeAll() override;
     void reloadShaders() override;
 

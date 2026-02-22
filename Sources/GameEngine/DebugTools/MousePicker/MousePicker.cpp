@@ -4,6 +4,7 @@
 #include <Utils/GLM/GLMUtils.h>
 
 #include <optional>
+#include <ranges>
 
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
@@ -104,37 +105,46 @@ std::optional<std::pair<GameObject*, float>> MousePicker::IntersectObject(const 
 {
     std::optional<std::pair<GameObject*, float>> closest;
 
-    auto renderComponent        = object->GetComponent<Components::RendererComponent>();
+    auto renderComponents         = object->GetComponents<Components::RendererComponent>();
+    auto activeRendererComponents = renderComponents | std::views::filter([](const auto* c) { return c->IsActive(); });
+
     auto treeRenderComponent    = object->GetComponent<Components::TreeRendererComponent>();
     auto waterRendererComponent = object->GetComponent<Components::WaterRendererComponent>();
-    if ((renderComponent and renderComponent->IsActive()) or (treeRenderComponent and treeRenderComponent->IsActive()) or
+    if (not activeRendererComponents.empty() or (treeRenderComponent and treeRenderComponent->IsActive()) or
         (waterRendererComponent and waterRendererComponent->IsActive()))
     {
-        const Model* model{nullptr};
-        if (renderComponent)
+        std::vector<const Model*> models;
+        if (not activeRendererComponents.empty())
         {
-            model = renderComponent->GetModelWrapper().Get(LevelOfDetail::L1);
+            for (auto& rendererComponent : activeRendererComponents)
+            {
+                models.push_back(rendererComponent->GetModelWrapper().Get(LevelOfDetail::L1));
+            }
         }
         else if (treeRenderComponent)
         {
-            model = treeRenderComponent->GetTrunkModel().Get(LevelOfDetail::L1);
+            models.push_back(treeRenderComponent->GetTrunkModel().Get(LevelOfDetail::L1));
         }
 
-        std::optional<BoundingBox> boundingBox;
-        if (model)
+        std::vector<BoundingBox> boundingBoxes;
+        if (not models.empty())
         {
-            boundingBox = model->getBoundingBox();
-            boundingBox->scale(object->GetWorldTransform().GetScale());
-            boundingBox->translate(object->GetWorldTransform().GetPosition());
+            for (auto& model : models)
+            {
+                auto boundingBox = model->getBoundingBox();
+                boundingBox.scale(object->GetWorldTransform().GetScale());
+                boundingBox.translate(object->GetWorldTransform().GetPosition());
+                boundingBoxes.push_back(boundingBox);
+            }
         }
         else
         {
-            boundingBox = waterRendererComponent->getModelBoundingBox();
+            boundingBoxes.push_back(waterRendererComponent->getModelBoundingBox());
         }
 
-        if (boundingBox)
+        for (const auto& boundingBox : boundingBoxes)
         {
-            if (auto t = BoundingBoxIntersect(ray, *boundingBox, mode))
+            if (auto t = BoundingBoxIntersect(ray, boundingBox, mode))
             {
                 closest = std::make_pair(const_cast<GameObject*>(object), *t);
             }

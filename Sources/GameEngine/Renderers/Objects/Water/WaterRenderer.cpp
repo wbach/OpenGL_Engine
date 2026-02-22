@@ -21,7 +21,8 @@ struct WaterTileMeshBuffer
     AlignWrapper<vec4> params;  // x - planeMoveFactor, y - waveFactor, z - tiledValue, w - isSimpleRender
     AlignWrapper<vec4> waveParams;
     AlignWrapper<vec4> projParams;
-    AlignWrapper<vec4> waterDepthVisibility;  // x - maxVisibleDepth, y = scaleDepth z - waterColorBlendFactor, w - softEdgeDistance
+    AlignWrapper<vec4>
+        waterDepthVisibility;  // x - maxVisibleDepth, y = scaleDepth z - waterColorBlendFactor, w - softEdgeDistance
 };
 
 const float useSimpleRender{1.f};
@@ -198,5 +199,10 @@ void WaterRenderer::reloadShaders()
 {
     waterReflectionRefractionRenderer_.reloadShaders();
     shader_.Reload();
+}
+void WaterRenderer::unSubscribe(const Components::IComponent& component)
+{
+    std::lock_guard<std::mutex> lk(subscribersMutex_);
+    waterReflectionRefractionRenderer_.unSubscribe(component);
 }
 }  // namespace GameEngine

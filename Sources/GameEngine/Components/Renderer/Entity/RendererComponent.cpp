@@ -73,7 +73,9 @@ RendererComponent::RendererComponent(ComponentContext& componentContext, GameObj
     modelNormalization = loadingParameters_.modelNormalization == ModelNormalization::normalized ? true : false;
     meshOptimize       = loadingParameters_.meshOptimize == MeshOptimize::optimized ? true : false;
 }
-
+RendererComponent::~RendererComponent()
+{
+}
 void RendererComponent::CleanUp()
 {
     CleanUpWithRestrictions();
@@ -297,7 +299,8 @@ void RendererComponent::UnSubscribe()
 {
     if (isSubscribed_)
     {
-        componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+        LOG_DEBUG << thisObject_.GetName();
+        componentContext_.renderersManager_.UnSubscribe(*this);
         isSubscribed_ = false;
     }
 }

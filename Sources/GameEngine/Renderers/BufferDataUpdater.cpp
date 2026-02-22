@@ -2,6 +2,8 @@
 
 #include <Logger/Log.h>
 
+#include <mutex>
+
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
 #include "TransformDataEvent.h"
@@ -16,45 +18,42 @@ void BufferDataUpdater::Subscribe(GameObject* gameObject)
         return;
     }
 
-    auto rendererComponent = gameObject->GetComponent<Components::RendererComponent>();
+    auto rendererComponents = gameObject->GetComponents<Components::RendererComponent>();
+    if (rendererComponents.empty())
+        return;
 
-    if (rendererComponent)
+    std::lock_guard<std::mutex> lk(subsribtionMutex_);
+
+    auto iter = subscribers_.find(gameObject->GetId());
+    if (iter != subscribers_.end())
     {
-        AddEvent(gameObject->GetId(), TransformDataEvent{*rendererComponent});
-
-        LOG_DEBUG << "SubscribeOnWorldTransfomChange " << *gameObject;
-        auto subId =
-            gameObject->SubscribeOnWorldTransfomChange([id = gameObject->GetId(), this, rendererComponent](const auto&) mutable
-                                                       { AddEvent(id, TransformDataEvent{*rendererComponent}); });
-
-        std::lock_guard<std::mutex> lk(subsribtionMutex_);
-        subscribers_.push_back(BufferDataUpdaterSubscriber{.transformSubscribtionId = subId, .gameObject = gameObject});
+        return;
     }
+
+    AddEvent(gameObject->GetId(), TransformDataEvent{*gameObject});
+
+    LOG_DEBUG << "SubscribeOnWorldTransfomChange " << *gameObject;
+    auto subId = gameObject->SubscribeOnWorldTransfomChange(
+        [gameObject, this](const auto&)
+        {
+            auto id = gameObject->GetId();
+            AddEvent(id, TransformDataEvent{*gameObject});
+        });
+
+    subscribers_.insert(
+        {gameObject->GetId(), BufferDataUpdaterSubscriber{.transformSubscribtionId = subId, .gameObject = gameObject}});
 }
 void BufferDataUpdater::UnSubscribe(GameObject* gameObject)
 {
     LOG_DEBUG << "UnSubscribe " << gameObject->GetName();
-    bool result{false};
+    std::scoped_lock lk(eventMutex_, subsribtionMutex_);
 
-    std::lock_guard<std::mutex> lk(subsribtionMutex_);
-    for (auto iter = subscribers_.begin(); iter != subscribers_.end();)
+    auto iter = subscribers_.find(gameObject->GetId());
+    if (iter != subscribers_.end())
     {
-        if (iter->gameObject and iter->gameObject->GetId() == gameObject->GetId())
-        {
-            gameObject->UnsubscribeOnWorldTransfromChange(iter->transformSubscribtionId);
-            iter = subscribers_.erase(iter);
-            LOG_DEBUG << "erase " << gameObject->GetName();
-            result = true;
-        }
-        else
-        {
-            ++iter;
-        }
-    }
-
-    if (not result)
-    {
-        LOG_DEBUG << "not erase " << gameObject->GetName() << " size = " << subscribers_.size();
+        const auto& sub = iter->second;
+        iter->second.gameObject->UnsubscribeOnWorldTransfromChange(sub.transformSubscribtionId);
+        subscribers_.erase(iter);
     }
 
     events_.erase(gameObject->GetId());
@@ -67,20 +66,13 @@ void BufferDataUpdater::Update()
 }
 void BufferDataUpdater::UnSubscribeAll()
 {
+    std::scoped_lock lk(eventMutex_, subsribtionMutex_);
+    for (auto& [id, sub] : subscribers_)
     {
-        std::lock_guard<std::mutex> lk(subsribtionMutex_);
-        for (auto iter = subscribers_.begin(); iter != subscribers_.end();)
-        {
-            if (iter->gameObject)
-            {
-                iter->gameObject->UnsubscribeOnWorldTransfromChange(iter->transformSubscribtionId);
-            }
-
-            iter = subscribers_.erase(iter);
-        }
+        sub.gameObject->UnsubscribeOnLocalTransfromChange(sub.transformSubscribtionId);
     }
 
-    std::lock_guard<std::mutex> eventLk(eventMutex_);
+    subscribers_.clear();
     events_.clear();
 }
 void BufferDataUpdater::ProcessEvents()
@@ -89,14 +81,14 @@ void BufferDataUpdater::ProcessEvents()
     {
         std::lock_guard<std::mutex> lk(eventMutex_);
         tmpEvents = std::move(events_);
+
+        for (auto& [_, event] : tmpEvents)
+        {
+            event.Execute();
+        }
     }
 
-    for (auto& [_, event] : tmpEvents)
-    {
-        event.Execute();
-    }
-
-    for(auto& event : cameraUpdateEvents_)
+    for (auto& event : cameraUpdateEvents_)
     {
         event.Execute();
     }
@@ -110,5 +102,17 @@ void BufferDataUpdater::AddEvent(uint32 gameobjectId, TransformDataEvent&& event
 void BufferDataUpdater::AddEvent(CameraBufferUpdateEvent&& event)
 {
     cameraUpdateEvents_.push_back(std::move(event));
+}
+void BufferDataUpdater::UnSubscribe(const Components::IComponent& component)
+{
+    std::scoped_lock lk(eventMutex_, subsribtionMutex_);
+    if (component.getParentGameObject().GetComponents<Components::RendererComponent>().size() > 1)
+    {
+        return;
+    }
+
+    auto ownerId = component.getParentGameObject().GetId();
+    subscribers_.erase(ownerId);
+    events_.erase(ownerId);
 }
 }  // namespace GameEngine

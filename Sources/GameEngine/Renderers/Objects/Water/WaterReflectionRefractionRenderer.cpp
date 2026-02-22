@@ -250,6 +250,12 @@ void WaterReflectionRefractionRenderer::unSubscribe(GameObject& gameObject)
         fbo->usingByObjects.erase(gameObject.GetId());
     }
 }
+void WaterReflectionRefractionRenderer::unSubscribe(const Components::IComponent& component)
+{
+    LOG_DEBUG << "unSubscribe";
+    entityRenderer_.unSubscribe(component);
+    treeRenderer_.unSubscribe(component);
+}
 void WaterReflectionRefractionRenderer::unSubscribeAll()
 {
     skyBoxRenderer_.unSubscribeAll();
@@ -516,5 +522,4 @@ WaterReflectionRefractionRenderer::WaterFbo* WaterReflectionRefractionRenderer::
     waterFbos_.push_back(waterFbo);
     return &waterFbos_.back();
 }
-
 }  // namespace GameEngine

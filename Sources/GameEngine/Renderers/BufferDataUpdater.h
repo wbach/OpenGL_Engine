@@ -23,7 +23,7 @@ struct BufferDataUpdaterSubscriber
     GameObject* gameObject{nullptr};
 };
 
-using BufferDataUpdaterSubcribers = std::vector<BufferDataUpdaterSubscriber>;
+using BufferDataUpdaterSubcribers = std::unordered_map<uint32, BufferDataUpdaterSubscriber>;
 using BufferDataUpdaterEvents     = std::unordered_map<uint32, TransformDataEvent>;
 using CameraBufferUpdateEvents = std::vector<CameraBufferUpdateEvent>;
 
@@ -32,6 +32,7 @@ class BufferDataUpdater
 public:
     void Subscribe(GameObject*);
     void UnSubscribe(GameObject*);
+    void UnSubscribe(const Components::IComponent&);
     void Update();
     void UnSubscribeAll();
     void ProcessEvents();

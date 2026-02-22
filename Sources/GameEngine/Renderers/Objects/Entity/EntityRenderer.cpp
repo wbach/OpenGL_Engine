@@ -41,12 +41,22 @@ uint32 EntityRenderer::renderEntitiesWithoutGrouping()
     for (const auto& sub : subscribes_)
     {
         auto distance = glm::length(context_.camera_->GetPosition() - sub.gameObject->GetWorldTransform().GetPosition());
-        if (auto model = sub.renderComponent->GetModelWrapper().get(distance))
+
+        for (auto renderComponent : sub.renderComponents)
         {
-            auto isVisible = context_.frustrum_.intersection(sub.renderComponent->getWorldSpaceBoundingBox());
-            if (isVisible)
+            if (not renderComponent)
             {
-                renderModel(sub, *model);
+                LOG_WARN << "Something goes wrong";
+                continue;
+            }
+
+            if (auto model = renderComponent->GetModelWrapper().get(distance))
+            {
+                auto isVisible = context_.frustrum_.intersection(renderComponent->getWorldSpaceBoundingBox());
+                if (isVisible)
+                {
+                    renderModel(*renderComponent, sub.animator, *model);
+                }
             }
         }
     }
@@ -59,7 +69,8 @@ void EntityRenderer::init()
     perInstanceBuffer_ = std::make_unique<ShaderBufferObject<PerInstances>>(context_.graphicsApi_, PER_INSTANCES_BIND_LOCATION);
     perInstanceBuffer_->GpuLoadingPass();
 
-    perMeshBuffer_ = std::make_unique<ShaderBufferObject<PerObjectUpdate>>(context_.graphicsApi_, PER_OBJECT_UPDATE_BIND_LOCATION);
+    perMeshBuffer_ =
+        std::make_unique<ShaderBufferObject<PerObjectUpdate>>(context_.graphicsApi_, PER_OBJECT_UPDATE_BIND_LOCATION);
     perMeshBuffer_->GpuLoadingPass();
 }
 
@@ -77,30 +88,49 @@ void EntityRenderer::cleanUp()
 
 void EntityRenderer::subscribe(GameObject& gameObject)
 {
-    auto iter = std::find_if(subscribes_.begin(), subscribes_.end(),
-                             [id = gameObject.GetId()](const auto& sub) { return sub.gameObject->GetId() == id; });
+    auto rendererComponents = gameObject.GetComponents<Components::RendererComponent>();
 
-    if (iter != subscribes_.end())
+    if (rendererComponents.empty())
         return;
 
-    auto rendererComponent = gameObject.GetComponent<Components::RendererComponent>();
-
-    if (rendererComponent == nullptr)
-        return;
-
-    auto model = rendererComponent->GetModelWrapper().Get(LevelOfDetail::L1);
-    if (not model)
+    for (auto iter = rendererComponents.begin(); iter != rendererComponents.end();)
     {
-        LOG_ERROR << "Model not exist in RendererComponent! gameObjectId: " << gameObject.GetId();
+        auto rendererComponent = *iter;
+        auto model             = rendererComponent->GetModelWrapper().Get(LevelOfDetail::L1);
+        if (not model)
+        {
+            LOG_ERROR << "Model not exist in RendererComponent! gameObjectId: " << gameObject.GetId();
+            iter = rendererComponents.erase(iter);
+        }
+        else
+        {
+            ++iter;
+        }
+    }
+
+    if (rendererComponents.empty())
+    {
+        LOG_WARN << "No single model exist in renderer components in gameObjectId " << gameObject.GetId();
         return;
     }
 
-    auto animator = gameObject.GetComponent<Components::Animator>();
-
     std::lock_guard<std::mutex> lk(subscriberMutex_);
-    subscribes_.push_back(
-        EntitySubscriber{.gameObject = &gameObject, .renderComponent = rendererComponent, .animator = animator});
-    subscribesIds_.insert(gameObject.GetId());
+    auto subscribersIter = std::find_if(subscribes_.begin(), subscribes_.end(),
+                                        [id = gameObject.GetId()](const auto& sub) { return sub.gameObject->GetId() == id; });
+
+    if (subscribersIter == subscribes_.end())
+    {
+        auto animator = gameObject.GetComponent<Components::Animator>();
+
+        subscribes_.push_back(
+            EntitySubscriber{.gameObject = &gameObject, .renderComponents = std::move(rendererComponents), .animator = animator});
+        subscribesIds_.insert(gameObject.GetId());
+    }
+    else
+    {
+        auto& subscriber            = *subscribersIter;
+        subscriber.renderComponents = std::move(rendererComponents);
+    }
 
     LOG_DEBUG << "Subsribed, gameObjectId : " << gameObject.GetId();
 }
@@ -145,7 +175,10 @@ uint32 EntityRenderer::renderEntityWithGrouping(ShaderProgram& singleEntityShade
         for (const auto& [model, subscribers] : groupedEntities.singleEntitiesToRender_)
         {
             for (auto& subscriber : subscribers)
-                renderModel(*subscriber, *model);
+            {
+                for (auto& renderComponent : subscriber->renderComponents)
+                    renderModel(*renderComponent, subscriber->animator, *model);
+            }
         }
     }
 
@@ -187,15 +220,15 @@ uint32 EntityRenderer::renderEntityWithGrouping(ShaderProgram& singleEntityShade
                         perMeshBuffer_->UpdateGpuPass();
                         context_.graphicsApi_.BindShaderBuffer(*perMeshApiId);
 
-                        for (size_t i = 0; i < subscribers.size(); ++i)
-                        {
-                            auto& sub = subscribers[i];
-                            if (sub->renderComponent->GetCustomMaterials().size() > 0)
-                            {
-                                LOG_WARN << "Custom material not supported with grouping renderer. gameObject: "
-                                         << sub->gameObject->GetName() << ", model :" << model->GetFile().GetFilename();
-                            }
-                        }
+                        // for (size_t i = 0; i < subscribers.size(); ++i)
+                        // {
+                        //     auto& sub = subscribers[i];
+                        //     if (sub->renderComponent->GetCustomMaterials().size() > 0)
+                        //     {
+                        //         LOG_WARN << "Custom material not supported with grouping renderer. gameObject: "
+                        //                  << sub->gameObject->GetName() << ", model :" << model->GetFile().GetFilename();
+                        //     }
+                        // }
 
                         bindMaterial(mesh.GetMaterial());
                         context_.graphicsApi_.RenderMeshInstanced(*mesh.GetGraphicsObjectId(),
@@ -223,68 +256,71 @@ EntityRenderer::GroupedEntities EntityRenderer::groupEntities() const
     {
         auto distance = glm::length(context_.camera_->GetPosition() - sub.gameObject->GetWorldTransform().GetPosition());
 
-        if (auto model = sub.renderComponent->GetModelWrapper().get(distance))
+        for (const auto& renderComponent : sub.renderComponents)
         {
-            // TO DO : fix
-            // const auto& objectTransform = sub.gameObject->GetWorldTransform();
-            // auto radius                 = glm::compMax(objectTransform.GetScale());
-
-            // BoundingBox translateBoundingBox(const BoundingBox& modelBB, const mat4& transform)
-            //{
-            //     auto newMin = transform * vec4(modelBB.min(), 1.f);
-            //     auto newMax = transform * vec4(modelBB.max(), 1.f);
-            //     return BoundingBox();
-            // }
-
-            // auto isVisible = context_.frustrum_.intersection(translateBoundingBox(model->getBoundingBox(),
-            // objectTransform.GetMatrix()));
-            // if (not isVisible)
-            //    continue;
-
-            if ((sub.animator and model->getRootJoint()))
+            if (auto model = renderComponent->GetModelWrapper().get(distance))
             {
-                auto classificatedToSingleIter = result.singleEntitiesToRender_.find(model);
-                if (classificatedToSingleIter != result.singleEntitiesToRender_.end())
-                {
-                    classificatedToSingleIter->second.push_back(&sub);
-                }
-                else
-                {
-                    result.singleEntitiesToRender_.insert({model, {&sub}});
-                }
-            }
-            else
-            {
-                auto classificatedToSingleIter = result.singleEntitiesToRender_.find(model);
-                if (classificatedToSingleIter != result.singleEntitiesToRender_.end())
-                {
-                    if (classificatedToSingleIter->second.size() > 1)
-                    {
-                        LOG_WARN << "Multiple single should be only for animated models";
-                        continue;
-                    }
+                // TO DO : fix
+                // const auto& objectTransform = sub.gameObject->GetWorldTransform();
+                // auto radius                 = glm::compMax(objectTransform.GetScale());
 
-                    result.groupsToRender_.insert(
-                        {classificatedToSingleIter->first, {{classificatedToSingleIter->second.front(), &sub}}});
-                    result.singleEntitiesToRender_.erase(classificatedToSingleIter);
-                }
-                else
+                // BoundingBox translateBoundingBox(const BoundingBox& modelBB, const mat4& transform)
+                //{
+                //     auto newMin = transform * vec4(modelBB.min(), 1.f);
+                //     auto newMax = transform * vec4(modelBB.max(), 1.f);
+                //     return BoundingBox();
+                // }
+
+                // auto isVisible = context_.frustrum_.intersection(translateBoundingBox(model->getBoundingBox(),
+                // objectTransform.GetMatrix()));
+                // if (not isVisible)
+                //    continue;
+
+                if ((sub.animator and model->getRootJoint()))
                 {
-                    auto iter = result.groupsToRender_.find(model);
-                    if (iter != result.groupsToRender_.end())
+                    auto classificatedToSingleIter = result.singleEntitiesToRender_.find(model);
+                    if (classificatedToSingleIter != result.singleEntitiesToRender_.end())
                     {
-                        if (iter->second.back().size() >= MAX_INSTANCES)
-                        {
-                            iter->second.push_back({&sub});
-                        }
-                        else
-                        {
-                            iter->second.back().push_back(&sub);
-                        }
+                        classificatedToSingleIter->second.push_back(&sub);
                     }
                     else
                     {
                         result.singleEntitiesToRender_.insert({model, {&sub}});
+                    }
+                }
+                else
+                {
+                    auto classificatedToSingleIter = result.singleEntitiesToRender_.find(model);
+                    if (classificatedToSingleIter != result.singleEntitiesToRender_.end())
+                    {
+                        if (classificatedToSingleIter->second.size() > 1)
+                        {
+                            LOG_WARN << "Multiple single should be only for animated models";
+                            continue;
+                        }
+
+                        result.groupsToRender_.insert(
+                            {classificatedToSingleIter->first, {{classificatedToSingleIter->second.front(), &sub}}});
+                        result.singleEntitiesToRender_.erase(classificatedToSingleIter);
+                    }
+                    else
+                    {
+                        auto iter = result.groupsToRender_.find(model);
+                        if (iter != result.groupsToRender_.end())
+                        {
+                            if (iter->second.back().size() >= MAX_INSTANCES)
+                            {
+                                iter->second.push_back({&sub});
+                            }
+                            else
+                            {
+                                iter->second.back().push_back(&sub);
+                            }
+                        }
+                        else
+                        {
+                            result.singleEntitiesToRender_.insert({model, {&sub}});
+                        }
                     }
                 }
             }
@@ -293,11 +329,12 @@ EntityRenderer::GroupedEntities EntityRenderer::groupEntities() const
     return result;
 }
 
-void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model& model)
+void EntityRenderer::renderModel(const Components::RendererComponent& renderComponent, const Components::Animator* animator,
+                                 const Model& model)
 {
-    if (subsriber.animator and model.getRootJoint())
+    if (animator and model.getRootJoint())
     {
-        const auto& perPoseBuffer = subsriber.animator->getPerPoseBufferId();
+        const auto& perPoseBuffer = animator->getPerPoseBufferId();
 
         if (perPoseBuffer)
             context_.graphicsApi_.BindShaderBuffer(*perPoseBuffer);
@@ -312,7 +349,7 @@ void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model&
             continue;
         }
 
-        const auto& [materialShaderBufferId, materialData] = getMaterial(subsriber, mesh);
+        const auto& [materialShaderBufferId, materialData] = getMaterial(renderComponent, mesh);
 
         if (materialShaderBufferId)
         {
@@ -324,7 +361,7 @@ void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model&
             continue;
         }
 
-        const auto& perMeshUpdateBuffer = subsriber.renderComponent->GetPerObjectUpdateBuffer(mesh.GetGpuObjectId());
+        const auto& perMeshUpdateBuffer = renderComponent.GetPerObjectUpdateBuffer(mesh.GetGpuObjectId());
         if (perMeshUpdateBuffer)
         {
             context_.graphicsApi_.BindShaderBuffer(*perMeshUpdateBuffer);
@@ -335,7 +372,7 @@ void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model&
             continue;
         }
 
-        const auto& perMeshConstantBuffer = subsriber.renderComponent->GetPerObjectConstantsBuffer(mesh.GetGpuObjectId());
+        const auto& perMeshConstantBuffer = renderComponent.GetPerObjectConstantsBuffer(mesh.GetGpuObjectId());
         if (perMeshConstantBuffer)
         {
             context_.graphicsApi_.BindShaderBuffer(*perMeshConstantBuffer);
@@ -365,11 +402,12 @@ void EntityRenderer::renderMesh(const Mesh& mesh, const Material& material)
     unBindMaterial(material);
 }
 
-const std::pair<GraphicsApi::ID, const Material*> EntityRenderer::getMaterial(const EntitySubscriber& sub, const Mesh& mesh)
+const std::pair<GraphicsApi::ID, const Material*> EntityRenderer::getMaterial(
+    const Components::RendererComponent& renderComponent, const Mesh& mesh)
 {
     std::pair<GraphicsApi::ID, const Material*> result{mesh.GetMaterialShaderBufferId(), &mesh.GetMaterial()};
 
-    const auto& customMaterials = sub.renderComponent->GetCustomMaterials();
+    const auto& customMaterials = renderComponent.GetCustomMaterials();
     if (auto iter = customMaterials.find(mesh.GetGpuObjectId()); iter != customMaterials.end())
     {
         const auto& customMaterialData = iter->second;
@@ -415,7 +453,31 @@ void EntityRenderer::bindMaterialTexture(uint32 location, GeneralTexture* textur
         context_.graphicsApi_.ActiveTexture(location, *texture->GetGraphicsObjectId());
     }
 }
-void EntityRenderer::unSubscribe(const Components::IComponent&)
+void EntityRenderer::unSubscribe(const Components::IComponent& component)
 {
+    const auto& gameObject = component.getParentGameObject();
+    LOG_DEBUG << "Try unSubscribe component in " << gameObject.GetName();
+
+    std::lock_guard<std::mutex> lk(subscriberMutex_);
+    auto iter = std::find_if(subscribes_.begin(), subscribes_.end(),
+                             [id = gameObject.GetId()](const auto& sub) { return sub.gameObject->GetId() == id; });
+
+    if (iter != subscribes_.end())
+    {
+        auto& components = iter->renderComponents;
+
+        auto componentIter = std::find(components.begin(), components.end(), &component);
+        if (componentIter != components.end())
+        {
+            LOG_DEBUG << "unSubscribe";
+            components.erase(componentIter);
+        }
+
+        if (components.empty())
+        {
+            LOG_DEBUG << "last unSubscribe in sub";
+            subscribes_.erase(iter);
+        }
+    }
 }
 }  // namespace GameEngine

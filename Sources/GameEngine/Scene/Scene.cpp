@@ -363,6 +363,11 @@ void Scene::ProcessEvent(RemoveGameObjectEvent&& event)
         LOG_WARN << "RootObject was not set!";
     }
 
+    if (auto gameObject = GetGameObject(id))
+    {
+        renderersManager_->UnSubscribe(gameObject);
+    }
+
     auto ids = rootGameObject_->RemoveChild(id);
     for (const auto id : ids)
     {

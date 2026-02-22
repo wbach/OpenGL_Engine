@@ -288,6 +288,9 @@ void RenderersManager::UnSubscribe(const Components::IComponent& component)
     if (mainCameraRenderer_)
         mainCameraRenderer_->unSubscribe(component);
 
+    bufferDataUpdater_.UnSubscribe(component);
+    debugRenderer_.unSubscribe(component);
+
     for (auto& [_, context] : camerasRenderers)
     {
         if (context.renderer)

@@ -1,6 +1,7 @@
 #pragma once
 #include <Types.h>
 #include <functional>
+#include "GameEngine/Objects/GameObject.h"
 
 namespace common
 {
@@ -18,10 +19,10 @@ class RendererComponent;
 class TransformDataEvent
 {
 public:
-    TransformDataEvent(Components::RendererComponent&);
+    TransformDataEvent(GameObject&);
     void Execute();
 
 private:
-    std::reference_wrapper<Components::RendererComponent> renderComponent_;
+    std::reference_wrapper<GameObject> gameObject;
 };
 }  // namespace GameEngine

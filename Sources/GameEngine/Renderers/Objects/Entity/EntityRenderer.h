@@ -31,7 +31,7 @@ class RendererComponent;
 struct EntitySubscriber
 {
     GameObject* gameObject{nullptr};
-    Components::RendererComponent* renderComponent{nullptr};
+    std::vector<Components::RendererComponent*> renderComponents{nullptr};
     Components::Animator* animator{nullptr};
 };
 
@@ -62,12 +62,12 @@ public:
 private:
     GroupedEntities groupEntities() const;
 
-    void renderModel(const EntitySubscriber&, const Model&);
-    void renderMesh(const Mesh&,const Material&);
+    void renderModel(const Components::RendererComponent&, const Components::Animator*, const Model&);
+    void renderMesh(const Mesh&, const Material&);
     void bindMaterial(const Material&) const;
     void unBindMaterial(const Material&) const;
     void bindMaterialTexture(uint32, GeneralTexture*, bool) const;
-    const std::pair<GraphicsApi::ID, const Material*> getMaterial(const EntitySubscriber&, const Mesh&);
+    const std::pair<GraphicsApi::ID, const Material*> getMaterial(const Components::RendererComponent&, const Mesh&);
 
 private:
     RendererContext& context_;

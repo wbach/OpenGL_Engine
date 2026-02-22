@@ -1,6 +1,7 @@
 #pragma once
 #include <Mutex.hpp>
 #include <variant>
+#include <vector>
 
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
@@ -65,8 +66,8 @@ struct DebugObject
 
 struct DebugMeshInfo
 {
-    const GameObject& gameObject;
-    const ModelWrapper& modelWrapper;
+    std::reference_wrapper<const GameObject> gameObject;
+    std::reference_wrapper<const ModelWrapper> modelWrapper;
     std::variant<const Components::RendererComponent*, const Components::TerrainRendererComponent*,
                  const Components::TreeRendererComponent*>
         component;
@@ -97,6 +98,7 @@ public:
 
     void subscribe(GameObject&) override;
     void unSubscribe(GameObject&) override;
+    void unSubscribe(const Components::IComponent&) override;
     void unSubscribeAll() override;
     void renderTextures(const std::vector<GraphicsApi::ID>&);
     void SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMesh&()>);
@@ -136,7 +138,7 @@ private:
 
     std::list<DebugObject> debugObjects_;
     std::list<DebugObject*> toCreateDebugObjects_;
-    std::unordered_map<uint32, DebugMeshInfo> meshDebugInfoSubscribers_;
+    std::unordered_map<uint32, std::vector<DebugMeshInfo>> meshDebugInfoSubscribers_;
 
     GraphicsApi::ID meshDebugPerObjectBufferId_;
     GraphicsApi::ID gridPerObjectUpdateBufferId_;

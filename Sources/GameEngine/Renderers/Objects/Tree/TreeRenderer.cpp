@@ -227,4 +227,7 @@ int TreeRenderer::getRendererdMeshesCount() const
 {
     return rendererModels;
 }
+void TreeRenderer::unSubscribe(const Components::IComponent&)
+{
+}
 }  // namespace GameEngine
