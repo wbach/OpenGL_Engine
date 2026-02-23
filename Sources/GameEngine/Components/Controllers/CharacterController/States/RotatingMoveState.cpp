@@ -6,6 +6,7 @@
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -93,6 +94,7 @@ void RotatingMoveState::setCharacterRotation(const mat4 &matrixRotation)
     auto rj = context_.animator.GetRootJoint();
     if (rj)
     {
+        LOG_DEBUG << matrixRotation;
         rj->additionalUserMofiyTransform.set(matrixRotation);
     }
 }

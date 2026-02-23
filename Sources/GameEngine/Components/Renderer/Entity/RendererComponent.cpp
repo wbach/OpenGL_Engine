@@ -299,8 +299,8 @@ void RendererComponent::UnSubscribe()
 {
     if (isSubscribed_)
     {
-        LOG_DEBUG << thisObject_.GetName();
         componentContext_.renderersManager_.UnSubscribe(*this);
+        LOG_DEBUG << thisObject_.GetName();
         isSubscribed_ = false;
     }
 }

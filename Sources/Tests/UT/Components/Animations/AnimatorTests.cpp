@@ -27,17 +27,17 @@ struct AnimatorTestWrapper : public Animator
     AnimatorTestWrapper(ComponentContext& context, GameObject& go)
         : Animator(context, go)
     {
-        rootJoint = &jointData_.rootJoint;
+        rootJoint = &jointData_.skeleton.getRootJoint();
 
-        jointData_.rootJoint.id   = 0;
-        jointData_.rootJoint.name = boneName + std::to_string(jointData_.rootJoint.id);
+        rootJoint->id   = 0;
+        rootJoint->name = boneName + std::to_string(rootJoint->id);
 
         for (auto i = 1u; i < BONE_COUNT - 1; ++i)
         {
             Joint joint;
             joint.id   = i;
             joint.name = boneName + std::to_string(joint.id);
-            jointData_.rootJoint.addChild(joint);
+            rootJoint->addChild(joint);
         }
     }
     std::pair<KeyFrame, KeyFrame> _getPreviousAndNextFrames()

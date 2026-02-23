@@ -441,6 +441,7 @@ void AssimpLoader::processSkeleton(const aiScene& scene)
             LOG_DEBUG << "Root node found : " << armatureNode->mName.data;
             object_->skeleton_ = Animation::Joint{};
             createSkeleton(*armatureNode, *object_->skeleton_);
+            LOG_DEBUG << currentProcessingFile_->GetFilename() << ", Skeleton : " << object_->skeleton_;
         }
     }
 }
@@ -682,7 +683,7 @@ const aiNode* AssimpLoader::findArmatureRootNode(const aiNode& node)
 {
     std::string name(node.mName.data);
 
-    if (bones_.count(name))
+    if (bones_.contains(name))
         return &node;
 
     for (uint32 i = 0; i < node.mNumChildren; ++i)
@@ -693,7 +694,7 @@ const aiNode* AssimpLoader::findArmatureRootNode(const aiNode& node)
             for (uint32 j = i; j < node.mNumChildren; ++j)
             {
                 std::string childName(node.mChildren[i]->mName.data);
-                if (bones_.count(childName))
+                if (bones_.contains(childName))
                 {
                     return &node;
                 }

@@ -2,6 +2,7 @@
 #include <GameEngine/Components/Animation/AnimationClipInfo.h>
 
 #include <unordered_map>
+#include <vector>
 
 #include "Common.h"
 #include "GameEngine/Animations/AnimationClip.h"
@@ -74,7 +75,7 @@ public:
                          std::optional<std::string> = std::nullopt, std::function<void()> = nullptr);
 
     void StopAnimation(std::optional<std::string> = std::nullopt);
-    GraphicsApi::ID getPerPoseBufferId() const;
+    GraphicsApi::ID getPerPoseBufferId(const RendererComponent&) const;
     void setPlayOnceForAnimationClip(const std::string&);
 
     IdType SubscribeForAnimationFrame(const std::string&, std::function<void()>, Animation::FrameIndex);
@@ -101,6 +102,7 @@ public:
 
 public:
     JointData jointData_;
+    std::unordered_map<const RendererComponent*, MappedJointData> mappedJointData;
     float animationSpeed_;
 
 protected:
@@ -123,10 +125,11 @@ protected:
     Utils::IdPool animationEndIdPool_;
     Utils::IdPool animationClipInfoByIdPool_;
 
-    RendererComponent* rendererComponent_;
+    std::vector<RendererComponent*> rendererComponents_;
     JointGroupsIds jointGroupsIds_;
 
     Animation::Joint* montionJoint_;
+
 
 public:
     static void registerReadFunctions();

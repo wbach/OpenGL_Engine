@@ -23,7 +23,7 @@ struct Joint
     public:
         void set(const mat4& t)
         {
-            transform = t;
+            transform      = t;
             finalTransform = offset * transform;
         }
 
@@ -51,6 +51,7 @@ struct Joint
     mat4 transform         = glm::mat4(1.f);
     mat4 offset            = glm::mat4(1.f);
     mat4 invtransform      = glm::mat4(1.f);
+    mat4 worldTransform    = glm::mat4(1.f);
     mat4 animatedTransform = glm::mat4(1.f);
 
     std::vector<Joint> children;
@@ -62,8 +63,6 @@ struct Joint
     const Joint* getJoint(const std::string&) const;
     const Joint* getJoint(JointId) const;
 };
-Joint* findJointByName(Joint&, const std::string&);
-Joint* findJointById(Joint&, uint32);
 
 std::ostream& operator<<(std::ostream&, const Joint&);
 }  // namespace Animation

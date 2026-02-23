@@ -7,6 +7,7 @@
 #include <Utils/XML/XmlReader.h>
 #include <Utils/XML/XmlWriter.h>
 
+#include "GameEngine/Animations/Skeleton.h"
 #include "GameEngine/Resources/File.h"
 #include "Joint.h"
 
@@ -54,7 +55,7 @@ JointTransform Interpolate(const JointTransform& frameA, const JointTransform& f
     return out;
 }
 
-std::optional<AnimationClip> ReadAnimationClip(const File& file, Joint& rootJoint)
+std::optional<AnimationClip> ReadAnimationClip(const File& file, Skeleton& skeleton)
 {
     if (file.empty())
         return std::nullopt;
@@ -95,14 +96,14 @@ std::optional<AnimationClip> ReadAnimationClip(const File& file, Joint& rootJoin
                 Read(transformNode->getChild("Rotation"), transform.rotation);
                 Read(transformNode->getChild("Scale"), transform.scale);
 
-                if (auto joint = rootJoint.getJoint(jointName))
+                if (auto joint = skeleton.getJoint(jointName))
                 {
                     keyFrame.transforms.insert({joint->id, transform});
                 }
                 else
                 {
                     LOG_ERROR << "Joint \"" << jointName
-                              << "\" not found in skeleton. Skeleton root joint name : " << rootJoint.name;
+                              << "\" not found in skeleton. Skeleton root joint name : " << skeleton.getRootJoint().name;
                 }
             }
             animationClip.AddFrame(keyFrame);

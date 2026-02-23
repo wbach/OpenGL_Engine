@@ -1,6 +1,8 @@
 #pragma once
-#include "Types.h"
 #include <array>
+#include <sstream>
+
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -12,8 +14,21 @@ struct PerPoseUpdate
 
     PerPoseUpdate()
     {
-        for(auto& t : bonesTransforms)
+        for (auto& t : bonesTransforms)
             t = mat4(1.f);
     }
 };
+
+inline std::ostream& operator<<(std::ostream& os, const PerPoseUpdate& data)
+{
+    std::stringstream s;
+    for (auto& t : data.bonesTransforms)
+    {
+        s << std::to_string(t);
+    }
+
+    os << s.str();
+
+    return os;
+}
 }  // namespace GameEngine

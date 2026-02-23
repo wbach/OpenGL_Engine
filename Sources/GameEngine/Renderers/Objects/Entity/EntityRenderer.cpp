@@ -334,7 +334,7 @@ void EntityRenderer::renderModel(const Components::RendererComponent& renderComp
 {
     if (animator and model.getRootJoint())
     {
-        const auto& perPoseBuffer = animator->getPerPoseBufferId();
+        const auto& perPoseBuffer = animator->getPerPoseBufferId(renderComponent);
 
         if (perPoseBuffer)
             context_.graphicsApi_.BindShaderBuffer(*perPoseBuffer);

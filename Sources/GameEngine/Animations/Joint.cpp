@@ -1,36 +1,13 @@
 #include "Joint.h"
+
 #include <Logger/Log.h>
+
+#include <sstream>
 
 namespace GameEngine
 {
 namespace Animation
 {
-Joint* findJointByName(Animation::Joint& rootJoint, const std::string& name)
-{
-    if (rootJoint.name == name)
-        return &rootJoint;
-
-    for (auto& child : rootJoint.children)
-    {
-        auto result = findJointByName(child, name);
-        if (result)
-            return result;
-    }
-    return nullptr;
-}
-Joint* findJointById(Joint& rootJoint, uint32 id)
-{
-    if (rootJoint.id == id)
-        return &rootJoint;
-
-    for (auto& child : rootJoint.children)
-    {
-        auto result = findJointById(child, id);
-        if (result)
-            return result;
-    }
-    return nullptr;
-}
 void Joint::increaseSize(uint32 i)
 {
     if (parent)
@@ -109,15 +86,22 @@ const Joint* Joint::getJoint(JointId boneId) const
 std::ostream& operator<<(std::ostream& os, const Joint& joint)
 {
     std::function<void(const Joint&, int)> print;
-    print = [&print, &os](const Joint& j, int depth)
+    std::stringstream ss;
+    ss << "\n";
+
+    print = [&print, &ss](const Joint& j, int depth)
     {
-        for(int i = 0; i < depth; ++i) os << "--";
-        os << j.name << "\n";
-        for(const auto& child : j.children)
+        for (int i = 0; i < depth; ++i)
+            ss << "--";
+        ss << j.name << " (id:" << j.id << ")"
+           << "\n";
+        for (const auto& child : j.children)
             print(child, depth + 1);
     };
 
     print(joint, 0);
+
+    os << ss.str();
     return os;
 }
 
