@@ -27,7 +27,7 @@ struct AnimatorTestWrapper : public Animator
     AnimatorTestWrapper(ComponentContext& context, GameObject& go)
         : Animator(context, go)
     {
-        rootJoint = &jointData_.skeleton.getRootJoint();
+        rootJoint = &masterSkeletonData.skeleton.getRootJoint();
 
         rootJoint->id   = 0;
         rootJoint->name = boneName + std::to_string(rootJoint->id);

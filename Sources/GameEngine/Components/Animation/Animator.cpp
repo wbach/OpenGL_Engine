@@ -7,11 +7,13 @@
 #include <algorithm>
 #include <optional>
 #include <string>
+#include <variant>
 
 #include "ChangeAnimationEvent.h"
 #include "Context.h"
 #include "GameEngine/Animations/AnimationUtils.h"
 #include "GameEngine/Animations/Skeleton.h"
+#include "GameEngine/Components/Animation/SlaveSkeletonData.h"
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentType.h"
@@ -47,8 +49,8 @@ constexpr char CSTR_ANIMATION_PLAY_SPEED[]       = "playSpeed";
 Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(GetComponentType<Animator>(), componentContext, gameObject)
     , montionJointName("")
-    , jointData_(componentContext_.graphicsApi_)
-    , machine_(jointData_.pose, jointGroupsIds_)
+    , masterSkeletonData(componentContext_.graphicsApi_, componentContext_.gpuResourceLoader_)
+    , machine_(pose, jointGroupsIds_)
     , montionJoint_{nullptr}
 {
 }
@@ -56,10 +58,14 @@ Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
 void Animator::CleanUp()
 {
     machine_.currentState_.reset();
-    if (jointData_.buffer)
+
+    masterSkeletonData.deleteBuffer();
+    for (auto& slave : slaveSkeletonData)
     {
-        componentContext_.gpuResourceLoader_.AddObjectToRelease(std::move(jointData_.buffer));
+        slave.deleteBuffer();
     }
+    slaveSkeletonData.clear();
+    skeletonDataView.clear();
 }
 void Animator::ReqisterFunctions()
 {
@@ -79,7 +85,7 @@ Animator& Animator::SetAnimation(const std::string& name)
     auto clipIter = animationClipInfo_.find(name);
     if (clipIter != animationClipInfo_.end())
     {
-        jointData_.rootMontion = clipIter->second.rootMontion;
+        pose.rootMontion = clipIter->second.rootMontion;
         machine_.handle(ChangeAnimationEvent{0.f, clipIter->second, std::nullopt});
     }
     return *this;
@@ -90,20 +96,11 @@ void Animator::StopAnimation(std::optional<std::string> maybeJoingGroupName)
 }
 GraphicsApi::ID Animator::getPerPoseBufferId(const RendererComponent& component) const
 {
-    if (rendererComponents_.empty())
-        return std::nullopt;
-
-    if (&component == rendererComponents_.front())
+    const auto iter = skeletonDataView.find(&component);
+    if (iter != skeletonDataView.end())
     {
-        return jointData_.buffer ? jointData_.buffer->GetGraphicsObjectId() : std::nullopt;
+        return iter->second->getPerPoseBufferId();
     }
-
-    const auto iter = mappedJointData.find(&component);
-    if (iter != mappedJointData.end())
-    {
-        return iter->second.buffer ? iter->second.buffer->GetGraphicsObjectId() : std::nullopt;
-    }
-
     return std::nullopt;
 }
 void Animator::setPlayOnceForAnimationClip(const std::string& name)
@@ -186,30 +183,26 @@ void Animator::UnSubscribeForAnimationFrame(IdType id)
 
 Joint* Animator::GetRootJoint()
 {
-    return &jointData_.skeleton.getRootJoint();
+    return &masterSkeletonData.skeleton.getRootJoint();
 }
 Animation::Joint* Animator::GetJoint(const std::string& name)
 {
-    return jointData_.skeleton.getJoint(name);
+    return masterSkeletonData.skeleton.getJoint(name);
 }
 
 Joint* Animator::GetJoint(const Animation::JointId& id)
 {
-    return jointData_.skeleton.getJoint(id);
+    return masterSkeletonData.skeleton.getJoint(id);
 }
 
-uint32 Animator::subscribeForPoseBufferUpdate(std::function<void()> func)
+std::optional<uint32> Animator::subscribeForPoseBufferUpdate(std::function<void()> func)
 {
-    if (jointData_.buffer)
-        return jointData_.buffer->SubscribeForUpdate(func);
-
-    return 0;
+    return masterSkeletonData.subscribeForUpdate(func);
 }
 
 void Animator::unSubscribeForPoseUpdateBuffer(uint32 id)
 {
-    if (jointData_.buffer)
-        jointData_.buffer->UnSubscribeForUpdate(id);
+    masterSkeletonData.unSubscribeForPoseUpdateBuffer(id);
 }
 
 const Animator::AnimationInfoClips& Animator::getAnimationClips() const
@@ -289,7 +282,7 @@ void Animator::ChangeAnimation(const std::string& name, AnimationChangeType chan
         LOG_DEBUG << " AnimationChangeType::direct not implemnted go to smooth";
     }
 
-    jointData_.rootMontion = clipIter->second.rootMontion;
+    pose.rootMontion = clipIter->second.rootMontion;
     machine_.handle(ChangeAnimationEvent{0.f, clipIter->second, groupName, onTransitionEnd});
 }
 void Animator::ChangeAnimation(const IdType& id, AnimationChangeType changeType, PlayDirection playDirection,
@@ -308,7 +301,7 @@ void Animator::ChangeAnimation(const IdType& id, AnimationChangeType changeType,
         LOG_DEBUG << " AnimationChangeType::direct not implemnted go to smooth";
     }
 
-    jointData_.rootMontion = clipIter->second->rootMontion;
+    pose.rootMontion = clipIter->second->rootMontion;
     machine_.handle(ChangeAnimationEvent{0.f, *clipIter->second, groupName, onTransitionEnd});
 }
 void createDefaultJointGroup(std::vector<std::string>& group, const Animation::Joint& joint)
@@ -324,118 +317,31 @@ void Animator::GetSkeletonAndAnimations()
 {
     LOG_DEBUG << "";
 
-    rendererComponents_ = thisObject_.GetComponents<RendererComponent>();
+    auto rendererComponents = thisObject_.GetComponents<RendererComponent>();
 
-    if (rendererComponents_.empty())
+    if (rendererComponents.empty())
     {
         LOG_ERROR << "At least one rendererComponent is required for Animator";
         return;
     }
 
-    auto rendererComponent = rendererComponents_.front();
-    auto model             = rendererComponent->GetModelWrapper().Get(GameEngine::L1);
+    masterRendererComponent_ = resolveMasterRendererComponent();
 
-    if (model)
-    {
-        auto maybeRootJoint = model->getRootJoint();
-        if (maybeRootJoint)
-        {
-            jointData_.skeleton = std::move(*maybeRootJoint);
-            initAnimationClips();
-            initAnimationClips(*model);
-            createShaderJointBuffers();
+    if (not masterRendererComponent_)
+        return;
 
-            if (jointGroups_.empty())
-            {
-                LOG_DEBUG << "create default joint group";
-                createDefaultJointGroup(jointGroups_["deafult"], jointData_.skeleton.getRootJoint());
-            }
-
-            for (auto& [groupName, jointNamesInGroup] : jointGroups_)
-            {
-                jointGroupsIds_[groupName].reserve(jointNamesInGroup.size());
-
-                for (auto& name : jointNamesInGroup)
-                {
-                    auto joint = jointData_.skeleton.getJoint(name);
-                    if (joint)
-                    {
-                        jointGroupsIds_.at(groupName).push_back(joint->id);
-                    }
-                }
-            }
-            LOG_DEBUG << "Skeleton of: " << model->GetFile().GetBaseName() << jointData_.skeleton;
-            montionJoint_ = jointData_.skeleton.getJoint(montionJointName);
-            if (montionJoint_)
-            {
-                LOG_DEBUG << "Montion joint found : " << montionJointName;
-                machine_.context_->montionRootJointId = montionJoint_->id;
-            }
-            else
-            {
-                LOG_WARN << "Montion joint not found : " << montionJointName;
-            }
-        }
-        else
-        {
-            LOG_DEBUG << "No root joint " << thisObject_.GetName();
-        }
-    }
-    else
-    {
-        LOG_ERROR << "Model not existing in RendererComponent";
-    }
-
-    for (size_t i = 1; i < rendererComponents_.size(); ++i)
-    {
-        auto model = rendererComponents_[i]->GetModelWrapper().Get(GameEngine::L1);
-
-        if (model)
-        {
-            auto maybeRootJoint = model->getRootJoint();
-            if (maybeRootJoint)
-            {
-                auto buffer = std::make_unique<ShaderBufferObject<PerPoseUpdate>>(componentContext_.graphicsApi_,
-                                                                                  PER_POSE_UPDATE_BIND_LOCATION);
-
-                LOG_DEBUG << "Created shader buffer: " << thisObject_.GetName() << ", buffer id: " << buffer->GetGpuObjectId();
-
-                auto& bufferData = buffer->GetData();
-                for (size_t i = 0; i < MAX_BONES; ++i)
-                {
-                    bufferData.bonesTransforms[i] = mat4(1.f);
-                }
-                componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(*buffer);
-
-                initAnimationClips(*model);
-
-                MappedJointData data{
-                    .api_ = componentContext_.graphicsApi_, .slaveSkeleton = *maybeRootJoint, .buffer = std::move(buffer)};
-
-                LOG_DEBUG << "Create mapping for " << model->GetFile().GetFilename();
-                data.createMapping(jointData_.skeleton);
-
-                mappedJointData.insert({rendererComponents_[i], std::move(data)});
-            }
-        }
-    }
+    initMasterSkeletonData();
+    initAnimationClips();
+    jointsGrupping();
+    initSlavesSkeletonsData(rendererComponents);
 }
 void Animator::updateShaderBuffers()
 {
-    jointData_.updateBufferTransform();
-    if (jointData_.buffer)
-    {
-        componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(*jointData_.buffer);
-    }
+    masterSkeletonData.updateBufferTransform();
 
-    for (auto& [_, mappedJoint] : mappedJointData)
+    for (auto& slave : slaveSkeletonData)
     {
-        mappedJoint.updateBufferTransform(jointData_.skeleton);
-
-        if (mappedJoint.buffer)
-        {
-            componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(*mappedJoint.buffer);
-        }
+        slave.updateBufferTransform(masterSkeletonData.skeleton);
     }
 }
 void Animator::Update()
@@ -491,8 +397,8 @@ void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
         // remove rotation from parent
         parent = parent * invertedParentWithoutTranslation;
     }
-    auto currentPoseIter = jointData_.pose.data.find(joint.id);
-    if (currentPoseIter != jointData_.pose.data.end())
+    auto currentPoseIter = pose.data.find(joint.id);
+    if (currentPoseIter != pose.data.end())
     {
         currentTransform = parent * currentPoseIter->second.matrix;
     }
@@ -501,17 +407,17 @@ void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
 
     for (Joint& childJoint : joint.children)
     {
-        applyPoseToJoints(childJoint, joint.worldTransform );
+        applyPoseToJoints(childJoint, joint.worldTransform);
     }
 }
 void Animator::applyPoseToJoints()
 {
-    if (montionJoint_ and jointData_.rootMontion)
+    if (montionJoint_ and pose.rootMontion)
     {
         mat4 meshTransform(1.f);
-        if (not rendererComponents_.empty() && rendererComponents_[0]->GetModelWrapper().Get())
+        if (masterRendererComponent_ and masterRendererComponent_->GetModelWrapper().Get())
         {
-            meshTransform = rendererComponents_[0]->GetModelWrapper().Get()->GetMeshes()[0].GetMeshTransform();
+            meshTransform = masterRendererComponent_->GetModelWrapper().Get()->GetMeshes()[0].GetMeshTransform();
         }
         else
         {
@@ -530,27 +436,8 @@ void Animator::applyPoseToJoints()
         }
     }
 
-    applyPoseToJoints(jointData_.skeleton.getRootJoint(), jointData_.skeleton.getRootJoint().offset);
+    applyPoseToJoints(masterSkeletonData.skeleton.getRootJoint(), masterSkeletonData.skeleton.getRootJoint().offset);
     updateShaderBuffers();
-}
-void Animator::createShaderJointBuffers()
-{
-    if (jointData_.buffer)
-    {
-        LOG_DEBUG << "ShaderJointBuffer already exist!";
-        return;
-    }
-    jointData_.buffer =
-        std::make_unique<ShaderBufferObject<PerPoseUpdate>>(componentContext_.graphicsApi_, PER_POSE_UPDATE_BIND_LOCATION);
-
-    LOG_DEBUG << "Created shader buffer: " << thisObject_.GetName() << ", buffer id: " << jointData_.buffer->GetGpuObjectId();
-
-    auto& bufferData = jointData_.buffer->GetData();
-    for (size_t i = 0; i < MAX_BONES; ++i)
-    {
-        bufferData.bonesTransforms[i] = mat4(1.f);
-    }
-    componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(*jointData_.buffer);
 }
 void Animator::initAnimationClips(const Model& model)
 {
@@ -571,7 +458,7 @@ void Animator::initAnimationClips()
     for (auto& clipToRead : animationClips)
     {
         auto playType = clipToRead.playInLoop ? AnimationClipInfo::PlayType::loop : AnimationClipInfo::PlayType::once;
-        if (const auto& clip = Animation::ReadAnimationClip(clipToRead.file, jointData_.skeleton))
+        if (const auto& clip = Animation::ReadAnimationClip(clipToRead.file, masterSkeletonData.skeleton))
         {
             auto animationName = clipToRead.name.empty() ? clip->getName() : clipToRead.name;
 
@@ -760,6 +647,110 @@ void Animator::write(TreeNode& node) const
             jointNamesValue.pop_back();
 
         jointGroupNode.addChild(groupName, jointNamesValue);
+    }
+}
+RendererComponent* Animator::resolveMasterRendererComponent()
+{
+    RendererComponent* result{nullptr};
+    size_t maxJointCount = 0;
+
+    auto rendererComponents = thisObject_.GetComponents<Components::RendererComponent>();
+    for (auto& component : rendererComponents)
+    {
+        if (auto model = component->GetModelWrapper().Get())
+        {
+            if (const auto& maybeSkeleton = model->getSkeleton())
+            {
+                if (maxJointCount < maybeSkeleton->getJointsCount())
+                {
+                    result        = component;
+                    maxJointCount = maybeSkeleton->getJointsCount();
+                }
+            }
+        }
+    }
+
+    return result;
+}
+void Animator::initMasterSkeletonData()
+{
+    if (auto model = masterRendererComponent_->GetModelWrapper().Get(GameEngine::L1))
+    {
+        if (auto maybeSkeleton = model->getSkeleton())
+        {
+            masterSkeletonData.skeleton = std::move(*maybeSkeleton);
+
+            initAnimationClips(*model);
+            LOG_DEBUG << "Skeleton of: " << model->GetFile().GetBaseName() << masterSkeletonData.skeleton;
+
+            montionJoint_ = masterSkeletonData.skeleton.getJoint(montionJointName);
+            if (montionJoint_)
+            {
+                LOG_DEBUG << "Montion joint found : " << montionJointName;
+                machine_.context_->montionRootJointId = montionJoint_->id;
+            }
+            else
+            {
+                LOG_WARN << "Montion joint not found : " << montionJointName;
+            }
+        }
+        else
+        {
+            LOG_DEBUG << "No root joint " << thisObject_.GetName();
+        }
+
+        masterSkeletonData.createBuffer();
+        skeletonDataView.insert({masterRendererComponent_, &masterSkeletonData});
+    }
+    else
+    {
+        LOG_ERROR << "Model not existing in RendererComponent";
+    }
+}
+void Animator::jointsGrupping()
+{
+    if (jointGroups_.empty())
+    {
+        LOG_DEBUG << "create default joint group";
+        createDefaultJointGroup(jointGroups_["deafult"], masterSkeletonData.skeleton.getRootJoint());
+    }
+
+    for (auto& [groupName, jointNamesInGroup] : jointGroups_)
+    {
+        jointGroupsIds_[groupName].reserve(jointNamesInGroup.size());
+
+        for (auto& name : jointNamesInGroup)
+        {
+            auto joint = masterSkeletonData.skeleton.getJoint(name);
+            if (joint)
+            {
+                jointGroupsIds_.at(groupName).push_back(joint->id);
+            }
+        }
+    }
+}
+void Animator::initSlavesSkeletonsData(const std::vector<RendererComponent*>& rendererComponents)
+{
+    for (const auto& rendererComponent : rendererComponents)
+    {
+        if (rendererComponent == masterRendererComponent_)
+            continue;
+
+        auto model = rendererComponent->GetModelWrapper().Get(GameEngine::L1);
+
+        if (model)
+        {
+            if (auto maybeSkeleton = model->getSkeleton())
+            {
+                initAnimationClips(*model);
+
+                slaveSkeletonData.emplace_back(componentContext_.graphicsApi_, componentContext_.gpuResourceLoader_);
+                auto& data    = slaveSkeletonData.back();
+                data.skeleton = *maybeSkeleton;
+                data.createMapping(masterSkeletonData.skeleton);
+                skeletonDataView.insert({rendererComponent, &data});
+            }
+        }
     }
 }
 }  // namespace Components

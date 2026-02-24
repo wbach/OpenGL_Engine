@@ -1,6 +1,7 @@
 #include "TransformPanel.h"
 
 #include <Logger/Log.h>
+#include <wx-3.0/wx/defs.h>
 #include <wx/sizer.h>
 #include <wx/textctrl.h>
 //#include <format>
@@ -9,6 +10,7 @@
 
 #include <iomanip>  // std::setprecision
 #include <sstream>
+#include <string>
 
 const std::string LABEL_POSITION{"Position"};
 const std::string LABEL_ROTATION{"Rotation"};
@@ -75,6 +77,28 @@ TransformPanel::Vector3Controls TransformPanel::CreateVector3Controls(wxWindow* 
     auto zCtrl = new wxTextCtrl(parent, wxID_ANY, "0", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
     rowSizer->Add(zCtrl, 1);
 
+    auto* sizer       = new wxBoxSizer(wxVERTICAL);
+    auto* plusButton  = new wxButton(parent, wxID_ANY, "+", wxDefaultPosition, wxSize(20, 20));
+    auto* minusButton = new wxButton(parent, wxID_ANY, "-", wxDefaultPosition, wxSize(20, 20));
+    plusButton->Bind(wxEVT_BUTTON,
+                     [this, zCtrl](const auto&)
+                     {
+                         try
+                         {
+                             auto str = zCtrl->GetValue();
+                             float f  = std::stof(str.ToStdString());
+                             f += 0.1f;
+                             zCtrl->SetValue(std::to_string(f));
+                         }
+                         catch (...)
+                         {
+                             LOG_WARN << "Erro";
+                         }
+                     });
+    sizer->Add(plusButton, 0, wxALIGN_CENTER_HORIZONTAL, 2);
+    sizer->Add(minusButton, 0, wxALIGN_CENTER_HORIZONTAL, 2);
+    rowSizer->Add(sizer, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 2);
+
     boxSizer->Add(rowSizer, 0, wxEXPAND | wxALL, 5);
 
     Vector3Controls controls{
@@ -130,7 +154,7 @@ void TransformPanel::unlock()
     enableChildren(this);
 }
 
-void TransformPanel::Vector3Controls::onChanged(wxCommandEvent& event)
+void TransformPanel::Vector3Controls::onChanged(wxCommandEvent&)
 {
     if (isSetBySub or not transformPanel->transfromChanged)
         return;
@@ -146,7 +170,7 @@ void TransformPanel::Vector3Controls::onChanged(wxCommandEvent& event)
     }
     catch (...)
     {
-       LOG_ERROR << "Parse error";
+        LOG_ERROR << "Parse error";
     }
 }
 

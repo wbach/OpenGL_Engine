@@ -94,7 +94,6 @@ void RotatingMoveState::setCharacterRotation(const mat4 &matrixRotation)
     auto rj = context_.animator.GetRootJoint();
     if (rj)
     {
-        LOG_DEBUG << matrixRotation;
         rj->additionalUserMofiyTransform.set(matrixRotation);
     }
 }

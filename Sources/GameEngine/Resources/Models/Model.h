@@ -8,6 +8,7 @@
 
 #include "BoundingBox.h"
 #include "GameEngine/Animations/AnimationClip.h"
+#include "GameEngine/Animations/Skeleton.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/GpuObject.h"
 #include "GraphicsApi/MeshRawData.h"
@@ -53,8 +54,8 @@ public:
     const Meshes& GetMeshes() const;
     Meshes& GetMeshes();
 
-    void setRootJoint(Animation::Joint&&);
-    const std::optional<Animation::Joint>& getRootJoint() const;
+    void setSkeletonRootJoint(Animation::Joint&&);
+    const std::optional<Animation::Skeleton>& getSkeleton() const;
 
     std::optional<GraphicsApi::MeshRawData> getModelRawData() const;
 
@@ -72,7 +73,7 @@ protected:
     File file_;
     Meshes meshes_;
     BoundingBox boundingBox_;
-    std::optional<Animation::Joint> skeleton_;
+    std::optional<Animation::Skeleton> skeleton_;
     float normalizedFactor{1.f};
 };
 

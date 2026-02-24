@@ -1,37 +1,24 @@
-#include "JointData.h"
+#include "SlaveSkeletonData.h"
 
-#include "GameEngine/Animations/Skeleton.h"
-#include "Logger/Log.h"
+#include <Logger/Log.h>
+
+#include "GameEngine/Resources/IGpuResourceLoader.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-JointData::JointData(GraphicsApi::IGraphicsApi& api)
-    : api_(api)
-{
-}
-void JointData::updateBufferTransform()
+void SlaveSkeletonData::updateBufferTransform(const Animation::Skeleton& master)
 {
     if (not buffer)
-        return;
-
-    auto& gpuData = buffer->GetData().bonesTransforms;
-
-    for (uint32 i = 0; i < skeleton.getJointsCount(); ++i)
     {
-        if (const auto* joint = skeleton.getJoint(i))
-        {
-            gpuData[i] = api_.PrepareMatrixToLoad(joint->animatedTransform);
-        }
+        createBuffer();
     }
-}
-void MappedJointData::updateBufferTransform(const Animation::Skeleton& master)
-{
+
     auto& slaveBuffer = buffer->GetData().bonesTransforms;
-    for (uint32 slaveId = 0; slaveId < slaveSkeleton.getJointsCount(); ++slaveId)
+    for (uint32 slaveId = 0; slaveId < skeleton.getJointsCount(); ++slaveId)
     {
-        const auto* slaveJoint = slaveSkeleton.getJoint(slaveId);
+        const auto* slaveJoint = skeleton.getJoint(slaveId);
         if (not slaveJoint)
             continue;
 
@@ -49,8 +36,10 @@ void MappedJointData::updateBufferTransform(const Animation::Skeleton& master)
             slaveBuffer[slaveId] = mat4(1.0f);
         }
     }
+
+    gpuLoader_.get().AddObjectToUpdateGpuPass(*buffer);
 }
-void MappedJointData::createMapping(const Animation::Skeleton& master)
+void SlaveSkeletonData::createMapping(const Animation::Skeleton& master)
 {
     jointIdMapping.fill(std::numeric_limits<uint32>::max());
 
@@ -70,7 +59,7 @@ void MappedJointData::createMapping(const Animation::Skeleton& master)
             mapJoints(child);
     };
 
-    mapJoints(slaveSkeleton.getRootJoint());
+    mapJoints(skeleton.getRootJoint());
 }
 }  // namespace Components
 }  // namespace GameEngine

@@ -66,7 +66,7 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
         if (obj.skeleton_)
         {
             Animation::CalcInverseBindTransform(*obj.skeleton_);
-            newModel->setRootJoint(std::move(*obj.skeleton_));
+            newModel->setSkeletonRootJoint(std::move(*obj.skeleton_));
             newModel->animationClips_ = std::move(obj.animationClips_);
             obj.skeleton_.reset();
         }

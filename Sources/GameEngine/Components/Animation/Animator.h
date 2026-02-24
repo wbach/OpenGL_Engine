@@ -1,15 +1,18 @@
 #pragma once
 #include <GameEngine/Components/Animation/AnimationClipInfo.h>
 
+#include <deque>
 #include <unordered_map>
+#include <variant>
 #include <vector>
 
 #include "Common.h"
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Components/ReadAnimationInfo.h"
-#include "JointData.h"
+#include "MasterSkeletonData.h"
 #include "PlayDirection.h"
+#include "SlaveSkeletonData.h"
 #include "StateMachine.h"
 
 namespace common
@@ -86,7 +89,7 @@ public:
     Animation::Joint* GetJoint(const std::string&);
     Animation::Joint* GetJoint(const Animation::JointId&);
 
-    uint32 subscribeForPoseBufferUpdate(std::function<void()>);
+    std::optional<uint32> subscribeForPoseBufferUpdate(std::function<void()>);
     void unSubscribeForPoseUpdateBuffer(uint32);
 
     const AnimationInfoClips& getAnimationClips() const;
@@ -101,16 +104,23 @@ public:
     void clearAnimationClips();
 
 public:
-    JointData jointData_;
-    std::unordered_map<const RendererComponent*, MappedJointData> mappedJointData;
     float animationSpeed_;
+    Pose pose;
+
+    MasterSkeletonData masterSkeletonData;
+    std::deque<SlaveSkeletonData> slaveSkeletonData;
+    std::unordered_map<const RendererComponent*, SkeletonData*> skeletonDataView;
 
 protected:
     void updateShaderBuffers();
     void GetSkeletonAndAnimations();
+    RendererComponent* resolveMasterRendererComponent();
+    void initMasterSkeletonData();
+    void initSlavesSkeletonsData(const std::vector<RendererComponent*>&);
+    void jointsGrupping();
+
     void applyPoseToJoints(Animation::Joint&, const mat4&);
     void applyPoseToJoints();
-    void createShaderJointBuffers();
     void initAnimationClips(const Model&);
     void printSkeleton(const Animation::Joint&, const std::string& = "");
 
@@ -125,11 +135,10 @@ protected:
     Utils::IdPool animationEndIdPool_;
     Utils::IdPool animationClipInfoByIdPool_;
 
-    std::vector<RendererComponent*> rendererComponents_;
+    RendererComponent* masterRendererComponent_{};
     JointGroupsIds jointGroupsIds_;
 
     Animation::Joint* montionJoint_;
-
 
 public:
     static void registerReadFunctions();

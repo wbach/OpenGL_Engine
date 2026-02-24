@@ -375,11 +375,11 @@ void AnimationViewerFrame::OnExportToFile(wxCommandEvent& event)
     auto model = currentGameObject->rendererComponent.GetModelWrapper().Get();
     if (model)
     {
-        auto maybeRootJoint = model->getRootJoint();
-        const auto& clips   = currentGameObject->animator.getAnimationClips();
-        auto iter           = clips.find(selected.ToStdString());
+        auto maybeSkeleton = model->getSkeleton();
+        const auto& clips  = currentGameObject->animator.getAnimationClips();
+        auto iter          = clips.find(selected.ToStdString());
 
-        if (not maybeRootJoint)
+        if (not maybeSkeleton)
         {
             wxMessageBox("Model: rootJoint not exist", "Warning", wxOK | wxICON_WARNING);
             return;
@@ -391,7 +391,7 @@ void AnimationViewerFrame::OnExportToFile(wxCommandEvent& event)
             return;
         }
 
-        GameEngine::Animation::ExportAnimationClipToFile(path.ToStdString(), iter->second.clip, *maybeRootJoint,
+        GameEngine::Animation::ExportAnimationClipToFile(path.ToStdString(), iter->second.clip, maybeSkeleton->getRootJoint(),
                                                          wxFileName(saveFileDialog.GetFilename()).GetName().ToStdString());
     }
 
@@ -426,9 +426,9 @@ int AnimationViewerFrame::OnExportAll(const std::string& path)
     auto model        = currentGameObject->rendererComponent.GetModelWrapper().Get();
     if (model)
     {
-        auto maybeRootJoint = model->getRootJoint();
-        const auto& clips   = currentGameObject->animator.getAnimationClips();
-        if (not maybeRootJoint)
+        auto maybeSkeleton = model->getSkeleton();
+        const auto& clips  = currentGameObject->animator.getAnimationClips();
+        if (not maybeSkeleton)
         {
             wxMessageBox("Model: rootJoint not exist", "Warning", wxOK | wxICON_WARNING);
             return 0;
@@ -436,7 +436,8 @@ int AnimationViewerFrame::OnExportAll(const std::string& path)
 
         for (const auto& [name, info] : clips)
         {
-            GameEngine::Animation::ExportAnimationClipToFile(path + "/" + name + ".xml", info.clip, *maybeRootJoint, name);
+            GameEngine::Animation::ExportAnimationClipToFile(path + "/" + name + ".xml", info.clip, maybeSkeleton->getRootJoint(),
+                                                             name);
             ++exportedCount;
         }
     }

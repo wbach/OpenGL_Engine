@@ -27,6 +27,7 @@ struct PoseData
 
 struct Pose
 {
+    bool rootMontion{false};
     CurrentFrames frames;
     std::unordered_map<Animation::JointId, PoseData> data;
 };

@@ -5,6 +5,7 @@
 #include <Utils/Image/ImageSerializer.h>
 
 #include <fstream>
+#include <optional>
 
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
 
@@ -77,7 +78,8 @@ ModelSerializeData convert(const Model& model)
 {
     ModelSerializeData modelSerializeData;
     modelSerializeData.normalizedFactor = model.getNormalizedFactor();
-    modelSerializeData.skeleton_        = model.getRootJoint();
+    if (model.getSkeleton())
+        modelSerializeData.skeleton_ = model.getSkeleton()->getRootJoint();
 
     for (const auto& mesh : model.GetMeshes())
     {

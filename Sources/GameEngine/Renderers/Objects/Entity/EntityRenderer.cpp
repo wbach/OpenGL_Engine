@@ -276,7 +276,7 @@ EntityRenderer::GroupedEntities EntityRenderer::groupEntities() const
                 // if (not isVisible)
                 //    continue;
 
-                if ((sub.animator and model->getRootJoint()))
+                if ((sub.animator and model->getSkeleton()))
                 {
                     auto classificatedToSingleIter = result.singleEntitiesToRender_.find(model);
                     if (classificatedToSingleIter != result.singleEntitiesToRender_.end())
@@ -332,7 +332,7 @@ EntityRenderer::GroupedEntities EntityRenderer::groupEntities() const
 void EntityRenderer::renderModel(const Components::RendererComponent& renderComponent, const Components::Animator* animator,
                                  const Model& model)
 {
-    if (animator and model.getRootJoint())
+    if (animator and model.getSkeleton())
     {
         const auto& perPoseBuffer = animator->getPerPoseBufferId(renderComponent);
 

@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <optional>
 
+#include "GameEngine/Animations/Skeleton.h"
 #include "Logger/Log.h"
 #include "Types.h"
 
@@ -152,12 +153,13 @@ const File& Model::GetFile() const
 {
     return file_;
 }
-void Model::setRootJoint(Animation::Joint&& joint)
+void Model::setSkeletonRootJoint(Animation::Joint&& joint)
 {
-    skeleton_ = std::move(joint);
+    skeleton_ = Animation::Skeleton();
+    *skeleton_ = std::move(joint);
 }
 
-const std::optional<Animation::Joint>& Model::getRootJoint() const
+const std::optional<Animation::Skeleton>& Model::getSkeleton() const
 {
     return skeleton_;
 }
