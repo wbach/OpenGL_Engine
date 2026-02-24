@@ -131,8 +131,6 @@ void EntityRenderer::subscribe(GameObject& gameObject)
         auto& subscriber            = *subscribersIter;
         subscriber.renderComponents = std::move(rendererComponents);
     }
-
-    LOG_DEBUG << "Subsribed, gameObjectId : " << gameObject.GetId();
 }
 
 void EntityRenderer::unSubscribe(GameObject& gameObject)
@@ -456,7 +454,6 @@ void EntityRenderer::bindMaterialTexture(uint32 location, GeneralTexture* textur
 void EntityRenderer::unSubscribe(const Components::IComponent& component)
 {
     const auto& gameObject = component.getParentGameObject();
-    LOG_DEBUG << "Try unSubscribe component in " << gameObject.GetName();
 
     std::lock_guard<std::mutex> lk(subscriberMutex_);
     auto iter = std::find_if(subscribes_.begin(), subscribes_.end(),
@@ -469,13 +466,11 @@ void EntityRenderer::unSubscribe(const Components::IComponent& component)
         auto componentIter = std::find(components.begin(), components.end(), &component);
         if (componentIter != components.end())
         {
-            LOG_DEBUG << "unSubscribe";
             components.erase(componentIter);
         }
 
         if (components.empty())
         {
-            LOG_DEBUG << "last unSubscribe in sub";
             subscribes_.erase(iter);
         }
     }

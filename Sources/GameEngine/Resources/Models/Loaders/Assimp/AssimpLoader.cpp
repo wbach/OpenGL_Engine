@@ -189,8 +189,6 @@ AssimpLoader::~AssimpLoader()
 
 bool AssimpLoader::ParseFile(const File& file)
 {
-    LOG_DEBUG << file.GetAbsolutePath();
-
     // to do create factory and loader per one loading
     bones_.clear();
     objects.clear();
@@ -234,18 +232,15 @@ bool AssimpLoader::ParseFile(const File& file)
     importer.FreeScene();
 
     currentProcessingFile_.reset();
-
-    LOG_DEBUG << "Done. " << file.GetAbsolutePath();
-
     return true;
 }
 
 bool AssimpLoader::CheckExtension(const File& file)
 {
-    return file.IsFormat({"AMF", "3DS",      "AC",      "ASE", "ASSBIN", "B3D",  "BVH",   "COLLADA", "DXF", "CSM",
-                          "DAE", "HMP",      "IRRMESH", "IRR", "LWO",    "LWS",  "MD2",   "MD3",     "MD5", "MD5MESH",
-                          "MDC", "MDL",      "NFF",     "NDO", "OFF",    "OBJ",  "OGRE",  "OPENGEX", "PLY", "MS3D",
-                          "COB", "BLEND",    "IFC",     "XGL", "FBX",    "Q3D",  "Q3BSP", "RAW",     "SIB", "SMD",
+    return file.IsFormat({"AMF", "3DS",      "AC",      "ASE", "ASSBIN", "B3D",  "BVH",   "COLLADA", "DXF",  "CSM",
+                          "DAE", "HMP",      "IRRMESH", "IRR", "LWO",    "LWS",  "MD2",   "MD3",     "MD5",  "MD5MESH",
+                          "MDC", "MDL",      "NFF",     "NDO", "OFF",    "OBJ",  "OGRE",  "OPENGEX", "PLY",  "MS3D",
+                          "COB", "BLEND",    "IFC",     "XGL", "FBX",    "Q3D",  "Q3BSP", "RAW",     "SIB",  "SMD",
                           "STL", "TERRAGEN", "3D",      "X",   "X3D",    "GLTF", "3MF",   "MMD",     "STEP", "GLB"});
 
     // AMF 3DS AC ASE ASSBIN B3D BVH COLLADA DXF CSM HMP IRRMESH IRR LWO LWS MD2 MD3 MD5 MDC MDL NFF NDO OFF OBJ
@@ -430,18 +425,11 @@ void AssimpLoader::processSkeleton(const aiScene& scene)
     {
         const aiNode& node = *scene.mRootNode;
 
-        LOG_DEBUG << "Rootnode bone name: " << node.mName.data << " : " << currentProcessingFile_;
-
-        for (const auto& bone : bones_)
-            LOG_DEBUG << bone.first;
-
         auto armatureNode = findArmatureRootNode(node);
         if (armatureNode)
         {
-            LOG_DEBUG << "Root node found : " << armatureNode->mName.data;
             object_->skeleton_ = Animation::Joint{};
             createSkeleton(*armatureNode, *object_->skeleton_);
-            LOG_DEBUG << currentProcessingFile_->GetFilename() << ", Skeleton : " << object_->skeleton_;
         }
     }
 }
@@ -480,7 +468,6 @@ void AssimpLoader::processAnimations(const aiScene& scene)
         if (name.empty())
             name = "noname";
 
-        LOG_DEBUG << "Animation : " << name;
         objects.back().animationClips_.insert({name, processAnimation(aiAnim)});
     }
 }
@@ -520,9 +507,9 @@ GeneralTexture* CreateMaterialTexture(const std::optional<File>& currentProcessi
         material.GetTexture(type, i, &path);
         TextureParameters parameters;
         parameters.filter = GraphicsApi::TextureFilter::LINEAR;
-        parameters.mimap = GraphicsApi::TextureMipmap::LINEAR;
-        const auto& file = getTexturePath(currentProcessingFile, path.C_Str());
-        texture          = loader.LoadTexture(file, parameters);
+        parameters.mimap  = GraphicsApi::TextureMipmap::LINEAR;
+        const auto& file  = getTexturePath(currentProcessingFile, path.C_Str());
+        texture           = loader.LoadTexture(file, parameters);
     }
     return texture;
 }

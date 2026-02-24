@@ -257,8 +257,6 @@ void MainFrame::Init()
         SetStatusText(std::filesystem::path(EngineLocalConf.files.getDataPath()).make_preferred().string());
 
         const auto& lastContext = ProjectManager::GetInstance().GetLastSessionContext();
-        LOG_DEBUG << "lastContext.cameraPosition " << lastContext.cameraPosition;
-        LOG_DEBUG << "lastContext.cameraDir " << lastContext.cameraRotation;
         canvas->GetCameraEditor()->SetPosition(lastContext.cameraPosition);
         canvas->GetCameraEditor()->SetRotation(lastContext.cameraRotation);
     };

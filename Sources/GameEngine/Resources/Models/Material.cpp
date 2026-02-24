@@ -16,8 +16,6 @@ namespace GameEngine
 Material ParseMaterial(const File& file, ITextureLoader& texLoader)
 {
     Material material;
-
-    LOG_DEBUG << "reader: " << file.GetAbsolutePath();
     Utils::JsonReader reader;
     reader.Read(file.GetAbsolutePath().string());
 
@@ -27,7 +25,6 @@ Material ParseMaterial(const File& file, ITextureLoader& texLoader)
         {
             if (auto node = reader.Get(key, root))
             {
-                LOG_DEBUG << node->name();
                 if (!node->value_.empty())
                 {
                     File file(node->value_);
@@ -161,7 +158,6 @@ Material ParseMaterial(const File& file, ITextureLoader& texLoader)
         LOG_ERROR << "Json root node not found in file: " << file;
     }
 
-    LOG_DEBUG << "return material";
     return material;
 }
 

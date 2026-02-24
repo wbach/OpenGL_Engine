@@ -1,4 +1,5 @@
 #include "BufferObject.h"
+
 #include <Logger/Log.h>
 
 namespace GameEngine
@@ -7,12 +8,10 @@ BaseBufferObject::BaseBufferObject(GraphicsApi::IGraphicsApi& graphicsApi, uint3
     : graphicsApi_(graphicsApi)
     , bindLocation_(bindLocation)
 {
-     LOG_DEBUG << ": Create BaseBufferObject bindLocation_=" << bindLocation_;
 }
 
 BaseBufferObject::~BaseBufferObject()
 {
-    LOG_DEBUG << ":~BaseBufferObject bindLocation_=" << bindLocation_;
     ReleaseGpuPass();
 }
 
@@ -27,6 +26,5 @@ void BaseBufferObject::ReleaseGpuPass()
 
 void BaseBufferObject::UpdateGpuPass()
 {
-
 }
 }  // namespace GameEngine

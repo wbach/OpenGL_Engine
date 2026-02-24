@@ -70,9 +70,6 @@ void Texture::ReleaseGpuPass()
         return;
 
     auto filename = file_ ? file_->GetBaseName() : "";
-
-    LOG_DEBUG << "Clean gpu resources " << filename << ", graphicsObjectId_=" << graphicsObjectId_;
-
     graphicsApi_.DeleteObject(*graphicsObjectId_);
     GpuObject::ReleaseGpuPass();
 }

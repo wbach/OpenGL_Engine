@@ -1367,7 +1367,7 @@ void OpenGLApi::DeleteObject(uint32 id)
 
     if (createdObjectIds.count(id) == 0)
     {
-        LOG_ERROR << "Delete object error. Object with id : " << id << " not created?";
+        //LOG_ERROR << "Delete object error. Object with id : " << id << " not created?";
         return;
     }
 
@@ -1481,7 +1481,6 @@ GraphicsApi::ID OpenGLApi::CreatePurePatchMeshInstanced(uint32 patch, uint32 cou
 
 GraphicsApi::ID OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawData, GraphicsApi::RenderType type)
 {
-    LOG_DEBUG << "Create mesh " << magic_enum::enum_name(type);
     auto rid = impl_->idPool_.ToUint(0);
     createdObjectIds.insert({rid, ObjectType::MESH});
 
@@ -1502,8 +1501,6 @@ GraphicsApi::ID OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawDat
     mesh.renderType = type;
 
     allocatedBytes(vaoCreator.Get().sizeInBytes);
-
-    LOG_DEBUG << "Mesh created " << rid;
     return rid;
 }
 

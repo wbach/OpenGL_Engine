@@ -441,10 +441,8 @@ void Animator::applyPoseToJoints()
 }
 void Animator::initAnimationClips(const Model& model)
 {
-    LOG_DEBUG << "Models based animation clips count: " << model.animationClips_.size();
     for (const auto& [name, clip] : model.animationClips_)
     {
-        LOG_DEBUG << "Add model based clip : " << name;
         animationClipInfo_.insert({name, AnimationClipInfo{.playSpeed     = 1.f,
                                                            .playType      = AnimationClipInfo::PlayType::loop,
                                                            .playDirection = PlayDirection::forward,
@@ -681,12 +679,10 @@ void Animator::initMasterSkeletonData()
             masterSkeletonData.skeleton = std::move(*maybeSkeleton);
 
             initAnimationClips(*model);
-            LOG_DEBUG << "Skeleton of: " << model->GetFile().GetBaseName() << masterSkeletonData.skeleton;
 
             montionJoint_ = masterSkeletonData.skeleton.getJoint(montionJointName);
             if (montionJoint_)
             {
-                LOG_DEBUG << "Montion joint found : " << montionJointName;
                 machine_.context_->montionRootJointId = montionJoint_->id;
             }
             else

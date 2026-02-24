@@ -167,7 +167,6 @@ const std::optional<Animation::Skeleton>& Model::getSkeleton() const
 void Model::setNormailizedFactor(float v)
 {
     normalizedFactor = v;
-    LOG_DEBUG << normalizedFactor << " " << file_;
 }
 
 BoundingBox Model::transformBoundingBox(const glm::mat4& transform)

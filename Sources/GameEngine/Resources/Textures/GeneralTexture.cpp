@@ -39,15 +39,12 @@ void GeneralTexture::GpuLoadingPass()
         return;
     }
 
-    LOG_DEBUG << "Create texutre : " << debugFileNamePrint;
-
     auto graphicsObjectId = graphicsApi_.CreateTexture(image_, paramters_.filter, paramters_.mimap);
 
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
         isGpuAtual        = true;
-        LOG_DEBUG << "Texture " << debugFileNamePrint << " is in GPU. GraphicsObjectId :" << *graphicsObjectId;
     }
     else
     {

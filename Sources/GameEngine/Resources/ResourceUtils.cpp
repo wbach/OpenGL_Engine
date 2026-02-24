@@ -23,7 +23,7 @@ FIBITMAP* convertTo32bppIfDifferent(FIBITMAP* image)
 
     if (bpp != 32)
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Convert image from " + std::to_string(bpp) + " bpp to 32 bpp");
+        // LOG_DEBUG << "Convert image from " << bpp << " bpp to 32 bpp";
 
         FIBITMAP* image32bit = FreeImage_ConvertTo32Bits(image);
         FreeImage_Unload(image);
@@ -141,7 +141,7 @@ std::optional<Utils::Image> ReadFile(const File& file, const TextureParameters& 
                              Color(pixeles[j * 4 + 2], pixeles[j * 4 + 1], pixeles[j * 4 + 0], pixeles[j * 4 + 3]));
     }
     FreeImage_Unload(image);
-    LOG_DEBUG << "File: " << file.GetBaseName() << " is loaded. Size: " << resultImage.width << "x" << resultImage.height;
+    //    LOG_DEBUG << "File: " << file.GetBaseName() << " is loaded. Size: " << resultImage.width << "x" << resultImage.height;
     return std::move(resultImage);
 }
 

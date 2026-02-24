@@ -26,14 +26,7 @@ bool AbstractLoader::Parse(const File& file, const LoadingParameters& loadingPar
 }
 std::unique_ptr<Model> AbstractLoader::Create()
 {
-    auto startTime = std::chrono::high_resolution_clock::now();
-
-    std::unique_ptr<Model> newModel = CreateModel();
-
-    auto endTime  = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
-    LOG_DEBUG << "Model created. " << fileName_ << ". Time : " << duration << "ms. Meshes : " << newModel->GetMeshes().size();
-    return newModel;
+    return CreateModel();
 }
 std::unique_ptr<Model> AbstractLoader::CreateModel()
 {
@@ -44,7 +37,6 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
     {
         normalizeFactor = 1.f / boundingBox.maxScale();
         boundingBox.scale(vec3(normalizeFactor));
-        LOG_DEBUG << "Normalized boundingBox: " << boundingBox.min() << "-" << boundingBox.max();
     }
 
     auto newModel = std::make_unique<Model>(boundingBox);
@@ -114,8 +106,6 @@ BoundingBox AbstractLoader::getModelBoundingBox() const
 
     BoundingBox modelBox;
     modelBox.minMax(min, max);
-    LOG_DEBUG << "BoundingBox: " << modelBox.min() << "-" << modelBox.max();
-    LOG_DEBUG << "Normalize factor : " << 1.f / modelBox.maxScale();
     return modelBox;
 }
 }  // namespace GameEngine

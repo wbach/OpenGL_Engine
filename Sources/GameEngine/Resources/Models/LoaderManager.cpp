@@ -33,17 +33,6 @@ std::unique_ptr<Model> LoaderManager::Load(const File& file, const LoadingParame
     if (result)
     {
         result->SetFile(file);
-
-        auto trianglesCount = 0u;
-        for (const auto& mesh : result->GetMeshes())
-        {
-            trianglesCount += (not mesh.GetCMeshDataRef().indices_.empty())
-                                  ? (mesh.GetCMeshDataRef().indices_.size() / 3)
-                                  : (mesh.GetCMeshDataRef().positions_.size() / 3 / 3);
-        }
-
-        LOG_ERROR << "File  loaded: " << file << " Meshes count : " << result->GetMeshes().size()
-                  << ", Total triangles count : " << trianglesCount;
     }
     else
     {

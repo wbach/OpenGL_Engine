@@ -29,7 +29,7 @@ Mesh::Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi,
     , transform_(transformMatix)
     , normalizedScale_(normalizedScale)
 {
-    LOG_DEBUG << "New mesh renderType = " << magic_enum::enum_name(type) << " positions: " << meshRawData_.positions_.size();
+    // LOG_DEBUG << "New mesh renderType = " << magic_enum::enum_name(type) << " positions: " << meshRawData_.positions_.size();
     updateBoundingBox();
 }
 
@@ -44,7 +44,7 @@ Mesh::Mesh(Mesh&& other) noexcept
     , boundingBox_(std::move(other.boundingBox_))
     , materialShaderBuffer_(other.materialShaderBuffer_)
 {
-    LOG_DEBUG << "Mesh moved. Id=" << GetGpuObjectId();
+    // LOG_DEBUG << "Mesh moved. Id=" << GetGpuObjectId();
 
     // wyczysczenie aby desturkotr nie zwalanial niczego
     other.meshRawData_          = GraphicsApi::MeshRawData{};
@@ -68,7 +68,7 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept
         boundingBox_          = std::move(other.boundingBox_);
         materialShaderBuffer_ = other.materialShaderBuffer_;
 
-        LOG_DEBUG << "Mesh move-assigned. Id=" << GetGpuObjectId();
+        // LOG_DEBUG << "Mesh move-assigned. Id=" << GetGpuObjectId();
 
         other.meshRawData_          = GraphicsApi::MeshRawData{};
         other.transform_            = mat4(1.f);
@@ -83,19 +83,17 @@ Mesh::~Mesh()
 {
     if (materialShaderBuffer_ != INVALID_ID)
     {
-        LOG_DEBUG << "Mesh destroyed. Id=" << GetGpuObjectId();
+        // LOG_DEBUG << "Mesh destroyed. Id=" << GetGpuObjectId();
         ReleaseGpuPass();
     }
     else
     {
-        LOG_DEBUG << "Mesh destroyed (moved-from).";
+        //  LOG_DEBUG << "Mesh destroyed (moved-from).";
     }
 }
 
 void Mesh::GpuLoadingPass()
 {
-    LOG_DEBUG << " Mesh::GpuLoadingPass()";
-
     if (graphicsObjectId_)
         return;
 
@@ -110,14 +108,11 @@ void Mesh::ReleaseGpuPass()
         graphicsApi_.DeleteObject(*graphicsObjectId_);
         graphicsObjectId_ = std::nullopt;
     }
-
-    LOG_DEBUG << " Mesh::DeleteShaderBuffer()";
     if (materialShaderBuffer_)
     {
         graphicsApi_.DeleteShaderBuffer(*materialShaderBuffer_);
         materialShaderBuffer_ = std::nullopt;
     }
-    LOG_DEBUG << " Mesh::ReleaseGpuPass() done";
 }
 
 void Mesh::CreateMesh()
@@ -127,7 +122,6 @@ void Mesh::CreateMesh()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
-        LOG_DEBUG << "CreateMesh graphicsObjectId_ := " << graphicsObjectId_;
     }
 }
 
@@ -149,7 +143,6 @@ void Mesh::setBoundingBox(const BoundingBox& boundingBox)
 void Mesh::updateBoundingBox()
 {
     boundingBox_ = ComputeBoundingBox(meshRawData_);
-    LOG_DEBUG << "Updated bounding box: " << boundingBox_;
 }
 
 void Mesh::SetTransformMatrix(const glm::mat4& m)
@@ -173,7 +166,6 @@ void Mesh::CreateBufferObject()
         graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(PerMeshObject), GraphicsApi::DrawFlag::Static);
     if (materialShaderBuffer_)
     {
-        LOG_DEBUG << "CreateMesh perMeshObjectBuffer_ := " << materialShaderBuffer_;
         auto perMeshObject = createPerMeshObject(material_);
         graphicsApi_.UpdateShaderBuffer(*materialShaderBuffer_, &perMeshObject);
     }

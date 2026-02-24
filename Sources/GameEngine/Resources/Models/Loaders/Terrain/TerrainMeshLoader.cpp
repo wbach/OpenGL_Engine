@@ -85,9 +85,7 @@ void TerrainMeshLoader::CreatePartial(Model& model, TerrainHeightTools& tools, u
 {
     auto heightMapResolution = tools.getHeightMapResolution();
     auto partialSize         = heightMapResolution / partsCount;
-    auto rest                = heightMapResolution - (partsCount * partialSize);
-
-    LOG_DEBUG << "Rest : " << rest;
+//    auto rest                = heightMapResolution - (partsCount * partialSize);
 
     vec3 modelBoundingBoxMin(-0.5f, std::numeric_limits<float>::max(), -0.5f);
     vec3 modelBoundingBoxMax(0.5f, -std::numeric_limits<float>::max(), 0.5f);

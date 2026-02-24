@@ -54,7 +54,6 @@ void CustomMaterialData::CreateBufferObject(GraphicsApi::IGraphicsApi& graphicsA
 {
     perMeshBuffer = std::make_unique<ShaderBufferObject<PerMeshObject>>(createPerMeshObject(material), graphicsApi,
                                                                         PER_MESH_OBJECT_BIND_LOCATION);
-    LOG_DEBUG << "Create custom material " << material.name;
     loader.AddObjectToGpuLoadingPass(*perMeshBuffer);
 }
 
@@ -175,7 +174,6 @@ void RendererComponent::init()
         if (file.empty())
             continue;
 
-        LOG_DEBUG << thisObject_.GetName() << " Load model: " << file.GetBaseName();
         auto model = componentContext_.resourceManager_.LoadModel(file, loadingParameters_);
         if (model)
         {
@@ -230,7 +228,6 @@ void RendererComponent::PrepareCustomMaterials(const Model& model)
         }
         else if (not iter->second.empty() and Utils::toLower(iter->second.GetAbsolutePath().string()) != "default")
         {
-            LOG_DEBUG << Utils::toLower(iter->second.GetAbsolutePath().string());
             customMaterials.try_emplace(mesh.GetGpuObjectId(), componentContext_.graphicsApi_,
                                         componentContext_.gpuResourceLoader_,
                                         ParseMaterial(iter->second, componentContext_.resourceManager_.GetTextureLoader()));
@@ -335,7 +332,6 @@ void RendererComponent::CreatePerObjectUpdateBuffer(const Mesh& mesh)
 
     const mat4 transformMatrix            = thisObject_.GetWorldTransform().CalculateCurrentMatrix() * mesh.GetMeshTransform();
     buffer.GetData().TransformationMatrix = graphicsApi.PrepareMatrixToLoad(transformMatrix);
-    LOG_DEBUG << "bufferId=" << buffer.GetGpuObjectId();
     componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(buffer);
     calculateWorldSpaceBoundingBox(thisObject_.GetWorldTransform().CalculateCurrentMatrix());
 }
@@ -367,8 +363,6 @@ void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
     }
 
     buffer.GetData().UseBoneTransform = 0.f;  // mesh.UseArmature();
-
-    LOG_DEBUG << "bufferId=" << buffer.GetGpuObjectId();
     componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(buffer);
 }
 // BufferDataUpdater calling this on gpu thread

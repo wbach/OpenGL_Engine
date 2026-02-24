@@ -175,7 +175,6 @@ File &File::operator=(const File &f)
     if (&f != this)
     {
         Init(f.absolutePath_);
-        LOG_DEBUG << "File  absolutePath_ = " << absolutePath_;
     }
     else
     {

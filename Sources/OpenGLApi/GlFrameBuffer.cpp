@@ -48,21 +48,16 @@ const std::unordered_map<GraphicsApi::FrameBuffer::Format, GLint> InternalFormat
     {GraphicsApi::FrameBuffer::Format::Depth, GL_DEPTH_COMPONENT32F}};
 
 const std::unordered_map<GraphicsApi::FrameBuffer::Format, GLint> DataType = {
-    {GraphicsApi::FrameBuffer::Format::Rgba8, GL_UNSIGNED_BYTE},
-    {GraphicsApi::FrameBuffer::Format::R8f, GL_FLOAT},
-    {GraphicsApi::FrameBuffer::Format::R16f, GL_FLOAT},
-    {GraphicsApi::FrameBuffer::Format::R32f, GL_FLOAT},
-    {GraphicsApi::FrameBuffer::Format::Rgba16f, GL_FLOAT},
-    {GraphicsApi::FrameBuffer::Format::Rgba32f, GL_FLOAT},
+    {GraphicsApi::FrameBuffer::Format::Rgba8, GL_UNSIGNED_BYTE}, {GraphicsApi::FrameBuffer::Format::R8f, GL_FLOAT},
+    {GraphicsApi::FrameBuffer::Format::R16f, GL_FLOAT},          {GraphicsApi::FrameBuffer::Format::R32f, GL_FLOAT},
+    {GraphicsApi::FrameBuffer::Format::Rgba16f, GL_FLOAT},       {GraphicsApi::FrameBuffer::Format::Rgba32f, GL_FLOAT},
     {GraphicsApi::FrameBuffer::Format::Depth, GL_FLOAT}};
 
-const std::unordered_map<GraphicsApi::FrameBuffer::Format, GLint> Channels = {{GraphicsApi::FrameBuffer::Format::Rgba8, 4},
-                                                                              {GraphicsApi::FrameBuffer::Format::R8f, 1},
-                                                                              {GraphicsApi::FrameBuffer::Format::R16f, 1},
-                                                                              {GraphicsApi::FrameBuffer::Format::R32f, 1},
-                                                                              {GraphicsApi::FrameBuffer::Format::Rgba16f, 4},
-                                                                              {GraphicsApi::FrameBuffer::Format::Rgba32f, 4},
-                                                                              {GraphicsApi::FrameBuffer::Format::Depth, 4}};
+const std::unordered_map<GraphicsApi::FrameBuffer::Format, GLint> Channels = {
+    {GraphicsApi::FrameBuffer::Format::Rgba8, 4},   {GraphicsApi::FrameBuffer::Format::R8f, 1},
+    {GraphicsApi::FrameBuffer::Format::R16f, 1},    {GraphicsApi::FrameBuffer::Format::R32f, 1},
+    {GraphicsApi::FrameBuffer::Format::Rgba16f, 4}, {GraphicsApi::FrameBuffer::Format::Rgba32f, 4},
+    {GraphicsApi::FrameBuffer::Format::Depth, 4}};
 
 const std::unordered_map<GraphicsApi::FrameBuffer::CompareMode, GLint> CompareMode = {
     {GraphicsApi::FrameBuffer::CompareMode::None, GL_NONE},
@@ -121,7 +116,6 @@ FrameBuffer::FrameBuffer(IdPool& idPool, const std::vector<GraphicsApi::FrameBuf
 
 FrameBuffer::~FrameBuffer()
 {
-    LOG_DEBUG << GetId();
 }
 
 bool FrameBuffer::Init()
@@ -134,7 +128,6 @@ bool FrameBuffer::Init()
         return false;
     }
 
-    LOG_DEBUG << "Create framebuffer glId = " << glId_;
     Bind();
     if (not input_.empty())
     {
@@ -268,9 +261,9 @@ void FrameBuffer::CreateGlAttachments(const std::vector<GraphicsApi::FrameBuffer
         glAttachment.wrapMode_        = WrapMode.at(attachment.wrapMode);
 
         CreateGlAttachment(glAttachment);
-        LOG_DEBUG << "CreateGlAttachment glId = " << glAttachment.glId_
-                  << ", format: " << magic_enum::enum_name(attachment.format) << ", type "
-                  << magic_enum::enum_name(attachment.type);
+        // LOG_DEBUG << "CreateGlAttachment glId = " << glAttachment.glId_
+        //           << ", format: " << magic_enum::enum_name(attachment.format) << ", type "
+        //           << magic_enum::enum_name(attachment.type);
 
         auto errorString = GetGlError();
         if (not errorString.empty())

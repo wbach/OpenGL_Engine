@@ -181,7 +181,7 @@ void TerrainMeshRendererComponent::CreateShaderBuffers(const GameEngine::Model &
 {
     perObjectUpdateBuffer_.reserve(model.GetMeshes().size());
 
-    LOG_DEBUG << "Creating TerrainMeshRendererComponent shader buffers for " << model.GetMeshes().size() << " meshes.";
+    //LOG_DEBUG << "Creating TerrainMeshRendererComponent shader buffers for " << model.GetMeshes().size() << " meshes.";
     for (size_t i = 0; i < model.GetMeshes().size(); ++i)
     {
         auto &graphicsApi = componentContext_.resourceManager_.GetGraphicsApi();
@@ -222,7 +222,6 @@ void TerrainMeshRendererComponent::createBoundingBoxes()
 
 ShaderBufferObject<PerObjectUpdate> &TerrainMeshRendererComponent::CreatePerObjectBuffer(GraphicsApi::IGraphicsApi &graphicsApi)
 {
-    LOG_DEBUG << "Creating TerrainMeshRendererComponent PerObjectUpdate buffer";
     perObjectUpdateBuffer_.push_back(
         std::make_unique<ShaderBufferObject<PerObjectUpdate>>(graphicsApi, PER_OBJECT_UPDATE_BIND_LOCATION));
     return *perObjectUpdateBuffer_.back();
