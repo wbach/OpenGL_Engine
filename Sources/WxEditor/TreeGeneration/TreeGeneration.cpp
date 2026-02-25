@@ -563,7 +563,7 @@ std::unique_ptr<GameEngine::Model> CreateBillboardVertices(GraphicsApi::IGraphic
                                                            GameEngine::ITextureLoader& textureLoader,
                                                            const std::vector<GameEngine::Billboard>& billboards)
 {
-    auto model = std::make_unique<GameEngine::Model>();
+    auto model = std::make_unique<GameEngine::Model>(graphicsApi);
 
     for (size_t i = 0; i < billboards.size(); ++i)
     {
@@ -855,7 +855,7 @@ std::optional<TreeModel> GenerateLoD1Tree(const GameEngine::TreeGenerator& tree,
     auto& engineContext   = canvas->GetEngine().GetEngineContext();
     auto& resourceManager = canvas->GetScene().GetResourceManager();
 
-    auto trunkModel = std::make_unique<GameEngine::Model>();
+    auto trunkModel = std::make_unique<GameEngine::Model>(engineContext.GetGraphicsApi());
 
     const auto [trunkMaterial, leafMaterial] = PrepareTreeMaterials(resourceManager.GetTextureLoader(), params);
 
@@ -927,7 +927,7 @@ std::optional<TreeModel> GenerateLoD2Tree(const GameEngine::TreeGenerator& tree,
     auto& engineContext   = canvas->GetEngine().GetEngineContext();
     auto& resourceManager = canvas->GetScene().GetResourceManager();
 
-    auto trunkModel = std::make_unique<GameEngine::Model>();
+    auto trunkModel = std::make_unique<GameEngine::Model>(engineContext.GetGraphicsApi());
 
     const auto [trunkMaterial, leafMaterial] = PrepareTreeMaterials(resourceManager.GetTextureLoader(), params);
 

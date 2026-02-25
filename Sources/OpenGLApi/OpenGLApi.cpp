@@ -9,7 +9,9 @@
 #include <algorithm>
 #include <filesystem>
 #include <iostream>
+#include <limits>
 #include <optional>
+#include <vector>
 
 #include "GlFrameBuffer.h"
 #include "GraphicsApi/BufferParamters.h"
@@ -23,6 +25,7 @@
 #include "OpenGLApi/DefaultFrameBuffer.h"
 #include "OpenGLUtils.h"
 #include "SDL2/SDLOpenGL.h"
+#include "Types.h"
 #include "magic_enum/magic_enum.hpp"
 
 #if defined(_WIN32)
@@ -232,7 +235,10 @@ struct OpenGLApi::Pimpl
     GLint maxPatchVertices_ = 0;
     IdPool idPool_;
     ShaderManager shaderManager_;
-    std::vector<ShaderBuffer> shaderBuffers_;
+
+    Utils::IdPool shaderBufferIdPool_;
+    std::unordered_map<IdType, ShaderBuffer> shaderBuffers_;
+
     std::unordered_map<uint32, GraphicsApi::TextureInfo> textureInfos_;
     std::vector<std::unique_ptr<IFrameBuffer>> frameBuffers_;
 
@@ -451,18 +457,29 @@ void OpenGLApi::DeleteShader(uint32 id)
 }
 void OpenGLApi::ClearRest()
 {
-    for (auto& buffer : impl_->shaderBuffers_)
+    if (not impl_->shaderBuffers_.empty())
+    {
+        LOG_WARN << "Some shaders buffers left : " << impl_->shaderBuffers_.size();
+    }
+
+    for (auto& [_, buffer] : impl_->shaderBuffers_)
     {
         if (buffer.isInGpu)
             glDeleteBuffers(1, &buffer.glId);
     }
-
     impl_->shaderBuffers_.clear();
 
     std::vector<uint32> objectsToRemove;
+
+    if (not createdObjectIds.empty())
+    {
+        LOG_WARN << "Some created objects left : " << createdObjectIds.size();
+    }
+
     for (auto iter = createdObjectIds.begin(); iter != createdObjectIds.end(); iter++)
     {
         objectsToRemove.push_back(iter->first);
+        LOG_WARN << "Left object of type : " << magic_enum::enum_name(iter->second);
     }
 
     for (auto& id : objectsToRemove)
@@ -689,6 +706,9 @@ void OpenGLApi::DeleteFrameBuffer(OpenGLApi::IFrameBuffer& framebuffer)
 
 void OpenGLApi::CreateDebugNormalMesh(uint32 rid, const GraphicsApi::MeshRawData& meshRawData)
 {
+    if (not debugNormalMeshGeneration)
+        return;
+
     if (meshRawData.tangents_.empty())
     {
         LOG_WARN << "Tangent data is emepty for " << rid;
@@ -696,12 +716,7 @@ void OpenGLApi::CreateDebugNormalMesh(uint32 rid, const GraphicsApi::MeshRawData
 
     if (not meshRawData.positions_.empty() and not meshRawData.normals_.empty())
     {
-        if (not impl_->debugNormalsMesh_.count(rid))
-        {
-            impl_->debugNormalsMesh_.insert({rid, {}});
-        }
-
-        auto& debugNormalMesh = impl_->debugNormalsMesh_.at(rid);
+        auto& debugNormalMesh = impl_->debugNormalsMesh_[rid];
         debugNormalMesh.position_.clear();
         debugNormalMesh.normal_.clear();
         debugNormalMesh.tangent_.clear();
@@ -811,8 +826,52 @@ void OpenGLApi::DeleteMesh(uint32 id)
     glDeleteVertexArrays(1, &mesh.vao);
 
     openGlMeshes_.erase(id);
+
     DeleteDebugNormalMesh(id);
+
     // /* LOG TO FIX*/  LOG_ERROR << ("erase openGlMeshes_ size  " + std::to_string(openGlMeshes_.size()));
+}
+void OpenGLApi::DeleteMesh(const std::vector<uint32>& ids)
+{
+    std::vector<GLuint> vbosToDelete;
+    std::vector<GLuint> vaosToDelete;
+    long long totalSizeFreed = 0;
+
+    for (uint32 id : ids)
+    {
+        auto iter = openGlMeshes_.find(id);
+        if (iter == openGlMeshes_.end())
+            continue;
+
+        auto& mesh = iter->second;
+
+        for (auto& vbo : mesh.vbos)
+        {
+            if (vbo.second != 0)
+                vbosToDelete.push_back(vbo.second);
+        }
+
+        if (mesh.vao != 0)
+            vaosToDelete.push_back(mesh.vao);
+
+        totalSizeFreed += mesh.sizeInBytes;
+
+        openGlMeshes_.erase(iter);
+    }
+
+    DeleteDebugNormalMeshes(ids);
+
+    if (not vbosToDelete.empty())
+    {
+        glDeleteBuffers(static_cast<GLsizei>(vbosToDelete.size()), vbosToDelete.data());
+    }
+
+    if (not vaosToDelete.empty())
+    {
+        glDeleteVertexArrays(static_cast<GLsizei>(vaosToDelete.size()), vaosToDelete.data());
+    }
+
+    allocatedBytes(-totalSizeFreed);
 }
 
 void OpenGLApi::DeleteDebugNormalMesh(uint32 id)
@@ -840,7 +899,59 @@ void OpenGLApi::DeleteDebugNormalMesh(uint32 id)
             openGlMeshes_.erase(id);
         }
     }
+
+    if (iter->second.id_)
+        createdObjectIds.erase(*iter->second.id_);
     impl_->debugNormalsMesh_.erase(id);
+}
+
+void OpenGLApi::DeleteDebugNormalMeshes(const std::vector<uint32>& ids)
+{
+    std::vector<GLuint> vbosToDelete;
+    std::vector<GLuint> vaosToDelete;
+
+    for (uint32 id : ids)
+    {
+        auto iterDebug = impl_->debugNormalsMesh_.find(id);
+        if (iterDebug == impl_->debugNormalsMesh_.end())
+            continue;
+
+        auto& debugMesh = iterDebug->second;
+
+        if (debugMesh.id_)
+        {
+            auto iterGL = openGlMeshes_.find(*debugMesh.id_);
+            if (iterGL != openGlMeshes_.end())
+            {
+                auto& glmesh = iterGL->second;
+
+                for (auto& vbo : glmesh.vbos)
+                {
+                    if (vbo.second != 0)
+                        vbosToDelete.push_back(vbo.second);
+                }
+
+                if (glmesh.vao != 0)
+                    vaosToDelete.push_back(glmesh.vao);
+
+                openGlMeshes_.erase(iterGL);
+            }
+        }
+
+        if (iterDebug->second.id_)
+            createdObjectIds.erase(*iterDebug->second.id_);
+        impl_->debugNormalsMesh_.erase(iterDebug);
+    }
+
+    if (not vbosToDelete.empty())
+    {
+        glDeleteBuffers(static_cast<GLsizei>(vbosToDelete.size()), vbosToDelete.data());
+    }
+
+    if (not vaosToDelete.empty())
+    {
+        glDeleteVertexArrays(static_cast<GLsizei>(vaosToDelete.size()), vaosToDelete.data());
+    }
 }
 
 void OpenGLApi::UseShader(uint32 id)
@@ -859,8 +970,8 @@ GraphicsApi::ID OpenGLApi::CreateShaderBuffer(uint32 bindLocation, uint32 size, 
     glBindBuffer(GL_UNIFORM_BUFFER, buffer);
     glBufferData(GL_UNIFORM_BUFFER, size, nullptr, usage);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    impl_->shaderBuffers_.push_back({buffer, true, size, bindLocation, GL_UNIFORM_BUFFER});
-    auto id = static_cast<IdType>(impl_->shaderBuffers_.size() - 1);
+    auto id = impl_->shaderBufferIdPool_.getId();
+    impl_->shaderBuffers_.insert({id, ShaderBuffer{buffer, true, size, bindLocation, GL_UNIFORM_BUFFER}});
     return id;
 }
 
@@ -876,73 +987,99 @@ GraphicsApi::ID OpenGLApi::CreateShaderStorageBuffer(uint32 bindLocation, uint32
     glBufferData(GL_SHADER_STORAGE_BUFFER, size, nullptr, usage);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-    impl_->shaderBuffers_.push_back({buffer, true, size, bindLocation, GL_SHADER_STORAGE_BUFFER});
-    auto id = static_cast<IdType>(impl_->shaderBuffers_.size() - 1);
+    auto id = impl_->shaderBufferIdPool_.getId();
+    impl_->shaderBuffers_.insert({id, ShaderBuffer{buffer, true, size, bindLocation, GL_SHADER_STORAGE_BUFFER}});
     return id;
 }
 
 void OpenGLApi::UpdateShaderBuffer(uint32 id, void const* buffer)
 {
-    const auto& b = impl_->shaderBuffers_[id];
+    const auto& iter = impl_->shaderBuffers_.find(id);
 
-    glBindBuffer(GL_UNIFORM_BUFFER, b.glId);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, b.bufferSize, buffer);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    if (iter != impl_->shaderBuffers_.end())
+    {
+        const auto& b = iter->second;
+        glBindBuffer(GL_UNIFORM_BUFFER, b.glId);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, b.bufferSize, buffer);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
 }
 
 void OpenGLApi::UpdateShaderStorageBuffer(uint32 id, const void* data, uint32 newSize)
 {
-    auto& bufferInfo = impl_->shaderBuffers_[id];
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufferInfo.glId);
+    const auto& iter = impl_->shaderBuffers_.find(id);
 
-    if (newSize > bufferInfo.bufferSize)
+    if (iter != impl_->shaderBuffers_.end())
     {
-        glBufferData(GL_SHADER_STORAGE_BUFFER, newSize, data, GL_DYNAMIC_DRAW);
-        bufferInfo.bufferSize = newSize;
-    }
-    else
-    {
-        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, newSize, data);
+        auto& bufferInfo = iter->second;
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufferInfo.glId);
+
+        if (newSize > bufferInfo.bufferSize)
+        {
+            glBufferData(GL_SHADER_STORAGE_BUFFER, newSize, data, GL_DYNAMIC_DRAW);
+            bufferInfo.bufferSize = newSize;
+        }
+        else
+        {
+            glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, newSize, data);
+        }
     }
 }
 void* OpenGLApi::MapShaderStorageBuffer(uint32 id, uint32 bufferSize, uint32 flags)
 {
-    const auto& b = impl_->shaderBuffers_[id];
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, b.glId);
+    const auto& iter = impl_->shaderBuffers_.find(id);
 
-    GLbitfield glFlags = 0;
-    if (flags & GraphicsApi::WRITE)
-        glFlags |= GL_MAP_WRITE_BIT;
-    if (flags & GraphicsApi::READ)
-        glFlags |= GL_MAP_READ_BIT;
-    if (flags & GraphicsApi::INVALIDATE)
-        glFlags |= GL_MAP_INVALIDATE_BUFFER_BIT;
-    if (flags & GraphicsApi::PERSISTENT)
-        glFlags |= GL_MAP_PERSISTENT_BIT;
-    if (flags & GraphicsApi::COHERENT)
-        glFlags |= GL_MAP_COHERENT_BIT;
+    if (iter != impl_->shaderBuffers_.end())
+    {
+        const auto& bufferInfo = iter->second;
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufferInfo.glId);
 
-    void* ptr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, bufferSize, glFlags);
+        GLbitfield glFlags = 0;
+        if (flags & GraphicsApi::WRITE)
+            glFlags |= GL_MAP_WRITE_BIT;
+        if (flags & GraphicsApi::READ)
+            glFlags |= GL_MAP_READ_BIT;
+        if (flags & GraphicsApi::INVALIDATE)
+            glFlags |= GL_MAP_INVALIDATE_BUFFER_BIT;
+        if (flags & GraphicsApi::PERSISTENT)
+            glFlags |= GL_MAP_PERSISTENT_BIT;
+        if (flags & GraphicsApi::COHERENT)
+            glFlags |= GL_MAP_COHERENT_BIT;
 
-    return ptr;
+        void* ptr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, bufferSize, glFlags);
+
+        return ptr;
+    }
+    return nullptr;
 }
 void OpenGLApi::UnmapShaderStorageBuffer(uint32 id)
 {
-    const auto& b = impl_->shaderBuffers_[id];
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, b.glId);
-    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    const auto& iter = impl_->shaderBuffers_.find(id);
+
+    if (iter != impl_->shaderBuffers_.end())
+    {
+        const auto& bufferInfo = iter->second;
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufferInfo.glId);
+        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    }
 }
 
 uint32 OpenGLApi::BindShaderBuffer(uint32 id)
 {
-    const auto& b = impl_->shaderBuffers_[id];
-    uint32 result = bindedShaderBuffers_[b.bindLocation];
+    const auto& iter = impl_->shaderBuffers_.find(id);
 
-    bindedShaderBuffers_[b.bindLocation] = id;
-    glBindBufferBase(b.type, b.bindLocation, b.glId);
+    if (iter != impl_->shaderBuffers_.end())
+    {
+        const auto& b = iter->second;
+        uint32 result = bindedShaderBuffers_[b.bindLocation];
 
-    return result;
+        bindedShaderBuffers_[b.bindLocation] = id;
+        glBindBufferBase(b.type, b.bindLocation, b.glId);
+
+        return result;
+    }
+    return std::numeric_limits<uint32>::max();
 }
 
 void CreateGlTexture(GLuint texture, GraphicsApi::TextureType type, GraphicsApi::TextureFilter filter,
@@ -1365,15 +1502,16 @@ void OpenGLApi::DeleteObject(uint32 id)
         return;
     }
 
-    if (createdObjectIds.count(id) == 0)
+    auto iter = createdObjectIds.find(id);
+    if (iter == createdObjectIds.end())
     {
-        //LOG_ERROR << "Delete object error. Object with id : " << id << " not created?";
+        LOG_DEBUG << "Object not found " << id;
         return;
     }
 
     auto openGLId = impl_->idPool_.ToGL(id);
 
-    switch (createdObjectIds.at(id))
+    switch (iter->second)
     {
         case ObjectType::SHADER_PROGRAM:
             DeleteShader(id);
@@ -1409,20 +1547,120 @@ void OpenGLApi::DeleteObject(uint32 id)
             break;
     }
 
-    // /* LOG TO FIX*/  LOG_ERROR << ("Delete object :" + std::to_string(id));
+    // LOG_DEBUG << "Delete object :" << id << ", type :  " << magic_enum::enum_name(iter->second);
     createdObjectIds.erase(id);
+}
+
+void OpenGLApi::DeleteObject(const std::vector<uint32>& ids)
+{
+    std::vector<uint32> meshesToDelete;
+    std::vector<uint32> texturesToDelete;
+
+    for (auto id : ids)
+    {
+        if (id == 0)
+        {
+            return;
+        }
+        auto iter = createdObjectIds.find(id);
+        if (iter == createdObjectIds.end())
+        {
+            LOG_DEBUG << "Object not found " << id;
+            return;
+        }
+
+        auto openGLId = impl_->idPool_.ToGL(id);
+
+        switch (iter->second)
+        {
+            case ObjectType::SHADER_PROGRAM:
+                DeleteShader(id);
+                break;
+            case ObjectType::TEXTURE_2D:
+            {
+                texturesToDelete.push_back(openGLId);
+                auto iter = allocatedTextureBytes.find(id);
+                if (iter != allocatedTextureBytes.end())
+                    allocatedBytes(-1 * iter->second);
+                break;
+            }
+            case ObjectType::TEXTURE_CUBE_MAP:
+            {
+                texturesToDelete.push_back(openGLId);
+                auto iter = allocatedTextureBytes.find(id);
+                if (iter != allocatedTextureBytes.end())
+                    allocatedBytes(-1 * iter->second);
+                break;
+            }
+            case ObjectType::RENDER_BUFFER:
+                glDeleteRenderbuffers(1, &openGLId);
+                break;
+
+            case ObjectType::MESH:
+                meshesToDelete.push_back(id);
+                break;
+
+            default:
+                break;
+        }
+
+        createdObjectIds.erase(id);
+    }
+
+    if (not meshesToDelete.empty())
+    {
+        DeleteMesh(meshesToDelete);
+    }
+
+    if (not texturesToDelete.empty())
+    {
+        glDeleteTextures(static_cast<GLsizei>(texturesToDelete.size()), texturesToDelete.data());
+    }
 }
 
 void OpenGLApi::DeleteShaderBuffer(uint32 id)
 {
-    if (impl_->shaderBuffers_.size() <= id)
+    const auto& iter = impl_->shaderBuffers_.find(id);
+
+    if (iter != impl_->shaderBuffers_.end())
     {
-        LOG_WARN << "Shader buffer id less than container size! id to del: " << id;
-        return;
+        const auto& bufferInfo = iter->second;
+        glDeleteBuffers(1, &bufferInfo.glId);
+        impl_->shaderBufferIdPool_.releaseId(id);
+        impl_->shaderBuffers_.erase(iter);
     }
-    auto& bufferId   = impl_->shaderBuffers_[id];
-    bufferId.isInGpu = false;
-    glDeleteBuffers(1, &bufferId.glId);
+    else
+    {
+        LOG_WARN << "Shader buffer not found id = " << id;
+    }
+}
+
+void OpenGLApi::DeleteShaderBuffer(const std::vector<uint32>& ids)
+{
+    std::vector<uint32> toRelease;
+    toRelease.reserve(ids.size());
+
+    for (auto id : ids)
+    {
+        const auto& iter = impl_->shaderBuffers_.find(id);
+        if (iter != impl_->shaderBuffers_.end())
+        {
+            const auto& bufferInfo = iter->second;
+            toRelease.push_back(bufferInfo.glId);
+
+            impl_->shaderBufferIdPool_.releaseId(id);
+            impl_->shaderBuffers_.erase(iter);
+        }
+        else
+        {
+            LOG_WARN << "Shader buffer not found id = " << id;
+        }
+    }
+
+    if (not toRelease.empty())
+    {
+        glDeleteBuffers(static_cast<GLsizei>(toRelease.size()), toRelease.data());
+    }
 }
 
 std::string OpenGLApi::GetBufferStatus()
@@ -2027,5 +2265,9 @@ std::vector<Utils::Image> OpenGLApi::GetImageArray(IdType id) const
     }
 
     return {};
+}
+void OpenGLApi::DebugNormalMeshGeneration(bool v)
+{
+    debugNormalMeshGeneration = v;
 }
 }  // namespace OpenGLApi

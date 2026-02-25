@@ -27,6 +27,8 @@ public:
     void GpuLoadingPass() override;
     void ReleaseGpuPass() override;
 
+    std::pair<GraphicsApi::ID, GraphicsApi::ID> MoveGpuDataOwner();
+
     void SetMaterial(const Material& material);
     const GraphicsApi::ID& GetMaterialShaderBufferId() const;
 

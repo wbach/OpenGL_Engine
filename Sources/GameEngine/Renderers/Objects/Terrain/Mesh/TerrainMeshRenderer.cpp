@@ -157,4 +157,7 @@ void TerrainMeshRenderer::unSubscribeAll()
     std::lock_guard<std::mutex> lk(subscriberMutex_);
     subscribes_.clear();
 }
+void TerrainMeshRenderer::cleanUp()
+{
+}
 }  // namespace GameEngine

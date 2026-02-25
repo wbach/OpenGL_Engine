@@ -39,7 +39,7 @@ float ComputeEdgeFalloff(uint32 i, uint32 j, uint32 x_start, uint32 y_start, uin
 }  // namespace
 std::unique_ptr<Model> MeshWaterFactory::CreateAsSingleTile(GraphicsApi::IGraphicsApi& graphicsApi, uint32 resolution)
 {
-    auto model = std::make_unique<Model>();
+    auto model = std::make_unique<Model>(graphicsApi);
     GameEngine::Mesh newMesh(GraphicsApi::RenderType::TRIAGNLE_STRIP, graphicsApi);
 
     ReserveMeshData(newMesh, resolution);

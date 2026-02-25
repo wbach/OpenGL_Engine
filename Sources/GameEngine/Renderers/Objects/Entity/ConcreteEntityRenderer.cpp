@@ -21,10 +21,8 @@ ConcreteEntityRenderer::ConcreteEntityRenderer(RendererContext& context)
 ConcreteEntityRenderer::~ConcreteEntityRenderer()
 {
     LOG_DEBUG << "";
-    shader_.Clear();
-    instancesShader_.Clear();
+    cleanUp();
 }
-
 void ConcreteEntityRenderer::init()
 {
     LOG_DEBUG << "";
@@ -74,5 +72,11 @@ void ConcreteEntityRenderer::reloadShaders()
 void ConcreteEntityRenderer::unSubscribe(const Components::IComponent& component)
 {
     entityRenderer_.unSubscribe(component);
+}
+void ConcreteEntityRenderer::cleanUp()
+{
+    shader_.Clear();
+    instancesShader_.Clear();
+    entityRenderer_.cleanUp();
 }
 }  // namespace GameEngine

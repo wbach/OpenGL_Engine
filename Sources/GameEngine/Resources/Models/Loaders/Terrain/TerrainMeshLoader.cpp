@@ -51,7 +51,7 @@ std::unique_ptr<Model> TerrainMeshLoader::Create()
 
 std::unique_ptr<Model> TerrainMeshLoader::createModel(const HeightMap& heightMap, std::optional<uint32> partsCount)
 {
-    auto model = std::make_unique<Model>();
+    auto model = std::make_unique<Model>(graphicsApi_);
 
     TerrainHeightTools tools(vec3(1.f), heightMap.GetImage());
 

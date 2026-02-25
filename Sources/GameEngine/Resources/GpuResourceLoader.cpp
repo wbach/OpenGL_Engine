@@ -9,8 +9,6 @@ namespace GameEngine
 {
 namespace
 {
-const size_t MAX_OBJECTS_IN_QUEUE = 20000;
-
 struct GpuAddFunctionWrapper : public IGpuObjectWrapper
 {
     GpuAddFunctionWrapper(GpuObject& object)
@@ -127,7 +125,6 @@ struct GpuFunctionWrapper : public IGpuObjectWrapper
 }  // namespace
 GpuResourceLoader::GpuResourceLoader()
 {
-    objectsToExecute.reserve(MAX_OBJECTS_IN_QUEUE);
 }
 
 GpuResourceLoader::~GpuResourceLoader()
@@ -168,12 +165,11 @@ void GpuResourceLoader::AddObjectsToRelease(std::vector<std::unique_ptr<GpuObjec
 
 void GpuResourceLoader::RuntimeGpuTasks()
 {
-    std::vector<std::unique_ptr<IGpuObjectWrapper>> tmp;
+    std::deque<std::unique_ptr<IGpuObjectWrapper>> tmp;
 
     {
         std::lock_guard<std::mutex> lock(gpuPassMutex);
         tmp = std::move(objectsToExecute);
-        objectsToExecute.reserve(MAX_OBJECTS_IN_QUEUE);
     }
 
     for (auto& object : tmp)

@@ -16,10 +16,12 @@ class ForwadSkyRenderer : public IRenderer
 {
 public:
     ForwadSkyRenderer(RendererContext&);
+    ~ForwadSkyRenderer();
 
     void init() override;
     void reloadShaders() override;
     void render() override;
+    void cleanUp() override;
 
 private:
     void updateBuffer();

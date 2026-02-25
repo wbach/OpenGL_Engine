@@ -112,7 +112,7 @@ GraphicsApi::ID ShaderManager::Create(GraphicsApi::ShaderProgramType shaderType)
 bool ShaderManager::AddShader(OpenGLShaderProgram& shaderProgram, const std::string& filename, GraphicsApi::ShaderType mode)
 {
     auto fullPath = shadersFileLocation_ / filename;
-
+    LOG_DEBUG << "fullPath " << fullPath;
     std::string source = Utils::ReadFilesWithIncludes(fullPath.string());
 
     uint32 id;

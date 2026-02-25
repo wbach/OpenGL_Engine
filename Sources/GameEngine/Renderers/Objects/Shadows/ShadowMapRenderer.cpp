@@ -149,6 +149,12 @@ void ShadowMapRenderer::cleanUp()
             shadowFrameBuffer_[cascadeIndex] = nullptr;
         }
     }
+
+    if (shadowsBufferId_)
+    {
+        context_.graphicsApi_.DeleteShaderBuffer(*shadowsBufferId_);
+        shadowsBufferId_.reset();
+    }
 }
 
 void ShadowMapRenderer::renderScene()

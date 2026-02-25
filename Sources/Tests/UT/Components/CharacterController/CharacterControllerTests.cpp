@@ -15,6 +15,7 @@ MATCHER_P(CollisionDetectionActionMatcher, action, "Action matcher for Collision
 CharacterControllerTests::CharacterControllerTests()
     : BaseComponentTestSchould()
     , sut_(context_, *obj_)
+    , model_(context_.graphicsApi_)
 {
     LOG_DEBUG << "CharacterControllerTests::CharacterControllerTests";
 

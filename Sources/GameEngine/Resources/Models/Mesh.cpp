@@ -115,6 +115,14 @@ void Mesh::ReleaseGpuPass()
     }
 }
 
+std::pair<GraphicsApi::ID, GraphicsApi::ID> Mesh::MoveGpuDataOwner()
+{
+    std::pair<GraphicsApi::ID, GraphicsApi::ID> result{graphicsObjectId_, materialShaderBuffer_};
+    materialShaderBuffer_ = std::nullopt;
+    graphicsObjectId_     = std::nullopt;
+    return result;
+}
+
 void Mesh::CreateMesh()
 {
     auto graphicsObjectId = graphicsApi_.CreateMesh(meshRawData_, renderType_);

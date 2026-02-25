@@ -11,6 +11,7 @@ DebugParams::DebugParams()
     : logLvl{LoggingLvl::None,
              {LoggingLvl::None, LoggingLvl::Error, LoggingLvl::ErrorWarning, LoggingLvl::ErrorWarningInfo,
               LoggingLvl::ErrorWarningInfoDebug}}
+    , generateDebugNormalsMeshes{false, {false, true}}
     , showRenderInfo{false, {false, true}}
     , showRenderersTimers{false, {false, true}}
     , showPhycicsVisualization{false, {false, true}}

@@ -5,6 +5,7 @@
 
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/EngineContext.h"
+#include "GameEngine/Engine/IntroRenderer.h"
 
 namespace GameEngine
 {
@@ -73,6 +74,8 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
     EngineConf.window.size = vec2ui{static_cast<uint32_t>(bestMode->w), static_cast<uint32_t>(bestMode->h)};
 
     graphicsApi_.SetViewPort(0, 0, EngineConf.window.size->x, EngineConf.window.size->y);
+
+    IntroRenderer(graphicsApi_, *this).Render();
 
     auto& measurmentValue = measurementHandler_.AddNewMeasurment(FPS_ENGINE_CONTEXT);
 

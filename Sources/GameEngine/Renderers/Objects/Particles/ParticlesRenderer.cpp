@@ -243,4 +243,27 @@ vec4 ParticlesRenderer::GetTextureOffsets(float blendFactor)
     return vec4(offset1.x, offset1.y, offset2.x, offset2.y);
 }
 
+void ParticlesRenderer::cleanUp()
+{
+    if (aniamtedParticleObjecId)
+    {
+        context_.graphicsApi_.DeleteObject(*aniamtedParticleObjecId);
+        aniamtedParticleObjecId.reset();
+    }
+
+    if (staticParticleObjecId)
+    {
+        context_.graphicsApi_.DeleteObject(*staticParticleObjecId);
+        staticParticleObjecId.reset();
+    }
+
+    if (particleInputBufferId)
+    {
+        context_.graphicsApi_.DeleteShaderBuffer(*particleInputBufferId);
+        particleInputBufferId.reset();
+    }
+
+    shader_.Clear();
+    animatedShader_.Clear();
+}
 }  // namespace GameEngine

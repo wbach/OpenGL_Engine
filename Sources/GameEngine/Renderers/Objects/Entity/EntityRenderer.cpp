@@ -78,11 +78,13 @@ void EntityRenderer::cleanUp()
 {
     if (perInstanceBuffer_)
     {
-        context_.gpuLoader_.AddObjectToRelease(std::move(perInstanceBuffer_));
+        perInstanceBuffer_->ReleaseGpuPass();
+        perInstanceBuffer_.reset();
     }
     if (perMeshBuffer_)
     {
-        context_.gpuLoader_.AddObjectToRelease(std::move(perMeshBuffer_));
+        perMeshBuffer_->ReleaseGpuPass();
+        perMeshBuffer_.reset();
     }
 }
 

@@ -4,11 +4,12 @@
 #include <Utils/IThreadSync.h>
 #include <Utils/ThreadSubscriber.h>
 
-#include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "Scene.hpp"
 #include "SceneLoader.h"
+#include "Time/Timer.h"
 
 namespace GameEngine
 {
@@ -43,7 +44,8 @@ SceneManager::~SceneManager()
     StopThread();
     SetOnSceneLoadDone(nullptr);
     EngineConf.renderer.fpsLimt.unsubscribe(fpsLimitParamSub_);
-    sceneWrapper_.Reset();
+
+    ResetCurrentScene();
 }
 Scene* SceneManager::GetActiveScene()
 {
@@ -206,4 +208,17 @@ bool SceneManager::IsGpuLoading() const
     return engineContext_.GetGpuResourceLoader().CountObjectsInQueues() > 0;
 }
 
+void SceneManager::ResetCurrentScene()
+{
+    LOG_DEBUG << "Let finish current task";
+    engineContext_.GetGpuResourceLoader().RuntimeGpuTasks();
+
+    sceneWrapper_.Reset();
+
+    LOG_DEBUG << "Execute gpu cleaning by scene objects. (Moved to release update pass after close)";
+
+    Utils::Timer t;
+    engineContext_.GetGpuResourceLoader().RuntimeGpuTasks();
+    LOG_DEBUG << "Clean gpu time : " << t.GetTimeMilliseconds() << " ms";
+}
 }  // namespace GameEngine

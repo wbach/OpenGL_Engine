@@ -52,7 +52,7 @@ TextureLoader::~TextureLoader()
     std::vector<Texture*> toRelease;
     for (auto& texture : textures_)
         toRelease.push_back(texture.second.resource_.get());
-    /* LOG TO FIX*/ LOG_ERROR << ("Release not deleted textures. size :" + std::to_string(toRelease.size()));
+    LOG_WARN << "Release not deleted textures. size: " << toRelease.size();
     for (auto texture : toRelease)
         DeleteTexture(*texture);
 }
@@ -278,7 +278,7 @@ void TextureLoader::DeleteTexture(Texture& texture)
     }
     else
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Texture not found. GpuObjectId=" + std::to_string(texture.GetGpuObjectId()));
+        LOG_ERROR << "Texture not found. GpuObjectId=" << texture.GetGpuObjectId();
     }
 }
 

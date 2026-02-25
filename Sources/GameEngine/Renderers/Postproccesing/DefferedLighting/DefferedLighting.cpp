@@ -46,25 +46,27 @@ void DefferedLighting::Init()
 }
 void DefferedLighting::CleanUp()
 {
-    if (not lightPassID_)
+    shader_.Clear();
+
+    if (lightPassID_)
     {
         rendererContext_.graphicsApi_.DeleteShaderBuffer(*lightPassID_);
         lightPassID_.reset();
     }
 
-    if (not directionalLightsId_)
+    if (directionalLightsId_)
     {
         rendererContext_.graphicsApi_.DeleteShaderBuffer(*directionalLightsId_);
         directionalLightsId_.reset();
     }
 
-    if (not pointLightsId_)
+    if (pointLightsId_)
     {
         rendererContext_.graphicsApi_.DeleteShaderBuffer(*pointLightsId_);
         pointLightsId_.reset();
     }
 
-    if (not spotLightsId_)
+    if (spotLightsId_)
     {
         rendererContext_.graphicsApi_.DeleteShaderBuffer(*spotLightsId_);
         spotLightsId_.reset();

@@ -22,6 +22,7 @@ BaseRenderer::BaseRenderer(RendererContext& context)
 }
 BaseRenderer::~BaseRenderer()
 {
+    cleanUp();
 }
 void BaseRenderer::init()
 {

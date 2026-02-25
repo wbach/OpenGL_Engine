@@ -89,7 +89,7 @@ std::unique_ptr<Model> convert(ModelSerializeData&& modelSerializeData, Graphics
         LOG_DEBUG << "No mesh in model";
         return nullptr;
     }
-    auto model = std::make_unique<Model>();
+    auto model = std::make_unique<Model>(graphicsApi);
     if (modelSerializeData.skeleton_)
     {
         model->setSkeletonRootJoint(std::move(*modelSerializeData.skeleton_));

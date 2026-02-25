@@ -33,7 +33,7 @@ public:
     void clear();
 
 private:
-    std::vector<std::unique_ptr<IGpuObjectWrapper>> objectsToExecute;
+    std::deque<std::unique_ptr<IGpuObjectWrapper>> objectsToExecute;
 
 private:
     mutable std::mutex gpuPassMutex;

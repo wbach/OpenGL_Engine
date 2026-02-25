@@ -195,4 +195,12 @@ void GrassRenderer::unSubscribe(const Components::IComponent& component)
         }
     }
 }
+void GrassRenderer::cleanUp()
+{
+    if (grassShaderBufferId_)
+    {
+        context_.graphicsApi_.DeleteShaderBuffer(*grassShaderBufferId_);
+        grassShaderBufferId_.reset();
+    }
+}
 }  // namespace GameEngine

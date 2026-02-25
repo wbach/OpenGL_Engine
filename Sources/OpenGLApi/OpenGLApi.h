@@ -1,5 +1,6 @@
 #pragma once
 #include <stack>
+#include <vector>
 
 #include "GraphicsApi/IGraphicsApi.h"
 #include "OpenGLMesh.h"
@@ -21,6 +22,7 @@ public:
     ~OpenGLApi();
     void Init() override;
     void SetShadersFilesLocations(const std::filesystem::path&) override;
+    void DebugNormalMeshGeneration(bool) override;
     void SetShaderQuaility(GraphicsApi::ShaderQuaility) override;
     void CreateContext() override;
     void DeleteContext() override;
@@ -70,7 +72,9 @@ public:
     void ActiveTexture(uint32, uint32) override;
 
     void DeleteObject(uint32) override;
+    void DeleteObject(const std::vector<uint32>&) override;
     void DeleteShaderBuffer(uint32) override;
+    void DeleteShaderBuffer(const std::vector<uint32>&) override;
 
     std::string GetBufferStatus() override;
     GraphicsApi::ID CreatePatchMesh(const std::vector<float>&) override;
@@ -126,7 +130,9 @@ public:
 private:
     void CreateDebugNormalMesh(uint32, const GraphicsApi::MeshRawData&);
     void DeleteMesh(uint32);
+    void DeleteMesh(const std::vector<uint32>&);
     void DeleteDebugNormalMesh(uint32);
+    void DeleteDebugNormalMeshes(const std::vector<uint32>&);
     void DeleteShader(uint32);
     void ClearRest();
     void allocatedBytes(int64);
@@ -135,6 +141,8 @@ private:
 private:
     struct Pimpl;
     std::unique_ptr<Pimpl> impl_;
+
+    bool debugNormalMeshGeneration{false};
 
     std::unique_ptr<GraphicsApi::IWindowApi> windowApi_;
     Color bgColor_;

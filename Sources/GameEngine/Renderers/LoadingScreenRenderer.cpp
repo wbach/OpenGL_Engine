@@ -64,9 +64,15 @@ void LoadingScreenRenderer::cleanUp()
     shader_.Stop();
     shader_.Clear();
     if (backgroundBufferId_)
+    {
         graphicsApi_.DeleteShaderBuffer(*backgroundBufferId_);
+        backgroundBufferId_.reset();
+    }
     if (circleBufferId_)
+    {
         graphicsApi_.DeleteShaderBuffer(*circleBufferId_);
+        circleBufferId_.reset();
+    }
     isInit_ = false;
 }
 

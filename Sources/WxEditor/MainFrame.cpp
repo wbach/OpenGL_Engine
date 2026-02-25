@@ -912,6 +912,12 @@ void MainFrame::MenuRendererBoundingBoxVisualization(wxCommandEvent&)
 
 void MainFrame::MenuRendererNormalsVisualization(wxCommandEvent&)
 {
+    if (not EngineConf.debugParams.generateDebugNormalsMeshes)
+    {
+        wxLogMessage(
+            "Generation of debug normal meshes is disabled. Visualization can be incomplete. Turn on settings menu, restart and "
+            "try again");
+    }
     bool set = SetDeubgRendererState(GameEngine::DebugRenderer::RenderState::Normals);
     rendererMenu->Check(ID_MENU_RENDERER_NORMAL_VISUALIZATION, set);
 }

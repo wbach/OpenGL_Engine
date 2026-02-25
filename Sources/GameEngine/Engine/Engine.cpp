@@ -8,6 +8,7 @@
 #include <Utils/Variant.h>
 
 #include <memory>
+#include <utility>
 
 #include "Configuration.h"
 #include "EngineContext.h"
@@ -98,8 +99,15 @@ namespace GameEngine
 {
 namespace
 {
-std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi()
+std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi(std::unique_ptr<GraphicsApi::IGraphicsApi> requestedGraphicsApi)
 {
+    if (requestedGraphicsApi)
+    {
+        requestedGraphicsApi->SetShadersFilesLocations(EngineLocalConf.files.getShaderPath());
+        requestedGraphicsApi->DebugNormalMeshGeneration(EngineConf.debugParams.generateDebugNormalsMeshes);
+        return requestedGraphicsApi;
+    }
+
     std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi;
 
 #if !defined(USE_GNU) && !defined(USE_MINGW)
@@ -123,6 +131,8 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi()
     graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
 #endif
 
+    graphicsApi->SetShadersFilesLocations(EngineLocalConf.files.getShaderPath());
+    graphicsApi->DebugNormalMeshGeneration(EngineConf.debugParams.generateDebugNormalsMeshes);
     return graphicsApi;
 }
 }  // namespace
@@ -135,10 +145,8 @@ Engine::ConfigurationReader::ConfigurationReader()
 Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr<ISceneFactory> sceneFactory,
                std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi)
     : readConfiguration_()
-    , engineContext_(graphicsApi ? std::move(graphicsApi) : createGraphicsApi(), std::move(physicsApi), std::move(sceneFactory))
+    , engineContext_(createGraphicsApi(std::move(graphicsApi)), std::move(physicsApi), std::move(sceneFactory))
     , externalComponents_(engineContext_.GetSceneManager())
-    , introRenderer_(engineContext_.GetGraphicsApi(), engineContext_.GetGpuResourceLoader(), engineContext_.GetDisplayManager(),
-                     engineContext_.GetResourceManagerFactory())
     , isRunning_(true)
 {
     LOG_DEBUG << "Start engine.";
@@ -168,9 +176,6 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
             if (physicsSubscriber)
                 physicsSubscriber->SetFpsLimit(EngineConf.renderer.fpsLimt);
         });
-
-    engineContext_.GetGraphicsApi().SetShadersFilesLocations(EngineLocalConf.files.getShaderPath());
-    introRenderer_.Render();
 
     engineContext_.GetPhysicsApi().DisableSimulation();
     physicsThreadId_ = engineContext_.GetThreadSync().Subscribe(

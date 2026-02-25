@@ -96,6 +96,7 @@ extern const std::string CSTR_TERRAIN_MESH_PARTS_COUNT;
 // Other
 extern const std::string CSTR_ENABLE_BINARY_LOADING;
 extern const std::string CSTR_DEBUG_PARAMS;
+extern const std::string CSTR_GENERATE_DEBUG_NORMAL_MESHES;
 extern const std::string CSTR_LINE_MESH_VISUALIZATION_PARAMS;
 extern const std::string CSTR_LOGGING_LVL;
 extern const std::string CSTR_SHOW_RENDER_INFO;

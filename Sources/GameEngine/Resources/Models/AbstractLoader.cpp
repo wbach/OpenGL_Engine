@@ -39,7 +39,7 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
         boundingBox.scale(vec3(normalizeFactor));
     }
 
-    auto newModel = std::make_unique<Model>(boundingBox);
+    auto newModel = std::make_unique<Model>(graphicsApi_, boundingBox);
     newModel->setNormailizedFactor(normalizeFactor);
 
     if (objects.empty())

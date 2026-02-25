@@ -6,20 +6,19 @@
 namespace GameEngine
 {
 class DisplayManager;
-class IResourceManager;
-class IResourceManagerFactory;
 class GeneralTexture;
-class IGpuResourceLoader;
 
 class IntroRenderer
 {
 public:
-    IntroRenderer(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, DisplayManager&, IResourceManagerFactory&);
+    IntroRenderer(GraphicsApi::IGraphicsApi&, DisplayManager&);
     ~IntroRenderer();
+
     void Render();
 
 private:
     void Init();
+    void CleanUp();
     void RenderThis();
 
 private:
@@ -27,11 +26,8 @@ private:
     GraphicsApi::ID perUpdateObjectBuffer_;
 
     DisplayManager& displayManager_;
-    std::unique_ptr<IResourceManager> resourceManager_;
 
     ShaderProgram shader_;
-    GeneralTexture* backgroundTexture_;
-
-    bool initialized_;
+    std::unique_ptr<GeneralTexture> backgroundTexture_;
 };
 }  // namespace GameEngine

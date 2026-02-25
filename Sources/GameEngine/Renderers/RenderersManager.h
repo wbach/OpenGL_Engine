@@ -54,6 +54,7 @@ public:
                      const Time&, std::unique_ptr<IRendererFactory>);
 
     ~RenderersManager();
+
     void Init();
     void renderScene(Scene&);
     void ReloadShaders();
@@ -108,7 +109,6 @@ private:
     std::function<void()> unsubscribeAllCallback_;
 
     std::unique_ptr<BaseRenderer> mainCameraRenderer_;
-
 
     std::unordered_map<ICamera*, CameraRendererContext> camerasRenderers;
     std::set<GameObject*> subscribedGameObjects;

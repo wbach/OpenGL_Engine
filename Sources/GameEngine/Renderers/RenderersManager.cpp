@@ -93,6 +93,21 @@ RenderersManager::~RenderersManager()
     {
         graphicsApi_.DeleteShaderBuffer(*perFrameId_);
     }
+
+    if (perAppId_)
+    {
+        graphicsApi_.DeleteShaderBuffer(*perAppId_);
+    }
+
+    if (mainCameraRenderer_)
+        mainCameraRenderer_->cleanUp();
+
+    for (auto& cameraRenderer : camerasRenderers)
+    {
+        cameraRenderer.second.renderer->cleanUp();
+    }
+
+    debugRenderer_.cleanUp();
 }
 void RenderersManager::Init()
 {

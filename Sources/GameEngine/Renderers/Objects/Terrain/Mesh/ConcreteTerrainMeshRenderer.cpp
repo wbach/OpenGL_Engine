@@ -21,6 +21,7 @@ ConcreteTerrainMeshRenderer::ConcreteTerrainMeshRenderer(RendererContext& contex
 }
 ConcreteTerrainMeshRenderer::~ConcreteTerrainMeshRenderer()
 {
+    cleanUp();
 }
 void ConcreteTerrainMeshRenderer::init()
 {
@@ -43,5 +44,10 @@ void ConcreteTerrainMeshRenderer::unSubscribe(GameObject& gameObject)
 void ConcreteTerrainMeshRenderer::reloadShaders()
 {
     shader_.Reload();
+}
+void ConcreteTerrainMeshRenderer::cleanUp()
+{
+    shader_.Clear();
+    terrainMeshRenderer_.cleanUp();
 }
 }  // namespace GameEngine

@@ -1,20 +1,26 @@
 #include "Model.h"
 
+#include <GraphicsApi/IGraphicsApi.h>
+
 #include <cstddef>
 #include <optional>
+#include <vector>
 
 #include "GameEngine/Animations/Skeleton.h"
+#include "GraphicsApi/GraphicsApiDef.h"
 #include "Logger/Log.h"
+#include "Time/Timer.h"
 #include "Types.h"
 
 namespace GameEngine
 {
-Model::Model()
-    : Model(BoundingBox())
+Model::Model(GraphicsApi::IGraphicsApi& api)
+    : Model(api, BoundingBox())
 {
 }
-Model::Model(const BoundingBox& boundingBox)
-    : boundingBox_(boundingBox)
+Model::Model(GraphicsApi::IGraphicsApi& api, const BoundingBox& boundingBox)
+    : graphicsApi_(api)
+    , boundingBox_(boundingBox)
 {
 }
 void Model::SetFile(const File& file)
@@ -25,6 +31,7 @@ void Model::SetFile(const File& file)
 Model::Model(Model&& other) noexcept
     : GpuObject(std::move(other))
     , animationClips_(std::move(other.animationClips_))
+    , graphicsApi_(other.graphicsApi_)
     , file_(std::move(other.file_))
     , meshes_(std::move(other.meshes_))
     , boundingBox_(std::move(other.boundingBox_))
@@ -70,7 +77,7 @@ Model::~Model()
 {
     if (GetGpuObjectId() != INVALID_ID)
     {
-        LOG_DEBUG << "Model destroyed. Id=" << GetGpuObjectId();
+        // LOG_DEBUG << "Model destroyed. Id=" << GetGpuObjectId();
         ReleaseGpuPass();
     }
     else
@@ -87,8 +94,34 @@ void Model::GpuLoadingPass()
 
 void Model::ReleaseGpuPass()
 {
+    std::vector<uint32> meshesIds;
+    meshesIds.reserve(meshes_.size());
+
+    std::vector<uint32> materialBufferIds;
+    materialBufferIds.reserve(meshes_.size());
+
     for (auto& mesh : meshes_)
-        mesh.ReleaseGpuPass();
+    {
+        auto [meshId, materialBufferId] = mesh.MoveGpuDataOwner();
+
+        if (meshId)
+        {
+            meshesIds.push_back(*meshId);
+        }
+        if (materialBufferId)
+        {
+            materialBufferIds.push_back(*materialBufferId);
+        }
+    }
+
+    if (not meshesIds.empty())
+    {
+        graphicsApi_.DeleteObject(meshesIds);
+    }
+    if (not materialBufferIds.empty())
+    {
+        graphicsApi_.DeleteShaderBuffer(materialBufferIds);
+    }
 }
 
 Mesh& Model::AddMesh(Mesh&& mesh)
@@ -155,7 +188,7 @@ const File& Model::GetFile() const
 }
 void Model::setSkeletonRootJoint(Animation::Joint&& joint)
 {
-    skeleton_ = Animation::Skeleton();
+    skeleton_  = Animation::Skeleton();
     *skeleton_ = std::move(joint);
 }
 
@@ -175,7 +208,7 @@ BoundingBox Model::transformBoundingBox(const glm::mat4& transform)
 
     for (const auto& mesh : meshes_)
     {
-        auto meshBox = mesh.getBoundingBox();
+        auto meshBox            = mesh.getBoundingBox();
         glm::mat4 fullTransform = transform * mesh.GetMeshTransform();
         result.expandToInclude(meshBox.transformed(fullTransform));
     }

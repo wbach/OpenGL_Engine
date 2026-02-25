@@ -11,6 +11,7 @@
 #include "GameEngine/Animations/Skeleton.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/GpuObject.h"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "GraphicsApi/MeshRawData.h"
 #include "Mesh.h"
 
@@ -23,8 +24,8 @@ class Model : public GpuObject
 public:
     using Meshes = std::vector<Mesh>;
 
-    Model();
-    explicit Model(const BoundingBox&);
+    Model(GraphicsApi::IGraphicsApi&);
+    explicit Model(GraphicsApi::IGraphicsApi&, const BoundingBox&);
     Model(const Model&) = delete;
     Model(Model&&) noexcept;
     Model& operator=(Model&&) noexcept;
@@ -45,7 +46,6 @@ public:
     }
     void SetMeshes(Meshes&&);
 
-
     bool IsAnyMeshUseTransform() const;
     const BoundingBox& getBoundingBox() const;
 
@@ -64,12 +64,13 @@ public:
 
     void updateBoundingBox();
 
-BoundingBox transformBoundingBox(const glm::mat4& transform);
+    BoundingBox transformBoundingBox(const glm::mat4& transform);
 
 public:
     AnimationClipsMap animationClips_;
 
 protected:
+    GraphicsApi::IGraphicsApi& graphicsApi_;
     File file_;
     Meshes meshes_;
     BoundingBox boundingBox_;

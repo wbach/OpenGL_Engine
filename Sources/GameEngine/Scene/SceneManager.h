@@ -35,12 +35,11 @@ private:
 
     template<typename T>
     void SetSceneToLoad(const T&);
-
-
-
     void SetSceneContext(Scene* scene);
 
     void StartUpdateThreadIfNeeded();
+
+    void ResetCurrentScene();
 
 private:
     EngineContext& engineContext_;

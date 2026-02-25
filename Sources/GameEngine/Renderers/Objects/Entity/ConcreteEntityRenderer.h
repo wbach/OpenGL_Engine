@@ -17,6 +17,7 @@ public:
     void unSubscribeAll() override;
     void reloadShaders() override;
     void render() override;
+    void cleanUp() override;
 
 private:
     MeasurementValue* measurementValue_;

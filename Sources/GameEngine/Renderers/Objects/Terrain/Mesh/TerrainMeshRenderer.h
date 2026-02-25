@@ -33,6 +33,7 @@ public:
     TerrainMeshRenderer(RendererContext& context);
     ~TerrainMeshRenderer();
 
+    void cleanUp();
     void subscribe(GameObject&);
     void unSubscribe(GameObject&);
     void unSubscribeAll();

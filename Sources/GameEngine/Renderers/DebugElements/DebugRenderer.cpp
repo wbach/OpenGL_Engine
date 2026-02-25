@@ -172,7 +172,12 @@ DebugRenderer::~DebugRenderer()
 {
     LOG_DEBUG << "";
     if (showPhycicsVisualizationSubId)
+    {
         EngineConf.debugParams.showPhycicsVisualization.unsubscribe(*showPhycicsVisualizationSubId);
+        showPhycicsVisualizationSubId.reset();
+    }
+
+    cleanUp();
 }
 
 void DebugRenderer::init()
@@ -665,5 +670,40 @@ void DebugRenderer::RemoveTextureToRender(GraphicsApi::ID id)
 void DebugRenderer::AddTextureToRender(GraphicsApi::ID id)
 {
     texturesToRender.push_back(id);
+}
+void DebugRenderer::cleanUp()
+{
+    physicsVisualizator_.Cleanup();
+    boundingBoxVisualizator_.Cleanup();
+    rayVisualizator_.Cleanup();
+
+    debugObjectShader_.Clear();
+    gridShader_.Clear();
+    debugNormalShader_.Clear();
+    textureShader_.Clear();
+
+    if (gridPerObjectUpdateBufferId_)
+    {
+        rendererContext_.graphicsApi_.DeleteShaderBuffer(*gridPerObjectUpdateBufferId_);
+        gridPerObjectUpdateBufferId_.reset();
+    }
+
+    if (texturePerObjectUpdateBufferId_)
+    {
+        rendererContext_.graphicsApi_.DeleteShaderBuffer(*texturePerObjectUpdateBufferId_);
+        texturePerObjectUpdateBufferId_.reset();
+    }
+
+    if (textureColorBufferId_)
+    {
+        rendererContext_.graphicsApi_.DeleteShaderBuffer(*textureColorBufferId_);
+        textureColorBufferId_.reset();
+    }
+
+    if (meshDebugPerObjectBufferId_)
+    {
+        rendererContext_.graphicsApi_.DeleteShaderBuffer(*meshDebugPerObjectBufferId_);
+        meshDebugPerObjectBufferId_.reset();
+    }
 }
 }  // namespace GameEngine

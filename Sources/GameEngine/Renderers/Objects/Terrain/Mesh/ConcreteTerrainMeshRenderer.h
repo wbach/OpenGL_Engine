@@ -19,6 +19,7 @@ public:
     void unSubscribe(GameObject&) override;
     void reloadShaders() override;
     void render() override;
+    void cleanUp() override;
 
 private:
     RendererContext& context_;

@@ -150,7 +150,7 @@ std::optional<Utils::Image> ReadImage(const unsigned char* data, unsigned int le
     FIMEMORY* stream = FreeImage_OpenMemory(const_cast<BYTE*>(data), static_cast<DWORD>(len));
     if (not stream)
     {
-        printf("Nie mozna otworzyc pamieci!\n");
+        LOG_WARN << "Can not open image from memory";
         return std::nullopt;
     }
 
@@ -161,11 +161,10 @@ std::optional<Utils::Image> ReadImage(const unsigned char* data, unsigned int le
         return std::nullopt;
     }
 
-    // Wczytujemy obraz z pamieci
     FIBITMAP* image = FreeImage_LoadFromMemory(format, stream, 0);
     if (not image)
     {
-        printf("Nie mozna wczytac obrazu!\n");
+        LOG_WARN << "Can not load image from memory";
         FreeImage_CloseMemory(stream);
         return std::nullopt;
     }
@@ -176,7 +175,7 @@ std::optional<Utils::Image> ReadImage(const unsigned char* data, unsigned int le
 
     if (not image)
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Cant convert to 32 bits memory image.");
+        LOG_ERROR << "Cant convert to 32 bits memory image.";
         return {};
     }
 
@@ -187,6 +186,7 @@ std::optional<Utils::Image> ReadImage(const unsigned char* data, unsigned int le
     resultImage.allocateImage<uint8>();
 
     auto pixeles = FreeImage_GetBits(image);
+
     // bgr2rgb
     for (uint32 j = 0; j < resultImage.width * resultImage.height; j++)
     {
@@ -194,8 +194,7 @@ std::optional<Utils::Image> ReadImage(const unsigned char* data, unsigned int le
                              Color(pixeles[j * 4 + 2], pixeles[j * 4 + 1], pixeles[j * 4 + 0], pixeles[j * 4 + 3]));
     }
     FreeImage_Unload(image);
-    /* LOG TO FIX*/ LOG_ERROR << ("Image is loaded. Size: " + std::to_string(resultImage.width) + "x" +
-                                  std::to_string(resultImage.height));
+    LOG_DEBUG << "Image is loaded. Size: " << resultImage.width << "x" << resultImage.height;
     return std::move(resultImage);
 }
 

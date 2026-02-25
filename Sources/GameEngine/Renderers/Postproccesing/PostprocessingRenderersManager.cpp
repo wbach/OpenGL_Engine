@@ -124,7 +124,7 @@ void PostProcessingManager::AddEffects()
 {
     AddEffect(PostprocessingRendererType::DEFFERED_LIGHT);
     AddEffect(PostprocessingRendererType::TONE_MAPPING);
-    // AddEffect(PostprocessingRendererType::COLOR_FLIPER);c
+    // AddEffect(PostprocessingRendererType::COLOR_FLIPER);
     // AddEffect(PostprocessingRendererType::BLUR);
     // AddEffect(PostprocessingRendererType::OUTLINE);
     AddEffect(PostprocessingRendererType::FXAA);

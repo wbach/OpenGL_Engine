@@ -18,6 +18,7 @@ public:
     MOCK_METHOD(IWindowApi&, GetWindowApi, (), (override));
     MOCK_METHOD(void, Init, (), (override));
     MOCK_METHOD(void, SetShadersFilesLocations, (const std::filesystem::path&), (override));
+    MOCK_METHOD(void, DebugNormalMeshGeneration, (bool), (override));
     MOCK_METHOD(void, SetShaderQuaility, (ShaderQuaility), (override));
     MOCK_METHOD(void, CreateContext, (), (override));
     MOCK_METHOD(void, DeleteContext, (), (override));
@@ -55,7 +56,9 @@ public:
     MOCK_METHOD(void, ActiveTexture, (uint32, uint32), (override));
     MOCK_METHOD(void, ActiveTexture, (uint32), (override));
     MOCK_METHOD(void, DeleteObject, (uint32), (override));
+    MOCK_METHOD(void, DeleteObject, (const std::vector<uint32>&), (override));
     MOCK_METHOD(void, DeleteShaderBuffer, (uint32), (override));
+    MOCK_METHOD(void, DeleteShaderBuffer, (const std::vector<uint32>&), (override));
     MOCK_METHOD(std::string, GetBufferStatus, (), (override));
     MOCK_METHOD(ID, CreatePatchMesh, (const std::vector<float>&), (override));
     MOCK_METHOD(ID, CreatePurePatchMeshInstanced, (uint32, uint32), (override));

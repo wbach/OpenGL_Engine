@@ -60,7 +60,7 @@ ResourceManager::~ResourceManager()
     for (auto& model : models_)
         toRelease.push_back(model.second.resource_.get());
 
-    LOG_DEBUG << "Release not deleted models. size :" << toRelease.size();
+    LOG_DEBUG << "Release not deleted models. size: " << toRelease.size();
 
     for (auto model : toRelease)
         ReleaseModel(*model);
@@ -156,7 +156,7 @@ Primitive* ResourceManager::GetPrimitives(PrimitiveType type, const Material& ma
 
     auto primitiveData = GeneratePrimitive(type);
 
-    auto model    = std::make_unique<GameEngine::Primitive>(type);
+    auto model    = std::make_unique<GameEngine::Primitive>(graphicsApi_, type);
     auto modelPtr = model.get();
     model->AddMesh(GameEngine::Mesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_, std::move(primitiveData), material));
 

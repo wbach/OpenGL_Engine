@@ -78,6 +78,7 @@ ConfigurationExplorer::ConfigurationExplorer()
              {"Logger lvl", EngineConf.debugParams.logLvl, ApplyPolicy::RestartNotNeeded},
              {"Show render info", EngineConf.debugParams.showRenderInfo, ApplyPolicy::RestartNotNeeded},
              {"Show renders timers", EngineConf.debugParams.showRenderersTimers, ApplyPolicy::RestartRequired},
+             {"Generate debug normal meshes", EngineConf.debugParams.generateDebugNormalsMeshes, ApplyPolicy::RestartRequired},
              {"Enable physics visualization", EngineConf.debugParams.showPhycicsVisualization, ApplyPolicy::RestartNotNeeded}
           }
         });

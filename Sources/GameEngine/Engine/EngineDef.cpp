@@ -97,6 +97,7 @@ const std::string CSTR_ENABLE_BINARY_LOADING          = "EnableBinaryLoading";
 const std::string CSTR_DEBUG_PARAMS                   = "DebugParams";
 const std::string CSTR_LINE_MESH_VISUALIZATION_PARAMS = "LineMeshVisualizator";
 const std::string CSTR_LOGGING_LVL                    = "loggingLvl";
+const std::string CSTR_GENERATE_DEBUG_NORMAL_MESHES   = "generateDebugNormalMeshes";
 const std::string CSTR_SHOW_RENDER_INFO               = "showRenderInfo";
 const std::string CSTR_SHOW_RENDER_TIMERS             = "showRenderTimers";
 const std::string CSTR_REFRESH_STEP_DOWN              = "refreshStepDown";

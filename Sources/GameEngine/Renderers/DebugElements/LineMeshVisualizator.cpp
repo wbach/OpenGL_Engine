@@ -25,11 +25,7 @@ LineMeshVisualizator::LineMeshVisualizator(GraphicsApi::IGraphicsApi& graphicsAp
 
 LineMeshVisualizator::~LineMeshVisualizator()
 {
-    if (worker_)
-    {
-        threadSync_.RemoveWorker(*worker_);
-        worker_ = nullptr;
-    }
+    Cleanup();
 }
 
 void LineMeshVisualizator::Init()
@@ -141,4 +137,24 @@ bool LineMeshVisualizator::IsReady() const
     return createLineMesh and lineMeshId_ and defaultPerObjectUpdateId_;
 }
 
+void LineMeshVisualizator::Cleanup()
+{
+    if (worker_)
+    {
+        threadSync_.RemoveWorker(*worker_);
+        worker_ = nullptr;
+    }
+
+    if (lineMeshId_)
+    {
+        graphicsApi_.DeleteObject(*lineMeshId_);
+        lineMeshId_.reset();
+    }
+
+    if (defaultPerObjectUpdateId_)
+    {
+        graphicsApi_.DeleteShaderBuffer(*defaultPerObjectUpdateId_);
+        defaultPerObjectUpdateId_.reset();
+    }
+}
 }  // namespace GameEngine

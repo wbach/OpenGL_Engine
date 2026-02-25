@@ -30,6 +30,7 @@ class ShadowMapRenderer : public IRenderer
 public:
     ShadowMapRenderer(RendererContext&);
     ~ShadowMapRenderer();
+
     void init() override;
     void subscribe(GameObject&) override;
     void unSubscribe(GameObject&) override;
@@ -37,9 +38,9 @@ public:
     void unSubscribeAll() override;
     void reloadShaders() override;
     void prepare() override;
+    void cleanUp() override;
 
 private:
-    void cleanUp() override;
     void renderScene();
     bool isInit() const;
     bool prepareFrameBuffer();

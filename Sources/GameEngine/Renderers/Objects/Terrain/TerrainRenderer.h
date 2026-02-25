@@ -28,8 +28,7 @@ public:
     void unSubscribeAll() override;
     void reloadShaders() override;
     void render() override;
-
-private:
+    void cleanUp() override;
 
 private:
     bool IsInit() const;

@@ -290,10 +290,12 @@ void TerrainMeshRendererComponent::subscribeForEngineConfChange()
 }
 void TerrainMeshRendererComponent::ReleaseModels()
 {
+    LOG_DEBUG << "";
     for (auto model : modelWrapper_.PopModels())
     {
         componentContext_.resourceManager_.ReleaseModel(*model);
     }
+    LOG_DEBUG << "done";
 }
 }  // namespace Components
 }  // namespace GameEngine

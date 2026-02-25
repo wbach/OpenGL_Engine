@@ -25,10 +25,7 @@ TerrainRenderer::TerrainRenderer(RendererContext& context)
 
 TerrainRenderer::~TerrainRenderer()
 {
-    if (objectId)
-    {
-        context_.graphicsApi_.DeleteObject(*objectId);
-    }
+    cleanUp();
 }
 void TerrainRenderer::init()
 {
@@ -177,5 +174,27 @@ void TerrainRenderer::unSubscribeAll()
 void TerrainRenderer::reloadShaders()
 {
     shader_.Reload();
+}
+void TerrainRenderer::cleanUp()
+{
+    if (objectId)
+    {
+        context_.graphicsApi_.DeleteObject(*objectId);
+        objectId.reset();
+    }
+
+    shader_.Clear();
+
+    if (perTerrainId)
+    {
+        context_.graphicsApi_.DeleteShaderBuffer(*perTerrainId);
+        perTerrainId.reset();
+    }
+
+    if (perNodeId)
+    {
+        context_.graphicsApi_.DeleteShaderBuffer(*perNodeId);
+        perNodeId.reset();
+    }
 }
 }  // namespace GameEngine

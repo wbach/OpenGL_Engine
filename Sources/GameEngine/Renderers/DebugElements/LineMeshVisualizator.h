@@ -26,6 +26,7 @@ public:
     ~LineMeshVisualizator();
     void Init();
     void Render();
+    void Cleanup();
     void SetMeshCreationFunction(std::function<const GraphicsApi::LineMesh&()>);
     void ReloadShader();
 

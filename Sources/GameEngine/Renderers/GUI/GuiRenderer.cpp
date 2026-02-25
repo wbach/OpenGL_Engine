@@ -31,6 +31,7 @@ GUIRenderer::~GUIRenderer()
 {
     graphicsApi_.DeleteShaderBuffer(transformBuffer_);
     graphicsApi_.DeleteShaderBuffer(colorBuffer_);
+    shader_.Clear();
 }
 
 void GUIRenderer::Init()
@@ -127,7 +128,7 @@ void GUIRenderer::Subscribe(GuiElement& element)
 
         if (iter != subscribers_.end())
         {
-            /* LOG TO FIX*/ LOG_ERROR << ("Try duplicate subscribe element");
+            LOG_WARN << "Try duplicate subscribe element";
             return;
         }
         std::lock_guard<std::mutex> lk(subscriberMutex);
@@ -137,7 +138,7 @@ void GUIRenderer::Subscribe(GuiElement& element)
     }
     else
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Wrong type gui element, id: " + std::to_string(element.GetId()));
+        LOG_ERROR << "Wrong type gui element, id: " << element.GetId();
     }
 }
 

@@ -383,6 +383,11 @@ void Read(TreeNode* node, Params::DebugParams& params)
         params.showRenderInfo = Utils::StringToBool(showRenderInfoNode->value_);
     }
 
+    if (auto child = node->getChild(CSTR_GENERATE_DEBUG_NORMAL_MESHES))
+    {
+        params.generateDebugNormalsMeshes = Utils::StringToBool(child->value_);
+    }
+
     auto showRenderTimersNode = node->getChild(CSTR_SHOW_RENDER_TIMERS);
     if (showRenderTimersNode)
     {

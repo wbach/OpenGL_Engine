@@ -140,7 +140,7 @@ struct EntityRendererShould : public EngineBasedTest
     std::unique_ptr<Model> CreateModel()
     {
         LOG_DEBUG << "CreateModel start";
-        auto model = std::make_unique<Model>();
+        auto model = std::make_unique<Model>(*graphicsApi);
         Mesh mesh(GraphicsApi::RenderType::TRIANGLES, *graphicsApi);
 
         Material m;

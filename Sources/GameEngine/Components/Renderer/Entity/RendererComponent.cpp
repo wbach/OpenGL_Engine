@@ -82,6 +82,7 @@ void RendererComponent::CleanUp()
 
 void RendererComponent::CleanUpWithRestrictions(const std::set<Model*>& restrictedModels)
 {
+    LOG_DEBUG << "";
     UnSubscribe();
 
     customMaterials.clear();

@@ -7,9 +7,9 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
+#include "GameEngine/Resources/Models/Loaders/Terrain/TerrainMeshLoader.h"
 #include "GameEngine/Resources/Models/Mesh.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
-#include "GameEngine/Resources/Models/Loaders/Terrain/TerrainMeshLoader.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 
 namespace GameEngine
@@ -40,6 +40,8 @@ void TerrainMeshUpdater::create()
     {
         newModel->SetFile(*heightMap_.GetFile());
     }
+
+    LOG_DEBUG << "Mesh count " << newModel->GetMeshes().size();
     modelWrapper_.Add(newModel.get(), LevelOfDetail::L1);
     resourceManager_.AddModel(std::move(newModel));
 }
@@ -90,7 +92,7 @@ void TerrainMeshUpdater::updatePartialTerrainMeshes()
     auto& meshes     = model->GetMeshes();
     auto partsCount  = *EngineConf.renderer.terrain.meshPartsCount;
     auto partialSize = heightMap_.GetImage().width / partsCount;
-   // auto rest        = heightMap_.GetImage().width - (partsCount * partialSize);
+    // auto rest        = heightMap_.GetImage().width - (partsCount * partialSize);
 
     if (partsCount >= meshes.size())
     {
@@ -177,13 +179,13 @@ void TerrainMeshUpdater::updateModelBoundingBox(Model& model)
 {
     model.updateBoundingBox();
 }
-bool TerrainMeshUpdater::updatePart(TerrainHeightTools& tools, Mesh& mesh,
-                                    uint32 startX, uint32 startY, uint32 endX, uint32 endY)
+bool TerrainMeshUpdater::updatePart(TerrainHeightTools& tools, Mesh& mesh, uint32 startX, uint32 startY, uint32 endX, uint32 endY)
 {
     auto& meshData = mesh.GetMeshDataRef();
 
     uint32 factor = EngineConf.renderer.terrain.resolutionDivideFactor;
-    if (factor == 0) factor = 1;
+    if (factor == 0)
+        factor = 1;
 
     size_t meshVertexIndex = 0;
     bool isHeightChangedInTerrainPart{false};
@@ -196,8 +198,7 @@ bool TerrainMeshUpdater::updatePart(TerrainHeightTools& tools, Mesh& mesh,
 
             if (hIndex >= meshData.positions_.size())
             {
-                LOG_WARN << "updatePart: hIndex out of range: " << hIndex
-                         << " vs positions: " << meshData.positions_.size();
+                LOG_WARN << "updatePart: hIndex out of range: " << hIndex << " vs positions: " << meshData.positions_.size();
                 return isHeightChangedInTerrainPart;
             }
 
@@ -206,10 +207,10 @@ bool TerrainMeshUpdater::updatePart(TerrainHeightTools& tools, Mesh& mesh,
 
             if (forceToUpdateMesh_ || !compare(currentHeight, newHeightValue))
             {
-                currentHeight = newHeightValue;
+                currentHeight                = newHeightValue;
                 isHeightChangedInTerrainPart = true;
 
-                vec3 newNormal = tools.GetNormal(j, i);
+                vec3 newNormal  = tools.GetNormal(j, i);
                 vec3 newTangent = tools.GetTangent(newNormal);
 
                 meshData.normals_[meshVertexIndex]     = newNormal.x;

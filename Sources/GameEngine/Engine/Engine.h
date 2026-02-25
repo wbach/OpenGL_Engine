@@ -2,7 +2,6 @@
 #include "ConfigurationReader.h"
 #include "EngineContext.h"
 #include "ExternalComponentsReader.h"
-#include "IntroRenderer.h"
 
 namespace GraphicsApi
 {
@@ -43,7 +42,6 @@ private:
     ConfigurationReader readConfiguration_;
     EngineContext engineContext_;
     ExternalComponentsReader externalComponents_;
-    IntroRenderer introRenderer_;
     IdType loggingLvlParamSub_;
     IdType fpsLimitParamSub_;
     IdType showPhycicsVisualizationSub_;

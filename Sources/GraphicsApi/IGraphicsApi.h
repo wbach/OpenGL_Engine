@@ -47,6 +47,7 @@ public:
     virtual IWindowApi& GetWindowApi()                                                                                 = 0;
     virtual void Init()                                                                                                = 0;
     virtual void SetShadersFilesLocations(const std::filesystem::path&)                                                = 0;
+    virtual void DebugNormalMeshGeneration(bool)                                                                       = 0;
     virtual void SetShaderQuaility(ShaderQuaility)                                                                     = 0;
     virtual void CreateContext()                                                                                       = 0;
     virtual void DeleteContext()                                                                                       = 0;
@@ -84,7 +85,9 @@ public:
     virtual void ActiveTexture(uint32, uint32)                                                                         = 0;
     virtual void ActiveTexture(uint32)                                                                                 = 0;
     virtual void DeleteObject(uint32)                                                                                  = 0;
+    virtual void DeleteObject(const std::vector<uint32>&)                                                              = 0;
     virtual void DeleteShaderBuffer(uint32)                                                                            = 0;
+    virtual void DeleteShaderBuffer(const std::vector<uint32>&)                                                        = 0;
     virtual std::string GetBufferStatus()                                                                              = 0;
     virtual ID CreatePatchMesh(const std::vector<float>&)                                                              = 0;
     virtual ID CreatePurePatchMeshInstanced(uint32, uint32)                                                            = 0;

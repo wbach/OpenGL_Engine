@@ -12,6 +12,10 @@ ForwadSkyRenderer::ForwadSkyRenderer(RendererContext& context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::SimpleSky)
 {
 }
+ForwadSkyRenderer::~ForwadSkyRenderer()
+{
+    cleanUp();
+}
 void ForwadSkyRenderer::init()
 {
     shader_.Init();
@@ -63,5 +67,13 @@ void ForwadSkyRenderer::updateBuffer()
     }
 
     context_.graphicsApi_.UpdateShaderBuffer(*bufferId, &buffer);
+}
+void ForwadSkyRenderer::cleanUp()
+{
+    if (bufferId)
+    {
+        context_.graphicsApi_.DeleteShaderBuffer(*bufferId);
+        bufferId.reset();
+    }
 }
 }  // namespace GameEngine

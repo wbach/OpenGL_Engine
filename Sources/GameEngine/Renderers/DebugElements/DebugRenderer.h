@@ -93,6 +93,7 @@ public:
 
     void init() override;
     void reloadShaders() override;
+    void cleanUp() override;
     void render() override;
     void clear();
 
