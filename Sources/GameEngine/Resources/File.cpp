@@ -100,7 +100,16 @@ const std::filesystem::path &File::GetAbsolutePath() const
 
 std::string File::GetBaseName() const
 {
-    return absolutePath_.stem().string();
+    std::string filename = GetFilename();
+
+    size_t lastDot = filename.find_last_of(".");
+
+    if (lastDot == std::string::npos || lastDot == 0)
+    {
+        return filename;
+    }
+
+    return filename.substr(0, lastDot);
 }
 
 std::string File::GetExtension() const
@@ -115,7 +124,16 @@ bool File::HasExtension() const
 
 std::string File::GetFilename() const
 {
-    return absolutePath_.filename().string();
+    std::string pathStr = absolutePath_.string();
+
+    size_t lastSlash = pathStr.find_last_of("\\/");
+
+    if (lastSlash == std::string::npos)
+    {
+        return pathStr;
+    }
+
+    return pathStr.substr(lastSlash + 1);
 }
 
 File File::CreateFileWithExtension(const std::string &extension) const
@@ -280,14 +298,12 @@ void File::ClearSpecialCharacters()
     bool changeNeeded{false};
     auto fname   = GetFilename();
     auto new_end = std::remove_if(fname.begin(), fname.end(),
-                                  [notAllowed, this, &changeNeeded](std::string::value_type c)
+                                  [notAllowed, &changeNeeded](std::string::value_type c)
                                   {
                                       auto result = notAllowed.find(c) != std::string::npos;
                                       if (result)
                                       {
                                           changeNeeded = true;
-                                        //   /* LOG TO FIX*/ LOG_ERROR << (std::string("Remove notAllowed character \"") + c +
-                                        //                                 "\" from file : " + GetFilename());
                                       }
                                       return result;
                                   });

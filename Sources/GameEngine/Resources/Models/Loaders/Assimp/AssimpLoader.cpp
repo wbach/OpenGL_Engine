@@ -480,15 +480,16 @@ std::filesystem::path getTexturePath(const std::optional<File>& currentProcessin
     if (not currentProcessingFile)
         return path;
 
-    LOG_DEBUG << "Texture not found : " << path
-              << ". Searching recursively in model based directory : " << currentProcessingFile->GetAbsolutePath().parent_path();
+    auto fileToSearch = File(path).GetFilename();
+    LOG_DEBUG << "Texture not found : " << path << ". Searching \"" << fileToSearch
+              << "\" recursively in model based directory : " << currentProcessingFile->GetAbsolutePath().parent_path();
 
-    auto parentDirPathTexture =
-        Utils::FindFile(File(path).GetFilename(), currentProcessingFile->GetAbsolutePath().parent_path()).string();
+    auto parentDirPathTexture = Utils::FindFile(fileToSearch, currentProcessingFile->GetAbsolutePath().parent_path()).string();
+
     if (not parentDirPathTexture.empty())
         return parentDirPathTexture;
 
-    return Utils::FindFile(File(path).GetFilename(), EngineLocalConf.files.getDataPath()).string();
+    return Utils::FindFile(fileToSearch, EngineLocalConf.files.getDataPath()).string();
 }
 
 GeneralTexture* CreateMaterialTexture(const std::optional<File>& currentProcessingFile, const aiMaterial& material,
