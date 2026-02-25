@@ -104,6 +104,7 @@ private:
     void MenuRendererTakeSnapshot(wxCommandEvent&);
     void MenuRendererSwap(wxCommandEvent&);
     void MenuRendererPhysicsVisualization(wxCommandEvent&);
+    void MenuRendererPhysicsVisualizationSelected(wxCommandEvent&);
     void MenuRendererBoundingBoxVisualization(wxCommandEvent&);
     void MenuRendererNormalsVisualization(wxCommandEvent&);
     void MenuRendererTextureAmbient(wxCommandEvent&);
@@ -187,6 +188,8 @@ private:
     void OnKeyUp(wxKeyEvent& event);
     void OnKeyDown(wxKeyEvent& event);
 
+    void EnablePhyicsVisualizationOnSelectedObject();
+
 private:
     std::mutex componentsViewMutex;
 
@@ -219,4 +222,5 @@ private:
     std::optional<TransfromSubController> transfromSubController;
 
     std::optional<long> startedGameProceesId;
+    bool physicsVisualizationForSelectedObject{false};
 };

@@ -29,6 +29,7 @@ struct Shape
     std::unique_ptr<btCollisionShape> btShape_{nullptr};
     btVector3 positionOffset_{0.f, 0.f, 0.f};
     bool dynamicShapeAllowed_{true};
+    bool isTerrainShape{false};
 };
 }  // namespace Bullet
 }  // namespace Physics

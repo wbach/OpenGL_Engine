@@ -121,7 +121,7 @@ void MeshShape::registerReadFunctions()
         {
             std::string modelFileName;
             ::Read(filenameNode->getChild(CSTR_FILE_NAME), modelFileName);
-            if (not component->modelFile.empty())
+            if (not modelFileName.empty())
             {
                 component->modelFile = modelFileName;
                 LOG_DEBUG << "Set collider model :" << component->modelFile.GetFilename();

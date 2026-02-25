@@ -45,6 +45,7 @@
 #include "ComponentPanel/ComponentPanel.h"
 #include "ComponentPanel/ComponentPickerPopup.h"
 #include "ComponentPanel/TransformPanel.h"
+#include "Components/Physics/Rigidbody.h"
 #include "Components/Renderer/Water/WaterRendererComponent.h"
 #include "ControlsIds.h"
 #include "Objects/GameObject.h"
@@ -166,6 +167,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_RENDERER_TAKE_RENDERER_SNAPSHOT, MainFrame::MenuRendererTakeSnapshot)
     EVT_MENU(ID_MENU_RENDERER_SWAP, MainFrame::MenuRendererSwap)
     EVT_MENU(ID_MENU_RENDERER_PHYSICS_VISUALIZATION, MainFrame::MenuRendererPhysicsVisualization)
+    EVT_MENU(ID_MENU_RENDERER_PHYSICS_VISUALIZATION_SELECTED, MainFrame::MenuRendererPhysicsVisualizationSelected)
     EVT_MENU(ID_MENU_RENDERER_BOUNDING_BOX_VISUALIZATION, MainFrame::MenuRendererBoundingBoxVisualization)
     EVT_MENU(ID_MENU_RENDERER_NORMAL_VISUALIZATION, MainFrame::MenuRendererNormalsVisualization)
     EVT_MENU(ID_MENU_RENDERER_TEXTURE_AMBIENT, MainFrame::MenuRendererTextureAmbient)
@@ -893,6 +895,44 @@ void MainFrame::MenuRendererPhysicsVisualization(wxCommandEvent&)
     rendererMenu->Check(ID_MENU_RENDERER_PHYSICS_VISUALIZATION, set);
 }
 
+void MainFrame::MenuRendererPhysicsVisualizationSelected(wxCommandEvent&)
+{
+    LOG_DEBUG << "";
+    physicsVisualizationForSelectedObject = SetDeubgRendererState(GameEngine::DebugRenderer::RenderState::Physics);
+
+    auto& papi = canvas->GetEngine().GetEngineContext().GetPhysicsApi();
+
+    if (physicsVisualizationForSelectedObject)
+    {
+        EnablePhyicsVisualizationOnSelectedObject();
+    }
+    else
+    {
+        papi.disableVisualizationForAllRigidbodys();
+    }
+
+    rendererMenu->Check(ID_MENU_RENDERER_PHYSICS_VISUALIZATION, physicsVisualizationForSelectedObject);
+}
+
+void MainFrame::EnablePhyicsVisualizationOnSelectedObject()
+{
+    if (not physicsVisualizationForSelectedObject)
+    {
+        return;
+    }
+
+    auto& papi = canvas->GetEngine().GetEngineContext().GetPhysicsApi();
+    papi.disableVisualizationForAllRigidbodys();
+
+    if (auto maybeGameObject = GetSelectedGameObject())
+    {
+        if (auto maybeRigidBody = maybeGameObject->GetComponent<GameEngine::Components::Rigidbody>())
+        {
+            papi.enableVisualizatedRigidbody(maybeRigidBody->GetId());
+        }
+    }
+}
+
 bool MainFrame::SetDeubgRendererState(GameEngine::DebugRenderer::RenderState state)
 {
     auto& renderesManager = canvas->GetEngine().GetEngineContext().GetRenderersManager();
@@ -1093,6 +1133,8 @@ wxMenu* MainFrame::CreateRendererMenu()
     rendererMenu->Append(ID_MENU_RENDERER_SWAP, "&Swap render mode", "Switch between line and fill render mode");
     rendererMenu->Append(ID_MENU_RENDERER_PHYSICS_VISUALIZATION, "&Visualize physics", "Enable/Disable of physics visualization",
                          wxITEM_CHECK);
+    rendererMenu->Append(ID_MENU_RENDERER_PHYSICS_VISUALIZATION_SELECTED, "&Visualize physics on selected object",
+                         "Enable/Disable of physics visualization on selected object", wxITEM_CHECK);
     rendererMenu->Append(ID_MENU_RENDERER_BOUNDING_BOX_VISUALIZATION, "&Visualize gameObject boundig box",
                          "Enable/Disable of bounding box visualization from engine not from rigidbody physics", wxITEM_CHECK);
     rendererMenu->Append(ID_MENU_RENDERER_NORMAL_VISUALIZATION, "&Visualize normals", "Enable/Disable of normals visualization",
@@ -1389,6 +1431,7 @@ void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
             transfromSubController->ChangeGameObject(go->GetId());
         }
         AddGameObjectComponentsToView(*go);
+        EnablePhyicsVisualizationOnSelectedObject();
 
         if (auto camera = go->GetComponent<GameEngine::Components::CameraComponent>())
         {

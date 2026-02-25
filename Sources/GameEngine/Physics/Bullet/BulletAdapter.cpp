@@ -22,7 +22,6 @@
 #include "Utils.h"
 #include "Utils/Variant.h"
 
-
 namespace GameEngine
 {
 namespace Physics
@@ -234,9 +233,7 @@ ShapeId BulletAdapter::CreateTerrainColider(const PositionOffset& positionOffset
                 shape->btShape_.reset(new btHeightfieldTerrainShape(width, height, &data[0], 1.f, heightMap.GetMinimumHeight(),
                                                                     heightMap.GetMaximumHeight(), 1, PHY_FLOAT, false));
             },
-            [](std::monostate) { /* LOG TO FIX*/
-                                 LOG_ERROR << ("Height map data is not set!.");
-            },
+            [](std::monostate) { LOG_ERROR << "Height map data is not set!."; },
         },
         heightMap.GetImage().getImageData());
 
@@ -247,7 +244,7 @@ ShapeId BulletAdapter::CreateTerrainColider(const PositionOffset& positionOffset
 
     auto offset            = heightMap.GetMaximumHeight() * scale.y - (heightMap.GetDeltaHeight() * scale.y / 2.f);
     shape->positionOffset_ = Convert(positionOffset + vec3(0, offset, 0));
-
+    shape->isTerrainShape  = true;
     return impl_->shapes_.insert(std::move(shape));
 }
 ShapeId BulletAdapter::CreateMeshCollider(const PositionOffset& positionOffset, const std::vector<float>& data,
@@ -627,9 +624,14 @@ void BulletAdapter::enableVisualizationForAllRigidbodys()
 {
     impl_->visualizationForAllObjectEnabled = true;
 
-    auto action = [](auto, auto& rigidbody)
+    auto action = [&](auto, auto& rigidbody)
     {
         auto& body = *rigidbody.btRigidbody_;
+
+        // if (const auto& shape = impl_->shapes_.get(rigidbody.shapeId); (*shape)->isTerrainShape)
+        // {
+        //     return;
+        // }
         body.setCollisionFlags(body.getCollisionFlags() & (~btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT));
     };
 
@@ -678,7 +680,7 @@ void BulletAdapter::createWorld()
     btBroadPhase           = std::make_unique<btDbvtBroadphase>();
     btSolver               = std::make_unique<btSequentialImpulseConstraintSolver>();
     btDynamicWorld         = std::make_unique<btDiscreteDynamicsWorld>(btDispacher.get(), btBroadPhase.get(), btSolver.get(),
-                                                                       collisionConfiguration.get());
+                                                               collisionConfiguration.get());
     btDynamicWorld->setGravity(btVector3(0, -10, 0));
 
     bulletDebugDrawer_ = std::make_unique<BulletDebugDrawer>();
