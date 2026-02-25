@@ -16,12 +16,14 @@
 #include <filesystem>
 #include <memory>
 
+#include "Resources/File.h"
 #include "WxEditor/Commands/AddObjectCommand.h"
 #include "WxEditor/Commands/RemoveObjectCommand.h"
 #include "WxEditor/Commands/TransformCommand.h"
 #include "WxEditor/Commands/UndoManager.h"
 #include "WxEditor/EngineRelated/NewScene.h"
 #include "WxEditor/ProjectManager.h"
+#include "WxEditor/SceneTreeView/SceneTreeCtrl.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
 #include "WxEditor/WxHelpers/LoadingDialog.h"
 #include "WxEditorSceneFactory.h"
@@ -61,14 +63,14 @@ wxGLAttributes GetWxGLAttributes()
 }
 }  // namespace
 
-GLCanvas::GLCanvas(wxWindow* parent, OnStartupDone onStartupDone, SelectItemInGameObjectTree callback,
+GLCanvas::GLCanvas(wxWindow* parent, OnStartupDone onStartupDone, SceneTreeCtrl* sceneTreeCtrl,
                    const std::string& startupSceneName)
     : wxGLCanvas(parent, GetWxGLAttributes(), wxID_ANY, wxDefaultPosition, wxDefaultSize,
                  wxFULL_REPAINT_ON_RESIZE | wxWANTS_CHARS)
     , context(nullptr)
     , startupSceneName{startupSceneName}
+    , sceneTreeCtrl{sceneTreeCtrl}
     , onStartupDone{onStartupDone}
-    , selectItemInGameObjectTree(callback)
 {
     wxGLContextAttrs contextAttrs;
     contextAttrs.CompatibilityProfile().MajorVersion(4).MinorVersion(5).EndList();
@@ -376,7 +378,15 @@ void GLCanvas::OnMouseLeftDown(wxMouseEvent& event)
         if (maybeGameObject)
         {
             SetDragObject(*maybeGameObject);
-            selectItemInGameObjectTree(maybeGameObject->GetId(), true);
+
+            if (sceneTreeCtrl)
+            {
+                if (auto wxItemId = sceneTreeCtrl->Get(maybeGameObject->GetId()))
+                {
+                    sceneTreeCtrl->SelectItem(*wxItemId, true);
+                    // UpdateGameObjectIdOnTransfromLabel(gameObjectId);
+                }
+            }
         }
     }
 
@@ -428,6 +438,27 @@ void GLCanvas::OnMouseWheel(wxMouseEvent& event)
 
     if (wxWindowApi)
     {
+        GameObject* selectedGameObject{nullptr};
+        auto treeSelectedItemId = sceneTreeCtrl->GetSelection();
+        if (treeSelectedItemId.IsOk())
+        {
+            if (auto goId = sceneTreeCtrl->Get(treeSelectedItemId))
+            {
+                selectedGameObject = GetScene().GetGameObject(*goId);
+            }
+        }
+
+        if (event.ControlDown() and selectedGameObject)
+        {
+            auto currentQuat   = selectedGameObject->GetWorldTransform().GetRotation().value_;
+            auto direction     = (event.GetWheelRotation() > 0) ? 1.0f : -1.0f;
+            auto angle         = glm::radians(5.0f) * direction;
+            auto rotationDelta = glm::angleAxis(angle, glm::vec3(0.0f, 1.0f, 0.0f));
+            auto newRotation   = rotationDelta * currentQuat;
+            selectedGameObject->SetWorldRotation(glm::normalize(newRotation));
+            return;
+        }
+
         int rotation = event.GetWheelRotation();
         int delta    = rotation / event.GetWheelDelta();
 

@@ -39,8 +39,7 @@ MaterialEditorFrame::MaterialEditorFrame(const std::optional<GameEngine::File>& 
             SetStatusText(file->GetFilename());
         }
     };
-    auto selectItem = [](uint32, bool) {};
-    canvas          = new GLCanvas(mainSplitter, onStartupDone, selectItem, WxEditor::EMPTY_SCENE);
+    canvas = new GLCanvas(mainSplitter, onStartupDone, nullptr, WxEditor::EMPTY_SCENE);
 }
 
 void MaterialEditorFrame::Init()

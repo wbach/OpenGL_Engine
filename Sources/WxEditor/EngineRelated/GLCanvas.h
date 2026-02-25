@@ -35,13 +35,13 @@ class DragObject;
 class MousePicker;
 }  // namespace GameEngine
 
+class SceneTreeCtrl;
 class GLCanvas : public wxGLCanvas
 {
 public:
-    using SelectItemInGameObjectTree = std::function<void(uint32, bool)>;
     using OnStartupDone              = std::function<void()>;
     using PrentWindow                = wxWindow*;
-    GLCanvas(PrentWindow, OnStartupDone, SelectItemInGameObjectTree, const std::string&);
+    GLCanvas(PrentWindow, OnStartupDone, SceneTreeCtrl*, const std::string&);
     ~GLCanvas();
 
     void CreateNewScene();
@@ -93,9 +93,9 @@ private:
     bool useMousePicker{true};
 
     const std::string startupSceneName;
+    SceneTreeCtrl* sceneTreeCtrl;
     GameEngine::CameraEditor* cameraEditorPtr{nullptr};
     OnStartupDone onStartupDone;
-    SelectItemInGameObjectTree selectItemInGameObjectTree;
     WxEditor::WxWindowApi* wxWindowApi{nullptr};
     WxEditor::WxEditorSceneFactory* wxSceneFactory{nullptr};
     std::unique_ptr<GameEngine::Engine> engine;

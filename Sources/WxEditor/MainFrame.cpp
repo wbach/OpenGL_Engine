@@ -262,14 +262,6 @@ void MainFrame::Init()
         canvas->GetCameraEditor()->SetPosition(lastContext.cameraPosition);
         canvas->GetCameraEditor()->SetRotation(lastContext.cameraRotation);
     };
-    auto selectItemInGameObjectTree = [this](uint32 gameObjectId, bool select)
-    {
-        if (auto wxItemId = gameObjectsView->Get(gameObjectId))
-        {
-            gameObjectsView->SelectItem(*wxItemId, select);
-            UpdateGameObjectIdOnTransfromLabel(gameObjectId);
-        }
-    };
 
     std::string sceneToLoad = WxEditor::NEW_SCENE;
 
@@ -281,7 +273,7 @@ void MainFrame::Init()
 
     // === Prawy splitter: canvas + panel boczny ===
     rightSplitter = new wxSplitterWindow(topSplitter, wxID_ANY);
-    canvas        = new GLCanvas(rightSplitter, onStartupDone, selectItemInGameObjectTree, sceneToLoad);
+    canvas        = new GLCanvas(rightSplitter, onStartupDone, gameObjectsView.get(), sceneToLoad);
     canvas->SetDropTarget(new GLCanvasDropTarget([this](const auto& file) { OnFileActivated(file); }));
 
     // Panel boczny obok canvas dla terrain tools
@@ -370,6 +362,7 @@ void MainFrame::Init()
     wxAcceleratorEntry entries[] = {{wxACCEL_CTRL, (int)'S', ID_SAVE},
                                     {wxACCEL_CTRL, (int)'Z', ID_UNDO},
                                     {wxACCEL_CTRL, (int)'Y', ID_REDO},
+                                    {wxACCEL_CTRL, (int)'D', ID_TREE_MENU_CLONE},
                                     {wxACCEL_CTRL | wxACCEL_SHIFT, (int)'Z', ID_REDO},
                                     {wxACCEL_NORMAL, WXK_DELETE, ID_TREE_MENU_REMOVE},
                                     {wxACCEL_NORMAL, (int)'G', ID_TREE_MENU_DRAG_OBJECT}};
