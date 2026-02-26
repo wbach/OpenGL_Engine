@@ -227,14 +227,32 @@ void SceneTreeCtrl::OnObjectDrag(wxTreeEvent &event)
 
 void SceneTreeCtrl::OnObjectEndDrag(wxTreeEvent &event)
 {
+    auto draggedItem = treeDragItemId;
+    treeDragItemId   = {};
+
     auto target = event.GetItem();
-    if (not target.IsOk() or not treeDragItemId.IsOk())
-        return;
+    if (not target.IsOk() )
+    {
+        target = treeRootId;
+    }
 
-    if (target == treeDragItemId)
+    if (not draggedItem.IsOk() or target == draggedItem)
+    {
         return;
+    }
 
-    auto maybeDragedGoId = Get(treeDragItemId);
+    wxTreeItemId parent = target;
+    while (parent.IsOk())
+    {
+        parent = GetItemParent(parent);
+        if (parent == draggedItem)
+        {
+            LOG_WARN << "Can not move parent to own child";
+            return;
+        }
+    }
+
+    auto maybeDragedGoId = Get(draggedItem);
     auto maybeTargetGoId = Get(target);
     if (not maybeDragedGoId or not maybeTargetGoId)
     {
@@ -242,8 +260,7 @@ void SceneTreeCtrl::OnObjectEndDrag(wxTreeEvent &event)
         return;
     }
     changeGameObjectParent(*maybeDragedGoId, *maybeTargetGoId);
-    MoveTreeNode(treeDragItemId, target);
-    treeDragItemId = {};
+    gameObjectsView->Expand(target);
 }
 
 void SceneTreeCtrl::DisableItem(const wxTreeItemId &item)
@@ -281,16 +298,26 @@ void SceneTreeCtrl::MoveTreeNode(const wxTreeItemId &srcItem, const wxTreeItemId
         return;
     }
 
-    auto text    = gameObjectsView->GetItemText(srcItem);
-    auto *data   = gameObjectsView->GetItemData(srcItem);
+    auto text  = gameObjectsView->GetItemText(srcItem);
+    auto *data = gameObjectsView->GetItemData(srcItem);
+    if (data)
+    {
+        gameObjectsView->SetItemData(srcItem, nullptr);
+    }
+
     auto newItem = AppendItem(newParent, text, *maybeGoId);
-    gameObjectsView->SetItemData(newItem, data);
+
+    if (data)
+    {
+        gameObjectsView->SetItemData(newItem, data);
+    }
 
     wxTreeItemIdValue cookie;
-    for (auto child = gameObjectsView->GetFirstChild(srcItem, cookie); child.IsOk();
-         child      = gameObjectsView->GetNextChild(srcItem, cookie))
+    wxTreeItemId child = gameObjectsView->GetFirstChild(srcItem, cookie);
+    while (child.IsOk())
     {
         MoveTreeNode(child, newItem);
+        child = gameObjectsView->GetFirstChild(srcItem, cookie);
     }
 
     Delete(srcItem);
@@ -345,7 +372,12 @@ void SceneTreeCtrl::SubscribeForSceneEvent(GameEngine::Scene &scene)
             std::visit(visitor{[this](const auto &e)
                                {
                                    // call on wxWdidgets thread
-                                   gameObjectsView->CallAfter([this, e] { ProcessEvent(e); });
+                                   gameObjectsView->CallAfter(
+                                       [this, e]
+                                       {
+                                           LOG_DEBUG << "Event recevied: " << typeid(e).name();
+                                           ProcessEvent(e);
+                                       });
                                }},
                        event);
         });

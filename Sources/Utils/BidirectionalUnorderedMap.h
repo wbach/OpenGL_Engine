@@ -24,8 +24,20 @@ public:
     }
     void Insert(const X& x, const Y& y)
     {
-        map1.insert({x, y});
-        map2.insert({y, x});
+        auto it1 = map1.find(x);
+        if (it1 != map1.end())
+        {
+            map2.erase(it1->second);
+        }
+
+        auto it2 = map2.find(y);
+        if (it2 != map2.end())
+        {
+            map1.erase(it2->second);
+        }
+
+        map1[x] = y;
+        map2[y] = x;
     }
 
     X& operator[](const Y& y)
