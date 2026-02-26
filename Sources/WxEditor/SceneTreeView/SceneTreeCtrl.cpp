@@ -10,6 +10,7 @@
 #include "Components/Camera/CameraComponent.h"
 #include "DisableHelper.h"
 #include "WxEditor/Commands/AddObjectCommand.h"
+#include "WxEditor/Commands/ChangeParrentCommand.h"
 #include "WxEditor/Commands/RemoveObjectCommand.h"
 #include "WxEditor/Commands/UndoManager.h"
 #include "WxEditor/ControlsIds.h"
@@ -231,7 +232,7 @@ void SceneTreeCtrl::OnObjectEndDrag(wxTreeEvent &event)
     treeDragItemId   = {};
 
     auto target = event.GetItem();
-    if (not target.IsOk() )
+    if (not target.IsOk())
     {
         target = treeRootId;
     }
@@ -239,6 +240,13 @@ void SceneTreeCtrl::OnObjectEndDrag(wxTreeEvent &event)
     if (not draggedItem.IsOk() or target == draggedItem)
     {
         return;
+    }
+
+    std::optional<IdType> oldParentGoId;
+    wxTreeItemId oldParentItem = GetItemParent(draggedItem);
+    if (oldParentItem.IsOk())
+    {
+        oldParentGoId = Get(oldParentItem);
     }
 
     wxTreeItemId parent = target;
@@ -259,8 +267,15 @@ void SceneTreeCtrl::OnObjectEndDrag(wxTreeEvent &event)
         LOG_WARN << "Draged object id or terget object id not found, move error";
         return;
     }
+
     changeGameObjectParent(*maybeDragedGoId, *maybeTargetGoId);
     gameObjectsView->Expand(target);
+
+    if (subscribedScene and maybeDragedGoId and oldParentGoId and maybeTargetGoId)
+    {
+        auto cmd = std::make_unique<ChangeParrentCommand>(*subscribedScene, *maybeDragedGoId, *oldParentGoId, *maybeTargetGoId);
+        UndoManager::Get().Push(std::move(cmd));
+    }
 }
 
 void SceneTreeCtrl::DisableItem(const wxTreeItemId &item)
