@@ -6,6 +6,7 @@
 
 #include "../Api/GraphicsApiMock.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
+#include "Image/Image.h"
 #include "OpenGLLoaderMock.h"
 
 namespace GameEngine
@@ -13,19 +14,27 @@ namespace GameEngine
 class TextureLoaderMock : public ITextureLoader
 {
 public:
-    MOCK_METHOD3(CreateTexture, GeneralTexture*(const std::string&, const TextureParameters&, Utils::Image&&));
-    MOCK_METHOD3(CreateTexture, ArrayTexture*(const std::string&, const TextureParameters&, std::vector<Utils::Image>&&));
-    MOCK_METHOD1(UpdateTexture, void(GeneralTexture&));
-    MOCK_METHOD2(UpdateTexture, void(GeneralTexture*&, const std::string&));
-    MOCK_METHOD4(LoadTexture, GeneralTexture*(const std::string&, const unsigned char*, unsigned int, const TextureParameters&));
-    MOCK_METHOD2(LoadTexture, GeneralTexture*(const File&, const TextureParameters&));
-    MOCK_METHOD2(LoadCubeMap, CubeMapTexture*(const std::array<File, 6>&, const TextureParameters&));
-    MOCK_METHOD2(LoadHeightMap, HeightMap*(const File&, const TextureParameters&));
-    MOCK_METHOD3(CreateHeightMap, HeightMap*(const File&, const vec2ui&, const TextureParameters&));
-    MOCK_METHOD2(CreateNormalMap, GeneralTexture*(const HeightMap&, const vec3&));
-    MOCK_METHOD0(GetGraphicsApi, GraphicsApi::IGraphicsApi&());
-    MOCK_METHOD1(DeleteTexture, void(Texture&));
-    MOCK_METHOD0(LockReleaseResources, void());
-    MOCK_METHOD0(UnlockReleaseResources, void());
+    MOCK_METHOD(GeneralTexture*, CreateTexture, (const std::string&, const TextureParameters&, Utils::Image&&), (override));
+    MOCK_METHOD(ArrayTexture*, CreateTexture, (const std::string&, const TextureParameters&, std::vector<Utils::Image>&&),
+                (override));
+
+    MOCK_METHOD(void, UpdateTexture, (GeneralTexture&), (override));
+    MOCK_METHOD(void, UpdateTexture, (GeneralTexture*&, const std::string&), (override));
+
+    MOCK_METHOD(GeneralTexture*, LoadTexture, (const std::string&, const unsigned char*, unsigned int, const TextureParameters&),
+                (override));
+    MOCK_METHOD(GeneralTexture*, LoadTexture, (const std::string&, Utils::Image&&, const TextureParameters&), (override));
+    MOCK_METHOD(GeneralTexture*, LoadTexture, (const File&, const TextureParameters&), (override));
+
+    MOCK_METHOD(CubeMapTexture*, LoadCubeMap, ((const std::array<File, 6>&), const TextureParameters&), (override));
+    MOCK_METHOD(HeightMap*, LoadHeightMap, (const File&, const TextureParameters&), (override));
+    MOCK_METHOD(HeightMap*, CreateHeightMap, (const File&, const vec2ui&, const TextureParameters&), (override));
+    MOCK_METHOD(GeneralTexture*, CreateNormalMap, (const HeightMap&, const vec3&), (override));
+
+    MOCK_METHOD(GraphicsApi::IGraphicsApi&, GetGraphicsApi, (), (override));
+    MOCK_METHOD(void, DeleteTexture, (Texture&), (override));
+
+    MOCK_METHOD(void, LockReleaseResources, (), (override));
+    MOCK_METHOD(void, UnlockReleaseResources, (), (override));
 };
 }  // namespace GameEngine

@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "File.h"
+#include "Image/Image.h"
 #include "TextureParameters.h"
 
 namespace GameEngine
@@ -28,6 +29,7 @@ public:
     virtual void UpdateTexture(GeneralTexture&)                                                                           = 0;
     virtual void UpdateTexture(GeneralTexture*&, const std::string&)                                                      = 0;
     virtual GeneralTexture* LoadTexture(const std::string&, const unsigned char*, unsigned int, const TextureParameters&) = 0;
+    virtual GeneralTexture* LoadTexture(const std::string&, Utils::Image&&, const TextureParameters&)                     = 0;
     virtual GeneralTexture* LoadTexture(const File&, const TextureParameters& = GameEngine::TextureParameters{})          = 0;
     virtual CubeMapTexture* LoadCubeMap(const std::array<File, 6>&, const TextureParameters&)                             = 0;
     virtual HeightMap* LoadHeightMap(const File&, const TextureParameters&)                                               = 0;

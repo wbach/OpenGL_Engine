@@ -147,6 +147,21 @@ GeneralTexture* TextureLoader::LoadTexture(const File& inputFileName, const Text
     return texturePtr;
 }
 
+GeneralTexture* TextureLoader::LoadTexture(const std::string& name, Utils::Image&& image, const TextureParameters& params)
+{
+    std::lock_guard<std::mutex> lk(textureMutex_);
+    if (auto texture = GetTextureIfLoaded(name, params))
+    {
+        LOG_DEBUG << "Texture found name= " << name;
+        return static_cast<GeneralTexture*>(texture);
+    }
+
+    auto texture    = std::make_unique<GeneralTexture>(graphicsApi_, std::move(image), params);
+    auto texturePtr = texture.get();
+    AddTexture(name, std::move(texture), params.loadType);
+    return texturePtr;
+}
+
 GeneralTexture* TextureLoader::LoadTexture(const std::string& name, const unsigned char* data, unsigned int len,
                                            const TextureParameters& params)
 {

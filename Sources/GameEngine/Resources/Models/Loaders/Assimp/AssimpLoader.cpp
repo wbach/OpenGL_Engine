@@ -8,6 +8,7 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/Models/MeshData.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
+#include "Image/Image.h"
 #include "magic_enum/magic_enum.hpp"
 
 #ifdef __GNUC__
@@ -492,26 +493,80 @@ std::filesystem::path getTexturePath(const std::optional<File>& currentProcessin
     return Utils::FindFile(fileToSearch, EngineLocalConf.files.getDataPath()).string();
 }
 
-GeneralTexture* CreateMaterialTexture(const std::optional<File>& currentProcessingFile, const aiMaterial& material,
-                                      ITextureLoader& loader, aiTextureType type)
+GeneralTexture* CreateMaterialTexture(const std::optional<File>& currentProcessingFile, const aiScene& scene,
+                                      const aiMaterial& material, ITextureLoader& loader, aiTextureType type)
 {
     GeneralTexture* texture{nullptr};
     auto count = material.GetTextureCount(type);
+    if (count == 0)
+        return nullptr;
+
     if (count > 1)
     {
         LOG_DEBUG << "Multiple the same type textures found in one material. Not supported. " << magic_enum::enum_name(type)
                   << " count: " << count;
     }
-    for (uint32 i = 0; i < material.GetTextureCount(type); ++i)
+
+    aiString path;
+    const uint32 textureIndex = 0;
+    if (material.GetTexture(type, textureIndex, &path) == AI_SUCCESS)
     {
-        aiString path;
-        material.GetTexture(type, i, &path);
+        std::string pathStr = path.C_Str();
         TextureParameters parameters;
         parameters.filter = GraphicsApi::TextureFilter::LINEAR;
         parameters.mimap  = GraphicsApi::TextureMipmap::LINEAR;
-        const auto& file  = getTexturePath(currentProcessingFile, path.C_Str());
-        texture           = loader.LoadTexture(file, parameters);
+
+        if (pathStr.size() > 1 and pathStr[0] == '*')
+        {
+            int index = std::stoi(pathStr.substr(1));
+            if (index < static_cast<int>(scene.mNumTextures))
+            {
+                auto* embeddedTex = scene.mTextures[index];
+
+                auto textureName =
+                    ("embended_" + std::to_string(index) + "_" + currentProcessingFile->GetAbsolutePath().string());
+
+                if (embeddedTex->mHeight == 0)  // (PNG/JPG)
+                {
+                    texture = loader.LoadTexture(textureName, reinterpret_cast<const unsigned char*>(embeddedTex->pcData),
+                                                 embeddedTex->mWidth, parameters);
+                }
+                else
+                {
+                    unsigned int width     = embeddedTex->mWidth;
+                    unsigned int height    = embeddedTex->mHeight;
+                    unsigned int numPixels = width * height;
+
+                    Utils::Image image;
+                    image.width     = width;
+                    image.height    = height;
+                    image.channels_ = 4;
+
+                    std::vector<uint8_t> rawData;
+                    rawData.reserve(numPixels * 4);
+
+                    for (unsigned int i = 0; i < numPixels; ++i)
+                    {
+                        aiTexel& texel = embeddedTex->pcData[i];
+                        rawData.push_back(texel.r);
+                        rawData.push_back(texel.g);
+                        rawData.push_back(texel.b);
+                        rawData.push_back(texel.a);
+                    }
+                    image.moveData(std::move(rawData));
+
+                    texture = loader.LoadTexture(textureName, std::move(image), parameters);
+                }
+            }
+        }
+
+        if (not texture)
+        {
+            const auto& file = getTexturePath(currentProcessingFile, pathStr);
+            texture          = loader.LoadTexture(file, parameters);
+        }
     }
+
     return texture;
 }
 
@@ -554,13 +609,16 @@ Material AssimpLoader::processMaterial(const aiScene& scene, const aiMesh& mesh)
         }
     }
 
-    material.baseColorTexture = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_DIFFUSE);
-    material.normalTexture    = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_NORMALS);
-    material.metallicTexture  = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_SPECULAR);
-    material.roughnessTexture = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_SHININESS);
-    material.ambientOcclusionTexture = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_AMBIENT);
-    material.opacityTexture          = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_OPACITY);
-    material.displacementTexture     = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_HEIGHT);
+    material.baseColorTexture = CreateMaterialTexture(currentProcessingFile_, scene, *mat, textureLoader_, aiTextureType_DIFFUSE);
+    material.normalTexture    = CreateMaterialTexture(currentProcessingFile_, scene, *mat, textureLoader_, aiTextureType_NORMALS);
+    material.metallicTexture = CreateMaterialTexture(currentProcessingFile_, scene, *mat, textureLoader_, aiTextureType_SPECULAR);
+    material.roughnessTexture =
+        CreateMaterialTexture(currentProcessingFile_, scene, *mat, textureLoader_, aiTextureType_SHININESS);
+    material.ambientOcclusionTexture =
+        CreateMaterialTexture(currentProcessingFile_, scene, *mat, textureLoader_, aiTextureType_AMBIENT);
+    material.opacityTexture = CreateMaterialTexture(currentProcessingFile_, scene, *mat, textureLoader_, aiTextureType_OPACITY);
+    material.displacementTexture =
+        CreateMaterialTexture(currentProcessingFile_, scene, *mat, textureLoader_, aiTextureType_HEIGHT);
 
     return material;
 }
