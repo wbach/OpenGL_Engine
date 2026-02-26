@@ -13,12 +13,13 @@ class PlayerInputController : public BaseComponent
 public:
     PlayerInputController(ComponentContext& componentContext, GameObject& gameObject);
 
+    void Init();
     void CleanUp() override;
     void ReqisterFunctions() override;
     void Reload() override;
+    bool IsInitated() const;
 
 private:
-    void Init();
     void SubscribeForPushActions();
     void SubscribeForPopActions();
 
@@ -28,6 +29,7 @@ private:
 
     bool isRotateLeftPressed_{false};
     bool isRotateRightPressed_{false};
+    bool init{false};
 
 public:
     static void registerReadFunctions();

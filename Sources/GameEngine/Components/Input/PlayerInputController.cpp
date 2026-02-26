@@ -31,6 +31,8 @@ PlayerInputController::PlayerInputController(ComponentContext& componentContext,
 
 void PlayerInputController::CleanUp()
 {
+    subscriptions_.UnsubscribeKeys();
+    init = false;
 }
 
 void PlayerInputController::ReqisterFunctions()
@@ -40,7 +42,7 @@ void PlayerInputController::ReqisterFunctions()
 
 void PlayerInputController::Reload()
 {
-    subscriptions_.Clear();
+    CleanUp();
     Init();
 }
 
@@ -52,6 +54,7 @@ void PlayerInputController::Init()
     {
         SubscribeForPushActions();
         SubscribeForPopActions();
+        init = true;
     }
     else
     {
@@ -300,5 +303,9 @@ void PlayerInputController::write(TreeNode& node) const
     node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
 }
 
+bool PlayerInputController::IsInitated() const
+{
+    return init;
+}
 }  // namespace Components
 }  // namespace GameEngine
