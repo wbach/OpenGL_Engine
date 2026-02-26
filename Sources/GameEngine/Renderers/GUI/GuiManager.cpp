@@ -108,17 +108,18 @@ void GuiManager::Update(float deltaTime)
         }
     }
 
-    std::lock_guard<std::mutex> lk(elementMutex_);
-    for (auto& layer : layers_)
     {
-        for (auto& element : layer.GetElements())
+        std::lock_guard<std::mutex> lk(elementMutex_);
+        for (auto& layer : layers_)
         {
-            element->Update();
+            for (auto& element : layer.GetElements())
+            {
+                element->Update();
+            }
         }
     }
 
     std::vector<std::function<void()>> tmpTasks;
-
     {
         std::lock_guard<std::mutex> lk(taskMutex_);
         tmpTasks = std::move(tasks_);
