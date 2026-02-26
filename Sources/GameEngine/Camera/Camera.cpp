@@ -55,11 +55,11 @@ Camera::Camera(std::unique_ptr<IProjection> projection, const vec3& position, co
 }
 void Camera::UpdateImpl()
 {
-    if (not lock_)
-        Update();
 }
 void Camera::Update()
 {
+    if (not lock_)
+        UpdateImpl();
 }
 void Camera::Lock()
 {

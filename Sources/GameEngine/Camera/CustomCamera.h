@@ -17,7 +17,7 @@ public:
         onUpdate = func;
     }
 
-    void Update() override
+    void UpdateImpl() override
     {
         std::lock_guard<std::mutex> lk(onUpdateMutex);
         if (onUpdate)
