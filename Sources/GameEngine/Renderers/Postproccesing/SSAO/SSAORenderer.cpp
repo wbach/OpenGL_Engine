@@ -46,6 +46,11 @@ SSAORenderer::~SSAORenderer()
 }
 void SSAORenderer::Init()
 {
+    if (not isEnabled)
+    {
+        return;
+    }
+
     initStatus = InitStatus::ok;
 
     if (not context.camera_)

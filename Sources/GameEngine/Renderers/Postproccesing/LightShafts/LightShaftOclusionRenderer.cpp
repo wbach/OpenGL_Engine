@@ -49,6 +49,11 @@ LightShaftOclusionRenderer::~LightShaftOclusionRenderer()
 }
 void LightShaftOclusionRenderer::Init()
 {
+    if (not isEnabled)
+    {
+        return;
+    }
+
     initStatus = InitStatus::ok;
 
     if (not context.camera_)
@@ -200,6 +205,8 @@ void LightShaftOclusionRenderer::CleanUp()
         context.graphicsApi_.DeleteFrameBuffer(*blurFrameBuffer);
         blurFrameBuffer = nullptr;
     }
+
+    context.sharedTextures[magic_enum::enum_index(SharedTextures::lightShafts).value()].reset();
 
     initStatus.reset();
 }
