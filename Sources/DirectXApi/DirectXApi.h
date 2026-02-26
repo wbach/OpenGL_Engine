@@ -12,6 +12,7 @@ public:
     void Init() override;
     void SetShadersFilesLocations(const std::filesystem::path&) override;
     void SetShaderQuaility(GraphicsApi::ShaderQuaility) override;
+    void DebugNormalMeshGeneration(bool) override;
     void CreateContext() override;
     void DeleteContext() override;
     void PrintVersion() override;
@@ -38,8 +39,7 @@ public:
 
     uint32 BindShaderBuffer(uint32) override;
 
-    GraphicsApi::ID CreateTexture(const Utils::Image&, GraphicsApi::TextureFilter,
-                                  GraphicsApi::TextureMipmap) override;
+    GraphicsApi::ID CreateTexture(const Utils::Image&, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap) override;
     GraphicsApi::ID CreateTexture(const std::vector<Utils::Image>&, GraphicsApi::TextureFilter,
                                   GraphicsApi::TextureMipmap) override;
     std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter, int32) override;
@@ -60,7 +60,9 @@ public:
     void ActiveTexture(uint32, uint32) override;
 
     void DeleteObject(uint32) override;
+    void DeleteObject(const std::vector<uint32>&) override;
     void DeleteShaderBuffer(uint32) override;
+    void DeleteShaderBuffer(const std::vector<uint32>&) override;
 
     std::string GetBufferStatus() override;
     GraphicsApi::ID CreatePatchMesh(const std::vector<float>&) override;

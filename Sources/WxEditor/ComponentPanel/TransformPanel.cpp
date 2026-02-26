@@ -1,7 +1,6 @@
 #include "TransformPanel.h"
 
 #include <Logger/Log.h>
-#include <wx-3.0/wx/defs.h>
 #include <wx/sizer.h>
 #include <wx/textctrl.h>
 //#include <format>

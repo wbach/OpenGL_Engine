@@ -1,7 +1,6 @@
 #include "IntroRenderer.h"
 
 #include <Logger/Log.h>
-#include <unistd.h>
 
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Resources/DefaultFiles/bengineLogo.h"

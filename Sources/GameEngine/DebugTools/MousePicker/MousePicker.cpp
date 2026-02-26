@@ -3,6 +3,7 @@
 #include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
 
+#include <iterator>
 #include <optional>
 #include <ranges>
 
@@ -15,6 +16,8 @@
 #include "GameEngine/Resources/Models/BoundingBox.h"
 
 namespace GameEngine
+{
+namespace
 {
 std::optional<float> SphereIntersect(const Ray& ray, const vec3& objectPosition, float radius)
 {
@@ -90,6 +93,17 @@ std::optional<float> BoundingBoxIntersect(const Ray& ray, const BoundingBox& box
 
     return tmin;
 }
+auto GetActiveComponents(const std::vector<Components::RendererComponent*>& components)
+{
+    std::vector<Components::RendererComponent*> active;
+    active.reserve(components.size());
+
+    std::copy_if(components.begin(), components.end(), std::back_inserter(active),
+                 [](const auto* c) { return c && c->IsActive(); });
+
+    return active;
+}
+}  // namespace
 
 MousePicker::MousePicker(const ICamera& camera, IntersectMode mode)
     : camera_(camera)
@@ -105,37 +119,24 @@ std::optional<std::pair<GameObject*, float>> MousePicker::IntersectObject(const 
 {
     std::optional<std::pair<GameObject*, float>> closest;
 
-    auto renderComponents         = object->GetComponents<Components::RendererComponent>();
-    auto activeRendererComponents = renderComponents | std::views::filter([](const auto* c) { return c->IsActive(); });
+    auto activeRendererComponents = GetActiveComponents(object->GetComponents<Components::RendererComponent>());
 
     auto treeRenderComponent    = object->GetComponent<Components::TreeRendererComponent>();
     auto waterRendererComponent = object->GetComponent<Components::WaterRendererComponent>();
     if (not activeRendererComponents.empty() or (treeRenderComponent and treeRenderComponent->IsActive()) or
         (waterRendererComponent and waterRendererComponent->IsActive()))
     {
-        std::vector<const Model*> models;
+        std::vector<BoundingBox> boundingBoxes;
         if (not activeRendererComponents.empty())
         {
             for (auto& rendererComponent : activeRendererComponents)
             {
-                models.push_back(rendererComponent->GetModelWrapper().Get(LevelOfDetail::L1));
+                boundingBoxes.push_back(rendererComponent->getWorldSpaceBoundingBox());
             }
         }
         else if (treeRenderComponent)
         {
-            models.push_back(treeRenderComponent->GetTrunkModel().Get(LevelOfDetail::L1));
-        }
-
-        std::vector<BoundingBox> boundingBoxes;
-        if (not models.empty())
-        {
-            for (auto& model : models)
-            {
-                auto boundingBox = model->getBoundingBox();
-                boundingBox.scale(object->GetWorldTransform().GetScale());
-                boundingBox.translate(object->GetWorldTransform().GetPosition());
-                boundingBoxes.push_back(boundingBox);
-            }
+            boundingBoxes.push_back(treeRenderComponent->GetWorldBoundingBox());
         }
         else
         {

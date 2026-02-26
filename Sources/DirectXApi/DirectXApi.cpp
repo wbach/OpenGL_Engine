@@ -456,6 +456,9 @@ void DirectXApi::SetShadersFilesLocations(const std::filesystem::path &path)
 void DirectXApi::SetShaderQuaility(GraphicsApi::ShaderQuaility)
 {
 }
+void DirectXApi::DebugNormalMeshGeneration(bool)
+{
+}
 void DirectXApi::CreateContext()
 {
 }
@@ -907,7 +910,13 @@ void DirectXApi::ActiveTexture(uint32 nr, uint32 id)
 void DirectXApi::DeleteObject(uint32)
 {
 }
+void DirectXApi::DeleteObject(const std::vector<uint32> &)
+{
+}
 void DirectXApi::DeleteShaderBuffer(uint32)
+{
+}
+void DirectXApi::DeleteShaderBuffer(const std::vector<uint32> &)
 {
 }
 std::string DirectXApi::GetBufferStatus()
