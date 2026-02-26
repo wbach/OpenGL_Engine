@@ -44,8 +44,6 @@ LightShaftOclusionRenderer::~LightShaftOclusionRenderer()
         EngineConf.renderer.lightshafts.isEnabled.unsubscribe(*enabledSubId);
         enabledSubId.reset();
     }
-
-    CleanUp();
 }
 void LightShaftOclusionRenderer::Init()
 {

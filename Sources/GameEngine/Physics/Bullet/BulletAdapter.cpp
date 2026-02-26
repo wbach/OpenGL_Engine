@@ -262,6 +262,12 @@ ShapeId BulletAdapter::CreateMeshCollider(const PositionOffset& positionOffset, 
 
         for (size_t i = 0; i < indicies.size(); i += 3)
         {
+            if (i + 2 >= indicies.size())
+            {
+                LOG_ERROR << "Index out of range";
+                break;
+            }
+
             auto i1 = 3 * static_cast<size_t>(indicies[i]);
             auto i2 = 3 * static_cast<size_t>(indicies[i + 1]);
             auto i3 = 3 * static_cast<size_t>(indicies[i + 2]);
@@ -275,7 +281,7 @@ ShapeId BulletAdapter::CreateMeshCollider(const PositionOffset& positionOffset, 
             }
             else
             {
-                /* LOG TO FIX*/ LOG_ERROR << ("Out of range");
+                 LOG_ERROR << "Out of range";
             }
         }
 
