@@ -48,6 +48,16 @@ void ThridPersonCameraComponent::ReqisterFunctions()
     RegisterFunction(FunctionType::Update,
                      [this]()
                      {
+                         if (not fsmContext)
+                         {
+                             return;
+                         }
+
+                         if (fsmContext->camera.IsLocked())
+                         {
+                             return;
+                         }
+
                          auto mouseMove = componentContext_.inputManager_.CalcualteMouseMove();
                          if (mouseMove.x != 0 or mouseMove.y != 0)
                              fsm->handle(MouseMoveEvent{.move = mouseMove});
@@ -131,7 +141,7 @@ void ThridPersonCameraComponent::init()
             {
                 fsmContext->lookAtTransformContext = transformContext;
                 fsmContext->camera.Update();
-                //std::apply([](auto&&... state) { ((state.update()), ...); }, fsm->states);
+                // std::apply([](auto&&... state) { ((state.update()), ...); }, fsm->states);
             }
         });
 }

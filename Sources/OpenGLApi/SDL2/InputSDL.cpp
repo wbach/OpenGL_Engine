@@ -49,7 +49,9 @@ bool InputSDL::GetMouseKey(KeyCodes::Type key)
 void InputSDL::SetReleativeMouseMode(bool v)
 {
     isRelativeMouseMode = v;
+    SDL_GetRelativeMouseState(NULL, NULL);
     SDL_SetRelativeMouseMode(v ? SDL_TRUE : SDL_FALSE);
+    lastMouseMovmentPosition_ = GetPixelMousePosition();
 }
 vec2i InputSDL::GetPixelMousePosition()
 {
