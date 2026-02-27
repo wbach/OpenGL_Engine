@@ -7,7 +7,7 @@ namespace GameEngine
 {
 namespace Params
 {
-struct Sound
+struct ENGINE_API Sound
 {
     Sound();
     ConfigurationParam<bool> isEnabled;

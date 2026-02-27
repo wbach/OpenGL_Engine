@@ -7,7 +7,7 @@ namespace GameEngine
 {
 namespace Params
 {
-struct Particles
+struct ENGINE_API Particles
 {
     Particles();
     ConfigurationParam<bool> useParticles;

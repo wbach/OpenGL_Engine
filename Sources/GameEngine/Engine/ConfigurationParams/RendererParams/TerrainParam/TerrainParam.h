@@ -6,7 +6,7 @@ namespace GameEngine
 {
 namespace Params
 {
-struct Terrain
+struct ENGINE_API Terrain
 {
     Terrain();
     TerrainType terrainType = TerrainType::Mesh;

@@ -17,11 +17,17 @@ struct GuiElementTransform
     vec2 scale{1.0f};
 };
 
-class GuiElement
+class ENGINE_API GuiElement
 {
 public:
     GuiElement(GuiElementTypes);
     virtual ~GuiElement() = default;
+
+    GuiElement(const GuiElement&)            = delete;
+    GuiElement& operator=(const GuiElement&) = delete;
+
+    GuiElement(GuiElement&&) noexcept            = default;
+    GuiElement& operator=(GuiElement&&) noexcept = default;
 
 public:
     virtual void AddChild(std::unique_ptr<GuiElement>);

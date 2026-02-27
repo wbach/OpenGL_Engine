@@ -71,6 +71,7 @@ void GameObject::RemoveComponent(Components::ComponentTypeID type)
     if (auto component = GetComponent(type))
     {
         component->CleanUp();
+        component->Deregister();
         components_.erase(type);
     }
 }
@@ -80,7 +81,11 @@ void GameObject::RemoveAllComponents()
     for (auto& [_, vectorOfcomponent] : components_)
     {
         for (auto& component : vectorOfcomponent)
+        {
             component->CleanUp();
+            component->Deregister();
+
+        }
     }
     components_.clear();
 }

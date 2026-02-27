@@ -6,6 +6,8 @@
 
 #include "GameEngine/Components/ComponentType.h"
 
+#pragma once
+
 class TreeNode;
 
 namespace GameEngine
@@ -19,7 +21,7 @@ struct ComponentContext;
 
 using ComponentReadFunction = std::function<std::unique_ptr<IComponent>(ComponentContext&, const TreeNode&, GameObject&)>;
 
-struct ReadFunctions
+struct ENGINE_API ReadFunctions
 {
 public:
     using ComponentReadFunctionsType = std::unordered_map<ComponentTypeID, ComponentReadFunction>;
@@ -48,10 +50,10 @@ private:
     ComponentTypeNameToIdType typeNameToId;
 };
 
-void regsiterComponentReadFunction(const ComponentType&, ComponentReadFunction);
-void unregsiterComponentReadFunction(const ComponentTypeName&);
+ENGINE_API void regsiterComponentReadFunction(const ComponentType&, ComponentReadFunction);
+ENGINE_API void unregsiterComponentReadFunction(const ComponentTypeName&);
 
 std::optional<ComponentTypeID> getComponentTypeIdByName(const ComponentTypeName&);
-extern const std::string CSTR_TYPE;
+ENGINE_API extern const std::string CSTR_TYPE;
 }  // namespace Components
 }  // namespace GameEngine

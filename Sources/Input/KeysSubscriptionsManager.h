@@ -3,7 +3,7 @@
 
 namespace Input
 {
-class KeysSubscriptionsManager
+class ENGINE_API KeysSubscriptionsManager
 {
 public:
     KeysSubscriptionsManager(InputManager& inputManager);

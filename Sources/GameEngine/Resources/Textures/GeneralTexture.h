@@ -7,7 +7,7 @@
 
 namespace GameEngine
 {
-class GeneralTexture : public Texture
+class ENGINE_API GeneralTexture : public Texture
 {
 public:
     GeneralTexture(GraphicsApi::IGraphicsApi&, Utils::Image&&, const TextureParameters&,

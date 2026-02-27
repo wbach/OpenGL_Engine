@@ -1,12 +1,13 @@
 #pragma once
 #include <filesystem>
+#include <EngineApi.h>
 
 namespace GameEngine
 {
 struct GlobalConfiguration;
 struct LocalConfiguration;
 
-void WriteConfigurationToFile(const GlobalConfiguration&);
-void WriteConfigurationToFile(const GlobalConfiguration&, const std::filesystem::path&);
-void WriteConfigurationToFile(const LocalConfiguration&, const std::filesystem::path&);
+ENGINE_API void WriteConfigurationToFile(const GlobalConfiguration&);
+ENGINE_API void WriteConfigurationToFile(const GlobalConfiguration&, const std::filesystem::path&);
+ENGINE_API void WriteConfigurationToFile(const LocalConfiguration&, const std::filesystem::path&);
 }  // namespace GameEngine

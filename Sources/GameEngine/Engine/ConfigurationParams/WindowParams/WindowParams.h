@@ -7,7 +7,7 @@ namespace GameEngine
 {
 namespace Params
 {
-struct Window
+struct ENGINE_API Window
 {
     Window();
 

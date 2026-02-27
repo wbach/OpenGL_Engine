@@ -47,7 +47,7 @@ class GuiTextureElement;
 class GuiWindowElement;
 class GuiEngineContextManger;
 
-class Scene
+class ENGINE_API Scene
 {
 public:
     using Events = std::vector<SceneEvent>;

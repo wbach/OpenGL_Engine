@@ -3,7 +3,7 @@
 
 namespace GameEngine
 {
-class VerticalLayout : public Layout
+class ENGINE_API VerticalLayout : public Layout
 {
 public:
     VerticalLayout(Input::InputManager&);

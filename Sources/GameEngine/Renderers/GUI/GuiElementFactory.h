@@ -33,7 +33,7 @@ namespace Renderer
 class RenderersManager;
 }  // namespace Renderer
 
-class GuiElementFactory
+class ENGINE_API GuiElementFactory
 {
 public:
     struct EntryParameters

@@ -5,7 +5,7 @@
 
 namespace OpenGLApi
 {
-class IdPool
+class ENGINE_API IdPool
 {
 public:
     uint32 ToUint(GLuint glId);

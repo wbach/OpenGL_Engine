@@ -45,6 +45,7 @@ void ReadFunctions::UnregisterComponent(const ComponentTypeName& name)
 {
     if (auto id = getComponentTypeIdByName(name))
     {
+        LOG_DEBUG << name;
         componentsReadFunctions.erase(*id);
         typeNameToId.erase(name);
     }
@@ -60,7 +61,7 @@ std::optional<ComponentTypeID> ReadFunctions::getComponentTypeIdByName(const Com
     if (iter != typeNameToId.end())
         return iter->second;
 
-    LOG_ERROR << "UnregisterComponent failed. Name=" << name;
+    LOG_ERROR << "getComponentTypeIdByName failed. Name=" << name;
     return std::nullopt;
 }
 

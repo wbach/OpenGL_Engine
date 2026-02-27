@@ -5,7 +5,7 @@ namespace GameEngine
 {
 namespace Params
 {
-struct LineMeshVisualizatorParams
+struct ENGINE_API LineMeshVisualizatorParams
 {
     bool useWorkredToUpdateVisualization_{false};
     uint32 refreshRateStepDown_{0};

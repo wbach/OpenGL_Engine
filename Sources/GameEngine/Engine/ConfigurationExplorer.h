@@ -1,6 +1,8 @@
 #pragma once
-#include <vector>
+#include <EngineApi.h>
+
 #include <string>
+#include <vector>
 
 namespace GameEngine
 {
@@ -9,7 +11,7 @@ namespace Params
 class IConfigurationParam;
 }
 
-class ConfigurationExplorer
+class ENGINE_API ConfigurationExplorer
 {
 public:
     enum class ApplyPolicy
@@ -25,7 +27,7 @@ public:
     struct Param
     {
         std::string name;
-        GameEngine::Params::IConfigurationParam& configurationParam;
+        std::reference_wrapper<GameEngine::Params::IConfigurationParam> configurationParam;
         ApplyPolicy restartRequierd;
         ParamsImpact paramsImpact{ParamsImpact::NoImpact};
     };

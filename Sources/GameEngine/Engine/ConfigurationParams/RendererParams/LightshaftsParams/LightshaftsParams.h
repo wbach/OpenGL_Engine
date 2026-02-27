@@ -7,7 +7,7 @@ namespace GameEngine
 {
 namespace Params
 {
-struct Lightshafts
+struct ENGINE_API Lightshafts
 {
     Lightshafts();
     ConfigurationParam<bool> isEnabled;

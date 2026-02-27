@@ -13,7 +13,7 @@
 
 typedef std::unordered_map<std::string, std::string> Attributes;
 
-class TreeNode
+class ENGINE_API TreeNode
 {
 public:
     TreeNode();
@@ -52,21 +52,21 @@ std::ostream& operator<<(std::ostream&, const TreeNode&);
 
 extern const std::string CSTR_VEC3;
 
-void Read(const TreeNode&, float&);
-void Read(const TreeNode&, bool&);
-void Read(const TreeNode&, int32&);
-void Read(const TreeNode&, uint32&);
-void Read(const TreeNode&, vec2&);
-void Read(const TreeNode&, vec2ui&);
-void Read(const TreeNode&, vec3&);
-void Read(const TreeNode&, vec4&);
-void Read(const TreeNode&, Color&);
-void Read(const TreeNode&, Quaternion&);
-void Read(const TreeNode&, Rotation&);
-void Read(const TreeNode&, std::string&);
-void Read(const TreeNode&, std::filesystem::path&);
-void Read(const TreeNode&, std::vector<vec2>&);
-void Read(const TreeNode&, std::vector<vec3>&);
+ENGINE_API void Read(const TreeNode&, float&);
+ENGINE_API void Read(const TreeNode&, bool&);
+ENGINE_API void Read(const TreeNode&, int32&);
+ENGINE_API void Read(const TreeNode&, uint32&);
+ENGINE_API void Read(const TreeNode&, vec2&);
+ENGINE_API void Read(const TreeNode&, vec2ui&);
+ENGINE_API void Read(const TreeNode&, vec3&);
+ENGINE_API void Read(const TreeNode&, vec4&);
+ENGINE_API void Read(const TreeNode&, Color&);
+ENGINE_API void Read(const TreeNode&, Quaternion&);
+ENGINE_API void Read(const TreeNode&, Rotation&);
+ENGINE_API void Read(const TreeNode&, std::string&);
+ENGINE_API void Read(const TreeNode&, std::filesystem::path&);
+ENGINE_API void Read(const TreeNode&, std::vector<vec2>&);
+ENGINE_API void Read(const TreeNode&, std::vector<vec3>&);
 
 template <class T>
 void Read(const TreeNode* node, T& v)
@@ -101,19 +101,19 @@ std::unique_ptr<TreeNode> Convert(const std::string& label, const std::vector<T>
     return root;
 }
 
-void write(TreeNode&, float);
-void write(TreeNode&, int);
-void write(TreeNode&, uint32);
-void write(TreeNode&, bool);
-void write(TreeNode&, const std::string&);
-void write(TreeNode&, const std::string_view&);
-void write(TreeNode&, const std::filesystem::path&);
-void write(TreeNode&, const vec2ui&);
-void write(TreeNode&, const vec2&);
-void write(TreeNode&, const vec3&);
-void write(TreeNode&, const vec4&);
-void write(TreeNode&, const Color&);
-void write(TreeNode&, const std::optional<uint32>&);
-void write(TreeNode&, const std::vector<vec3>&);
+ENGINE_API void write(TreeNode&, float);
+ENGINE_API void write(TreeNode&, int);
+ENGINE_API void write(TreeNode&, uint32);
+ENGINE_API void write(TreeNode&, bool);
+ENGINE_API void write(TreeNode&, const std::string&);
+ENGINE_API void write(TreeNode&, const std::string_view&);
+ENGINE_API void write(TreeNode&, const std::filesystem::path&);
+ENGINE_API void write(TreeNode&, const vec2ui&);
+ENGINE_API void write(TreeNode&, const vec2&);
+ENGINE_API void write(TreeNode&, const vec3&);
+ENGINE_API void write(TreeNode&, const vec4&);
+ENGINE_API void write(TreeNode&, const Color&);
+ENGINE_API void write(TreeNode&, const std::optional<uint32>&);
+ENGINE_API void write(TreeNode&, const std::vector<vec3>&);
 
-void PrintTree(const TreeNode&);
+ENGINE_API void PrintTree(const TreeNode&);

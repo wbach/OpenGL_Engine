@@ -28,7 +28,7 @@ enum class PresetSettings
 
 std::string paramToString(PresetSettings);
 
-struct Renderer
+struct ENGINE_API Renderer
 {
     Renderer();
     ConfigurationParam<std::string> graphicsApi;

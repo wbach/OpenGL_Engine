@@ -7,7 +7,7 @@ namespace GameEngine
 {
 namespace Params
 {
-struct Flora
+struct ENGINE_API Flora
 {
     Flora();
     ConfigurationParam<bool> isEnabled;

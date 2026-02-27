@@ -20,7 +20,7 @@ typedef std::unordered_map<std::string, GuiElement*> GuiElementsMap;
 
 using ActionFunction = std::function<void(GuiElement&)>;
 
-class GuiManager
+class ENGINE_API GuiManager
 {
 public:
     GuiManager();

@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <EngineApi.h>
 #include <Utils/Utils.h>
 
 namespace GameEngine
@@ -8,8 +9,7 @@ namespace Components
 {
 using ComponentTypeID   = std::size_t;
 using ComponentTypeName = std::string;
-
-struct ComponentType
+struct ENGINE_API ComponentType
 {
     ComponentTypeID id{0};
     ComponentTypeName name{};
@@ -24,7 +24,7 @@ inline const ComponentType NULL_COMPONENT_TYPE{.id = 0u, .name = "global"};
 
 std::ostream& operator<<(std::ostream& os, const ComponentType& type);
 
-ComponentTypeID GetUniqueComponentID();
+ENGINE_API ComponentTypeID GetUniqueComponentID();
 
 template <typename T>
 inline ComponentType GetComponentType()

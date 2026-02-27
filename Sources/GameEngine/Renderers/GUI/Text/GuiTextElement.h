@@ -13,7 +13,7 @@ namespace GameEngine
 class GUIRenderer;
 class IResourceManager;
 
-class GuiTextElement : public GuiRendererElementBase
+class ENGINE_API GuiTextElement : public GuiRendererElementBase
 {
 public:
     enum class Algin

@@ -11,7 +11,7 @@ class GuiTextureElement;
 
 typedef std::function<void(GuiElement&)> OnClick;
 
-class GuiButtonElement : public GuiElement
+class ENGINE_API GuiButtonElement : public GuiElement
 {
     enum class State
     {

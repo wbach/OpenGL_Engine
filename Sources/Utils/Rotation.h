@@ -1,7 +1,7 @@
 #pragma once
 #include "Types.h"
 
-struct Rotation
+struct ENGINE_API Rotation
 {
     Rotation();
     Rotation(const DegreesVec3& v);

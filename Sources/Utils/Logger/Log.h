@@ -11,7 +11,7 @@
 #include "LoggingLvl.h"
 #include "Utils/StreamOperators.h"
 
-class CLogger
+class ENGINE_API CLogger
 {
 public:
     static CLogger& Instance();
@@ -69,7 +69,7 @@ private:
 
 // ============================================================
 // CLogStream minimalny w headerze
-class CLogStream
+class ENGINE_API CLogStream
 {
 public:
     CLogStream(LoggingLvl lvl, const char* file, int line, const char* func);

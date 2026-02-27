@@ -10,7 +10,7 @@ namespace Params
 {
 const uint32 MAX_SHADOW_MAP_CASADES{4};
 
-struct Shadows
+struct ENGINE_API Shadows
 {
     enum class CascadeDistanceFunc
     {

@@ -7,7 +7,7 @@ namespace GameEngine
 class GUIRenderer;
 class IResourceManager;
 
-class GuiRendererElementBase : public GuiElement
+class ENGINE_API GuiRendererElementBase : public GuiElement
 {
 public:
     GuiRendererElementBase(IResourceManager&, GUIRenderer&, GuiElementTypes);

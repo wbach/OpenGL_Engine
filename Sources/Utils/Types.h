@@ -14,6 +14,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "EngineApi.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846264338327950288 /* pi */
@@ -258,7 +259,7 @@ type ToDegrees(type a)
 }
 
 // ==================== Radian/Degrees wrappers ====================
-struct RadianFloat
+struct ENGINE_API RadianFloat
 {
     RadianFloat()
         : value(0.f)
@@ -316,7 +317,7 @@ struct RadiansVec3
     vec3 value;
 };
 
-struct DegreesFloat
+struct ENGINE_API DegreesFloat
 {
     DegreesFloat()
         : value(0.f)
@@ -375,7 +376,7 @@ struct DegreesVec3
 };
 
 // ==================== Kolor ====================
-struct Color
+struct ENGINE_API Color
 {
     Color()
         : value(1.f)
@@ -933,14 +934,14 @@ struct hash<vec3i>
     }
 };
 
-std::string to_string(const vec2&);
-std::string to_string(const vec2i&);
-std::string to_string(const vec2ui&);
-std::string to_string(const vec3i&);
-std::string to_string(const vec3&);
-std::string to_string(const vec4&);
-std::string to_string(const Quaternion&);
-std::string to_string(const glm::mat4&);
+ENGINE_API std::string to_string(const vec2&);
+ENGINE_API std::string to_string(const vec2i&);
+ENGINE_API std::string to_string(const vec2ui&);
+ENGINE_API std::string to_string(const vec3i&);
+ENGINE_API std::string to_string(const vec3&);
+ENGINE_API std::string to_string(const vec4&);
+ENGINE_API std::string to_string(const Quaternion&);
+ENGINE_API std::string to_string(const glm::mat4&);
 
 template <typename T>
 std::string to_string(const std::optional<T>& maybeValue)
@@ -966,12 +967,12 @@ std::string to_string(const std::vector<T>& values)
     return result;
 }
 
-void from_string(const std::string& s, vec2& v);
-void from_string(const std::string& s, vec2i& v);
-void from_string(const std::string& s, vec2ui& v);
-void from_string(const std::string& s, vec3i& v);
-void from_string(const std::string& s, vec3& v);
-void from_string(const std::string& s, vec4& v);
-void from_string(const std::string& s, Quaternion& q);
-void from_string(const std::string& s, mat4& m);
+ENGINE_API void from_string(const std::string& s, vec2& v);
+ENGINE_API void from_string(const std::string& s, vec2i& v);
+ENGINE_API void from_string(const std::string& s, vec2ui& v);
+ENGINE_API void from_string(const std::string& s, vec3i& v);
+ENGINE_API void from_string(const std::string& s, vec3& v);
+ENGINE_API void from_string(const std::string& s, vec4& v);
+ENGINE_API void from_string(const std::string& s, Quaternion& q);
+ENGINE_API void from_string(const std::string& s, mat4& m);
 }  // namespace std

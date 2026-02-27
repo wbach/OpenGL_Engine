@@ -7,10 +7,70 @@
 #include <wx/wx.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+#include <regex>
 
 #include "BuildProcess.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/ProjectPanel/ProjectPanel.h"
+
+namespace
+{
+std::string DetectVSGenerator()
+{
+#ifdef _WIN32
+
+    FILE* pipe = _popen("cmake --help", "r");
+    if (!pipe)
+        return "";
+
+    char buffer[512];
+    std::string output;
+
+    while (fgets(buffer, sizeof(buffer), pipe))
+        output += buffer;
+
+    _pclose(pipe);
+
+    std::regex rgx(R"(Visual Studio ([0-9]+) ([0-9]{4}))");
+
+    std::sregex_iterator it(output.begin(), output.end(), rgx);
+    std::sregex_iterator end;
+
+    int bestMajor = 0;
+    int bestYear  = 0;
+    std::string bestGenerator;
+
+    for (; it != end; ++it)
+    {
+        int major = std::stoi((*it)[1].str());
+        int year  = std::stoi((*it)[2].str());
+
+        if (major > bestMajor)
+        {
+            bestMajor     = major;
+            bestYear      = year;
+            bestGenerator = "Visual Studio " + std::to_string(major) + " " + std::to_string(year);
+        }
+    }
+
+    return bestGenerator;
+
+#else
+
+    return "";
+
+#endif
+}
+
+std::string getConfiguration()
+{
+#ifdef _DEBUG
+    return "Debug";
+#else
+    return "Release";
+#endif
+}
+}  // namespace
 
 BuildComponentLogFrame::BuildComponentLogFrame(wxWindow* parent, ProjectPanel* projectPanel, ReloadComponents reloadComponents)
     : wxFrame(parent, wxID_ANY, "Build Log", wxDefaultPosition, wxSize(800, 600))
@@ -29,7 +89,12 @@ void BuildComponentLogFrame::AppendLine(const wxString& line, const wxColour& co
 
 void BuildComponentLogFrame::Build()
 {
-    auto buildDir          = ProjectManager::GetInstance().GetProjectPath() / "build";
+#if defined(_MSC_VER)
+    auto buildDir = ProjectManager::GetInstance().GetProjectPath() / "build_vs";
+#else
+    auto buildDir = ProjectManager::GetInstance().GetProjectPath() / "build";
+#endif
+
     auto engineIncludesDir = ProjectManager::GetInstance().GetEngineIncludesDir();
 
     if (not std::filesystem::exists(buildDir))
@@ -112,9 +177,22 @@ void BuildComponentLogFrame::Build()
     std::filesystem::path solutionFile =
         ProjectManager::GetInstance().GetProjectPath() / ProjectManager::GetInstance().GetProjectName() / ".sln";
 
-    std::string vcvars = "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat\"";
+    std::string vcvars = "\"C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat\"";
 
-    cmd = "cmd /c call " + vcvars + " && msbuild " + solutionFile.string() + " /t:Build /p:Configuration=Release /p:Platform=x64";
+    auto configuration = getConfiguration();
+    auto generator     = DetectVSGenerator();
+    AppendLine("Detected generator: " + generator, *wxLIGHT_GREY);
+
+    cmd = "cmd /c call " + vcvars + " && cmake .. -G \"" + generator + "\"" +
+          " -DCOMPONENTS_DIR=Data/Components"
+          " -DENGINE_INCLUDE_DIR=\"" +
+          engineIncludesDir.string() +
+          "\""
+          " && msbuild ALL_BUILD.vcxproj /p:Configuration=" +
+          configuration + " /p:Platform=x64";
+
+    // cmd = "cmd /c call " + vcvars + " && msbuild " + solutionFile.string() + " /t:Build /p:Configuration=Release
+    // /p:Platform=x64";
 #else
     cmd = "sh -c \"cmake .. -DCOMPONENTS_DIR=Data/Components -DENGINE_INCLUDE_DIR=" + engineIncludesDir.string() +
           " && cmake --build .\"";

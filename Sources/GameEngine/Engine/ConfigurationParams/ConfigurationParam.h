@@ -17,7 +17,7 @@ namespace GameEngine
 namespace Params
 {
 template <class T>
-class ConfigurationParam : public IConfigurationParam
+class ENGINE_API ConfigurationParam : public IConfigurationParam
 {
 public:
     ConfigurationParam(const T& v, const std::vector<T>& defaultValues)
@@ -201,12 +201,14 @@ public:
         auto iter = std::find_if(subscribers_.begin(), subscribers_.end(), [id](const auto& pair) { return pair.first == id; });
         subscribers_.erase(iter);
     }
-    void operator=(const T& v)
+    ConfigurationParam& operator=(const T& v)
     {
         if (isLocked_)
-            return;
+            return *this;
 
         set(v);
+
+        return *this;
     }
     bool operator==(const T& v1) const
     {

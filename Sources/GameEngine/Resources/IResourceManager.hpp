@@ -20,7 +20,7 @@ class File;
 struct LoadingParameters;
 class Primitive;
 
-class IResourceManager
+class ENGINE_API IResourceManager
 {
 public:
     virtual ~IResourceManager() = default;

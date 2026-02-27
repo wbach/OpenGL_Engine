@@ -5,7 +5,7 @@
 namespace GameEngine
 {
 class Texture;
-class GuiTextureElement : public GuiRendererElementBase
+class ENGINE_API GuiTextureElement : public GuiRendererElementBase
 {
 public:
     GuiTextureElement(IResourceManager&, GUIRenderer&, GeneralTexture&);

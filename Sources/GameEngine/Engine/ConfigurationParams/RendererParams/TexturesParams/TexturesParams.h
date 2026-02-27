@@ -7,7 +7,7 @@ namespace GameEngine
 {
 namespace Params
 {
-struct Textures
+struct ENGINE_API Textures
 {
     Textures();
     ConfigurationParam<vec2ui> maxSize;

@@ -2,8 +2,8 @@
 #include <magic_enum/magic_enum.hpp>
 #include <string>
 
-#include "IComponent.h"
 #include "ComponentDependencies.h"
+#include "IComponent.h"
 
 namespace GameEngine
 {
@@ -22,9 +22,9 @@ FieldInfo MakeEnumField(const char* name, Enum* value)
         return result;
     }();
 
-    return {.name = name,
-            .type = FieldType::Enum,
-            .ptr  = value,
+    return {.name      = name,
+            .type      = FieldType::Enum,
+            .ptr       = value,
             .enumNames = []() { return cachedNames; },
 
             .enumToIndex =
@@ -101,12 +101,15 @@ namespace Components
 {
 struct ComponentContext;
 
-class BaseComponent : public IComponent
+class ENGINE_API BaseComponent : public IComponent
 {
 public:
     BaseComponent(const ComponentType&, ComponentContext&, GameObject&);
+    BaseComponent(uint32, const char*, ComponentContext&, GameObject&);
     ~BaseComponent() override;
 
+    void Register() override;
+    void Deregister() override;
     bool IsActive() const override;
     void Activate() override;
     void Deactivate() override;

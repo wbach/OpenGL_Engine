@@ -4,10 +4,11 @@
 
 #include <filesystem>
 #include <string>
+#include <EngineApi.h>
 
 namespace GameEngine
 {
-class File
+class ENGINE_API File
 {
 public:
     File();

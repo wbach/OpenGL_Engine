@@ -6,7 +6,7 @@
 
 namespace Utils
 {
-class Timer
+class ENGINE_API Timer
 {
 public:
     Timer();

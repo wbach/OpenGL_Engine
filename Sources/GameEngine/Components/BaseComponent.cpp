@@ -20,10 +20,29 @@ BaseComponent::BaseComponent(const ComponentType& type, ComponentContext& compon
     , isActive_(true)
     , componentRegistredId_(0)
 {
-    componentRegistredId_ = componentContext_.componentController_.RegisterComponent(type_.id, this);
+    LOG_DEBUG << "type = " << type_;
+    // componentRegistredId_ = componentContext_.componentController_.RegisterComponent(type_.id, this);
+}
+
+BaseComponent::BaseComponent(uint32 id, const char* name, ComponentContext& componentContext, GameObject& gameObject)
+    : type_({.id = id, .name = std::string(name)})
+    , thisObject_(gameObject)
+    , componentContext_(componentContext)
+    , isActive_(true)
+    , componentRegistredId_(0)
+{
+    // componentRegistredId_ = componentContext_.componentController_.RegisterComponent(type_.id, this);
 }
 
 BaseComponent::~BaseComponent()
+{
+    // UnregisterFunctions();
+}
+void BaseComponent::Register()
+{
+    componentRegistredId_ = componentContext_.componentController_.RegisterComponent(type_.id, this);
+}
+void BaseComponent::Deregister()
 {
     UnregisterFunctions();
 }

@@ -7,7 +7,7 @@ namespace GameEngine
 {
 namespace Params
 {
-struct Ssao
+struct ENGINE_API Ssao
 {
     Ssao();
     ConfigurationParam<bool> isEnabled;

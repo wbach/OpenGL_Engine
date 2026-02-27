@@ -8,7 +8,7 @@ namespace GameEngine
 namespace Components
 {
 class CharacterController;
-class PlayerInputController : public BaseComponent
+class ENGINE_API PlayerInputController : public BaseComponent
 {
 public:
     PlayerInputController(ComponentContext& componentContext, GameObject& gameObject);

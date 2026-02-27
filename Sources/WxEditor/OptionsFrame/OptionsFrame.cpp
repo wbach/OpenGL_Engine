@@ -98,17 +98,17 @@ void OptionsFrame::CreateRenderingSubTab(wxNotebook* notebook, const std::string
         rowSizer->Add(new wxStaticText(panel, wxID_ANY, param.name), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
 
         wxArrayString options;
-        for (const auto& value : param.configurationParam.getValuesAsStrings())
+        for (const auto& value : param.configurationParam.get().getValuesAsStrings())
         {
             options.Add(value);
         }
         auto choice = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, options);
-        choice->SetSelection(param.configurationParam.getValueIndex());
+        choice->SetSelection(param.configurationParam.get().getValueIndex());
         rowSizer->Add(choice, 0, wxALL, 5);
 
-        paramsCtrls.push_back(ParamCtrl{.param = param.configurationParam, .ctrl = choice});
+        paramsCtrls.push_back(ParamCtrl{.param = param.configurationParam.get(), .ctrl = choice});
 
-        if (param.configurationParam.isLocked())
+        if (param.configurationParam.get().isLocked())
         {
             choice->Disable();
         }

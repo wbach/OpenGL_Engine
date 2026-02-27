@@ -1,4 +1,6 @@
 #pragma once
+#include <EngineApi.h>
+
 #include <functional>
 #include <list>
 #include <memory>
@@ -24,7 +26,7 @@ struct KeyInteger
     int value;
 };
 
-class InputManager
+class ENGINE_API InputManager
 {
     struct Subscribers
     {
@@ -45,7 +47,7 @@ public:
     virtual vec2 GetMousePosition()              = 0;
 
     virtual void SetCursorPosition(int x, int y) = 0;
-    virtual void SetKeyToBuffer(KeyInteger, bool value){};
+    virtual void SetKeyToBuffer(KeyInteger, bool value) {};
     virtual void ClearKeyBuffer() = 0;
     virtual void GetPressedKeys() = 0;
     virtual void ShowCursor(bool) = 0;

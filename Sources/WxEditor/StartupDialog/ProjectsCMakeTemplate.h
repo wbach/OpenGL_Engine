@@ -3,41 +3,55 @@
 inline const char* projectCMakeTemplate = R"(cmake_minimum_required(VERSION 3.20)
 project(GameEngineComponents LANGUAGES CXX)
 
-# ustawienia kompilatora
+if(MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+endif()
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON) # -fPIC
+set(CMAKE_POSITION_INDEPENDENT_CODE ON) 
 
-# flaga optymalizacji i warningi
-set(COMMON_COMPILE_FLAGS
-    -O3
-    -Wall
-    -Wextra
-    -Wuninitialized
-    -Wtype-limits
-    -Wdelete-incomplete
-    -pedantic
-    -Wno-expansion-to-defined
-    -Wno-deprecated
-    -DUSE_GNU
-)
-add_compile_options(${COMMON_COMPILE_FLAGS})
+if(MSVC)
+    add_compile_options(
+        /W4  
+        /wd4100    
+        /wd4201       
+        /wd4189        
+        /permissive-
+        /Zc:__cplusplus
+    )
+    add_compile_definitions(USE_MSVC)
+else()
+    add_compile_options(
+        -O3
+        -Wall
+        -Wextra
+        -Wuninitialized
+        -Wtype-limits
+        -Wdelete-incomplete
+        -pedantic
+        -Wno-expansion-to-defined
+        -Wno-deprecated
+    )
+    add_compile_definitions(USE_GNU)
+endif()
 
-# katalog komponentow
+# katalog z komponentami (można nadpisać przy wywołaniu cmake)
 if(NOT DEFINED COMPONENTS_DIR)
     set(COMPONENTS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Components")
 endif()
-get_filename_component(ABS_COMPONENTS_DIR "${COMPONENTS_DIR}" ABSOLUTE)
-message(STATUS "Katalog komponentow: ${ABS_COMPONENTS_DIR}")
 
-# katalog silnika gry
+message(STATUS "Katalog komponentów: ${COMPONENTS_DIR}")
+
 if(NOT DEFINED ENGINE_INCLUDE_DIR)
-    message(FATAL_ERROR "Musisz podac ENGINE_INCLUDE_DIR przy wywolaniu cmake")
+    message(FATAL_ERROR "Musisz podać ENGINE_INCLUDE_DIR przy wywołaniu cmake")
 endif()
+
 get_filename_component(ABS_ENGINE_INCLUDE_DIR "${ENGINE_INCLUDE_DIR}" ABSOLUTE)
 message(STATUS "Include paths silnika gry: ${ABS_ENGINE_INCLUDE_DIR}")
 
-include_directories(
+# include paths
+set(COMMON_INCLUDE_DIRS
     "${ABS_ENGINE_INCLUDE_DIR}/Sources"
     "${ABS_ENGINE_INCLUDE_DIR}/Sources/Utils"
     "${ABS_ENGINE_INCLUDE_DIR}/Sources/UtilsNetwork"
@@ -49,7 +63,35 @@ include_directories(
     "${ABS_ENGINE_INCLUDE_DIR}/Tools/common/rapidjson-1.1.0/include"
     "${ABS_ENGINE_INCLUDE_DIR}/Sources/GameEngine"
     "${ABS_ENGINE_INCLUDE_DIR}/Tools/common/magic_enum-v0.9.7/include"
-    "/usr/include/freetype2"
+)
+
+set(PLATFORM_INCLUDE_DIRS "")
+
+if(MSVC)
+    list(APPEND PLATFORM_INCLUDE_DIRS
+        "${ABS_ENGINE_INCLUDE_DIR}/Tools/Windows"
+        "${ABS_ENGINE_INCLUDE_DIR}/Tools/Windows/SDL2-2.0.12/include"
+        "${ABS_ENGINE_INCLUDE_DIR}/Tools/Windows/SDL2-2.0.12/include/SDL2"
+        "${ABS_ENGINE_INCLUDE_DIR}/Tools/Windows/SDL2_net-2.0.1/include"
+        "${ABS_ENGINE_INCLUDE_DIR}/Tools/Windows/SDL2_ttf-2.0.15/include"
+        "${ABS_ENGINE_INCLUDE_DIR}/Tools/Windows/SDL2_image-2.0.4/include"
+        "${ABS_ENGINE_INCLUDE_DIR}/Tools/Windows/glew-2.1.0/include"
+        "${ABS_ENGINE_INCLUDE_DIR}/Tools/Windows/freeImage"
+        "${ABS_ENGINE_INCLUDE_DIR}/Tools/Windows/freetype/include"
+        "${ABS_ENGINE_INCLUDE_DIR}/Tools/Windows/GLFW3/include"
+        "${ABS_ENGINE_INCLUDE_DIR}/Tools/Windows/Directx/Include"
+    )
+
+else()
+    list(APPEND PLATFORM_INCLUDE_DIRS
+        "/usr/include/freetype2"
+    )
+
+endif()
+
+include_directories(
+    ${COMMON_INCLUDE_DIRS}
+    ${PLATFORM_INCLUDE_DIRS}
 )
 
 if(DEFINED ENV{USERROOT})
@@ -60,7 +102,9 @@ if(DEFINED ENV{USERROOT})
     )
 endif()
 
-# wykrywanie i budowanie komponentow
+get_filename_component(ABS_COMPONENTS_DIR "${COMPONENTS_DIR}" ABSOLUTE)
+message(STATUS "ABS_COMPONENTS_DIR = ${ABS_COMPONENTS_DIR}")
+
 file(GLOB COMPONENT_SUBDIRS RELATIVE ${ABS_COMPONENTS_DIR} ${ABS_COMPONENTS_DIR}/*)
 
 foreach(COMP_NAME ${COMPONENT_SUBDIRS})
@@ -69,16 +113,24 @@ foreach(COMP_NAME ${COMPONENT_SUBDIRS})
         file(GLOB_RECURSE SRC_FILES "${COMP_PATH}/*.cpp")
         if(SRC_FILES)
             add_library(${COMP_NAME} SHARED ${SRC_FILES})
+
+            if(MSVC)
+                target_link_libraries(${COMP_NAME} PRIVATE
+                "${ABS_ENGINE_INCLUDE_DIR}/build/bin/WxEditor/Release/x64/WxEditor.lib"
+                )
+            endif()
+
+
             message(STATUS "Dodano komponent: ${COMP_NAME}")
 
-            # kopiowanie do folderu nadrzednego
             set(DEST_DIR "${ABS_COMPONENTS_DIR}")
+
             add_custom_command(TARGET ${COMP_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${COMP_NAME}> ${DEST_DIR}
-                COMMENT "Kopiuje ${COMP_NAME} do ${DEST_DIR}"
+                COMMENT "Kopiuję ${COMP_NAME} do ${DEST_DIR}"
             )
         else()
-            message(WARNING "Brak plikow .cpp w ${COMP_NAME}")
+            message(WARNING "Brak plików .cpp w ${COMP_NAME}, pomijam.")
         endif()
     endif()
 endforeach()

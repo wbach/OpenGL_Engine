@@ -272,6 +272,7 @@ void GameObject::RemoveComponent()
         for (const auto& component : components_.at(type.id))
         {
             component->CleanUp();
+            component->Deregister();
         }
         components_.erase(type.id);
     }

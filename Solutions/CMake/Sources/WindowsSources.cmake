@@ -86,7 +86,7 @@ if(MINGW)
         )
 
     link_directories(
-        ../../Tools/Windows/fbx_sdk/lib/vs2017/x64/release
+       # ../../Tools/Windows/fbx_sdk/lib/vs2017/x64/release
       #  ../../Tools/Windows/assimp-5.0.1/lib/x64/release
         ../../Tools/Windows/GL
         ../../Tools/Windows/glew-2.1.0/lib/Release/x64

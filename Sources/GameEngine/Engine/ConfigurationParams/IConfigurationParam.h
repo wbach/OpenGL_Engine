@@ -4,12 +4,13 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include <EngineApi.h>
 
 namespace GameEngine
 {
 namespace Params
 {
-class IConfigurationParam
+class ENGINE_API IConfigurationParam
 {
 public:
     virtual ~IConfigurationParam() = default;

@@ -27,7 +27,11 @@ std::unique_ptr<IComponent> ComponentFactory::Create(const TreeNode& node, GameO
     if (not componentName.empty())
     {
         if (auto creationFunc = ReadFunctions::instance().get(componentName))
-            return creationFunc(context_, node, gameObject);
+        {
+            auto component = creationFunc(context_, node, gameObject);
+            component->Register();
+            return component;
+        }
 
         LOG_WARN << "Read function not find for component name : " << componentName;
     }
@@ -37,7 +41,11 @@ std::unique_ptr<IComponent> ComponentFactory::Create(const TreeNode& node, GameO
     }
 
     if (auto creationFunc = ReadFunctions::instance().get(GetComponentType<UnknownExternalComponent>().name))
-        return creationFunc(context_, node, gameObject);
+    {
+        auto component = creationFunc(context_, node, gameObject);
+        component->Register();
+        return component;
+    }
 
     return nullptr;
 }

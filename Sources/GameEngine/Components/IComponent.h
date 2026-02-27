@@ -45,7 +45,7 @@ enum class FieldType
     ConstMapOfMaterials
 };
 
-struct FieldInfo
+struct ENGINE_API FieldInfo
 {
     std::string name{""};
     FieldType type{FieldType::Int};
@@ -58,10 +58,12 @@ struct FieldInfo
 
 typedef std::string ParamName;
 
-class IComponent
+class ENGINE_API IComponent
 {
 public:
     virtual ~IComponent()                                                     = default;
+    virtual void Register()                                                   = 0;
+    virtual void Deregister()                                                 = 0;
     virtual void CleanUp()                                                    = 0;
     virtual void Reload()                                                     = 0;
     virtual void ReqisterFunctions()                                          = 0;

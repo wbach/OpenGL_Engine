@@ -14,7 +14,7 @@ namespace GameEngine
 class ICamera;
 class IProjection;
 
-class CameraManager
+class ENGINE_API CameraManager
 {
 public:
     using NotOwnedCameras = std::unordered_map<IdType, ICamera*>;

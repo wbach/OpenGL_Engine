@@ -43,7 +43,9 @@ public:
     template <typename Component, typename... Args>
     std::unique_ptr<IComponent> Create(GameObject& gameObject, Args&&... args)
     {
-        return std::make_unique<Component>(context_, gameObject, std::forward<Args>(args)...);
+        auto component = std::make_unique<Component>(context_, gameObject, std::forward<Args>(args)...);
+        component->Register();
+        return component;
     }
 
     std::unique_ptr<IComponent> Create(const TreeNode&, GameObject&);

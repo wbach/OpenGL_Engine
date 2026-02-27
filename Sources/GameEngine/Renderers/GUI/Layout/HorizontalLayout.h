@@ -3,7 +3,7 @@
 
 namespace GameEngine
 {
-class HorizontalLayout : public Layout
+class ENGINE_API HorizontalLayout : public Layout
 {
 public:
     HorizontalLayout();

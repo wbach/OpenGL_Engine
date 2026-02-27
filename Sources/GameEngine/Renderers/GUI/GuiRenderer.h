@@ -13,7 +13,7 @@ namespace GameEngine
 {
 struct Time;
 
-class GUIRenderer
+class ENGINE_API GUIRenderer
 {
 public:
     GUIRenderer(GraphicsApi::IGraphicsApi&);

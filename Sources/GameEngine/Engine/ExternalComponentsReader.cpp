@@ -4,14 +4,15 @@
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
+#include <filesystem>
 
 #include "Configuration.h"
 #include "GameEngine/Components/ComponentType.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/IComponent.h"
+#include "GameEngine/Components/RegisterComponentWrapper.h"
 #include "GameEngine/Components/UnknownExternalComponent.h"
 #include "GameEngine/Resources/File.h"
-#include <filesystem>
 
 #ifdef USE_GNU
 #include <dlfcn.h>
@@ -27,7 +28,7 @@
 #include <filesystem>
 #include <unordered_map>
 
-typedef const char* (*registerReadFunction)();
+typedef const char* (*registerReadFunction)(RegisterComponentWrapper&);
 
 namespace
 {
@@ -108,6 +109,7 @@ ExternalComponentsReader::~ExternalComponentsReader()
         removeAllInstanceOfComponent(lib.type.id);
         Components::unregsiterComponentReadFunction(lib.type.name);
 
+        LOG_DEBUG << "Unload : " << lib.type.name;
         UnloadLib(lib.handle);
 
         removeCachedFile(lib.cachedName);
@@ -127,45 +129,69 @@ void ExternalComponentsReader::LoadAll()
 
 void ExternalComponentsReader::LoadSingle(const std::filesystem::path& inputFile)
 {
-    LOG_DEBUG << "Component file detected : " << inputFile;
-    if (not std::filesystem::exists(inputFile))
+    try
     {
-        return;
-    }
-
-    auto file = EngineLocalConf.files.getProjectPath() / EngineLocalConf.files.getCacheDirPath() /
-                (Utils::CreateUniqueFilename() + "_" + std::filesystem::path(inputFile).filename().string());
-    std::filesystem::copy(inputFile, file, std::filesystem::copy_options::overwrite_existing);
-    LOG_DEBUG << "LoadLib cached: " << file;
-    LibHandle handle = LoadLib(file);
-    if (handle)
-    {
-        auto symbol = GetSymbol(handle, "registerReadFunction");
-        if (not symbol)
+        LOG_DEBUG << "Component file detected : " << inputFile;
+        if (not std::filesystem::exists(inputFile))
         {
-            LOG_ERROR << "dlsym failed: " << LastLibError();
             return;
         }
 
-        auto func = reinterpret_cast<registerReadFunction>(symbol);
-        if (func)
+        auto temp_dir = std::filesystem::temp_directory_path();
+        auto file     = temp_dir / "GameEngine_ShadowCopy";
+        std::filesystem::create_directories(file);
+        file = file / (Utils::CreateUniqueFilename() + "_" + std::filesystem::path(inputFile).filename().string());
+
+        std::filesystem::copy(inputFile, file, std::filesystem::copy_options::overwrite_existing);
+        LOG_DEBUG << "LoadLib cached: " << file;
+
+        LibHandle handle = LoadLib(file);
+        if (handle)
         {
-            auto name = func();
-            auto id   = Components::getComponentTypeIdByName(name);
-            externalLibs.insert(
-                {inputFile,
-                 ComponentLib{.type = {.id = *id, .name = name}, .cachedName = file.filename().string(), .handle = handle}});
+            auto symbol = GetSymbol(handle, "registerReadFunction");
+            if (not symbol)
+            {
+                LOG_ERROR << "dlsym failed: " << LastLibError();
+                return;
+            }
+
+            auto func = reinterpret_cast<registerReadFunction>(symbol);
+            if (func)
+            {
+                RegisterComponentWrapper wrapper;
+                auto name = func(wrapper);
+
+                Components::ComponentReadFunction safeFunction =
+                    [rawFunc = wrapper.readFunc](GameEngine::Components::ComponentContext& ctx, const TreeNode& node,
+                                                 GameEngine::GameObject& obj) -> std::unique_ptr<Components::IComponent>
+                {
+                    Components::IComponent* rawPtr = rawFunc(ctx, node, obj);
+                    return std::unique_ptr<Components::IComponent>(rawPtr);
+                };
+
+                Components::regsiterComponentReadFunction({.id = wrapper.id, .name = name}, safeFunction);
+                auto id = Components::getComponentTypeIdByName(name);
+
+                LOG_DEBUG << "registerReadFunction detected. Detected componenent name : " << name;
+                externalLibs.insert(
+                    {inputFile,
+                     ComponentLib{.type = {.id = *id, .name = name}, .cachedName = file.filename().string(), .handle = handle}});
+            }
+            else
+            {
+                LOG_WARN << "GetSymbol registerReadFunction " << inputFile << " failed : " << LastLibError();
+                std::filesystem::remove(file);
+            }
         }
         else
         {
-            LOG_WARN << "GetSymbol registerReadFunction " << inputFile << " failed : " << LastLibError();
+            LOG_WARN << "Open lib " << file << " failed : " << LastLibError();
             std::filesystem::remove(file);
         }
     }
-    else
+    catch (const std::filesystem::filesystem_error& e)
     {
-        LOG_WARN << "Open lib " << inputFile << " failed : " << LastLibError();
-        std::filesystem::remove(file);
+        LOG_ERROR << "Filesystem error during shadow copy: " << e.what();
     }
 }
 
@@ -210,8 +236,7 @@ void ExternalComponentsReader::reloadUnknownComponents()
         if (not unknowComponent)
             continue;
 
-        auto iter = std::find_if(externalLibs.begin(), externalLibs.end(),
-                                 [&unknowComponent](const auto& externalLibPair)
+        auto iter = std::find_if(externalLibs.begin(), externalLibs.end(), [&unknowComponent](const auto& externalLibPair)
                                  { return externalLibPair.second.type.name == unknowComponent->GetOrginalComponentName(); });
 
         if (iter != externalLibs.end())
@@ -258,7 +283,11 @@ void ExternalComponentsReader::removeCachedFile(const std::filesystem::path& cac
 std::vector<std::filesystem::path> ExternalComponentsReader::getAllComponentFiles() const
 {
     LOG_DEBUG << "Check for ExternalComponents";
+#ifdef USE_GNU
     std::string libExtension{".so"};
+#else
+    std::string libExtension{".dll"};
+#endif
     const auto componentsDir = EngineLocalConf.files.getDataPath() / "Components";
     if (not Utils::DirectoryExist(componentsDir))
     {
@@ -318,6 +347,7 @@ std::vector<ExternalComponentsReader::ComponentInstance> ExternalComponentsReade
                 TreeNode node("component");
                 component->write(node);
                 result.push_back(ComponentInstance{.gameObject = gameObject, .nodeToRestore = std::move(node)});
+                LOG_DEBUG << "Remove component instance";
                 gameObject.RemoveComponent(type);
             }
 
@@ -358,6 +388,6 @@ void ExternalComponentsReader::recreateAllInstancesOfComponent(const std::vector
 
 std::ostream& operator<<(std::ostream& os, const GameEngine::ExternalComponentsReader::ComponentInstance& instance)
 {
-    os << "ComponentInstance gameOBject(" << instance.gameObject.GetId() << ") name=" << instance.gameObject.GetName();
+    os << "ComponentInstance gameObject(" << instance.gameObject.GetId() << ") name=" << instance.gameObject.GetName();
     return os;
 }

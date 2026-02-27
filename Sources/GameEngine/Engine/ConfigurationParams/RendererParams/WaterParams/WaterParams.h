@@ -7,7 +7,7 @@ namespace GameEngine
 {
 namespace Params
 {
-struct Water
+struct ENGINE_API Water
 {
     Water();
     ConfigurationParam<WaterType> type;

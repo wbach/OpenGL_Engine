@@ -14,7 +14,7 @@ namespace GameEngine
 {
 namespace Params
 {
-class Files
+class ENGINE_API Files
 {
 public:
     const std::filesystem::path& getProjectPath() const;
@@ -46,7 +46,7 @@ private:
     std::filesystem::path generated;
 };
 
-struct DebugParams
+struct ENGINE_API DebugParams
 {
     DebugParams();
     LineMeshVisualizatorParams linemeshVisualizator;
@@ -58,7 +58,7 @@ struct DebugParams
 };
 }  // namespace Params
 
-struct GlobalConfiguration
+struct ENGINE_API GlobalConfiguration
 {
     std::string filename;
     Params::Sound sound;
@@ -68,7 +68,7 @@ struct GlobalConfiguration
     bool useBinaryLoading = false;
 };
 
-struct LocalConfiguration
+struct ENGINE_API LocalConfiguration
 {
     std::string filename;
     Params::Files files;

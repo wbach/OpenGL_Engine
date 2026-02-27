@@ -5,7 +5,7 @@
 
 namespace GameEngine
 {
-class GuiLayer
+class ENGINE_API GuiLayer
 {
 public:
     GuiLayer();

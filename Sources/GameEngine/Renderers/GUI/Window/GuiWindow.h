@@ -10,7 +10,7 @@ namespace GameEngine
 {
 const float GUI_WINDOW_BAR_HEIGHT{0.05f};
 
-class GuiWindowElement : public GuiElement
+class ENGINE_API GuiWindowElement : public GuiElement
 {
 public:
     GuiWindowElement(GuiWindowStyle style, Input::InputManager& inputManager);

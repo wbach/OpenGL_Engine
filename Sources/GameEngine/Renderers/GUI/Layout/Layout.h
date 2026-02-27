@@ -8,7 +8,7 @@
 
 namespace GameEngine
 {
-class Layout : public GuiElement
+class ENGINE_API Layout : public GuiElement
 {
 public:
     enum class Algin
