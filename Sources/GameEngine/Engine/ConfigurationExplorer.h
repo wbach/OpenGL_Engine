@@ -1,6 +1,7 @@
 #pragma once
 #include <EngineApi.h>
 
+#include <functional>
 #include <string>
 #include <vector>
 

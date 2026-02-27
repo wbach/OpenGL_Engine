@@ -27,6 +27,12 @@ struct Component : public IComponent
         : type{type}
     {
     }
+    void Register() override
+    {
+    }
+    void Deregister() override
+    {
+    }
     void CleanUp() override
     {
     }
