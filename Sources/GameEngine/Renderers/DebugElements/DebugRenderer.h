@@ -88,6 +88,7 @@ public:
         Normals,
         BoundingBox,
         ViewSelection,
+        BrushVisualization,
         Ray
     };
 
@@ -118,6 +119,7 @@ public:
     void AddTextureToRender(GraphicsApi::ID id);
     void RemoveTextureToRender(GraphicsApi::ID id);
     void ViewSelection(GameObject&);
+    void VisualizationBrush(const vec3&, float);
 
 private:
     void CreateDebugObjects();
@@ -136,6 +138,7 @@ private:
     LineMeshVisualizator boundingBoxVisualizator_;
     LineMeshVisualizator rayVisualizator_;
     LineMeshVisualizator selectionViewer_;
+    LineMeshVisualizator brushVisualization_;
 
     ShaderProgram debugObjectShader_;
     ShaderProgram gridShader_;
@@ -160,6 +163,8 @@ private:
 
     std::vector<GraphicsApi::ID> texturesToRender;
 
+    vec3 brushPos{0.f};
+    float brushRadius{0.f};
     GameObject* objectSelection{nullptr};
 };
 

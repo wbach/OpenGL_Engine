@@ -45,6 +45,7 @@
 #include "DebugTools/Painter/SlopeHeightPainter.h"
 #include "DebugTools/Painter/SmoothingHeightPainter.h"
 #include "Input/KeyCodes.h"
+#include "Renderers/DebugElements/DebugRenderer.h"
 #include "TerrainSelectionDialog.h"
 #include "TextureButton.h"
 #include "TexturePickerPopup.h"
@@ -1300,19 +1301,6 @@ void TerrainToolPanel::ImportFromMesh()
     }
 }
 
-GameEngine::GameObject* TerrainToolPanel::createPainterVisualizationObject()
-{
-    auto& resourceManager = scene.GetResourceManager();
-    auto model            = resourceManager.GetPrimitives(GameEngine::PrimitiveType::Sphere);
-    auto obj              = scene.CreateGameObject(std::string("TerrainHeightPainterVisualization"));
-    obj->AddComponent<GameEngine::Components::RendererComponent>().AddModel(model).AddCustomMaterial(
-        GameEngine::Material{.diffuse = Color(120, 205, 255)});
-    auto result = obj.get();
-    result->SetLocalPosition(vec3(std::numeric_limits<float>::max()));
-    scene.AddGameObject(std::move(obj));
-    return result;
-}
-
 void TerrainToolPanel::OnUpdatePainterParam()
 {
     if (painterFields.terrainPainter_)
@@ -1377,8 +1365,9 @@ void TerrainToolPanel::DisablePainter()
     painterFields.terrainPainter_.reset();
     painterFields.enableDisablePainterButton->SetLabelText("Enable " + painterFields.painterTypeCtrl->GetValue() + " painter");
 
-    if (visualizationObject)
-        visualizationObject->SetWorldPosition(vec3(std::numeric_limits<float>::max()));
+    auto engineContext  = scene.getEngineContext();
+    auto& debugRenderer = engineContext->GetRenderersManager().GetDebugRenderer();
+    debugRenderer.RemoveState(GameEngine::DebugRenderer::RenderState::BrushVisualization);
 }
 
 std::unique_ptr<GameEngine::TexturePainter> TerrainToolPanel::CreateTexturePainter()
@@ -1400,14 +1389,13 @@ std::unique_ptr<GameEngine::TexturePainter> TerrainToolPanel::CreateTexturePaint
                                                      std::move(circleBrush), *texturePainterFields.selectedTextureFile);
 
     painter->SetOnPointChange(
-        [this](const auto& terrainPoint)
+        [this, radius](const auto& terrainPoint)
         {
-            // if (terrainPoint)
-            //     visualizationObject->SetWorldPosition(terrainPoint->pointOnTerrain);
-            // else
-            //     visualizationObject->SetWorldPosition(vec3(std::numeric_limits<float>::max()));
+            auto engineContext  = scene.getEngineContext();
+            auto& debugRenderer = engineContext->GetRenderersManager().GetDebugRenderer();
+            auto pos            = terrainPoint ? terrainPoint->pointOnTerrain : vec3(std::numeric_limits<float>::max());
+            debugRenderer.VisualizationBrush(pos, radius.value);
 
-            auto engineContext      = scene.getEngineContext();
             auto lmouseKeyIsPressed = engineContext->GetInputManager().GetMouseKey(KeyCodes::LMOUSE);
 
             auto& map = painterFields.texturePainterFields.textureCommandEntriesMap;
@@ -1473,21 +1461,15 @@ std::unique_ptr<GameEngine::HeightPainter> TerrainToolPanel::CreateHeightPainter
         heightPainter = std::make_unique<GameEngine::HeightPainter>(GetPainterDependencies(scene), std::move(circleBrush));
     }
 
-    if (not visualizationObject)
-        visualizationObject = createPainterVisualizationObject();
-
-    visualizationObject->SetWorldScale(vec3(radius.value, 0.1f, radius.value));
-
     heightPainter->SetOnPointChange(
-        [this](const auto& terrainPoint)
+        [this, radius](const auto& terrainPoint)
         {
-            if (terrainPoint)
-                visualizationObject->SetWorldPosition(terrainPoint->pointOnTerrain);
-            else
-                visualizationObject->SetWorldPosition(vec3(std::numeric_limits<float>::max()));
+            auto engineContext  = scene.getEngineContext();
+            auto& debugRenderer = engineContext->GetRenderersManager().GetDebugRenderer();
+            auto pos            = terrainPoint ? terrainPoint->pointOnTerrain : vec3(std::numeric_limits<float>::max());
+            debugRenderer.VisualizationBrush(pos, radius.value);
 
             auto& snapshot          = painterFields.heightPainterFields.snapshot;
-            auto engineContext      = scene.getEngineContext();
             auto lmouseKeyIsPressed = engineContext->GetInputManager().GetMouseKey(KeyCodes::LMOUSE);
             if (not snapshot and lmouseKeyIsPressed)
             {

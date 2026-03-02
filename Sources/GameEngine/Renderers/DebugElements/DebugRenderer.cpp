@@ -31,6 +31,60 @@ struct ColorBuffer
 {
     AlignWrapper<vec4> color;
 };
+GraphicsApi::LineMesh CreateTerrainBrushCircle(const glm::vec3& center, float radius, int segments, const glm::vec4& color)
+{
+    GraphicsApi::LineMesh mesh;
+
+    // Zabezpieczenie przed zbyt małą liczbą segmentów
+    if (segments < 3)
+        segments = 3;
+
+    // Generujemy punkty okręgu
+    std::vector<glm::vec3> points;
+    for (int i = 0; i < segments; ++i)
+    {
+        // Obliczamy kąt dla danego punktu (w radianach)
+        float angle = (static_cast<float>(i) / static_cast<float>(segments)) * 2.0f * 3.14159265359f;
+
+        // Obliczamy pozycję w lokalnej płaszczyźnie XZ i dodajemy środek (center)
+        float x = center.x + std::cos(angle) * radius;
+        float z = center.z + std::sin(angle) * radius;
+        float y = center.y;  // Wysokość pędzla (możesz tu dodać lekki offset +0.01f, żeby nie przenikał terenu)
+
+        points.push_back(glm::vec3(x, y, z));
+    }
+
+    // Łączymy punkty w krawędzie (GL_LINES)
+    for (int i = 0; i < segments; ++i)
+    {
+        // Punkt bieżący
+        glm::vec3 p1 = points[i];
+        // Punkt następny (z domknięciem pętli do punktu 0)
+        glm::vec3 p2 = points[(i + 1) % segments];
+
+        // Dodajemy pierwszą połowę linii (p1)
+        mesh.positions_.push_back(p1.x);
+        mesh.positions_.push_back(p1.y);
+        mesh.positions_.push_back(p1.z);
+
+        mesh.colors_.push_back(color.r);
+        mesh.colors_.push_back(color.g);
+        mesh.colors_.push_back(color.b);
+        mesh.colors_.push_back(color.a);
+
+        // Dodajemy drugą połowę linii (p2)
+        mesh.positions_.push_back(p2.x);
+        mesh.positions_.push_back(p2.y);
+        mesh.positions_.push_back(p2.z);
+
+        mesh.colors_.push_back(color.r);
+        mesh.colors_.push_back(color.g);
+        mesh.colors_.push_back(color.b);
+        mesh.colors_.push_back(color.a);
+    }
+
+    return mesh;
+}
 GraphicsApi::LineMesh CreateLineMeshFromBoundingBox(const GameEngine::BoundingBox& box, const glm::vec3& color = glm::vec3(1.0f))
 {
     GraphicsApi::LineMesh mesh;
@@ -192,6 +246,7 @@ DebugRenderer::DebugRenderer(RendererContext& rendererContext, Utils::Thread::IT
     , boundingBoxVisualizator_(rendererContext.graphicsApi_, threadSync)
     , rayVisualizator_(rendererContext.graphicsApi_, threadSync)
     , selectionViewer_(rendererContext.graphicsApi_, threadSync)
+    , brushVisualization_(rendererContext.graphicsApi_, threadSync)
     , debugObjectShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::DebugObject)
     , gridShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::Grid)
     , debugNormalShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::DebugNormal)
@@ -221,6 +276,19 @@ void DebugRenderer::init()
     debugNormalShader_.Init();
     textureShader_.Init();
     selectionViewer_.Init();
+    brushVisualization_.Init();
+
+    brushVisualization_.SetMeshCreationFunction(
+        [&]() -> const GraphicsApi::LineMesh&
+        {
+            static GraphicsApi::LineMesh result;
+            result.positions_.clear();
+            result.colors_.clear();
+
+            auto lineMesh = CreateTerrainBrushCircle(brushPos, brushRadius, 12, vec4(1, 0, 0, 1.f));
+            result        = appendLineMesh(result, lineMesh);
+            return result;
+        });
 
     selectionViewer_.SetMeshCreationFunction(
         [&]() -> const GraphicsApi::LineMesh&
@@ -381,6 +449,7 @@ void DebugRenderer::reloadShaders()
     rayVisualizator_.ReloadShader();
     debugNormalShader_.Reload();
     selectionViewer_.ReloadShader();
+    brushVisualization_.ReloadShader();
 }
 
 void DebugRenderer::render()
@@ -404,6 +473,9 @@ void DebugRenderer::render()
                 break;
             case RenderState::ViewSelection:
                 selectionViewer_.Render();
+                break;
+            case RenderState::BrushVisualization:
+                brushVisualization_.Render();
                 break;
             case RenderState::Normals:
                 DrawNormals();
@@ -758,6 +830,7 @@ void DebugRenderer::cleanUp()
     boundingBoxVisualizator_.Cleanup();
     rayVisualizator_.Cleanup();
     selectionViewer_.Cleanup();
+    brushVisualization_.Cleanup();
 
     debugObjectShader_.Clear();
     gridShader_.Clear();
@@ -792,5 +865,11 @@ void DebugRenderer::ViewSelection(GameObject& gameObject)
 {
     objectSelection = &gameObject;
     AddState(RenderState::ViewSelection);
+}
+void DebugRenderer::VisualizationBrush(const vec3& p, float r)
+{
+    brushRadius = r;
+    brushPos    = p;
+    AddState(RenderState::BrushVisualization);
 }
 }  // namespace GameEngine

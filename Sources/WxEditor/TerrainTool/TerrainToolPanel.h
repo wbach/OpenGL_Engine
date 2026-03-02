@@ -76,7 +76,6 @@ private:
     std::unique_ptr<GameEngine::PlantPainter> CreatePlantPainter();
     void OnUpdatePainterParam();
     void SelectedPainterTexture(wxMouseEvent&);
-    GameEngine::GameObject* createPainterVisualizationObject();
     void GeneratePlantsBasedOnTerrainTexture();
     void GeneratePlantsBasedOnTerrainSpecyfic();
 
@@ -152,8 +151,6 @@ private:
     GeneratorFields generatorFields;
     std::optional<IdType> sceneEventSubId;
     std::optional<IdType> escapeSubId;
-
-    GameEngine::GameObject* visualizationObject{nullptr};
 
     wxDECLARE_EVENT_TABLE();
 };
