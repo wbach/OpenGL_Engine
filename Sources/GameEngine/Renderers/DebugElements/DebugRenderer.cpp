@@ -82,6 +82,36 @@ GraphicsApi::LineMesh CreateLineMeshFromBoundingBox(const GameEngine::BoundingBo
 
     return mesh;
 }
+GraphicsApi::LineMesh CreateWorldSpaceBoundingBox(const glm::mat4& worldTransform, const glm::vec4& color)
+{
+    GraphicsApi::LineMesh mesh;
+
+    glm::vec3 localV[8] = {{-0.5f, -0.5f, -0.5f}, {0.5f, -0.5f, -0.5f}, {0.5f, 0.5f, -0.5f}, {-0.5f, 0.5f, -0.5f},
+                           {-0.5f, -0.5f, 0.5f},  {0.5f, -0.5f, 0.5f},  {0.5f, 0.5f, 0.5f},  {-0.5f, 0.5f, 0.5f}};
+
+    glm::vec3 worldV[8];
+    for (int i = 0; i < 8; ++i)
+    {
+        worldV[i] = glm::vec3(worldTransform * glm::vec4(localV[i], 1.0f));
+    }
+
+    std::vector<int> indices = {0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7};
+
+    for (int idx : indices)
+    {
+        mesh.positions_.push_back(worldV[idx].x);
+        mesh.positions_.push_back(worldV[idx].y);
+        mesh.positions_.push_back(worldV[idx].z);
+
+        // Kolory
+        mesh.colors_.push_back(color.r);
+        mesh.colors_.push_back(color.g);
+        mesh.colors_.push_back(color.b);
+        mesh.colors_.push_back(color.a);
+    }
+
+    return mesh;
+}
 GraphicsApi::LineMesh MakeRayLineMesh(const glm::vec3& cameraPos, const glm::vec3& rayDir, float length = 100.0f,
                                       int segments = 10, const glm::vec3& color = glm::vec3(1.0f, 1.0f, 0.0f))
 {
@@ -161,6 +191,7 @@ DebugRenderer::DebugRenderer(RendererContext& rendererContext, Utils::Thread::IT
     , physicsVisualizator_(rendererContext.graphicsApi_, threadSync)
     , boundingBoxVisualizator_(rendererContext.graphicsApi_, threadSync)
     , rayVisualizator_(rendererContext.graphicsApi_, threadSync)
+    , selectionViewer_(rendererContext.graphicsApi_, threadSync)
     , debugObjectShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::DebugObject)
     , gridShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::Grid)
     , debugNormalShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::DebugNormal)
@@ -189,6 +220,37 @@ void DebugRenderer::init()
     gridShader_.Init();
     debugNormalShader_.Init();
     textureShader_.Init();
+    selectionViewer_.Init();
+
+    selectionViewer_.SetMeshCreationFunction(
+        [&]() -> const GraphicsApi::LineMesh&
+        {
+            static GraphicsApi::LineMesh result;
+            result.positions_.clear();
+            result.colors_.clear();
+
+            if (objectSelection)
+            {
+                GraphicsApi::LineMesh lineMesh;
+                if (auto rc = objectSelection->GetComponent<Components::RendererComponent>())
+                {
+                    lineMesh = CreateLineMeshFromBoundingBox(rc->getWorldSpaceBoundingBox(), vec4(1, 0, 0, 1.f));
+                }
+                else if (auto rc = objectSelection->GetComponent<Components::TreeRendererComponent>())
+                {
+                    lineMesh = CreateLineMeshFromBoundingBox(rc->GetWorldBoundingBox(), vec4(1, 0, 0, 1.f));
+                }
+                else
+                {
+                    lineMesh = CreateWorldSpaceBoundingBox(objectSelection->GetWorldTransform().CalculateCurrentMatrix(),
+                                                           vec4(1, 0, 0, 1.f));
+                }
+
+                result = appendLineMesh(result, lineMesh);
+            }
+
+            return result;
+        });
 
     boundingBoxVisualizator_.SetMeshCreationFunction(
         [&]() -> const GraphicsApi::LineMesh&
@@ -318,6 +380,7 @@ void DebugRenderer::reloadShaders()
     boundingBoxVisualizator_.ReloadShader();
     rayVisualizator_.ReloadShader();
     debugNormalShader_.Reload();
+    selectionViewer_.ReloadShader();
 }
 
 void DebugRenderer::render()
@@ -338,6 +401,9 @@ void DebugRenderer::render()
                 break;
             case RenderState::Ray:
                 rayVisualizator_.Render();
+                break;
+            case RenderState::ViewSelection:
+                selectionViewer_.Render();
                 break;
             case RenderState::Normals:
                 DrawNormals();
@@ -404,6 +470,12 @@ void DebugRenderer::unSubscribe(GameObject& gameObject)
     {
         meshDebugInfoSubscribers_.erase(iter);
     }
+
+    if (objectSelection and objectSelection->GetId() == gameObject.GetId())
+    {
+        objectSelection = nullptr;
+        RemoveState(RenderState::ViewSelection);
+    }
 }
 
 void DebugRenderer::unSubscribe(const Components::IComponent& inputComponent)
@@ -435,12 +507,21 @@ void DebugRenderer::unSubscribe(const Components::IComponent& inputComponent)
     {
         meshDebugInfoSubscribers_.erase(id);
     }
+
+    const auto& gameObject = inputComponent.getParentGameObject();
+    if (objectSelection and objectSelection->GetId() == gameObject.GetId())
+    {
+        objectSelection = nullptr;
+        RemoveState(RenderState::ViewSelection);
+    }
 }
 
 void DebugRenderer::unSubscribeAll()
 {
     std::lock_guard<std::mutex> lk(meshInfoDebugObjectsMutex_);
     meshDebugInfoSubscribers_.clear();
+    objectSelection = nullptr;
+    RemoveState(RenderState::ViewSelection);
 }
 
 void DebugRenderer::renderTextures(const std::vector<GraphicsApi::ID>& textures)
@@ -676,6 +757,7 @@ void DebugRenderer::cleanUp()
     physicsVisualizator_.Cleanup();
     boundingBoxVisualizator_.Cleanup();
     rayVisualizator_.Cleanup();
+    selectionViewer_.Cleanup();
 
     debugObjectShader_.Clear();
     gridShader_.Clear();
@@ -705,5 +787,10 @@ void DebugRenderer::cleanUp()
         rendererContext_.graphicsApi_.DeleteShaderBuffer(*meshDebugPerObjectBufferId_);
         meshDebugPerObjectBufferId_.reset();
     }
+}
+void DebugRenderer::ViewSelection(GameObject& gameObject)
+{
+    objectSelection = &gameObject;
+    AddState(RenderState::ViewSelection);
 }
 }  // namespace GameEngine

@@ -5,6 +5,7 @@
 
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
+#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/DebugElements/LineMeshVisualizator.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Resources/ShaderBufferObject.h"
@@ -64,13 +65,14 @@ struct DebugObject
     bool toUpdate_;
 };
 
+using DebugMeshInfoComponent = std::variant<const Components::RendererComponent*, const Components::TerrainRendererComponent*,
+                                            const Components::TreeRendererComponent*>;
+
 struct DebugMeshInfo
 {
     std::reference_wrapper<const GameObject> gameObject;
     std::reference_wrapper<const ModelWrapper> modelWrapper;
-    std::variant<const Components::RendererComponent*, const Components::TerrainRendererComponent*,
-                 const Components::TreeRendererComponent*>
-        component;
+    DebugMeshInfoComponent component;
 };
 
 // typedef std::vector<DebugRendererSubscriber> DebugRendererSubscribers;
@@ -85,6 +87,7 @@ public:
         Objects,
         Normals,
         BoundingBox,
+        ViewSelection,
         Ray
     };
 
@@ -114,6 +117,7 @@ public:
     void clearDebugObjects();
     void AddTextureToRender(GraphicsApi::ID id);
     void RemoveTextureToRender(GraphicsApi::ID id);
+    void ViewSelection(GameObject&);
 
 private:
     void CreateDebugObjects();
@@ -131,6 +135,7 @@ private:
     LineMeshVisualizator physicsVisualizator_;
     LineMeshVisualizator boundingBoxVisualizator_;
     LineMeshVisualizator rayVisualizator_;
+    LineMeshVisualizator selectionViewer_;
 
     ShaderProgram debugObjectShader_;
     ShaderProgram gridShader_;
@@ -154,6 +159,8 @@ private:
     std::vector<RenderState> stashedStates_;
 
     std::vector<GraphicsApi::ID> texturesToRender;
+
+    GameObject* objectSelection{nullptr};
 };
 
 }  // namespace GameEngine

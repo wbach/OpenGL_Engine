@@ -1395,6 +1395,7 @@ void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
     {
         LOG_DEBUG << "go";
         LOG_DEBUG << "id =" << go->GetId();
+        canvas->GetEngine().GetEngineContext().GetRenderersManager().GetDebugRenderer().ViewSelection(*go);
         UpdateGameObjectIdOnTransfromLabel(go->GetId());
         worldTransformPanel->set(go->GetWorldTransform());
         localTransformPanel->set(go->GetLocalTransform());
