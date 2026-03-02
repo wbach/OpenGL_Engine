@@ -41,8 +41,17 @@ GuiTextElement::GuiTextElement(FontManager& fontManager, GUIRenderer& guiRendere
     , algin_(Algin::CENTER)
     , rendererdTextScale_(0)
 {
-    /* LOG TO FIX*/ LOG_ERROR << (text_);
+    LOG_DEBUG << text_;
     RenderText();
+}
+
+GuiTextElement::~GuiTextElement()
+{
+    if (fontId_)
+    {
+        fontManager_.closeFont(*fontId_);
+        fontId_.reset();
+    }
 }
 
 std::optional<uint32> GuiTextElement::GetTextureId() const

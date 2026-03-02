@@ -125,7 +125,9 @@ void SceneManager::SetActiveScene(uint32 id)
 
 void SceneManager::Reset()
 {
+    LOG_DEBUG << "Reset current scene";
     sceneWrapper_.Reset();
+    LOG_DEBUG << "Reset current scene done";
 }
 
 void SceneManager::UpdateScene(float dt)

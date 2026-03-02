@@ -13,6 +13,8 @@ struct ExternalComponentsReader
 {
     ExternalComponentsReader(ISceneManager&);
     ~ExternalComponentsReader();
+
+    void CleanUp();
     void LoadAll();
     void LoadSingle(const std::filesystem::path&);
     void Reload(const std::filesystem::path&);

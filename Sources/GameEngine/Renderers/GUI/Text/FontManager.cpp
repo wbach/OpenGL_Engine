@@ -49,13 +49,18 @@ uint32 getPixel(SDL_Surface *surface, int x, int y)
 
 struct FontManager::Pimpl
 {
-    std::vector<TTF_Font *> fonts_;
+    struct Font
+    {
+        TTF_Font *ptr{nullptr};
+        size_t instances{0};
+    };
+    std::unordered_map<uint32, Font> fonts_;
 
     void Clear()
     {
-        for (auto &font : fonts_)
+        for (auto &[_, font] : fonts_)
         {
-            TTF_CloseFont(font);
+            TTF_CloseFont(font.ptr);
         }
     }
 };
@@ -84,9 +89,11 @@ std::optional<uint32> FontManager::openFont(const File &filename, uint32 size)
         return std::nullopt;
 
     auto fname = filename.GetAbsolutePath().string() + std::to_string(size);
-    if (fontNameToIdMap_.count(fname) > 0)
+    auto iter  = fontNameToIdMap_.find(fname);
+    if (iter != fontNameToIdMap_.end())
     {
-        return fontNameToIdMap_.at(fname);
+        ++impl_->fonts_[iter->second].instances;
+        return iter->second;
     }
 
     auto percentFontSize = EngineConf.window.size->y * size / 768;
@@ -120,8 +127,8 @@ std::optional<uint32> FontManager::openFont(const File &filename, uint32 size)
     if (font)
     {
         // TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
-        impl_->fonts_.push_back(font);
-        auto id = static_cast<uint32>(impl_->fonts_.size());
+        auto id        = idPool.getId();
+        auto &instance = impl_->fonts_[id] = {.ptr = font, .instances = 0};
         fontNameToIdMap_.insert({fname, id});
         return id;
     }
@@ -135,13 +142,13 @@ std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, c
     if (not isInit_ or text.empty())
         return std::nullopt;
 
-    auto index = fontId - 1;
-    if (index >= impl_->fonts_.size())
+    auto iter = impl_->fonts_.find(fontId);
+    if (iter == impl_->fonts_.end())
     {
         return std::nullopt;
     }
 
-    const auto &font = impl_->fonts_[index];
+    const auto &font = iter->second;
 
     SDL_Color sdlColor;
     sdlColor.r = 255;
@@ -150,9 +157,9 @@ std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, c
     sdlColor.a = 255;
 
     if (outline > 0)
-        TTF_SetFontOutline(font, static_cast<int>(outline));
+        TTF_SetFontOutline(font.ptr, static_cast<int>(outline));
 
-    auto sdlSurface = TTF_RenderText_Blended(font, text.c_str(), sdlColor);
+    auto sdlSurface = TTF_RenderText_Blended(font.ptr, text.c_str(), sdlColor);
 
     if (not sdlSurface)
     {
@@ -186,5 +193,34 @@ std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, c
 
     SDL_FreeSurface(sdlSurface);
     return sdlSizeImage;
+}
+void FontManager::closeFont(uint32 fontId)
+{
+    auto iter = impl_->fonts_.find(fontId);
+    if (iter == impl_->fonts_.end())
+    {
+        return;
+    }
+
+    --iter->second.instances;
+
+    if (iter->second.instances <= 0)
+    {
+        LOG_DEBUG << "All instances of font are closed, closing the font";
+        TTF_CloseFont(iter->second.ptr);
+        impl_->fonts_.erase(iter);
+
+        for (auto fnIter = fontNameToIdMap_.begin(); fnIter != fontNameToIdMap_.end();)
+        {
+            if (fnIter->second == fontId)
+            {
+                fnIter = fontNameToIdMap_.erase(fnIter);
+            }
+            else
+            {
+                ++fnIter;
+            }
+        }
+    }
 }
 }  // namespace GameEngine

@@ -62,6 +62,7 @@ Scene::~Scene()
 
     if (guiManager_)
     {
+        guiManager_->RemoveAll();
         guiManager_.reset();
     }
 
@@ -102,6 +103,7 @@ Scene::~Scene()
         renderersManager_->UnSubscribeAll();
     }
 
+    LOG_DEBUG << "rootGameObject_ reset";
     rootGameObject_.reset();
 
     LOG_DEBUG << "destructor done";

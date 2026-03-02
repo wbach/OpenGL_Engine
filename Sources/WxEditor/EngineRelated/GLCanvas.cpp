@@ -148,6 +148,11 @@ void GLCanvas::OnIdle(wxIdleEvent& event)
 
 GLCanvas::~GLCanvas()
 {
+    if (engine)
+    {
+        engine->CleanUp();
+        engine.reset();
+    }
     delete context;
 }
 

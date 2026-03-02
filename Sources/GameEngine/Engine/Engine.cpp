@@ -200,7 +200,8 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
         });
 
     quitApiSubId_ = engineContext_.GetGraphicsApi().GetWindowApi().SubscribeForEvent(
-        [&](const auto& event) {
+        [&](const auto& event)
+        {
             std::visit(visitor{[&](const GraphicsApi::QuitEvent&) { Quit(); }, [](const GraphicsApi::DropFileEvent&) {}}, event);
         });
 }
@@ -223,6 +224,17 @@ void Engine::CheckThreadsBeforeQuit()
     }
 }
 
+void Engine::CleanUp()
+{
+    CheckThreadsBeforeQuit();
+
+    engineContext_.GetGraphicsApi().GetWindowApi().UnsubscribeForEvent(quitApiSubId_);
+    engineContext_.GetThreadSync().Unsubscribe(physicsThreadId_);
+    LOG_DEBUG_RAW << "Reset scene";
+    engineContext_.GetSceneManager().Reset();
+    engineContext_.GetGpuResourceLoader().RuntimeGpuTasks();
+}
+
 ExternalComponentsReader& Engine::getExternalComponentsReader()
 {
     return externalComponents_;
@@ -235,11 +247,7 @@ void Engine::GameLoop()
         MainLoop();
     }
 
-    CheckThreadsBeforeQuit();
-
-    engineContext_.GetGraphicsApi().GetWindowApi().UnsubscribeForEvent(quitApiSubId_);
-    engineContext_.GetThreadSync().Unsubscribe(physicsThreadId_);
-    engineContext_.GetSceneManager().Reset();
+    CleanUp();
 }
 
 ISceneManager& Engine::GetSceneManager()

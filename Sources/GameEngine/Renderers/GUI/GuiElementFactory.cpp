@@ -350,7 +350,7 @@ void GuiElementFactory::CreateWindowBar(GuiWindowStyle style, GuiWindowElement &
 
     if (style == GuiWindowStyle::FULL)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("GuiWindowElement::Style::FULL, minimalize, maxmalize buttons not implemented.");
+        LOG_DEBUG<< ("GuiWindowElement::Style::FULL, minimalize, maxmalize buttons not implemented.");
     }
 
     window.SetBar(std::move(horizontalLayout));

@@ -11,14 +11,14 @@ GuiWindowElement::GuiWindowElement(GuiWindowStyle style, Input::InputManager& in
     , inputManager_(inputManager)
     , style_(style)
 {
-    //inputSubscribtionKeyUp_ = inputManager_.SubscribeOnKeyUp(KeyCodes::LMOUSE, [&]() { collisionPoint_ = {}; });
-    //inputSubscribtionKeyDown_ = inputManager_.SubscribeOnKeyUp(KeyCodes::LMOUSE, [&]() { CheckCollisionPoint = {}; });
+    // inputSubscribtionKeyUp_ = inputManager_.SubscribeOnKeyUp(KeyCodes::LMOUSE, [&]() { collisionPoint_ = {}; });
+    // inputSubscribtionKeyDown_ = inputManager_.SubscribeOnKeyUp(KeyCodes::LMOUSE, [&]() { CheckCollisionPoint = {}; });
 }
 
 GuiWindowElement::~GuiWindowElement()
 {
-    //inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, inputSubscribtionKeyDown_);
-    //inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, inputSubscribtionKeyUp_);
+    // inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, inputSubscribtionKeyDown_);
+    // inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, inputSubscribtionKeyUp_);
     children_.clear();
 }
 
@@ -100,17 +100,18 @@ void GuiWindowElement::SetBackground(std::unique_ptr<GuiElement> background)
     background_ = std::move(background);
     background_->setParent(this);
     background_->SetZPosition(0.5f);
-    /* LOG TO FIX*/  LOG_ERROR << ("Id : " + std::to_string(GetId()));
-    /* LOG TO FIX*/  LOG_ERROR << ("BId : " + std::to_string(background_->GetId()));
-    /* LOG TO FIX*/  LOG_ERROR << ("Screen scale " + std::to_string(GetScreenScale()));
-    /* LOG TO FIX*/  LOG_ERROR << ("BScreen scale " + std::to_string(background_->GetScreenScale()));
-    /* LOG TO FIX*/  LOG_ERROR << ("Screen pos " + std::to_string(GetScreenPosition()));
-    /* LOG TO FIX*/  LOG_ERROR << ("BScreen pos " + std::to_string(background_->GetScreenPosition()));
+
+    LOG_DEBUG << "Id : " << GetId();
+    LOG_DEBUG << "BId : " << background_->GetId();
+    LOG_DEBUG << "Screen scale " << GetScreenScale();
+    LOG_DEBUG << "BScreen scale " << background_->GetScreenScale();
+    LOG_DEBUG << "Screen pos " << GetScreenPosition();
+    LOG_DEBUG << "BScreen pos " << background_->GetScreenPosition();
 }
 
 void GuiWindowElement::SetBar(std::unique_ptr<GuiElement> bar)
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("Not implemented");
+    LOG_DEBUG << ("Not implemented");
     // bar_ = std::move(bar);
     // bar_->setParent(this);
 }

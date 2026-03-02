@@ -104,6 +104,12 @@ ExternalComponentsReader::ExternalComponentsReader(ISceneManager& sceneManager)
 ExternalComponentsReader::~ExternalComponentsReader()
 {
     LOG_DEBUG << "~ExternalComponentsReader";
+    CleanUp();
+}
+
+void ExternalComponentsReader::CleanUp()
+{
+    LOG_DEBUG << "Cleanup";
     for (auto& [_, lib] : externalLibs)
     {
         removeAllInstanceOfComponent(lib.type.id);
@@ -115,6 +121,7 @@ ExternalComponentsReader::~ExternalComponentsReader()
         removeCachedFile(lib.cachedName);
     }
     externalLibs.clear();
+    LOG_DEBUG << "Cleanup done";
 }
 
 void ExternalComponentsReader::LoadAll()
@@ -361,6 +368,10 @@ std::vector<ExternalComponentsReader::ComponentInstance> ExternalComponentsReade
         {
             removeComponentsInAllGameObjectInScene(removeComponentsInAllGameObjectInScene, *gameObject);
         }
+    }
+    else
+    {
+        LOG_DEBUG << "No active scene";
     }
     return result;
 }

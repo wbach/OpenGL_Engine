@@ -26,6 +26,7 @@ GuiRendererElementBase::~GuiRendererElementBase()
     if (texture_)
     {
         resourceManager_.GetTextureLoader().DeleteTexture(*texture_);
+        texture_ = nullptr;
     }
 }
 

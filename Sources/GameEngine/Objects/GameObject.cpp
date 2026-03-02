@@ -68,11 +68,15 @@ Components::IComponent* GameObject::AddComponent(const TreeNode& node)
 
 void GameObject::RemoveComponent(Components::ComponentTypeID type)
 {
-    if (auto component = GetComponent(type))
+    auto iter = components_.find(type);
+    if (iter != components_.end())
     {
-        component->CleanUp();
-        component->Deregister();
-        components_.erase(type);
+        for (auto& component : iter->second)
+        {
+            component->CleanUp();
+            component->Deregister();
+        }
+        components_.erase(iter);
     }
 }
 
@@ -84,7 +88,6 @@ void GameObject::RemoveAllComponents()
         {
             component->CleanUp();
             component->Deregister();
-
         }
     }
     components_.clear();
@@ -490,7 +493,7 @@ Quaternion GameObject::ConvertWorldToLocalRotation(const Quaternion& rotatnion)
 void GameObject::RemoveComponent(const Components::IComponent& component)
 {
     const auto& typeId = component.GetTypeId();
-    auto it          = components_.find(typeId);
+    auto it            = components_.find(typeId);
     if (it == components_.end())
         return;
 

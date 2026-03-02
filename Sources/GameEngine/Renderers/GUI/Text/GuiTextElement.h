@@ -35,6 +35,7 @@ public:
     GuiTextElement(FontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str);
     GuiTextElement(FontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str, uint32 size);
     GuiTextElement(FontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str, uint32 size, uint32 outline);
+    ~GuiTextElement();
 
 public:
     std::optional<uint32> GetTextureId() const;

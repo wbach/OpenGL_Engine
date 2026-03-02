@@ -29,6 +29,7 @@ public:
     void GameLoop();
     void MainLoop();
     void CheckThreadsBeforeQuit();
+    void CleanUp();
     ExternalComponentsReader& getExternalComponentsReader();
     ISceneManager& GetSceneManager();
     EngineContext& GetEngineContext();
