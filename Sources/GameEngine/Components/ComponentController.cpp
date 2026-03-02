@@ -75,7 +75,7 @@ void ComponentController::UnRegisterComponent(ComponentTypeID type, ComponentId 
     }
     else
     {
-        LOG_WARN << "ComponentsType not found.";
+        LOG_WARN << "ComponentsType not found. TypeId : " << type;
     }
 }
 void ComponentController::UnRegisterFunction(ComponentController::GameObjectId gameObjectId, FunctionType type, IdType id)
@@ -378,8 +378,8 @@ std::vector<const ComponentController::ComponentFunction*> ComponentController::
                 if (existingOwners.find(dep) == existingOwners.end())
                 {
                     hasMissingDependency = true;
-                    missingMsg << "Function " << func->meta.id << " in " << func->meta.ownerType
-                               << " depends on missing " << dep << "\n";
+                    missingMsg << "Function " << func->meta.id << " in " << func->meta.ownerType << " depends on missing " << dep
+                               << "\n";
                 }
                 else
                 {

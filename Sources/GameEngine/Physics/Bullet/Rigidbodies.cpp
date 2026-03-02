@@ -23,26 +23,30 @@ void Rigidbodies::foreach (std::function<void(IdType, Rigidbody&)> f)
     dynamic_.foreach (f);
     static_.foreach (f);
 }
-void Rigidbodies::erase(IdType rigidbodyId)
+size_t Rigidbodies::erase(IdType rigidbodyId)
 {
+    size_t result{0};
     auto it = rigidbodiesStatic.find(rigidbodyId);
     if (it != rigidbodiesStatic.end())
     {
         auto& [_, isStatic] = *it;
         if (isStatic)
         {
-            static_.erase(rigidbodyId);
+            result = static_.erase(rigidbodyId);
         }
         else
         {
-            dynamic_.erase(rigidbodyId);
+            result =  dynamic_.erase(rigidbodyId);
         }
+
         rigidbodiesStatic.erase(rigidbodyId);
     }
     else
     {
         LOG_WARN << "Rigidbody not found id=" << rigidbodyId;
     }
+
+    return result;
 }
 std::optional<Rigidbodies::IsStatic> Rigidbodies::isStatic(IdType rigidbodyId) const
 {

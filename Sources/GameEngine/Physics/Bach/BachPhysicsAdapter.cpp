@@ -234,7 +234,10 @@ std::optional<vec3> BachPhysicsAdapter::GetAngularFactor(const RigidbodyId&)
 }
 void BachPhysicsAdapter::RemoveRigidBody(const RigidbodyId& id)
 {
-    impl_->rigidbodies_.erase(*id);
+    if (not id or impl_->rigidbodies_.erase(*id) == 0)
+    {
+        LOG_DEBUG << "Rigidbody not erase. Id = " << id;
+    }
 }
 void BachPhysicsAdapter::RemoveShape(const ShapeId&)
 {

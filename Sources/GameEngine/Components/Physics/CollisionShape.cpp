@@ -1,6 +1,7 @@
 #include "CollisionShape.h"
 
 #include <Logger/Log.h>
+
 #include <optional>
 
 #include "GameEngine/Components/Physics/Rigidbody.h"
@@ -33,9 +34,9 @@ void CollisionShape::CleanUp()
     {
         connectedRigidbody->CleanUp();
     }
-    else
+    else if (collisionShapeId_)
     {
-        LOG_DEBUG << "CollisionShape::CleanUp: not connected to rigidbody";
+        LOG_DEBUG << "CollisionShape::CleanUp: not connected to rigidbody. GameObject name : " << thisObject_.GetName();
         RemoveShape();
     }
 }
@@ -62,13 +63,13 @@ void CollisionShape::Reload()
 }
 void CollisionShape::Connect(Rigidbody& rigidbody)
 {
-    LOG_DEBUG << "Connecting to rigidbody " << thisObject_.GetName();
+    LOG_DEBUG << "Connecting to rigidbody. GameObject name: " << thisObject_.GetName();
     connectedRigidbody = &rigidbody;
 }
 
 void CollisionShape::Disconnect()
 {
-    LOG_DEBUG << "Disconnecting from rigidbody" << thisObject_.GetName();
+    LOG_DEBUG << "Disconnecting from rigidbody.GameObject name: " << thisObject_.GetName();
     connectedRigidbody = nullptr;
 }
 void CollisionShape::SetPostionOffset(const vec3& position)

@@ -29,11 +29,11 @@ public:
         values.insert({id, std::move(type)});
         return id;
     }
-    void erase(IdType id)
+    size_t erase(IdType id)
     {
         std::lock_guard<std::mutex> lk(mutex);
         idPool_.releaseId(id);
-        values.erase(id);
+        return values.erase(id);
     }
     Type* get(IdType id)
     {

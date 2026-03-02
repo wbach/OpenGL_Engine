@@ -57,6 +57,9 @@ BulletAdapter::BulletAdapter()
 {
     createWorld();
     impl_ = std::make_unique<BulletAdapter::Pimpl>();
+
+    tasks.reserve(1024);
+    processing.reserve(1024);
 }
 BulletAdapter::~BulletAdapter()
 {
@@ -83,6 +86,11 @@ void BulletAdapter::Simulate(float deltaTime)
         impl_->rigidbodies.dynamic_.foreach (
             [](auto, auto& rigidbody)
             {
+                if (rigidbody.isMarkedToRelease)
+                {
+                    return;
+                }
+
                 auto rotatedOffset =
                     Convert(rigidbody.btRigidbody_->getWorldTransform().getRotation()) * Convert(rigidbody.positionOffset_);
 
@@ -114,7 +122,8 @@ void BulletAdapter::Simulate(float deltaTime)
                                             predicate    = collisionDetection.predicate](const auto& collisionInfo)
                                            {
                                                auto iter1  = std::find_if(ignoredList.begin(), ignoredList.end(),
-                                                                          [&collisionInfo](auto ignoredRbId) {
+                                                                          [&collisionInfo](auto ignoredRbId)
+                                                                          {
                                                                              return ignoredRbId == collisionInfo.rigidbodyId1 or
                                                                                     ignoredRbId == collisionInfo.rigidbodyId2;
                                                                          });
@@ -281,7 +290,7 @@ ShapeId BulletAdapter::CreateMeshCollider(const PositionOffset& positionOffset, 
             }
             else
             {
-                 LOG_ERROR << "Out of range";
+                LOG_ERROR << "Out of range";
             }
         }
 
@@ -324,7 +333,7 @@ RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& g
     if (not maybeShape)
     {
         LOG_ERROR << "Shape not found";
-        return 0;
+        return std::nullopt;
     }
 
     auto& shape = **maybeShape;
@@ -476,24 +485,33 @@ void BulletAdapter::RemoveRigidBodyImpl(const RigidbodyId& rigidBodyId)
 
 void BulletAdapter::RemoveRigidBody(const RigidbodyId& id)
 {
+    if (auto maybeRb = impl_->rigidbodies.get(id))
+    {
+        maybeRb->isMarkedToRelease = true;
+    }
+
     addTask([this, id]() { RemoveRigidBodyImpl(id); });
 }
 void BulletAdapter::RemoveShape(const ShapeId& shapeId)
 {
-    if (not shapeId)
-    {
-        LOG_ERROR << "Ivalid shapeId: " << shapeId;
-        return;
-    }
+    addTask(
+        [this, shapeId]()
+        {
+            if (not shapeId)
+            {
+                LOG_ERROR << "Ivalid shapeId: " << shapeId;
+                return;
+            }
 
-    if (impl_->rigidbodies.get([&shapeId](const auto& pair) -> bool { return shapeId.value() == pair.second.shapeId; }) !=
-        nullptr)
-    {
-        LOG_WARN << "Shape removal without deleting rigidbody!";
-    }
+            if (impl_->rigidbodies.get([&shapeId](const auto& pair) -> bool { return shapeId.value() == pair.second.shapeId; }) !=
+                nullptr)
+            {
+                LOG_WARN << "Shape removal without deleting rigidbody!";
+            }
 
-    std::unordered_map<uint32, Rigidbody>::iterator iter;
-    impl_->shapes_.erase(*shapeId);
+            std::unordered_map<uint32, Rigidbody>::iterator iter;
+            impl_->shapes_.erase(*shapeId);
+        });
 }
 void BulletAdapter::SetRotation(const RigidbodyId& rigidBodyId, const vec3& rotation)
 {
@@ -686,7 +704,7 @@ void BulletAdapter::createWorld()
     btBroadPhase           = std::make_unique<btDbvtBroadphase>();
     btSolver               = std::make_unique<btSequentialImpulseConstraintSolver>();
     btDynamicWorld         = std::make_unique<btDiscreteDynamicsWorld>(btDispacher.get(), btBroadPhase.get(), btSolver.get(),
-                                                               collisionConfiguration.get());
+                                                                       collisionConfiguration.get());
     btDynamicWorld->setGravity(btVector3(0, -10, 0));
 
     bulletDebugDrawer_ = std::make_unique<BulletDebugDrawer>();
@@ -703,28 +721,32 @@ IdType BulletAdapter::addTask(Task::Action action, std::optional<IdType> reusedI
 {
     std::lock_guard<std::mutex> lk(tasksMutex);
     auto id = reusedId ? *reusedId : taskIdPool_.getId();
-    tasks.insert({id, action});
+    tasks.push_back({id, action});
     return id;
 }
 
 void BulletAdapter::removeTask(IdType id)
 {
     std::lock_guard<std::mutex> lk(tasksMutex);
-    tasks.erase(id);
+    auto iter = std::find_if(tasks.begin(), tasks.end(), [id](const auto& task) { return task.GetId() == id; });
+    if (iter != tasks.end())
+    {
+        tasks.erase(iter);
+    }
 }
 
 void BulletAdapter::executeTasks()
 {
-    Tasks tmp;
     {
         std::lock_guard<std::mutex> lk(tasksMutex);
-        tmp = std::move(tasks);
+        std::swap(processing, tasks);
     }
 
-    for (auto& [_, task] : tmp)
+    for (auto& task : processing)
     {
         task.execute();
     }
+    processing.clear();
 }
 
 }  // namespace Bullet

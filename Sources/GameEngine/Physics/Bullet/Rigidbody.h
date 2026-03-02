@@ -21,6 +21,7 @@ struct Rigidbody
 
     IdType shapeId{0};
     bool shapeOwner{false};
+    bool isMarkedToRelease{false};
 };
 }  // namespace Bullet
 }  // namespace Physics

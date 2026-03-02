@@ -72,7 +72,7 @@ void Rigidbody::Reload()
 
 void Rigidbody::RemoveRigidbody()
 {
-    LOG_DEBUG << thisObject_.GetName();
+    LOG_DEBUG << thisObject_.GetName() << ", Is init : " << rigidBodyId_.has_value();
 
     if (worldTransformSubscriptionId_)
     {

@@ -98,10 +98,11 @@ private:
     float simulationStep_;
     bool simualtePhysics_;
 
-    using Tasks = std::unordered_map<IdType, Task>;
+    using Tasks = std::vector<Task>;
     std::mutex dynamicWorldMutex;
     std::mutex tasksMutex;
     Tasks tasks;
+    Tasks processing;
 
     struct Pimpl;
     std::unique_ptr<Pimpl> impl_;

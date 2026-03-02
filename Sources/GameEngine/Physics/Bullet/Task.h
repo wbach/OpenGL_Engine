@@ -1,4 +1,6 @@
 #pragma once
+#include <Types.h>
+
 #include <functional>
 
 namespace GameEngine
@@ -12,8 +14,9 @@ struct Task
 public:
     using Action = std::function<void()>;
 
-    Task(Action action)
+    Task(IdType id, Action action)
         : action{action}
+        , id{id}
     {
     }
     void execute()
@@ -22,8 +25,14 @@ public:
             action();
     }
 
+    IdType GetId() const
+    {
+        return id;
+    }
+
 private:
     Action action;
+    IdType id;
 };
 }  // namespace Bullet
 }  // namespace Physics

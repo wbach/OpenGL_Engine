@@ -20,9 +20,8 @@ public:
     Rigidbody* get(std::function<bool(const std::pair<const IdType, Rigidbody>&)>);
     RigidbodyId insert(Rigidbody, IsStatic);
     void clear();
-    void find_if();
     void foreach (std::function<void(IdType, Rigidbody&)>);
-    void erase(IdType);
+    size_t erase(IdType);
     std::optional<IsStatic> isStatic(IdType) const;
 
 private:
