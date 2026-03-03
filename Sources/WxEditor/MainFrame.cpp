@@ -32,6 +32,7 @@
 #include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
+#include <fstream>
 #include <magic_enum/magic_enum.hpp>
 #include <memory>
 #include <string>
@@ -141,6 +142,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_FILE_EXIT, MainFrame::MenuFileExit)
     EVT_MENU(ID_MENU_EDIT_UNDO, MainFrame::MenuEditUndo)
     EVT_MENU(ID_MENU_EDIT_REDO, MainFrame::MenuEditRedo)
+    EVT_MENU(ID_MENU_EDIT_CLEAR_UNDO_STACK, MainFrame::MenuEditClearUndoStack)
     EVT_MENU(ID_MENU_EDIT_CREATE_OBJECT, MainFrame::MenuEditCreateObject)
     EVT_MENU(ID_MENU_EDIT_CREATE_TERRAIN, MainFrame::MenuEditCreateTerrain)
     EVT_MENU(ID_MENU_EDIT_CREATE_CAMERA, MainFrame::MenuEditCreateCamera)
@@ -345,8 +347,12 @@ void MainFrame::Init()
     CreateMainMenu();
     CreateToolBarForEngine();
 
-    CreateStatusBar();
-    SetStatusText("Welcome to game editor!");
+    CreateStatusBar(2);
+    SetStatusText("Welcome to game editor!", 0);
+    ramUsageRefereshTimer = new wxTimer(this, 1);
+    ramUsageRefereshTimer->Start(1000);
+
+    Bind(wxEVT_TIMER, &MainFrame::OnTimer, this, 1);
 
     SaveOsTheme(*this);
 
@@ -549,7 +555,7 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
                           if (isRunning)
                           {
                               LOG_DEBUG << "Scene loaded callback";
-                              SetStatusText("Welcome to game editor!");
+                              SetStatusText("Welcome to game editor!", 0);
                               SetTitle("Active scene : " + canvas->GetScene().GetName());
                               canvas->GetScene().GetFile() = path.GetDataRelativePath().string();
                               this->CallAfter(
@@ -565,13 +571,13 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
                                   });
                           }
                       });
-    SetStatusText("Loading file " + file.GetBaseName());
+    SetStatusText("Loading file " + file.GetBaseName(), 0);
     dlg->Show();
 }
 
 void MainFrame::MenuFileReloadScene(wxCommandEvent&)
 {
-    SetStatusText("Reloding scene " + canvas->GetScene().GetName());
+    SetStatusText("Reloding scene " + canvas->GetScene().GetName(), 0);
     ClearScene();
     gameObjectsView->UnSubscribeForSceneEvent();
     canvas->GetEngine().GetEngineContext().AddEngineEvent(
@@ -1063,6 +1069,7 @@ wxMenu* MainFrame::CreateFileMenu()
 wxMenu* MainFrame::CreateEditMenu()
 {
     wxMenu* menu = new wxMenu;
+    menu->Append(ID_MENU_EDIT_CLEAR_UNDO_STACK, "&Clear stack", "Clear stack to free memory");
     menu->Append(ID_MENU_EDIT_UNDO, "&Undo last changes\tCtrl-Z", "Revert last changes");
     menu->Append(ID_MENU_EDIT_REDO, "&Redo last canges\tCtrl-Shift-Z", "Do again last change which was reverted");
 
@@ -1248,8 +1255,6 @@ void MainFrame::CreateToolBarForEngine()
                          int minutes      = evt.GetInt();       // 0-1440
                          float normalized = minutes / 1440.0f;  // w [0.0 - 1.0]
                          canvas->GetScene().GetDayNightCycle().SetTime(normalized);
-
-                         // (opcjonalnie: update UI, np. status bar)
                          int hour   = minutes / 60;
                          int minute = minutes % 60;
                          hourCtrl->SetValue(hour);
@@ -2236,4 +2241,57 @@ void MainFrame::OnKeyUp(wxKeyEvent& event)
 void MainFrame::OnKeyDown(wxKeyEvent& event)
 {
     event.Skip();
+}
+void MainFrame::MenuEditClearUndoStack(wxCommandEvent& event)
+{
+    UndoManager::Get().Clear();
+    event.Skip();
+}
+void MainFrame::UpdateRamUsage()
+{
+    double totalGB = 0;
+    double usedGB  = 0;
+    int percent    = 0;
+
+#ifdef __WXMSW__
+    MEMORYSTATUSEX statex;
+    statex.dwLength = sizeof(statex);
+    if (GlobalMemoryStatusEx(&statex))
+    {
+        totalGB = statex.ullTotalPhys / (1024.0 * 1024.0 * 1024.0);
+        usedGB  = (statex.ullTotalPhys - statex.ullAvailPhys) / (1024.0 * 1024.0 * 1024.0);
+        percent = statex.dwMemoryLoad;
+    }
+#else
+    std::ifstream meminfo("/proc/meminfo");
+    std::string line;
+    long long memTotal     = 0;
+    long long memAvailable = 0;
+
+    while (std::getline(meminfo, line))
+    {
+        std::back_insert_iterator<std::string> res_ins(line);
+        if (line.compare(0, 9, "MemTotal:") == 0)
+        {
+            sscanf(line.c_str(), "MemTotal: %lld", &memTotal);
+        }
+        else if (line.compare(0, 13, "MemAvailable:") == 0)
+        {
+            sscanf(line.c_str(), "MemAvailable: %lld", &memAvailable);
+        }
+    }
+
+    if (memTotal > 0)
+    {
+        totalGB = memTotal / (1024.0 * 1024.0);
+        usedGB  = (memTotal - memAvailable) / (1024.0 * 1024.0);
+        percent = static_cast<int>(100.0 * (memTotal - memAvailable) / memTotal);
+    }
+#endif
+    wxString statusTekst = wxString::Format("RAM: %.2f GB / %.2f GB (%d%%)", usedGB, totalGB, percent);
+    SetStatusText(statusTekst, 1);
+}
+void MainFrame::OnTimer(wxTimerEvent& event)
+{
+    UpdateRamUsage();
 }

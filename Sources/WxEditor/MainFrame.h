@@ -75,6 +75,7 @@ private:
 
     void MenuEditUndo(wxCommandEvent&);
     void MenuEditRedo(wxCommandEvent&);
+    void MenuEditClearUndoStack(wxCommandEvent&);
     void MenuEditCreateObject(wxCommandEvent&);
     void MenuEditCreateTerrain(wxCommandEvent&);
     void MenuEditCreateMaterial(wxCommandEvent&);
@@ -189,6 +190,8 @@ private:
     void OnKeyDown(wxKeyEvent& event);
 
     void EnablePhyicsVisualizationOnSelectedObject();
+    void UpdateRamUsage();
+    void OnTimer(wxTimerEvent&);
 
 private:
     std::mutex componentsViewMutex;
@@ -223,4 +226,6 @@ private:
 
     std::optional<long> startedGameProceesId;
     bool physicsVisualizationForSelectedObject{false};
+
+    wxTimer* ramUsageRefereshTimer;
 };
