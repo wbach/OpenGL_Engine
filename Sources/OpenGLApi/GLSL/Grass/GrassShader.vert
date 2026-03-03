@@ -4,7 +4,7 @@ struct GrassInstance
 {
     vec4 position;      // xyz: pos, w: scale
     vec4 rotation;    // x: sizeX, y: sizeY, z: rotation, w: unused
-    vec4 normal;        // xyz: normal
+    vec4 normal;        // xyz: terrain normal
     vec4 colorAndSizeRandomness;         // rgb: color
 };
 
@@ -77,7 +77,7 @@ vec3 ApplyWind(vec3 offset, vec3 worldBasePos, float heightFactor)
 
     float windWaves = sin(t * 1.3 + phase) * 0.6 + sin(t * 0.7 + phase * 2.2) * 0.3 + sin(t * 3.1 + phase * 0.9) * 0.1;
     float hFactor = pow(clamp(heightFactor, 0.0, 1.0), 2.5);
-    
+
     vec3 windOffset = windDir * windWaves * grassShaderBuffer.windParams.y * hFactor * grassShaderBuffer.windParams.x * 2.f;
     return offset + windOffset;
 }
@@ -85,26 +85,26 @@ vec3 ApplyWind(vec3 offset, vec3 worldBasePos, float heightFactor)
 void main()
 {
     int globalVertexIdx = gl_VertexID;
-    int instanceID = globalVertexIdx / 96; 
+    int instanceID = globalVertexIdx / 96;
     int vertIdx = globalVertexIdx % 96;
 
-    int quadIdx = vertIdx / 24;        
-    int segIdx  = (vertIdx % 24) / 6;    
-    int triIdx  = vertIdx % 6;           
+    int quadIdx = vertIdx / 24;
+    int segIdx  = (vertIdx % 24) / 6;
+    int triIdx  = vertIdx % 6;
 
     GrassInstance instance = instances[instanceID];
     vec3 baseWorldPos = instance.position.xyz;
-    
+
     float dist = length(baseWorldPos - perFrame.cameraPosition);
     if (dist > grassShaderBuffer.variables.x)
     {
-        gl_Position = vec4(0, 0, 0, 0); 
-        return; 
+        gl_Position = vec4(0, 0, 0, 0);
+        return;
     }
 
     if (quadIdx >= 2 && dist > (grassShaderBuffer.variables.x / 3.0))
     {
-        gl_Position = vec4(0, 0, 0, 0); 
+        gl_Position = vec4(0, 0, 0, 0);
         return;
     }
 
@@ -133,7 +133,7 @@ void main()
     pos.xyz *= instance.colorAndSizeRandomness.w;
 
     pos = ApplyWind(pos, baseWorldPos, currentY);
-    
+
     vec4 quat = CreateQuaternion(normalize(instance.normal.xyz));
     vec3 finalOffset = rotate_vector(quat, pos);
 

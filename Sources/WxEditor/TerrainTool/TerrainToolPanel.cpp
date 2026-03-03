@@ -1039,7 +1039,7 @@ wxPanel* TerrainToolPanel::BuildPlantPainterPanel(wxWindow* parent)
 
     // === Density ===
     painterFields.plantPainterFields.density =
-        CreateSlider<float>(panel, sizer, "Density", 0.1, 20.0, 1.0, [this](int val) { OnUpdatePainterParam(); });
+        CreateSlider<float>(panel, sizer, "Density", 0.1, 20.0, 4.0, [this](int val) { OnUpdatePainterParam(); });
 
     // === Randomness ===
     painterFields.plantPainterFields.randomness =

@@ -8,6 +8,12 @@
 #include "Utils.h"
 #include "WxEditor/ProjectManager.h"
 
+#ifdef _WIN32
+#define NULL_DEVICE "NUL"
+#else
+#define NULL_DEVICE "/dev/null"
+#endif
+
 wxIMPLEMENT_APP_NO_MAIN(App);
 
 using namespace GameEngine;
@@ -24,6 +30,8 @@ public:
 
 int main(int argc, char* argv[])
 {
+    std::freopen(NULL_DEVICE, "w", stderr);
+
     auto args = Utils::parseArguments(argc, argv);
 
     if (auto path = Utils::GetValue(args, "projectPath"))

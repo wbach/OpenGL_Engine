@@ -3,7 +3,9 @@
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
 
+#include <chrono>
 #include <functional>
+#include <iomanip>
 #include <magic_enum/magic_enum.hpp>
 #include <random>
 #include <unordered_map>
@@ -309,15 +311,46 @@ void PlantPainter::Generate(const File& terrainTextureFile)
 
         std::vector<Components::GrassRendererComponent::Ssbo> ssbos;
 
-        for (float z = context.terrainPosition.z - halfScale.x; z < context.terrainPosition.z + halfScale.z; z += step)
+        const float startZ = context.terrainPosition.z - halfScale.x;
+        const float endZ   = context.terrainPosition.z + halfScale.z;
+        const float startX = context.terrainPosition.x - halfScale.x;
+        const float endX   = context.terrainPosition.x + halfScale.x;
+
+        const int stepsZ = static_cast<int>((endZ - startZ) / step);
+        const int stepsX = static_cast<int>((endX - startX) / step);
+
+        ssbos.reserve(stepsZ * stepsX);
+
+        int lastLoggedProgress = -1;
+        auto startTime         = std::chrono::high_resolution_clock::now();
+        auto logProgress       = [&lastLoggedProgress, stepsZ, startTime](float i)
         {
-            for (float x = context.terrainPosition.x - halfScale.x; x < context.terrainPosition.x + halfScale.x; x += step)
+            int currentProgress = static_cast<int>((i / stepsZ) * 1000.0f);
+            if (currentProgress > lastLoggedProgress)
+            {
+                auto currentTime                      = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double> elapsed = currentTime - startTime;
+
+                double eta = (i > 0) ? (elapsed.count() / i) * (stepsZ - i) : 0.0;
+
+                LOG_INFO << "Progress: " << std::fixed << std::setprecision(1) << (currentProgress / 10.0f) << "% | ETA: " << eta
+                         << "s";
+
+                lastLoggedProgress = currentProgress;
+            }
+        };
+        int i = 0;
+        for (auto z = startZ; z < endZ; z += step)
+        {
+            logProgress(i++);
+
+            for (auto x = startX; x < endX; x += step)
             {
                 auto worldpos = randomVec2(randomness, density) + vec2(x, z);
 
                 if (not IsWorldPosInImageColorRange(context, vec3(worldpos.x, 0.f, worldpos.y)))
                 {
-                    LOG_DEBUG << "World pos not in image color range: " << vec3(worldpos.x, 0.f, worldpos.y);
+                    // LOG_DEBUG << "World pos not in image color range: " << vec3(worldpos.x, 0.f, worldpos.y);
                     continue;
                 }
 

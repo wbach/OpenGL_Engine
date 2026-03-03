@@ -65,7 +65,7 @@ vec4 normalColor(sampler2D inputTexture, vec2 coords, float useThatTexture)
     {
         return texture(inputTexture, coords) * 2.f - 1.f;
     }
-    return vec4(fs_in.normal, 1.f);
+    return vec4(0.0f, 0.0f, 1.0f, 1.0f);
 }
 
 vec4 getTriPlanarNormal(sampler2D terrainTexture, vec3 worldCoordinates, float scale)
