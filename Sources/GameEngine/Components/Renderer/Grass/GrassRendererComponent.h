@@ -40,6 +40,8 @@ public:
     void CleanUp() override;
     void ReqisterFunctions() override;
     void Reload() override;
+    void Activate() override;
+    void Deactivate() override;
 
     inline const File& getTextureFile() const;
     inline const File& getDataFile() const;
@@ -68,6 +70,7 @@ private:
 
 private:
     bool isSubscribed_;
+    bool isInit_{false};
 
     Material material;
     SsboType ssbo;

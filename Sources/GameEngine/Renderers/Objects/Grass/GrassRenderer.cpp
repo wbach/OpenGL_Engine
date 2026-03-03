@@ -128,7 +128,7 @@ void GrassRenderer::RenderSubscribes()
     {
         for (const auto& component : components)
         {
-            if (component->GetCount() == 0)
+            if (component->GetCount() == 0 or not component->IsActive())
             {
                 continue;
             }

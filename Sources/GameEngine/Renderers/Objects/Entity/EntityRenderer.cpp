@@ -44,9 +44,8 @@ uint32 EntityRenderer::renderEntitiesWithoutGrouping()
 
         for (auto renderComponent : sub.renderComponents)
         {
-            if (not renderComponent)
+            if (not renderComponent or not renderComponent->IsActive())
             {
-                LOG_WARN << "Something goes wrong";
                 continue;
             }
 

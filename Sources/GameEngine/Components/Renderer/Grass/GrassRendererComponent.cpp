@@ -98,6 +98,8 @@ void GrassRendererComponent::CleanUp()
     }
 
     CleanUpMaterial();
+
+    isInit_ = false;
 }
 void GrassRendererComponent::ReqisterFunctions()
 {
@@ -159,6 +161,7 @@ void GrassRendererComponent::registerReadFunctions()
     auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
     {
         auto component = std::make_unique<GrassRendererComponent>(componentContext, gameObject);
+        component->read(node);
 
         if (auto textureFileNameNode = node.getChild(CSTR_TEXTURE_FILENAME))
         {
@@ -175,6 +178,8 @@ void GrassRendererComponent::registerReadFunctions()
 }
 void GrassRendererComponent::write(TreeNode& node) const
 {
+    BaseComponent::write(node);
+
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
 
     ::write(node.addChild(CSTR_FILE_NAME), dataFile.GetDataRelativePath());
@@ -187,13 +192,11 @@ void GrassRendererComponent::write(TreeNode& node) const
 }
 void GrassRendererComponent::SubscribeToRenderer()
 {
-    if (isSubscribed_)
+    if (IsActive() and not isSubscribed_)
     {
-        LOG_WARN << "Already subscribed to renderer.";
-        return;
+        componentContext_.renderersManager_.Subscribe(&thisObject_);
+        isSubscribed_ = true;
     }
-    componentContext_.renderersManager_.Subscribe(&thisObject_);
-    isSubscribed_ = true;
 }
 void GrassRendererComponent::CreateSsbo()
 {
@@ -292,6 +295,12 @@ void GrassRendererComponent::RemoveInstances(const std::vector<vec3>& positionsT
 }
 void GrassRendererComponent::OnAwake()
 {
+    if (isInit_)
+    {
+        LOG_DEBUG << "Component already init";
+        return;
+    }
+
     CreateSsbo();
     if (textureFile)
     {
@@ -302,7 +311,9 @@ void GrassRendererComponent::OnAwake()
         auto data = ImportSSBO(dataFile.GetAbsolutePath());
         UpdateSsbo(std::move(data));
     }
+
     SubscribeToRenderer();
+    isInit_ = true;
 }
 void GrassRendererComponent::CleanUpMaterial()
 {
@@ -311,6 +322,26 @@ void GrassRendererComponent::CleanUpMaterial()
         componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*material.diffuseTexture);
         material.diffuseTexture = nullptr;
     }
+}
+void GrassRendererComponent::Deactivate()
+{
+    if (not IsActive())
+        return;
+
+    BaseComponent::Deactivate();
+
+    if (isInit_)
+        UnSubscribe();
+}
+void GrassRendererComponent::Activate()
+{
+    if (IsActive())
+        return;
+
+    BaseComponent::Activate();
+
+    if (isInit_)
+        SubscribeToRenderer();
 }
 }  // namespace Components
 }  // namespace GameEngine
