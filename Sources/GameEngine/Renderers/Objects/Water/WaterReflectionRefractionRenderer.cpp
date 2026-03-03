@@ -16,7 +16,32 @@ namespace GameEngine
 namespace
 {
 const float POSITION_EPSILON = 0.01f;
+
+mat4 createObliqueProjection(const mat4& originalProj, const mat4& viewMatrix, const vec4& clipPlane)
+{
+    auto obliqueProj = originalProj;
+
+    // 1. Przenieś płaszczyznę do przestrzeni kamery
+    // Musimy użyć transpozycji odwrotności macierzy widoku dla wektorów normalnych
+    auto viewSpacePlane = glm::transpose(glm::inverse(viewMatrix)) * clipPlane;
+
+    // 2. Oblicz punkt kontrolny q (rogowy punkt frustum)
+    auto q = glm::vec4((glm::sign(viewSpacePlane.x) + obliqueProj[2][0]) / obliqueProj[0][0],
+                       (glm::sign(viewSpacePlane.y) + obliqueProj[2][1]) / obliqueProj[1][1], -1.0f,
+                       (1.0f + obliqueProj[2][2]) / obliqueProj[3][2]);
+
+    // 3. Przeskaluj płaszczyznę
+    auto c = viewSpacePlane * (2.0f / glm::dot(viewSpacePlane, q));
+
+    // 4. Zastąp trzeci wiersz macierzy projekcji (odpowiedzialny za Z-clipping)
+    obliqueProj[0][2] = c.x;
+    obliqueProj[1][2] = c.y;
+    obliqueProj[2][2] = c.z + 1.0f;
+    obliqueProj[3][2] = c.w;
+
+    return obliqueProj;
 }
+}  // namespace
 WaterReflectionRefractionRenderer::WaterReflectionRefractionRenderer(RendererContext& context)
     : context_(context)
     , entityRenderer_(context)
@@ -392,12 +417,15 @@ void WaterReflectionRefractionRenderer::createReflectionTexture(WaterFbo& fbo, f
         projectionMatrix = projection->GetMatrix();
     }
 
+    glm::vec4 waterPlane(0.f, 1.f, 0.f, -fbo.positionY);
+    projectionMatrix = createObliqueProjection(projectionMatrix, viewMatrix, waterPlane);
+
     auto projectionViewMatrix = projectionMatrix * viewMatrix;
 
     PerFrameBuffer perFrameBuffer;
     perFrameBuffer.ProjectionViewMatrix = context_.graphicsApi_.PrepareMatrixToLoad(projectionViewMatrix);
     perFrameBuffer.cameraPosition       = cameraPosition;
-    perFrameBuffer.clipPlane            = vec4(0.f, 1.f, 0.f, -(fbo.positionY));  // TO DO : amplitude
+    //perFrameBuffer.clipPlane            = vec4(0.f, 1.f, 0.f, -(fbo.positionY));  // TO DO : amplitude
     perFrameBuffer.projection           = camera.GetProjection().GetBufferParams();
 
     context_.graphicsApi_.UpdateShaderBuffer(*reflectionPerFrameBuffer_, &perFrameBuffer);
