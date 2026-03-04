@@ -144,9 +144,7 @@ struct EntityRendererShould : public EngineBasedTest
         Mesh mesh(GraphicsApi::RenderType::TRIANGLES, *graphicsApi);
 
         Material m;
-        m.ambient  = MATERIAL_AMBIENT;
-        m.diffuse  = MATERIAL_DIFFUSE;
-        m.specular = MATERIAL_SPECULAR;
+        m.baseColor  = MATERIAL_DIFFUSE;
         mesh.SetMaterial(m);
         model->AddMesh(std::move(mesh));
         LOG_DEBUG << "CreateModel end";

@@ -12,6 +12,7 @@
 #include <wx/propgrid/propgrid.h>
 #include <wx/wx.h>
 
+#include <filesystem>
 #include <magic_enum/magic_enum.hpp>
 #include <mutex>
 #include <utility>
@@ -48,7 +49,9 @@ public:
 
         if (prop && filenames.GetCount() > 0)
         {
-            prop->SetValueFromString(filenames[0]);
+            //prop->SetValueFromString(filenames[0]);
+            prop->SetValue(wxVariant(filenames[0]));
+            LOG_DEBUG << "SetValueFromString : " << filenames[0];
             wxPropertyGridEvent event(wxEVT_PG_CHANGED, m_grid->GetId());
             event.SetProperty(prop);
             m_grid->GetEventHandler()->ProcessEvent(event);
@@ -288,7 +291,8 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
         break;
         case GameEngine::Components::FieldType::VectorOfAnimationClips:
             CreateUIForVector<GameEngine::Components::ReadAnimationInfo>(
-                component, pane, sizer, field, [this, &component](auto p, auto v, auto i, auto r, auto del)
+                component, pane, sizer, field,
+                [this, &component](auto p, auto v, auto i, auto r, auto del)
                 { return this->CreateAnimationClipItem(component, p, v, i, r, del); });
             break;
         case FieldType::UInt:
@@ -592,8 +596,9 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                     ctrl->SetIncrement(0.01);
                     ctrl->SetValue(v);
                 },
-                [](wxSpinDoubleEvent& e) { return static_cast<float>(e.GetValue()); }, [](wxSpinCtrlDouble* ctrl, auto handler)
-                { ctrl->Bind(wxEVT_SPINCTRLDOUBLE, handler); }, {"R:", "G:", "B:", "A:"});
+                [](wxSpinDoubleEvent& e) { return static_cast<float>(e.GetValue()); },
+                [](wxSpinCtrlDouble* ctrl, auto handler) { ctrl->Bind(wxEVT_SPINCTRLDOUBLE, handler); },
+                {"R:", "G:", "B:", "A:"});
             break;
         }
         // == Wektory ==
@@ -604,12 +609,14 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
             break;
 
         case FieldType::VectorOfInt:
-            CreateUIForVector<int>(component, pane, sizer, field, [this, &component](auto p, auto v, auto i, auto r, auto del)
+            CreateUIForVector<int>(component, pane, sizer, field,
+                                   [this, &component](auto p, auto v, auto i, auto r, auto del)
                                    { return this->CreateIntItem(component, p, v, i, r, del); });
             break;
 
         case FieldType::VectorOfFloat:
-            CreateUIForVector<float>(component, pane, sizer, field, [this, &component](auto p, auto v, auto i, auto r, auto del)
+            CreateUIForVector<float>(component, pane, sizer, field,
+                                     [this, &component](auto p, auto v, auto i, auto r, auto del)
                                      { return this->CreateFloatItem(component, p, v, i, r, del); });
             break;
 
@@ -627,8 +634,10 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
 
         case FieldType::ConstVectorOfTextures:
             CreateUIForVector<GameEngine::File>(
-                component, pane, sizer, field, [this, &component](auto p, auto v, auto i, auto r, auto del)
-                { return this->CreateTextureItem(component, p, v, i, r, del); }, false);
+                component, pane, sizer, field,
+                [this, &component](auto p, auto v, auto i, auto r, auto del)
+                { return this->CreateTextureItem(component, p, v, i, r, del); },
+                false);
             break;
 
         case FieldType::ConstMapOfMaterials:
@@ -648,7 +657,15 @@ void ComponentPanel::CreateUIForMaterialsMap(GameEngine::Components::IComponent&
 
     for (auto it = materials.begin(); it != materials.end(); ++it)
     {
-        auto initialValue        = it->second.empty() ? "" : it->second.GetDataRelativePath().string();
+        auto initialValue = it->second.empty() ? "" : it->second.GetAbsolutePath().string();
+
+        LOG_DEBUG << "initialValue : " << initialValue;
+        if (not std::filesystem::exists(initialValue))
+        {
+            LOG_DEBUG << "Not exist";
+            initialValue = "";
+        }
+
         wxFileProperty* fileProp = new wxFileProperty(it->first, wxPG_LABEL, initialValue);
         fileProp->SetAttribute(wxPG_FILE_WILDCARD,
                                "Material files (*.material)|*.material|Material files (*.json)|*.json|All files (*.*)|*.*");
@@ -665,6 +682,8 @@ void ComponentPanel::CreateUIForMaterialsMap(GameEngine::Components::IComponent&
                      wxString key   = prop->GetName();
                      wxString value = prop->GetValue().GetString();
 
+                     LOG_DEBUG << "key = " << key;
+                     LOG_DEBUG << "value = " << value;
                      materials[key.ToStdString()] = value.ToStdString();
                      component.Reload();
                  }

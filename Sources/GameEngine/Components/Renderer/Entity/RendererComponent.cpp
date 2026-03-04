@@ -8,6 +8,7 @@
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
+#include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
@@ -538,7 +539,8 @@ void RendererComponent::registerReadFunctions()
                 auto fileNode = materialNode->getChild(CSTR_FILE_NAME);
                 if (nameNode and fileNode)
                 {
-                    component->materials.insert({nameNode->value_, fileNode->value_});
+                    GameEngine::File file{fileNode->value_};
+                    component->materials.insert({nameNode->value_, file});
                 }
             }
         }
