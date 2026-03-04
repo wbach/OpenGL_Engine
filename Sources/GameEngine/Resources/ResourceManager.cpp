@@ -234,13 +234,21 @@ void ResourceManager::UnlockReleaseResources()
 
 void ResourceManager::DeleteMaterial(const Material& material)
 {
-    if (material.diffuseTexture)
-        textureLoader_->DeleteTexture(*material.diffuseTexture);
-    if (material.ambientTexture)
-        textureLoader_->DeleteTexture(*material.ambientTexture);
+    if (material.baseColorTexture)
+        textureLoader_->DeleteTexture(*material.baseColorTexture);
     if (material.normalTexture)
         textureLoader_->DeleteTexture(*material.normalTexture);
-    if (material.specularTexture)
-        textureLoader_->DeleteTexture(*material.specularTexture);
+    if (material.metallicTexture)
+        textureLoader_->DeleteTexture(*material.metallicTexture);
+    if (material.roughnessTexture)
+        textureLoader_->DeleteTexture(*material.roughnessTexture);
+    if (material.occlusionTexture)
+        textureLoader_->DeleteTexture(*material.occlusionTexture);
+    if (material.emissionTexture)
+        textureLoader_->DeleteTexture(*material.emissionTexture);
+    if (material.opacityTexture)
+        textureLoader_->DeleteTexture(*material.opacityTexture);
+    if (material.displacementTexture)
+        textureLoader_->DeleteTexture(*material.displacementTexture);
 }
 }  // namespace GameEngine

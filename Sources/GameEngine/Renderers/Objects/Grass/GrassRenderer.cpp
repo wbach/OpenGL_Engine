@@ -135,10 +135,10 @@ void GrassRenderer::RenderSubscribes()
 
             if (auto ssboId = component->GetSsboId())
             {
-                auto diffTexture = component->GetMaterial().diffuseTexture;
+                auto texture = component->GetMaterial().baseColorTexture;
 
-                if (diffTexture and diffTexture->GetGraphicsObjectId())
-                    context_.graphicsApi_.ActiveTexture(0, *diffTexture->GetGraphicsObjectId());
+                if (texture and texture->GetGraphicsObjectId())
+                    context_.graphicsApi_.ActiveTexture(0, *texture->GetGraphicsObjectId());
 
                 context_.graphicsApi_.BindShaderBuffer(*ssboId);
                 context_.graphicsApi_.RenderProcedural(component->GetCount() * 96);

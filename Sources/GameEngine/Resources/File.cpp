@@ -151,7 +151,7 @@ void File::ChangeFileName(const std::string &filename)
 
 void File::ChangeBaseName(const std::string &basename)
 {
-    auto filenameWithExtension = basename + absolutePath_.extension().string();
+    auto filenameWithExtension = basename + absolutePath_.extension().generic_string();
     ChangeFileName(basename);
 }
 

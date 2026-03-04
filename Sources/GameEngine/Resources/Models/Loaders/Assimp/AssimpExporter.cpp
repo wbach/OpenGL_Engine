@@ -24,8 +24,8 @@ aiMaterial* CreateAiMaterialFromGameMaterial(const Material& mat)
     aiString name(mat.name.c_str());
     aiMat->AddProperty(&name, AI_MATKEY_NAME);
 
-    aiColor3D diffuse(mat.baseColor.x, mat.baseColor.y, mat.baseColor.z);
-    aiColor3D ambient(mat.baseColor.x, mat.baseColor.y, mat.baseColor.z);
+    aiColor3D diffuse(mat.baseColor.r(), mat.baseColor.g(), mat.baseColor.b());
+    aiColor3D ambient(mat.baseColor.r(), mat.baseColor.g(), mat.baseColor.b());
     aiMat->AddProperty(&diffuse, 1, AI_MATKEY_COLOR_DIFFUSE);
     aiMat->AddProperty(&ambient, 1, AI_MATKEY_COLOR_AMBIENT);
 
@@ -52,9 +52,9 @@ aiMaterial* CreateAiMaterialFromGameMaterial(const Material& mat)
         aiString texPath(mat.roughnessTexture->GetFile()->GetAbsolutePath().string());
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_SHININESS(0));
     }
-    if (mat.ambientOcclusionTexture && mat.ambientOcclusionTexture->GetFile().has_value())
+    if (mat.occlusionTexture && mat.occlusionTexture->GetFile().has_value())
     {
-        aiString texPath(mat.ambientOcclusionTexture->GetFile()->GetAbsolutePath().string());
+        aiString texPath(mat.occlusionTexture->GetFile()->GetAbsolutePath().string());
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_AMBIENT(0));
     }
     if (mat.opacityTexture && mat.opacityTexture->GetFile().has_value())

@@ -25,9 +25,10 @@ TreeNode::TreeNode(const std::string& name)
     , name_(name)
 {
 }
-TreeNode::TreeNode(const std::string& name, const std::string& value)
+
+TreeNode::TreeNode(const std::string& name, const std::filesystem::path& path)
     : parent(nullptr)
-    , value_(value)
+    , value_(path.generic_string())
     , type_{"unknown"}
     , name_(name)
 {
@@ -67,7 +68,7 @@ TreeNode& TreeNode::addChild(const std::string& name, const std::string& value)
 
 TreeNode& TreeNode::addChild(const std::string& name, const std::filesystem::path& value)
 {
-    children_.emplace_back(new TreeNode(name, Utils::ReplaceSlash(value.string())));
+    children_.emplace_back(new TreeNode(name, value));
     return *children_.back();
 }
 
@@ -353,7 +354,7 @@ void write(TreeNode& node, const std::string_view& str)
 }
 void write(TreeNode& node, const std::filesystem::path& value)
 {
-    node.value_ = Utils::ReplaceSlash(value.string());
+    node.value_ = value.generic_string();
 }
 void write(TreeNode& node, const vec2ui& v)
 {

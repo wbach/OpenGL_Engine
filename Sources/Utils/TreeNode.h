@@ -18,7 +18,18 @@ class ENGINE_API TreeNode
 public:
     TreeNode();
     TreeNode(const std::string&);
-    TreeNode(const std::string&, const std::string&);
+
+    template <typename T>
+        requires std::same_as<std::remove_cvref_t<T>, std::string>
+    TreeNode(const std::string& name, T&& value)
+        : parent(nullptr) 
+        , value_(std::forward<T>(value))
+        , type_{"unknown"}
+        , name_(name)
+    {
+    }
+
+    explicit TreeNode(const std::string& name, const std::filesystem::path& path);
     TreeNode(const TreeNode&);
     TreeNode& operator=(const TreeNode&);
 

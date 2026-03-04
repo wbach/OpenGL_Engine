@@ -19,39 +19,27 @@ struct MaterialSerilizeData
 {
     std::string name{"noName"};
 
-    // Phong legacy
-    vec4 ambient{vec4(0.f, 0.f, 0.f, 1.f)};
-    vec4 diffuse{vec4(0.8f, 0.8f, 0.8f, 1.f)};
-    vec4 specular{vec4(0.f, 0.f, 0.f, 1.f)};
-
-    float shineDamper       = 0.f;
-    float reflectivity      = 0.f;
-    float indexOfRefraction = 0.f;
-
-    bool isTransparency  = false;
-    bool useFakeLighting = false;
-
-    TextureSerilizeData diffuseTexture;
-    TextureSerilizeData ambientTexture;
-    TextureSerilizeData specularTexture;
-
-    // PBR – Physically Based Rendering
     vec4 baseColor{1.f, 1.f, 1.f, 1.f};
-    float metallicFactor   = 0.0f;
-    float roughnessFactor  = 0.7f;
-    float ambientOcclusion = 1.0f;
+    float metallicFactor    = 0.0f;
+    float roughnessFactor   = 0.7f;
+    float normalScale       = 1.0f;
+    float occlusionStrength = 1.0f;
 
-    float tiledScale         = 1.0f;
-    float normalScale        = 1.0f;
-    float opacityCutoff      = 0.5f;
-    float subsurfaceStrength = 0.0f;
+    float indexOfRefraction = 1.0f;
+    float transmission      = 0.0f;
+    float opacityCutoff     = 0.5f;
+
     vec3 subsurfaceColor{0.0f};
+    float subsurfaceStrength = 0.0f;
+
+    float uvScale = 1.0f;
 
     TextureSerilizeData baseColorTexture;
     TextureSerilizeData normalTexture;
     TextureSerilizeData metallicTexture;
     TextureSerilizeData roughnessTexture;
-    TextureSerilizeData ambientOcclusionTexture;
+    TextureSerilizeData emissionTexture;
+    TextureSerilizeData occlusionTexture;
     TextureSerilizeData opacityTexture;
     TextureSerilizeData displacementTexture;
 

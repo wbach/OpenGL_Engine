@@ -650,7 +650,7 @@ std::unique_ptr<GameEngine::Model> CreateBillboardVertices(GraphicsApi::IGraphic
         image.moveData(std::move(b.alpha));
 
         GameEngine::Material material = GameEngine::MaterialPresets::Leaf();
-        material.baseColorTexture     = material.diffuseTexture =
+        material.baseColorTexture     = material.baseColorTexture =
             textureLoader.CreateTexture(Utils::CreateUniqueFilename(),
                                         GameEngine::TextureParameters{.dataStorePolicy = GameEngine::DataStorePolicy::Store,
                                                                       .filter          = GraphicsApi::TextureFilter::LINEAR},
@@ -819,14 +819,14 @@ std::pair<GameEngine::Material, GameEngine::Material> PrepareTreeMaterials(GameE
     GameEngine::TextureParameters tp;
     tp.mimap = GraphicsApi::TextureMipmap::LINEAR;
 
-    auto trunkMaterial                    = GameEngine::MaterialPresets::Trunk();
-    trunkMaterial.baseColorTexture        = tl.LoadTexture(params.trunkMaterialBaseColorTexture, tp);
-    trunkMaterial.ambientOcclusionTexture = tl.LoadTexture(params.trunkMaterialAmbientOcclusionTexture, tp);
-    trunkMaterial.displacementTexture     = tl.LoadTexture(params.trunkMaterialDisplacementTexture, tp);
-    trunkMaterial.metallicTexture         = tl.LoadTexture(params.trunkMaterialMetallicTexture, tp);
-    trunkMaterial.normalTexture           = tl.LoadTexture(params.trunkMaterialNormalTexture, tp);
-    trunkMaterial.roughnessTexture        = tl.LoadTexture(params.trunkMaterialRoughnessTexture, tp);
-    trunkMaterial.tiledScale              = params.trunkMaterialTiledScale;
+    auto trunkMaterial                = GameEngine::MaterialPresets::Trunk();
+    trunkMaterial.baseColorTexture    = tl.LoadTexture(params.trunkMaterialBaseColorTexture, tp);
+    trunkMaterial.occlusionTexture    = tl.LoadTexture(params.trunkMaterialAmbientOcclusionTexture, tp);
+    trunkMaterial.displacementTexture = tl.LoadTexture(params.trunkMaterialDisplacementTexture, tp);
+    trunkMaterial.metallicTexture     = tl.LoadTexture(params.trunkMaterialMetallicTexture, tp);
+    trunkMaterial.normalTexture       = tl.LoadTexture(params.trunkMaterialNormalTexture, tp);
+    trunkMaterial.roughnessTexture    = tl.LoadTexture(params.trunkMaterialRoughnessTexture, tp);
+    trunkMaterial.uvScale             = params.trunkMaterialTiledScale;
 
     GameEngine::Material leafMaterial = GameEngine::MaterialPresets::Leaf();
     leafMaterial.baseColorTexture     = tl.LoadTexture(params.leafMaterialBaseColorTexture, tp);
@@ -901,7 +901,7 @@ void BindMaterial(GraphicsApi::IGraphicsApi& graphicsApi, const GameEngine::Mate
     BindMaterialTexture(graphicsApi, 1, material.normalTexture, config.useNormal);
     BindMaterialTexture(graphicsApi, 2, material.roughnessTexture, config.useRoughness);
     BindMaterialTexture(graphicsApi, 3, material.metallicTexture, config.useMetallic);
-    BindMaterialTexture(graphicsApi, 4, material.ambientOcclusionTexture, config.useAmientOcclusion);
+    BindMaterialTexture(graphicsApi, 4, material.occlusionTexture, config.useAmientOcclusion);
     BindMaterialTexture(graphicsApi, 5, material.opacityTexture, config.useOpacity);
     BindMaterialTexture(graphicsApi, 6, material.displacementTexture, config.useDisplacement);
 }

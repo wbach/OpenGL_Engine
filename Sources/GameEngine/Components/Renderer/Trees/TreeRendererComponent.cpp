@@ -231,8 +231,15 @@ void TreeRendererComponent::registerReadFunctions()
             if (not filenameNode->value_.empty())
             {
                 component->treeModel = filenameNode->value_;
-                component->tree      = Import(componentContext.graphicsApi_, componentContext.resourceManager_,
-                                              component->treeModel.GetAbsolutePath());
+                try
+                {
+                    component->tree = Import(componentContext.graphicsApi_, componentContext.resourceManager_,
+                                             component->treeModel.GetAbsolutePath());
+                }
+                catch (...)
+                {
+                    LOG_ERROR << "Import tree error." << component->thisObject_.GetName();
+                }
             }
         }
 

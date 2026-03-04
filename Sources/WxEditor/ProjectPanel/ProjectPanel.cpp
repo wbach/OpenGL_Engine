@@ -17,7 +17,9 @@
 #include "WxEditor/WxHelpers/EditorUitls.h"
 #include "WxEditor/WxHelpers/ThumbnailCache.h"
 #include "XML/XmlReader.h"
-#include "model3d_icon.h"
+#include "material_icon.h"
+#include "model_icon.h"
+// #include "model3d_icon.h"
 
 namespace
 {
@@ -404,6 +406,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
     int ID_ANIMATION_VIWER = wxWindow::NewControlId();
     int ID_MATERIAL_EDITOR = wxWindow::NewControlId();
     int ID_NEW_FOLDER      = wxWindow::NewControlId();
+    int ID_NEW_MATERIAL    = wxWindow::NewControlId();
     int ID_REFRESH_FOLDER  = wxWindow::NewControlId();
     int ID_REMOVE          = wxWindow::NewControlId();
     int ID_PROPERTIES      = wxWindow::NewControlId();
@@ -420,6 +423,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
     menu.Append(ID_IMPORT_FOLDER, "Import folder");
     menu.Append(ID_PASTE, "Paste");
     menu.Append(ID_NEW_FOLDER, "New folder");
+    menu.Append(ID_NEW_MATERIAL, "New material");
     menu.Append(ID_REMOVE, "Remove");
     menu.Append(ID_REFRESH_FOLDER, "Refresh folder");
     menu.AppendSeparator();
@@ -448,8 +452,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
     menu.Enable(ID_PASTE, canPaste);
 
     // --- Handlery dla menu ---
-    menu.Bind(
-        wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) { wxLaunchDefaultApplication(fileName.GetFullPath()); }, ID_OPEN);
+    menu.Bind(wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) { wxLaunchDefaultApplication(fileName.GetFullPath()); }, ID_OPEN);
 
     menu.Bind(
         wxEVT_COMMAND_MENU_SELECTED,
@@ -700,8 +703,37 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
             RefreshAll(currentFolderPath);
         },
         ID_NEW_FOLDER);
+
     menu.Bind(
-        wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) { RefreshAll(currentFolderPath); }, ID_REFRESH_FOLDER);
+        wxEVT_COMMAND_MENU_SELECTED,
+        [=](wxCommandEvent&)
+        {
+            wxTextEntryDialog nameDlg(this, "Enter material name:");
+            if (nameDlg.ShowModal() != wxID_OK)
+                return;
+
+            auto name = nameDlg.GetValue().ToStdString();
+            if (name.empty())
+            {
+                wxMessageBox("material name cannot be empty!");
+                return;
+            }
+            std::filesystem::path parent;
+            if (std::filesystem::is_directory(fileName.GetFullPath().ToStdString()))
+            {
+                parent = fileName.GetFullPath().ToStdString();
+            }
+            else
+            {
+                parent = std::filesystem::path(fileName.GetFullPath().ToStdString()).parent_path().string();
+            }
+
+            GameEngine::SaveMaterial(GameEngine::Material{}, parent / (name + ".material"));
+            RefreshAll(currentFolderPath);
+        },
+        ID_NEW_MATERIAL);
+
+    menu.Bind(wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) { RefreshAll(currentFolderPath); }, ID_REFRESH_FOLDER);
 
     menu.Bind(
         wxEVT_COMMAND_MENU_SELECTED,
@@ -783,8 +815,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
         },
         ID_REMOVE);
 
-    target->Bind(
-        wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent& evt) { ShowProperties(fileName); }, ID_PROPERTIES);
+    target->Bind(wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent& evt) { ShowProperties(fileName); }, ID_PROPERTIES);
 
     // Popup (wazne: uzyj lokalnych wspolrzednych -> na globalne)
     target->PopupMenu(&menu, event.GetPosition());
@@ -909,13 +940,21 @@ wxBitmap ProjectPanel::GetThumbnail(const wxFileName& fn, int thumbSize)
 
     // Sprawdzenie cache globalnego
     wxBitmap bmp = ThumbnailCache::Get().GetThumbnail(key, thumbSize);
+    wxString ext = fn.GetExt();
 
     // Jesli bitmapa jest pusta (nie obraz), stworz placeholder
     if (!bmp.IsOk())
     {
         if (is3dModelFile(fn.GetFullPath().ToStdString()))
         {
-            auto newBmp = wxBitmap::NewFromPNGData(model3d_icon_png, model3d_icon_png_len);
+            auto newBmp = wxBitmap::NewFromPNGData(image_3d_model_png, image_3d_model_png_len);
+            wxImage img = newBmp.ConvertToImage();
+            img.Rescale(thumbSize, thumbSize, wxIMAGE_QUALITY_HIGH);
+            bmp = img;
+        }
+        else if (ext.Lower() == "material")
+        {
+            auto newBmp = wxBitmap::NewFromPNGData(MaterialIcon_png, MaterialIcon_png_len);
             wxImage img = newBmp.ConvertToImage();
             img.Rescale(thumbSize, thumbSize, wxIMAGE_QUALITY_HIGH);
             bmp = img;

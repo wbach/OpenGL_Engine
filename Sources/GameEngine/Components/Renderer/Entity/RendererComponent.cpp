@@ -354,9 +354,9 @@ void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
 
     perObjectConstantsBuffer_.insert({mesh.GetGpuObjectId(), std::move(bufferPtr)});
 
-    if (mesh.GetMaterial().diffuseTexture)
+    if (mesh.GetMaterial().baseColorTexture)
     {
-        buffer.GetData().textureOffset = mesh.GetMaterial().diffuseTexture->GetTextureOffset(textureIndex);
+        buffer.GetData().textureOffset = mesh.GetMaterial().baseColorTexture->GetTextureOffset(textureIndex);
     }
     else
     {

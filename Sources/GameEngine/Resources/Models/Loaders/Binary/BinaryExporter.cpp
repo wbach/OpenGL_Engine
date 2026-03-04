@@ -36,37 +36,26 @@ TextureSerilizeData convert(GeneralTexture* texture)
 MaterialSerilizeData convert(const Material& input)
 {
     MaterialSerilizeData material;
-    material.name        = input.name;
-    material.ambient     = input.ambient.value;
-    material.diffuse     = input.diffuse.value;
-    material.specular    = input.specular.value;
-    material.shineDamper = input.shineDamper;
 
-    material.ambientTexture  = convert(input.ambientTexture);
-    material.diffuseTexture  = convert(input.diffuseTexture);
-    material.specularTexture = convert(input.specularTexture);
-
-    material.reflectivity      = input.reflectivity;
-    material.indexOfRefraction = input.indexOfRefraction;
-    material.isTransparency    = input.isTransparency;
-    material.useFakeLighting   = input.useFakeLighting;
-
-    material.baseColor        = input.baseColor;
-    material.metallicFactor   = input.metallicFactor;
-    material.roughnessFactor  = input.roughnessFactor;
-    material.ambientOcclusion = input.ambientOcclusion;
-
-    material.tiledScale         = input.tiledScale;
+    material.name               = input.name;
+    material.roughnessFactor    = input.roughnessFactor;
+    material.metallicFactor     = input.metallicFactor;
+    material.baseColor          = input.baseColor.value;
+    material.indexOfRefraction  = input.indexOfRefraction;
+    material.uvScale            = input.uvScale;
     material.normalScale        = input.normalScale;
     material.opacityCutoff      = input.opacityCutoff;
     material.subsurfaceStrength = input.subsurfaceStrength;
     material.subsurfaceColor    = input.subsurfaceColor;
+    material.occlusionStrength  = input.occlusionStrength;
+    material.transmission       = input.transmission;
 
     material.baseColorTexture        = convert(input.baseColorTexture);
     material.normalTexture           = convert(input.normalTexture);
     material.metallicTexture         = convert(input.metallicTexture);
     material.roughnessTexture        = convert(input.roughnessTexture);
-    material.ambientOcclusionTexture = convert(input.ambientOcclusionTexture);
+    material.occlusionTexture        = convert(input.occlusionTexture);
+    material.emissionTexture         = convert(input.emissionTexture);
     material.opacityTexture          = convert(input.opacityTexture);
     material.displacementTexture     = convert(input.displacementTexture);
 

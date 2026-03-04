@@ -153,7 +153,7 @@ Material GrassRendererComponent::CreateMaterial() const
     tp.mimap = GraphicsApi::TextureMipmap::LINEAR;
 
     Material material;
-    material.diffuseTexture = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(textureFile, tp);
+    material.baseColorTexture = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(textureFile, tp);
     return material;
 }
 void GrassRendererComponent::registerReadFunctions()
@@ -317,10 +317,10 @@ void GrassRendererComponent::OnAwake()
 }
 void GrassRendererComponent::CleanUpMaterial()
 {
-    if (material.diffuseTexture)
+    if (material.baseColorTexture)
     {
-        componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*material.diffuseTexture);
-        material.diffuseTexture = nullptr;
+        componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*material.baseColorTexture);
+        material.baseColorTexture = nullptr;
     }
 }
 void GrassRendererComponent::Deactivate()

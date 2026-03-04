@@ -179,22 +179,18 @@ void AnimationViewerFrame::CreateMainMenu()
         },
         ID_REFRESH_CLIPS);
 
-    Bind(
-        wxEVT_MENU, [this](wxCommandEvent& e) { OnExportToFile(e); }, ID_EXPORT_SELECTED_CLIP);
+    Bind(wxEVT_MENU, [this](wxCommandEvent& e) { OnExportToFile(e); }, ID_EXPORT_SELECTED_CLIP);
 
-    Bind(
-        wxEVT_MENU, [this](wxCommandEvent& e) { OnExportAll(e); }, ID_EXPORT_ALL_CLIPS);
+    Bind(wxEVT_MENU, [this](wxCommandEvent& e) { OnExportAll(e); }, ID_EXPORT_ALL_CLIPS);
 
-    Bind(
-        wxEVT_MENU, [this](wxCommandEvent& e) { CreatePrefab(e); }, ID_CREATE_PREFAB);
+    Bind(wxEVT_MENU, [this](wxCommandEvent& e) { CreatePrefab(e); }, ID_CREATE_PREFAB);
 
     fileMenu->AppendSeparator();
     fileMenu->Append(wxID_EXIT);
 
     menuBar->Append(fileMenu, "&File");
 
-    Bind(
-        wxEVT_MENU, [this](wxCommandEvent&) { Close(true); }, wxID_EXIT);
+    Bind(wxEVT_MENU, [this](wxCommandEvent&) { Close(true); }, wxID_EXIT);
 
     SetMenuBar(menuBar);
 }
@@ -564,10 +560,13 @@ void AnimationViewerFrame::ImportCurrentObject()
             }
         };
 
-        copyTexture(material.diffuseTexture);
+        copyTexture(material.baseColorTexture);
         copyTexture(material.normalTexture);
-        copyTexture(material.specularTexture);
-        copyTexture(material.ambientTexture);
+        copyTexture(material.metallicTexture);
+        copyTexture(material.roughnessTexture);
+        copyTexture(material.occlusionTexture);
+        copyTexture(material.emissionTexture);
+        copyTexture(material.opacityTexture);
         copyTexture(material.displacementTexture);
     }
 

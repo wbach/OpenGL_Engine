@@ -435,7 +435,7 @@ void EntityRenderer::bindMaterial(const Material& material) const
     bindMaterialTexture(1, material.normalTexture, config.useNormal);
     bindMaterialTexture(2, material.roughnessTexture, config.useRoughness);
     bindMaterialTexture(3, material.metallicTexture, config.useMetallic);
-    bindMaterialTexture(4, material.ambientOcclusionTexture, config.useAmientOcclusion);
+    bindMaterialTexture(4, material.occlusionTexture, config.useAmientOcclusion);
     bindMaterialTexture(5, material.opacityTexture, config.useOpacity);
     bindMaterialTexture(6, material.displacementTexture, config.useDisplacement);
 }

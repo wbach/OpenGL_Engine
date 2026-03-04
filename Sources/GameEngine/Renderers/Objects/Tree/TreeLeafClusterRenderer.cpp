@@ -259,7 +259,7 @@ void TreeLeafClusterRenderer::BindMaterial(const Material& material) const
     BindMaterialTexture(1, material.normalTexture, config.useNormal);
     BindMaterialTexture(2, material.roughnessTexture, config.useRoughness);
     BindMaterialTexture(3, material.metallicTexture, config.useMetallic);
-    BindMaterialTexture(4, material.ambientOcclusionTexture, config.useAmientOcclusion);
+    BindMaterialTexture(4, material.occlusionTexture, config.useAmientOcclusion);
     BindMaterialTexture(5, material.opacityTexture, config.useOpacity);
     BindMaterialTexture(6, material.displacementTexture, config.useDisplacement);
 }

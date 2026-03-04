@@ -85,29 +85,17 @@ void serialize(S& s, MaterialSerilizeData& m)
 
     s.text1b(m.name, MaxStr);
 
-    s.object(m.ambient);
-    s.object(m.diffuse);
-    s.object(m.specular);
-
-    s.value4b(m.shineDamper);
-    s.value4b(m.reflectivity);
     s.value4b(m.indexOfRefraction);
-
-    s.value1b(m.isTransparency);
-    s.value1b(m.useFakeLighting);
-
-    s.object(m.diffuseTexture);
-    s.object(m.ambientTexture);
-    s.object(m.specularTexture);
 
     s.object(m.baseColor);
     s.value4b(m.metallicFactor);
     s.value4b(m.roughnessFactor);
-    s.value4b(m.ambientOcclusion);
+    s.value4b(m.occlusionStrength);
 
-    s.value4b(m.tiledScale);
+    s.value4b(m.uvScale);
     s.value4b(m.normalScale);
     s.value4b(m.opacityCutoff);
+    s.value4b(m.transmission);
     s.value4b(m.subsurfaceStrength);
     s.object(m.subsurfaceColor);
 
@@ -115,7 +103,8 @@ void serialize(S& s, MaterialSerilizeData& m)
     s.object(m.normalTexture);
     s.object(m.metallicTexture);
     s.object(m.roughnessTexture);
-    s.object(m.ambientOcclusionTexture);
+    s.object(m.occlusionTexture);
+    s.object(m.emissionTexture);
     s.object(m.opacityTexture);
     s.object(m.displacementTexture);
 

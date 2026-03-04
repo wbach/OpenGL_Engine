@@ -188,9 +188,10 @@ vec3 RayTracerEngine::trace(const Ray& ray, float& energy, const IObject* parent
 
     const auto& material = intersection.getObject()->getMaterial();
     // energy -= material.absorption_;
-    energy -= (1.f - material.reflectivity);
+    float effectiveReflectivity = glm::mix(0.04f, 1.0f, material.metallicFactor);
+    //energy -= (1.f - material.reflectivity);
 
-    auto isReflect = material.reflectivity > std::numeric_limits<float>::epsilon();
+    auto isReflect = effectiveReflectivity > std::numeric_limits<float>::epsilon();
 
     if (energy < 0.1f || !isReflect)
     {
@@ -242,7 +243,7 @@ vec3 RayTracerEngine::calculateColor(const Ray& ray, const Intersection& interse
 
     auto directionalLights =
         rendererContext_.scene_->getComponentController().GetAllActiveComponentsOfType<Components::DirectionalLightComponent>();
-    for (const auto& light :directionalLights)
+    for (const auto& light : directionalLights)
     {
         outputColor +=
             procesLight(ray, *light, intersection.getPoint(), intersection.getNormal(), intersection.getObject()) * energy;
@@ -251,8 +252,8 @@ vec3 RayTracerEngine::calculateColor(const Ray& ray, const Intersection& interse
     limtColorValue(outputColor);
     return outputColor;
 }
-vec3 RayTracerEngine::procesLight(const Ray& ray, const Components::DirectionalLightComponent& light, const vec3& intersectionPoint, const vec3& normal,
-                                  const IObject* obj)
+vec3 RayTracerEngine::procesLight(const Ray& ray, const Components::DirectionalLightComponent& light,
+                                  const vec3& intersectionPoint, const vec3& normal, const IObject* obj)
 {
     auto lightDirection = glm::normalize(light.getParentGameObject().GetWorldTransform().GetPosition() - intersectionPoint);
     Ray shadowRay(intersectionPoint, lightDirection, ray.getX(), ray.getY());
@@ -261,7 +262,8 @@ vec3 RayTracerEngine::procesLight(const Ray& ray, const Components::DirectionalL
     {
         return vec3(0);
     }
-    vec3 ambient = obj->getMaterial().ambient.xyz() * light.color.xyz();
+    const auto& material = obj->getMaterial();
+    vec3 ambient         = material.baseColor.xyz() * material.occlusionStrength * light.color.xyz();
 
     float intensity = glm::dot(normal, lightDirection);
 
@@ -274,12 +276,17 @@ vec3 RayTracerEngine::procesLight(const Ray& ray, const Components::DirectionalL
     vec3 v  = glm::normalize(ray.getPosition() - intersectionPoint);
     float s = glm::dot(v, r);
 
-    vec3 diffuse = obj->getMaterial().diffuse.xyz() * intensity;
+    vec3 diffuse = obj->getMaterial().baseColor.xyz() * intensity;
     vec3 specular(0.f);
 
     if (s > 0.f && s < 90.f * M_PI / 180.f)
     {
-        specular = obj->getMaterial().specular.xyz() * light.color.xyz() * powf(s, obj->getMaterial().shineDamper);
+        // PBR to Phong fallack
+        vec3 specularColor = mix(vec3(0.04f), obj->getMaterial().baseColor.xyz(), obj->getMaterial().metallicFactor);
+        float roughness    = obj->getMaterial().roughnessFactor;
+        float shineDamper  = powf(2.0f, (1.0f - roughness) * 10.0f);
+
+        specular           = specularColor * light.color.xyz() * powf(s, shineDamper);
     }
 
     return ambient + diffuse + specular;

@@ -42,39 +42,29 @@ Material convert(ITextureLoader& textureLoader, const MaterialSerilizeData& inpu
     LOG_DEBUG << "Convert material";
 
     Material material;
-    material.name        = input.name;
-    material.ambient     = input.ambient;
-    material.diffuse     = input.diffuse;
-    material.specular    = input.specular;
-    material.shineDamper = input.shineDamper;
+    material.name = input.name;
 
-    material.ambientTexture  = createTexture(textureLoader, input.ambientTexture);
-    material.diffuseTexture  = createTexture(textureLoader, input.diffuseTexture);
-    material.specularTexture = createTexture(textureLoader, input.specularTexture);
-
-    material.reflectivity      = input.reflectivity;
+    material.baseColor         = input.baseColor;
+    material.metallicFactor    = input.metallicFactor;
+    material.transmission      = input.transmission;
+    material.roughnessFactor   = input.roughnessFactor;
+    material.occlusionStrength = input.occlusionStrength;
     material.indexOfRefraction = input.indexOfRefraction;
-    material.isTransparency    = input.isTransparency;
-    material.useFakeLighting   = input.useFakeLighting;
 
-    material.baseColor        = input.baseColor;
-    material.metallicFactor   = input.metallicFactor;
-    material.roughnessFactor  = input.roughnessFactor;
-    material.ambientOcclusion = input.ambientOcclusion;
-
-    material.tiledScale         = input.tiledScale;
+    material.uvScale            = input.uvScale;
     material.normalScale        = input.normalScale;
     material.opacityCutoff      = input.opacityCutoff;
     material.subsurfaceStrength = input.subsurfaceStrength;
     material.subsurfaceColor    = input.subsurfaceColor;
 
-    material.baseColorTexture        = createTexture(textureLoader, input.baseColorTexture);
-    material.normalTexture           = createTexture(textureLoader, input.normalTexture);
-    material.metallicTexture         = createTexture(textureLoader, input.metallicTexture);
-    material.roughnessTexture        = createTexture(textureLoader, input.roughnessTexture);
-    material.ambientOcclusionTexture = createTexture(textureLoader, input.ambientOcclusionTexture);
-    material.opacityTexture          = createTexture(textureLoader, input.opacityTexture);
-    material.displacementTexture     = createTexture(textureLoader, input.displacementTexture);
+    material.baseColorTexture    = createTexture(textureLoader, input.baseColorTexture);
+    material.normalTexture       = createTexture(textureLoader, input.normalTexture);
+    material.metallicTexture     = createTexture(textureLoader, input.metallicTexture);
+    material.roughnessTexture    = createTexture(textureLoader, input.roughnessTexture);
+    material.occlusionTexture    = createTexture(textureLoader, input.occlusionTexture);
+    material.emissionTexture     = createTexture(textureLoader, input.emissionTexture);
+    material.opacityTexture      = createTexture(textureLoader, input.opacityTexture);
+    material.displacementTexture = createTexture(textureLoader, input.displacementTexture);
 
     material.flags = input.flags;
 

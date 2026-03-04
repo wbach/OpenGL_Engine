@@ -614,9 +614,8 @@ Material AssimpLoader::processMaterial(const aiScene& scene, const aiMesh& mesh)
     material.metallicTexture = CreateMaterialTexture(currentProcessingFile_, scene, *mat, textureLoader_, aiTextureType_SPECULAR);
     material.roughnessTexture =
         CreateMaterialTexture(currentProcessingFile_, scene, *mat, textureLoader_, aiTextureType_SHININESS);
-    material.ambientOcclusionTexture =
-        CreateMaterialTexture(currentProcessingFile_, scene, *mat, textureLoader_, aiTextureType_AMBIENT);
-    material.opacityTexture = CreateMaterialTexture(currentProcessingFile_, scene, *mat, textureLoader_, aiTextureType_OPACITY);
+    material.occlusionTexture = CreateMaterialTexture(currentProcessingFile_, scene, *mat, textureLoader_, aiTextureType_AMBIENT);
+    material.opacityTexture   = CreateMaterialTexture(currentProcessingFile_, scene, *mat, textureLoader_, aiTextureType_OPACITY);
     material.displacementTexture =
         CreateMaterialTexture(currentProcessingFile_, scene, *mat, textureLoader_, aiTextureType_HEIGHT);
 

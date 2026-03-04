@@ -6,122 +6,81 @@
 
 /*
 ==============================================================================
-Material Structure – opis parametrów (Legacy → PBR, AAA-ready)
+Material Structure – Physically Based Rendering (PBR, AAA-ready)
 ==============================================================================
 
 name
     Nazwa materiału (np. "LeafSet024", "StoneWall", "Glass_Clear")
 
 ------------------------------------------------------------------------------
-LEGACY – Phong / Blinn (tymczasowe, do migracji)
-------------------------------------------------------------------------------
-
-ambient
-    Kolor ambient (stary model oświetlenia, NIE PBR)
-
-diffuse
-    Kolor diffuse (legacy albedo)
-
-specular
-    Kolor refleksu specular (legacy model)
-
-shineDamper
-    Połysk / ostrość refleksu (legacy shininess)
-
-reflectivity
-    Intensywność odbić (legacy, fallback dla metallicFactor)
-
-indexOfRefraction
-    Współczynnik załamania (szkło, woda)
-
-isTransparency
-    Materiał przezroczysty (blend, legacy)
-
-useFakeLighting
-    Ignoruje normalne / światło (legacy trick)
-
-diffuseTexture
-    Tekstura diffuse / albedo (legacy)
-
-ambientTexture
-    Pseudo-ambient (legacy, fallback dla AO)
-
-specularTexture
-    Tekstura specular (legacy)
-
-------------------------------------------------------------------------------
-PBR – Physically Based Rendering (docelowe)
+PBR – Surface Parameters
 ------------------------------------------------------------------------------
 
 baseColor
-    Kolor bazowy (albedo) + alpha
+    Kolor bazowy (Albedo) w przestrzeni liniowej + Alpha w kanale W.
 
 metallicFactor
-    Metaliczność:
-        0.0 = dielektryk (liście, drewno, plastik)
-        1.0 = metal (stal, złoto)
+    Stopień metaliczności powierzchni (0.0 = dielektryk, 1.0 = metal).
 
 roughnessFactor
-    Szorstkość powierzchni:
-        0.0 = gładkie lustro
-        1.0 = całkowicie matowe
+    Mikro-szorstkość (0.0 = lustro, 1.0 = pełny mat).
+    Wpływa na rozproszenie światła specular.
 
-ambientOcclusion
-    Wartość AO (ciemniejsze zagłębienia)
+indexOfRefraction (IOR)
+    Współczynnik załamania światła (np. powietrze 1.0, woda 1.33, szkło 1.5).
+    Kluczowe dla materiałów z flagą MAT_ALPHA_BLEND.
+
+occlusionStrength
+    Statyczne zacienienie wnęk (0.0 = całkowicie czarne, 1.0 = brak cienia).
 
 normalScale
-    Skala normal mapy (1.0 = pełny efekt)
+    Siła wypukłości mapy normalnych (zazwyczaj 1.0).
 
 opacityCutoff
-    Próg alpha test (discard), zakres 0.0–1.0
-    Używane np. dla liści, siatek, ogrodzeń
+    Próg odcięcia dla flagi MAT_ALPHA_TEST (discard piksela).
 
-subsurfaceStrength
-    Siła subsurface scattering (fake SSS, foliage / skóra)
-
-subsurfaceColor
-    Kolor SSS:
-        zielony – liście
-        czerwony – skóra
+subsurfaceStrength / subsurfaceColor
+    Siła i kolor rozproszenia podpowierzchniowego (SSS).
+    Używane głównie dla roślinności (MAT_FOLIAGE) i skóry.
 
 ------------------------------------------------------------------------------
 PBR Textures
 ------------------------------------------------------------------------------
 
 baseColorTexture
-    Tekstura baseColor / albedo
+    Główna mapa koloru (RGB) i opcjonalnie alpha (A).
 
 normalTexture
-    Normal map (konwencja zgodna z API renderera)
+    Mapa normalnych (Tangent Space).
 
-metallicTexture
-    Tekstura metaliczności
+metallicRoughnessTexture
+    Mapa skojarzona (często pakowana: R=AO, G=Roughness, B=Metallic).
 
-roughnessTexture
-    Tekstura szorstkości
-
-ambientOcclusionTexture
-    Tekstura ambient occlusion
+occlusionTexture
+    Osobna mapa Ambient Occlusion (jeśli nie jest częścią pakietu wyżej).
 
 opacityTexture
-    Tekstura alpha (cutout / przezroczystość)
+    Osobna mapa maski alpha (używana, gdy alpha nie jest w baseColor).
+
+emissionTexture
+    Mapa emisyjna (RGB) – światło własne materiału.
 
 displacementTexture
-    Height / displacement / parallax (opcjonalnie)
+    Mapa wysokości (Height/Parallax Mapping).
 
 ------------------------------------------------------------------------------
 Material Flags (bitmask)
 ------------------------------------------------------------------------------
 
-materialFlags
-    Specjalne zachowania materiału:
+flags (uint32_t)
+    Specjalne stany renderowania:
 
-        MAT_DOUBLE_SIDED      – render dwustronny
-        MAT_ALPHA_TEST       – alpha test (discard)
-        MAT_ALPHA_BLEND      – alpha blending (szkło, woda)
-        MAT_FOLIAGE          – liście / wiatr / SSS
-        MAT_UNLIT            – materiał nieoświetlany
-        MAT_RECEIVE_SHADOW   – materiał przyjmuje cienie
+    MAT_DOUBLE_SIDED   – Wyłącza Backface Culling (liście, tkaniny).
+    MAT_ALPHA_TEST     – Używa opacityCutoff do maskowania (liście, płoty).
+    MAT_ALPHA_BLEND    – Przezroczystość typu Alpha-to-Coverage lub Translucency.
+    MAT_FOLIAGE        – Specjalny model cieniowania (wiatr, silniejszy SSS).
+    MAT_UNLIT          – Pomija obliczenia oświetlenia (Emissive/UI/FakeLighting).
+    MAT_RECEIVE_SHADOW – Czy na powierzchni mają być rysowane cienie.
 
 ==============================================================================
 */
@@ -145,41 +104,29 @@ struct Material
 {
     std::string name{"noName"};
 
-    // Phong legacy
-    Color ambient{vec4(0.f, 0.f, 0.f, 1.f)};
-    Color diffuse{vec4(1.f, 1.f, 1.f, 1.f)};
-    Color specular{vec4(0.f, 0.f, 0.f, 1.f)};
+    Color baseColor{1.f, 1.f, 1.f, 1.f};
+    float metallicFactor    = 0.0f;
+    float roughnessFactor   = 0.7f;
+    float normalScale       = 1.0f;
+    float occlusionStrength = 1.0f;
 
-    float shineDamper       = 0.f;
-    float reflectivity      = 0.f;
-    float indexOfRefraction = 0.f;
+    float indexOfRefraction = 1.0f;
+    float transmission      = 0.0f;
+    float opacityCutoff     = 0.5f;
 
-    bool isTransparency  = false;
-    bool useFakeLighting = false;
-
-    GeneralTexture* diffuseTexture  = nullptr;
-    GeneralTexture* ambientTexture  = nullptr;
-    GeneralTexture* specularTexture = nullptr;
-
-    // PBR – Physically Based Rendering
-    vec4 baseColor{1.f, 1.f, 1.f, 1.f};
-    float metallicFactor   = 0.0f;
-    float roughnessFactor  = 0.7f;
-    float ambientOcclusion = 1.0f;
-
-    float tiledScale         = 1.0f;
-    float normalScale        = 1.0f;
-    float opacityCutoff      = 0.5f;
-    float subsurfaceStrength = 0.0f;
     vec3 subsurfaceColor{0.0f};
+    float subsurfaceStrength = 0.0f;
 
-    GeneralTexture* baseColorTexture        = nullptr;
-    GeneralTexture* normalTexture           = nullptr;
-    GeneralTexture* metallicTexture         = nullptr;
-    GeneralTexture* roughnessTexture        = nullptr;
-    GeneralTexture* ambientOcclusionTexture = nullptr;
-    GeneralTexture* opacityTexture          = nullptr;
-    GeneralTexture* displacementTexture     = nullptr;
+    float uvScale = 1.0f;
+
+    GeneralTexture* baseColorTexture    = nullptr;
+    GeneralTexture* normalTexture       = nullptr;
+    GeneralTexture* metallicTexture     = nullptr;
+    GeneralTexture* roughnessTexture    = nullptr;
+    GeneralTexture* occlusionTexture    = nullptr;
+    GeneralTexture* emissionTexture     = nullptr;
+    GeneralTexture* opacityTexture      = nullptr;
+    GeneralTexture* displacementTexture = nullptr;
 
     uint32_t flags = 0;
 };
