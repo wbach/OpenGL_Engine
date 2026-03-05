@@ -287,7 +287,13 @@ void ProjectManager::ReadLastSessionContextFile()
     ::Read(json.Get("cameraPosition"), lastSessionContext.cameraPosition);
     ::Read(json.Get("cameraRotation"), lastSessionContext.cameraRotation);
 
-    LOG_DEBUG << "lastSessionContext.cameraPosition : " << lastSessionContext.cameraPosition << " " << json.Get("cameraPosition")->value_;
+    if (not lastSessionContext.sceneFile.empty())
+    {
+        lastSessionContext.sceneFile = projectPath / lastSessionContext.sceneFile;
+    }
+
+    LOG_DEBUG << "lastSessionContext.cameraPosition : " << lastSessionContext.cameraPosition << " "
+              << json.Get("cameraPosition")->value_ << ", lastSessionContext.sceneFile" << lastSessionContext.sceneFile;
 }
 void ProjectManager::SaveLastSessionContextFile()
 {
@@ -296,9 +302,11 @@ void ProjectManager::SaveLastSessionContextFile()
         TreeNode node("LastSessionContext");
         node.addChild("cameraPosition", std::to_string(lastSessionContext.cameraPosition));
         node.addChild("cameraRotation", std::to_string(lastSessionContext.cameraRotation));
-        node.addChild("sceneFile", lastSessionContext.sceneFile.empty()
-                                       ? ""
-                                       : std::filesystem::absolute(lastSessionContext.sceneFile).lexically_normal());
+        node.addChild(
+            "sceneFile",
+            lastSessionContext.sceneFile.empty()
+                ? ""
+                : std::filesystem::relative(lastSessionContext.sceneFile, projectPath).lexically_normal().generic_string());
         Utils::Json::Write(projectLastSessionFilePath, node);
         LOG_DEBUG << "projectEditorFilePath saved";
     }

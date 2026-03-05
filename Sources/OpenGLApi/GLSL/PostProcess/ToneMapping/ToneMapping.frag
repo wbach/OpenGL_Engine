@@ -37,7 +37,7 @@ void main()
     vec3 hdrColor = texture(HDRBuffer, textureCoords).rgb;
 
    // 2. Ekspozycja
-    hdrColor *= exposure;
+    hdrColor *= exposure * 2.f;
 
     // 3. Tonemapping ACES
     vec3 ldrColor = ACESFilmicTonemap(hdrColor);

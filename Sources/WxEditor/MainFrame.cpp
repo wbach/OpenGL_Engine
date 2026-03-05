@@ -2160,7 +2160,7 @@ void MainFrame::MenuEditCreateWaterTile(wxCommandEvent&)
 void MainFrame::SetLastSessionContext()
 {
     auto& manager = ProjectManager::GetInstance();
-    manager.SetLastSessionContext(ProjectManager::SessionContext{.sceneFile      = canvas->GetScene().GetFile().GetAbsolutePath(),
+    manager.SetLastSessionContext(ProjectManager::SessionContext{.sceneFile = canvas->GetScene().GetFile().GetAbsolutePath(),
                                                                  .cameraPosition = canvas->GetCameraEditor()->GetPosition(),
                                                                  .cameraRotation = canvas->GetCameraEditor()->GetRotation()});
 }
