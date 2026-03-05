@@ -394,6 +394,7 @@ const Model* TreeRendererComponent::GetLeafBilboardsModel() const
 void TreeRendererComponent::SetClusterTextures(const ClusterTextures& textures)
 {
     tree.clusters.clusterTextures = textures;
+    LOG_DEBUG << textures.baseColorTexture->GetImages().size();
 }
 void TreeRendererComponent::SetTreeClusters(const TreeClusters& clusters)
 {

@@ -20,7 +20,7 @@ public:
     GpuResourceLoader();
     ~GpuResourceLoader();
 
-    void AddFunctionToCall(std::function<void()>) override;
+    void AddFunctionToCall(std::function<void()>&&) override;
 
     void AddObjectToGpuLoadingPass(GpuObject&) override;
     void AddObjectToUpdateGpuPass(GpuObject&) override;

@@ -85,19 +85,19 @@ void serialize(S& s, MaterialSerilizeData& m)
 
     s.text1b(m.name, MaxStr);
 
-    s.value4b(m.indexOfRefraction);
-
     s.object(m.baseColor);
     s.value4b(m.metallicFactor);
     s.value4b(m.roughnessFactor);
+    s.value4b(m.normalScale);
     s.value4b(m.occlusionStrength);
 
-    s.value4b(m.uvScale);
-    s.value4b(m.normalScale);
-    s.value4b(m.opacityCutoff);
+    s.value4b(m.indexOfRefraction);
     s.value4b(m.transmission);
-    s.value4b(m.subsurfaceStrength);
+    s.value4b(m.opacityCutoff);
+
     s.object(m.subsurfaceColor);
+    s.value4b(m.subsurfaceStrength);
+    s.value4b(m.uvScale);
 
     s.object(m.baseColorTexture);
     s.object(m.normalTexture);

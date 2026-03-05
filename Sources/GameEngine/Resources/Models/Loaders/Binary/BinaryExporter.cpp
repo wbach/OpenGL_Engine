@@ -38,17 +38,19 @@ MaterialSerilizeData convert(const Material& input)
     MaterialSerilizeData material;
 
     material.name               = input.name;
-    material.roughnessFactor    = input.roughnessFactor;
-    material.metallicFactor     = input.metallicFactor;
     material.baseColor          = input.baseColor.value;
-    material.indexOfRefraction  = input.indexOfRefraction;
-    material.uvScale            = input.uvScale;
+    material.metallicFactor     = input.metallicFactor;
+    material.roughnessFactor    = input.roughnessFactor;
     material.normalScale        = input.normalScale;
-    material.opacityCutoff      = input.opacityCutoff;
-    material.subsurfaceStrength = input.subsurfaceStrength;
-    material.subsurfaceColor    = input.subsurfaceColor;
     material.occlusionStrength  = input.occlusionStrength;
+
+    material.indexOfRefraction  = input.indexOfRefraction;
     material.transmission       = input.transmission;
+    material.opacityCutoff      = input.opacityCutoff;
+
+    material.subsurfaceColor    = input.subsurfaceColor;
+    material.subsurfaceStrength = input.subsurfaceStrength;
+    material.uvScale            = input.uvScale;
 
     material.baseColorTexture        = convert(input.baseColorTexture);
     material.normalTexture           = convert(input.normalTexture);

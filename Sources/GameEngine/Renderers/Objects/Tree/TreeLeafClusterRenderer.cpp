@@ -53,8 +53,8 @@ TreeLeafClusterRenderer::TreeLeafClusterRenderer(GraphicsApi::IGraphicsApi& grap
     , leafsClusterShader(graphicsApi, GraphicsApi::ShaderProgramType::TreeLeafsClusterCreation)
 {
 }
-void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::vector<Leaf>& allLeaves,
-                                     const Material& leafMaterial, ResultCallback resultCallback)
+std::optional<ClusterTextures> TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::vector<Leaf>& allLeaves,
+                                                               const Material& leafMaterial)
 {
     leafsClusterShader.Init();
     leafsClusterShader.Start();
@@ -67,8 +67,7 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
     if (not transformBuferId)
     {
         LOG_ERROR << "Create shaderbuffer error";
-        resultCallback(std::nullopt);
-        return;
+        return std::nullopt;
     }
 
     {
@@ -80,8 +79,7 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
         if (not leafsSsbo)
         {
             LOG_ERROR << "Leafs ssbo for cluster creation error.";
-            resultCallback(std::nullopt);
-            return;
+            return std::nullopt;
         }
         graphicsApi.UpdateShaderStorageBuffer(*leafsSsbo, leafsSSBOData.data(), totalSize);
         graphicsApi.BindShaderBuffer(*leafsSsbo);
@@ -92,7 +90,7 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
                                                                     GraphicsApi::DrawFlag::Dynamic);
     }
 
-    const vec2ui renderSize{1024, 1024};
+    const vec2ui renderSize{256, 256};
     GraphicsApi::FrameBuffer::Attachment depthAttachment(renderSize, GraphicsApi::FrameBuffer::Type::Depth,
                                                          GraphicsApi::FrameBuffer::Format::Depth);
 
@@ -104,15 +102,13 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
     if (not frameBuffer)
     {
         LOG_ERROR << "Unexpected error";
-        resultCallback(std::nullopt);
-        return;
+        return std::nullopt;
     }
 
     if (not frameBuffer->Init())
     {
         LOG_DEBUG << "frameBuffer init error";
-        resultCallback(std::nullopt);
-        return;
+        return std::nullopt;
     }
 
     LOG_DEBUG << "Fbo created: " << frameBuffer->GetId();
@@ -142,8 +138,7 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
     if (not textureArrayId)
     {
         LOG_ERROR << "Create texture array error.";
-        resultCallback(std::nullopt);
-        return;
+        return std::nullopt;
     }
 
     auto normalTextureArray   = textureLoader.CreateTexture(Utils::CreateUniqueFilename(), paramters, std::move(images));
@@ -152,8 +147,7 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
     if (not normalTextureArrayId)
     {
         LOG_ERROR << "Create texture array error.";
-        resultCallback(std::nullopt);
-        return;
+        return std::nullopt;
     }
 
     frameBuffer->Bind();
@@ -178,7 +172,7 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
     textureArray->CompressData();
     normalTextureArray->CompressData();
 
-    resultCallback(ClusterTextures{.baseColorTexture = textureArray, .normalTexture = normalTextureArray});
+    return ClusterTextures{.baseColorTexture = textureArray, .normalTexture = normalTextureArray};
 }
 
 void TreeLeafClusterRenderer::RenderClusters(IdType textureArrayId, IdType normalTextureArrayId, GraphicsApi::IFrameBuffer& fb,

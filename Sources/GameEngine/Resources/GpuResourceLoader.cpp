@@ -104,7 +104,7 @@ struct GpuReleaseVectorFunctionWrapper : public IGpuObjectWrapper
 
 struct GpuFunctionWrapper : public IGpuObjectWrapper
 {
-    GpuFunctionWrapper(std::function<void()> func)
+    GpuFunctionWrapper(std::function<void()>&& func)
         : function(std::move(func))
     {
     }
@@ -131,10 +131,10 @@ GpuResourceLoader::~GpuResourceLoader()
 {
     LOG_DEBUG << "~GpuResourceLoader";
 }
-void GpuResourceLoader::AddFunctionToCall(std::function<void()> f)
+void GpuResourceLoader::AddFunctionToCall(std::function<void()>&& f)
 {
     std::lock_guard<std::mutex> lock(gpuPassMutex);
-    objectsToExecute.push_back(std::make_unique<GpuFunctionWrapper>(f));
+    objectsToExecute.push_back(std::make_unique<GpuFunctionWrapper>(std::move(f)));
 }
 
 void GpuResourceLoader::AddObjectToGpuLoadingPass(GpuObject& obj)

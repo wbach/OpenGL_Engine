@@ -26,8 +26,7 @@ class TreeLeafClusterRenderer
 public:
     TreeLeafClusterRenderer(GraphicsApi::IGraphicsApi&, IResourceManager&);
 
-    using ResultCallback = std::function<void(std::optional<ClusterTextures>)>;
-    void render(const TreeClusters&, const std::vector<Leaf>&, const Material&, ResultCallback);
+    std::optional<ClusterTextures> render(const TreeClusters&, const std::vector<Leaf>&, const Material&);
 
 private:
     void BindMaterial(const Material&) const;

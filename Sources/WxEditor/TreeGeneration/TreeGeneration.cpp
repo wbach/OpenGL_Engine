@@ -20,11 +20,13 @@
 #include <GameEngine/Resources/IResourceManager.hpp>
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
+#include <limits>
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
 
+#include "Engine/EngineContext.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "GraphicsApi/MeshRawData.h"
 #include "Image/Image.h"
@@ -35,8 +37,10 @@
 #include "Resources/GpuResourceLoader.h"
 #include "Resources/Models/Mesh.h"
 #include "Resources/Models/Model.h"
+#include "Scene/Scene.hpp"
 #include "TreeGenerationParams.h"
 #include "Types.h"
+#include "WxEditor/EngineRelated/GLCanvas.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/LoadingDialog.h"
 
@@ -650,7 +654,7 @@ std::unique_ptr<GameEngine::Model> CreateBillboardVertices(GraphicsApi::IGraphic
         image.moveData(std::move(b.alpha));
 
         GameEngine::Material material = GameEngine::MaterialPresets::Leaf();
-        material.baseColorTexture     = material.baseColorTexture =
+        material.baseColorTexture =
             textureLoader.CreateTexture(Utils::CreateUniqueFilename(),
                                         GameEngine::TextureParameters{.dataStorePolicy = GameEngine::DataStorePolicy::Store,
                                                                       .filter          = GraphicsApi::TextureFilter::LINEAR},
@@ -776,11 +780,14 @@ GameEngine::TreeGenerator GenerateTree(const TreeGenerationParams& params)
     return tree;
 }
 
-void generateLeafClusters(GameEngine::IGpuResourceLoader& loader, GraphicsApi::IGraphicsApi& graphicsApi,
-                          GameEngine::IResourceManager& resourceManager, GameEngine::Components::TreeRendererComponent& trc,
-                          const std::vector<GameEngine::Leaf>& leafs, const GameEngine::Material& leafMaterial)
+void generateLeafClustersAndAddObjectWhenFinish(GLCanvas& canvas, std::unique_ptr<GameEngine::GameObject> newTreeGameObject,
+                                                GameEngine::GameObject* parentGameObject, TreeModel&& treeModel)
 {
-    auto clasters = groupLeavesIntoClusters(leafs, 1);
+    auto trc = newTreeGameObject->GetComponent<GameEngine::Components::TreeRendererComponent>();
+    if (not trc)
+        return;
+
+    auto clasters = groupLeavesIntoClusters(treeModel.meshBuilder.GetLeafs(), 4);
 
     LOG_DEBUG << "Cluster size : " << clasters.clusters.size();
 
@@ -790,26 +797,35 @@ void generateLeafClusters(GameEngine::IGpuResourceLoader& loader, GraphicsApi::I
         return;
     }
 
-    trc.SetTreeClusters(clasters);
+    trc->SetTreeClusters(clasters);
 
-    loader.AddFunctionToCall(
-        [&graphicsApi, &resourceManager, &trc, clasters, leafs, leafMaterial]()
+    auto& context = canvas.GetEngine().GetEngineContext();
+    auto wrapper  = std::make_shared<std::unique_ptr<GameEngine::GameObject>>(std::move(newTreeGameObject));
+    context.GetGpuResourceLoader().AddFunctionToCall(
+        [&canvas, clasters, tree = std::move(treeModel), wrapper, parentGameObject]() mutable
         {
-            GameEngine::TreeLeafClusterRenderer renderer(graphicsApi, resourceManager);
+            auto& graphicsApi = canvas.GetEngine().GetEngineContext().GetGraphicsApi();
+            auto& scene       = canvas.GetScene();
 
-            renderer.render(clasters, leafs, leafMaterial,
-                            [&trc](const auto& result)
-                            {
-                                if (result)
-                                {
-                                    LOG_DEBUG << "Generation clustsers done";
-                                    trc.SetClusterTextures(*result);
-                                }
-                                else
-                                {
-                                    LOG_ERROR << "Cluster rendering failed";
-                                }
-                            });
+            GameEngine::TreeLeafClusterRenderer renderer(graphicsApi, scene.GetResourceManager());
+
+            const auto& leafs        = tree.meshBuilder.GetLeafs();
+            const auto& leafMaterial = tree.leafMaterial;
+
+            auto result = renderer.render(clasters, leafs, leafMaterial);
+            if (result)
+            {
+                LOG_DEBUG << "Generation clustsers done. ";
+                auto trc = wrapper.get()->get()->GetComponent<GameEngine::Components::TreeRendererComponent>();
+                trc->SetClusterTextures(*result);
+            }
+            else
+            {
+                LOG_ERROR << "Cluster rendering failed";
+            }
+
+            LOG_DEBUG << "Generation clustsers done. Add game object to scene";
+            canvas.AddGameObject(std::move(*wrapper), parentGameObject);
         });
 }
 
@@ -962,30 +978,27 @@ void GenerateTree(wxFrame* parent, GLCanvas* canvas)
 IdType GenerateTree(wxFrame* parent, GLCanvas* canvas, const TreeGenerationParams& params, const vec3& worldPosition,
                     GameEngine::GameObject* parentGameObject)
 {
+    auto tree      = GenerateTree(params);
+    auto treeModel = GenerateLoD1Tree(tree, canvas, params);
+    if (not treeModel)
+        return std::numeric_limits<IdType>::max();
+
     static int id = 0;
     auto obj      = canvas->GetScene().CreateGameObject("GeneratedTree_" + std::to_string(id++));
     auto result   = obj->GetId();
     auto& trc     = obj->AddComponent<GameEngine::Components::TreeRendererComponent>();
-
-    auto tree      = GenerateTree(params);
-    auto treeModel = GenerateLoD1Tree(tree, canvas, params);
 
     trc.SetLeafBilboardsModel(treeModel->leafBilboardModel);
     trc.SetGeneratedTrunkModel(treeModel->trunkModel, GameEngine::LevelOfDetail::L1);
     trc.UpdateLeafsSsbo(GameEngine::PrepareSSBOData(treeModel->meshBuilder.GetLeafs()));
     trc.SetLeafMaterial(treeModel->leafMaterial);
     trc.leafTextureAtlasSize = params.meshBuilderParams.textureAtlasSize;
-    auto& engineContext      = canvas->GetEngine().GetEngineContext();
-    generateLeafClusters(engineContext.GetGpuResourceLoader(), engineContext.GetGraphicsApi(),
-                         canvas->GetScene().GetResourceManager(), trc, treeModel->meshBuilder.GetLeafs(),
-                         treeModel->leafMaterial);
-
-    auto treeModelLod2 = GenerateLoD2Tree(tree, canvas, params);
+    auto treeModelLod2       = GenerateLoD2Tree(tree, canvas, params);
     trc.SetGeneratedTrunkModel(treeModelLod2->trunkModel, GameEngine::LevelOfDetail::L2);
 
     obj->SetWorldPosition(worldPosition);
-    canvas->AddGameObject(std::move(obj), parentGameObject);
 
+    generateLeafClustersAndAddObjectWhenFinish(*canvas, std::move(obj), parentGameObject, std::move(*treeModel));
     return result;
 }
 }  // namespace WxEditor

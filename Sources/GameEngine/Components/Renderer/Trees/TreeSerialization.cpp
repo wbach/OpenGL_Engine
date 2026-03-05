@@ -143,6 +143,7 @@ TreeClustersSerializationData convert(const Tree::Clusters& clusters)
     {
         result.baseColorTextures = clusters.clusterTextures.baseColorTexture->GetImages();
         Utils::CompressImagesParallel(result.baseColorTextures);
+        LOG_DEBUG << "result.baseColorTextures size : " << result.baseColorTextures.size();
     }
 
     if (clusters.clusterTextures.normalTexture)

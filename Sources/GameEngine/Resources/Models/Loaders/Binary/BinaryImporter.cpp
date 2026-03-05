@@ -46,16 +46,17 @@ Material convert(ITextureLoader& textureLoader, const MaterialSerilizeData& inpu
 
     material.baseColor         = input.baseColor;
     material.metallicFactor    = input.metallicFactor;
-    material.transmission      = input.transmission;
     material.roughnessFactor   = input.roughnessFactor;
+    material.normalScale       = input.normalScale;
     material.occlusionStrength = input.occlusionStrength;
-    material.indexOfRefraction = input.indexOfRefraction;
 
-    material.uvScale            = input.uvScale;
-    material.normalScale        = input.normalScale;
-    material.opacityCutoff      = input.opacityCutoff;
-    material.subsurfaceStrength = input.subsurfaceStrength;
+    material.indexOfRefraction = input.indexOfRefraction;
+    material.transmission      = input.transmission;
+    material.opacityCutoff     = input.opacityCutoff;
+
     material.subsurfaceColor    = input.subsurfaceColor;
+    material.subsurfaceStrength = input.subsurfaceStrength;
+    material.uvScale            = input.uvScale;
 
     material.baseColorTexture    = createTexture(textureLoader, input.baseColorTexture);
     material.normalTexture       = createTexture(textureLoader, input.normalTexture);
