@@ -112,7 +112,7 @@ void OptionsFrame::CreateRenderingSubTab(wxNotebook* notebook, const std::string
         {
             choice->Disable();
         }
-        choice->SetClientData(&param.configurationParam);
+      //  choice->SetClientData(&param.configurationParam);
         choice->Bind(wxEVT_CHOICE,
                      [this, param](const auto& event)
                      {
@@ -120,11 +120,11 @@ void OptionsFrame::CreateRenderingSubTab(wxNotebook* notebook, const std::string
                          if (!choice)
                              return;
 
-                         auto paramPtr = static_cast<GameEngine::Params::IConfigurationParam*>(choice->GetClientData());
-                         if (paramPtr)
+                       //  auto paramPtr = param.configurationParam.get();// static_cast<GameEngine::Params::IConfigurationParam*>(choice->GetClientData());
+                       //  if (paramPtr)
                          {
                              int sel = choice->GetSelection();
-                             paramPtr->setValueFromIndex(sel);
+                             param.configurationParam.get().setValueFromIndex(sel);
 
                              if (param.restartRequierd == GameEngine::ConfigurationExplorer::ApplyPolicy::RestartRequired)
                              {
