@@ -289,7 +289,7 @@ void ProjectManager::ReadLastSessionContextFile()
 
     if (not lastSessionContext.sceneFile.empty())
     {
-        lastSessionContext.sceneFile = projectPath / lastSessionContext.sceneFile;
+        lastSessionContext.sceneFile = (projectPath / lastSessionContext.sceneFile).generic_string();
     }
 
     LOG_DEBUG << "lastSessionContext.cameraPosition : " << lastSessionContext.cameraPosition << " "
