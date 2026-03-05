@@ -240,6 +240,7 @@ void SceneReader::ReadPrefab(const File& file, Prefab& prefabGameObject)
 
     auto gameObject = scene.CreateGameObject(name);
     Read(*maybePrefabNode, *gameObject);
+    gameObject->SetLocalPosition(vec3(0));
     prefabGameObject.AddChild(std::move(gameObject));
 }
 
