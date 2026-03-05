@@ -112,7 +112,7 @@ void OptionsFrame::CreateRenderingSubTab(wxNotebook* notebook, const std::string
         {
             choice->Disable();
         }
-      //  choice->SetClientData(&param.configurationParam);
+
         choice->Bind(wxEVT_CHOICE,
                      [this, param](const auto& event)
                      {
@@ -120,25 +120,20 @@ void OptionsFrame::CreateRenderingSubTab(wxNotebook* notebook, const std::string
                          if (!choice)
                              return;
 
-                       //  auto paramPtr = param.configurationParam.get();// static_cast<GameEngine::Params::IConfigurationParam*>(choice->GetClientData());
-                       //  if (paramPtr)
+                         int sel = choice->GetSelection();
+                         param.configurationParam.get().setValueFromIndex(sel);
+
+                         if (param.restartRequierd == GameEngine::ConfigurationExplorer::ApplyPolicy::RestartRequired)
                          {
-                             int sel = choice->GetSelection();
-                             param.configurationParam.get().setValueFromIndex(sel);
-
-                             if (param.restartRequierd == GameEngine::ConfigurationExplorer::ApplyPolicy::RestartRequired)
-                             {
-                                 wxMessageBox("To make effect restart is requierd", "Information", wxOK | wxICON_INFORMATION,
-                                              this);
-                             }
-
-                             if (param.paramsImpact == GameEngine::ConfigurationExplorer::ParamsImpact::HasImpact)
-                             {
-                                 UpdateSelectedValuesInCtrl();
-                             }
-
-                             WriteConfigurationToFile(EngineConf);
+                             wxMessageBox("To make effect restart is requierd", "Information", wxOK | wxICON_INFORMATION, this);
                          }
+
+                         if (param.paramsImpact == GameEngine::ConfigurationExplorer::ParamsImpact::HasImpact)
+                         {
+                             UpdateSelectedValuesInCtrl();
+                         }
+
+                         WriteConfigurationToFile(EngineConf);
                      });
         sizer->Add(rowSizer, 0, wxEXPAND | wxTOP, 2);
     }
