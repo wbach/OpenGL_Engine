@@ -9,6 +9,7 @@
 #include "Controllers/CharacterController/ArrowController.h"
 #include "Controllers/CharacterController/CharacterController.h"
 #include "Controllers/EnemyController.h"
+#include "Dialogue/DialogueComponent.h"
 #include "Input/PlayerInputController.h"
 #include "Lights/DirectionalLightComponent.h"
 #include "Lights/PointLightComponent.h"
@@ -68,6 +69,7 @@ void RegisterReadFunctionForDefaultEngineComponents()
     registerReadFunction<DirectionalLightComponent>();
     registerReadFunction<PointLightComponent>();
     registerReadFunction<SpotLightComponent>();
+    registerReadFunction<DialogueComponent>();
 }
 }  // namespace Components
 }  // namespace GameEngine

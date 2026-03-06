@@ -16,6 +16,7 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/Bullet/Rigidbody.h"
 #include "GameEngine/Physics/CollisionContactInfo.h"
+#include "GameEngine/Physics/PhysicsApiTypes.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "MeshShape.h"
 #include "Rigidbodies.h"
@@ -122,8 +123,7 @@ void BulletAdapter::Simulate(float deltaTime)
                                             predicate    = collisionDetection.predicate](const auto& collisionInfo)
                                            {
                                                auto iter1  = std::find_if(ignoredList.begin(), ignoredList.end(),
-                                                                          [&collisionInfo](auto ignoredRbId)
-                                                                          {
+                                                                          [&collisionInfo](auto ignoredRbId) {
                                                                              return ignoredRbId == collisionInfo.rigidbodyId1 or
                                                                                     ignoredRbId == collisionInfo.rigidbodyId2;
                                                                          });
@@ -620,10 +620,13 @@ std::optional<RayHit> BulletAdapter::RayTest(const vec3& from, const vec3& to) c
 
     if (res.hasHit())
     {
-        auto rId = static_cast<uint32>(res.m_collisionObject->getUserIndex());
+        auto rId       = static_cast<uint32>(res.m_collisionObject->getUserIndex());
+        auto rigidBody = impl_->rigidbodies.get(rId);
 
-        return RayHit{
-            .pointWorld = Convert(res.m_hitPointWorld), .normalWorld = Convert(res.m_hitNormalWorld), .rigidbodyId = rId};
+        return RayHit{.gameObject  = rigidBody->gameObject,
+                      .pointWorld  = Convert(res.m_hitPointWorld),
+                      .normalWorld = Convert(res.m_hitNormalWorld),
+                      .rigidbodyId = rId};
     }
 
     return std::nullopt;
@@ -704,7 +707,7 @@ void BulletAdapter::createWorld()
     btBroadPhase           = std::make_unique<btDbvtBroadphase>();
     btSolver               = std::make_unique<btSequentialImpulseConstraintSolver>();
     btDynamicWorld         = std::make_unique<btDiscreteDynamicsWorld>(btDispacher.get(), btBroadPhase.get(), btSolver.get(),
-                                                                       collisionConfiguration.get());
+                                                               collisionConfiguration.get());
     btDynamicWorld->setGravity(btVector3(0, -10, 0));
 
     bulletDebugDrawer_ = std::make_unique<BulletDebugDrawer>();

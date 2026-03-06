@@ -27,5 +27,6 @@ enum class GameAction
     CAM_TURN_RIGHT,
     CAM_PITCH_UP,
     CAM_PITCH_DOWN,
+    DIALOG_START
 };
 }

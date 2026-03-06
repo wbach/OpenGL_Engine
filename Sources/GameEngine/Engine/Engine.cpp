@@ -200,8 +200,7 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
         });
 
     quitApiSubId_ = engineContext_.GetGraphicsApi().GetWindowApi().SubscribeForEvent(
-        [&](const auto& event)
-        {
+        [&](const auto& event) {
             std::visit(visitor{[&](const GraphicsApi::QuitEvent&) { Quit(); }, [](const GraphicsApi::DropFileEvent&) {}}, event);
         });
 }
@@ -276,6 +275,20 @@ void Engine::MainLoop()
     {
         engineContext_.GetRenderersManager().renderScene(*scene);
         displayManager.UpdateWindow();
+    }
+
+    if (engineContext_.GetDialogueManager().isActive())
+    {
+        if (auto node = engineContext_.GetDialogueManager().getCurrent())
+        {
+            LOG_DEBUG << node->npcText;
+            int i = 0;
+            for (const auto& option : node->options)
+            {
+                LOG_DEBUG << " " << i++ << ": " << option.text;
+            }
+            engineContext_.GetDialogueManager().EndDialog();
+        }
     }
 
     ProcessEngineEvents();

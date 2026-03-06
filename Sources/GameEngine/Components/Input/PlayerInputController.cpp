@@ -9,7 +9,11 @@
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
+#include "GameEngine/Components/Dialogue/DialogueComponent.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Physics/IPhysicsApi.h"
+#include "GameEngine/Scene/Scene.hpp"
+#include "Types.h"
 
 using namespace common::Controllers;
 
@@ -209,6 +213,28 @@ void PlayerInputController::SubscribeForPushActions()
 
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
         Input::GameAction::CROUCH, [&]() { characterController_->pushEventToQueue(CrouchChangeStateEvent{}); });
+
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
+        Input::GameAction::DIALOG_START,
+        [&]()
+        {
+            const vec3 offset{0, 1, 0}; // TO DO
+            glm::vec3 rayStart = thisObject_.GetWorldTransform().GetPosition() + offset; // player.getPosition();
+            glm::vec3 rayEnd   = rayStart + (thisObject_.GetWorldTransform().GetRotation().value_ * VECTOR_FORWARD * 3.0f);
+
+            auto rayTestResult = componentContext_.physicsApi_.RayTest(rayStart, rayEnd);
+
+            if (rayTestResult)
+            {
+                LOG_DEBUG << "Hit object : " << rayTestResult->gameObject.GetName();
+                if (auto maybeDialogComponent = rayTestResult->gameObject.GetComponent<DialogueComponent>())
+                {
+                    auto engineContext = componentContext_.scene_.getEngineContext();
+                    engineContext->GetDialogueManager().startDialogue(maybeDialogComponent->dialogueFile, maybeDialogComponent->startNodeID);
+                    //maybeDialogComponent->S
+                }
+            }
+        });
 }
 
 void PlayerInputController::SubscribeForPopActions()

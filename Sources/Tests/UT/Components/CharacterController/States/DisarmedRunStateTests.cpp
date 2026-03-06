@@ -225,13 +225,13 @@ TEST_F(CharacterControllerTests, DISABLED_DisarmedRunState_JumpEvent)
 
     {
         GameEngine::Physics::RayHit rayHit{
-            .pointWorld = vec3(0, -1, 0), .normalWorld = vec3(0, -1, 0), .rigidbodyId = rigidbodyid.value()};
+            .gameObject = *obj_, .pointWorld = vec3(0, -1, 0), .normalWorld = vec3(0, -1, 0), .rigidbodyId = rigidbodyid.value()};
         EXPECT_CALL(physicsApiMock_, RayTest(_, _)).WillOnce(Return(rayHit));
         Update(ADVANCED_TIME_TRANSITION_TIME);
     }
     {
         GameEngine::Physics::RayHit rayHit{
-            .pointWorld = vec3(0, 0, 0), .normalWorld = vec3(0, -1, 0), .rigidbodyId = rigidbodyid.value()};
+            .gameObject = *obj_, .pointWorld = vec3(0, 0, 0), .normalWorld = vec3(0, -1, 0), .rigidbodyId = rigidbodyid.value()};
         EXPECT_CALL(physicsApiMock_, RayTest(_, _)).WillOnce(Return(rayHit));
         Update(ADVANCED_TIME_TRANSITION_TIME);
     }

@@ -8,12 +8,13 @@
 #include <vector>
 
 #include "EngineEvent.h"
+#include "GameEngine/Dialogs/DialogueManager.h"
+#include "GameEngine/Dialogs/GameState.h"
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Scene/SceneManager.h"
 #include "MeasurementHandler.h"
-
 namespace Utils
 {
 namespace Thread
@@ -69,6 +70,8 @@ public:
     inline Utils::Time::TimerService& GetTimerService();
     inline ISceneManager& GetSceneManager();
     inline IResourceManagerFactory& GetResourceManagerFactory();
+    inline GameState& GetGameState();
+    inline DialogueManager& GetDialogueManager();
 
 private:
     std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi_;
@@ -82,6 +85,9 @@ private:
     Utils::Time::TimerService timerService_;
     Renderer::RenderersManager renderersManager_;
     std::unique_ptr<ISceneManager> sceneManager_;
+
+    GameState gameState_;
+    DialogueManager dialogueManager_;
 
     std::mutex engineEventsMutex_;
     EngineEvents engineEvents_;
@@ -137,5 +143,13 @@ ISceneManager& EngineContext::GetSceneManager()
 IResourceManagerFactory& EngineContext::GetResourceManagerFactory()
 {
     return *resourceManagerFactory;
+}
+GameState& EngineContext::GetGameState()
+{
+    return gameState_;
+}
+DialogueManager& EngineContext::GetDialogueManager()
+{
+    return dialogueManager_;
 }
 }  // namespace GameEngine

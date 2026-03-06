@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <mutex>
+#include "Input/KeyCodes.h"
 
 namespace Input
 {
@@ -57,6 +58,7 @@ void InputManager::SetDefaultKeys()
     RegisterGameAction(GameAction::CAM_RIGHT, KeyCodes::RARROW);
     RegisterGameAction(GameAction::CAM_PITCH_UP, KeyCodes::NUM1);
     RegisterGameAction(GameAction::CAM_PITCH_DOWN, KeyCodes::NUM2);
+    RegisterGameAction(GameAction::DIALOG_START, KeyCodes::ENTER);
 }
 
 bool InputManager::GetKey(GameAction action)
@@ -449,7 +451,8 @@ bool InputManager::FindEvent(uint32 eventType, uint32 key)
 {
     std::lock_guard<std::mutex> lk(keyEventMutex);
 
-    auto iter = std::find_if(keyEvents_.begin(), keyEvents_.end(), [eventType, key](const KeyEvent& keyEvent)
+    auto iter = std::find_if(keyEvents_.begin(), keyEvents_.end(),
+                             [eventType, key](const KeyEvent& keyEvent)
                              { return keyEvent.first == eventType and key == keyEvent.second; });
 
     return iter != keyEvents_.end();

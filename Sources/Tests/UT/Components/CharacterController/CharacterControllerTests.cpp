@@ -2,10 +2,11 @@
 
 #include <GameEngine/Components/Animation/JointPoseUpdater.h>
 #include <GameEngine/Physics/IPhysicsApi.h>
+#include <Logger/Log.h>
+
+#include "GameEngine/Components/Animation/BowPoseUpdater.h"
 #include "GameEngine/Components/Physics/SphereShape.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
-#include "GameEngine/Components/Animation/BowPoseUpdater.h"
-#include <Logger/Log.h>
 
 MATCHER_P(CollisionDetectionActionMatcher, action, "Action matcher for CollisionDetection")
 {
@@ -397,7 +398,7 @@ void CharacterControllerTests::expectRootboneRotation(const vec3& dir)
 {
     Update(DEFAULT_MOVING_CHANGE_DIR_SPEED);
 
-    auto currentBoneRotation  = glm::quat_cast(animator_->GetRootJoint()->additionalUserMofiyTransform.getMatrix());
+    auto currentBoneRotation  = glm::quat_cast(animator_->masterSkeletonData.skeleton.getRotation());
     auto expectedBoneRotation = glm::angleAxis(glm::orientedAngle(VECTOR_FORWARD, glm::normalize(dir), VECTOR_UP), VECTOR_UP);
 
     EXPECT_NEAR(currentBoneRotation.x, expectedBoneRotation.x, std::numeric_limits<float>::epsilon());
@@ -405,8 +406,8 @@ void CharacterControllerTests::expectRootboneRotation(const vec3& dir)
     EXPECT_NEAR(currentBoneRotation.z, expectedBoneRotation.z, std::numeric_limits<float>::epsilon());
     EXPECT_NEAR(currentBoneRotation.w, expectedBoneRotation.w, std::numeric_limits<float>::epsilon());
 
-    /* LOG TO FIX*/ LOG_ERROR << ("Expected bone rotation : " + std::to_string(expectedBoneRotation) + ", eurler " +
-                                  std::to_string(Rotation(expectedBoneRotation).GetEulerDegrees().value));
-    /* LOG TO FIX*/ LOG_ERROR << ("Current bone rotation : " + std::to_string(currentBoneRotation) + ", eurler " +
-                                  std::to_string(Rotation(currentBoneRotation).GetEulerDegrees().value));
+    LOG_DEBUG << "Expected bone rotation : " << expectedBoneRotation << ", eurler "
+              << Rotation(expectedBoneRotation).GetEulerDegrees().value;
+    LOG_DEBUG << "Current bone rotation : " << currentBoneRotation << ", eurler "
+              << Rotation(currentBoneRotation).GetEulerDegrees().value;
 }
