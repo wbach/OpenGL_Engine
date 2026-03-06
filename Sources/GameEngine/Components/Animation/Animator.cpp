@@ -436,7 +436,7 @@ void Animator::applyPoseToJoints()
         }
     }
 
-    applyPoseToJoints(masterSkeletonData.skeleton.getRootJoint(), masterSkeletonData.skeleton.getRootJoint().offset);
+    applyPoseToJoints(masterSkeletonData.skeleton.getRootJoint(), masterSkeletonData.skeleton.getRotation() * masterSkeletonData.skeleton.getRootJoint().offset);
     updateShaderBuffers();
 }
 void Animator::initAnimationClips(const Model& model)

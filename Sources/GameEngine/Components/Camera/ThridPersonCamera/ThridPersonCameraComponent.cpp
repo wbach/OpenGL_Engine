@@ -8,6 +8,7 @@
 #include "GameEngine/Camera/CustomCamera.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/Fsm/ThridPersonCameraEvents.h"
 #include "GameEngine/Components/ComponentContext.h"
+#include "GameEngine/Components/ComponentType.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Scene.hpp"
@@ -20,8 +21,9 @@ namespace Components
 using namespace Camera;
 namespace
 {
-const std::string& COMPONENT_STR{"ThridPersonCameraComponent"};
-}
+constexpr char CSTR_RUN_CAMERA_LOCAL_POS[] = "runLocalCameraPos";
+constexpr char CSTR_AIM_CAMERA_LOCAL_POS[] = "aimLocalCameraPos";
+}  // namespace
 
 ThridPersonCameraComponent::ThridPersonCameraComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(GetComponentType<ThridPersonCameraComponent>(), componentContext, gameObject)
@@ -106,7 +108,7 @@ void ThridPersonCameraComponent::awake()
                                  .displayManager  = *componentContext_.scene_.getDisplayManager(),
                                  .gameObject      = thisObject_,
                                  .camera          = *camera,
-                                 .cameraPositions = {.run = vec3{-0.5f, 1.0f, -1.5f}, .aim = vec3{-0.25f, 1.f, -0.75f}}});
+                                 .cameraPositions = {.run = runLocalCameraPos, .aim = aimLocalCameraPos}});
 
     auto& cameraManager = componentContext_.scene_.GetCameraManager();
     cameraId            = cameraManager.AddCamera(std::move(camera));
@@ -160,8 +162,14 @@ void ThridPersonCameraComponent::processEvent()
 
 void ThridPersonCameraComponent::registerReadFunctions()
 {
-    auto func = [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject)
-    { return std::make_unique<ThridPersonCameraComponent>(componentContext, gameObject); };
+    auto func = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
+        auto component = std::make_unique<ThridPersonCameraComponent>(componentContext, gameObject);
+        component->read(node);
+        ::Read(node.getChild(CSTR_RUN_CAMERA_LOCAL_POS), component->runLocalCameraPos);
+        ::Read(node.getChild(CSTR_AIM_CAMERA_LOCAL_POS), component->aimLocalCameraPos);
+        return component;
+    };
 
     regsiterComponentReadFunction(GetComponentType<ThridPersonCameraComponent>(), func);
 }
@@ -169,7 +177,11 @@ void ThridPersonCameraComponent::registerReadFunctions()
 void ThridPersonCameraComponent::write(TreeNode& node) const
 {
     const std::string CSTR_TYPE = "type";
-    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
+    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
+    BaseComponent::write(node);
+
+    ::write(node.addChild(CSTR_RUN_CAMERA_LOCAL_POS), runLocalCameraPos);
+    ::write(node.addChild(CSTR_AIM_CAMERA_LOCAL_POS), aimLocalCameraPos);
 }
 }  // namespace Components
 }  // namespace GameEngine

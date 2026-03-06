@@ -1,5 +1,6 @@
 #pragma once
 #include <Input/KeysSubscriptionsManager.h>
+
 #include <optional>
 
 #include "Fsm/Context.h"
@@ -18,6 +19,18 @@ namespace Components
 {
 class ThridPersonCameraComponent : public BaseComponent
 {
+public:
+    vec3 runLocalCameraPos{-0.5f, 1.0f, -1.5f};
+    vec3 aimLocalCameraPos{-0.25f, 1.f, -0.75f};
+
+public:
+    // clang-format off
+    BEGIN_FIELDS()
+        FIELD_VECTOR3F(runLocalCameraPos)
+        FIELD_VECTOR3F(aimLocalCameraPos)
+    END_FIELDS()
+    // clang-format on
+
 public:
     ThridPersonCameraComponent(ComponentContext&, GameObject&);
     void CleanUp() override;

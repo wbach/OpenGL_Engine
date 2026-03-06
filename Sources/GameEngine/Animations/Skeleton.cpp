@@ -126,5 +126,13 @@ std::ostream& operator<<(std::ostream& os, const Skeleton& s)
     os << "\nSkeleton:\n" << s.getRootJoint();
     return os;
 }
+const mat4& Skeleton::getRotation() const
+{
+    return rotation;
+}
+void Skeleton::setRotation(const mat4& rot)
+{
+    rotation = rot;
+}
 }  // namespace Animation
 }  // namespace GameEngine
