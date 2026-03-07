@@ -18,10 +18,21 @@ BaseComponentTestSchould::BaseComponentTestSchould()
                         std::make_unique<RendererFactory>(graphicsApiMock_))
     , guiFactoryEntryParameters_{guiManager_, inputManagerMock_, resourcesManager_, renderersManager_}
     , guiElementFactory_(guiFactoryEntryParameters_)
-    , context_(scene, sceneManager, graphicsApiMock_, gpuResourceLoader_, time_, inputManagerMock_, physicsApiMock_,
-               resourcesManager_, renderersManager_, componentController_, guiElementFactory_, timerService_)
-    , componentFactory_(scene, sceneManager, componentController_, graphicsApiMock_, gpuResourceLoader_, time_, inputManagerMock_,
-                        resourcesManager_, renderersManager_, physicsApiMock_, guiElementFactory_, timerService_)
+    , dialogueManager_(guiElementFactory_, guiManager_, gameState_)
+    , context_{scene,
+               sceneManager,
+               graphicsApiMock_,
+               gpuResourceLoader_,
+               time_,
+               inputManagerMock_,
+               physicsApiMock_,
+               resourcesManager_,
+               componentController_,
+               renderersManager_,
+               guiElementFactory_,
+               timerService_,
+               dialogueManager_}
+    , componentFactory_(context_)
     , obj_{std::make_unique<GameEngine::GameObject>("Test GameObject", componentController_, componentFactory_, gameObjectIdPool)}
 {
     EXPECT_CALL(frameBufferMock_, Init()).WillRepeatedly(Return(false));

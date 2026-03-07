@@ -1,9 +1,9 @@
 #pragma once
 #include <string>
-
+#include <EngineApi.h>
 namespace GameEngine
 {
-struct DialogueOption
+struct ENGINE_API DialogueOption
 {
     std::string text;
     int nextNodeID;

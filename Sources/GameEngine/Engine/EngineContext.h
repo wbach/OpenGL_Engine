@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "EngineEvent.h"
-#include "GameEngine/Dialogs/DialogueManager.h"
 #include "GameEngine/Dialogs/GameState.h"
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Renderers/RenderersManager.h"
@@ -71,7 +70,6 @@ public:
     inline ISceneManager& GetSceneManager();
     inline IResourceManagerFactory& GetResourceManagerFactory();
     inline GameState& GetGameState();
-    inline DialogueManager& GetDialogueManager();
 
 private:
     std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi_;
@@ -87,7 +85,6 @@ private:
     std::unique_ptr<ISceneManager> sceneManager_;
 
     GameState gameState_;
-    DialogueManager dialogueManager_;
 
     std::mutex engineEventsMutex_;
     EngineEvents engineEvents_;
@@ -147,9 +144,5 @@ IResourceManagerFactory& EngineContext::GetResourceManagerFactory()
 GameState& EngineContext::GetGameState()
 {
     return gameState_;
-}
-DialogueManager& EngineContext::GetDialogueManager()
-{
-    return dialogueManager_;
 }
 }  // namespace GameEngine

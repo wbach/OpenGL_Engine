@@ -4,6 +4,7 @@
 #include <Utils/TreeNode.h>
 
 #include "ComponentsReadFunctions.h"
+#include "GameEngine/Components/ComponentContext.h"
 #include "IComponent.h"
 #include "UnknownExternalComponent.h"
 
@@ -11,13 +12,8 @@ namespace GameEngine
 {
 namespace Components
 {
-ComponentFactory::ComponentFactory(Scene& scene, ISceneManager& sceneManager, ComponentController& componentController,
-                                   GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader, Time& time,
-                                   Input::InputManager& input, IResourceManager& resourceManager,
-                                   Renderer::RenderersManager& rendererManager, Physics::IPhysicsApi& physicsApi,
-                                   GuiElementFactory& guiElementFactory, Utils::Time::TimerService& timerService)
-    : context_(scene, sceneManager, graphicsApi, gpuResourceLoader, time, input, physicsApi, resourceManager, rendererManager,
-               componentController, guiElementFactory, timerService)
+ComponentFactory::ComponentFactory(ComponentContext& context)
+    : context_(context)
 {
 }
 std::unique_ptr<IComponent> ComponentFactory::Create(const TreeNode& node, GameObject& gameObject)

@@ -10,6 +10,7 @@
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Dialogue/DialogueComponent.h"
+#include "GameEngine/Dialogs/DialogueManager.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Scene/Scene.hpp"
@@ -218,8 +219,8 @@ void PlayerInputController::SubscribeForPushActions()
         Input::GameAction::DIALOG_START,
         [&]()
         {
-            const vec3 offset{0, 1, 0}; // TO DO
-            glm::vec3 rayStart = thisObject_.GetWorldTransform().GetPosition() + offset; // player.getPosition();
+            const vec3 offset{0, 0.5f, 0};  // TO DO
+            glm::vec3 rayStart = thisObject_.GetWorldTransform().GetPosition() + offset;
             glm::vec3 rayEnd   = rayStart + (thisObject_.GetWorldTransform().GetRotation().value_ * VECTOR_FORWARD * 3.0f);
 
             auto rayTestResult = componentContext_.physicsApi_.RayTest(rayStart, rayEnd);
@@ -229,9 +230,9 @@ void PlayerInputController::SubscribeForPushActions()
                 LOG_DEBUG << "Hit object : " << rayTestResult->gameObject.GetName();
                 if (auto maybeDialogComponent = rayTestResult->gameObject.GetComponent<DialogueComponent>())
                 {
-                    auto engineContext = componentContext_.scene_.getEngineContext();
-                    engineContext->GetDialogueManager().startDialogue(maybeDialogComponent->dialogueFile, maybeDialogComponent->startNodeID);
-                    //maybeDialogComponent->S
+                    componentContext_.dialogueManager_.startDialogue(maybeDialogComponent->GetParentGameObject().GetName(),
+                                                                     maybeDialogComponent->dialogueFile,
+                                                                     maybeDialogComponent->startNodeID);
                 }
             }
         });

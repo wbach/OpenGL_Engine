@@ -277,20 +277,6 @@ void Engine::MainLoop()
         displayManager.UpdateWindow();
     }
 
-    if (engineContext_.GetDialogueManager().isActive())
-    {
-        if (auto node = engineContext_.GetDialogueManager().getCurrent())
-        {
-            LOG_DEBUG << node->npcText;
-            int i = 0;
-            for (const auto& option : node->options)
-            {
-                LOG_DEBUG << " " << i++ << ": " << option.text;
-            }
-            engineContext_.GetDialogueManager().EndDialog();
-        }
-    }
-
     ProcessEngineEvents();
     displayManager.EndFrame();
 }

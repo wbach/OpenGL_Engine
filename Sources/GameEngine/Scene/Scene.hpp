@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "GameEngine/Camera/CameraManager.h"
+#include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentFactory.h"
 #include "GameEngine/DebugTools/Console/Console.h"
@@ -24,9 +25,9 @@
 #include "GameEngine/Renderers/GUI/GuiManager.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Time/DayNightCycle.h"
-#include "WindParams.h"
 #include "SceneEvents.h"
 #include "Types.h"
+#include "WindParams.h"
 
 namespace Input
 {
@@ -46,6 +47,7 @@ class GuiTextElement;
 class GuiTextureElement;
 class GuiWindowElement;
 class GuiEngineContextManger;
+class DialogueManager;
 
 class ENGINE_API Scene
 {
@@ -145,7 +147,9 @@ protected:
     IdType defaultCameraId;
     Color backgroundColor;
 
+    std::unique_ptr<DialogueManager> dialogueManager_;
     Components::ComponentController componentController_;
+    std::unique_ptr<Components::ComponentContext> componentContext_;
     std::unique_ptr<Components::ComponentFactory> componentFactory_;
     std::unique_ptr<GuiManager> guiManager_;
     std::unique_ptr<GuiElementFactory> guiElementFactory_;

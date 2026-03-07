@@ -36,9 +36,7 @@ namespace Components
 class ComponentFactory
 {
 public:
-    ComponentFactory(Scene&, ISceneManager&, ComponentController&, GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, Time&,
-                     Input::InputManager&, IResourceManager&, Renderer::RenderersManager&, Physics::IPhysicsApi&,
-                     GuiElementFactory&, Utils::Time::TimerService&);
+    ComponentFactory(ComponentContext&);
 
     template <typename Component, typename... Args>
     std::unique_ptr<IComponent> Create(GameObject& gameObject, Args&&... args)
@@ -51,7 +49,7 @@ public:
     std::unique_ptr<IComponent> Create(const TreeNode&, GameObject&);
 
 private:
-    ComponentContext context_;
+    ComponentContext& context_;
 };
 }  // namespace Components
 }  // namespace GameEngine

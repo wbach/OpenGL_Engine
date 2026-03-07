@@ -8,6 +8,8 @@
 #include <memory>
 
 #include "Camera/CameraManager.h"
+#include "Dialogs/DialogueManager.h"
+#include "Dialogs/GameState.h"
 #include "GameEngine/Camera/Frustrum.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentController.h"
@@ -42,6 +44,7 @@ public:
     BaseComponentTestSchould();
     virtual ~BaseComponentTestSchould();
 
+    GameState gameState_;
     CameraManager cameraManager_;
     Scene scene;
     std::vector<GraphicsApi::DisplayMode> displayModes;
@@ -66,6 +69,7 @@ public:
     CameraMock cameraMock_;
     GuiElementFactory::EntryParameters guiFactoryEntryParameters_;
     GuiElementFactory guiElementFactory_;
+    DialogueManager dialogueManager_;
     ComponentContext context_;
     ComponentFactory componentFactory_;
     std::unique_ptr<GameObject> obj_;

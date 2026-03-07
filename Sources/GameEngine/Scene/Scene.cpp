@@ -12,7 +12,9 @@
 #include <utility>
 
 #include "GameEngine/Camera/Camera.h"
+#include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentFactory.h"
+#include "GameEngine/Dialogs/DialogueManager.h"
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/GUI/GuiEngineContextManger.h"
@@ -131,12 +133,25 @@ void Scene::InitResources(EngineContext& context)
     GuiElementFactory::EntryParameters guiFactoryParams{*guiManager_, *inputManager_, *resourceManager_, *renderersManager_};
     guiElementFactory_      = std::make_unique<GuiElementFactory>(guiFactoryParams);
     guiEngineContextManger_ = std::make_unique<GuiEngineContextManger>(context.GetMeasurmentHandler(), *guiElementFactory_);
+    dialogueManager_        = std::make_unique<DialogueManager>(*guiElementFactory_, *guiManager_, context.GetGameState());
 
     console_ = std::make_unique<Debug::Console>(*this);
 
-    componentFactory_ = std::make_unique<Components::ComponentFactory>(
-        *this, context.GetSceneManager(), componentController_, context.GetGraphicsApi(), context.GetGpuResourceLoader(), time_,
-        *inputManager_, *resourceManager_, *renderersManager_, *physicsApi_, *guiElementFactory_, *timerService_);
+    componentContext_ = std::make_unique<Components::ComponentContext>(
+        Components::ComponentContext{.scene_               = *this,
+                                     .sceneManager_        = context.GetSceneManager(),
+                                     .graphicsApi_         = context.GetGraphicsApi(),
+                                     .gpuResourceLoader_   = context.GetGpuResourceLoader(),
+                                     .time_                = time_,
+                                     .inputManager_        = *inputManager_,
+                                     .physicsApi_          = *physicsApi_,
+                                     .resourceManager_     = *resourceManager_,
+                                     .componentController_ = componentController_,
+                                     .renderersManager_    = *renderersManager_,
+                                     .guiElementFactory_   = *guiElementFactory_,
+                                     .timerService_        = *timerService_,
+                                     .dialogueManager_     = *dialogueManager_});
+    componentFactory_ = std::make_unique<Components::ComponentFactory>(*componentContext_);
 
     rootGameObject_ = CreateGameObject("root");
 
