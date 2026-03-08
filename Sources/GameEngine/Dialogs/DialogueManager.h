@@ -19,17 +19,20 @@ namespace GameEngine
 {
 class GuiWindowElement;
 class VerticalLayout;
+namespace Components
+{
+class DialogueComponent;
+}
 
 class ENGINE_API DialogueManager
 {
 public:
     DialogueManager(Input::InputManager&, GuiElementFactory&, GuiManager&, GameState& gs);
 
-    void startDialogue(const std::string& npcName, const std::string& file, int nodeId = 1);
-    void setupDemo();
+    void startDialogue(Components::DialogueComponent&);
+
     void selectOption(int optionIndex);
     bool isActive() const;
-    const DialogueNode* getCurrent() const;
     void EndDialog();
 
 private:
@@ -50,10 +53,8 @@ private:
     Input::KeysSubscriptionsManager subscriptions_;
 
 private:
-    std::unordered_map<int, DialogueNode> nodes;
-    int currentNodeID = 1;
     GameState& gameState;
-    bool isDialogueActive{false};
+    Components::DialogueComponent* dialogueComponent{nullptr};
     int highlighted{0};
     std::string npcName;
 };

@@ -22,7 +22,7 @@ public:
     template <typename T>
         requires std::same_as<std::remove_cvref_t<T>, std::string>
     TreeNode(const std::string& name, T&& value)
-        : parent(nullptr) 
+        : parent(nullptr)
         , value_(std::forward<T>(value))
         , type_{"unknown"}
         , name_(name)

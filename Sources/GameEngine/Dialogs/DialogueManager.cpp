@@ -4,6 +4,8 @@
 
 #include <utility>
 
+#include "GameEngine/Components/Dialogue/DialogueComponent.h"
+#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/GUI/Layout/Layout.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
 #include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
@@ -26,7 +28,10 @@ DialogueManager::DialogueManager(Input::InputManager& inputManager, GuiElementFa
     subscriptions_ = inputManager.SubscribeOnKeyDown(KeyCodes::UARROW,
                                                      [&]()
                                                      {
-                                                         if (auto current = getCurrent())
+                                                         if (not dialogueComponent)
+                                                             return;
+
+                                                         if (auto current = dialogueComponent->getCurrent())
                                                          {
                                                              int oldItem = highlighted;
                                                              highlighted--;
@@ -41,7 +46,10 @@ DialogueManager::DialogueManager(Input::InputManager& inputManager, GuiElementFa
     subscriptions_ = inputManager.SubscribeOnKeyDown(KeyCodes::DARROW,
                                                      [&]()
                                                      {
-                                                         if (auto current = getCurrent())
+                                                         if (not dialogueComponent)
+                                                             return;
+
+                                                         if (auto current = dialogueComponent->getCurrent())
                                                          {
                                                              int oldItem = highlighted;
                                                              highlighted++;
@@ -62,79 +70,41 @@ DialogueManager::DialogueManager(Input::InputManager& inputManager, GuiElementFa
                                                              highlighted = 0;
                                                          }
                                                      });
-
-    setupDemo();
 }
-void DialogueManager::startDialogue(const std::string& npcName, const std::string& file, int nodeId)
+void DialogueManager::startDialogue(Components::DialogueComponent& component)
 {
-    this->npcName = npcName;
+    initGui();
 
-    LOG_DEBUG << "StartDialogue file: " << file;
-    if (nodes.find(nodeId) != nodes.end())
-    {
-        currentNodeID    = nodeId;
-        isDialogueActive = true;
+    dialogueComponent = &component;
+    this->npcName     = dialogueComponent->GetParentGameObject().GetName();
 
-        initGui();
-        refreshOptionGui();
-    }
-    else
-    {
-        LOG_ERROR << "Dialogue Node " << nodeId << " not found!";
-    }
-}
-void DialogueManager::setupDemo()
-{
-    nodes[1] = {1, "Stoj! Kto idzie?", {{"Szukam schronienia.", 2, ""}, {"Nie Twoj interes.", -1, ""}}};
-    nodes.at(currentNodeID);
-    nodes[2] = {2,
-                "To Oboz Cienia. Swiat oszalal. Chcesz wiedziec wiecej?",
-                {{"Tak, opowiedz mi.", 3, ""}, {"Nie, musze leciec.", -1, ""}}};
-    nodes[3] = {3, "Wydajesz sie porzadny. Wejdz do srodka.", {{"Dziekuje!", -1, "invited_to_camp"}}};
+    refreshOptionGui();
 }
 void DialogueManager::selectOption(int optionIndex)
 {
     LOG_DEBUG << "selectOption " << optionIndex;
 
-    DialogueOption& selected = nodes[currentNodeID].options[optionIndex];
-    if (!selected.actionFlag.empty())
+    if (not dialogueComponent)
     {
-        gameState.flags[selected.actionFlag] = 1;
+        return;
     }
 
-    if (selected.nextNodeID == -1)
+    auto status = dialogueComponent->selectOption(optionIndex);
+    if (status == Components::DialogueComponent::SelectOptionResult::end)
     {
-        LOG_DEBUG << "End dialog";
         EndDialog();
+        return;
     }
-    else
-    {
-        LOG_DEBUG << "nextNodeID " << selected.nextNodeID;
-        currentNodeID = selected.nextNodeID;
-        refreshOptionGui();
-    }
+
+    refreshOptionGui();
 }
 bool DialogueManager::isActive() const
 {
-    return isDialogueActive;
-}
-const DialogueNode* DialogueManager::getCurrent() const
-{
-    if (not isActive())
-        return nullptr;
-
-    auto iter = nodes.find(currentNodeID);
-    if (iter != nodes.end())
-    {
-        return &iter->second;
-    }
-
-    return nullptr;
+    return dialogueComponent != nullptr;
 }
 void DialogueManager::EndDialog()
 {
-    currentNodeID    = 1;
-    isDialogueActive = false;
+    dialogueComponent = nullptr;
 
     if (textDialogueWindow)
         textDialogueWindow->Hide();
@@ -203,10 +173,13 @@ void DialogueManager::updateHighLightedColor(int oldItem, int newItem)
 }
 void DialogueManager::refreshOptionGui()
 {
+    if (not dialogueComponent)
+        return;
+
     textWindowLayout->RemoveAll();
     optionsWindowLayout->RemoveAll();
 
-    if (auto current = getCurrent())
+    if (auto current = dialogueComponent->getCurrent())
     {
         const vec2 textSize{1.0f, 0.25};
         auto npcNameGuiText = guiFactory.CreateGuiText(npcName);

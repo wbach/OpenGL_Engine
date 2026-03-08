@@ -233,9 +233,7 @@ void PlayerInputController::SubscribeForPushActions()
                 LOG_DEBUG << "Hit object : " << rayTestResult->gameObject.GetName();
                 if (auto maybeDialogComponent = rayTestResult->gameObject.GetComponent<DialogueComponent>())
                 {
-                    componentContext_.dialogueManager_.startDialogue(maybeDialogComponent->GetParentGameObject().GetName(),
-                                                                     maybeDialogComponent->dialogueFile,
-                                                                     maybeDialogComponent->startNodeID);
+                    componentContext_.dialogueManager_.startDialogue(*maybeDialogComponent);
                 }
             }
         });
