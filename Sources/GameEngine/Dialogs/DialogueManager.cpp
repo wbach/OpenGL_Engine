@@ -7,18 +7,68 @@
 #include "GameEngine/Renderers/GUI/Layout/Layout.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
 #include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
+#include "Input/InputManager.h"
+#include "Input/KeyCodes.h"
 
 namespace GameEngine
 {
-DialogueManager::DialogueManager(GuiElementFactory& factory, GuiManager& manger, GameState& gs)
-    : guiFactory(factory)
+namespace
+{
+const vec3 highlightedColor(1, 1, 0);
+}
+DialogueManager::DialogueManager(Input::InputManager& inputManager, GuiElementFactory& factory, GuiManager& manger, GameState& gs)
+    : inputManager(inputManager)
+    , guiFactory(factory)
     , guiManager(manger)
+    , subscriptions_(inputManager)
     , gameState(gs)
 {
+    subscriptions_ = inputManager.SubscribeOnKeyDown(KeyCodes::UARROW,
+                                                     [&]()
+                                                     {
+                                                         if (auto current = getCurrent())
+                                                         {
+                                                             int oldItem = highlighted;
+                                                             highlighted--;
+                                                             if (highlighted < 0)
+                                                             {
+                                                                 highlighted = current->options.size() - 1;
+                                                             }
+                                                             int newItem = highlighted;
+                                                             updateHighLightedColor(oldItem, newItem);
+                                                         }
+                                                     });
+    subscriptions_ = inputManager.SubscribeOnKeyDown(KeyCodes::DARROW,
+                                                     [&]()
+                                                     {
+                                                         if (auto current = getCurrent())
+                                                         {
+                                                             int oldItem = highlighted;
+                                                             highlighted++;
+                                                             if (highlighted >= static_cast<int>(current->options.size()))
+                                                             {
+                                                                 highlighted = 0;
+                                                             }
+                                                             int newItem = highlighted;
+                                                             updateHighLightedColor(oldItem, newItem);
+                                                         }
+                                                     });
+    subscriptions_ = inputManager.SubscribeOnKeyDown(KeyCodes::ENTER,
+                                                     [&]()
+                                                     {
+                                                         if (isActive())
+                                                         {
+                                                             selectOption(highlighted);
+                                                             highlighted = 0;
+                                                         }
+                                                     });
+
     setupDemo();
 }
 void DialogueManager::startDialogue(const std::string& npcName, const std::string& file, int nodeId)
 {
+    this->npcName = npcName;
+
     LOG_DEBUG << "StartDialogue file: " << file;
     if (nodes.find(nodeId) != nodes.end())
     {
@@ -26,28 +76,7 @@ void DialogueManager::startDialogue(const std::string& npcName, const std::strin
         isDialogueActive = true;
 
         initGui();
-        textWindowLayout->RemoveAll();
-        optionsWindowLayout->RemoveAll();
-
-        if (auto current = getCurrent())
-        {
-            const vec2 textSize{0.25f, 0.2};
-            auto npcNameGuiText = guiFactory.CreateGuiText(npcName);
-            npcNameGuiText->SetLocalScale(textSize + vec2(0.1f, 0.1f));
-            textWindowLayout->AddChild(std::move(npcNameGuiText));
-
-            auto npcGuiText = guiFactory.CreateGuiText(current->npcText);
-            npcGuiText->SetLocalScale(textSize);
-            textWindowLayout->AddChild(std::move(npcGuiText));
-
-            for (const auto& option : current->options)
-            {
-                auto optionGuiText = guiFactory.CreateGuiText("-- " + option.text);
-                optionGuiText->SetLocalScale(textSize);
-                optionGuiText->SetAlgin(GuiTextElement::Algin::LEFT);
-                optionsWindowLayout->AddChild(std::move(optionGuiText));
-            }
-        }
+        refreshOptionGui();
     }
     else
     {
@@ -56,19 +85,17 @@ void DialogueManager::startDialogue(const std::string& npcName, const std::strin
 }
 void DialogueManager::setupDemo()
 {
-    // Węzeł 1: Powitanie
     nodes[1] = {1, "Stoj! Kto idzie?", {{"Szukam schronienia.", 2, ""}, {"Nie Twoj interes.", -1, ""}}};
     nodes.at(currentNodeID);
-    // Węzeł 2: Opowieść o swiecie
     nodes[2] = {2,
-                "To Obóz Cienia. Swiat oszalal. Chcesz wiedziec wiecej?",
+                "To Oboz Cienia. Swiat oszalal. Chcesz wiedziec wiecej?",
                 {{"Tak, opowiedz mi.", 3, ""}, {"Nie, musze leciec.", -1, ""}}};
-
-    // Węzeł 3: Zaproszenie
     nodes[3] = {3, "Wydajesz sie porzadny. Wejdz do srodka.", {{"Dziekuje!", -1, "invited_to_camp"}}};
 }
 void DialogueManager::selectOption(int optionIndex)
 {
+    LOG_DEBUG << "selectOption " << optionIndex;
+
     DialogueOption& selected = nodes[currentNodeID].options[optionIndex];
     if (!selected.actionFlag.empty())
     {
@@ -77,11 +104,14 @@ void DialogueManager::selectOption(int optionIndex)
 
     if (selected.nextNodeID == -1)
     {
+        LOG_DEBUG << "End dialog";
         EndDialog();
     }
     else
     {
+        LOG_DEBUG << "nextNodeID " << selected.nextNodeID;
         currentNodeID = selected.nextNodeID;
+        refreshOptionGui();
     }
 }
 bool DialogueManager::isActive() const
@@ -90,6 +120,9 @@ bool DialogueManager::isActive() const
 }
 const DialogueNode* DialogueManager::getCurrent() const
 {
+    if (not isActive())
+        return nullptr;
+
     auto iter = nodes.find(currentNodeID);
     if (iter != nodes.end())
     {
@@ -102,6 +135,11 @@ void DialogueManager::EndDialog()
 {
     currentNodeID    = 1;
     isDialogueActive = false;
+
+    if (textDialogueWindow)
+        textDialogueWindow->Hide();
+    if (optionsDialogueWindow)
+        optionsDialogueWindow->Hide();
 }
 void DialogueManager::initGui()
 {
@@ -124,6 +162,10 @@ void DialogueManager::initGui()
         textDialogueWindow    = window;
         textWindowLayout      = layout;
     }
+    else
+    {
+        textDialogueWindow->Show();
+    }
 
     if (not optionsDialogueWindow)
     {
@@ -133,6 +175,61 @@ void DialogueManager::initGui()
         layout->SetAlgin(Layout::Algin::LEFT);
         optionsDialogueWindow = window;
         optionsWindowLayout   = layout;
+    }
+    else
+    {
+        optionsDialogueWindow->Show();
+    }
+}
+void DialogueManager::updateHighLightedColor(int oldItem, int newItem)
+{
+    auto& children = optionsWindowLayout->GetChildren();
+    if (!optionsWindowLayout || children.empty())
+        return;
+
+    auto updateColor = [&](int index, glm::vec3 color)
+    {
+        if (index >= 0 && index < static_cast<int>(children.size()))
+        {
+            if (auto* text = dynamic_cast<GuiTextElement*>(children[index].get()))
+            {
+                text->SetColor(color);
+            }
+        }
+    };
+
+    updateColor(oldItem, vec3(1, 1, 1));
+    updateColor(newItem, highlightedColor);
+}
+void DialogueManager::refreshOptionGui()
+{
+    textWindowLayout->RemoveAll();
+    optionsWindowLayout->RemoveAll();
+
+    if (auto current = getCurrent())
+    {
+        const vec2 textSize{1.0f, 0.25};
+        auto npcNameGuiText = guiFactory.CreateGuiText(npcName);
+        npcNameGuiText->SetLocalScale(textSize + vec2(0.1f, 0.1f));
+        textWindowLayout->AddChild(std::move(npcNameGuiText));
+
+        auto npcGuiText = guiFactory.CreateGuiText(current->npcText);
+        npcGuiText->SetLocalScale(textSize);
+        textWindowLayout->AddChild(std::move(npcGuiText));
+
+        int i = 0;
+        for (const auto& option : current->options)
+        {
+            auto optionGuiText = guiFactory.CreateGuiText("-- " + option.text);
+            optionGuiText->SetLocalScale(textSize);
+            optionGuiText->SetAlgin(GuiTextElement::Algin::LEFT);
+            if (i == 0)
+            {
+                optionGuiText->SetColor(highlightedColor);
+                i++;
+            }
+            optionsWindowLayout->AddChild(std::move(optionGuiText));
+        }
     }
 }
 }  // namespace GameEngine

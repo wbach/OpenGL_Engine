@@ -219,6 +219,9 @@ void PlayerInputController::SubscribeForPushActions()
         Input::GameAction::DIALOG_START,
         [&]()
         {
+            if (componentContext_.dialogueManager_.isActive())
+                return;
+
             const vec3 offset{0, 0.5f, 0};  // TO DO
             glm::vec3 rayStart = thisObject_.GetWorldTransform().GetPosition() + offset;
             glm::vec3 rayEnd   = rayStart + (thisObject_.GetWorldTransform().GetRotation().value_ * VECTOR_FORWARD * 3.0f);
