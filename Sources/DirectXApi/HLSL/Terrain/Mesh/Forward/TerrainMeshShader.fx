@@ -96,11 +96,11 @@ PS_INPUT VS(VS_INPUT input)
 {
     PS_INPUT output = (PS_INPUT)0;
     output.Pos      = float4(input.Pos, 1);
-    output.Pos      = mul(output.Pos, transformationMatrix);
+    output.Pos      = mul(transformationMatrix, output.Pos);
     output.WorldPos = output.Pos.xyz;
-    output.Pos      = mul(output.Pos, projectionViewMatrix);
+    output.Pos      = mul(projectionViewMatrix, output.Pos);
     output.Tex      = input.Tex;
-    output.N        = normalize(mul(float4(input.normal, 0.f), transformationMatrix).xyz);
+    output.N        = normalize(mul(transformationMatrix, float4(input.normal, 0.f)).xyz);
     return output;
 }
 

@@ -56,8 +56,8 @@ PS_INPUT VS(VS_INPUT input)
 {
     PS_INPUT output = (PS_INPUT)0;
     output.position = float4(input.Pos, 1);
-    output.worldPosition = mul(output.position, transformationMatrix);
-    output.position = mul(output.worldPosition, projectionViewMatrix);
+    output.worldPosition = mul(transformationMatrix, output.position);
+    output.position = mul(projectionViewMatrix, output.worldPosition);
     output.textureCoords = input.Pos;
     return output;
 }

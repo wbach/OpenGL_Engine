@@ -14,8 +14,7 @@ struct PerPoseUpdate
 
     PerPoseUpdate()
     {
-        for (auto& t : bonesTransforms)
-            t = mat4(1.f);
+        bonesTransforms.fill(mat4(1.f));
     }
 };
 

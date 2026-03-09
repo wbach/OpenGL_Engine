@@ -54,8 +54,8 @@ PS_INPUT VS(VS_INPUT input)
 {
     PS_INPUT output = (PS_INPUT)0;
     output.Pos      = float4(input.Pos, 1);
-    output.Pos      = mul(output.Pos, transformMatrix);
-    output.Pos      = mul(output.Pos, projectionViewMatrix);
+    output.Pos      = mul(transformMatrix, output.Pos);
+    output.Pos      = mul(projectionViewMatrix, output.Pos);
     output.Tex      = input.Tex;
     output.Color    = waterColor;
     return output;

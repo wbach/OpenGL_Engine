@@ -35,6 +35,13 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
             { GraphicsApi::ShaderType::FRAGMENT_SHADER, "Skydome/Forward/SkydomeShader.fx"}
         }
     },
+    {
+        GraphicsApi::ShaderProgramType::SimpleSky,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Sky/SimpleSky.fx"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Sky/SimpleSky.fx"}
+        }
+    },
     { 
         GraphicsApi::ShaderProgramType::TerrainMesh,
         {

@@ -3,6 +3,7 @@
 
 namespace DirectX
 {
+#pragma pack(push, 1)
 struct Vertex
 {
     vec3 position;
@@ -12,4 +13,5 @@ struct Vertex
     vec4 weights;
     vec4i bonesIds;
 };
+#pragma pack(pop)
 }  // namespace DirectX

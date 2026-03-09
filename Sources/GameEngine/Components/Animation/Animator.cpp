@@ -111,7 +111,6 @@ void Animator::setPlayOnceForAnimationClip(const std::string& name)
         iter->second.playType = AnimationClipInfo::PlayType::once;
     }
 }
-
 IdType Animator::SubscribeForAnimationFrame(const std::string& animName, std::function<void()> function,
                                             Animation::FrameIndex index)
 {
@@ -436,7 +435,8 @@ void Animator::applyPoseToJoints()
         }
     }
 
-    applyPoseToJoints(masterSkeletonData.skeleton.getRootJoint(), masterSkeletonData.skeleton.getRotation() * masterSkeletonData.skeleton.getRootJoint().offset);
+    applyPoseToJoints(masterSkeletonData.skeleton.getRootJoint(),
+                      masterSkeletonData.skeleton.getRotation() * masterSkeletonData.skeleton.getRootJoint().offset);
     updateShaderBuffers();
 }
 void Animator::initAnimationClips(const Model& model)

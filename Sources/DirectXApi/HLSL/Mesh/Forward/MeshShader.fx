@@ -21,6 +21,7 @@ cbuffer PerFrame : register(b1)
     float3 cameraPosition;
     float4 clipPlane;
     float4 projection;
+    float4 time;
 };
 
 cbuffer PerObjectConstants : register(b2)
@@ -39,17 +40,13 @@ cbuffer PerPoseUpdate : register(b4)
     matrix bonesTransforms[MAX_BONES];
 };
 
-cbuffer PerMeshObject : register(b6)
+cbuffer PerMaterial : register(b6)
 {
-    float4 ambient;
-    float4 diffuse;
-    float4 specular;
-    uint numberOfRows;
-    float haveDiffTexture;
-    float haveNormalMap;
-    float haveSpecularMap;
-    float shineDamper;
-    float useFakeLighting;
+    float4 baseColor;
+    float4 params; // x - metallicFactor, y - roughnessFactor, z - ambientOcclusion, w - opacityCutoff
+    float4 params2; // x - normalScale,  y - useFakeLighting, z - specularStrength, w - indexOfRefraction
+    float4 hasTextures; // x - BaseColorTexture, y - NormalTexture, z -RoughnessTexture, w - MetallicTexture
+    float4 hasTextures2; // x - AmbientOcclusionTexture, y - OpacityTexture, z -DisplacementTexture, w - tiledScale
 }
 
 //--------------------------------------------------------------------------------------
@@ -94,23 +91,23 @@ VertexWorldData caluclateWorldData(VS_INPUT input)
 
     if (!Is(useBoneTransform))
     {
-        result.worldPosition = mul(float4(input.Pos, 1.0), transformationMatrix);
-        result.worldNormal   = mul(float4(input.normal, 0.0), transformationMatrix);
+        result.worldPosition = mul(transformationMatrix, float4(input.Pos, 1.0));
+        result.worldNormal   = mul(transformationMatrix, float4(input.normal, 0.0));
         return result;
     }
 
     for (int i = 0; i < MAX_WEIGHTS; i++)
     {
         matrix boneTransform = bonesTransforms[input.boneIds[i]];
-        float4 posePosition  = mul(float4(input.Pos, 1.0), boneTransform);
+        float4 posePosition  = mul(boneTransform, float4(input.Pos, 1.0));
         result.worldPosition += posePosition * input.boneWeights[i];
 
-        float4 worldNormal = mul(float4(input.normal, 0.0), boneTransform);
+        float4 worldNormal = mul(boneTransform, float4(input.normal, 0.0));
         result.worldNormal += worldNormal * input.boneWeights[i];
     }
 
-    result.worldPosition = mul(result.worldPosition, transformationMatrix);
-    result.worldNormal   = mul(result.worldNormal, transformationMatrix);
+    result.worldPosition = mul(transformationMatrix, result.worldPosition);
+    result.worldNormal   = mul(transformationMatrix, result.worldNormal);
     return result;
 }
 
@@ -119,8 +116,8 @@ PS_INPUT VS(VS_INPUT input)
     PS_INPUT output                 = (PS_INPUT)0;
     VertexWorldData vertexWorldData = caluclateWorldData(input);
 
-    output.WorldPos = output.Pos.xyz;
-    output.Pos      = mul(vertexWorldData.worldPosition, projectionViewMatrix);
+    output.WorldPos = vertexWorldData.worldPosition.xyz;
+    output.Pos      = mul(projectionViewMatrix, vertexWorldData.worldPosition);
     output.Tex      = input.Tex;
     output.N        = normalize(vertexWorldData.worldNormal.xyz);
     return output;
@@ -142,6 +139,7 @@ struct Material
     float3 specular_;
     float shineDamper_;
 };
+
 
 struct Light
 {
@@ -238,11 +236,15 @@ float4 CalculateColor(LightPass lightsPass, Material material, float3 world_pos,
 float4 PS(PS_INPUT input)
     : SV_Target
 {
-    float4 samplerColor = txDiffuse.Sample(samLinear, input.Tex);
+    float4 samplerColor = baseColor;
 
-    if (samplerColor.w < 0.5)
+    if (Is(hasTextures.x))
     {
-        discard;
+        samplerColor = txDiffuse.Sample(samLinear, input.Tex);
+        if (samplerColor.w < 0.5)
+        {
+            discard;
+        }
     }
 
     LightPass lightsPass;
