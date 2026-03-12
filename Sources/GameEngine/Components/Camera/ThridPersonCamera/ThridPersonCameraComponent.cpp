@@ -6,12 +6,14 @@
 #include <Utils/Variant.h>
 
 #include "GameEngine/Camera/CustomCamera.h"
+#include "GameEngine/Components/Camera/CameraComponent.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/Fsm/ThridPersonCameraEvents.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentType.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "Logger/Log.h"
 #include "glm/glm.hpp"
 
 namespace GameEngine
@@ -22,6 +24,7 @@ using namespace Camera;
 namespace
 {
 constexpr char CSTR_RUN_CAMERA_LOCAL_POS[] = "runLocalCameraPos";
+constexpr char CSTR_OVERRIDE_CAMERA_POS[]  = "overrideCameraPos";
 constexpr char CSTR_AIM_CAMERA_LOCAL_POS[] = "aimLocalCameraPos";
 }  // namespace
 
@@ -32,8 +35,6 @@ ThridPersonCameraComponent::ThridPersonCameraComponent(ComponentContext& compone
 
 void ThridPersonCameraComponent::CleanUp()
 {
-    componentContext_.scene_.GetCameraManager().RemoveCamera(&fsmContext->camera);
-
     fsm.reset();
     fsmContext.reset();
 
@@ -101,33 +102,37 @@ void ThridPersonCameraComponent::awake()
         return;
     }
 
-    // TO DO: capture existing camera instead creating new one
-    auto camera = std::make_unique<CustomCamera>();
-
-    fsmContext.reset(new Context{.inputManager    = componentContext_.inputManager_,
-                                 .displayManager  = *componentContext_.scene_.getDisplayManager(),
-                                 .gameObject      = thisObject_,
-                                 .camera          = *camera,
-                                 .cameraPositions = {.run = runLocalCameraPos, .aim = aimLocalCameraPos}});
-
-    auto& cameraManager = componentContext_.scene_.GetCameraManager();
-    cameraId            = cameraManager.AddCamera(std::move(camera));
-    fsm                 = std::make_unique<ThridPersonCameraFsm>(FollowingState(*fsmContext), RotateableRunState(*fsmContext),
-                                                 AimState(*fsmContext), TransitionState(*fsmContext));
-
-    // std::apply([](auto&&... state) {((state.init()), ...);}, fsm->states);
-    fsm->handle(InitEvent{});
+    maybeCameraComponent = thisObject_.GetComponentInChild<CameraComponent>();
+    if (not maybeCameraComponent)
+    {
+        LOG_DEBUG << "No camera component in game object, adding new object with camera component";
+        auto cameraGo                    = componentContext_.scene_.CreateGameObject("Camera");
+        maybeCameraComponent             = &cameraGo->AddComponent<CameraComponent>();
+        maybeCameraComponent->settings   = CameraComponent::Settings::GlobalConfig;
+        maybeCameraComponent->mainCamera = true;
+        maybeCameraComponent->SetPosition(runLocalCameraPos);
+        maybeCameraComponent->LookAt(vec3(0, thisObject_.GetLocalTransform().GetScale().y, 0));
+        componentContext_.scene_.AddGameObject(std::move(cameraGo), &thisObject_);
+    }
 }
 
 void ThridPersonCameraComponent::init()
 {
-    if (not fsmContext or not cameraId)
-    {
+    if (not maybeCameraComponent)
         return;
-    }
+
+    fsmContext.reset(new Context{
+        .inputManager    = componentContext_.inputManager_,
+        .displayManager  = *componentContext_.scene_.getDisplayManager(),
+        .gameObject      = thisObject_,
+        .camera          = *maybeCameraComponent,
+        .cameraPositions = {.run = overrideCameraPos
+                                       ? runLocalCameraPos
+                                       : maybeCameraComponent->GetParentGameObject().GetLocalTransform().GetPosition(),
+                            .aim = aimLocalCameraPos}});
 
     auto& cameraManager = componentContext_.scene_.GetCameraManager();
-    cameraManager.ActivateCamera(*cameraId);
+    cameraManager.ActivateCamera(&fsmContext->camera);
     cameraManager.SetCameraAsMain(&fsmContext->camera);
 
     fsm = std::make_unique<ThridPersonCameraFsm>(FollowingState(*fsmContext), RotateableRunState(*fsmContext),
@@ -150,7 +155,7 @@ void ThridPersonCameraComponent::init()
 
 void ThridPersonCameraComponent::processEvent()
 {
-    if (not eventQueue.empty())
+    if (fsm and not eventQueue.empty())
     {
         auto tmpEvents = std::move(eventQueue);
         for (auto& event : tmpEvents)
@@ -168,6 +173,7 @@ void ThridPersonCameraComponent::registerReadFunctions()
         component->read(node);
         ::Read(node.getChild(CSTR_RUN_CAMERA_LOCAL_POS), component->runLocalCameraPos);
         ::Read(node.getChild(CSTR_AIM_CAMERA_LOCAL_POS), component->aimLocalCameraPos);
+        ::Read(node.getChild(CSTR_OVERRIDE_CAMERA_POS), component->overrideCameraPos);
         return component;
     };
 
@@ -182,6 +188,7 @@ void ThridPersonCameraComponent::write(TreeNode& node) const
 
     ::write(node.addChild(CSTR_RUN_CAMERA_LOCAL_POS), runLocalCameraPos);
     ::write(node.addChild(CSTR_AIM_CAMERA_LOCAL_POS), aimLocalCameraPos);
+    ::write(node.addChild(CSTR_OVERRIDE_CAMERA_POS), overrideCameraPos);
 }
 }  // namespace Components
 }  // namespace GameEngine

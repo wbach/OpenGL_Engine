@@ -124,17 +124,21 @@ public:
     void CallGameObjectFunctions(FunctionType, IdType);
 
 private:
+    void MergeTmpFunctionListToMain();
+    void CallGameObjectFunctionsImpl(FunctionType funcType, IdType gameObjectId);
     void SortAllFunctionsForGameObject(IdType gameObjectId);
     std::vector<const ComponentFunction*> SortFunctions(const std::vector<ComponentFunction>& funcs);
 
 private:
     ComponentFunctions functions_;
+    ComponentFunctions tmpfunctions_;
     ComponentsContainer registredComponents_;
     Utils::IdPool functionIdsPool_;
     uint32 componentId;
     bool isStarted;
     std::set<GameObjectId> startedGameObjects_;
     std::mutex functionsMutex_;
+    std::mutex tmpfunctionsMutex_;
     std::mutex componentsMutex_;
 
 private:

@@ -42,6 +42,8 @@ public:
     GameObject(GameObject&&)      = delete;
     virtual ~GameObject();
 
+    void Awake();
+
     GameObject* GetParent() const;
     GameObject* GetChild(IdType) const;
 
@@ -52,8 +54,6 @@ public:
     inline IdType GetId() const;
     inline void SetName(const std::string&);
     inline const std::string& GetName() const;
-
-    void RegisterComponentFunctions();
 
     template <class T, typename... Args>
     T& AddComponent(Args&&...);

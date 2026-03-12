@@ -1,6 +1,7 @@
 #include "StateBase.h"
 
 #include "GameEngine/Camera/CustomCamera.h"
+#include "GameEngine/Components/Camera/CameraComponent.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/Fsm/ThridPersonCameraEvents.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Objects/GameObject.h"

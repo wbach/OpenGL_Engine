@@ -295,6 +295,8 @@ void Scene::ProcessEvent(AddGameObjectEvent&& event)
                 self(self, *subChild);
             }
         }
+
+        gameObject.Awake();
         componentController_.OnObjectCreated(gameObject.GetId());
     };
     notifyComponentController(notifyComponentController, *ptr);

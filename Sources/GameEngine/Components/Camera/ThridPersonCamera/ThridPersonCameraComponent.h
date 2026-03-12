@@ -20,12 +20,14 @@ namespace Components
 class ThridPersonCameraComponent : public BaseComponent
 {
 public:
+    bool overrideCameraPos{false};
     vec3 runLocalCameraPos{-0.5f, 1.0f, -1.5f};
     vec3 aimLocalCameraPos{-0.25f, 1.f, -0.75f};
 
 public:
     // clang-format off
     BEGIN_FIELDS()
+        FIELD_BOOL(overrideCameraPos)
         FIELD_VECTOR3F(runLocalCameraPos)
         FIELD_VECTOR3F(aimLocalCameraPos)
     END_FIELDS()
@@ -70,7 +72,7 @@ public:
 private:
     std::vector<Camera::Event> eventQueue;
     std::optional<IdType> subscribtionOnTransformSnapshot;
-    std::optional<IdType> cameraId;
+    CameraComponent* maybeCameraComponent{nullptr};
 
 public:
     static void registerReadFunctions();

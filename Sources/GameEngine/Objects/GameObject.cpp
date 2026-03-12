@@ -27,12 +27,7 @@ GameObject::GameObject(const std::string& name, Components::ComponentController&
     , componentController_(componentController)
 {
     localTransfromSubscribtion_ = localTransform_.SubscribeOnChange([this](const auto&) { CalculateWorldTransform(); });
-    isStartedSub  = componentController_.RegisterFunction(id_, Components::NULL_COMPONENT_TYPE, Components::FunctionType::OnStart,
-                                                          [this]() { isStarted = true; });
-    isAwakenedSub = componentController_.RegisterFunction(id_, Components::NULL_COMPONENT_TYPE, Components::FunctionType::Awake,
-                                                          [this]() { isAwakened = true; });
 }
-
 GameObject::~GameObject()
 {
     LOG_DEBUG << "~GameObject: " << id_ << ". Name: " << name_;
@@ -308,15 +303,6 @@ GameObject* GameObject::GetChild(const std::string& name) const
     return nullptr;
 }
 
-void GameObject::RegisterComponentFunctions()
-{
-    for (const auto& [_, vectorOfcomponent] : components_)
-    {
-        for (auto& component : vectorOfcomponent)
-            component->ReqisterFunctions();
-    }
-}
-
 Components::IComponent* GameObject::GetComponent(Components::ComponentTypeID type)
 {
     auto iter = components_.find(type);
@@ -521,5 +507,12 @@ uint32 GameObject::SubscribeOnWorldTransfomSnapshot(std::function<void(const com
 void GameObject::UnsubscribeOnWorldTransfromSnapsot(uint32 id)
 {
     worldTransform_.UnsubscribeOnSnapshot(id);
+}
+void GameObject::Awake()
+{
+    isAwakened = true;
+
+    isStartedSub = componentController_.RegisterFunction(id_, Components::NULL_COMPONENT_TYPE, Components::FunctionType::OnStart,
+                                                         [this]() { isStarted = true; });
 }
 }  // namespace GameEngine

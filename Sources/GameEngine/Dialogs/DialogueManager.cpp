@@ -193,7 +193,7 @@ void DialogueManager::refreshOptionGui()
         int i = 0;
         for (const auto& option : current->options)
         {
-            auto optionGuiText = guiFactory.CreateGuiText("-- " + option.text);
+            auto optionGuiText = guiFactory.CreateGuiText(option.text);
             optionGuiText->SetLocalScale(textSize);
             optionGuiText->SetAlgin(GuiTextElement::Algin::LEFT);
             if (i == 0)

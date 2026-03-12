@@ -61,6 +61,7 @@ public:
 
 public:
     CameraComponent(ComponentContext&, GameObject&);
+    ~CameraComponent() override;
     void CleanUp() override;
     void ReqisterFunctions() override;
     void Reload() override;
@@ -108,6 +109,8 @@ public:
     void UpdatePerFrameBuffer() override;
     const PerFrameBuffer& GetPerFrameBuffer() const override;
 
+    void setOnUpdate(std::function<void()>);
+
 private:
     void awake();
     void init();
@@ -133,6 +136,9 @@ private:
     std::optional<IdType> cameraId;
 
     PerFrameBuffer perFrameBuffer;
+
+    std::function<void()> onUpdate;
+    std::mutex onUpdateMutex;
 
 public:
     static void registerReadFunctions();

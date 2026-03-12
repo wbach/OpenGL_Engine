@@ -45,9 +45,9 @@ ComponentController::FunctionId ComponentController::RegisterFunction(GameObject
                                                                       FunctionType type, std::function<void()> func,
                                                                       const Dependencies& dependencies)
 {
-    std::lock_guard<std::mutex> lk(functionsMutex_);
+    std::lock_guard<std::mutex> lk(tmpfunctionsMutex_);
     auto id = functionIdsPool_.getId();
-    functions_[gameObjectId][type].push_back(ComponentFunction{
+    tmpfunctions_[gameObjectId][type].push_back(ComponentFunction{
         .function = func, .meta = FunctionMeta{.id = id, .isActive = true, .ownerType = owner, .dependencies = dependencies}});
     return id;
 }
@@ -127,6 +127,8 @@ void ComponentController::setActivateStateOfComponentFunction(ComponentControlle
                                                               FunctionId id, bool activeStatus)
 {
     std::lock_guard<std::mutex> lk(functionsMutex_);
+    MergeTmpFunctionListToMain();
+
     auto iter = functions_.find(gameObjectId);
     if (iter != functions_.end())
     {
@@ -161,6 +163,8 @@ void ComponentController::callComponentFunction(ComponentController::GameObjectI
                                                 ComponentController::FunctionId functionId)
 {
     std::lock_guard<std::mutex> lk(functionsMutex_);
+    MergeTmpFunctionListToMain();
+
     auto iter = functions_.find(gameObjectId);
     if (iter != functions_.end())
     {
@@ -195,48 +199,49 @@ void ComponentController::callComponentFunction(ComponentController::GameObjectI
 
 void ComponentController::UnRegisterAll()
 {
-    std::scoped_lock lk(functionsMutex_, componentsMutex_);
+    std::scoped_lock lk(functionsMutex_, tmpfunctionsMutex_, componentsMutex_);
     functions_.clear();
+    tmpfunctions_.clear();
     registredComponents_.clear();
 }
 void ComponentController::OnObjectCreated(IdType gameObjectId)
 {
     std::lock_guard<std::mutex> lk(functionsMutex_);
+    MergeTmpFunctionListToMain();
     SortAllFunctionsForGameObject(gameObjectId);
 
-    CallGameObjectFunctions(FunctionType::Awake, gameObjectId);
-    CallGameObjectFunctions(FunctionType::LateAwake, gameObjectId);
+    CallGameObjectFunctionsImpl(FunctionType::Awake, gameObjectId);
+    CallGameObjectFunctionsImpl(FunctionType::LateAwake, gameObjectId);
 
     if (isStarted)
     {
-        CallGameObjectFunctions(FunctionType::OnStart, gameObjectId);
-        CallGameObjectFunctions(FunctionType::PostStart, gameObjectId);
+        CallGameObjectFunctionsImpl(FunctionType::OnStart, gameObjectId);
+        CallGameObjectFunctionsImpl(FunctionType::PostStart, gameObjectId);
     }
 }
 void ComponentController::OnStart()
 {
-    std::lock_guard<std::mutex> lk(functionsMutex_);
     CallFunctions(FunctionType::OnStart);
     CallFunctions(FunctionType::PostStart);
     isStarted = true;
 }
 void ComponentController::Update()
 {
-    std::lock_guard<std::mutex> lk(functionsMutex_);
     CallFunctions(FunctionType::Update);
 }
 void ComponentController::PostUpdate()
 {
-    std::lock_guard<std::mutex> lk(functionsMutex_);
     CallFunctions(FunctionType::PostUpdate);
 }
 void ComponentController::AlwaysUpdate()
 {
-    std::lock_guard<std::mutex> lk(functionsMutex_);
     CallFunctions(FunctionType::AlwaysUpdate);
 }
 void ComponentController::CallFunctions(FunctionType type)
 {
+    std::lock_guard<std::mutex> lk(functionsMutex_);
+    MergeTmpFunctionListToMain();
+
     for (auto& [_, functionBucket] : functions_)
     {
         auto iter = functionBucket.find(type);
@@ -254,19 +259,8 @@ void ComponentController::CallFunctions(FunctionType type)
 
 void ComponentController::CallGameObjectFunctions(FunctionType funcType, IdType gameObjectId)
 {
-    auto gameObjectFunctionsIter = functions_.find(gameObjectId);
-
-    if (gameObjectFunctionsIter != functions_.end())
-    {
-        auto iter = gameObjectFunctionsIter->second.find(funcType);
-        if (iter != gameObjectFunctionsIter->second.end())
-        {
-            for (auto& componentFunction : iter->second)
-            {
-                componentFunction.function();
-            }
-        }
-    }
+    std::lock_guard<std::mutex> lk(functionsMutex_);
+    CallGameObjectFunctionsImpl(funcType, gameObjectId);
 }
 
 // ------------------------------------------------------------
@@ -402,5 +396,41 @@ std::vector<const ComponentController::ComponentFunction*> ComponentController::
     return sortedFunctions;
 }
 
+void ComponentController::MergeTmpFunctionListToMain()
+{
+    std::lock_guard lk(tmpfunctionsMutex_);
+
+    if (tmpfunctions_.empty())
+        return;
+
+    for (auto& [gameObjectId, tmpBucket] : tmpfunctions_)
+    {
+        auto& mainBucket = functions_[gameObjectId];
+
+        for (auto& [type, tmpVec] : tmpBucket)
+        {
+            auto& mainVec = mainBucket[type];
+            mainVec.insert(mainVec.end(), std::make_move_iterator(tmpVec.begin()), std::make_move_iterator(tmpVec.end()));
+        }
+    }
+    tmpfunctions_.clear();
+}
+void ComponentController::CallGameObjectFunctionsImpl(FunctionType funcType, IdType gameObjectId)
+{
+    MergeTmpFunctionListToMain();
+    auto gameObjectFunctionsIter = functions_.find(gameObjectId);
+
+    if (gameObjectFunctionsIter != functions_.end())
+    {
+        auto iter = gameObjectFunctionsIter->second.find(funcType);
+        if (iter != gameObjectFunctionsIter->second.end())
+        {
+            for (auto& componentFunction : iter->second)
+            {
+                componentFunction.function();
+            }
+        }
+    }
+}
 }  // namespace Components
 }  // namespace GameEngine

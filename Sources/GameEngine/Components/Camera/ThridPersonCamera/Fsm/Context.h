@@ -2,7 +2,6 @@
 #include <Types.h>
 
 #include "Common/Transform.h"
-
 namespace Input
 {
 class InputManager;
@@ -16,6 +15,7 @@ class CustomCamera;
 
 namespace Components
 {
+class CameraComponent;
 namespace Camera
 {
 struct Context
@@ -24,7 +24,7 @@ struct Context
     Input::InputManager& inputManager;
     DisplayManager& displayManager;
     GameObject& gameObject;
-    CustomCamera& camera;
+    CameraComponent& camera;
     std::string jointName;
 
     struct LocalCameraPosition
@@ -37,7 +37,6 @@ struct Context
 
     float pitch{0};
     float yaw{0};
-
 };
 }  // namespace Camera
 }  // namespace Components

@@ -50,6 +50,10 @@ CameraComponent::CameraComponent(ComponentContext& componentContext, GameObject&
 {
 }
 
+CameraComponent::~CameraComponent()
+{
+}
+
 void CameraComponent::CleanUp()
 {
     componentContext_.scene_.GetCameraManager().RemoveCamera(this);
@@ -317,13 +321,22 @@ void CameraComponent::SetDirectionAndUp(const vec3& dir, const vec3& up)
     SetRotation(rotation);
     CalculateDirection();
 }
+void CameraComponent::setOnUpdate(std::function<void()> func)
+{
+    std::lock_guard<std::mutex> lk(onUpdateMutex);
+    onUpdate = func;
+}
+
 void CameraComponent::UpdateImpl()
 {
-    if (not lock_)
-        Update();
+    std::lock_guard<std::mutex> lk(onUpdateMutex);
+    if (onUpdate)
+        onUpdate();
 }
 void CameraComponent::Update()
 {
+    if (not lock_)
+        UpdateImpl();
 }
 const vec3& CameraComponent::GetDirection() const
 {

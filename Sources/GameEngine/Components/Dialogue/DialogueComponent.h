@@ -61,8 +61,6 @@ private:
     Nodes nodes;
     int currentNodeID = 0;
 
-    // /GameState& gameState;
-
 public:
     static void registerReadFunctions();
     void write(TreeNode&) const override;
