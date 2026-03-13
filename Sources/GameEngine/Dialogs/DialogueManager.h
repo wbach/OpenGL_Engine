@@ -6,9 +6,11 @@
 
 #include "DialogueNode.h"
 #include "EngineApi.h"
+#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/GUI/GuiElementFactory.h"
 #include "GameEngine/Renderers/GUI/GuiManager.h"
 #include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
+#include "GameEngine/Scene/TweenManager.h"
 #include "GameState.h"
 namespace Input
 {
@@ -22,14 +24,16 @@ class VerticalLayout;
 namespace Components
 {
 class DialogueComponent;
-}
+class ThridPersonCameraComponent;
+class CameraComponent;
+}  // namespace Components
 
 class ENGINE_API DialogueManager
 {
 public:
-    DialogueManager(Input::InputManager&, GuiElementFactory&, GuiManager&, GameState& gs);
+    DialogueManager(Input::InputManager&, GuiElementFactory&, GuiManager&, GameState&, TweenManager&);
 
-    void startDialogue(Components::DialogueComponent&);
+    void startDialogue(GameObject&, Components::DialogueComponent&);
 
     void selectOption(int optionIndex);
     bool isActive() const;
@@ -39,6 +43,7 @@ private:
     void initGui();
     void updateHighLightedColor(int oldItem, int newItem);
     void refreshOptionGui();
+    common::TransformContext calculateCameraTarget();
 
 private:
     Input::InputManager& inputManager;
@@ -54,7 +59,11 @@ private:
 
 private:
     GameState& gameState;
+    TweenManager& tweenManager;
+    GameObject* gameObject{nullptr};
     Components::DialogueComponent* dialogueComponent{nullptr};
+    Components::ThridPersonCameraComponent* thridPersonCameraComponent{nullptr};
+    Components::CameraComponent* cameraComponent{nullptr};
     int highlighted{0};
     std::string npcName;
 };

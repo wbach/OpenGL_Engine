@@ -16,8 +16,10 @@ namespace Components
 namespace Camera
 {
 class TransitionState;
+class ScriptedState;
 class AimState : public StateBase, public Utils::StateMachine::Will<
                      Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
+                     Utils::StateMachine::On<StartScriptedMode, Utils::StateMachine::TransitionTo<ScriptedState>>,
                      Utils::StateMachine::On<StopAimEvent, Utils::StateMachine::TransitionTo<TransitionState>>>
 {
 public:

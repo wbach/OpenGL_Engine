@@ -15,16 +15,17 @@ namespace Camera
 class AimState;
 class FollowingState;
 class RotateableRunState;
+class ScriptedState;
 
-class TransitionState
-    : public StateBase,
-      public Utils::StateMachine::Will<
-          Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-          Utils::StateMachine::On<InitEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<MouseInactivityEvent, Utils::StateMachine::TransitionTo<FollowingState>>,
-          Utils::StateMachine::On<MouseMoveEvent, Utils::StateMachine::TransitionTo<RotateableRunState>>,
-          Utils::StateMachine::On<StopAimEvent, Utils::StateMachine::TransitionTo<FollowingState>>,
-          Utils::StateMachine::On<StartAimEvent, Utils::StateMachine::TransitionTo<AimState>>>
+class TransitionState : public StateBase,
+                        public Utils::StateMachine::Will<
+                            Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
+                            Utils::StateMachine::On<InitEvent, Utils::StateMachine::Update>,
+                            Utils::StateMachine::On<StartScriptedMode, Utils::StateMachine::TransitionTo<ScriptedState>>,
+                            Utils::StateMachine::On<MouseInactivityEvent, Utils::StateMachine::TransitionTo<FollowingState>>,
+                            Utils::StateMachine::On<MouseMoveEvent, Utils::StateMachine::TransitionTo<RotateableRunState>>,
+                            Utils::StateMachine::On<StopAimEvent, Utils::StateMachine::TransitionTo<FollowingState>>,
+                            Utils::StateMachine::On<StartAimEvent, Utils::StateMachine::TransitionTo<AimState>>>
 {
 public:
     TransitionState(Context&);
@@ -47,7 +48,7 @@ private:
     std::optional<vec4> targetPosition;
 
     float pitchStart = 0.f;
-    float yawStart = 0.f;
+    float yawStart   = 0.f;
 
     float pitchConversion = 1.f;
 };

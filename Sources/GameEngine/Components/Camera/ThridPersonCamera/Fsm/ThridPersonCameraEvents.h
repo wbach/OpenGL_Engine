@@ -31,8 +31,16 @@ struct MouseInactivityEvent
     float transitionLength{1.5f};
 };
 
-using Event =
-    std::variant<Camera::StartAimEvent, Camera::StopAimEvent, Camera::MouseMoveEvent, Camera::MouseInactivityEvent>;
+struct StartScriptedMode
+{
+};
+
+struct StopScriptedMode
+{
+};
+
+using Event = std::variant<Camera::StartAimEvent, Camera::StopAimEvent, Camera::MouseMoveEvent, Camera::MouseInactivityEvent,
+                           StartScriptedMode, StopScriptedMode>;
 
 }  // namespace Camera
 }  // namespace Components

@@ -133,8 +133,8 @@ void Scene::InitResources(EngineContext& context)
     GuiElementFactory::EntryParameters guiFactoryParams{*guiManager_, *inputManager_, *resourceManager_, *renderersManager_};
     guiElementFactory_      = std::make_unique<GuiElementFactory>(guiFactoryParams);
     guiEngineContextManger_ = std::make_unique<GuiEngineContextManger>(context.GetMeasurmentHandler(), *guiElementFactory_);
-    dialogueManager_ =
-        std::make_unique<DialogueManager>(*inputManager_, *guiElementFactory_, *guiManager_, context.GetGameState());
+    dialogueManager_        = std::make_unique<DialogueManager>(*inputManager_, *guiElementFactory_, *guiManager_,
+                                                         context.GetGameState(), tweenManager);
 
     console_ = std::make_unique<Debug::Console>(*this);
 
@@ -151,7 +151,8 @@ void Scene::InitResources(EngineContext& context)
                                      .renderersManager_    = *renderersManager_,
                                      .guiElementFactory_   = *guiElementFactory_,
                                      .timerService_        = *timerService_,
-                                     .dialogueManager_     = *dialogueManager_});
+                                     .dialogueManager_     = *dialogueManager_,
+                                     .tweenManager         = tweenManager});
     componentFactory_ = std::make_unique<Components::ComponentFactory>(*componentContext_);
 
     rootGameObject_ = CreateGameObject("root");
@@ -196,6 +197,8 @@ void Scene::FullUpdate(float deltaTime)
         Update(deltaTime);
         componentController_.Update();
     }
+
+    tweenManager.Update(deltaTime);
 
     componentController_.AlwaysUpdate();
 

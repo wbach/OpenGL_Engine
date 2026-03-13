@@ -18,7 +18,7 @@ BaseComponentTestSchould::BaseComponentTestSchould()
                         std::make_unique<RendererFactory>(graphicsApiMock_))
     , guiFactoryEntryParameters_{guiManager_, inputManagerMock_, resourcesManager_, renderersManager_}
     , guiElementFactory_(guiFactoryEntryParameters_)
-    , dialogueManager_(inputManagerMock_, guiElementFactory_, guiManager_, gameState_)
+    , dialogueManager_(inputManagerMock_, guiElementFactory_, guiManager_, gameState_, tweenManager)
     , context_{scene,
                sceneManager,
                graphicsApiMock_,
@@ -31,7 +31,8 @@ BaseComponentTestSchould::BaseComponentTestSchould()
                renderersManager_,
                guiElementFactory_,
                timerService_,
-               dialogueManager_}
+               dialogueManager_,
+               tweenManager}
     , componentFactory_(context_)
     , obj_{std::make_unique<GameEngine::GameObject>("Test GameObject", componentController_, componentFactory_, gameObjectIdPool)}
 {

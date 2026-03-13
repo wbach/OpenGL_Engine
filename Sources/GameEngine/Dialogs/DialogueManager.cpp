@@ -4,11 +4,16 @@
 
 #include <utility>
 
+#include "GLM/GLMUtils.h"
+#include "GameEngine/Components/Camera/CameraComponent.h"
+#include "GameEngine/Components/Camera/ThridPersonCamera/Fsm/ThridPersonCameraEvents.h"
+#include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/Dialogue/DialogueComponent.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/GUI/Layout/Layout.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
 #include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
+#include "GameEngine/Scene/EaseType.h"
 #include "Input/InputManager.h"
 #include "Input/KeyCodes.h"
 
@@ -18,12 +23,14 @@ namespace
 {
 const vec3 highlightedColor(1, 1, 0);
 }
-DialogueManager::DialogueManager(Input::InputManager& inputManager, GuiElementFactory& factory, GuiManager& manger, GameState& gs)
+DialogueManager::DialogueManager(Input::InputManager& inputManager, GuiElementFactory& factory, GuiManager& manger, GameState& gs,
+                                 TweenManager& tweenManager)
     : inputManager(inputManager)
     , guiFactory(factory)
     , guiManager(manger)
     , subscriptions_(inputManager)
     , gameState(gs)
+    , tweenManager(tweenManager)
 {
     subscriptions_ = inputManager.SubscribeOnKeyDown(KeyCodes::UARROW,
                                                      [&]()
@@ -71,14 +78,35 @@ DialogueManager::DialogueManager(Input::InputManager& inputManager, GuiElementFa
                                                          }
                                                      });
 }
-void DialogueManager::startDialogue(Components::DialogueComponent& component)
+void DialogueManager::startDialogue(GameObject& gameObject, Components::DialogueComponent& component)
 {
-    initGui();
-
     dialogueComponent = &component;
     this->npcName     = dialogueComponent->GetParentGameObject().GetName();
+    this->gameObject  = &gameObject;
 
-    refreshOptionGui();
+    auto show = [&]()
+    {
+        LOG_DEBUG << "Init gui and refresh options";
+        initGui();
+        refreshOptionGui();
+    };
+
+    cameraComponent = gameObject.GetComponentInChild<Components::CameraComponent>();
+    if (cameraComponent)
+    {
+        thridPersonCameraComponent = gameObject.GetComponent<Components::ThridPersonCameraComponent>();
+        if (thridPersonCameraComponent)
+        {
+            thridPersonCameraComponent->pushEventToQueue(Components::Camera::StartScriptedMode{});
+        }
+
+        const float duration{0.5f};
+        tweenManager.Add(cameraComponent->GetParentGameObject(), calculateCameraTarget(), duration, EaseType::CubicOut, show);
+    }
+    else
+    {
+        show();
+    }
 }
 void DialogueManager::selectOption(int optionIndex)
 {
@@ -105,11 +133,25 @@ bool DialogueManager::isActive() const
 void DialogueManager::EndDialog()
 {
     dialogueComponent = nullptr;
+    gameObject        = nullptr;
+    npcName.clear();
 
     if (textDialogueWindow)
         textDialogueWindow->Hide();
     if (optionsDialogueWindow)
         optionsDialogueWindow->Hide();
+
+    if (thridPersonCameraComponent)
+    {
+        thridPersonCameraComponent->pushEventToQueue(Components::Camera::StopScriptedMode{});
+        thridPersonCameraComponent = nullptr;
+    }
+
+    if (cameraComponent)
+    {
+        tweenManager.Remove(cameraComponent->GetParentGameObject());
+        cameraComponent = nullptr;
+    }
 }
 void DialogueManager::initGui()
 {
@@ -204,5 +246,27 @@ void DialogueManager::refreshOptionGui()
             optionsWindowLayout->AddChild(std::move(optionGuiText));
         }
     }
+}
+common::TransformContext DialogueManager::calculateCameraTarget()
+{
+    vec3 playerPos = gameObject->GetWorldTransform().GetPosition();
+    vec3 npcPos    = dialogueComponent->GetParentGameObject().GetWorldTransform().GetPosition();
+
+    vec3 forward = normalize(npcPos - playerPos);
+    vec3 right   = cross(vec3(0, 1, 0), forward);
+
+    vec3 targetPos = playerPos - (forward * 1.5f) + (right * 1.6f) + vec3(0, 1.7f, 0);
+
+    vec3 lookAtPoint = npcPos + vec3(0, 1.6f, 0);
+    auto targetRot   = Utils::lookAt(lookAtPoint, targetPos);//quatLookAt(normalize(lookAtPoint - targetPos), vec3(0, 1, 0));
+
+
+
+    common::TransformContext target;
+    target.position = targetPos;
+    target.rotation = targetRot;
+    target.scale    = vec3(1.0f);
+
+    return target;
 }
 }  // namespace GameEngine

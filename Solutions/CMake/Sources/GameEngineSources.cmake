@@ -145,6 +145,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/ThridPers
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/ThridPersonCamera/Fsm/States/TransitionState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/ThridPersonCamera/Fsm/States/FollowingState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/ThridPersonCamera/Fsm/States/RotateableRunState.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/ThridPersonCamera/Fsm/States/ScriptedState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/ThridPersonCamera/Fsm/States/AimState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Dialogue/DialogueComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/Animator.cpp
@@ -213,9 +214,11 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/ProgressiveMesh.c
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/SceneManager.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/XmlSceneStorage.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/SceneUtils.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/TweenManager.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/SceneLoader.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/WindParams.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/SceneWriter.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/Tween.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/SceneDef.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/SceneFactoryBase.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/SceneWrapper.cpp

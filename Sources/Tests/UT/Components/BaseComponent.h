@@ -44,6 +44,7 @@ public:
     BaseComponentTestSchould();
     virtual ~BaseComponentTestSchould();
 
+    TweenManager tweenManager;
     GameState gameState_;
     CameraManager cameraManager_;
     Scene scene;

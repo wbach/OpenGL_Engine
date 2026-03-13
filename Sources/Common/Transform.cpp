@@ -328,7 +328,10 @@ void Transform::SetMatrix(const mat4& matrix)
 
     NotifySubscribers();
 }
-
+const TransformContext& Transform::GetCurrentContext() const
+{
+    return context_;
+}
 std::ostream& operator<<(std::ostream& os, const Transform& transform)
 {
     const vec3& pos     = transform.GetPosition();
@@ -336,10 +339,21 @@ std::ostream& operator<<(std::ostream& os, const Transform& transform)
     const vec3& scale   = transform.GetScale();
 
     os << "Transform(\n"
-       << "Pos: [" << pos.x << ", " << pos.y << ", " << pos.z << "], \n"
+       << "Pos: [" << pos.x << "], \n"
        << "Rot: " << rot << ",\n"
-       << "Scale: [" << scale.x << ", " << scale.y << ", " << scale.z << "])";
+       << "Scale: [" << scale << "])";
 
     return os;
 }
+
+std::ostream& operator<<(std::ostream& os, const TransformContext& transform)
+{
+    os << "TransformContext(\n"
+       << "Pos: [" << transform.position << ",\n"
+       << "Rot: " << transform.rotation << ",\n"
+       << "Scale: [" << transform.scale << "])";
+
+    return os;
+}
+
 }  // namespace common

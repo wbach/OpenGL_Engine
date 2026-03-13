@@ -4,9 +4,11 @@
 #include <Input/GameActions.h>
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
+#include <Types.h>
 #include <Utils/TreeNode.h>
 
 #include "GameEngine/Animations/AnimationClip.h"
+#include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Dialogue/DialogueComponent.h"
@@ -14,7 +16,7 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include "Types.h"
+#include "GameEngine/Scene/TweenManager.h"
 
 using namespace common::Controllers;
 
@@ -233,7 +235,7 @@ void PlayerInputController::SubscribeForPushActions()
                 LOG_DEBUG << "Hit object : " << rayTestResult->gameObject.GetName();
                 if (auto maybeDialogComponent = rayTestResult->gameObject.GetComponent<DialogueComponent>())
                 {
-                    componentContext_.dialogueManager_.startDialogue(*maybeDialogComponent);
+                    componentContext_.dialogueManager_.startDialogue(thisObject_, *maybeDialogComponent);
                 }
             }
         });

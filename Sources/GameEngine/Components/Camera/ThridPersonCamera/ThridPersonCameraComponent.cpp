@@ -7,6 +7,7 @@
 
 #include "GameEngine/Camera/CustomCamera.h"
 #include "GameEngine/Components/Camera/CameraComponent.h"
+#include "GameEngine/Components/Camera/ThridPersonCamera/Fsm/States/ScriptedState.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/Fsm/ThridPersonCameraEvents.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentType.h"
@@ -136,7 +137,7 @@ void ThridPersonCameraComponent::init()
     cameraManager.SetCameraAsMain(&fsmContext->camera);
 
     fsm = std::make_unique<ThridPersonCameraFsm>(FollowingState(*fsmContext), RotateableRunState(*fsmContext),
-                                                 AimState(*fsmContext), TransitionState(*fsmContext));
+                                                 AimState(*fsmContext), TransitionState(*fsmContext), ScriptedState{*fsmContext});
 
     fsm->handle(InitEvent{});
     componentContext_.inputManager_.SetReleativeMouseMode(true);

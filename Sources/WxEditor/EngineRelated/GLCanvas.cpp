@@ -319,7 +319,6 @@ void GLCanvas::OnKeyUp(wxKeyEvent& event)
     pressedKeys.erase(keyCode);
 
     auto& inputManager = engine->GetEngineContext().GetInputManager();
-    LOG_DEBUG << "Send key up event";
 
     inputManager.AddKeyEvent(WxEditor::WX_KEY_UP, keyCode);
     wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{keyCode}, false);
@@ -643,7 +642,6 @@ void GLCanvas::EmergencyKeyRelease()
             int code = *it;
             if (not wxGetKeyState((wxKeyCode)code))
             {
-                LOG_DEBUG << "OnIdle: Fixing lost key through artificial OnKeyUp: " << code;
                 wxKeyEvent dummyEvent(wxEVT_KEY_UP);
                 dummyEvent.m_keyCode = code;
                 this->OnKeyUp(dummyEvent);

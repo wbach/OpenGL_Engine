@@ -71,6 +71,7 @@ public:
     mat4 CalculateCurrentMatrix() const;
     const mat4& GetMatrix() const;
     const TransformContext& GetSnapShoot() const;
+    const TransformContext& GetCurrentContext() const;
 
     void SetMatrix(const mat4&);
 
@@ -94,4 +95,5 @@ private:
 };
 
 std::ostream& operator<<(std::ostream&, const Transform&);
+std::ostream& operator<<(std::ostream&, const TransformContext&);
 }  // namespace common

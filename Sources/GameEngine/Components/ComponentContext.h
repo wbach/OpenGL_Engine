@@ -20,6 +20,7 @@ class GuiElementFactory;
 class Scene;
 class ISceneManager;
 class DialogueManager;
+class TweenManager;
 
 namespace Physics
 {
@@ -49,6 +50,7 @@ struct ComponentContext
     GuiElementFactory& guiElementFactory_;
     Utils::Time::TimerService& timerService_;
     DialogueManager& dialogueManager_;
+    TweenManager& tweenManager;
 };
 }  // namespace Components
 }  // namespace GameEngine

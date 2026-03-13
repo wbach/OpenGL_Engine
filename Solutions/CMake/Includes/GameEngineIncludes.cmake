@@ -166,6 +166,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/FirstPers
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/ThridPersonCamera/Fsm/ThridPersonCameraEvents.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/ThridPersonCamera/Fsm/States/FollowingState.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/ThridPersonCamera/Fsm/States/ScriptedState.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/ThridPersonCamera/Fsm/States/TransitionState.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/ThridPersonCamera/Fsm/States/StateBase.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/ThridPersonCamera/Fsm/States/AimState.h
@@ -290,6 +291,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/GpuObject.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/IGpuObject.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/XmlSceneStorage.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/SceneWrapper.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/EaseType.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/ISceneFactory.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/SceneLoader.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/SceneWriter.h
@@ -299,8 +301,10 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/ISceneStorage.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/WindParams.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/SceneReader.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/ISceneManager.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/TweenManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/SceneManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/SceneUtils.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/Tween.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/SceneDef.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/DefferedRenderer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/IRenderer.h

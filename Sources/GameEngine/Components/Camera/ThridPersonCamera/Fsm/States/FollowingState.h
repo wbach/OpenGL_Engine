@@ -15,12 +15,13 @@ namespace Camera
 {
 class TransitionState;
 class RotateableRunState;
-
+class ScriptedState;
 class FollowingState
     : public StateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<InitEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<StartScriptedMode, Utils::StateMachine::TransitionTo<ScriptedState>>,
           Utils::StateMachine::On<MouseMoveEvent, Utils::StateMachine::TransitionTo<RotateableRunState>>,
           Utils::StateMachine::On<StartAimEvent, Utils::StateMachine::TransitionTo<TransitionState>>>
 {
