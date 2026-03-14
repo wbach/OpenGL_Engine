@@ -218,7 +218,7 @@ mat4 createViewMatrix(const Quaternion& rotation, const vec3& cameraPosition)
 
 Quaternion lookAt(const vec3& lookAtPosition, const vec3& position)
 {
-    auto direction   = position - lookAtPosition;
+    auto direction = position - lookAtPosition;
     return lookAtDirection(direction);
 }
 
@@ -230,6 +230,25 @@ Quaternion lookAtDirection(const vec3& inputDir)
     auto qPitch    = glm::angleAxis(pitch, glm::vec3(1, 0, 0));
     auto qYaw      = glm::angleAxis(yaw, glm::vec3(0, 1, 0));
     return glm::normalize(qPitch * qYaw);
+}
+
+Quaternion lookAtDirection2(const vec3& inputDir)
+{
+    auto forward = glm::normalize(inputDir);
+    if (glm::length2(forward) < 0.0001f)
+        return Quaternion();
+
+    vec3 globalUp(0, 1, 0);
+    if (glm::abs(glm::dot(forward, globalUp)) > 0.999f)
+    {
+        globalUp = vec3(0, 0, 1);
+    }
+
+    auto right = glm::normalize(glm::cross(globalUp, forward));
+    auto up    = glm::cross(forward, right);
+
+    mat3 rotationMatrix(right, up, forward);
+    return glm::normalize(glm::quat_cast(rotationMatrix));
 }
 
 glm::vec3 BarryCentricVec3(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos)

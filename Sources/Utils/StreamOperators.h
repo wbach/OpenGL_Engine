@@ -4,52 +4,6 @@
 
 #include "Types.h"
 
-// ================= GLM =================
-namespace glm
-{
-
-// Generic operator for all vec<N,T,Q>
-template <int N, typename T, qualifier Q>
-inline std::ostream& operator<<(std::ostream& os, const vec<N, T, Q>& v)
-{
-    os << "vec" << N << "(";
-    for (int i = 0; i < N; ++i)
-    {
-        os << v[i];
-        if (i < N - 1)
-            os << ", ";
-    }
-    os << ")";
-    return os;
-}
-
-inline std::ostream& operator<<(std::ostream& os, const mat4& m)
-{
-    os << "mat4(";
-    for (int i = 0; i < 4; ++i)
-    {
-        os << "[";
-        for (int j = 0; j < 4; ++j)
-        {
-            os << m[i][j];
-            if (j < 3)
-                os << ", ";
-        }
-        os << "]";
-        if (i < 3)
-            os << ", ";
-    }
-    os << ")";
-    return os;
-}
-
-inline std::ostream& operator<<(std::ostream& os, const quat& q)
-{
-    return os << "quat(" << q.x << ", " << q.y << ", " << q.z << ", " << q.w << ")";
-}
-
-}  // namespace glm
-
 // ================= std::optional =================
 template <typename T>
 inline std::ostream& operator<<(std::ostream& os, const std::optional<T>& opt)
@@ -120,3 +74,50 @@ inline std::ostream& operator<<(std::ostream& os, const Tvec4<T>& v)
 }
 
 }  // namespace wb
+
+// ================= GLM =================
+namespace glm
+{
+
+// Generic operator for all vec<N,T,Q>
+template <int N, typename T, qualifier Q>
+inline std::ostream& operator<<(std::ostream& os, const vec<N, T, Q>& v)
+{
+    os << "vec" << N << "(";
+    for (int i = 0; i < N; ++i)
+    {
+        os << v[i];
+        if (i < N - 1)
+            os << ", ";
+    }
+    os << ")";
+    return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const mat4& m)
+{
+    os << "mat4(";
+    for (int i = 0; i < 4; ++i)
+    {
+        os << "[";
+        for (int j = 0; j < 4; ++j)
+        {
+            os << m[i][j];
+            if (j < 3)
+                os << ", ";
+        }
+        os << "]";
+        if (i < 3)
+            os << ", ";
+    }
+    os << ")";
+    return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const quat& q)
+{
+    return os << "quat(" << q.x << ", " << q.y << ", " << q.z << ", " << q.w << ")";
+}
+
+using ::operator<<;
+}  // namespace glm

@@ -3,10 +3,12 @@
 
 #include <optional>
 
+#include "GLM/GLMUtils.h"
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Resources/File.h"
 #include "Logger/Log.h"
+#include "Rotation.h"
 #include "Types.h"
 
 namespace GameEngine
@@ -54,12 +56,16 @@ public:
         return currentNodeID;
     }
 
+    void RotateObjectToPlayer(const vec3&);
+    void RestoreRotation();
+
     const DialogueNode* getCurrent() const;
     SelectOptionResult selectOption(int optionIndex);
 
 private:
     Nodes nodes;
     int currentNodeID = 0;
+    std::optional<Rotation> tmpRotation;
 
 public:
     static void registerReadFunctions();

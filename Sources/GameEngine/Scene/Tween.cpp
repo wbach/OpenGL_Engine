@@ -1,6 +1,9 @@
 #include "Tween.h"
 
+#include <optional>
+
 #include "Logger/Log.h"
+#include "Rotation.h"
 
 namespace GameEngine
 {
@@ -9,14 +12,7 @@ bool Tween::Update(float dt)
     elapsed += dt;
 
     auto t = std::clamp(elapsed / duration, 0.0f, 1.0f);
-
-    auto easedT = ApplyEase(t, easeType);
-
-    auto newPos   = glm::mix(source.position, target.position, easedT);
-    auto newRot   = glm::slerp(source.rotation.value_, target.rotation.value_, easedT);
-    auto newScale = glm::mix(source.scale, target.scale, easedT);
-
-    gameObject.get().SetWorldPositionRotationScale(newPos, newRot, newScale);
+    ApplyToTransform(calulacteTransform(ApplyEase(t, easeType)));
 
     if (t >= 1.0f)
     {
@@ -40,5 +36,50 @@ float Tween::ApplyEase(float t, EaseType type)
         default:
             return t;
     }
+}
+void Tween::ApplyToTransform(const TweenTransform& newTransform)
+{
+    if (newTransform.position and newTransform.rotation and newTransform.scale)
+    {
+        gameObject.get().SetWorldPositionRotationScale(*newTransform.position, *newTransform.rotation, *newTransform.scale);
+    }
+    else if (newTransform.position and newTransform.rotation)
+    {
+        gameObject.get().SetWorldPositionRotation(*newTransform.position, *newTransform.rotation);
+    }
+    else
+    {
+        if (newTransform.position)
+        {
+            gameObject.get().SetWorldPosition(*newTransform.position);
+        }
+
+        if (newTransform.rotation)
+        {
+            gameObject.get().SetWorldRotation(*newTransform.rotation);
+        }
+        if (newTransform.scale)
+        {
+            gameObject.get().SetWorldScale(*newTransform.scale);
+        }
+    }
+}
+TweenTransform Tween::calulacteTransform(float easedT) const
+{
+    TweenTransform newTransform;
+    if (target.position)
+    {
+        newTransform.position = glm::mix(source.position, target.position.value(), easedT);
+    }
+    if (target.rotation)
+    {
+        newTransform.rotation = glm::slerp(source.rotation.value_, target.rotation->value_, easedT);
+    }
+    if (target.scale)
+    {
+        newTransform.scale = glm::mix(source.scale, target.scale.value(), easedT);
+    }
+
+    return newTransform;
 }
 }  // namespace GameEngine

@@ -2,6 +2,8 @@
 
 #include <Utils/TreeNode.h>
 
+#include "Common/Transform.h"
+#include "GLM/GLMUtils.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Scene/Scene.hpp"
 namespace GameEngine
@@ -61,7 +63,7 @@ void DialogueComponent::readFile()
 {
     // demo
     nodes[0] = {0, "Stoj! Kto idzie?", {{"Szukam schronienia.", 2, ""}, {"Nie Twoj interes.", -1, ""}}};
-    nodes[1] = {1, "O co chodzi?.", {{"Co to za oboz?", 2, ""}, {"Powiedz mi wiecej o obozie.", 3, ""}}};
+    nodes[1] = {1, "O co chodzi?.", {{"Co to za oboz?", 2, ""}, {"Powiedz mi wiecej o obozie.", 3, ""}, {"A nic.", -1, ""}}};
     nodes.at(currentNodeID);
     nodes[2] = {2,
                 "To Oboz Cienia. Swiat oszalal. Chcesz wiedziec wiecej?",
@@ -109,6 +111,36 @@ const DialogueNode* DialogueComponent::getCurrent() const
 
     LOG_DEBUG << "Current not set! currentNodeID = " << currentNodeID;
     return nullptr;
+}
+
+void DialogueComponent::RotateObjectToPlayer(const vec3& playerPos)
+{
+    Utils::lookAt({}, {});
+    tmpRotation = thisObject_.GetWorldTransform().GetRotation();
+
+    auto npcPos = thisObject_.GetWorldTransform().GetPosition();
+
+    vec3 targetPosXZ(playerPos.x, npcPos.y, playerPos.z);
+    auto dir = targetPosXZ - npcPos;
+
+    if (glm::length(dir) > 0.001f)
+    {
+        auto targetQuat = Utils::lookAtDirection2(dir);
+
+        TweenTransform tween;
+        tween.rotation = Rotation(targetQuat);
+
+        componentContext_.tweenManager.Add(thisObject_, tween, 0.5f, EaseType::CubicOut);
+    }
+}
+void DialogueComponent::RestoreRotation()
+{
+    if (tmpRotation)
+    {
+        const float duration{0.5f};
+        componentContext_.tweenManager.Add(thisObject_, TweenTransform{.rotation = *tmpRotation}, duration, EaseType::CubicOut);
+        tmpRotation.reset();
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine

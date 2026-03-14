@@ -14,6 +14,7 @@
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
 #include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
 #include "GameEngine/Scene/EaseType.h"
+#include "GameEngine/Scene/Tween.h"
 #include "Input/InputManager.h"
 #include "Input/KeyCodes.h"
 
@@ -84,6 +85,8 @@ void DialogueManager::startDialogue(GameObject& gameObject, Components::Dialogue
     this->npcName     = dialogueComponent->GetParentGameObject().GetName();
     this->gameObject  = &gameObject;
 
+    component.RotateObjectToPlayer(gameObject.GetWorldTransform().GetPosition());
+
     auto show = [&]()
     {
         LOG_DEBUG << "Init gui and refresh options";
@@ -132,6 +135,9 @@ bool DialogueManager::isActive() const
 }
 void DialogueManager::EndDialog()
 {
+    LOG_DEBUG << "";
+
+    dialogueComponent->RestoreRotation();
     dialogueComponent = nullptr;
     gameObject        = nullptr;
     npcName.clear();
@@ -247,7 +253,7 @@ void DialogueManager::refreshOptionGui()
         }
     }
 }
-common::TransformContext DialogueManager::calculateCameraTarget()
+TweenTransform DialogueManager::calculateCameraTarget()
 {
     vec3 playerPos = gameObject->GetWorldTransform().GetPosition();
     vec3 npcPos    = dialogueComponent->GetParentGameObject().GetWorldTransform().GetPosition();
@@ -255,17 +261,14 @@ common::TransformContext DialogueManager::calculateCameraTarget()
     vec3 forward = normalize(npcPos - playerPos);
     vec3 right   = cross(vec3(0, 1, 0), forward);
 
-    vec3 targetPos = playerPos - (forward * 1.5f) + (right * 1.6f) + vec3(0, 1.7f, 0);
+    vec3 targetPos = playerPos - (forward * 0.6f) + (right * 1.6f) + vec3(0, 1.7f, 0);
 
     vec3 lookAtPoint = npcPos + vec3(0, 1.6f, 0);
-    auto targetRot   = Utils::lookAt(lookAtPoint, targetPos);//quatLookAt(normalize(lookAtPoint - targetPos), vec3(0, 1, 0));
+    auto targetRot   = Utils::lookAt(lookAtPoint, targetPos);
 
-
-
-    common::TransformContext target;
+    TweenTransform target;
     target.position = targetPos;
     target.rotation = targetRot;
-    target.scale    = vec3(1.0f);
 
     return target;
 }

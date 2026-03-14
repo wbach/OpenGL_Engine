@@ -100,6 +100,7 @@ double BarryCentric(const glm::dvec3& p1, const glm::dvec3& p2, const glm::dvec3
 mat4 createViewMatrix(const Quaternion& rotation, const vec3& cameraPosition);
 Quaternion lookAt(const vec3& lookAtPosition, const vec3& position);
 Quaternion lookAtDirection(const vec3&);
+Quaternion lookAtDirection2(const vec3&);
 Quaternion createQuaternionFromDirectionUp(const vec3& direction, const vec3& up);
 
 std::tuple<vec3, Quaternion, vec3> decompose(const mat4&);

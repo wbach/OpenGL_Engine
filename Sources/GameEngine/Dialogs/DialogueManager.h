@@ -43,7 +43,7 @@ private:
     void initGui();
     void updateHighLightedColor(int oldItem, int newItem);
     void refreshOptionGui();
-    common::TransformContext calculateCameraTarget();
+    TweenTransform calculateCameraTarget();
 
 private:
     Input::InputManager& inputManager;

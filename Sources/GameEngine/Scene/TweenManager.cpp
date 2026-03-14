@@ -19,7 +19,7 @@ void TweenManager::Update(float dt)
         }
     }
 }
-void TweenManager::Add(GameObject& gameObject, const common::TransformContext& target, float duration, EaseType type,
+void TweenManager::Add(GameObject& gameObject, const TweenTransform& target, float duration, EaseType type,
                        std::function<void()> onComplete)
 {
     LOG_DEBUG << "Add tween gameobject = " << gameObject.GetName() << ", target = " << target << ", duration= " << duration
