@@ -27,6 +27,7 @@
 #include "Tests/Mocks/Api/GraphicsApiMock.h"
 #include "Tests/Mocks/Api/InputManagerMock.h"
 #include "Tests/Mocks/Api/WindowApiMock.hpp"
+#include "Tests/Mocks/Audio/AudioManagerMock.h"
 #include "Tests/Mocks/Camera/CameraMock.h"
 #include "Tests/Mocks/Physics/PhysicsApiMock.h"
 #include "Tests/Mocks/Resources/GpuResourceLoaderMock.h"
@@ -47,6 +48,7 @@ public:
     TweenManager tweenManager;
     GameState gameState_;
     CameraManager cameraManager_;
+    AudioManagerMock audioManager_;
     Scene scene;
     std::vector<GraphicsApi::DisplayMode> displayModes;
     Utils::IdPool gameObjectIdPool;

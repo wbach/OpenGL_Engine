@@ -21,6 +21,7 @@ class Scene;
 class ISceneManager;
 class DialogueManager;
 class TweenManager;
+class IAudioManager;
 
 namespace Physics
 {
@@ -51,6 +52,7 @@ struct ComponentContext
     Utils::Time::TimerService& timerService_;
     DialogueManager& dialogueManager_;
     TweenManager& tweenManager;
+    IAudioManager& audioManager;
 };
 }  // namespace Components
 }  // namespace GameEngine

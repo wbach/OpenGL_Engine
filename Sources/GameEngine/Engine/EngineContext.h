@@ -14,6 +14,7 @@
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Scene/SceneManager.h"
 #include "MeasurementHandler.h"
+
 namespace Utils
 {
 namespace Thread
@@ -35,6 +36,7 @@ namespace GameEngine
 {
 class IResourceManagerFactory;
 class DisplayManager;
+class IAudioManager;
 
 namespace Physics
 {
@@ -70,6 +72,7 @@ public:
     inline ISceneManager& GetSceneManager();
     inline IResourceManagerFactory& GetResourceManagerFactory();
     inline GameState& GetGameState();
+    inline IAudioManager& GetAudioManager();
 
 private:
     std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi_;
@@ -83,6 +86,7 @@ private:
     Utils::Time::TimerService timerService_;
     Renderer::RenderersManager renderersManager_;
     std::unique_ptr<ISceneManager> sceneManager_;
+    std::unique_ptr<IAudioManager> audioManager;
 
     GameState gameState_;
 
@@ -144,5 +148,9 @@ IResourceManagerFactory& EngineContext::GetResourceManagerFactory()
 GameState& EngineContext::GetGameState()
 {
     return gameState_;
+}
+IAudioManager& EngineContext::GetAudioManager()
+{
+    return *audioManager;
 }
 }  // namespace GameEngine

@@ -152,7 +152,8 @@ void Scene::InitResources(EngineContext& context)
                                      .guiElementFactory_   = *guiElementFactory_,
                                      .timerService_        = *timerService_,
                                      .dialogueManager_     = *dialogueManager_,
-                                     .tweenManager         = tweenManager});
+                                     .tweenManager         = tweenManager,
+                                     .audioManager         = context.GetAudioManager()});
     componentFactory_ = std::make_unique<Components::ComponentFactory>(*componentContext_);
 
     rootGameObject_ = CreateGameObject("root");

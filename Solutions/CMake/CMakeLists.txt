@@ -76,7 +76,7 @@ if(MSVC)
     set(ENGINE_COMPILE_FLAGS
         /std:c++20
         /W3
-        /permissive    
+        /permissive
         /bigobj
         /MP
         /Zc:__cplusplus
@@ -180,6 +180,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/rapidxml-1.13/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/rapidjson-1.1.0/include/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/magic_enum-v0.9.7/include/
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/miniaudio-0.11.25/
 )
 
 function(copy_dll_to_build_dir lib_target)

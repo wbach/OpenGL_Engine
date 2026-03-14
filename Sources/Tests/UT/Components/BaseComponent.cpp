@@ -32,7 +32,8 @@ BaseComponentTestSchould::BaseComponentTestSchould()
                guiElementFactory_,
                timerService_,
                dialogueManager_,
-               tweenManager}
+               tweenManager,
+               audioManager_}
     , componentFactory_(context_)
     , obj_{std::make_unique<GameEngine::GameObject>("Test GameObject", componentController_, componentFactory_, gameObjectIdPool)}
 {

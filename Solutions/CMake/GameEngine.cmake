@@ -27,7 +27,7 @@ if(BUILD_GAME_ENGINE)
 
 
     if(MSVC)
-        
+
     else()
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=maybe-uninitialized")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-class-memaccess")
@@ -38,7 +38,7 @@ if(BUILD_GAME_ENGINE)
         ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/bullet
         ${CMAKE_CURRENT_BINARY_DIR}/bullet
     )
-    
+
     set(BULLET_LIBS
         BulletDynamics
         Bullet3Common
@@ -68,7 +68,7 @@ if(BUILD_GAME_ENGINE)
     else()
         add_library(GameEngineLib SHARED ${GameEngineSources})
     endif()
-    
+
 
     set_target_properties(GameEngineLib PROPERTIES WIN32_EXECUTABLE OFF)
 
