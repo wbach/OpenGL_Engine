@@ -12,6 +12,7 @@
 
 #include "Configuration.h"
 #include "EngineContext.h"
+#include "GameEngine/Audio/AudioManager.h"
 #include "GameEngine/Components/RegisterReadFunctionForDefaultEngineComponents.h"
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Physics/IPhysicsApi.h"
@@ -270,6 +271,8 @@ void Engine::MainLoop()
     displayManager.ProcessEvents();
     engineContext_.GetSceneManager().Update();
     engineContext_.GetGraphicsApi().PrepareFrame();
+    engineContext_.GetAudioManager().update();
+
     auto scene = engineContext_.GetSceneManager().GetActiveScene();
     if (scene)
     {
