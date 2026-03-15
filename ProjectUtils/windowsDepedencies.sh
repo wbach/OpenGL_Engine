@@ -18,6 +18,7 @@ additionalIncludesDir='
 '$toolsDir'/common/rapidjson-1.1.0/include;
 '$toolsDir'/common/rapidxml-1.13;
 '$toolsDir'/common/bitsery;
+'$toolsDir'/common/miniaudio-0.11.25;
 '$toolsDir'/Windows/assimp-5.0.1/include;
 '$toolsDir'/Windows/SDL2-2.0.12/include/;
 '$toolsDir'/Windows/SDL2-2.0.12/include/SDL2/;

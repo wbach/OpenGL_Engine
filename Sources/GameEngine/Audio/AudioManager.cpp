@@ -2,15 +2,12 @@
 
 #include <Logger/Log.h>
 
+#include <string>
 #include <memory>
 
 #include "GameEngine/Resources/File.h"
 #include "Utils.h"
 
-#define MINIAUDIO_IMPLEMENTATION
-#ifndef MA_NO_VORBIS
-#include "../Tools/common/miniaudio-0.11.25/extras/stb_vorbis.c"
-#endif
 #include <miniaudio.h>
 
 namespace GameEngine
