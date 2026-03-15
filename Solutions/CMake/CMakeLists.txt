@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(GameEngineCM LANGUAGES CXX)
+project(GameEngineCM LANGUAGES C CXX)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     add_compile_definitions(_GLIBCXX_USE_CXX11_ABI=1)
