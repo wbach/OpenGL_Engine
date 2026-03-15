@@ -81,6 +81,12 @@ DialogueManager::DialogueManager(Input::InputManager& inputManager, GuiElementFa
 }
 void DialogueManager::startDialogue(GameObject& gameObject, Components::DialogueComponent& component)
 {
+    if (component.GetDialog().empty())
+    {
+        LOG_DEBUG << "Can not start empty dialog in gameObject : " << component.GetParentGameObject().GetName();
+        return;
+    }
+
     dialogueComponent = &component;
     this->npcName     = dialogueComponent->GetParentGameObject().GetName();
     this->gameObject  = &gameObject;

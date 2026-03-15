@@ -54,13 +54,12 @@ std::vector<std::string> SplitString(const std::string& s, char split_char)
     return tokens;
 }
 
-
 void WrtieToFile(const std::string& filename, const std::string& content)
 {
     std::ofstream file(filename.c_str());
     if (!file.is_open())
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("cannot open file " + filename);
+        /* LOG TO FIX*/ LOG_ERROR << ("cannot open file " + filename);
         return;
     }
     file << content;
@@ -191,12 +190,12 @@ float StringToFloat(const std::string& str)
     catch (const std::invalid_argument& e)
     {
         std::string s = e.what();
-        /* LOG TO FIX*/  LOG_ERROR << ("StringToFloat invalid_argument. : " + s);
+        /* LOG TO FIX*/ LOG_ERROR << ("StringToFloat invalid_argument. : " + s);
     }
     catch (const std::out_of_range& e)
     {
         std::string s = e.what();
-        /* LOG TO FIX*/  LOG_ERROR << ("StringToFloat out_of_range. : " + s);
+        /* LOG TO FIX*/ LOG_ERROR << ("StringToFloat out_of_range. : " + s);
     }
     return f;
 }
@@ -211,12 +210,12 @@ int StringToInt(const std::string& str)
     catch (const std::invalid_argument& e)
     {
         std::string s = e.what();
-        /* LOG TO FIX*/  LOG_ERROR << ("StringToInt invalid_argument. : " + s);
+        /* LOG TO FIX*/ LOG_ERROR << ("StringToInt invalid_argument. : " + s);
     }
     catch (const std::out_of_range& e)
     {
         std::string s = e.what();
-        /* LOG TO FIX*/  LOG_ERROR << ("StringToInt out_of_range. : " + s);
+        /* LOG TO FIX*/ LOG_ERROR << ("StringToInt out_of_range. : " + s);
     }
     return i;
 }
@@ -300,5 +299,28 @@ std::unordered_map<std::string, std::string> parseArguments(int argc, char* argv
     }
 
     return args;
+}
+std::string RemovePolishSigns(const std::string& input)
+{
+    if (input.empty())
+        return {};
+
+    // Mapa mapowania UTF-8 (2 bajty) na ASCII (1 bajt)
+    // Uwaga: Plik źródłowy musi być zapisany w kodowaniu UTF-8!
+    static const std::unordered_map<std::string, std::string> mapping = {
+        {"ą", "a"}, {"ć", "c"}, {"ę", "e"}, {"ł", "l"}, {"ń", "n"}, {"ó", "o"}, {"ś", "s"}, {"ź", "z"}, {"ż", "z"},
+        {"Ą", "A"}, {"Ć", "C"}, {"Ę", "E"}, {"Ł", "L"}, {"Ń", "N"}, {"Ó", "O"}, {"Ś", "S"}, {"Ź", "Z"}, {"Ż", "Z"}};
+
+    std::string result = input;
+    for (const auto& [sign, replacement] : mapping)
+    {
+        size_t pos = result.find(sign);
+        while (pos != std::string::npos)
+        {
+            result.replace(pos, sign.length(), replacement);
+            pos = result.find(sign, pos + replacement.length());
+        }
+    }
+    return result;
 }
 }  // namespace Utils

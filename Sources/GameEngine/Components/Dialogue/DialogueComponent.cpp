@@ -6,6 +6,8 @@
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "Json/JsonReader.h"
+#include "Logger/Log.h"
 namespace GameEngine
 {
 namespace
@@ -61,15 +63,58 @@ void DialogueComponent::write(TreeNode& node) const
 }
 void DialogueComponent::readFile()
 {
-    // demo
-    nodes[0] = {0, "Stoj! Kto idzie?", {{"Szukam schronienia.", 2, ""}, {"Nie Twoj interes.", -1, ""}}};
-    nodes[1] = {1, "O co chodzi?.", {{"Co to za oboz?", 2, ""}, {"Powiedz mi wiecej o obozie.", 3, ""}, {"A nic.", -1, ""}}};
-    nodes.at(currentNodeID);
-    nodes[2] = {2,
-                "To Oboz Cienia. Swiat oszalal. Chcesz wiedziec wiecej?",
-                {{"Tak, opowiedz mi.", 3, ""}, {"Nie, musze leciec.", -1, ""}}};
-    nodes[3] = {3, "Duzo by gadac..., ale wydajesz sie porzadny pogadamy w srodku.", {{"Dziekuje!", -2, "invited_to_camp"}}};
-    nodes[4] = {4, "Do zobaczenia w srodku.", {{"Do zobaczenia", -2, "invited_to_camp"}}};
+    Utils::JsonReader reader;
+    if (not dialogueFile.exist())
+    {
+        LOG_DEBUG << "Dialog file not exist: " << dialogueFile;
+        return;
+    }
+
+    if (not reader.Read(dialogueFile.GetAbsolutePath().string()))
+    {
+        LOG_DEBUG << "Read dialog file error: " << dialogueFile;
+        return;
+    }
+
+    if (auto nodesNode = reader.Get("nodes"))
+    {
+        for (const auto& nodeNode : nodesNode->getChildren())
+        {
+            DialogueNode node{};
+
+            ::Read(nodeNode->getChild("id"), node.id);
+
+            if (node.id == INVALID_NODE_ID)
+            {
+                LOG_WARN << "Can not read node id for node : " << *nodeNode;
+                continue;
+            }
+
+            ::Read(nodeNode->getChild("text"), node.npcText);
+            ::Read(nodeNode->getChild("audio"), node.audioPath);
+
+            node.npcText = Utils::RemovePolishSigns(node.npcText);
+
+            if (auto optionsNode = nodeNode->getChild("options"))
+            {
+                for (const auto& optionNode : optionsNode->getChildren())
+                {
+                    DialogueOption option;
+
+                    ::Read(optionNode->getChild("target"), option.nextNodeID);
+                    ::Read(optionNode->getChild("text"), option.text);
+                    ::Read(optionNode->getChild("event"), option.actionFlag);
+                    ::Read(optionNode->getChild("audio"), option.audioPath);
+
+                    option.text = Utils::RemovePolishSigns(option.text);
+
+                    node.options.push_back(option);
+                }
+            }
+
+            nodes[node.id] = std::move(node);
+        }
+    }
 }
 DialogueComponent::SelectOptionResult DialogueComponent::selectOption(int optionIndex)
 {

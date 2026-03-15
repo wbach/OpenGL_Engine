@@ -35,6 +35,7 @@ int StringToInt(const std::string& str);
 bool StringToBool(const std::string& str);
 std::string BoolToString(bool);
 std::string toLower(const std::string&);
+std::string RemovePolishSigns(const std::string&);
 template <typename TCont, typename Pred>
 auto Filter(const TCont& cont, Pred p)
 {
