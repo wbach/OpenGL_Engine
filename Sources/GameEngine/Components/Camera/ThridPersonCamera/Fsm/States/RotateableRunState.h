@@ -1,11 +1,11 @@
 #pragma once
+#include <Time/Stopwatch.h>
 #include <Utils/Fsm/Actions.h>
 
 #include "../Context.h"
 #include "../ThridPersonCameraEvents.h"
 #include "Fsm/actions/Update.h"
 #include "StateBase.h"
-#include "Time/Timer.h"
 
 namespace GameEngine
 {
@@ -32,7 +32,7 @@ public:
     void update() override;
 
 private:
-    Utils::Timer timer;
+    Utils::Stopwatch timer;
 };
 }  // namespace Camera
 }  // namespace Components

@@ -31,4 +31,5 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Worker.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Time/TimeMeasurer.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Time/Timer.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Time/TimerService.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Time/Stopwatch.cpp
 )

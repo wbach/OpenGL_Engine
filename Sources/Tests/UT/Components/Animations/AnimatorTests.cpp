@@ -1,4 +1,4 @@
-#include <Utils/Time/Timer.h>
+#include <Utils/Time/Stopwatch.h>
 #include <gtest/gtest.h>
 
 #include "../BaseComponent.h"
@@ -114,8 +114,8 @@ TEST_F(AnimatorTestSchould, GetLastNextFrame)
 
 TEST_F(AnimatorTestSchould, FullUpdateOneCycle)
 {
-    Utils::Timer timer;
-    Utils::Timer frameTimer;
+    Utils::Stopwatch timer;
+    Utils::Stopwatch frameTimer;
     bool run{true};
     uint64 avarageTime{0};
     uint64 avarageFrameTime{0};

@@ -1,6 +1,6 @@
 #pragma once
 #include <Input/InputManager.h>
-#include <Utils/Time/Timer.h>
+#include <Utils/Time/Stopwatch.h>
 #include <functional>
 #include "GameEngine/Renderers/GUI/GuiElement.h"
 
@@ -73,7 +73,7 @@ private:
     vec4 onHoverTextColor_;
     vec4 onActiveTextColor_;
 
-    Utils::Timer activeTimer_;
+    Utils::Stopwatch activeTimer_;
     std::optional<uint32> subscribtion_;
     std::function<bool(const GuiElement&)> isOnTop_;
     std::string actionName_;

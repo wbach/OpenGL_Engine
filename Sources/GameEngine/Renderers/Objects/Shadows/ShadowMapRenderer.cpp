@@ -3,7 +3,7 @@
 #include <GLM/GLMUtils.h>
 #include <GraphicsApi/ShaderProgramType.h>
 #include <Logger/Log.h>
-#include <Utils/Time/Timer.h>
+#include <Utils/Time/Stopwatch.h>
 
 #include <math.hpp>
 
@@ -185,7 +185,7 @@ void ShadowMapRenderer::prepare()
         return;
     }
 
-    Utils::Timer timer;
+    Utils::Stopwatch timer;
 
     if (not prepareFrameBuffer())
     {

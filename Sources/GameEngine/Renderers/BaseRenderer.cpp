@@ -2,6 +2,7 @@
 #include "BaseRenderer.h"
 
 #include <Logger/Log.h>
+#include <Time/Stopwatch.h>
 
 #include "GameEngine/Engine/Configuration.h"
 #include "Objects/Entity/ConcreteEntityRenderer.h"
@@ -11,7 +12,6 @@
 #include "Objects/Terrain/Mesh/ConcreteTerrainMeshRenderer.h"
 #include "Objects/Tree/ConcreteTreeRenderer.h"
 #include "Objects/Water/WaterRenderer.h"
-#include "Time/Timer.h"
 
 namespace GameEngine
 {
@@ -44,7 +44,7 @@ void BaseRenderer::prepare()
 {
     for (auto& renderer : renderers)
     {
-        Utils::Timer timer;
+        Utils::Stopwatch timer;
         renderer.ptr->prepare();
         if (renderer.prepareTime)
             renderer.prepareTime->value = timer.FormatElapsed();
@@ -118,7 +118,7 @@ void BaseRenderer::renderImpl()
 
     for (auto& renderer : renderers)
     {
-        Utils::Timer timer;
+        Utils::Stopwatch timer;
         renderer.ptr->render();
         if (renderer.renderTime)
             renderer.renderTime->value = timer.FormatElapsed();

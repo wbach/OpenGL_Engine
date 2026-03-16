@@ -3,6 +3,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/Mocks/Api/GraphicsApiMock.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/MT/GUI/GuiTextTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/JsonReaderTreeTest.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Scene/Scene.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Utils/TimerServiceTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Utils/utilsTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Renderers/EntityRendererTest.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Renderers/TerrainNormalCalulation.cpp

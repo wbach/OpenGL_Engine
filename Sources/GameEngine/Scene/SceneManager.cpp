@@ -1,6 +1,7 @@
 #include "SceneManager.h"
 
 #include <Logger/Log.h>
+#include <Time/Stopwatch.h>
 #include <Utils/IThreadSync.h>
 #include <Utils/ThreadSubscriber.h>
 
@@ -9,7 +10,6 @@
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "Scene.hpp"
 #include "SceneLoader.h"
-#include "Time/Timer.h"
 
 namespace GameEngine
 {
@@ -219,7 +219,7 @@ void SceneManager::ResetCurrentScene()
 
     LOG_DEBUG << "Execute gpu cleaning by scene objects. (Moved to release update pass after close)";
 
-    Utils::Timer t;
+    Utils::Stopwatch t;
     engineContext_.GetGpuResourceLoader().RuntimeGpuTasks();
     LOG_DEBUG << "Clean gpu time : " << t.GetTimeMilliseconds() << " ms";
 }

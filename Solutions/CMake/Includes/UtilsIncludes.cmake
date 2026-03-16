@@ -48,6 +48,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Fsm/Actions.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Pathes.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Container.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/MeasurementHandler.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Time/Stopwatch.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Time/TimerService.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Time/Timer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Time/TimeMeasurer.h

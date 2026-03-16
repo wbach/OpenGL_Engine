@@ -1,14 +1,16 @@
 #include <GameEngine/Resources/GpuResourceLoader.h>
 #include <GameEngine/Resources/TextureLoader.h>
 #include <GameEngine/Resources/Textures/Texture.h>
-#include <Utils/Time/Timer.h>
+#include <Utils/Time/Stopwatch.h>
 #include <gtest/gtest.h>
+
 #include <filesystem>
+
 #include "../../Mocks/Api/GraphicsApiMock.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/ResourceUtils.h"
-#include "Tests/Mocks/Resources/GpuResourceLoaderMock.h"
 #include "Logger/Log.h"
+#include "Tests/Mocks/Resources/GpuResourceLoaderMock.h"
 
 namespace GameEngine
 {
@@ -27,21 +29,21 @@ struct TextureLoaderTest : public ::testing::Test
 // Disabled because of data needed
 TEST_F(TextureLoaderTest, DISABLED_FreeImageForValgrind)
 {
-    Utils::Timer timer;
+    Utils::Stopwatch timer;
     EngineConf.renderer.textures.maxSize = vec2ui(2048, 2048);
     File textureFile{"Textures/textureNotFound.png"};
     EXPECT_TRUE(std::filesystem::exists(textureFile.GetAbsolutePath()));
     GameEngine::ReadFile(textureFile, TextureParameters());
-    /* LOG TO FIX*/  LOG_ERROR << ("Time : " + std::to_string(timer.GetTimeNanoseconds()));
+    LOG_DEBUG << "Time : " << timer.GetTimeNanoseconds();
 }
 // Disabled because of data needed
 TEST_F(TextureLoaderTest, DISABLED_FreeImageResizedForValgrind)
 {
-    Utils::Timer timer;
+    Utils::Stopwatch timer;
     EngineConf.renderer.textures.maxSize = vec2ui(320, 240);
     File textureFile{"Textures/textureNotFound.png"};
     EXPECT_TRUE(std::filesystem::exists(textureFile.GetAbsolutePath()));
     GameEngine::ReadFile(textureFile, TextureParameters());
-    /* LOG TO FIX*/  LOG_ERROR << ("Time : " + std::to_string(timer.GetTimeNanoseconds()));
+    LOG_DEBUG << "Time : " << timer.GetTimeNanoseconds();
 }
 }  // namespace GameEngine

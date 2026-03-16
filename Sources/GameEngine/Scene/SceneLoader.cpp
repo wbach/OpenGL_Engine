@@ -4,7 +4,7 @@
 #include <Types.h>
 #include <Utils.h>
 #include <Utils/Time/TimeMeasurer.h>
-#include <Utils/Time/Timer.h>
+#include <Utils/Time/Stopwatch.h>
 
 #include <atomic>
 #include <memory>
@@ -81,7 +81,7 @@ void SceneLoader::LoadScene(const T& t)
         [&, requestedScene = t]()
         {
             LOG_DEBUG << "Load scene thread started.";
-            Utils::Timer timer;
+            Utils::Stopwatch timer;
             resultScene = sceneFactory_.Create(requestedScene);
             LOG_DEBUG << "scene created";
             resultScene->Init();

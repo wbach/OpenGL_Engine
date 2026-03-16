@@ -1,6 +1,10 @@
 set(GameEngineIncludes
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Audio/IAudioManager.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Audio/SoundCone.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Audio/PlayParameters.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Audio/PlayGroup.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Audio/AudioManager.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Audio/PlayType.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/IBrush.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/TerrainPoint.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/Influance.h

@@ -1,6 +1,6 @@
 set(GameEngineSources
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Audio/AudioManager.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Audio/MiniAudio.c
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Audio/AudioManager.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/TexturePainter.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/PlantPainter.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/Interpolation.cpp

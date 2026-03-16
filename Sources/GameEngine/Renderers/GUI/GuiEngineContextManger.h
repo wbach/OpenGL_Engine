@@ -1,8 +1,10 @@
 #pragma once
-#include "GameEngine/Engine/EngineContext.h"
-#include "Utils/Time/Timer.h"
-#include "Types.h"
+#include <Types.h>
+#include <Utils/Time/Stopwatch.h>
+
 #include <memory>
+
+#include "GameEngine/Engine/EngineContext.h"
 
 namespace GameEngine
 {
@@ -28,6 +30,6 @@ private:
     std::unique_ptr<GuiWindowElement> rootWindow_;
     std::unordered_map<std::string, GuiTextElement*> guiTexts_;
     IdType isShowSub_;
-    Utils::Timer updateTimer;
+    Utils::Stopwatch updateTimer;
 };
 }  // namespace GameEngine

@@ -13,6 +13,7 @@
 //#include "GameEngine/DebugTools/Painter/Painter.h"
 #include "GameEngine/Renderers/DebugElements/DebugRenderer.h"
 #include "IEditorInterface.hpp"
+#include "Time/Stopwatch.h"
 #include "Types.h"
 
 namespace GameEngine
@@ -153,8 +154,8 @@ private:
     uint32 userId_;
     uint32 threadId_;
 
-    Utils::Timer cameraTimer_;
-    Utils::Timer transformTimer_;
+    Utils::Stopwatch cameraTimer_;
+    Utils::Stopwatch transformTimer_;
     Input::KeysSubscriptionsManager keysSubscriptionsManager_;
     bool running_;
 
@@ -163,7 +164,7 @@ private:
     std::unique_ptr<DragObject> dragObject_;
     std::mutex terrainPainterMutex_;
    // std::unique_ptr<Painter> terrainPainter_;
-    Utils::Timer terrainPainterTimer_;
+    Utils::Stopwatch terrainPainterTimer_;
 
     Model* arrowsIndicator_;
     Model* brushCircle_;

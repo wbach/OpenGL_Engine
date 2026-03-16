@@ -1,41 +1,48 @@
 #pragma once
-#include <chrono>
-#include <functional>
 #include <atomic>
+#include <chrono>
+#include <condition_variable>
+#include <functional>
+#include <unordered_map>
 
-#include "TimeMeasurer.h"
-#include "Types.h"
-#include "Timer.h"
-#include "Utils/IdPool.h"
+#include "EngineApi.h"
 #include "Mutex.hpp"
 #include "Thread.hpp"
+#include "TimeMeasurer.h"
+#include "Timer.h"
+#include "Types.h"
+#include "Utils/IdPool.h"
 
 namespace Utils
 {
 namespace Time
 {
-class TimerService
+class ENGINE_API TimerService
 {
 public:
     TimerService();
     ~TimerService();
 
-    IdType timer(const std::chrono::milliseconds&, std::function<void()>);
-    IdType periodicTimer(const std::chrono::milliseconds&, std::function<void()>);
-    void cancel(IdType);
+    TimerService(const TimerService&)            = delete;
+    TimerService& operator=(const TimerService&) = delete;
+
+    IdType timer(const std::chrono::milliseconds& time, std::function<void()> callback);
+    IdType periodicTimer(const std::chrono::milliseconds& time, std::function<void()> callback);
+    void cancel(IdType id);
+
+private:
+    void workerThread();
     void update();
+    IdType addTimer(const std::chrono::milliseconds& time, std::function<void()> callback, bool periodic);
 
-private:
-    void startThread();
-    void cancelWithoutLock(IdType);
-
-private:
-    CTimeMeasurer measurer_;
     std::mutex mutex_;
-    IdPool idPool_;
-    std::unordered_map<IdType, Timer> timers_;
+    std::condition_variable cv_;
+    std::atomic<bool> running_{false};
     std::thread thread_;
-    std::atomic_bool isUpdate_;
+
+    std::unordered_map<IdType, Timer> timers_;
+
+    IdPool idPool_;
 };
 }  // namespace Time
 }  // namespace Utils

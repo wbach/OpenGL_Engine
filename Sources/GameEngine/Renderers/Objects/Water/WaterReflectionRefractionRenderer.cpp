@@ -2,7 +2,7 @@
 
 #include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
-#include <Utils/Time/Timer.h>
+#include <Utils/Time/Stopwatch.h>
 
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
 #include "GameEngine/Engine/Configuration.h"
@@ -210,7 +210,7 @@ void WaterReflectionRefractionRenderer::prepare()
         waterTexturesRendererdMeshesMeasurementValue_->SetValue("0");
         return;
     }
-    Utils::Timer timer;
+    Utils::Stopwatch timer;
 
     waterTexturesRendererdMeshesCounter_ = 0;
     context_.graphicsApi_.EnableDepthTest();
