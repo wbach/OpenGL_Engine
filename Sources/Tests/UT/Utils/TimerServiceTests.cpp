@@ -116,3 +116,27 @@ TEST_F(TimerServiceTest, MultithreadedAdditionAndExecution)
 
     EXPECT_EQ(executionCount.load(), threadsCount * timersPerThread);
 }
+
+TEST_F(TimerServiceTest, RapidAddAndCancelCycle)
+{
+    const int iterations = 10000;
+    std::atomic<int> callCount{0};
+
+    for (int i = 0; i < iterations; ++i)
+    {
+        auto id = service.timer(1ms, [&]() { callCount++; });
+
+        if (i % 2 == 0)
+        {
+            service.cancel(id);
+        }
+
+        if (i % 100 == 0)
+        {
+            std::this_thread::sleep_for(1ms);
+        }
+    }
+
+    std::this_thread::sleep_for(100ms);
+    SUCCEED();
+}

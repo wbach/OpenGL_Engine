@@ -60,7 +60,8 @@ public:
     void RestoreRotation();
 
     const DialogueNode* getCurrent() const;
-    SelectOptionResult selectOption(int optionIndex);
+    SelectOptionResult selectOption(int);
+    SelectOptionResult goToNode(int);
 
 private:
     Nodes nodes;

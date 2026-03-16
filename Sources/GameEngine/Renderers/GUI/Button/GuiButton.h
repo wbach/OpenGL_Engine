@@ -27,6 +27,7 @@ public:
     void Update() override;
     void Show() override;
     void Show(bool) override;
+    void Hide() override;
     GuiElement* GetCollisonElement(const vec2& mousePosition) override;
 
     void ExecuteAction();

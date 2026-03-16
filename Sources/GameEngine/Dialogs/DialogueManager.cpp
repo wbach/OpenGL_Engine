@@ -1,6 +1,7 @@
 #include "DialogueManager.h"
 
 #include <Logger/Log.h>
+#include <Time/TimerService.h>
 
 #include <utility>
 
@@ -9,6 +10,7 @@
 #include "GameEngine/Components/Camera/ThridPersonCamera/Fsm/ThridPersonCameraEvents.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/Dialogue/DialogueComponent.h"
+#include "GameEngine/Dialogs/DialogueOption.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/GUI/Layout/Layout.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
@@ -18,15 +20,33 @@
 #include "Input/InputManager.h"
 #include "Input/KeyCodes.h"
 
+using namespace std::chrono_literals;
+
 namespace GameEngine
 {
 namespace
 {
 const vec3 highlightedColor(1, 1, 0);
+
+const std::chrono::milliseconds calculateTimer(const std::string& text)
+{
+    const int baseTimeMs  = 1500;
+    const int timePerChar = 35;
+    const int maxTimeMs   = 8000;
+
+    int calculatedTime = baseTimeMs + (static_cast<int>(text.length()) * timePerChar);
+
+    calculatedTime = std::min(calculatedTime, maxTimeMs);
+
+    LOG_DEBUG << "calculateTimer :  " << calculatedTime;
+
+    return std::chrono::milliseconds(calculatedTime);
 }
-DialogueManager::DialogueManager(Input::InputManager& inputManager, GuiElementFactory& factory, GuiManager& manger, GameState& gs,
-                                 TweenManager& tweenManager)
-    : inputManager(inputManager)
+}  // namespace
+DialogueManager::DialogueManager(Utils::Time::TimerService& timerService, Input::InputManager& inputManager,
+                                 GuiElementFactory& factory, GuiManager& manger, GameState& gs, TweenManager& tweenManager)
+    : timerService(timerService)
+    , inputManager(inputManager)
     , guiFactory(factory)
     , guiManager(manger)
     , subscriptions_(inputManager)
@@ -135,6 +155,24 @@ void DialogueManager::selectOption(int optionIndex)
 
     refreshOptionGui();
 }
+void DialogueManager::goToNode(int nodeIndex)
+{
+    LOG_DEBUG << "nodeIndex " << nodeIndex;
+
+    if (not dialogueComponent)
+    {
+        return;
+    }
+
+    auto status = dialogueComponent->goToNode(nodeIndex);
+    if (status == Components::DialogueComponent::SelectOptionResult::end)
+    {
+        EndDialog();
+        return;
+    }
+
+    refreshOptionGui();
+}
 bool DialogueManager::isActive() const
 {
     return dialogueComponent != nullptr;
@@ -199,16 +237,17 @@ void DialogueManager::initGui()
         layout->SetAlgin(Layout::Algin::LEFT);
         optionsDialogueWindow = window;
         optionsWindowLayout   = layout;
+        hideOptions();
     }
     else
     {
-        optionsDialogueWindow->Show();
+        hideOptions();
     }
 }
 void DialogueManager::updateHighLightedColor(int oldItem, int newItem)
 {
     auto& children = optionsWindowLayout->GetChildren();
-    if (!optionsWindowLayout || children.empty())
+    if (not optionsWindowLayout or children.empty())
         return;
 
     auto updateColor = [&](int index, glm::vec3 color)
@@ -230,8 +269,13 @@ void DialogueManager::refreshOptionGui()
     if (not dialogueComponent)
         return;
 
-    textWindowLayout->RemoveAll();
-    optionsWindowLayout->RemoveAll();
+    if (textWindowLayout)
+        textWindowLayout->RemoveAll();
+    if (optionsWindowLayout)
+    {
+        optionsWindowLayout->RemoveAll();
+        hideOptions();
+    }
 
     if (auto current = dialogueComponent->getCurrent())
     {
@@ -244,19 +288,46 @@ void DialogueManager::refreshOptionGui()
         npcGuiText->SetLocalScale(textSize);
         textWindowLayout->AddChild(std::move(npcGuiText));
 
-        int i = 0;
-        for (const auto& option : current->options)
-        {
-            auto optionGuiText = guiFactory.CreateGuiText(option.text);
-            optionGuiText->SetLocalScale(textSize);
-            optionGuiText->SetAlgin(GuiTextElement::Algin::LEFT);
-            if (i == 0)
-            {
-                optionGuiText->SetColor(highlightedColor);
-                i++;
-            }
-            optionsWindowLayout->AddChild(std::move(optionGuiText));
-        }
+        timerService.timer(calculateTimer(current->npcText),
+                           [this, textSize]()
+                           {
+                               if (not dialogueComponent)
+                               {
+                                   LOG_WARN << "Dialog comopnent not set!?";
+                                   return;
+                               }
+
+                               if (auto current = dialogueComponent->getCurrent())
+                               {
+                                   if (current->options.empty())
+                                   {
+                                       auto nextID =
+                                           current->nextNodeID != INVALID_NODE_ID ? current->nextNodeID : current->id + 1;
+
+                                       if (current->nextNodeID == INVALID_NODE_ID)
+                                       {
+                                           LOG_WARN << "Options not avaible, and no next state is specyfied. Get to next option";
+                                       }
+                                       goToNode(nextID);
+                                       return;
+                                   }
+
+                                   showOptions();
+                                   int i = 0;
+                                   for (const auto& option : current->options)
+                                   {
+                                       auto optionGuiText = guiFactory.CreateGuiText(option.text);
+                                       optionGuiText->SetLocalScale(textSize);
+                                       optionGuiText->SetAlgin(GuiTextElement::Algin::LEFT);
+                                       if (i == 0)
+                                       {
+                                           optionGuiText->SetColor(highlightedColor);
+                                           i++;
+                                       }
+                                       optionsWindowLayout->AddChild(std::move(optionGuiText));
+                                   }
+                               }
+                           });
     }
 }
 TweenTransform DialogueManager::calculateCameraTarget()
@@ -277,5 +348,21 @@ TweenTransform DialogueManager::calculateCameraTarget()
     target.rotation = targetRot;
 
     return target;
+}
+void DialogueManager::hideOptions()
+{
+    optionsDialogueWindow->Hide();
+    for (auto& child : optionsDialogueWindow->GetChildren())
+    {
+        child->Hide();
+    }
+}
+void DialogueManager::showOptions()
+{
+    optionsDialogueWindow->Show();
+    for (auto& child : optionsDialogueWindow->GetChildren())
+    {
+        child->Show();
+    }
 }
 }  // namespace GameEngine

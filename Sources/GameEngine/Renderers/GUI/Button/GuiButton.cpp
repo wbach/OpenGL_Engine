@@ -65,6 +65,7 @@ void GuiButtonElement::Show()
 void GuiButtonElement::Show(bool b)
 {
     GuiElement::Show(b);
+
     if (onHoverTexture_)
     {
         onHoverTexture_->Hide();
@@ -73,6 +74,11 @@ void GuiButtonElement::Show(bool b)
     {
         onActiveTextue_->Hide();
     }
+}
+
+void GuiButtonElement::Hide()
+{
+    Show(false);
 }
 
 GuiElement *GuiButtonElement::GetCollisonElement(const vec2 &mousePosition)
@@ -319,5 +325,4 @@ void GuiButtonElement::ApplyActiveState()
     if (text_)
         text_->SetColor(onActiveTextColor_);
 }
-
 }  // namespace GameEngine

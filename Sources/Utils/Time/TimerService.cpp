@@ -6,7 +6,6 @@
 
 namespace Utils::Time
 {
-
 TimerService::TimerService()
     : running_(true)
 {

@@ -12,6 +12,12 @@
 #include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
 #include "GameEngine/Scene/TweenManager.h"
 #include "GameState.h"
+
+namespace Utils::Time
+{
+class TimerService;
+}
+
 namespace Input
 {
 class InputManager;
@@ -31,11 +37,12 @@ class CameraComponent;
 class ENGINE_API DialogueManager
 {
 public:
-    DialogueManager(Input::InputManager&, GuiElementFactory&, GuiManager&, GameState&, TweenManager&);
+    DialogueManager(Utils::Time::TimerService&, Input::InputManager&, GuiElementFactory&, GuiManager&, GameState&, TweenManager&);
 
     void startDialogue(GameObject&, Components::DialogueComponent&);
 
     void selectOption(int optionIndex);
+    void goToNode(int);
     bool isActive() const;
     void EndDialog();
 
@@ -45,7 +52,11 @@ private:
     void refreshOptionGui();
     TweenTransform calculateCameraTarget();
 
+    void hideOptions();
+    void showOptions();
+
 private:
+    Utils::Time::TimerService& timerService;
     Input::InputManager& inputManager;
     GuiElementFactory& guiFactory;
     GuiManager& guiManager;

@@ -3,10 +3,13 @@
 #include <Logger/Log.h>
 
 #include <algorithm>
+#include <memory>
 
 #include "Button/GuiButton.h"
 #include "EditText/GuiEditText.h"
 #include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Renderers/GUI/GuiElement.h"
+#include "GameEngine/Renderers/GUI/GuiElementTypes.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GuiElementReader.h"
@@ -14,11 +17,11 @@
 #include "GuiManager.h"
 #include "Layout/HorizontalLayout.h"
 #include "Layout/VerticalLayout.h"
+#include "Menu/Menu.h"
 #include "Text/GuiTextElement.h"
 #include "Texutre/GuiTextureElement.h"
 #include "TreeView/TreeView.h"
 #include "Window/GuiWindow.h"
-#include "Menu/Menu.h"
 
 namespace GameEngine
 {
@@ -28,7 +31,8 @@ GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryPa
     , inputManager_(entryParameters.inputManager_)
     , resourceManager_(entryParameters.resourceManager_)
 {
-    isOnTop_ = [this](const GuiElement &checkingElement) {
+    isOnTop_ = [this](const GuiElement &checkingElement)
+    {
         auto mousePosition = inputManager_.GetMousePosition();
         for (const auto &layer : guiManager_.GetGuiLayers())
         {
@@ -39,8 +43,7 @@ GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryPa
                     continue;
                 }
 
-                if (element->IsShow() and element->IsCollision(mousePosition) and
-                    element->CompareZValue(checkingElement))
+                if (element->IsShow() and element->IsCollision(mousePosition) and element->CompareZValue(checkingElement))
                 {
                     return false;
                 }
@@ -214,8 +217,8 @@ std::unique_ptr<GuiEditBoxElement> GuiElementFactory::CreateEditBox(const std::s
     return CreateEditBox(std::move(guiText));
 }
 
-std::unique_ptr<GuiEditBoxElement> GuiElementFactory::CreateEditBox(const std::string &font, const std::string &str,
-                                                                    uint32 size, uint32 outline)
+std::unique_ptr<GuiEditBoxElement> GuiElementFactory::CreateEditBox(const std::string &font, const std::string &str, uint32 size,
+                                                                    uint32 outline)
 {
     auto text = CreateGuiText(font, str, size, outline);
     return CreateEditBox(std::move(text));
@@ -254,8 +257,7 @@ std::unique_ptr<Menu> GuiElementFactory::CreateMenu()
     return std::make_unique<Menu>(*this);
 }
 
-void GuiElementFactory::CreateMessageBox(const std::string &title, const std::string &message,
-                                         std::function<void()> okFunc)
+void GuiElementFactory::CreateMessageBox(const std::string &title, const std::string &message, std::function<void()> okFunc)
 {
     auto window = CreateGuiWindow(GuiWindowStyle::CLOSE, vec2(0, 0), vec2(0.5, 0.3));
     window->SetZPosition(-100.f);
@@ -268,11 +270,13 @@ void GuiElementFactory::CreateMessageBox(const std::string &title, const std::st
     window->AddChild(std::move(messageText));
 
     auto windowPtr = window.get();
-    auto button    = CreateGuiButton("ok", [this, windowPtr, okFunc](auto &) {
-        if (okFunc)
-            okFunc();
-        guiManager_.Remove(*windowPtr);
-    });
+    auto button    = CreateGuiButton("ok",
+                                     [this, windowPtr, okFunc](auto &)
+                                     {
+                                      if (okFunc)
+                                          okFunc();
+                                      guiManager_.Remove(*windowPtr);
+                                  });
 
     button->SetLocalScale(1.5f * button->GetLocalScale());
     button->SetLocalPostion(vec2(0, -0.25));
@@ -350,7 +354,7 @@ void GuiElementFactory::CreateWindowBar(GuiWindowStyle style, GuiWindowElement &
 
     if (style == GuiWindowStyle::FULL)
     {
-        LOG_DEBUG<< ("GuiWindowElement::Style::FULL, minimalize, maxmalize buttons not implemented.");
+        LOG_DEBUG << ("GuiWindowElement::Style::FULL, minimalize, maxmalize buttons not implemented.");
     }
 
     window.SetBar(std::move(horizontalLayout));
@@ -359,5 +363,16 @@ void GuiElementFactory::CreateWindowBar(GuiWindowStyle style, GuiWindowElement &
 bool GuiElementFactory::ReadGuiFile(const std::string &filename)
 {
     return GuiElementReader(guiManager_, *this).Read(filename);
+}
+std::unique_ptr<GuiElement> GuiElementFactory::CreateGuiElement(const vec2 &position, const vec2 &scale) const
+{
+    auto element = std::make_unique<GuiElement>(GuiElementTypes::Element);
+    element->SetLocalPostion(position);
+    element->SetLocalScale(scale);
+    return element;
+}
+std::unique_ptr<GuiElement> GuiElementFactory::CreateGuiElement() const
+{
+    return std::make_unique<GuiElement>(GuiElementTypes::Element);
 }
 }  // namespace GameEngine

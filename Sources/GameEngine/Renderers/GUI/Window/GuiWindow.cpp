@@ -115,4 +115,18 @@ void GuiWindowElement::SetBar(std::unique_ptr<GuiElement> bar)
     // bar_ = std::move(bar);
     // bar_->setParent(this);
 }
+void GuiWindowElement::ShowPartial(uint32 depth)
+{
+    GuiElement::ShowPartial(depth);
+
+    if (background_)
+    {
+        background_->Show();
+    }
+
+    if (bar_)
+    {
+        bar_->Show();
+    }
+}
 }  // namespace GameEngine

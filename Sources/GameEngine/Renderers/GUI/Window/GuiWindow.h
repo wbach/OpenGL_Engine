@@ -25,6 +25,7 @@ public:
     void Show(bool) override;
     void Show() override;
     void Hide() override;
+    void ShowPartial(uint32 depth) override;
 
 private:
     Input::InputManager& inputManager_;

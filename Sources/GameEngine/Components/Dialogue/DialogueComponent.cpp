@@ -92,6 +92,7 @@ void DialogueComponent::readFile()
 
             ::Read(nodeNode->getChild("text"), node.npcText);
             ::Read(nodeNode->getChild("audio"), node.audioPath);
+            ::Read(nodeNode->getChild("next"), node.nextNodeID);
 
             node.npcText = Utils::RemovePolishSigns(node.npcText);
 
@@ -126,24 +127,7 @@ DialogueComponent::SelectOptionResult DialogueComponent::selectOption(int option
         componentContext_.scene_.getEngineContext()->GetGameState().flags[selected.actionFlag] = 1;
     }
 
-    if (selected.nextNodeID == -1)
-    {
-        LOG_DEBUG << "End dialog";
-        currentNodeID = 1;
-        return SelectOptionResult::end;
-    }
-    else if (selected.nextNodeID == -2)
-    {
-        LOG_DEBUG << "End dialog";
-        currentNodeID = 4;
-        return SelectOptionResult::end;
-    }
-    else
-    {
-        currentNodeID = selected.nextNodeID;
-    }
-
-    return SelectOptionResult::active;
+    return goToNode(selected.nextNodeID);
 }
 
 const DialogueNode* DialogueComponent::getCurrent() const
@@ -186,6 +170,27 @@ void DialogueComponent::RestoreRotation()
         componentContext_.tweenManager.Add(thisObject_, TweenTransform{.rotation = *tmpRotation}, duration, EaseType::CubicOut);
         tmpRotation.reset();
     }
+}
+DialogueComponent::SelectOptionResult DialogueComponent::goToNode(int nextNodeID)
+{
+    if (nextNodeID == -1)
+    {
+        LOG_DEBUG << "End dialog";
+        currentNodeID = 0;  // TO DO
+        return SelectOptionResult::end;
+    }
+    else if (nextNodeID == -2)
+    {
+        LOG_DEBUG << "End dialog";
+        currentNodeID = 0;  // TO DO
+        return SelectOptionResult::end;
+    }
+    else
+    {
+        currentNodeID = nextNodeID;
+    }
+
+    return SelectOptionResult::active;
 }
 }  // namespace Components
 }  // namespace GameEngine
