@@ -7,7 +7,7 @@
 #include "DialogueNode.h"
 #include "EngineApi.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Renderers/GUI/GuiElementFactory.h"
+#include "GameEngine/Renderers/GUI/IGuiElementFactory.h"
 #include "GameEngine/Renderers/GUI/GuiManager.h"
 #include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
 #include "GameEngine/Scene/TweenManager.h"
@@ -15,7 +15,7 @@
 
 namespace Utils::Time
 {
-class TimerService;
+class ITimerService;
 }
 
 namespace Input
@@ -37,7 +37,7 @@ class CameraComponent;
 class ENGINE_API DialogueManager
 {
 public:
-    DialogueManager(Utils::Time::TimerService&, Input::InputManager&, GuiElementFactory&, GuiManager&, GameState&, TweenManager&);
+    DialogueManager(Utils::Time::ITimerService&, Input::InputManager&, IGuiElementFactory&, GuiManager&, GameState&, TweenManager&);
 
     void startDialogue(GameObject&, Components::DialogueComponent&);
 
@@ -56,9 +56,9 @@ private:
     void showOptions();
 
 private:
-    Utils::Time::TimerService& timerService;
+    Utils::Time::ITimerService& timerService;
     Input::InputManager& inputManager;
-    GuiElementFactory& guiFactory;
+    IGuiElementFactory& guiFactory;
     GuiManager& guiManager;
     GuiWindowElement* textDialogueWindow{nullptr};
     VerticalLayout* textWindowLayout{nullptr};

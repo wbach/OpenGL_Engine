@@ -173,6 +173,8 @@ void DialogueComponent::RestoreRotation()
 }
 DialogueComponent::SelectOptionResult DialogueComponent::goToNode(int nextNodeID)
 {
+    LOG_DEBUG << nextNodeID;
+
     if (nextNodeID == -1)
     {
         LOG_DEBUG << "End dialog";
@@ -187,10 +189,27 @@ DialogueComponent::SelectOptionResult DialogueComponent::goToNode(int nextNodeID
     }
     else
     {
-        currentNodeID = nextNodeID;
+        auto iter = nodes.find(nextNodeID);
+        if (iter != nodes.end())
+        {
+            currentNodeID = nextNodeID;
+        }
+        else
+        {
+            LOG_WARN << "Target not exist, fallback to start node";
+            currentNodeID = startNodeID;
+        }
     }
 
     return SelectOptionResult::active;
+}
+void DialogueComponent::setNodes(Nodes&& n)
+{
+    nodes = std::move(n);
+}
+void DialogueComponent::resetCurrent()
+{
+    currentNodeID = startNodeID;
 }
 }  // namespace Components
 }  // namespace GameEngine

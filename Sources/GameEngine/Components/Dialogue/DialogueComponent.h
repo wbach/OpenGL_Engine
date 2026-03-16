@@ -62,6 +62,8 @@ public:
     const DialogueNode* getCurrent() const;
     SelectOptionResult selectOption(int);
     SelectOptionResult goToNode(int);
+    void setNodes(Nodes&&);
+    void resetCurrent();
 
 private:
     Nodes nodes;

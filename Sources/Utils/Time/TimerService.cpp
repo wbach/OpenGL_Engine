@@ -39,6 +39,7 @@ IdType TimerService::periodicTimer(const std::chrono::milliseconds& time, std::f
 
 IdType TimerService::addTimer(const std::chrono::milliseconds& time, std::function<void()> callback, bool periodic)
 {
+    LOG_DEBUG << "addTimer : " << time.count();
     std::lock_guard<std::mutex> lk(mutex_);
     auto id = idPool_.getId();
 
@@ -46,6 +47,8 @@ IdType TimerService::addTimer(const std::chrono::milliseconds& time, std::functi
     timers_[id] = Timer{now + time, time, std::move(callback), periodic};
 
     cv_.notify_one();
+
+    LOG_DEBUG << "id : " << id;
     return id;
 }
 

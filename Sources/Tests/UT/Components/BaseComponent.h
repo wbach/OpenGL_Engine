@@ -34,7 +34,7 @@
 #include "Tests/Mocks/Resources/ModelLoaderFactoryMock.h"
 #include "Tests/Mocks/Resources/ResourcesManagerMock.h"
 #include "Tests/Mocks/Scene/SceneManagerMock.h"
-#include "Tests/Mocks/Api/FrameBufferMock.h"
+#include "Tests/Mocks/Utils/TimerServiceMock.h"
 
 using namespace GameEngine;
 using namespace GameEngine::Components;
@@ -59,11 +59,11 @@ public:
     Time time_;
     ComponentController componentController_;
     GraphicsApi::WindowApiMock windowApiMock_;
-    GuiManager guiManager_;
+
     Frustrum frustrum_;
 
     Utils::Thread::ThreadSync threadSync_;
-    Utils::Time::TimerService timerService_;
+    Utils::Time::TimerServiceMock timerService_;
     PhysicsApiMock physicsApiMock_;
     ResourceManagerMock resourcesManager_;
     ::testing::NiceMock<GraphicsApi::GraphicsApiMock> graphicsApiMock_;
@@ -76,4 +76,6 @@ public:
     ComponentContext context_;
     ComponentFactory componentFactory_;
     std::unique_ptr<GameObject> obj_;
+
+    GuiManager guiManager_;
 };

@@ -43,8 +43,8 @@ const std::chrono::milliseconds calculateTimer(const std::string& text)
     return std::chrono::milliseconds(calculatedTime);
 }
 }  // namespace
-DialogueManager::DialogueManager(Utils::Time::TimerService& timerService, Input::InputManager& inputManager,
-                                 GuiElementFactory& factory, GuiManager& manger, GameState& gs, TweenManager& tweenManager)
+DialogueManager::DialogueManager(Utils::Time::ITimerService& timerService, Input::InputManager& inputManager,
+                                 IGuiElementFactory& factory, GuiManager& manger, GameState& gs, TweenManager& tweenManager)
     : timerService(timerService)
     , inputManager(inputManager)
     , guiFactory(factory)
@@ -301,14 +301,14 @@ void DialogueManager::refreshOptionGui()
                                {
                                    if (current->options.empty())
                                    {
-                                       auto nextID =
-                                           current->nextNodeID != INVALID_NODE_ID ? current->nextNodeID : current->id + 1;
-
-                                       if (current->nextNodeID == INVALID_NODE_ID)
+                                       if (current->nextNodeID != INVALID_NODE_ID)
                                        {
-                                           LOG_WARN << "Options not avaible, and no next state is specyfied. Get to next option";
+                                           goToNode(current->nextNodeID);
                                        }
-                                       goToNode(nextID);
+                                       else
+                                       {
+                                           EndDialog();
+                                       }
                                        return;
                                    }
 

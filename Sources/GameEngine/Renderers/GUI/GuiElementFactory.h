@@ -6,6 +6,7 @@
 
 #include "GuiElement.h"
 #include "GuiTheme.h"
+#include "IGuiElementFactory.h"
 #include "Text/FontManager.h"
 #include "Window/GuiWindowStyle.h"
 
@@ -19,23 +20,13 @@ namespace GameEngine
 class GuiManager;
 class GUIRenderer;
 class IResourceManager;
-class GuiButtonElement;
-class GuiTextureElement;
-class GuiWindowElement;
-class GuiTextElement;
-class GuiEditBoxElement;
-class VerticalLayout;
-class HorizontalLayout;
-class TreeView;
-class File;
-class Menu;
 
 namespace Renderer
 {
 class RenderersManager;
 }  // namespace Renderer
 
-class ENGINE_API GuiElementFactory
+class ENGINE_API GuiElementFactory : public IGuiElementFactory
 {
 public:
     struct EntryParameters
@@ -47,6 +38,7 @@ public:
     };
     GuiElementFactory(EntryParameters& entryParameters);
     ~GuiElementFactory();
+
     bool ReadGuiFile(const std::string& filename);
     void SetTheme(const GuiTheme&);
     const GuiTheme& GetTheme() const;

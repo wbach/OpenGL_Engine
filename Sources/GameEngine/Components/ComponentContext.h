@@ -1,5 +1,5 @@
 #pragma once
-#include <Utils/Time/TimerService.h>
+#include <Utils/Time/ITimerService.h>
 
 #include "ComponentController.h"
 #include "GameEngine/Time/Time.h"
@@ -49,7 +49,7 @@ struct ComponentContext
     ComponentController& componentController_;
     Renderer::RenderersManager& renderersManager_;
     GuiElementFactory& guiElementFactory_;
-    Utils::Time::TimerService& timerService_;
+    Utils::Time::ITimerService& timerService_;
     DialogueManager& dialogueManager_;
     TweenManager& tweenManager;
     IAudioManager& audioManager;

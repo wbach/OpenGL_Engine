@@ -60,7 +60,8 @@ struct FontManager::Pimpl
     {
         for (auto &[_, font] : fonts_)
         {
-            TTF_CloseFont(font.ptr);
+            if (font.ptr)
+                TTF_CloseFont(font.ptr);
         }
     }
 };
@@ -196,24 +197,35 @@ std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, c
 }
 void FontManager::closeFont(uint32 fontId)
 {
+    LOG_DEBUG << "";
+    if (not impl_)
+        return;
+
     auto iter = impl_->fonts_.find(fontId);
     if (iter == impl_->fonts_.end())
     {
         return;
     }
 
+    LOG_DEBUG << "";
+
     --iter->second.instances;
 
     if (iter->second.instances <= 0)
     {
         LOG_DEBUG << "All instances of font are closed, closing the font";
-        TTF_CloseFont(iter->second.ptr);
+        if (iter->second.ptr)
+        {
+            TTF_CloseFont(iter->second.ptr);
+        }
+
         impl_->fonts_.erase(iter);
 
         for (auto fnIter = fontNameToIdMap_.begin(); fnIter != fontNameToIdMap_.end();)
         {
             if (fnIter->second == fontId)
             {
+                LOG_DEBUG << "";
                 fnIter = fontNameToIdMap_.erase(fnIter);
             }
             else
