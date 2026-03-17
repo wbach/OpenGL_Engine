@@ -35,6 +35,7 @@ public:
     GuiTextElement(IFontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str);
     GuiTextElement(IFontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str, uint32 size);
     GuiTextElement(IFontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str, uint32 size, uint32 outline);
+    GuiTextElement(IFontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str, uint32 size, uint32 outline, int wrapWidth);
     ~GuiTextElement();
 
 public:
@@ -68,6 +69,7 @@ private:
     bool openFontFailed_;
     Algin algin_;
     vec2 rendererdTextScale_;
+    uint32 wrapWidth_;
 
 public:
     static GuiElementTypes type;

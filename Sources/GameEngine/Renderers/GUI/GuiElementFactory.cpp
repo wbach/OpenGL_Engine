@@ -76,6 +76,24 @@ std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiText(const std::stri
     return CreateGuiText(theme_.font, text, theme_.fontSize_, theme_.fontOutline);
 }
 
+std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiTextWrapped(const std::string &font, const std::string &text,
+                                                                        uint32 fontSize, uint32 outline, uint32 wrapWidth)
+{
+    auto textElement =
+        std::make_unique<GuiTextElement>(fontManger_, guiRenderer_, resourceManager_, font, text, fontSize, outline, wrapWidth);
+    return textElement;
+}
+
+std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiTextWrapped(const std::string &text, uint32 fontSize, uint32 wrapWidth)
+{
+    return CreateGuiTextWrapped(theme_.font, text, fontSize, theme_.fontOutline, wrapWidth);
+}
+
+std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiTextWrapped(const std::string &text, uint32 wrapWidth)
+{
+    return CreateGuiTextWrapped(theme_.font, text, theme_.fontSize_, theme_.fontOutline, wrapWidth);
+}
+
 std::unique_ptr<GuiTextureElement> GuiElementFactory::CreateGuiTexture(const std::string &filename)
 {
     return MakeGuiTexture(filename);

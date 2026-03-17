@@ -27,7 +27,8 @@ namespace GameEngine
 {
 namespace
 {
-const vec3 highlightedColor(1, 1, 0);
+const uint32 WRAP_WIDTH{1500};
+const vec3 HIGHLIGHT_COLOR(1, 1, 0);
 
 const std::chrono::milliseconds calculateTimer(const std::string& text)
 {
@@ -270,7 +271,7 @@ void DialogueManager::updateHighLightedColor(int oldItem, int newItem)
     };
 
     updateColor(oldItem, vec3(1, 1, 1));
-    updateColor(newItem, highlightedColor);
+    updateColor(newItem, HIGHLIGHT_COLOR);
 }
 
 std::vector<std::pair<int, DialogueOption>> DialogueManager::getVisibleOptions(const DialogueNode& node) const
@@ -325,12 +326,12 @@ void DialogueManager::refreshOptionGui()
     if (auto current = dialogueComponent->getCurrent())
     {
         const vec2 textSize{1.0f, 0.25};
-        auto npcNameGuiText = guiFactory.CreateGuiText(npcName);
+        auto npcNameGuiText = guiFactory.CreateGuiTextWrapped(npcName, 0);
         npcNameGuiText->SetLocalScale(textSize + vec2(0.1f, 0.1f));
         textWindowLayout->AddChild(std::move(npcNameGuiText));
 
-        auto npcGuiText = guiFactory.CreateGuiText(current->npcText);
-        npcGuiText->SetLocalScale(textSize);
+        auto npcGuiText = guiFactory.CreateGuiTextWrapped(current->npcText, WRAP_WIDTH);
+        npcGuiText->SetLocalScale({1.0f, 0.4});
         textWindowLayout->AddChild(std::move(npcGuiText));
 
         if (not current->setGameStateflag.empty())
@@ -372,12 +373,12 @@ void DialogueManager::refreshOptionGui()
                                    int i = 0;
                                    for (const auto& [_, option] : visibleOptions)
                                    {
-                                       auto optionGuiText = guiFactory.CreateGuiText(option.text);
+                                       auto optionGuiText = guiFactory.CreateGuiTextWrapped(option.text, WRAP_WIDTH);
                                        optionGuiText->SetLocalScale(textSize);
                                        optionGuiText->SetAlgin(GuiTextElement::Algin::LEFT);
                                        if (i == 0)
                                        {
-                                           optionGuiText->SetColor(highlightedColor);
+                                           optionGuiText->SetColor(HIGHLIGHT_COLOR);
                                            i++;
                                        }
                                        optionsWindowLayout->AddChild(std::move(optionGuiText));

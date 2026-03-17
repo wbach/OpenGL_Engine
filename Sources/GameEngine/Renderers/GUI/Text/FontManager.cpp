@@ -138,7 +138,8 @@ std::optional<uint32> FontManager::openFont(const File &filename, uint32 size)
     return {};
 }
 
-std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, const std::string &text, uint32 outline)
+std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, const std::string &text, uint32 outline,
+                                                                uint32 wrapWidth)
 {
     if (not isInit_ or text.empty())
         return std::nullopt;
@@ -160,7 +161,18 @@ std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, c
     if (outline > 0)
         TTF_SetFontOutline(font.ptr, static_cast<int>(outline));
 
-    auto sdlSurface = TTF_RenderText_Blended(font.ptr, text.c_str(), sdlColor);
+    SDL_Surface *sdlSurface = nullptr;
+    if (wrapWidth > 0)
+    {
+        uint32 scaledWrapWidth = (EngineConf.window.size->y * wrapWidth) / 768;
+        LOG_DEBUG << "Wrapped width : " << wrapWidth << ", scaledWrapWidth = " << scaledWrapWidth;
+
+        sdlSurface = TTF_RenderText_Blended_Wrapped(font.ptr, text.c_str(), sdlColor, wrapWidth);
+    }
+    else
+    {
+        sdlSurface = TTF_RenderText_Blended(font.ptr, text.c_str(), sdlColor);
+    }
 
     if (not sdlSurface)
     {

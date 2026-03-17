@@ -18,8 +18,8 @@ public:
 
     virtual ~IFontManager() = default;
 
-    virtual std::optional<uint32> openFont(const File&, uint32)                       = 0;
-    virtual std::optional<TextureData> renderFont(uint32, const std::string&, uint32) = 0;
-    virtual void closeFont(uint32)                                                    = 0;
+    virtual std::optional<uint32> openFont(const File&, uint32)                                   = 0;
+    virtual std::optional<TextureData> renderFont(uint32, const std::string&, uint32, uint32 = 0) = 0;
+    virtual void closeFont(uint32)                                                                = 0;
 };
 }  // namespace GameEngine

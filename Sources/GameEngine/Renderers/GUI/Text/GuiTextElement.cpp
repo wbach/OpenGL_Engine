@@ -32,6 +32,13 @@ GuiTextElement::GuiTextElement(IFontManager& fontManager, GUIRenderer& guiRender
 
 GuiTextElement::GuiTextElement(IFontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
                                const std::string& font, const std::string& str, uint32 size, uint32 outline)
+    : GuiTextElement(fontManager, guiRenderer, resourceManager, font, str, size, outline, 0)
+
+{
+}
+
+GuiTextElement::GuiTextElement(IFontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
+                               const std::string& font, const std::string& str, uint32 size, uint32 outline, int wrapWidth)
     : GuiRendererElementBase(resourceManager, guiRenderer, type)
     , fontManager_(fontManager)
     , text_(str)
@@ -40,6 +47,7 @@ GuiTextElement::GuiTextElement(IFontManager& fontManager, GUIRenderer& guiRender
     , openFontFailed_(false)
     , algin_(Algin::CENTER)
     , rendererdTextScale_(0)
+    , wrapWidth_(wrapWidth)
 {
     LOG_DEBUG << text_;
     RenderText();
@@ -218,7 +226,7 @@ void GuiTextElement::RenderText(bool fontOverride)
             }
         }
 
-        auto imageData = fontManager_.renderFont(*fontId_, text_, fontInfo_.outline_);
+        auto imageData = fontManager_.renderFont(*fontId_, text_, fontInfo_.outline_, wrapWidth_);
         if (imageData)
         {
             rendererdTextScale_ = ConvertSizeToScale(imageData->image.size(), EngineConf.window.size);
