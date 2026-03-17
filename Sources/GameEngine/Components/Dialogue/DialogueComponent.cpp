@@ -100,6 +100,8 @@ void DialogueComponent::readFile()
 
             ::Read(nodeNode->getChild("text"), node.npcText);
             ::Read(nodeNode->getChild("audio"), node.audioPath);
+            ::Read(nodeNode->getChild("setGameStateflag"), node.setGameStateflag);
+            ::Read(nodeNode->getChild("removeGameStateFlag"), node.removeGameStateFlag);
             ::Read(nodeNode->getChild("next"), node.nextNodeID);
 
             node.npcText = Utils::RemovePolishSigns(node.npcText);
@@ -112,7 +114,8 @@ void DialogueComponent::readFile()
 
                     ::Read(optionNode->getChild("target"), option.nextNodeID);
                     ::Read(optionNode->getChild("text"), option.text);
-                    ::Read(optionNode->getChild("event"), option.actionFlag);
+                    ::Read(optionNode->getChild("setGameStateflag"), option.setGameStateflag);
+                    ::Read(optionNode->getChild("removeGameStateFlag"), option.removeGameStateFlag);
                     ::Read(optionNode->getChild("audio"), option.audioPath);
 
                     if (auto condition = optionNode->getChild("condition"))
@@ -165,9 +168,14 @@ DialogueComponent::SelectOptionResult DialogueComponent::selectOption(int option
         return DialogueComponent::SelectOptionResult::end;
     }
 
-    if (not selected->actionFlag.empty())
+    if (not selected->setGameStateflag.empty())
     {
-        componentContext_.gamestate.flags[selected->actionFlag] = true;
+        componentContext_.gamestate.flags[selected->setGameStateflag] = true;
+    }
+    if (not selected->removeGameStateFlag.empty())
+    {
+        componentContext_.gamestate.flags[selected->removeGameStateFlag] = false;
+        //componentContext_.gamestate.flags.erase(selected->removeGameStateFlag);
     }
     return goToNode(selected->nextNodeID);
 }

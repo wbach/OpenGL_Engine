@@ -120,16 +120,22 @@ protected:
     void demo()
     {
         Components::DialogueComponent::Nodes nodes;
-        nodes[0] = {0, 0, "Stoj! Kto idzie?", {{"Szukam schronienia.", 2, ""}, {"Nie Twoj interes.", -1, ""}}};
-        nodes[1] = {
-            1, 0, "O co chodzi?.", {{"Co to za oboz?", 2, ""}, {"Powiedz mi wiecej o obozie.", 3, ""}, {"A nic.", -1, ""}}};
+        nodes[0] = {0, 0, "Stoj! Kto idzie?", "", "", {{"Szukam schronienia.", 2, "", ""}, {"Nie Twoj interes.", -1, "", ""}}};
+        nodes[1] = {1,  0,  "O co chodzi?.",
+                    "", "", {{"Co to za oboz?", 2, ""}, {"Powiedz mi wiecej o obozie.", 3, "", ""}, {"A nic.", -1, "", ""}}};
         nodes[2] = {2,
                     0,
+                    "",
+                    "",
                     "To Oboz Cienia. Swiat oszalal. Chcesz wiedziec wiecej?",
                     {{"Tak, opowiedz mi.", 3, ""}, {"Nie, musze leciec.", -1, ""}}};
-        nodes[3] = {
-            3, 0, "Duzo by gadac..., ale wydajesz sie porzadny pogadamy w srodku.", {{"Dziekuje!", -2, "invited_to_camp"}}};
-        nodes[4] = {4, 0, "Do zobaczenia w srodku.", {{"Do zobaczenia", -2, "invited_to_camp"}}};
+        nodes[3] = {3,
+                    0,
+                    "",
+                    "",
+                    "Duzo by gadac..., ale wydajesz sie porzadny pogadamy w srodku.",
+                    {{"Dziekuje!", -2, "invited_to_camp"}}};
+        nodes[4] = {4, 0, "", "", "Do zobaczenia w srodku.", {{"Do zobaczenia", -2, "invited_to_camp"}}};
         dialogueComponent->setNodes(std::move(nodes));
     }
 

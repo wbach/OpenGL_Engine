@@ -24,8 +24,9 @@ struct ENGINE_API DialogueOption
 {
     std::string text;
     int nextNodeID;
-    std::string actionFlag;
-    std::vector<DialogueCondition> conditions;
+    std::string setGameStateflag;
+    std::string removeGameStateFlag;
     std::filesystem::path audioPath;
+    std::vector<DialogueCondition> conditions;
 };
 }  // namespace GameEngine
