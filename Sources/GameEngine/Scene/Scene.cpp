@@ -128,8 +128,8 @@ void Scene::InitResources(EngineContext& context)
     GuiElementFactory::EntryParameters guiFactoryParams{guiManager_, *inputManager_, *resourceManager_, *renderersManager_};
     guiElementFactory_      = std::make_unique<GuiElementFactory>(guiFactoryParams);
     guiEngineContextManger_ = std::make_unique<GuiEngineContextManger>(context.GetMeasurmentHandler(), *guiElementFactory_);
-    dialogueManager_        = std::make_unique<DialogueManager>(*timerService_, *inputManager_, *guiElementFactory_, guiManager_,
-                                                         context.GetGameState(), tweenManager);
+    dialogueManager_        = std::make_unique<DialogueManager>(context.GetAudioManager(), *timerService_, *inputManager_,
+                                                         *guiElementFactory_, guiManager_, context.GetGameState(), tweenManager);
 
     console_ = std::make_unique<Debug::Console>(*this);
 

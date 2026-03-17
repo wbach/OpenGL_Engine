@@ -28,6 +28,8 @@ namespace GameEngine
 class GuiWindowElement;
 class VerticalLayout;
 class ITweenManager;
+class IAudioManager;
+
 namespace Components
 {
 class DialogueComponent;
@@ -38,8 +40,8 @@ class CameraComponent;
 class ENGINE_API DialogueManager
 {
 public:
-    DialogueManager(Utils::Time::ITimerService&, Input::InputManager&, IGuiElementFactory&, GuiManager&, GameState&,
-                    ITweenManager&);
+    DialogueManager(IAudioManager&, Utils::Time::ITimerService&, Input::InputManager&, IGuiElementFactory&, GuiManager&,
+                    GameState&, ITweenManager&);
 
     void startDialogue(GameObject&, Components::DialogueComponent&);
 
@@ -60,6 +62,7 @@ private:
 
 private:
     Utils::Time::ITimerService& timerService;
+    IAudioManager& audioManager;
     Input::InputManager& inputManager;
     IGuiElementFactory& guiFactory;
     GuiManager& guiManager;

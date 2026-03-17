@@ -40,8 +40,7 @@ class DialogueManagerTests : public BaseComponentTestSchould
 {
 protected:
     DialogueManagerTests()
-        : sut(timerService_, inputManagerMock_, guiElementFactory_, guiManager_, gameState_, tweenManager)
-        , texture(graphicsApiMock_, Utils::Image{}, {}, {})
+        : texture(graphicsApiMock_, Utils::Image{}, {}, {})
         , guiRenderer(graphicsApiMock_)
     {
         npcGameObject =
@@ -142,7 +141,6 @@ protected:
 
     FontManagerMock fontManagerMock;
     TextureLoaderMock textureLoaderMock;
-    DialogueManager sut;
     GeneralTexture texture;
     Components::DialogueComponent* dialogueComponent;
     GUIRenderer guiRenderer;
@@ -160,9 +158,9 @@ TEST_F(DialogueManagerTests, ShouldNotStartDialogueWhenComponentIsEmpty)
     dialogueComponent->startNodeID = 0;
     dialogueComponent->resetCurrent();
 
-    sut.startDialogue(*playerGameObject, *dialogueComponent);
+    dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
 
-    EXPECT_FALSE(sut.isActive());
+    EXPECT_FALSE(dialogueManager_.isActive());
 }
 
 TEST_F(DialogueManagerTests, NpcAndPlayerInTheSamePosThenTweenShouldBeNotStarted)
@@ -190,11 +188,11 @@ TEST_F(DialogueManagerTests, NpcAndPlayerInTheSamePosThenTweenShouldBeNotStarted
     expectGuiTextCreation(node.npcText);
 
     LOG_DEBUG << "Start dialog";
-    sut.startDialogue(*playerGameObject, *dialogueComponent);
+    dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
 
     firstTimer();
 
-    EXPECT_FALSE(sut.isActive());
+    EXPECT_FALSE(dialogueManager_.isActive());
 }
 
 TEST_F(DialogueManagerTests, NpcShouldStartRotationToPlayerAndCameraShouldStartMoveToDialogPos)
@@ -223,7 +221,7 @@ TEST_F(DialogueManagerTests, NpcShouldStartRotationToPlayerAndCameraShouldStartM
     EXPECT_CALL(timerService_, timer(_, _)).WillOnce(DoAll(SaveArg<1>(&firstTimer), Return(1)));
 
     LOG_DEBUG << "Start dialog";
-    sut.startDialogue(*playerGameObject, *dialogueComponent);
+    dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
 
     EXPECT_EQ(npcRotationTween, nullptr);
 
@@ -238,7 +236,7 @@ TEST_F(DialogueManagerTests, NpcShouldStartRotationToPlayerAndCameraShouldStartM
 
     EXPECT_EQ(npcRestorationRotationTween, nullptr);
 
-    EXPECT_FALSE(sut.isActive());
+    EXPECT_FALSE(dialogueManager_.isActive());
 }
 
 TEST_F(DialogueManagerTests, ShouldAutomaticallyGoToNextNodeWhenNoOptionsAvailable)
@@ -280,7 +278,7 @@ TEST_F(DialogueManagerTests, ShouldAutomaticallyGoToNextNodeWhenNoOptionsAvailab
     expectGuiTextCreation(node.npcText);
 
     LOG_DEBUG << "Start dialog";
-    sut.startDialogue(*playerGameObject, *dialogueComponent);
+    dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
 
     expectGuiTextCreation(npcGameObject->GetName());
     expectGuiTextCreation(node2.npcText);
@@ -309,9 +307,9 @@ TEST_F(DialogueManagerTests, ShouldAutomaticallyGoToNextNodeWhenNoOptionsAvailab
     LOG_DEBUG << optionguiText->GetColor();
     EXPECT_TRUE(optionguiText->IsShow());
 
-    sut.selectOption(0);
+    dialogueManager_.selectOption(0);
 
-    EXPECT_FALSE(sut.isActive());
+    EXPECT_FALSE(dialogueManager_.isActive());
 }
 
 TEST_F(DialogueManagerTests, ShouldTransitionToCorrectNodeWhenOptionIsSelected)
@@ -334,7 +332,7 @@ TEST_F(DialogueManagerTests, ShouldTransitionToCorrectNodeWhenOptionIsSelected)
     expectGuiTextCreation(npcGameObject->GetName());
     expectGuiTextCreation(nodes.at(0).npcText);
 
-    sut.startDialogue(*playerGameObject, *dialogueComponent);
+    dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
 
     expectGuiTextCreation(nodes.at(0).options[0].text);
     expectGuiTextCreation(nodes.at(0).options[1].text);
@@ -343,7 +341,7 @@ TEST_F(DialogueManagerTests, ShouldTransitionToCorrectNodeWhenOptionIsSelected)
     expectGuiTextCreation(npcGameObject->GetName());
     expectGuiTextCreation(nodes.at(2).npcText);
 
-    sut.selectOption(0);
+    dialogueManager_.selectOption(0);
 
     EXPECT_EQ(dialogueComponent->getCurrent()->id, 2);
     EXPECT_EQ(dialogueComponent->getCurrent()->npcText, nodes.at(2).npcText);
@@ -380,7 +378,7 @@ TEST_F(DialogueManagerTests, ShouldShowOptionOnlyWhenAllConditionsAreMet)
     expectGuiTextCreation(npcGameObject->GetName());
     expectGuiTextCreation(node.npcText);
 
-    sut.startDialogue(*playerGameObject, *dialogueComponent);
+    dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
 
     expectGuiTextCreation(normalOption.text);
 
@@ -396,7 +394,7 @@ TEST_F(DialogueManagerTests, ShouldShowOptionOnlyWhenAllConditionsAreMet)
     expectGuiTextCreation(npcGameObject->GetName());
     expectGuiTextCreation(node.npcText);
 
-    sut.startDialogue(*playerGameObject, *dialogueComponent);
+    dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
 
     expectGuiTextCreation(secretOption.text);
     expectGuiTextCreation(normalOption.text);

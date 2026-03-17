@@ -3,9 +3,11 @@
 #include <Logger/Log.h>
 #include <Time/TimerService.h>
 
+#include <filesystem>
 #include <utility>
 
 #include "GLM/GLMUtils.h"
+#include "GameEngine/Audio/IAudioManager.h"
 #include "GameEngine/Components/Camera/CameraComponent.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/Fsm/ThridPersonCameraEvents.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
@@ -45,9 +47,11 @@ const std::chrono::milliseconds calculateTimer(const std::string& text)
     return std::chrono::milliseconds(calculatedTime);
 }
 }  // namespace
-DialogueManager::DialogueManager(Utils::Time::ITimerService& timerService, Input::InputManager& inputManager,
-                                 IGuiElementFactory& factory, GuiManager& manger, GameState& gs, ITweenManager& tweenManager)
+DialogueManager::DialogueManager(IAudioManager& audioManager, Utils::Time::ITimerService& timerService,
+                                 Input::InputManager& inputManager, IGuiElementFactory& factory, GuiManager& manger,
+                                 GameState& gs, ITweenManager& tweenManager)
     : timerService(timerService)
+    , audioManager(audioManager)
     , inputManager(inputManager)
     , guiFactory(factory)
     , guiManager(manger)
@@ -90,7 +94,7 @@ DialogueManager::DialogueManager(Utils::Time::ITimerService& timerService, Input
                                                      {
                                                          if (isActive())
                                                          {
-                                                             if (visibleOptions.size() > highlighted)
+                                                             if (static_cast<int>(visibleOptions.size()) > highlighted)
                                                              {
                                                                  auto [index, _] = visibleOptions[highlighted];
                                                                  selectOption(index);
@@ -155,14 +159,35 @@ void DialogueManager::selectOption(int optionIndex)
         return;
     }
 
-    auto status = dialogueComponent->selectOption(optionIndex);
-    if (status == Components::DialogueComponent::SelectOptionResult::end)
+    auto callback = [&, optionIndex]()
     {
-        EndDialog();
-        return;
-    }
+        auto status = dialogueComponent->selectOption(optionIndex);
+        if (status == Components::DialogueComponent::SelectOptionResult::end)
+        {
+            EndDialog();
+            return;
+        }
 
-    refreshOptionGui();
+        refreshOptionGui();
+    };
+
+    if (auto current = dialogueComponent->getCurrent())
+    {
+        if (optionIndex < current->options.size())
+        {
+            const auto& audioPath = current->options[optionIndex].audioPath;
+            File audioFile(audioPath);
+            if (audioFile.exist())
+            {
+                hideOptions();
+                PlayParameters playParameters;
+                playParameters.playEndCallback = std::move(callback);
+                audioManager.play(audioFile, PlayGroup::Dialogs, playParameters);
+                return;
+            }
+        }
+    }
+    callback();
 }
 void DialogueManager::goToNode(int nodeIndex)
 {
@@ -331,6 +356,7 @@ void DialogueManager::refreshOptionGui()
         textWindowLayout->AddChild(std::move(npcNameGuiText));
 
         auto npcGuiText = guiFactory.CreateGuiTextWrapped(current->npcText, WRAP_WIDTH);
+
         npcGuiText->SetLocalScale({1.0f, 0.4});
         textWindowLayout->AddChild(std::move(npcGuiText));
 
@@ -343,48 +369,59 @@ void DialogueManager::refreshOptionGui()
             gameState.setFlag(current->removeGameStateFlag, false);
         }
 
-        timerService.timer(calculateTimer(current->npcText),
-                           [this, textSize]()
-                           {
-                               LOG_DEBUG << "Text timer expired";
-                               if (not dialogueComponent)
-                               {
-                                   LOG_WARN << "Dialog comopnent not set!?";
-                                   return;
-                               }
+        auto callback = [this, textSize]()
+        {
+            LOG_DEBUG << "Text timer expired";
+            if (not dialogueComponent)
+            {
+                LOG_WARN << "Dialog comopnent not set!?";
+                return;
+            }
 
-                               if (auto current = dialogueComponent->getCurrent())
-                               {
-                                   visibleOptions = getVisibleOptions(*current);
-                                   if (visibleOptions.empty())
-                                   {
-                                       if (current->nextNodeID != INVALID_NODE_ID)
-                                       {
-                                           goToNode(current->nextNodeID);
-                                       }
-                                       else
-                                       {
-                                           EndDialog();
-                                       }
-                                       return;
-                                   }
+            if (auto current = dialogueComponent->getCurrent())
+            {
+                visibleOptions = getVisibleOptions(*current);
+                if (visibleOptions.empty())
+                {
+                    if (current->nextNodeID != INVALID_NODE_ID)
+                    {
+                        goToNode(current->nextNodeID);
+                    }
+                    else
+                    {
+                        EndDialog();
+                    }
+                    return;
+                }
 
-                                   showOptions();
-                                   int i = 0;
-                                   for (const auto& [_, option] : visibleOptions)
-                                   {
-                                       auto optionGuiText = guiFactory.CreateGuiTextWrapped(option.text, WRAP_WIDTH);
-                                       optionGuiText->SetLocalScale(textSize);
-                                       optionGuiText->SetAlgin(GuiTextElement::Algin::LEFT);
-                                       if (i == 0)
-                                       {
-                                           optionGuiText->SetColor(HIGHLIGHT_COLOR);
-                                           i++;
-                                       }
-                                       optionsWindowLayout->AddChild(std::move(optionGuiText));
-                                   }
-                               }
-                           });
+                showOptions();
+                int i = 0;
+                for (const auto& [_, option] : visibleOptions)
+                {
+                    auto optionGuiText = guiFactory.CreateGuiTextWrapped(option.text, WRAP_WIDTH);
+                    optionGuiText->SetLocalScale(textSize);
+                    optionGuiText->SetAlgin(GuiTextElement::Algin::LEFT);
+                    if (i == 0)
+                    {
+                        optionGuiText->SetColor(HIGHLIGHT_COLOR);
+                        i++;
+                    }
+                    optionsWindowLayout->AddChild(std::move(optionGuiText));
+                }
+            }
+        };
+
+        File audioFile(current->audioPath);
+        if (audioFile.exist())
+        {
+            PlayParameters playParameters;
+            playParameters.playEndCallback = std::move(callback);
+            audioManager.play(audioFile, PlayGroup::Dialogs, playParameters);
+        }
+        else
+        {
+            timerService.timer(calculateTimer(current->npcText), std::move(callback));
+        }
     }
 }
 std::optional<TweenTransform> DialogueManager::calculateCameraTarget()
