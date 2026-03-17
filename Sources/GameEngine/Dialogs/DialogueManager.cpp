@@ -60,17 +60,14 @@ DialogueManager::DialogueManager(Utils::Time::ITimerService& timerService, Input
                                                          if (not dialogueComponent)
                                                              return;
 
-                                                         if (auto current = dialogueComponent->getCurrent())
+                                                         int oldItem = highlighted;
+                                                         highlighted--;
+                                                         if (highlighted < 0)
                                                          {
-                                                             int oldItem = highlighted;
-                                                             highlighted--;
-                                                             if (highlighted < 0)
-                                                             {
-                                                                 highlighted = current->options.size() - 1;
-                                                             }
-                                                             int newItem = highlighted;
-                                                             updateHighLightedColor(oldItem, newItem);
+                                                             highlighted = visibleOptions.size() - 1;
                                                          }
+                                                         int newItem = highlighted;
+                                                         updateHighLightedColor(oldItem, newItem);
                                                      });
     subscriptions_ = inputManager.SubscribeOnKeyDown(KeyCodes::DARROW,
                                                      [&]()
@@ -78,25 +75,26 @@ DialogueManager::DialogueManager(Utils::Time::ITimerService& timerService, Input
                                                          if (not dialogueComponent)
                                                              return;
 
-                                                         if (auto current = dialogueComponent->getCurrent())
+                                                         int oldItem = highlighted;
+                                                         highlighted++;
+                                                         if (highlighted >= static_cast<int>(visibleOptions.size()))
                                                          {
-                                                             int oldItem = highlighted;
-                                                             highlighted++;
-                                                             if (highlighted >= static_cast<int>(current->options.size()))
-                                                             {
-                                                                 highlighted = 0;
-                                                             }
-                                                             int newItem = highlighted;
-                                                             updateHighLightedColor(oldItem, newItem);
+                                                             highlighted = 0;
                                                          }
+                                                         int newItem = highlighted;
+                                                         updateHighLightedColor(oldItem, newItem);
                                                      });
     subscriptions_ = inputManager.SubscribeOnKeyDown(KeyCodes::ENTER,
                                                      [&]()
                                                      {
                                                          if (isActive())
                                                          {
-                                                             selectOption(highlighted);
-                                                             highlighted = 0;
+                                                             if (visibleOptions.size() > highlighted)
+                                                             {
+                                                                 auto [index, _] = visibleOptions[highlighted];
+                                                                 selectOption(index);
+                                                                 highlighted = 0;
+                                                             }
                                                          }
                                                      });
 }
@@ -108,6 +106,7 @@ void DialogueManager::startDialogue(GameObject& gameObject, Components::Dialogue
         return;
     }
 
+    visibleOptions.clear();
     dialogueComponent = &component;
     this->npcName     = dialogueComponent->GetParentGameObject().GetName();
     this->gameObject  = &gameObject;
@@ -274,10 +273,11 @@ void DialogueManager::updateHighLightedColor(int oldItem, int newItem)
     updateColor(newItem, highlightedColor);
 }
 
-std::vector<DialogueOption> DialogueManager::getVisibleOptions(const DialogueNode& node) const
+std::vector<std::pair<int, DialogueOption>> DialogueManager::getVisibleOptions(const DialogueNode& node) const
 {
-    std::vector<DialogueOption> visibleOptions;
+    std::vector<std::pair<int, DialogueOption>> visibleOptions;
 
+    int index = 0;
     for (const auto& option : node.options)
     {
         bool isAvailable = true;
@@ -286,12 +286,12 @@ std::vector<DialogueOption> DialogueManager::getVisibleOptions(const DialogueNod
         {
             bool hasFlag = gameState.hasFlag(condition.flag);
 
-            if (condition.type == ConditionType::REQUIRED && !hasFlag)
+            if (condition.type == ConditionType::REQUIRED and not hasFlag)
             {
                 isAvailable = false;
                 break;
             }
-            if (condition.type == ConditionType::FORBIDDEN && hasFlag)
+            if (condition.type == ConditionType::FORBIDDEN and hasFlag)
             {
                 isAvailable = false;
                 break;
@@ -300,8 +300,10 @@ std::vector<DialogueOption> DialogueManager::getVisibleOptions(const DialogueNod
 
         if (isAvailable)
         {
-            visibleOptions.push_back(option);
+            visibleOptions.push_back({index, option});
         }
+
+        ++index;
     }
 
     return visibleOptions;
@@ -331,6 +333,15 @@ void DialogueManager::refreshOptionGui()
         npcGuiText->SetLocalScale(textSize);
         textWindowLayout->AddChild(std::move(npcGuiText));
 
+        if (not current->setGameStateflag.empty())
+        {
+            gameState.setFlag(current->setGameStateflag, true);
+        }
+        if (not current->removeGameStateFlag.empty())
+        {
+            gameState.setFlag(current->removeGameStateFlag, false);
+        }
+
         timerService.timer(calculateTimer(current->npcText),
                            [this, textSize]()
                            {
@@ -343,7 +354,7 @@ void DialogueManager::refreshOptionGui()
 
                                if (auto current = dialogueComponent->getCurrent())
                                {
-                                   auto visibleOptions = getVisibleOptions(*current);
+                                   visibleOptions = getVisibleOptions(*current);
                                    if (visibleOptions.empty())
                                    {
                                        if (current->nextNodeID != INVALID_NODE_ID)
@@ -359,7 +370,7 @@ void DialogueManager::refreshOptionGui()
 
                                    showOptions();
                                    int i = 0;
-                                   for (const auto& option : visibleOptions)
+                                   for (const auto& [_, option] : visibleOptions)
                                    {
                                        auto optionGuiText = guiFactory.CreateGuiText(option.text);
                                        optionGuiText->SetLocalScale(textSize);

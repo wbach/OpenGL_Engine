@@ -128,6 +128,8 @@ void DialogueComponent::readFile()
                             std::string typeStr;
                             ::Read(child->getChild("type"), typeStr);
                             auto type      = magic_enum::enum_cast<ConditionType>(typeStr);
+
+                            LOG_DEBUG << "typeStr " << typeStr << " has enum: " << type.has_value();
                             condition.type = type.value_or(ConditionType::REQUIRED);
                             option.conditions.push_back(condition);
                         }

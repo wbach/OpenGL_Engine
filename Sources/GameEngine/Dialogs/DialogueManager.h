@@ -56,7 +56,7 @@ private:
 
     void hideOptions();
     void showOptions();
-    std::vector<DialogueOption> getVisibleOptions(const DialogueNode&) const;
+    std::vector<std::pair<int, DialogueOption>> getVisibleOptions(const DialogueNode&) const;
 
 private:
     Utils::Time::ITimerService& timerService;
@@ -78,6 +78,7 @@ private:
     Components::DialogueComponent* dialogueComponent{nullptr};
     Components::ThridPersonCameraComponent* thridPersonCameraComponent{nullptr};
     Components::CameraComponent* cameraComponent{nullptr};
+    std::vector<std::pair<int, DialogueOption>> visibleOptions;
     int highlighted{0};
     std::string npcName;
 };
