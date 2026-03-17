@@ -140,3 +140,31 @@ TEST_F(TimerServiceTest, RapidAddAndCancelCycle)
     std::this_thread::sleep_for(100ms);
     SUCCEED();
 }
+
+TEST_F(TimerServiceTest, RecursiveTimerAddition)
+{
+    std::atomic<int> recursiveCalls{0};
+    const int targetCalls = 5;
+    std::promise<void> finishedPromise;
+    auto finishedFuture = finishedPromise.get_future();
+
+    std::function<void()> recursiveFunc;
+    recursiveFunc = [&]()
+    {
+        recursiveCalls++;
+        if (recursiveCalls < targetCalls)
+        {
+            service.timer(10ms, recursiveFunc);
+        }
+        else
+        {
+            finishedPromise.set_value();
+        }
+    };
+
+    service.timer(10ms, recursiveFunc);
+
+    auto status = finishedFuture.wait_for(500ms);
+    EXPECT_EQ(status, std::future_status::ready);
+    EXPECT_EQ(recursiveCalls.load(), targetCalls);
+}

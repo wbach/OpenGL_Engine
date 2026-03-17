@@ -36,6 +36,7 @@
 #include "Tests/Mocks/Scene/SceneManagerMock.h"
 #include "Tests/Mocks/Utils/TimerServiceMock.h"
 #include "Tests/Mocks/Gui/GuiElementFactoryMock.h"
+#include "Tests/Mocks/Scene/TweenManagerMock.h"
 
 using namespace GameEngine;
 using namespace GameEngine::Components;
@@ -46,7 +47,7 @@ public:
     BaseComponentTestSchould();
     virtual ~BaseComponentTestSchould();
 
-    TweenManager tweenManager;
+    TweenManagerMock tweenManager;
     GameState gameState_;
     CameraManager cameraManager_;
     AudioManagerMock audioManager_;

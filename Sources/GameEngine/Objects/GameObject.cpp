@@ -28,6 +28,28 @@ GameObject::GameObject(const std::string& name, Components::ComponentController&
 {
     localTransfromSubscribtion_ = localTransform_.SubscribeOnChange([this](const auto&) { CalculateWorldTransform(); });
 }
+
+GameObject::GameObject(const std::string& name, Components::ComponentController& componentController,
+                       Components::ComponentFactory& componentFactory, Utils::IdPool& idPool, GameObjects&& children,
+                       const std::optional<uint32>& maybeId)
+
+    : idPool_{idPool}
+    , parent_(nullptr)
+    , name_(name)
+    , children_(std::move(children))
+    , isStarted{false}
+    , isAwakened{false}
+    , id_(idPool.getId(maybeId))
+    , componentFactory_(componentFactory)
+    , componentController_(componentController)
+{
+    for (auto& child : children)
+    {
+        child->SetParent(this);
+    }
+
+    localTransfromSubscribtion_ = localTransform_.SubscribeOnChange([this](const auto&) { CalculateWorldTransform(); });
+}
 GameObject::~GameObject()
 {
     LOG_DEBUG << "~GameObject: " << id_ << ". Name: " << name_;

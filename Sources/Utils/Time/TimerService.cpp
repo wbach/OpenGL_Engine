@@ -63,52 +63,61 @@ void TimerService::workerThread()
 {
     while (running_)
     {
-        std::unique_lock<std::mutex> lk(mutex_);
+        std::vector<std::function<void()>> callbacksToExecute;
 
-        if (timers_.empty())
         {
-            cv_.wait(lk, [this] { return not running_ or not timers_.empty(); });
-        }
-        else
-        {
-            auto it = std::min_element(timers_.begin(), timers_.end(),
-                                       [](const auto& a, const auto& b) { return a.second.expiry < b.second.expiry; });
+            std::unique_lock<std::mutex> lk(mutex_);
 
-            auto nextExpiry = it->second.expiry;
-            auto lastSize = timers_.size();
-            cv_.wait_until(lk, nextExpiry, [this, lastSize] { return not running_ or timers_.size() != lastSize; });
-        }
-
-        if (not running_)
-            break;
-
-        auto now = std::chrono::steady_clock::now();
-        std::vector<IdType> toRemove;
-
-        for (auto& [id, entry] : timers_)
-        {
-            if (now >= entry.expiry)
+            if (timers_.empty())
             {
-                if (entry.callback)
-                    entry.callback();
+                cv_.wait(lk, [this] { return not running_ or not timers_.empty(); });
+            }
+            else
+            {
+                auto it = std::min_element(timers_.begin(), timers_.end(),
+                                           [](const auto& a, const auto& b) { return a.second.expiry < b.second.expiry; });
 
-                if (entry.periodic)
+                auto nextExpiry    = it->second.expiry;
+                size_t currentSize = timers_.size();
+                cv_.wait_until(lk, nextExpiry, [this, currentSize] { return not running_ or timers_.size() != currentSize; });
+            }
+
+            if (not running_)
+                break;
+            auto now = std::chrono::steady_clock::now();
+
+            for (auto it = timers_.begin(); it != timers_.end();)
+            {
+                if (now >= it->second.expiry)
                 {
-                    entry.expiry = now + entry.interval;
+                    callbacksToExecute.push_back(it->second.callback);
+
+                    if (it->second.periodic)
+                    {
+                        it->second.expiry = now + it->second.interval;
+                        ++it;
+                    }
+                    else
+                    {
+                        IdType id = it->first;
+                        idPool_.releaseId(id);
+                        it = timers_.erase(it);
+                    }
                 }
                 else
                 {
-                    toRemove.push_back(id);
+                    ++it;
                 }
             }
         }
 
-        for (auto id : toRemove)
+        for (const auto& callback : callbacksToExecute)
         {
-            timers_.erase(id);
-            idPool_.releaseId(id);
+            if (callback)
+            {
+                callback();
+            }
         }
     }
 }
-
 }  // namespace Utils::Time

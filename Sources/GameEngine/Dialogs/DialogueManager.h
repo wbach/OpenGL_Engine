@@ -7,10 +7,10 @@
 #include "DialogueNode.h"
 #include "EngineApi.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Renderers/GUI/IGuiElementFactory.h"
 #include "GameEngine/Renderers/GUI/GuiManager.h"
+#include "GameEngine/Renderers/GUI/IGuiElementFactory.h"
 #include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
-#include "GameEngine/Scene/TweenManager.h"
+#include "GameEngine/Scene/TweenTransform.h"
 #include "GameState.h"
 
 namespace Utils::Time
@@ -27,6 +27,7 @@ namespace GameEngine
 {
 class GuiWindowElement;
 class VerticalLayout;
+class ITweenManager;
 namespace Components
 {
 class DialogueComponent;
@@ -37,7 +38,8 @@ class CameraComponent;
 class ENGINE_API DialogueManager
 {
 public:
-    DialogueManager(Utils::Time::ITimerService&, Input::InputManager&, IGuiElementFactory&, GuiManager&, GameState&, TweenManager&);
+    DialogueManager(Utils::Time::ITimerService&, Input::InputManager&, IGuiElementFactory&, GuiManager&, GameState&,
+                    ITweenManager&);
 
     void startDialogue(GameObject&, Components::DialogueComponent&);
 
@@ -50,7 +52,7 @@ private:
     void initGui();
     void updateHighLightedColor(int oldItem, int newItem);
     void refreshOptionGui();
-    TweenTransform calculateCameraTarget();
+    std::optional<TweenTransform> calculateCameraTarget();
 
     void hideOptions();
     void showOptions();
@@ -70,7 +72,7 @@ private:
 
 private:
     GameState& gameState;
-    TweenManager& tweenManager;
+    ITweenManager& tweenManager;
     GameObject* gameObject{nullptr};
     Components::DialogueComponent* dialogueComponent{nullptr};
     Components::ThridPersonCameraComponent* thridPersonCameraComponent{nullptr};

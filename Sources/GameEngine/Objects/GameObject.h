@@ -38,6 +38,10 @@ public:
 
     GameObject(const std::string&, Components::ComponentController&, Components::ComponentFactory&, Utils::IdPool&,
                const std::optional<uint32>& = std::nullopt);
+
+    GameObject(const std::string&, Components::ComponentController&, Components::ComponentFactory&, Utils::IdPool&, GameObjects&&,
+               const std::optional<uint32>& = std::nullopt);
+
     GameObject(const GameObject&) = delete;
     GameObject(GameObject&&)      = delete;
     virtual ~GameObject();

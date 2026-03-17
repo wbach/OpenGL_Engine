@@ -2,9 +2,12 @@
 
 #include <Utils/TreeNode.h>
 
+#include <optional>
+
 #include "Common/Transform.h"
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Dialogs/DialogueOption.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Json/JsonReader.h"
 #include "Logger/Log.h"
@@ -22,6 +25,10 @@ namespace Components
 DialogueComponent::DialogueComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(GetComponentType<DialogueComponent>(), componentContext, gameObject)
 {
+}
+DialogueComponent::~DialogueComponent()
+{
+    LOG_DEBUG << "";
 }
 void DialogueComponent::CleanUp()
 {
@@ -119,15 +126,41 @@ void DialogueComponent::readFile()
 }
 DialogueComponent::SelectOptionResult DialogueComponent::selectOption(int optionIndex)
 {
-    LOG_DEBUG << "selectOption " << optionIndex;
+    DialogueOption* selected{nullptr};
 
-    DialogueOption& selected = nodes[currentNodeID].options[optionIndex];
-    if (not selected.actionFlag.empty())
+    auto iter = nodes.find(currentNodeID);
+    if (iter != nodes.end())
     {
-        componentContext_.scene_.getEngineContext()->GetGameState().flags[selected.actionFlag] = 1;
+        LOG_DEBUG << "";
+        auto& options = iter->second.options;
+        if (optionIndex < static_cast<int>(options.size()))
+        {
+            selected = &options[optionIndex];
+        }
+        else
+        {
+            LOG_WARN << "Options out of range, options.size()= " << options.size() << "optionIndex : " << optionIndex;
+            return DialogueComponent::SelectOptionResult::end;
+        }
+    }
+    else
+    {
+        LOG_WARN << "Current node not exist in map : " << currentNodeID;
+        return DialogueComponent::SelectOptionResult::end;
     }
 
-    return goToNode(selected.nextNodeID);
+    if (not selected->actionFlag.empty())
+    {
+        if (auto context = componentContext_.scene_.getEngineContext())
+        {
+            context->GetGameState().flags[selected->actionFlag] = true;
+        }
+        else
+        {
+            LOG_ERROR << "Engine context not exist in scene!";
+        }
+    }
+    return goToNode(selected->nextNodeID);
 }
 
 const DialogueNode* DialogueComponent::getCurrent() const
@@ -138,16 +171,25 @@ const DialogueNode* DialogueComponent::getCurrent() const
         return &iter->second;
     }
 
-    LOG_DEBUG << "Current not set! currentNodeID = " << currentNodeID;
+    LOG_DEBUG << "Current not set! currentNodeID = " << currentNodeID << ", nodes :" << nodes;
     return nullptr;
 }
 
 void DialogueComponent::RotateObjectToPlayer(const vec3& playerPos)
 {
+    auto npcPos = thisObject_.GetWorldTransform().GetPosition();
+
+    vec3 diff           = npcPos - playerPos;
+    float distanceSq    = dot(diff, diff);
+    const float epsilon = 0.0001f;
+    if (distanceSq < epsilon)
+    {
+        LOG_DEBUG << "Player and NPC are in the same position";
+        return;
+    }
+
     Utils::lookAt({}, {});
     tmpRotation = thisObject_.GetWorldTransform().GetRotation();
-
-    auto npcPos = thisObject_.GetWorldTransform().GetPosition();
 
     vec3 targetPosXZ(playerPos.x, npcPos.y, playerPos.z);
     auto dir = targetPosXZ - npcPos;

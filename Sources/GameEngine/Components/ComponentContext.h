@@ -20,7 +20,7 @@ class IGuiElementFactory;
 class Scene;
 class ISceneManager;
 class DialogueManager;
-class TweenManager;
+class ITweenManager;
 class IAudioManager;
 class GuiManager;
 
@@ -53,7 +53,7 @@ struct ComponentContext
     IGuiElementFactory& guiElementFactory_;
     Utils::Time::ITimerService& timerService_;
     DialogueManager& dialogueManager_;
-    TweenManager& tweenManager;
+    ITweenManager& tweenManager;
     IAudioManager& audioManager;
 };
 }  // namespace Components

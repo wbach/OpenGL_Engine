@@ -16,6 +16,7 @@
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
 #include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
 #include "GameEngine/Scene/EaseType.h"
+#include "GameEngine/Scene/ITweenManager.h"
 #include "GameEngine/Scene/Tween.h"
 #include "Input/InputManager.h"
 #include "Input/KeyCodes.h"
@@ -44,7 +45,7 @@ const std::chrono::milliseconds calculateTimer(const std::string& text)
 }
 }  // namespace
 DialogueManager::DialogueManager(Utils::Time::ITimerService& timerService, Input::InputManager& inputManager,
-                                 IGuiElementFactory& factory, GuiManager& manger, GameState& gs, TweenManager& tweenManager)
+                                 IGuiElementFactory& factory, GuiManager& manger, GameState& gs, ITweenManager& tweenManager)
     : timerService(timerService)
     , inputManager(inputManager)
     , guiFactory(factory)
@@ -130,7 +131,15 @@ void DialogueManager::startDialogue(GameObject& gameObject, Components::Dialogue
         }
 
         const float duration{0.5f};
-        tweenManager.Add(cameraComponent->GetParentGameObject(), calculateCameraTarget(), duration, EaseType::CubicOut, show);
+
+        if (auto targetTransform = calculateCameraTarget())
+        {
+            tweenManager.Add(cameraComponent->GetParentGameObject(), *targetTransform, duration, EaseType::CubicOut, show);
+        }
+        else
+        {
+            show();
+        }
     }
     else
     {
@@ -179,7 +188,7 @@ bool DialogueManager::isActive() const
 }
 void DialogueManager::EndDialog()
 {
-    LOG_DEBUG << "";
+    LOG_DEBUG << "EndDialog";
 
     dialogueComponent->RestoreRotation();
     dialogueComponent = nullptr;
@@ -291,6 +300,7 @@ void DialogueManager::refreshOptionGui()
         timerService.timer(calculateTimer(current->npcText),
                            [this, textSize]()
                            {
+                               LOG_DEBUG << "Text timer expired";
                                if (not dialogueComponent)
                                {
                                    LOG_WARN << "Dialog comopnent not set!?";
@@ -330,16 +340,25 @@ void DialogueManager::refreshOptionGui()
                            });
     }
 }
-TweenTransform DialogueManager::calculateCameraTarget()
+std::optional<TweenTransform> DialogueManager::calculateCameraTarget()
 {
     vec3 playerPos = gameObject->GetWorldTransform().GetPosition();
     vec3 npcPos    = dialogueComponent->GetParentGameObject().GetWorldTransform().GetPosition();
 
-    vec3 forward = normalize(npcPos - playerPos);
-    vec3 right   = cross(vec3(0, 1, 0), forward);
+    vec3 diff           = npcPos - playerPos;
+    float distanceSq    = dot(diff, diff);
+    const float epsilon = 0.0001f;
+    if (distanceSq < epsilon)
+    {
+        LOG_WARN << "Player and NPC are in the same position! Returning default camera transform.";
+        return {};
+    }
 
-    vec3 targetPos = playerPos - (forward * 0.6f) + (right * 1.6f) + vec3(0, 1.7f, 0);
+    vec3 forward = normalize(diff);
+    vec3 up      = (std::abs(forward.y) > 0.999f) ? vec3(0, 0, 1) : vec3(0, 1, 0);
+    vec3 right   = normalize(cross(up, forward));
 
+    vec3 targetPos   = playerPos - (forward * 0.6f) + (right * 1.6f) + vec3(0, 1.7f, 0);
     vec3 lookAtPoint = npcPos + vec3(0, 1.6f, 0);
     auto targetRot   = Utils::lookAt(lookAtPoint, targetPos);
 
