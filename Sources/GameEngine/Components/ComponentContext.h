@@ -23,6 +23,7 @@ class DialogueManager;
 class ITweenManager;
 class IAudioManager;
 class GuiManager;
+struct GameState;
 
 namespace Physics
 {
@@ -55,6 +56,7 @@ struct ComponentContext
     DialogueManager& dialogueManager_;
     ITweenManager& tweenManager;
     IAudioManager& audioManager;
+    GameState& gamestate;
 };
 }  // namespace Components
 }  // namespace GameEngine

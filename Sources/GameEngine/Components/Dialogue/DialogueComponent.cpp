@@ -8,6 +8,7 @@
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Dialogs/DialogueOption.h"
+#include "GameEngine/Dialogs/GameState.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Json/JsonReader.h"
 #include "Logger/Log.h"
@@ -114,6 +115,21 @@ void DialogueComponent::readFile()
                     ::Read(optionNode->getChild("event"), option.actionFlag);
                     ::Read(optionNode->getChild("audio"), option.audioPath);
 
+                    if (auto condition = optionNode->getChild("condition"))
+                    {
+                        for (const auto& child : condition->getChildren())
+                        {
+                            DialogueCondition condition;
+                            ::Read(child->getChild("flag"), condition.flag);
+
+                            std::string typeStr;
+                            ::Read(child->getChild("type"), typeStr);
+                            auto type      = magic_enum::enum_cast<ConditionType>(typeStr);
+                            condition.type = type.value_or(ConditionType::REQUIRED);
+                            option.conditions.push_back(condition);
+                        }
+                    }
+
                     option.text = Utils::RemovePolishSigns(option.text);
 
                     node.options.push_back(option);
@@ -151,14 +167,7 @@ DialogueComponent::SelectOptionResult DialogueComponent::selectOption(int option
 
     if (not selected->actionFlag.empty())
     {
-        if (auto context = componentContext_.scene_.getEngineContext())
-        {
-            context->GetGameState().flags[selected->actionFlag] = true;
-        }
-        else
-        {
-            LOG_ERROR << "Engine context not exist in scene!";
-        }
+        componentContext_.gamestate.flags[selected->actionFlag] = true;
     }
     return goToNode(selected->nextNodeID);
 }

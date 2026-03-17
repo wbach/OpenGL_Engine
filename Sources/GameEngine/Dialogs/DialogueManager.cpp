@@ -273,6 +273,40 @@ void DialogueManager::updateHighLightedColor(int oldItem, int newItem)
     updateColor(oldItem, vec3(1, 1, 1));
     updateColor(newItem, highlightedColor);
 }
+
+std::vector<DialogueOption> DialogueManager::getVisibleOptions(const DialogueNode& node) const
+{
+    std::vector<DialogueOption> visibleOptions;
+
+    for (const auto& option : node.options)
+    {
+        bool isAvailable = true;
+
+        for (const auto& condition : option.conditions)
+        {
+            bool hasFlag = gameState.hasFlag(condition.flag);
+
+            if (condition.type == ConditionType::REQUIRED && !hasFlag)
+            {
+                isAvailable = false;
+                break;
+            }
+            if (condition.type == ConditionType::FORBIDDEN && hasFlag)
+            {
+                isAvailable = false;
+                break;
+            }
+        }
+
+        if (isAvailable)
+        {
+            visibleOptions.push_back(option);
+        }
+    }
+
+    return visibleOptions;
+}
+
 void DialogueManager::refreshOptionGui()
 {
     if (not dialogueComponent)
@@ -309,7 +343,8 @@ void DialogueManager::refreshOptionGui()
 
                                if (auto current = dialogueComponent->getCurrent())
                                {
-                                   if (current->options.empty())
+                                   auto visibleOptions = getVisibleOptions(*current);
+                                   if (visibleOptions.empty())
                                    {
                                        if (current->nextNodeID != INVALID_NODE_ID)
                                        {
@@ -324,7 +359,7 @@ void DialogueManager::refreshOptionGui()
 
                                    showOptions();
                                    int i = 0;
-                                   for (const auto& option : current->options)
+                                   for (const auto& option : visibleOptions)
                                    {
                                        auto optionGuiText = guiFactory.CreateGuiText(option.text);
                                        optionGuiText->SetLocalScale(textSize);

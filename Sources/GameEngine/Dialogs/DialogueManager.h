@@ -56,6 +56,7 @@ private:
 
     void hideOptions();
     void showOptions();
+    std::vector<DialogueOption> getVisibleOptions(const DialogueNode&) const;
 
 private:
     Utils::Time::ITimerService& timerService;

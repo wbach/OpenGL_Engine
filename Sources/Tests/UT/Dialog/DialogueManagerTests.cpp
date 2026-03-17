@@ -274,7 +274,6 @@ TEST_F(DialogueManagerTests, ShouldAutomaticallyGoToNextNodeWhenNoOptionsAvailab
 
     LOG_DEBUG << "Start dialog";
     sut.startDialogue(*playerGameObject, *dialogueComponent);
-    // tweenManager.Update(1.f);
 
     expectGuiTextCreation(npcGameObject->GetName());
     expectGuiTextCreation(node2.npcText);
@@ -341,4 +340,59 @@ TEST_F(DialogueManagerTests, ShouldTransitionToCorrectNodeWhenOptionIsSelected)
 
     EXPECT_EQ(dialogueComponent->getCurrent()->id, 2);
     EXPECT_EQ(dialogueComponent->getCurrent()->npcText, nodes.at(2).npcText);
+}
+
+TEST_F(DialogueManagerTests, ShouldShowOptionOnlyWhenAllConditionsAreMet)
+{
+    createPlayerGameObjectWitoutCamera();
+
+    DialogueNode node;
+    node.id      = 0;
+    node.npcText = "Witaj w obozie.";
+
+    DialogueOption secretOption;
+    secretOption.text       = "Mam list do dowódcy.";
+    secretOption.nextNodeID = 10;
+    secretOption.conditions = {{"has_letter", ConditionType::REQUIRED}, {"is_traitor", ConditionType::FORBIDDEN}};
+
+    DialogueOption normalOption;
+    normalOption.text       = "Tylko przechodzę.";
+    normalOption.nextNodeID = -1;
+
+    node.options = {secretOption, normalOption};
+    dialogueComponent->setNodes({{node.id, node}});
+    dialogueComponent->startNodeID = 0;
+    dialogueComponent->resetCurrent();
+
+    gameState_.flags["has_letter"] = false;
+    gameState_.flags["is_traitor"] = false;
+
+    std::function<void()> firstTimer;
+    EXPECT_CALL(timerService_, timer(_, _)).WillOnce(DoAll(SaveArg<1>(&firstTimer), Return(1)));
+
+    expectGuiTextCreation(npcGameObject->GetName());
+    expectGuiTextCreation(node.npcText);
+
+    sut.startDialogue(*playerGameObject, *dialogueComponent);
+
+    expectGuiTextCreation(normalOption.text);
+
+    LOG_DEBUG << "Odpalamy timer - sprawdzamy czy tylko jedna opcja się pojawi";
+    firstTimer();
+
+    gameState_.flags["has_letter"] = true;
+
+    Mock::VerifyAndClearExpectations(&guiElementFactory_);
+
+    EXPECT_CALL(timerService_, timer(_, _)).WillOnce(DoAll(SaveArg<1>(&firstTimer), Return(2)));
+
+    expectGuiTextCreation(npcGameObject->GetName());
+    expectGuiTextCreation(node.npcText);
+
+    sut.startDialogue(*playerGameObject, *dialogueComponent);
+
+    expectGuiTextCreation(secretOption.text);
+    expectGuiTextCreation(normalOption.text);
+
+    firstTimer();
 }
