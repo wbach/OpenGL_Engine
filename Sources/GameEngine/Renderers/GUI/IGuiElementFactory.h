@@ -17,12 +17,17 @@ class VerticalLayout;
 class HorizontalLayout;
 class TreeView;
 class Menu;
+class File;
+class GuiTheme;
 enum class GuiWindowStyle;
-
 class IGuiElementFactory
 {
 public:
     virtual ~IGuiElementFactory() = default;
+
+    virtual bool ReadGuiFile(const File&)    = 0;
+    virtual void SetTheme(const GuiTheme&)   = 0;
+    virtual const GuiTheme& GetTheme() const = 0;
 
     virtual std::unique_ptr<GuiElement> CreateGuiElement() const                                   = 0;
     virtual std::unique_ptr<GuiElement> CreateGuiElement(const vec2& pos, const vec2& scale) const = 0;

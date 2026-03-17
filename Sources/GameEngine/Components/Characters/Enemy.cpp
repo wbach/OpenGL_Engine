@@ -31,7 +31,7 @@ const std::string COMPONENT_STR{"Enemy"};
 
 Enemy::Enemy(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(GetComponentType<Enemy>(), componentContext, gameObject)
-    , guiManager_{componentContext.guiElementFactory_.getManager()}
+    , guiManager_{componentContext.guiManager_}
     , animator_{nullptr}
     , characterController_{nullptr}
     , hud_{{characterStatistic_.currentHp, characterStatistic_.maxHp}}

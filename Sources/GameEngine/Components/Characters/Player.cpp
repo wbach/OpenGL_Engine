@@ -48,7 +48,7 @@ vec2 convertToScreenPosition(const mat4& viewProjectionMatrix, const vec3& point
 
 Player::Player(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(GetComponentType<Player>(), componentContext, gameObject)
-    , guiManager_{componentContext.guiElementFactory_.getManager()}
+    , guiManager_{componentContext.guiManager_}
     , animator_{nullptr}
     , characterController_{nullptr}
     , hudElements_{{characterStatistic_.currentHp, characterStatistic_.maxHp},

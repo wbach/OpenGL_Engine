@@ -12,25 +12,25 @@ namespace GameEngine
 {
 GuiElementTypes GuiTextElement::type = GuiElementTypes::Text;
 
-GuiTextElement::GuiTextElement(FontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
+GuiTextElement::GuiTextElement(IFontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
                                const std::string& font)
     : GuiTextElement(fontManager, guiRenderer, resourceManager, font, "")
 {
 }
 
-GuiTextElement::GuiTextElement(FontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
+GuiTextElement::GuiTextElement(IFontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
                                const std::string& font, const std::string& str)
     : GuiTextElement(fontManager, guiRenderer, resourceManager, font, str, 10)
 {
 }
 
-GuiTextElement::GuiTextElement(FontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
+GuiTextElement::GuiTextElement(IFontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
                                const std::string& font, const std::string& str, uint32 size)
     : GuiTextElement(fontManager, guiRenderer, resourceManager, font, str, size, 0)
 {
 }
 
-GuiTextElement::GuiTextElement(FontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
+GuiTextElement::GuiTextElement(IFontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
                                const std::string& font, const std::string& str, uint32 size, uint32 outline)
     : GuiRendererElementBase(resourceManager, guiRenderer, type)
     , fontManager_(fontManager)
@@ -230,7 +230,7 @@ void GuiTextElement::RenderText(bool fontOverride)
         }
         else
         {
-            /* LOG TO FIX*/ LOG_ERROR << ("RenderFont error for : " + text_);
+            LOG_ERROR << "RenderFont error for : " << text_;
         }
 
         Show();
@@ -241,7 +241,7 @@ void GuiTextElement::RenderText(bool fontOverride)
     }
 }
 
-void GuiTextElement::UpdateTexture(FontManager::TextureData data)
+void GuiTextElement::UpdateTexture(IFontManager::TextureData data)
 {
     if (texture_)
     {

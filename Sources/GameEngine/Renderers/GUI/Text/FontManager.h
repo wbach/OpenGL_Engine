@@ -1,32 +1,22 @@
 #pragma once
-#include <GameEngine/Resources/File.h>
 #include <Types.h>
 #include <Utils/IdPool.h>
-#include <Utils/Image/Image.h>
 
-#include <memory>
-#include <optional>
 #include <unordered_map>
 
-#include "RenderedText.h"
-#include "Surface.h"
+#include "IFontManager.h"
 
 namespace GameEngine
 {
-class ENGINE_API FontManager
+class ENGINE_API FontManager : public IFontManager
 {
 public:
-    struct TextureData
-    {
-        std::string name;
-        Utils::Image image;
-    };
     FontManager();
-    ~FontManager();
+    ~FontManager() override;
 
-    std::optional<uint32> openFont(const File&, uint32);
-    std::optional<TextureData> renderFont(uint32, const std::string&, uint32);
-    void closeFont(uint32);
+    std::optional<uint32> openFont(const File&, uint32) override;
+    std::optional<TextureData> renderFont(uint32, const std::string&, uint32) override;
+    void closeFont(uint32) override;
 
 private:
     struct Pimpl;

@@ -152,7 +152,7 @@ protected:
     Components::ComponentController componentController_;
     std::unique_ptr<Components::ComponentContext> componentContext_;
     std::unique_ptr<Components::ComponentFactory> componentFactory_;
-    std::unique_ptr<GuiManager> guiManager_;
+    GuiManager guiManager_;
     std::unique_ptr<GuiElementFactory> guiElementFactory_;
     std::unique_ptr<GuiEngineContextManger> guiEngineContextManger_;
 

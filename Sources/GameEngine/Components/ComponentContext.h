@@ -16,12 +16,13 @@ namespace GameEngine
 {
 class IResourceManager;
 class IGpuResourceLoader;
-class GuiElementFactory;
+class IGuiElementFactory;
 class Scene;
 class ISceneManager;
 class DialogueManager;
 class TweenManager;
 class IAudioManager;
+class GuiManager;
 
 namespace Physics
 {
@@ -48,7 +49,8 @@ struct ComponentContext
     IResourceManager& resourceManager_;
     ComponentController& componentController_;
     Renderer::RenderersManager& renderersManager_;
-    GuiElementFactory& guiElementFactory_;
+    GuiManager& guiManager_;
+    IGuiElementFactory& guiElementFactory_;
     Utils::Time::ITimerService& timerService_;
     DialogueManager& dialogueManager_;
     TweenManager& tweenManager;

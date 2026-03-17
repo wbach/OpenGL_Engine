@@ -39,10 +39,9 @@ public:
     GuiElementFactory(EntryParameters& entryParameters);
     ~GuiElementFactory();
 
-    bool ReadGuiFile(const std::string& filename);
+    bool ReadGuiFile(const File&);
     void SetTheme(const GuiTheme&);
     const GuiTheme& GetTheme() const;
-    GuiManager& getManager();
 
     std::unique_ptr<GuiElement> CreateGuiElement() const;
     std::unique_ptr<GuiElement> CreateGuiElement(const vec2&, const vec2&) const;

@@ -687,7 +687,7 @@ GameObject *Console::GetGameObject(const std::string &name)
 
 void Console::PrepareConsoleWindow()
 {
-    scene_.guiManager_->AddLayer(CONSOLE_LAYER_NAME);
+    scene_.guiManager_.AddLayer(CONSOLE_LAYER_NAME);
 
     auto window = scene_.guiElementFactory_->CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0.5, 0.75), vec2(1, 0.5f));
 
@@ -700,7 +700,7 @@ void Console::PrepareConsoleWindow()
     windowVerticalLayout_ = vl.get();
     window_->AddChild(std::move(vl));
 
-    scene_.guiManager_->Add(CONSOLE_LAYER_NAME, std::move(window));
+    scene_.guiManager_.Add(CONSOLE_LAYER_NAME, std::move(window));
 
     keysSubscribtionManager_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, [this]() {
         window_->Show();

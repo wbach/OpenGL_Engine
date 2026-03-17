@@ -128,8 +128,8 @@ std::optional<uint32> FontManager::openFont(const File &filename, uint32 size)
     if (font)
     {
         // TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
-        auto id        = idPool.getId();
-        auto &instance = impl_->fonts_[id] = {.ptr = font, .instances = 0};
+        auto id           = idPool.getId();
+        impl_->fonts_[id] = {.ptr = font, .instances = 0};
         fontNameToIdMap_.insert({fname, id});
         return id;
     }

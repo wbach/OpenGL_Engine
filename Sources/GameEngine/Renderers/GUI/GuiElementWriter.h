@@ -7,6 +7,6 @@ namespace GameEngine
 namespace GuiElementWriter
 {
 void write(std::vector<GuiLayer>);
-void write(const std::string&, const GuiLayer& layer);
+void write(const std::string&, const GuiLayer&);
 }  // namespace GuiElementWriter
 }  // namespace GameEngine

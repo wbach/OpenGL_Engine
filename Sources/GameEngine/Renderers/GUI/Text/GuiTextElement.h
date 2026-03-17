@@ -6,7 +6,7 @@
 #include "GameEngine/Resources/Textures/Texture.h"
 #include "Surface.h"
 #include "Types.h"
-#include "FontManager.h"
+#include "IFontManager.h"
 
 namespace GameEngine
 {
@@ -31,10 +31,10 @@ public:
     };
 
 public:
-    GuiTextElement(FontManager&, GUIRenderer&, IResourceManager&, const std::string& font);
-    GuiTextElement(FontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str);
-    GuiTextElement(FontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str, uint32 size);
-    GuiTextElement(FontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str, uint32 size, uint32 outline);
+    GuiTextElement(IFontManager&, GUIRenderer&, IResourceManager&, const std::string& font);
+    GuiTextElement(IFontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str);
+    GuiTextElement(IFontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str, uint32 size);
+    GuiTextElement(IFontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str, uint32 size, uint32 outline);
     ~GuiTextElement();
 
 public:
@@ -55,11 +55,11 @@ public:
     mat4 GetTransformMatrix() const override;
 
 private:
-    void UpdateTexture(FontManager::TextureData);
+    void UpdateTexture(IFontManager::TextureData);
     void RenderText(bool fontOverride = false);
 
 private:
-    FontManager& fontManager_;
+    IFontManager& fontManager_;
     std::string text_;
     std::string textureName_;
     bool uniqueName_;

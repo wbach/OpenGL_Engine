@@ -62,11 +62,7 @@ Scene::~Scene()
 
     componentController_.UnRegisterAll();
 
-    if (guiManager_)
-    {
-        guiManager_->RemoveAll();
-        guiManager_.reset();
-    }
+    guiManager_.RemoveAll();
 
     if (guiElementFactory_)
     {
@@ -129,11 +125,10 @@ void Scene::InitResources(EngineContext& context)
     {
         LOG_ERROR << "resourceManager  creation error!";
     }
-    guiManager_ = std::make_unique<GuiManager>();
-    GuiElementFactory::EntryParameters guiFactoryParams{*guiManager_, *inputManager_, *resourceManager_, *renderersManager_};
+    GuiElementFactory::EntryParameters guiFactoryParams{guiManager_, *inputManager_, *resourceManager_, *renderersManager_};
     guiElementFactory_      = std::make_unique<GuiElementFactory>(guiFactoryParams);
     guiEngineContextManger_ = std::make_unique<GuiEngineContextManger>(context.GetMeasurmentHandler(), *guiElementFactory_);
-    dialogueManager_        = std::make_unique<DialogueManager>(*timerService_, *inputManager_, *guiElementFactory_, *guiManager_,
+    dialogueManager_        = std::make_unique<DialogueManager>(*timerService_, *inputManager_, *guiElementFactory_, guiManager_,
                                                          context.GetGameState(), tweenManager);
 
     console_ = std::make_unique<Debug::Console>(*this);
@@ -149,6 +144,7 @@ void Scene::InitResources(EngineContext& context)
                                      .resourceManager_     = *resourceManager_,
                                      .componentController_ = componentController_,
                                      .renderersManager_    = *renderersManager_,
+                                     .guiManager_          = guiManager_,
                                      .guiElementFactory_   = *guiElementFactory_,
                                      .timerService_        = *timerService_,
                                      .dialogueManager_     = *dialogueManager_,
@@ -176,10 +172,9 @@ void Scene::FullUpdate(float deltaTime)
     {
         inputManager_->ProcessKeysEvents();
     }
-    if (guiManager_)
-    {
-        guiManager_->Update(deltaTime);
-    }
+
+    guiManager_.Update(deltaTime);
+
     if (guiEngineContextManger_)
     {
         guiEngineContextManger_->Update();

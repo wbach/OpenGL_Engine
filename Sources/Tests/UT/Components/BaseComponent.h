@@ -35,6 +35,7 @@
 #include "Tests/Mocks/Resources/ResourcesManagerMock.h"
 #include "Tests/Mocks/Scene/SceneManagerMock.h"
 #include "Tests/Mocks/Utils/TimerServiceMock.h"
+#include "Tests/Mocks/Gui/GuiElementFactoryMock.h"
 
 using namespace GameEngine;
 using namespace GameEngine::Components;
@@ -70,8 +71,7 @@ public:
     SceneManagerMock sceneManager;
     Renderer::RenderersManager renderersManager_;
     CameraMock cameraMock_;
-    GuiElementFactory::EntryParameters guiFactoryEntryParameters_;
-    GuiElementFactory guiElementFactory_;
+    GuiElementFactoryMock guiElementFactory_;
     DialogueManager dialogueManager_;
     ComponentContext context_;
     ComponentFactory componentFactory_;

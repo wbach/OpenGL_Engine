@@ -13,6 +13,7 @@
 #include <Utils/Utils.h>
 #include <Utils/XML/XmlWriter.h>
 
+#include "GameEngine/Renderers/GUI/GuiElementTypes.h"
 #include "GuiElementsDef.h"
 
 namespace GameEngine
@@ -176,6 +177,8 @@ void write(TreeNode& node, const GuiElement& element)
 {
     switch (element.GetType())
     {
+        case GameEngine::GuiElementTypes::Element:
+            break;
         case GuiElementTypes::Text:
             write(node, *static_cast<const GuiTextElement*>(&element));
             break;
@@ -192,10 +195,10 @@ void write(TreeNode& node, const GuiElement& element)
             write(node, *static_cast<const GuiTextureElement*>(&element));
             break;
         case GuiElementTypes::Checkbox:
-            /* LOG TO FIX*/  LOG_ERROR << ("Gui Checkbox write method not implemented.");
+            /* LOG TO FIX*/ LOG_ERROR << ("Gui Checkbox write method not implemented.");
             break;
         case GuiElementTypes::ComboBox:
-            /* LOG TO FIX*/  LOG_ERROR << ("Gui ComboBox write method not implemented.");
+            /* LOG TO FIX*/ LOG_ERROR << ("Gui ComboBox write method not implemented.");
             break;
         case GuiElementTypes::TreeView:
             write(node, *static_cast<const TreeView*>(&element));

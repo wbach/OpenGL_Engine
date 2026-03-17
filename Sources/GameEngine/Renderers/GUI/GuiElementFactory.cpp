@@ -294,11 +294,6 @@ const GuiTheme &GuiElementFactory::GetTheme() const
     return theme_;
 }
 
-GuiManager &GuiElementFactory::getManager()
-{
-    return guiManager_;
-}
-
 std::unique_ptr<GuiTextureElement> GuiElementFactory::MakeGuiTexture(const File &file)
 {
     TextureParameters params;
@@ -360,9 +355,9 @@ void GuiElementFactory::CreateWindowBar(GuiWindowStyle style, GuiWindowElement &
     window.SetBar(std::move(horizontalLayout));
 }
 
-bool GuiElementFactory::ReadGuiFile(const std::string &filename)
+bool GuiElementFactory::ReadGuiFile(const File &filename)
 {
-    return GuiElementReader(guiManager_, *this).Read(filename);
+    return GuiElementReader(guiManager_, *this).Read(filename.GetAbsolutePath());
 }
 std::unique_ptr<GuiElement> GuiElementFactory::CreateGuiElement(const vec2 &position, const vec2 &scale) const
 {
