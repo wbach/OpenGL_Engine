@@ -98,8 +98,13 @@ std::variant<AudioId, IdType, std::monostate> playAudioOrStartTimer(Utils::Time:
     if (audioFile.exist())
     {
         PlayParameters playParameters;
-        playParameters.playEndCallback = std::move(callback);
-        return audioManager.play(audioFile, PlayGroup::Dialogs, playParameters);
+        playParameters.playEndCallback = callback;
+
+        auto maybeResult = audioManager.play(audioFile, PlayGroup::Dialogs, playParameters);
+        if (maybeResult != INVALID_AUDIO_ID)
+        {
+            return maybeResult;
+        }
     }
 
     LOG_DEBUG << "Audio file \"" << dialog.audioPath << "\" not found for dialog: " << dialog.text;

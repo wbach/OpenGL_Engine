@@ -142,5 +142,7 @@ void TimerService::finish(IdType id)
     {
         callbackToExecute();
     }
+
+    LOG_DEBUG << "Timer finished manually " << id;
 }
 }  // namespace Utils::Time

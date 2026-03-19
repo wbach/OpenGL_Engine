@@ -1,4 +1,5 @@
 #pragma once
+#include <EngineApi.h>
 #include <Types.h>
 
 #include <compare>
@@ -6,9 +7,9 @@
 
 namespace GameEngine
 {
-struct AudioId
+struct ENGINE_API AudioId
 {
-    IdType value;
+    IdType value{std::numeric_limits<IdType>::max()};
     auto operator<=>(const AudioId&) const = default;
 
     friend std::ostream& operator<<(std::ostream& os, const AudioId& id)
@@ -17,6 +18,7 @@ struct AudioId
     }
 };
 
+static const AudioId INVALID_AUDIO_ID{};
 }  // namespace GameEngine
 
 namespace std

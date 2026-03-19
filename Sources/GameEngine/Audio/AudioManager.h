@@ -1,9 +1,11 @@
 #pragma once
 #include <EngineApi.h>
 
+#include <atomic>
 #include <memory>
 
 #include "IAudioManager.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -41,5 +43,9 @@ public:
 private:
     struct Pimpl;
     std::unique_ptr<Pimpl> impl;
+
+    IdType audioEnabledSubId{0};
+    IdType volumneSubId{0};
+    std::atomic_bool audioEnabled{true};
 };
 }  // namespace GameEngine

@@ -10,10 +10,12 @@
 
 #include "GameEngine/Audio/AudioId.h"
 #include "GameEngine/Audio/PlayParameters.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/File.h"
 #include "IdPool.h"
 #include "Types.h"
 #include "Utils.h"
+
 namespace GameEngine
 {
 namespace
@@ -25,13 +27,10 @@ struct SoundEndData
 
 static void on_ma_sound_end(void* pUserData, ma_sound* pSound)
 {
-    LOG_DEBUG << "";
     auto* data = static_cast<SoundEndData*>(pUserData);
     if (data->callback)
     {
-        LOG_DEBUG << "";
         data->callback();
-        LOG_DEBUG << "";
     }
     delete data;
 }
@@ -65,7 +64,7 @@ struct AudioManager::Pimpl
     AudioId play(const File& file, PlayGroup group, const PlayParameters& params)
     {
         if (not initStatus)
-            return std::numeric_limits<AudioId>::max();
+            return INVALID_AUDIO_ID;
 
         LOG_DEBUG << "Play sound : " << file << ", file exist?  "
                   << Utils::BoolToString(std::filesystem::exists(file.GetAbsolutePath()));
@@ -87,7 +86,7 @@ struct AudioManager::Pimpl
         if (result != MA_SUCCESS)
         {
             LOG_ERROR << "Failed to load sound: " << file;
-            return AudioId{std::numeric_limits<IdType>::max()};
+            return INVALID_AUDIO_ID;
         }
 
         if (params.volume.has_value())
@@ -181,14 +180,28 @@ struct AudioManager::Pimpl
 AudioManager::AudioManager()
     : impl{std::make_unique<Pimpl>()}
 {
+    audioEnabled.store(EngineConf.sound.isEnabled);
+    audioEnabledSubId = EngineConf.sound.isEnabled.subscribeForChange(
+        [this]()
+        {
+            audioEnabled.store(EngineConf.sound.isEnabled);
+            if (not EngineConf.sound.isEnabled)
+            {
+                stopAll();
+            }
+        });
+
+    audioEnabledSubId = EngineConf.sound.volume.subscribeForChange([this]() { setMasterVolume(EngineConf.sound.volume); });
 }
 AudioManager::~AudioManager()
 {
+    EngineConf.sound.isEnabled.unsubscribe(audioEnabledSubId);
+    EngineConf.sound.volume.unsubscribe(volumneSubId);
 }
 AudioId AudioManager::play(const File& file, PlayGroup group, const PlayParameters& params)
 {
-    if (not impl)
-        return std::numeric_limits<AudioId>::max();
+    if (not impl or not audioEnabled.load() or not file.exist())
+        return INVALID_AUDIO_ID;
 
     return impl->play(file, group, params);
 }
