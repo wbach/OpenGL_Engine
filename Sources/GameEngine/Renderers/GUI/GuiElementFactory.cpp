@@ -375,7 +375,7 @@ void GuiElementFactory::CreateWindowBar(GuiWindowStyle style, GuiWindowElement &
 
 bool GuiElementFactory::ReadGuiFile(const File &filename)
 {
-    return GuiElementReader(guiManager_, *this).Read(filename.GetAbsolutePath());
+    return GuiElementReader(guiManager_, *this).Read(filename.GetAbsolutePath().string());
 }
 std::unique_ptr<GuiElement> GuiElementFactory::CreateGuiElement(const vec2 &position, const vec2 &scale) const
 {

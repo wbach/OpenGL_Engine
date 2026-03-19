@@ -8,7 +8,7 @@ namespace GameEngine
 {
 inline constexpr int INVALID_NODE_ID{std::numeric_limits<int>::max()};
 
-enum ENGINE_API class ConditionType
+enum class ENGINE_API ConditionType
 {
     REQUIRED,
     FORBIDDEN

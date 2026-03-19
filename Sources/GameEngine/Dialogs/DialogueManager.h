@@ -1,11 +1,14 @@
 #pragma once
 #include <EngineApi.h>
 
+#include <mutex>
+
 #include "DialogueNode.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "GameEngine/Dialogs/Fsm/DialogContext.h"
 #include "GameEngine/Dialogs/Fsm/DialogEvents.h"
 #include "GameEngine/Dialogs/Fsm/DialogFsm.h"
+
 namespace Utils::Time
 {
 class ITimerService;
