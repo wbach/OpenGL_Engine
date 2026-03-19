@@ -197,6 +197,11 @@ void Scene::FullUpdate(float deltaTime)
 
     tweenManager.Update(deltaTime);
 
+    if (dialogueManager_)
+    {
+        dialogueManager_->processEvents();
+    }
+
     componentController_.AlwaysUpdate();
 
     ProcessEvents();

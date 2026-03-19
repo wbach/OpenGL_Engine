@@ -1,3 +1,4 @@
+
 #include <Logger/Log.h>
 #include <SDL2/SDL.h>
 #include <gmock/gmock.h>

@@ -19,7 +19,6 @@ if(DEFINED ENV{DISTCC})
 endif()
 
 message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
-
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     #add_compile_options(-Wall -Wextra -Wpedantic)
 

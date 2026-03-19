@@ -15,6 +15,7 @@
 #include "Components/ComponentController.h"
 #include "Components/ComponentFactory.h"
 #include "Components/Dialogue/DialogueComponent.h"
+#include "Dialogs/Fsm/DialogEvents.h"
 #include "IdPool.h"
 #include "Image/Image.h"
 #include "Logger/Log.h"
@@ -31,6 +32,7 @@
 #include "Tests/Mocks/Utils/TimerServiceMock.h"
 #include "Tests/UT/Components/BaseComponent.h"
 #include "Types.h"
+#include "gmock/gmock.h"
 
 using namespace std::chrono_literals;
 using namespace testing;
@@ -120,26 +122,72 @@ protected:
     void demo()
     {
         Components::DialogueComponent::Nodes nodes;
-        nodes[0] = {0, 0, "Stoj! Kto idzie?", "", "", {{"Szukam schronienia.", 2, "", ""}, {"Nie Twoj interes.", -1, "", ""}}};
-        nodes[1] = {1,  0,  "O co chodzi?.",
-                    "", "", {{"Co to za oboz?", 2, ""}, {"Powiedz mi wiecej o obozie.", 3, "", ""}, {"A nic.", -1, "", ""}}};
-        nodes[2] = {2,
-                    0,
-                    "",
-                    "",
-                    "To Oboz Cienia. Swiat oszalal. Chcesz wiedziec wiecej?",
-                    {{"Tak, opowiedz mi.", 3, ""}, {"Nie, musze leciec.", -1, ""}}};
-        nodes[3] = {3,
-                    0,
-                    "",
-                    "",
-                    "Duzo by gadac..., ale wydajesz sie porzadny pogadamy w srodku.",
-                    {{"Dziekuje!", -2, "invited_to_camp"}}};
-        nodes[4] = {4, 0, "", "", "Do zobaczenia w srodku.", {{"Do zobaczenia", -2, "invited_to_camp"}}};
+
+        nodes[0] = {
+            .id                  = 0,
+            .nextNodeID          = 0,
+            .text                = "Stoj! Kto idzie?",
+            .setGameStateflag    = "",
+            .removeGameStateFlag = "",
+            .options             = {
+                            DialogueOption{.text = "Szukam schronienia.", .nextNodeID = 2, .setGameStateflag = "", .removeGameStateFlag = ""},
+                            DialogueOption{
+                                .text = "Nie Twoj interes.", .nextNodeID = -1, .setGameStateflag = "", .removeGameStateFlag = ""}}};
+
+        nodes[1] = {
+            .id                  = 1,
+            .nextNodeID          = 0,
+            .text                = "O co chodzi?",
+            .setGameStateflag    = "",
+            .removeGameStateFlag = "",
+            .options             = {
+                            DialogueOption{.text = "Co to za oboz?", .nextNodeID = 2, .setGameStateflag = "", .removeGameStateFlag = ""},
+                            DialogueOption{
+                                .text = "Powiedz mi wiecej o obozie.", .nextNodeID = 3, .setGameStateflag = "", .removeGameStateFlag = ""},
+                            DialogueOption{.text = "A nic.", .nextNodeID = -1, .setGameStateflag = "", .removeGameStateFlag = ""}}};
+
+        nodes[2] = {
+            .id                  = 2,
+            .nextNodeID          = 0,
+            .text                = "To Oboz Cienia. Swiat oszalal. Chcesz wiedziec wiecej?",
+            .setGameStateflag    = "",
+            .removeGameStateFlag = "",
+            .options             = {
+                            DialogueOption{.text = "Tak, opowiedz mi.", .nextNodeID = 3, .setGameStateflag = "", .removeGameStateFlag = ""},
+                            DialogueOption{
+                                .text = "Nie, musze leciec.", .nextNodeID = -1, .setGameStateflag = "", .removeGameStateFlag = ""}}};
+
+        nodes[3] = {
+            .id                  = 3,
+            .nextNodeID          = 0,
+            .text                = "Duzo by gadac..., ale wydajesz sie porzadny pogadamy w srodku.",
+            .setGameStateflag    = "",
+            .removeGameStateFlag = "",
+            .options             = {DialogueOption{
+                            .text = "Dziekuje!", .nextNodeID = -2, .setGameStateflag = "invited_to_camp", .removeGameStateFlag = ""}}};
+
+        nodes[4] = {
+            .id                  = 4,
+            .nextNodeID          = 0,
+            .text                = "Do zobaczenia w srodku.",
+            .setGameStateflag    = "",
+            .removeGameStateFlag = "",
+            .options             = {DialogueOption{
+                            .text = "Do zobaczenia", .nextNodeID = -2, .setGameStateflag = "invited_to_camp", .removeGameStateFlag = ""}}};
+
         dialogueComponent->setNodes(std::move(nodes));
     }
+    void expectGotToIdle()
+    {
+        // enddialog move to transition state
+        dialogueManager_.processEvents();
+        // enddialog move to idle state
+        dialogueManager_.processEvents();
 
-    FontManagerMock fontManagerMock;
+        EXPECT_FALSE(dialogueManager_.isActive());
+    }
+
+    NiceMock<FontManagerMock> fontManagerMock;
     TextureLoaderMock textureLoaderMock;
     GeneralTexture texture;
     Components::DialogueComponent* dialogueComponent;
@@ -172,7 +220,7 @@ TEST_F(DialogueManagerTests, NpcAndPlayerInTheSamePosThenTweenShouldBeNotStarted
     DialogueNode node;
     node.id         = 0;
     node.nextNodeID = -1;
-    node.npcText    = "npcText text 1";
+    node.text       = "npcText text 1";
     node.options    = {};
 
     dialogueComponent->setNodes({{node.id, node}});
@@ -185,14 +233,15 @@ TEST_F(DialogueManagerTests, NpcAndPlayerInTheSamePosThenTweenShouldBeNotStarted
     EXPECT_CALL(timerService_, timer(_, _)).WillOnce(DoAll(SaveArg<1>(&firstTimer), Return(1)));
 
     expectGuiTextCreation(npcGameObject->GetName());
-    expectGuiTextCreation(node.npcText);
+    expectGuiTextCreation(node.text);
 
     LOG_DEBUG << "Start dialog";
     dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
+    dialogueManager_.processEvents();  // StartSentence event
 
     firstTimer();
 
-    EXPECT_FALSE(dialogueManager_.isActive());
+    expectGotToIdle();
 }
 
 TEST_F(DialogueManagerTests, NpcShouldStartRotationToPlayerAndCameraShouldStartMoveToDialogPos)
@@ -202,7 +251,7 @@ TEST_F(DialogueManagerTests, NpcShouldStartRotationToPlayerAndCameraShouldStartM
     DialogueNode node;
     node.id         = 0;
     node.nextNodeID = -1;
-    node.npcText    = "npcText text 1";
+    node.text       = "npcText text 1";
     node.options    = {};
 
     dialogueComponent->setNodes({{node.id, node}});
@@ -222,21 +271,23 @@ TEST_F(DialogueManagerTests, NpcShouldStartRotationToPlayerAndCameraShouldStartM
 
     LOG_DEBUG << "Start dialog";
     dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
+    dialogueManager_.processEvents();
 
     EXPECT_EQ(npcRotationTween, nullptr);
 
     expectGuiTextCreation(npcGameObject->GetName());
-    expectGuiTextCreation(node.npcText);
+    expectGuiTextCreation(node.text);
 
     LOG_DEBUG << "Camera movment ends";
     cameraMovementTween();
+    dialogueManager_.processEvents();  // StartSentence event after camera move
 
     LOG_DEBUG << "Show dialog timers end";
     firstTimer();
 
     EXPECT_EQ(npcRestorationRotationTween, nullptr);
 
-    EXPECT_FALSE(dialogueManager_.isActive());
+    expectGotToIdle();
 }
 
 TEST_F(DialogueManagerTests, ShouldAutomaticallyGoToNextNodeWhenNoOptionsAvailable)
@@ -246,20 +297,19 @@ TEST_F(DialogueManagerTests, ShouldAutomaticallyGoToNextNodeWhenNoOptionsAvailab
     DialogueNode node;
     node.id         = 0;
     node.nextNodeID = 1;
-    node.npcText    = "npcText text 1";
+    node.text       = "npcText text 1";
     node.options    = {};
 
     DialogueNode node2;
     node2.id         = 1;
     node2.nextNodeID = 2;
-    node2.npcText    = "npcText text 2";
+    node2.text       = "npcText text 2";
     node2.options    = {};
 
     DialogueNode node3;
-    node3.id = 2;
-    // node3.nextNodeID = -1;
-    node3.npcText = "npcText text 3";
-    node3.options = {{"Dziekuje!", -2, "invited_to_camp"}};
+    node3.id      = 2;
+    node3.text    = "npcText text 3";
+    node3.options = {{"Dziekuje!", -1, "invited_to_camp"}};
 
     Components::DialogueComponent::Nodes nodes{{node.id, node}, {node2.id, node2}, {node3.id, node3}};
     dialogueComponent->setNodes(std::move(nodes));
@@ -269,47 +319,68 @@ TEST_F(DialogueManagerTests, ShouldAutomaticallyGoToNextNodeWhenNoOptionsAvailab
     std::function<void()> firstTimer;
     std::function<void()> secondTimer;
     std::function<void()> thridTimer;
+    std::function<void()> playerResponseTimer;
     EXPECT_CALL(timerService_, timer(_, _))
         .WillOnce(DoAll(SaveArg<1>(&firstTimer), Return(1)))
         .WillOnce(DoAll(SaveArg<1>(&secondTimer), Return(2)))
-        .WillOnce(DoAll(SaveArg<1>(&thridTimer), Return(3)));
+        .WillOnce(DoAll(SaveArg<1>(&thridTimer), Return(3)))
+        .WillOnce(DoAll(SaveArg<1>(&playerResponseTimer), Return(4)));
 
     expectGuiTextCreation(npcGameObject->GetName());
-    expectGuiTextCreation(node.npcText);
+    expectGuiTextCreation(node.text);
 
     LOG_DEBUG << "Start dialog";
     dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
+    dialogueManager_.processEvents();  // StartSentence event camera not exist
 
     expectGuiTextCreation(npcGameObject->GetName());
-    expectGuiTextCreation(node2.npcText);
+    expectGuiTextCreation(node2.text);
 
     LOG_DEBUG << "First timer expiry";
     firstTimer();
 
+    dialogueManager_.processEvents();  // StartSentence event - update
+
     EXPECT_EQ(dialogueComponent->getCurrent()->id, 1);
 
     expectGuiTextCreation(npcGameObject->GetName());
-    expectGuiTextCreation(node3.npcText);
+    expectGuiTextCreation(node3.text);
 
     LOG_DEBUG << "Seconds timer expiry";
     secondTimer();
 
+    LOG_DEBUG << "processEvents";
+    dialogueManager_.processEvents();  // StartSentence event - update
+
+    LOG_DEBUG << "getCurrent";
     EXPECT_EQ(dialogueComponent->getCurrent()->id, 2);
 
+    LOG_DEBUG << "optionguiText";
     GuiTextElement* optionguiText{nullptr};
     expectGuiTextCreation(node3.options[0].text, optionguiText);
 
+    LOG_DEBUG << "thridTimer";
     thridTimer();
+    dialogueManager_.processEvents();  // StartSentence event - update
 
+    LOG_DEBUG << "expectedighlighetColor";
     const vec4 expectedighlighetColor(1, 1, 0, 1);
     EXPECT_TRUE(glm::all(glm::epsilonEqual(optionguiText->GetColor(), expectedighlighetColor, 0.001f)));
 
     LOG_DEBUG << optionguiText->GetColor();
     EXPECT_TRUE(optionguiText->IsShow());
 
-    dialogueManager_.selectOption(0);
+    expectGuiTextCreation(playerGameObject->GetName());
+    expectGuiTextCreation(node3.options[0].text);
 
-    EXPECT_FALSE(dialogueManager_.isActive());
+    // dialogueManager_.selectOption(0);
+    dialogueManager_.handleEvent(OptionSelected{.option           = dialogueComponent->getCurrent()->options[0],
+                                                .playerGameObject = *playerGameObject,
+                                                .component        = *dialogueComponent});
+
+    playerResponseTimer();
+
+    expectGotToIdle();
 }
 
 TEST_F(DialogueManagerTests, ShouldTransitionToCorrectNodeWhenOptionIsSelected)
@@ -324,27 +395,43 @@ TEST_F(DialogueManagerTests, ShouldTransitionToCorrectNodeWhenOptionIsSelected)
     dialogueComponent->resetCurrent();
 
     std::function<void()> firstTimer;
-    std::function<void()> secondTimer;
+    std::function<void()> playerResposeTimer;
+    std::function<void()> secondNpcText;
+
     EXPECT_CALL(timerService_, timer(_, _))
         .WillOnce(DoAll(SaveArg<1>(&firstTimer), Return(1)))
-        .WillOnce(DoAll(SaveArg<1>(&secondTimer), Return(2)));
+        .WillOnce(DoAll(SaveArg<1>(&playerResposeTimer), Return(2)))
+        .WillOnce(DoAll(SaveArg<1>(&secondNpcText), Return(3)));
 
     expectGuiTextCreation(npcGameObject->GetName());
-    expectGuiTextCreation(nodes.at(0).npcText);
+    expectGuiTextCreation(nodes.at(0).text);
 
     dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
+    dialogueManager_.processEvents();  // StartSentence event camera not exist
 
     expectGuiTextCreation(nodes.at(0).options[0].text);
     expectGuiTextCreation(nodes.at(0).options[1].text);
     firstTimer();
 
-    expectGuiTextCreation(npcGameObject->GetName());
-    expectGuiTextCreation(nodes.at(2).npcText);
+    dialogueManager_.processEvents();  // Wait for input
 
-    dialogueManager_.selectOption(0);
+    auto selectedOpiton = dialogueComponent->getCurrent()->options[0];
+    expectGuiTextCreation(playerGameObject->GetName());
+    expectGuiTextCreation(selectedOpiton.text);
+
+    dialogueManager_.handleEvent(
+        OptionSelected{.option = selectedOpiton, .playerGameObject = *playerGameObject, .component = *dialogueComponent});
+
+    expectGuiTextCreation(npcGameObject->GetName());
+    expectGuiTextCreation(nodes.at(2).text);
+
+    playerResposeTimer();
+    dialogueManager_.processEvents();  // StartSentence update to npc text
 
     EXPECT_EQ(dialogueComponent->getCurrent()->id, 2);
-    EXPECT_EQ(dialogueComponent->getCurrent()->npcText, nodes.at(2).npcText);
+    EXPECT_EQ(dialogueComponent->getCurrent()->text, nodes.at(2).text);
+
+    //secondNpcText(); itd
 }
 
 TEST_F(DialogueManagerTests, ShouldShowOptionOnlyWhenAllConditionsAreMet)
@@ -352,8 +439,8 @@ TEST_F(DialogueManagerTests, ShouldShowOptionOnlyWhenAllConditionsAreMet)
     createPlayerGameObjectWitoutCamera();
 
     DialogueNode node;
-    node.id      = 0;
-    node.npcText = "Witaj w obozie.";
+    node.id   = 0;
+    node.text = "Witaj w obozie.";
 
     DialogueOption secretOption;
     secretOption.text       = "Mam list do dowódcy.";
@@ -373,17 +460,34 @@ TEST_F(DialogueManagerTests, ShouldShowOptionOnlyWhenAllConditionsAreMet)
     gameState_.flags["is_traitor"] = false;
 
     std::function<void()> firstTimer;
-    EXPECT_CALL(timerService_, timer(_, _)).WillOnce(DoAll(SaveArg<1>(&firstTimer), Return(1)));
+    std::function<void()> playerResposeTimer;
+    EXPECT_CALL(timerService_, timer(_, _))
+        .WillOnce(DoAll(SaveArg<1>(&firstTimer), Return(1)))
+        .WillOnce(DoAll(SaveArg<1>(&playerResposeTimer), Return(2)));
 
     expectGuiTextCreation(npcGameObject->GetName());
-    expectGuiTextCreation(node.npcText);
+    expectGuiTextCreation(node.text);
 
     dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
+    dialogueManager_.processEvents();  // StartSentence event camera not exist
 
     expectGuiTextCreation(normalOption.text);
 
     LOG_DEBUG << "Odpalamy timer - sprawdzamy czy tylko jedna opcja się pojawi";
     firstTimer();
+    dialogueManager_.processEvents();  // Wait for input
+
+    expectGuiTextCreation(playerGameObject->GetName());
+    expectGuiTextCreation(normalOption.text);
+
+    dialogueManager_.handleEvent(
+        OptionSelected{.option = normalOption, .playerGameObject = *playerGameObject, .component = *dialogueComponent});
+
+    dialogueManager_.processEvents();  // Player StartSentence
+
+    playerResposeTimer();
+
+    expectGotToIdle();
 
     gameState_.flags["has_letter"] = true;
 
@@ -392,12 +496,16 @@ TEST_F(DialogueManagerTests, ShouldShowOptionOnlyWhenAllConditionsAreMet)
     EXPECT_CALL(timerService_, timer(_, _)).WillOnce(DoAll(SaveArg<1>(&firstTimer), Return(2)));
 
     expectGuiTextCreation(npcGameObject->GetName());
-    expectGuiTextCreation(node.npcText);
+    expectGuiTextCreation(node.text);
 
+    LOG_DEBUG << "Odpalamy timer - sprawdzamy 2 opcje";
     dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
+    dialogueManager_.processEvents();  // StartSentence event camera not exist
 
     expectGuiTextCreation(secretOption.text);
     expectGuiTextCreation(normalOption.text);
 
     firstTimer();
+
+    dialogueManager_.processEvents();
 }

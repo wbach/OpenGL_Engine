@@ -23,10 +23,13 @@ struct SoundEndData
 
 static void on_ma_sound_end(void* pUserData, ma_sound* pSound)
 {
+    LOG_DEBUG << "";
     auto* data = static_cast<SoundEndData*>(pUserData);
     if (data->callback)
     {
+        LOG_DEBUG << "";
         data->callback();
+        LOG_DEBUG << "";
     }
     delete data;
 }
@@ -125,6 +128,7 @@ struct AudioManager::Pimpl
 
         auto id          = audioIdPool.getId();
         activeSounds[id] = std::move(sound);
+
         return id;
     }
 

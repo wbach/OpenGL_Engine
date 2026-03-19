@@ -1,6 +1,7 @@
 #pragma once
 #include <GameEngine/Dialogs/DialogueNode.h>
 
+#include <cstddef>
 #include <optional>
 
 #include "GLM/GLMUtils.h"
@@ -13,17 +14,12 @@
 
 namespace GameEngine
 {
-class GameState;
+struct GameState;
 namespace Components
 {
 class DialogueComponent : public BaseComponent
 {
 public:
-    enum class SelectOptionResult
-    {
-        active,
-        end
-    };
     using Nodes = std::unordered_map<int, DialogueNode>;
     File dialogueFile;
     int startNodeID{0};
@@ -61,8 +57,8 @@ public:
     void RestoreRotation();
 
     const DialogueNode* getCurrent() const;
-    SelectOptionResult selectOption(int);
-    SelectOptionResult goToNode(int);
+    const DialogueOption* selectOption(size_t);
+    const DialogueNode* goToNode(int);
     void setNodes(Nodes&&);
     void resetCurrent();
 

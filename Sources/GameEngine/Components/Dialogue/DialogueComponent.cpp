@@ -98,13 +98,13 @@ void DialogueComponent::readFile()
                 continue;
             }
 
-            ::Read(nodeNode->getChild("text"), node.npcText);
+            ::Read(nodeNode->getChild("text"), node.text);
             ::Read(nodeNode->getChild("audio"), node.audioPath);
             ::Read(nodeNode->getChild("setGameStateflag"), node.setGameStateflag);
             ::Read(nodeNode->getChild("removeGameStateFlag"), node.removeGameStateFlag);
             ::Read(nodeNode->getChild("next"), node.nextNodeID);
 
-            node.npcText = Utils::RemovePolishSigns(node.npcText);
+            node.text = Utils::RemovePolishSigns(node.text);
 
             if (auto optionsNode = nodeNode->getChild("options"))
             {
@@ -127,7 +127,7 @@ void DialogueComponent::readFile()
 
                             std::string typeStr;
                             ::Read(child->getChild("type"), typeStr);
-                            auto type      = magic_enum::enum_cast<ConditionType>(typeStr);
+                            auto type = magic_enum::enum_cast<ConditionType>(typeStr);
 
                             LOG_DEBUG << "typeStr " << typeStr << " has enum: " << type.has_value();
                             condition.type = type.value_or(ConditionType::REQUIRED);
@@ -145,7 +145,7 @@ void DialogueComponent::readFile()
         }
     }
 }
-DialogueComponent::SelectOptionResult DialogueComponent::selectOption(int optionIndex)
+const DialogueOption* DialogueComponent::selectOption(size_t optionIndex)
 {
     DialogueOption* selected{nullptr};
 
@@ -161,13 +161,13 @@ DialogueComponent::SelectOptionResult DialogueComponent::selectOption(int option
         else
         {
             LOG_WARN << "Options out of range, options.size()= " << options.size() << "optionIndex : " << optionIndex;
-            return DialogueComponent::SelectOptionResult::end;
+            return nullptr;
         }
     }
     else
     {
         LOG_WARN << "Current node not exist in map : " << currentNodeID;
-        return DialogueComponent::SelectOptionResult::end;
+        return nullptr;
     }
 
     if (not selected->setGameStateflag.empty())
@@ -177,9 +177,9 @@ DialogueComponent::SelectOptionResult DialogueComponent::selectOption(int option
     if (not selected->removeGameStateFlag.empty())
     {
         componentContext_.gamestate.flags[selected->removeGameStateFlag] = false;
-        //componentContext_.gamestate.flags.erase(selected->removeGameStateFlag);
+        // componentContext_.gamestate.flags.erase(selected->removeGameStateFlag);
     }
-    return goToNode(selected->nextNodeID);
+    return selected;
 }
 
 const DialogueNode* DialogueComponent::getCurrent() const
@@ -232,21 +232,14 @@ void DialogueComponent::RestoreRotation()
         tmpRotation.reset();
     }
 }
-DialogueComponent::SelectOptionResult DialogueComponent::goToNode(int nextNodeID)
+const DialogueNode* DialogueComponent::goToNode(int nextNodeID)
 {
     LOG_DEBUG << nextNodeID;
 
-    if (nextNodeID == -1)
+    if (nextNodeID < 0)
     {
         LOG_DEBUG << "End dialog";
-        currentNodeID = 0;  // TO DO
-        return SelectOptionResult::end;
-    }
-    else if (nextNodeID == -2)
-    {
-        LOG_DEBUG << "End dialog";
-        currentNodeID = 0;  // TO DO
-        return SelectOptionResult::end;
+        currentNodeID = startNodeID;
     }
     else
     {
@@ -254,15 +247,15 @@ DialogueComponent::SelectOptionResult DialogueComponent::goToNode(int nextNodeID
         if (iter != nodes.end())
         {
             currentNodeID = nextNodeID;
+            return &iter->second;
         }
         else
         {
-            LOG_WARN << "Target not exist, fallback to start node";
-            currentNodeID = startNodeID;
+            LOG_WARN << "Target not exist : " << nextNodeID;
         }
     }
 
-    return SelectOptionResult::active;
+    return nullptr;
 }
 void DialogueComponent::setNodes(Nodes&& n)
 {

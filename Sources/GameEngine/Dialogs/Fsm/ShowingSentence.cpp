@@ -1,0 +1,188 @@
+#include "ShowingSentence.h"
+
+#include <Time/TimerService.h>
+
+#include "DialogContext.h"
+#include "GameEngine/Audio/IAudioManager.h"
+#include "GameEngine/Components/Dialogue/DialogueComponent.h"
+#include "GameEngine/Dialogs/DialogueNode.h"
+#include "GameEngine/Dialogs/Fsm/DialogEvents.h"
+#include "GameEngine/Dialogs/GameState.h"
+#include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Renderers/GUI/IGuiElementFactory.h"
+#include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
+#include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
+#include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
+#include "Logger/Log.h"
+#include "Time/ITimerService.h"
+
+namespace GameEngine
+{
+namespace
+{
+const std::chrono::milliseconds calculateTimer(const std::string& text)
+{
+    const int baseTimeMs  = 1500;
+    const int timePerChar = 35;
+    const int maxTimeMs   = 8000;
+
+    int calculatedTime = baseTimeMs + (static_cast<int>(text.length()) * timePerChar);
+
+    calculatedTime = std::min(calculatedTime, maxTimeMs);
+
+    LOG_DEBUG << "calculateTimer :  " << calculatedTime;
+
+    return std::chrono::milliseconds(calculatedTime);
+}
+std::vector<std::pair<int, DialogueOption>> getVisibleOptions(const DialogueNode& node, const GameState& gameState)
+{
+    std::vector<std::pair<int, DialogueOption>> visibleOptions;
+
+    int index = 0;
+    for (const auto& option : node.options)
+    {
+        bool isAvailable = true;
+
+        for (const auto& condition : option.conditions)
+        {
+            bool hasFlag = gameState.hasFlag(condition.flag);
+
+            if (condition.type == ConditionType::REQUIRED and not hasFlag)
+            {
+                isAvailable = false;
+                break;
+            }
+            if (condition.type == ConditionType::FORBIDDEN and hasFlag)
+            {
+                isAvailable = false;
+                break;
+            }
+        }
+
+        if (isAvailable)
+        {
+            visibleOptions.push_back({index, option});
+        }
+
+        ++index;
+    }
+
+    return visibleOptions;
+}
+
+template <typename T>
+void updateGameStateFlags(GameState& gameState, const T& dialog)
+{
+    if (not dialog.setGameStateflag.empty())
+    {
+        gameState.setFlag(dialog.setGameStateflag, true);
+    }
+    if (not dialog.removeGameStateFlag.empty())
+    {
+        gameState.setFlag(dialog.removeGameStateFlag, false);
+    }
+}
+
+template <typename T>
+void playAudioOrStartTimer(Utils::Time::ITimerService& timerService, IAudioManager& audioManager, const T& dialog,
+                           std::function<void()> callback)
+{
+    File audioFile(dialog.audioPath);
+    if (audioFile.exist())
+    {
+        PlayParameters playParameters;
+        playParameters.playEndCallback = std::move(callback);
+        audioManager.play(audioFile, PlayGroup::Dialogs, playParameters);
+    }
+    else
+    {
+        LOG_DEBUG << "Audio file \"" << dialog.audioPath << "\" not found for dialog: " << dialog.text;
+        timerService.timer(calculateTimer(dialog.text), std::move(callback));
+    }
+
+    LOG_DEBUG << "";
+}
+}  // namespace
+
+ShowingSentence::ShowingSentence(DialogContext& dialogContext)
+    : dialogContext{dialogContext}
+{
+}
+void ShowingSentence::onEnter()
+{
+    dialogContext.sentenceWindow.window->Show();
+    dialogContext.sentenceWindow.layout->RemoveAll();
+}
+void ShowingSentence::onEnter(const StartSentence& event)
+{
+    createGuiTexts(event.component.getParentGameObject().GetName(), event.dialogNode.text);
+    updateGameStateFlags(dialogContext.gameState, event.dialogNode);
+
+    auto sendNextEvent = [this, e = event]()
+    {
+        auto visibleOptions = getVisibleOptions(e.dialogNode, dialogContext.gameState);
+
+        if (visibleOptions.empty())
+        {
+            if (e.dialogNode.nextNodeID != INVALID_NODE_ID)
+            {
+                if (auto nextNode = e.component.goToNode(e.dialogNode.nextNodeID))
+                {
+                    dialogContext.sendEvent(
+                        StartSentence{.dialogNode = *nextNode, .playerGameObject = e.playerGameObject, .component = e.component});
+                    return;
+                }
+            }
+
+            dialogContext.sendEvent(EndDialog{.playerGameObject = e.playerGameObject, .component = e.component});
+            return;
+        }
+
+        dialogContext.sendEvent(StartInputWaiting{
+            .visibleOptions = std::move(visibleOptions), .playerGameObject = e.playerGameObject, .component = e.component});
+    };
+
+    playAudioOrStartTimer(dialogContext.timerService, dialogContext.audioManager, event.dialogNode, sendNextEvent);
+}
+void ShowingSentence::createGuiTexts(const std::string& characterName, const std::string& sentance)
+{
+    const vec2 textSize{1.0f, 0.25};
+    auto characterNameText = dialogContext.guiFactory.CreateGuiTextWrapped(characterName, 0);
+    characterNameText->SetLocalScale(textSize + vec2(0.1f, 0.1f));
+
+    dialogContext.sentenceWindow.layout->AddChild(std::move(characterNameText));
+
+    auto sentanceGuiText = dialogContext.guiFactory.CreateGuiTextWrapped(sentance, WRAP_WIDTH);
+    sentanceGuiText->SetLocalScale({1.0f, 0.4});
+    dialogContext.sentenceWindow.layout->AddChild(std::move(sentanceGuiText));
+}
+
+void ShowingSentence::onEnter(const OptionSelected& event)
+{
+    createGuiTexts(event.playerGameObject.GetName(), event.option.text);
+    updateGameStateFlags(dialogContext.gameState, event.option);
+
+    auto sendNextEvent = [this, e = event]()
+    {
+        if (e.option.nextNodeID != INVALID_NODE_ID)
+        {
+            if (auto nextNode = e.component.goToNode(e.option.nextNodeID))
+            {
+                dialogContext.sendEvent(
+                    StartSentence{.dialogNode = *nextNode, .playerGameObject = e.playerGameObject, .component = e.component});
+                return;
+            }
+        }
+
+        dialogContext.sendEvent(EndDialog{.playerGameObject = e.playerGameObject, .component = e.component});
+    };
+
+    playAudioOrStartTimer(dialogContext.timerService, dialogContext.audioManager, event.option, std::move(sendNextEvent));
+}
+
+void ShowingSentence::update(const StartSentence& event)
+{
+    dialogContext.sentenceWindow.layout->RemoveAll();
+    onEnter(event);
+};
+}  // namespace GameEngine
