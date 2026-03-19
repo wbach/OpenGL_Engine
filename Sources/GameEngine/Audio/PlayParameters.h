@@ -5,13 +5,12 @@
 
 #include "PlayType.h"
 #include "SoundCone.h"
-
+#include "AudioId.h"
 namespace GameEngine
 {
 using Position  = glm::vec3;
 using Direction = glm::vec3;
 using Volume    = float;
-using AudioId   = IdType;
 
 struct ENGINE_API PlayParameters
 {

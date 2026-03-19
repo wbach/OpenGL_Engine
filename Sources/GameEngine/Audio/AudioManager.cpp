@@ -8,9 +8,11 @@
 #include <memory>
 #include <string>
 
+#include "GameEngine/Audio/AudioId.h"
 #include "GameEngine/Audio/PlayParameters.h"
 #include "GameEngine/Resources/File.h"
 #include "IdPool.h"
+#include "Types.h"
 #include "Utils.h"
 namespace GameEngine
 {
@@ -85,7 +87,7 @@ struct AudioManager::Pimpl
         if (result != MA_SUCCESS)
         {
             LOG_ERROR << "Failed to load sound: " << file;
-            return 0;
+            return AudioId{std::numeric_limits<IdType>::max()};
         }
 
         if (params.volume.has_value())
@@ -126,7 +128,7 @@ struct AudioManager::Pimpl
 
         ma_sound_start(sound.get());
 
-        auto id          = audioIdPool.getId();
+        AudioId id{audioIdPool.getId()};
         activeSounds[id] = std::move(sound);
 
         return id;
@@ -202,7 +204,7 @@ void AudioManager::stop(AudioId id)
         ma_sound_set_end_callback(it->second.get(), nullptr, nullptr);
         ma_sound_stop(it->second.get());
         ma_sound_uninit(it->second.get());
-        impl->audioIdPool.releaseId(id);
+        impl->audioIdPool.releaseId(id.value);
         impl->activeSounds.erase(it);
     }
 }
@@ -318,7 +320,7 @@ void AudioManager::stopAll()
         ma_sound_stop(it->second.get());
         ma_sound_uninit(it->second.get());
 
-        impl->audioIdPool.releaseId(it->first);
+        impl->audioIdPool.releaseId(it->first.value);
 
         it = impl->activeSounds.erase(it);
     }
@@ -338,13 +340,47 @@ void AudioManager::update()
         if (ma_sound_at_end(it->second.get()))
         {
             ma_sound_uninit(it->second.get());
-            impl->audioIdPool.releaseId(it->first);
+            impl->audioIdPool.releaseId(it->first.value);
             it = impl->activeSounds.erase(it);
         }
         else
         {
             ++it;
         }
+    }
+}
+void AudioManager::finish(AudioId id)
+{
+    if (not impl)
+        return;
+
+    auto it = impl->activeSounds.find(id);
+    if (it != impl->activeSounds.end())
+    {
+        auto* sound = it->second.get();
+        ma_sound_stop(sound);
+
+        void* pUserData = sound->pEndCallbackUserData;
+
+        if (pUserData)
+        {
+            auto* data = static_cast<SoundEndData*>(pUserData);
+
+            ma_sound_set_end_callback(sound, nullptr, nullptr);
+
+            if (data->callback)
+            {
+                data->callback();
+            }
+
+            delete data;
+        }
+
+        ma_sound_uninit(sound);
+        impl->audioIdPool.releaseId(id.value);
+        impl->activeSounds.erase(it);
+
+        LOG_DEBUG << "Sound finished manually with callback: " << id;
     }
 }
 }  // namespace GameEngine

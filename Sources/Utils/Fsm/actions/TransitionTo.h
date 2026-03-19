@@ -15,17 +15,17 @@ public:
     {
         if (not transitionCondition(prevState, event))
         {
-//#ifdef NOREALTIME_LOG_ENABLED
-             LOG_DEBUG << "transitionConditions from " << typeName<State>() + " to " << typeName<TargetState>() +
-                      " are not met, return";
-//#endif
+#ifdef NOREALTIME_LOG_ENABLED
+            LOG_DEBUG << "transitionConditions from " << typeName<State>() + " to "
+                      << typeName<TargetState>() + " are not met, return";
+#endif
             return;
         }
 
-//#ifdef NOREALTIME_LOG_ENABLED
+#ifdef NOREALTIME_LOG_ENABLED
         LOG_DEBUG << "PrevState : " << typeName<State>();
         LOG_DEBUG << "Entering : " << typeName<TargetState>();
-//#endif
+#endif
 
         leave(prevState);
         leave(prevState, event);
@@ -81,8 +81,7 @@ private:
     }
 
     template <typename NewState, typename PrevState, typename Event>
-    auto enter(NewState& newState, PrevState& prevState, const Event& event)
-        -> decltype(newState.onEnter(prevState, event))
+    auto enter(NewState& newState, PrevState& prevState, const Event& event) -> decltype(newState.onEnter(prevState, event))
     {
         return newState.onEnter(prevState, event);
     }

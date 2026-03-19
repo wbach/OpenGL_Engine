@@ -4,7 +4,9 @@
 
 #include <algorithm>
 #include <mutex>
+
 #include "Input/KeyCodes.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace Input
 {
@@ -25,7 +27,6 @@ MouseState mouseState;
 InputManager::InputManager()
     : idCounter_(0)
     , needToQueue_{false}
-    , stashedSubsribtions_(false)
 {
     SetDefaultKeys();
 }
@@ -67,10 +68,6 @@ bool InputManager::GetKey(GameAction action)
     {
         return GetKey(keyGameActions_.at(action));
     }
-    // else
-    //{
-    //     /* LOG TO FIX*/  LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
-    // }
     return false;
 }
 
@@ -201,7 +198,7 @@ void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key)
     auto subscribersKeyIter = subscribers_.keyDownSubscribers_.find(key);
     if (subscribersKeyIter != subscribers_.keyDownSubscribers_.end())
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + "}");
+        LOG_WARN << "Not existing subscribtion : {" << magic_enum::enum_name(key);
         return;
     }
     subscribers_.keyDownSubscribers_.erase(subscribersKeyIter);
@@ -216,7 +213,7 @@ void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key)
 
     if (subscribers_.keyUpSubscribers_.count(key) == 0)
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + "}");
+        LOG_WARN << "Not existing subscribtion : {" << magic_enum::enum_name(key);
         return;
     }
     subscribers_.keyUpSubscribers_.erase(key);
@@ -233,8 +230,7 @@ void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key, uint32 id)
 
     if (subscribers_.keyDownSubscribers_.count(key) == 0)
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + ", " +
-                                      std::to_string(id) + "}");
+        LOG_WARN << "Not existing subscribtion : {" << magic_enum::enum_name(key) << ", " << id << "}";
         return;
     }
     auto& keys = subscribers_.keyDownSubscribers_.at(key);
@@ -252,8 +248,7 @@ void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key, uint32 id)
 
     if (subscribers_.keyUpSubscribers_.count(key) == 0)
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + ", " +
-                                      std::to_string(id) + "}");
+        LOG_WARN << "Not existing subscribtion : {" << magic_enum::enum_name(key) << ", " << id << "}";
         return;
     }
 
@@ -271,7 +266,7 @@ void InputManager::UnsubscribeAnyKey(uint32 id)
 
     if (subscribers_.keysSubscribers_.count(id) == 0)
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Not existing subscribtion : {" + std::to_string(id) + "}");
+        LOG_WARN << "Not existing subscribtion : {" << id << "}";
         return;
     }
     subscribers_.keysSubscribers_.erase(id);
@@ -285,7 +280,7 @@ uint32 InputManager::SubscribeOnKeyDown(GameAction action, KeyPressedFunc func)
     }
     else
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
+        LOG_WARN << "Action not registered. " << magic_enum::enum_name(action);
     }
     return 0;
 }
@@ -298,7 +293,7 @@ uint32 InputManager::SubscribeOnKeyUp(GameAction action, KeyPressedFunc func)
     }
     else
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
+        LOG_WARN << "Action not registered. " << magic_enum::enum_name(action);
     }
     return 0;
 }
@@ -311,7 +306,7 @@ void InputManager::UnsubscribeOnKeyDown(GameAction action, uint32 id)
     }
     else
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
+        LOG_WARN << "Action not registered. " << magic_enum::enum_name(action);
     }
 }
 
@@ -323,7 +318,7 @@ void InputManager::UnsubscribeOnKeyUp(GameAction action, uint32 id)
     }
     else
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
+        LOG_WARN << "Action not registered. " << magic_enum::enum_name(action);
     }
 }
 
@@ -335,7 +330,7 @@ void InputManager::UnsubscribeOnKeyDown(GameAction action)
     }
     else
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
+        LOG_WARN << "Action not registered. " << magic_enum::enum_name(action);
     }
 }
 
@@ -347,25 +342,22 @@ void InputManager::UnsubscribeOnKeyUp(GameAction action)
     }
     else
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
+        LOG_WARN << "Action not registered. " << magic_enum::enum_name(action);
     }
 }
 
 void InputManager::StashSubscribers()
 {
-    if (stashedSubsribtions_)
-    {
-        /* LOG TO FIX*/ LOG_ERROR << ("Multiple stash subscribtions, losing last one");
-    }
-
-    stashedSubsribtions_ = true;
-    stash_               = std::move(subscribers_);
-    subscribers_         = Subscribers();
+    stash_.push_back(std::move(subscribers_));
+    subscribers_ = Subscribers();
 }
 void InputManager::StashPopSubscribers()
 {
-    subscribers_         = stash_;
-    stashedSubsribtions_ = false;
+    if (stash_.empty())
+        return;
+
+    subscribers_ = stash_.back();
+    stash_.pop_back();
 }
 void InputManager::ExecuteOnKeyDown(KeyCodes::Type keyCode)
 {

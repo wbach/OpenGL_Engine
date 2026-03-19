@@ -20,6 +20,7 @@ public:
     void stop(AudioId) override;
     void pause(AudioId) override;
     void resume(AudioId) override;
+    void finish(AudioId) override;
     void update() override;
 
     bool isPlaying(AudioId) const override;

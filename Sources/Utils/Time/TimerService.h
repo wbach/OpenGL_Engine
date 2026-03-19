@@ -30,6 +30,7 @@ public:
     IdType timer(const std::chrono::milliseconds&, std::function<void()>) override;
     IdType periodicTimer(const std::chrono::milliseconds&, std::function<void()>) override;
     void cancel(IdType) override;
+    void finish(IdType) override;
 
 private:
     void workerThread();

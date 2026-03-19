@@ -1,9 +1,14 @@
 #include "ShowingSentence.h"
 
 #include <Time/TimerService.h>
+#include <Utils/Variant.h>
+
+#include <optional>
+#include <variant>
 
 #include "DialogContext.h"
 #include "GameEngine/Audio/IAudioManager.h"
+#include "GameEngine/Audio/PlayParameters.h"
 #include "GameEngine/Components/Dialogue/DialogueComponent.h"
 #include "GameEngine/Dialogs/DialogueNode.h"
 #include "GameEngine/Dialogs/Fsm/DialogEvents.h"
@@ -13,6 +18,7 @@
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
 #include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
 #include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
+#include "Input/KeyCodes.h"
 #include "Logger/Log.h"
 #include "Time/ITimerService.h"
 
@@ -84,34 +90,33 @@ void updateGameStateFlags(GameState& gameState, const T& dialog)
 }
 
 template <typename T>
-void playAudioOrStartTimer(Utils::Time::ITimerService& timerService, IAudioManager& audioManager, const T& dialog,
-                           std::function<void()> callback)
+std::variant<AudioId, IdType, std::monostate> playAudioOrStartTimer(Utils::Time::ITimerService& timerService,
+                                                                    IAudioManager& audioManager, const T& dialog,
+                                                                    std::function<void()> callback)
 {
     File audioFile(dialog.audioPath);
     if (audioFile.exist())
     {
         PlayParameters playParameters;
         playParameters.playEndCallback = std::move(callback);
-        audioManager.play(audioFile, PlayGroup::Dialogs, playParameters);
-    }
-    else
-    {
-        LOG_DEBUG << "Audio file \"" << dialog.audioPath << "\" not found for dialog: " << dialog.text;
-        timerService.timer(calculateTimer(dialog.text), std::move(callback));
+        return audioManager.play(audioFile, PlayGroup::Dialogs, playParameters);
     }
 
-    LOG_DEBUG << "";
+    LOG_DEBUG << "Audio file \"" << dialog.audioPath << "\" not found for dialog: " << dialog.text;
+    return timerService.timer(calculateTimer(dialog.text), std::move(callback));
 }
 }  // namespace
 
 ShowingSentence::ShowingSentence(DialogContext& dialogContext)
     : dialogContext{dialogContext}
+    , subscriptions_(dialogContext.inputManager)
 {
 }
 void ShowingSentence::onEnter()
 {
     dialogContext.sentenceWindow.window->Show();
     dialogContext.sentenceWindow.layout->RemoveAll();
+    subscribeForInput();
 }
 void ShowingSentence::onEnter(const StartSentence& event)
 {
@@ -161,7 +166,7 @@ void ShowingSentence::onEnter(const StartSentence& event)
             .visibleOptions = std::move(visibleOptions), .playerGameObject = e.playerGameObject, .component = e.component});
     };
 
-    playAudioOrStartTimer(dialogContext.timerService, dialogContext.audioManager, event.dialogNode, sendNextEvent);
+    playId = playAudioOrStartTimer(dialogContext.timerService, dialogContext.audioManager, event.dialogNode, sendNextEvent);
 }
 void ShowingSentence::createGuiTexts(const std::string& characterName, const std::string& sentance)
 {
@@ -208,7 +213,8 @@ void ShowingSentence::onEnter(const OptionSelected& event)
         dialogContext.sendEvent(EndDialog{.playerGameObject = e.playerGameObject, .component = e.component});
     };
 
-    playAudioOrStartTimer(dialogContext.timerService, dialogContext.audioManager, event.option, std::move(sendNextEvent));
+    playId =
+        playAudioOrStartTimer(dialogContext.timerService, dialogContext.audioManager, event.option, std::move(sendNextEvent));
 }
 
 void ShowingSentence::update(const StartSentence& event)
@@ -216,4 +222,21 @@ void ShowingSentence::update(const StartSentence& event)
     dialogContext.sentenceWindow.layout->RemoveAll();
     onEnter(event);
 };
+void ShowingSentence::subscribeForInput()
+{
+    subscriptions_ =
+        dialogContext.inputManager.SubscribeOnKeyDown(KeyCodes::ESCAPE, [this]() { dialogContext.sendEvent(SkipRequested{}); });
+}
+void ShowingSentence::onLeave()
+{
+    subscriptions_.UnsubscribeKeys();
+}
+void ShowingSentence::update(const SkipRequested&)
+{
+    std::visit(visitor{[&](GameEngine::AudioId id) { dialogContext.audioManager.finish(id); },
+                       [&](IdType id) { dialogContext.timerService.finish(id); }, [](std::monostate) {}},
+               playId);
+
+    playId = std::monostate{};
+}
 }  // namespace GameEngine

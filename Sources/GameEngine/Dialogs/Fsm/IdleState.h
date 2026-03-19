@@ -25,5 +25,6 @@ private:
 
 private:
     DialogContext& dialogContext;
+    bool stashedInputSubscribers{false};
 };
 }  // namespace GameEngine

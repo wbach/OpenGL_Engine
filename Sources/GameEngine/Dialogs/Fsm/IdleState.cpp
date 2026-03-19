@@ -66,9 +66,17 @@ void IdleState::onEnter()
 }
 void IdleState::onEnter(const EndDialog&)
 {
+    if (stashedInputSubscribers)
+    {
+        dialogContext.inputManager.StashPopSubscribers();
+        stashedInputSubscribers = false;
+    }
 }
 void IdleState::onLeave()
 {
     initGui();
+
+    dialogContext.inputManager.StashSubscribers();
+    stashedInputSubscribers = true;
 }
 }  // namespace GameEngine

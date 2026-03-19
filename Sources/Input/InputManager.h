@@ -1,16 +1,18 @@
 #pragma once
 #include <EngineApi.h>
+#include <Types.h>
 
+#include <deque>
 #include <functional>
 #include <list>
 #include <memory>
 #include <optional>
 #include <set>
 #include <unordered_map>
+#include <vector>
 
 #include "GameActions.h"
 #include "KeyCodes.h"
-#include "Types.h"
 
 namespace Input
 {
@@ -47,7 +49,7 @@ public:
     virtual vec2 GetMousePosition()              = 0;
 
     virtual void SetCursorPosition(int x, int y) = 0;
-    virtual void SetKeyToBuffer(KeyInteger, bool value) {};
+    virtual void SetKeyToBuffer(KeyInteger, bool value){};
     virtual void ClearKeyBuffer() = 0;
     virtual void GetPressedKeys() = 0;
     virtual void ShowCursor(bool) = 0;
@@ -101,10 +103,9 @@ protected:
     std::vector<KeyPressedFunc> events_;
     std::list<KeyEvent> keyEvents_;
     Subscribers subscribers_;
-    Subscribers stash_;
+    std::deque<Subscribers> stash_;
     Subscribers quque_;
     uint32 idCounter_;
     bool needToQueue_;
-    bool stashedSubsribtions_;
 };
 }  // namespace Input

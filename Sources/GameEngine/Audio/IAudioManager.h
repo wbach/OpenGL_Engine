@@ -23,6 +23,7 @@ public:
     virtual void update()                 = 0;
     virtual void stop(AudioId)            = 0;
     virtual void pause(AudioId)           = 0;
+    virtual void finish(AudioId)          = 0;
     virtual void resume(AudioId)          = 0;
     virtual bool isPlaying(AudioId) const = 0;
 

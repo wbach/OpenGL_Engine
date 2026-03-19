@@ -120,4 +120,27 @@ void TimerService::workerThread()
         }
     }
 }
+void TimerService::finish(IdType id)
+{
+    std::function<void()> callbackToExecute;
+
+    {
+        std::lock_guard<std::mutex> lk(mutex_);
+        auto it = timers_.find(id);
+        if (it != timers_.end())
+        {
+            callbackToExecute = it->second.callback;
+
+            timers_.erase(it);
+            idPool_.releaseId(id);
+
+            cv_.notify_one();
+        }
+    }
+
+    if (callbackToExecute)
+    {
+        callbackToExecute();
+    }
+}
 }  // namespace Utils::Time

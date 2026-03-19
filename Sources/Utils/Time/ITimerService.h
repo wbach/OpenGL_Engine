@@ -13,6 +13,7 @@ public:
     virtual IdType timer(const std::chrono::milliseconds&, std::function<void()>)         = 0;
     virtual IdType periodicTimer(const std::chrono::milliseconds&, std::function<void()>) = 0;
     virtual void cancel(IdType)                                                           = 0;
+    virtual void finish(IdType)                                                           = 0;
 };
 }  // namespace Time
 }  // namespace Utils

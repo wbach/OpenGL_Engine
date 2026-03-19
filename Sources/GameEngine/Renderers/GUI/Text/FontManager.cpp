@@ -209,7 +209,6 @@ std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, c
 }
 void FontManager::closeFont(uint32 fontId)
 {
-    LOG_DEBUG << "";
     if (not impl_)
         return;
 
@@ -218,8 +217,6 @@ void FontManager::closeFont(uint32 fontId)
     {
         return;
     }
-
-    LOG_DEBUG << "";
 
     --iter->second.instances;
 
@@ -237,7 +234,6 @@ void FontManager::closeFont(uint32 fontId)
         {
             if (fnIter->second == fontId)
             {
-                LOG_DEBUG << "";
                 fnIter = fontNameToIdMap_.erase(fnIter);
             }
             else

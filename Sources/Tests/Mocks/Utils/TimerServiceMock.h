@@ -13,6 +13,7 @@ public:
     MOCK_METHOD(IdType, timer, (const std::chrono::milliseconds&, std::function<void()>), (override));
     MOCK_METHOD(IdType, periodicTimer, (const std::chrono::milliseconds&, std::function<void()>), (override));
     MOCK_METHOD(void, cancel, (IdType), (override));
+    MOCK_METHOD(void, finish, (IdType), (override));
 };
 }  // namespace Time
 }  // namespace Utils
