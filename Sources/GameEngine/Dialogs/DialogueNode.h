@@ -12,6 +12,7 @@ struct ENGINE_API DialogueNode
 {
     int id{INVALID_NODE_ID};
     int nextNodeID{INVALID_NODE_ID};
+    int backToNodeID{INVALID_NODE_ID};
     std::string text;
     std::string setGameStateflag;
     std::string removeGameStateFlag;

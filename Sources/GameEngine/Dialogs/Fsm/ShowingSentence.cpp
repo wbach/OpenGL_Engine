@@ -133,6 +133,25 @@ void ShowingSentence::onEnter(const StartSentence& event)
                     return;
                 }
             }
+            if (e.dialogNode.backToNodeID != INVALID_NODE_ID)
+            {
+                if (auto backNode = e.component.goToNode(e.dialogNode.backToNodeID))
+                {
+                    auto visibleOptions = getVisibleOptions(*backNode, dialogContext.gameState);
+
+                    if (not visibleOptions.empty())
+                    {
+                        dialogContext.sendEvent(BackToSentence{.visibleOptions   = std::move(visibleOptions),
+                                                               .playerGameObject = e.playerGameObject,
+                                                               .component        = e.component});
+                    }
+                    else
+                    {
+                        LOG_WARN << "Back to node is posssible only if options exising in that node";
+                    }
+                    return;
+                }
+            }
 
             dialogContext.sendEvent(EndDialog{.playerGameObject = e.playerGameObject, .component = e.component});
             return;
@@ -170,6 +189,18 @@ void ShowingSentence::onEnter(const OptionSelected& event)
             {
                 dialogContext.sendEvent(
                     StartSentence{.dialogNode = *nextNode, .playerGameObject = e.playerGameObject, .component = e.component});
+                return;
+            }
+        }
+
+        if (e.option.backToNodeID != INVALID_NODE_ID)
+        {
+            if (auto backNode = e.component.goToNode(e.option.backToNodeID))
+            {
+                auto visibleOptions = getVisibleOptions(*backNode, dialogContext.gameState);
+                dialogContext.sendEvent(BackToSentence{.visibleOptions   = std::move(visibleOptions),
+                                                       .playerGameObject = e.playerGameObject,
+                                                       .component        = e.component});
                 return;
             }
         }

@@ -103,6 +103,7 @@ void DialogueComponent::readFile()
             ::Read(nodeNode->getChild("setGameStateflag"), node.setGameStateflag);
             ::Read(nodeNode->getChild("removeGameStateFlag"), node.removeGameStateFlag);
             ::Read(nodeNode->getChild("next"), node.nextNodeID);
+            ::Read(nodeNode->getChild("backTo"), node.backToNodeID);
 
             node.text = Utils::RemovePolishSigns(node.text);
 
@@ -112,7 +113,8 @@ void DialogueComponent::readFile()
                 {
                     DialogueOption option;
 
-                    ::Read(optionNode->getChild("target"), option.nextNodeID);
+                    ::Read(optionNode->getChild("next"), option.nextNodeID);
+                    ::Read(optionNode->getChild("backTo"), option.backToNodeID);
                     ::Read(optionNode->getChild("text"), option.text);
                     ::Read(optionNode->getChild("setGameStateflag"), option.setGameStateflag);
                     ::Read(optionNode->getChild("removeGameStateFlag"), option.removeGameStateFlag);

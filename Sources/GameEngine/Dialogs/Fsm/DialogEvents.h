@@ -30,6 +30,13 @@ struct StartSentence
     Components::DialogueComponent& component;
 };
 
+struct BackToSentence
+{
+    std::vector<std::pair<int, DialogueOption>> visibleOptions;
+    GameObject& playerGameObject;
+    Components::DialogueComponent& component;
+};
+
 struct StartInputWaiting
 {
     std::vector<std::pair<int, DialogueOption>> visibleOptions;
@@ -60,6 +67,6 @@ struct EndDialog
     Components::DialogueComponent& component;
 };
 
-using DialogEvent =
-    std::variant<StartRequested, StartSentence, StartInputWaiting, OptionSelected, SkipRequested, AbortRequested, EndDialog>;
+using DialogEvent = std::variant<StartRequested, StartSentence, BackToSentence, StartInputWaiting, OptionSelected, SkipRequested,
+                                 AbortRequested, EndDialog>;
 }  // namespace GameEngine

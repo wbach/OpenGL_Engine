@@ -18,6 +18,7 @@ class ShowingSentence : public Utils::StateMachine::Will<
                             Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
                             Utils::StateMachine::On<EndDialog, Utils::StateMachine::TransitionTo<TransitionState>>,
                             Utils::StateMachine::On<StartInputWaiting, Utils::StateMachine::TransitionTo<WaitingForInput>>,
+                            Utils::StateMachine::On<BackToSentence, Utils::StateMachine::TransitionTo<WaitingForInput>>,
                             Utils::StateMachine::On<StartSentence, Utils::StateMachine::Update>>
 {
 public:

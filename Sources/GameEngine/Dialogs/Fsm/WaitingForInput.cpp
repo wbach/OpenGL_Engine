@@ -6,6 +6,7 @@
 
 #include "DialogContext.h"
 #include "GameEngine/Components/Dialogue/DialogueComponent.h"
+#include "GameEngine/Dialogs/Fsm/DialogEvents.h"
 #include "GameEngine/Renderers/GUI/IGuiElementFactory.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
 #include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
@@ -41,6 +42,7 @@ void WaitingForInput::onEnter(const StartInputWaiting& event)
     visibleOptions   = event.visibleOptions;
     component        = &event.component;
     playerGameObject = &event.playerGameObject;
+    LOG_DEBUG << "visibleOptions : " << visibleOptions;
 
     for (const auto& [_, option] : visibleOptions)
     {
@@ -54,6 +56,11 @@ void WaitingForInput::onEnter(const StartInputWaiting& event)
         }
         dialogContext.optionsWindow.layout->AddChild(std::move(optionGuiText));
     }
+}
+void WaitingForInput::onEnter(const BackToSentence& event)
+{
+    onEnter(StartInputWaiting{
+        .visibleOptions = event.visibleOptions, .playerGameObject = event.playerGameObject, .component = event.component});
 }
 void WaitingForInput::subscribeForInput()
 {
@@ -141,4 +148,5 @@ void WaitingForInput::selectOption(size_t optionIndex)
 
     dialogContext.sendEvent(EndDialog{.playerGameObject = *playerGameObject, .component = *component});
 }
+
 }  // namespace GameEngine

@@ -15,6 +15,7 @@
 #include "Components/ComponentController.h"
 #include "Components/ComponentFactory.h"
 #include "Components/Dialogue/DialogueComponent.h"
+#include "Dialogs/DialogueOption.h"
 #include "Dialogs/Fsm/DialogEvents.h"
 #include "IdPool.h"
 #include "Image/Image.h"
@@ -309,7 +310,7 @@ TEST_F(DialogueManagerTests, ShouldAutomaticallyGoToNextNodeWhenNoOptionsAvailab
     DialogueNode node3;
     node3.id      = 2;
     node3.text    = "npcText text 3";
-    node3.options = {{"Dziekuje!", -1, "invited_to_camp"}};
+    node3.options = {DialogueOption{.text = "Dziekuje!", .nextNodeID = -1, .setGameStateflag = "invited_to_camp"}};
 
     Components::DialogueComponent::Nodes nodes{{node.id, node}, {node2.id, node2}, {node3.id, node3}};
     dialogueComponent->setNodes(std::move(nodes));
@@ -431,7 +432,7 @@ TEST_F(DialogueManagerTests, ShouldTransitionToCorrectNodeWhenOptionIsSelected)
     EXPECT_EQ(dialogueComponent->getCurrent()->id, 2);
     EXPECT_EQ(dialogueComponent->getCurrent()->text, nodes.at(2).text);
 
-    //secondNpcText(); itd
+    // secondNpcText(); itd
 }
 
 TEST_F(DialogueManagerTests, ShouldShowOptionOnlyWhenAllConditionsAreMet)
@@ -508,4 +509,145 @@ TEST_F(DialogueManagerTests, ShouldShowOptionOnlyWhenAllConditionsAreMet)
     firstTimer();
 
     dialogueManager_.processEvents();
+}
+
+TEST_F(DialogueManagerTests, ShouldBackToNodeWithOptions)
+{
+    createPlayerGameObjectWitoutCamera();
+
+    DialogueNode node;
+    node.id         = 0;
+    node.nextNodeID = 1;
+    node.text       = "Hej! To jest super miejsce.";
+    node.options    = {DialogueOption{.text             = "Powiedz mi wiecej!",
+                                      .nextNodeID       = 1,
+                                      .setGameStateflag = "ask_for_more",
+                                      .conditions       = {{"ask_for_more", ConditionType::FORBIDDEN}}},
+                       DialogueOption{.text = "Ok spdam", .nextNodeID = -1, .setGameStateflag = "dialog_end"}};
+
+    DialogueNode node2;
+    node2.id           = 1;
+    node2.backToNodeID = 0;
+    node2.text         = "Mamy wiele fajnych miejsc. Sam zobacz";
+    node2.options      = {};
+
+    Components::DialogueComponent::Nodes nodes{{node.id, node}, {node2.id, node2}};
+    dialogueComponent->setNodes(std::move(nodes));
+    dialogueComponent->startNodeID = 0;
+    dialogueComponent->resetCurrent();
+
+    std::function<void()> firstSentance;
+    std::function<void()> playerResponseTimer;
+    std::function<void()> secondNodeSentanceTimer;
+    std::function<void()> thridTimer;
+    EXPECT_CALL(timerService_, timer(_, _))
+        .WillOnce(DoAll(SaveArg<1>(&firstSentance), Return(1)))
+        .WillOnce(DoAll(SaveArg<1>(&playerResponseTimer), Return(2)))
+        .WillOnce(DoAll(SaveArg<1>(&secondNodeSentanceTimer), Return(3)));
+    // .WillOnce(DoAll(SaveArg<1>(&playerResponseTimer), Return(4)));
+
+    expectGuiTextCreation(npcGameObject->GetName());
+    expectGuiTextCreation(node.text);
+
+    LOG_DEBUG << "Start dialog";
+    dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
+    dialogueManager_.processEvents();  // StartSentence event camera not exist
+
+    // expectGuiTextCreation(npcGameObject->GetName());0--
+    for (auto& node : node.options)
+    {
+        expectGuiTextCreation(node.text);
+    }
+
+    LOG_DEBUG << "First timer expiry";
+    firstSentance();                   // Npc end sentance 1, and show options after end
+    dialogueManager_.processEvents();  // Move to waiting input
+
+    auto selectedOption = dialogueComponent->getCurrent()->options[0];
+
+    expectGuiTextCreation(playerGameObject->GetName());
+    expectGuiTextCreation(selectedOption.text);
+
+    dialogueManager_.handleEvent(
+        OptionSelected{.option = selectedOption, .playerGameObject = *playerGameObject, .component = *dialogueComponent});
+
+    expectGuiTextCreation(npcGameObject->GetName());
+    expectGuiTextCreation(node2.text);
+
+    playerResponseTimer();
+    dialogueManager_.processEvents();
+
+    // after back to node 0 , only 1 options left, because of flags ask_for_more
+    expectGuiTextCreation(node.options[1].text);
+
+    secondNodeSentanceTimer();
+
+    // optionsSelet > move to showing
+    dialogueManager_.processEvents();  // Back event move to waiting input
+
+    // Player sentence finish
+    dialogueManager_.processEvents();
+}
+
+TEST_F(DialogueManagerTests, ShouldBackToNodeAfterPlayerOptionSentance)
+{
+    createPlayerGameObjectWitoutCamera();
+
+    DialogueNode node0;
+    node0.id      = 0;
+    node0.text    = "Witaj podróżniku. Co chcesz wiedzieć?";
+    node0.options = {DialogueOption{.text             = "Opowiedz o okolicy.",
+                                    .nextNodeID       = -1,
+                                    .backToNodeID     = 0,  // Po tej opcji wróć tutaj
+                                    .setGameStateflag = "asked_about_area",
+                                    .conditions       = {{"asked_about_area", ConditionType::FORBIDDEN}}},
+                     DialogueOption{.text = "Bywaj.", .nextNodeID = -1}};
+
+    Components::DialogueComponent::Nodes nodes{{node0.id, node0}};
+    dialogueComponent->setNodes(std::move(nodes));
+    dialogueComponent->startNodeID = 0;
+    dialogueComponent->resetCurrent();
+
+    std::function<void()> npcStartTimer;
+    std::function<void()> playerSpeechTimer;
+
+    // Oczekujemy dwóch timerów: 1. NPC mówi start, 2. Gracz mówi wybraną opcję
+    EXPECT_CALL(timerService_, timer(_, _))
+        .WillOnce(DoAll(SaveArg<1>(&npcStartTimer), Return(1)))
+        .WillOnce(DoAll(SaveArg<1>(&playerSpeechTimer), Return(2)));
+
+    // 1. Start dialogu - NPC mówi tekst startowy
+    expectGuiTextCreation(npcGameObject->GetName());
+    expectGuiTextCreation(node0.text);
+
+    dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
+    dialogueManager_.processEvents();  // Wejście w ShowingSentence (NPC)
+
+    // Po zakończeniu kwestii NPC, pojawiają się 2 opcje
+    expectGuiTextCreation(node0.options[0].text);
+    expectGuiTextCreation(node0.options[1].text);
+
+    npcStartTimer();
+    dialogueManager_.processEvents();  // Przejście do WaitingForInput
+
+    // 2. Gracz wybiera opcję "Opowiedz o okolicy"
+    auto selectedOption = node0.options[0];
+
+    // Teraz Gracz mówi swoją kwestię (ShowingSentence dla gracza)
+    expectGuiTextCreation(playerGameObject->GetName());
+    expectGuiTextCreation(selectedOption.text);
+
+    dialogueManager_.handleEvent(
+        OptionSelected{.option = selectedOption, .playerGameObject = *playerGameObject, .component = *dialogueComponent});
+    dialogueManager_.processEvents();
+
+    // 3. Koniec kwestii gracza -> Powrót do węzła 0
+    // Oczekujemy, że tekst NPC się NIE pojawi, a od razu pojawi się TYLKO druga opcja
+    // (bo pierwsza ma flagę FORBIDDEN, która właśnie została ustawiona)
+    expectGuiTextCreation(node0.options[1].text);
+
+    playerSpeechTimer();               // Kończymy gadanie gracza
+    dialogueManager_.processEvents();  // FSM powinno wysłać BackToSentence i wejść w WaitingForInput
+
+    EXPECT_TRUE(dialogueManager_.isActive());
 }

@@ -26,6 +26,7 @@ public:
 
     void onEnter();
     void onEnter(const StartInputWaiting&);
+    void onEnter(const BackToSentence&);
     void onLeave();
 
 private:

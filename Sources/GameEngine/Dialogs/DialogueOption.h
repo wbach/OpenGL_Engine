@@ -23,7 +23,8 @@ struct ENGINE_API DialogueCondition
 struct ENGINE_API DialogueOption
 {
     std::string text;
-    int nextNodeID;
+    int nextNodeID{INVALID_NODE_ID};
+    int backToNodeID{INVALID_NODE_ID};
     std::string setGameStateflag;
     std::string removeGameStateFlag;
     std::filesystem::path audioPath;
