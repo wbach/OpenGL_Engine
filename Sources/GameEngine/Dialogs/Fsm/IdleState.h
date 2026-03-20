@@ -18,13 +18,12 @@ public:
 
     void onEnter();
     void onEnter(const EndDialog&);
-    void onLeave();
+    void onLeave(const StartRequested&);
 
 private:
     void initGui();
 
 private:
     DialogContext& dialogContext;
-    bool stashedInputSubscribers{false};
 };
 }  // namespace GameEngine

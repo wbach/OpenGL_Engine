@@ -4,13 +4,13 @@
 
 #include "../CharacterControllerEvents.h"
 
-
 namespace GameEngine
 {
 namespace Components
 {
 struct FsmContext;
 
+class DialogState;
 class DisarmedIdleState;
 class DisarmedAttackState;
 class DisarmedIdleCrouchState;

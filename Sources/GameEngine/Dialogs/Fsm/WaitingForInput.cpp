@@ -36,6 +36,8 @@ void WaitingForInput::onEnter()
 }
 void WaitingForInput::onEnter(const StartInputWaiting& event)
 {
+    setAnimations(event.playerGameObject, event.component.GetParentGameObject());
+
     int i = 0;
     const vec2 textSize{1.0f, 0.25};
 
@@ -148,5 +150,9 @@ void WaitingForInput::selectOption(size_t optionIndex)
 
     dialogContext.sendEvent(EndDialog{.playerGameObject = *playerGameObject, .component = *component});
 }
-
+void WaitingForInput::setAnimations(GameObject& listener, GameObject& speaker)
+{
+    setAnimation(listener, StartDialogEvent::Role::Waiting);
+    setAnimation(speaker, StartDialogEvent::Role::Waiting);
+}
 }  // namespace GameEngine

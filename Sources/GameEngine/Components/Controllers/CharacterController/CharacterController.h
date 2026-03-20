@@ -158,6 +158,8 @@ public:
     void PostStart();
     void Update();
 
+    void pushEventToQueue(const CharacterControllerEvent& event);
+
     template <typename Event>
     void pushEventToQueue(const Event& event)
     {

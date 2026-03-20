@@ -73,9 +73,16 @@ void write(TreeNode& node, const Posture& posture)
     write(node.addChild(CSTR_POSTURE_CROUCHED), posture.crouched);
 }
 
+void write(TreeNode& node, const DialogAnimations& dialog)
+{
+    write(node.addChild(CSTR_DIALOG_SAY), dialog.say);
+    write(node.addChild(CSTR_DIALOG_LISTEN), dialog.listen);
+}
+
 void write(TreeNode& node, const StateClipsNames& names)
 {
     write(node.addChild(CSTR_MOVEMENT), names.movement);
+    write(node.addChild(CSTR_DIALOG), names.dialog);
     write(node.addChild(CSTR_POSTURE), names.posture);
     write(node.addChild(CSTR_JUMP_ANIMATION), names.jump);
     write(node.addChild(CSTR_ATTACK_ANIMATIONS), names.attack);

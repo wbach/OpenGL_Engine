@@ -257,6 +257,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/Char
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/IdleArmedChangeState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/MoveStateBase.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/DrawArrowCrouchWalkAndRotateState.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/DialogState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/AimWalkState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/ArmedChangeStateBase.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/DisarmedAttackAndRunAndRotateState.cpp
@@ -378,6 +379,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/Bullet/DebugDrawer.
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/Bach/BachPhysicsAdapter.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Time/DayNightCycle.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Time/GameTime.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Dialogs/Fsm/DialogContext.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Dialogs/Fsm/IdleState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Dialogs/Fsm/TransitionState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Dialogs/Fsm/WaitingForInput.cpp

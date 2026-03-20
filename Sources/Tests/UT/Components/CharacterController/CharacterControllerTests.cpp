@@ -84,6 +84,8 @@ void CharacterControllerTests::initAnimations()
     clips.aim.draw   = "drawArrow";
     clips.aim.recoil = "recoilArrow";
 
+    clips.disarmed.dialog.listen                 = "DDL";
+    clips.disarmed.dialog.say                    = "DDS";
     clips.disarmed.posture.crouched.idle         = "DCI";
     clips.disarmed.posture.crouched.death        = "DCD";
     clips.disarmed.posture.crouched.hurt         = "DCH";
@@ -128,6 +130,8 @@ void CharacterControllerTests::initAnimations()
     disarmedAttackClip2 = &clips.disarmed.attack[1];
     disarmedAttackClip3 = &clips.disarmed.attack[2];
 
+    clips.armed.dialog.listen                 = "ADL";
+    clips.armed.dialog.say                    = "ADS";
     clips.armed.posture.crouched.idle         = "ACI";
     clips.armed.posture.crouched.death        = "ACD";
     clips.armed.posture.crouched.hurt         = "ACH";
@@ -191,6 +195,8 @@ void CharacterControllerTests::initAnimations()
     addDummyClip(clips.disarmed.dodge.left);
     addDummyClip(clips.disarmed.dodge.right);
 
+    addDummyClip(clips.disarmed.dialog.listen);
+    addDummyClip(clips.disarmed.dialog.say);
     addDummyClip(clips.disarmed.posture.crouched.death);
     addDummyClip(clips.disarmed.posture.crouched.idle);
     addDummyClip(clips.disarmed.posture.crouched.hurt);
@@ -217,6 +223,9 @@ void CharacterControllerTests::initAnimations()
     addDummyClip(clips.disarmed.movement.crouch.backward);
     addDummyClip(clips.disarmed.movement.crouch.left);
     addDummyClip(clips.disarmed.movement.crouch.right);
+
+    addDummyClip(clips.armed.dialog.listen);
+    addDummyClip(clips.armed.dialog.say);
 
     addDummyClip(clips.armed.posture.crouched.death);
     addDummyClip(clips.armed.posture.crouched.idle);

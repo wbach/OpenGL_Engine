@@ -1,6 +1,7 @@
 set(GameEngineIncludes
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Audio/IAudioManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Audio/SoundCone.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Audio/AudioId.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Audio/PlayParameters.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Audio/PlayGroup.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Audio/AudioManager.h
@@ -310,6 +311,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/Char
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/CrouchWalkAndRotateArmedChangeState.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/RotatingMoveAndRotateStateBase.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/ArmedIdleCrouchState.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/DialogState.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/ArmedCrouchWalkState.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/ArmedAttackState.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/RecoilWalkState.h
@@ -534,7 +536,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Dialogs/Fsm/ShowingSentence
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Dialogs/Fsm/TransitionState.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Dialogs/Fsm/DialogContext.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Dialogs/Fsm/IdleState.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Dialogs/Fsm/Ending.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Dialogs/Fsm/DialogFsm.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Dialogs/Fsm/WaitingForInput.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Dialogs/DialogueNode.h

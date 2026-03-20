@@ -1,5 +1,8 @@
 #include "ShowingSentence.h"
 
+#include <Input/KeyCodes.h>
+#include <Logger/Log.h>
+#include <Time/ITimerService.h>
 #include <Time/TimerService.h>
 #include <Utils/Variant.h>
 
@@ -9,6 +12,8 @@
 #include "DialogContext.h"
 #include "GameEngine/Audio/IAudioManager.h"
 #include "GameEngine/Audio/PlayParameters.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "GameEngine/Components/Dialogue/DialogueComponent.h"
 #include "GameEngine/Dialogs/DialogueNode.h"
 #include "GameEngine/Dialogs/Fsm/DialogEvents.h"
@@ -18,9 +23,6 @@
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
 #include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
 #include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
-#include "Input/KeyCodes.h"
-#include "Logger/Log.h"
-#include "Time/ITimerService.h"
 
 namespace GameEngine
 {
@@ -127,6 +129,7 @@ void ShowingSentence::onEnter(const StartSentence& event)
 {
     createGuiTexts(event.component.getParentGameObject().GetName(), event.dialogNode.text);
     updateGameStateFlags(dialogContext.gameState, event.dialogNode);
+    setAnimations(event.playerGameObject, event.component.GetParentGameObject());
 
     auto sendNextEvent = [this, e = event]()
     {
@@ -190,6 +193,7 @@ void ShowingSentence::onEnter(const OptionSelected& event)
 {
     createGuiTexts(event.playerGameObject.GetName(), event.option.text);
     updateGameStateFlags(dialogContext.gameState, event.option);
+    setAnimations(event.component.GetParentGameObject(), event.playerGameObject);
 
     auto sendNextEvent = [this, e = event]()
     {
@@ -243,5 +247,10 @@ void ShowingSentence::update(const SkipRequested&)
                playId);
 
     playId = std::monostate{};
+}
+void ShowingSentence::setAnimations(GameObject& listener, GameObject& speaker)
+{
+    setAnimation(listener, StartDialogEvent::Role::Listener);
+    setAnimation(speaker, StartDialogEvent::Role::Speaker);
 }
 }  // namespace GameEngine

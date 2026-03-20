@@ -218,6 +218,7 @@ void CharacterController::Init()
             DrawArrowCrouchWalkAndRotateState(context),
             DisarmedFallingState(context),
             ArmedFallingState(context),
+            DialogState(context),
             DeathState(context));
         // clang-format on
 
@@ -432,6 +433,11 @@ void CharacterController::write(TreeNode& node) const
     ::write(node.addChild(CSTR_EQUIP_TIMESTAMP), equipTimeStamp);
     ::write(node.addChild(CSTR_DISARM_TIMESTAMP), disarmTimeStamp);
     ::write(node.addChild(CSTR_AIM_JOINT_NAME), aimJointName_);
+}
+void CharacterController::pushEventToQueue(const CharacterControllerEvent& event)
+{
+    std::lock_guard<std::mutex> lk(eventQueueMutex);
+    eventQueue.push_back(event);
 }
 }  // namespace Components
 }  // namespace GameEngine

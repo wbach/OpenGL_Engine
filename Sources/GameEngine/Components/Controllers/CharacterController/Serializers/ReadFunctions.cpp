@@ -87,10 +87,17 @@ void Read(const TreeNode& node, Movement& result)
     Read(node.getChild(CSTR_ANIMATION_CROUCH_MOVEMENT), result.crouch);
 }
 
+void Read(const TreeNode& node, DialogAnimations& result)
+{
+    Read(node.getChild(CSTR_DIALOG_SAY), result.say);
+    Read(node.getChild(CSTR_DIALOG_LISTEN), result.listen);
+}
+
 void Read(const TreeNode& node, StateClipsNames& result)
 {
     Read(node.getChild(CSTR_MOVEMENT), result.movement);
     Read(node.getChild(CSTR_POSTURE), result.posture);
+    Read(node.getChild(CSTR_DIALOG), result.dialog);
     Read(node.getChild(CSTR_JUMP_ANIMATION), result.jump);
     Read(node.getChild(CSTR_ATTACK_ANIMATIONS), result.attack);
     Read(node.getChild(CSTR_ANIMATION_SPRINT), result.sprint);

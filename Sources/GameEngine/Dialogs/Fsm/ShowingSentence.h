@@ -10,6 +10,7 @@
 #include "DialogEvents.h"
 #include "GameEngine/Audio/AudioId.h"
 #include "GameEngine/Audio/PlayParameters.h"
+#include "GameEngine/Objects/GameObject.h"
 #include "Types.h"
 
 namespace GameEngine
@@ -42,6 +43,7 @@ public:
 private:
     void createGuiTexts(const std::string&, const std::string&);
     void subscribeForInput();
+    void setAnimations(GameObject&, GameObject&);
 
 private:
     DialogContext& dialogContext;

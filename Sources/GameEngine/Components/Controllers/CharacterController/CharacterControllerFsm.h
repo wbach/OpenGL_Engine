@@ -32,6 +32,7 @@
 #include "States/CrouchWalkAndRotateArmedChangeState.h"
 #include "States/CrouchWalkArmedChangeState.h"
 #include "States/DeathState.h"
+#include "States/DialogState.h"
 #include "States/DisarmedAttackAndRotateState.h"
 #include "States/DisarmedAttackAndRunAndRotateState.h"
 #include "States/DisarmedAttackAndRunState.h"
@@ -51,6 +52,7 @@
 #include "States/DisarmedSprintState.h"
 #include "States/DisarmedWalkAndRotateState.h"
 #include "States/DisarmedWalkState.h"
+#include "States/DodgeState.h"
 #include "States/DrawArrowCrouchRotateState.h"
 #include "States/DrawArrowCrouchState.h"
 #include "States/DrawArrowCrouchWalkAndRotateState.h"
@@ -62,7 +64,6 @@
 #include "States/IdleArmedChangeState.h"
 #include "States/IdleCrouchArmedChangeState.h"
 #include "States/JumpState.h"
-#include "States/DodgeState.h"
 #include "States/RecoilCrouchRotateState.h"
 #include "States/RecoilCrouchState.h"
 #include "States/RecoilCrouchWalkAndRotateState.h"
@@ -158,6 +159,7 @@ using CharacterControllerFsm =
                             DrawArrowCrouchWalkAndRotateState,
                             DisarmedFallingState,
                             ArmedFallingState,
+                            DialogState,
                             DeathState
                             >;
 }

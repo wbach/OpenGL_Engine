@@ -2,6 +2,7 @@
 #include <functional>
 
 #include "DialogEvents.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 
 namespace Utils::Time
 {
@@ -44,5 +45,7 @@ struct DialogContext
 
     GuiWindow sentenceWindow;
     GuiWindow optionsWindow;
+
 };
+void setAnimation(GameObject&, StartDialogEvent::Role);
 }  // namespace GameEngine

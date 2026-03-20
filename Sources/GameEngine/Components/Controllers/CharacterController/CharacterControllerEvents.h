@@ -128,6 +128,22 @@ struct StartFallingEvent
 struct GroundDetectionEvent
 {
 };
+
+struct StartDialogEvent
+{
+    enum class Role
+    {
+        Listener,
+        Waiting,
+        Speaker
+    };
+    Role role;
+};
+
+struct EndDialogEvent
+{
+};
+
 using CharacterControllerEvent =
     std::variant<MoveEvent, MoveForwardEvent, MoveBackwardEvent, MoveLeftEvent, MoveRightEvent, WalkChangeStateEvent,
                  SprintStateChangeEvent, EndForwardMoveEvent, EndBackwardMoveEvent, RotateLeftEvent, RotateRightEvent,
@@ -135,5 +151,5 @@ using CharacterControllerEvent =
                  EndAttackEvent, DeathEvent, WeaponStateEvent, EquipEndStateEvent, DisarmEndStateEvent, DrawArrowEvent,
                  ReloadArrowEvent, AimStartEvent, AimStopEvent, EndMoveLeftEvent, EndMoveRightEvent, CrouchChangeStateEvent,
                  ChangeAnimEvent, StartFallingEvent, DodgeDiveEvent, DodgeForwardEvent, DodgeBackwardEvent, DodgeLeftEvent,
-                 DodgeRightEvent, DodgeEndEvent>;
+                 DodgeRightEvent, DodgeEndEvent, StartDialogEvent, EndDialogEvent>;
 }  // namespace GameEngine

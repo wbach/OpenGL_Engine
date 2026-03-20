@@ -2,6 +2,7 @@
 
 #include "../FsmContext.h"
 #include "GameEngine/Components/Animation/Animator.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -55,6 +56,10 @@ void IdleStateBase::setIdleAnim()
     {
         context_.animator.ChangeAnimation(idleAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
                                           jointGroupName_);
+    }
+    else
+    {
+        LOG_DEBUG << "not set";
     }
 }
 

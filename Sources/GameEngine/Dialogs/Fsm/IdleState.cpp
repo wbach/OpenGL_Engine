@@ -2,6 +2,8 @@
 
 #include "DialogContext.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "GameEngine/Components/Dialogue/DialogueComponent.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/GUI/GuiManager.h"
@@ -11,6 +13,17 @@
 
 namespace GameEngine
 {
+namespace
+{
+void sendEventToCharactercontroller(GameObject& gameObject, CharacterControllerEvent event)
+{
+    if (auto characterController = gameObject.GetComponent<Components::CharacterController>())
+    {
+        characterController->pushEventToQueue(event);
+    }
+};
+}  // namespace
+
 IdleState::IdleState(DialogContext& context)
     : dialogContext{context}
 {
@@ -64,19 +77,21 @@ void IdleState::onEnter()
     hideAndClear(dialogContext.sentenceWindow);
     hideAndClear(dialogContext.optionsWindow);
 }
-void IdleState::onEnter(const EndDialog&)
+void IdleState::onEnter(const EndDialog& event)
 {
-    if (stashedInputSubscribers)
-    {
-        dialogContext.inputManager.StashPopSubscribers();
-        stashedInputSubscribers = false;
-    }
-}
-void IdleState::onLeave()
-{
-    initGui();
+    dialogContext.inputManager.StashPopSubscribers();
 
+    sendEventToCharactercontroller(event.playerGameObject, EndDialogEvent{});
+    sendEventToCharactercontroller(event.component.GetParentGameObject(), EndDialogEvent{});
+}
+
+void IdleState::onLeave(const StartRequested& event)
+{
+    sendEventToCharactercontroller(event.playerGameObject, StartDialogEvent{.role = StartDialogEvent::Role::Waiting});
+    sendEventToCharactercontroller(event.component.GetParentGameObject(),
+                                   StartDialogEvent{.role = StartDialogEvent::Role::Waiting});
+
+    initGui();
     dialogContext.inputManager.StashSubscribers();
-    stashedInputSubscribers = true;
 }
 }  // namespace GameEngine

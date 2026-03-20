@@ -33,6 +33,7 @@ private:
     void subscribeForInput();
     void updateHighLightedColor(size_t, size_t);
     void selectOption(size_t);
+    void setAnimations(GameObject&, GameObject&);
 
 private:
     DialogContext& dialogContext;

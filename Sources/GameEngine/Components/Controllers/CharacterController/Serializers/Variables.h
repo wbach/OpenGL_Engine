@@ -40,6 +40,9 @@ extern const std::string CSTR_POSTURE_STAND;
 extern const std::string CSTR_POSTURE_CROUCHED;
 extern const std::string CSTR_ROTATE;
 extern const std::string CSTR_AIM;
+extern const std::string CSTR_DIALOG;
+extern const std::string CSTR_DIALOG_SAY;
+extern const std::string CSTR_DIALOG_LISTEN;
 }  // namespace Character
 }  // namespace Components
 }  // namespace GameEngine

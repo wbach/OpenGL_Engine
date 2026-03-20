@@ -94,6 +94,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterControlle
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/DrawArrowCrouchRotateStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/ArmedRunAndRotateStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/DisarmedAttackStateTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/DialogStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/CharacterControllerMixedTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/BaseComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/Particles/ParticleEffectComponentTests.cpp

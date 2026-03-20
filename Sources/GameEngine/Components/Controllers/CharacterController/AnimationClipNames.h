@@ -47,12 +47,18 @@ struct Posture
     PostureClipNames crouched;
     PostureClipNames stand;
 };
+struct DialogAnimations
+{
+    std::string listen;
+    std::string say;
+};
 
 struct StateClipsNames
 {
     Movement movement;
     Posture posture;
     MovmentClipNames dodge;
+    DialogAnimations dialog;
     std::string dodgeDive;
 
     std::string jump;
