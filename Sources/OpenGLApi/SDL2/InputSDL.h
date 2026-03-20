@@ -35,6 +35,7 @@ private:
     vec2i windowsSize_;
     bool isRelativeMouseMode;
     vec2i lastMouseMovmentPosition_;
+    std::set<KeyCodes::Type> keyBuffer;
 };
 
 }  // OpenGLApi

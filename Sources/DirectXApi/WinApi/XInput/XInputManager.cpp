@@ -4,6 +4,7 @@
 #include <Logger/Log.h>
 
 #include <algorithm>
+#include <magic_enum/magic_enum.hpp>
 
 #include "Mutex.hpp"
 #include "WinApiKeyConverter.h"
@@ -25,16 +26,16 @@ XInputManager::~XInputManager()
 }
 bool XInputManager::GetKey(KeyCodes::Type key)
 {
-    for (auto k : keyBuffer)
-    {
-        if (k == key)
-            return true;
-    }
-    return false;
+    uint32 vk = WinApiKeyConverter::Convert(key);
+    if (vk >= 256)
+        return false;
+
+    return (keyStates_[vk] & 0x80) != 0;
 }
 bool XInputManager::GetMouseKey(KeyCodes::Type key)
 {
-    return GetMouseState(key);
+    uint32 vk = WinApiKeyConverter::Convert(key);
+    return (GetAsyncKeyState(vk) & 0x8000) != 0;
 }
 void XInputManager::SetReleativeMouseMode(bool v)
 {
@@ -43,18 +44,27 @@ void XInputManager::SetReleativeMouseMode(bool v)
 }
 vec2i XInputManager::CalcualteMouseMove()
 {
+    auto currentMousePosition = GetPixelMousePosition();
+    vec2i delta;
+
     if (isRelativeMouseMode_)
     {
-        auto mousePosition = GetPixelMousePosition();
-        SetCursorPosition(halfWindowsSize_.x, halfWindowsSize_.y);
-        return vec2i(mousePosition.x - halfWindowsSize_.x, mousePosition.y - halfWindowsSize_.y);
+        delta.x = currentMousePosition.x - halfWindowsSize_.x;
+        delta.y = currentMousePosition.y - halfWindowsSize_.y;
+
+        if (delta.x != 0 || delta.y != 0)
+        {
+            SetCursorPosition(halfWindowsSize_.x, halfWindowsSize_.y);
+        }
+    }
+    else
+    {
+        delta.x                   = currentMousePosition.x - lastMouseMovmentPosition_.x;
+        delta.y                   = currentMousePosition.y - lastMouseMovmentPosition_.y;
+        lastMouseMovmentPosition_ = currentMousePosition;
     }
 
-    auto currentMousePosition = GetPixelMousePosition();
-    vec2i result(currentMousePosition.x - lastMouseMovmentPosition_.x,
-                 currentMousePosition.y - lastMouseMovmentPosition_.y);
-    lastMouseMovmentPosition_ = currentMousePosition;
-    return result;
+    return delta;
 }
 vec2i XInputManager::GetPixelMousePosition()
 {
@@ -86,7 +96,7 @@ vec2 XInputManager::GetMousePosition()
 }
 void XInputManager::ClearKeyBuffer()
 {
-    keyBuffer.clear();
+    memset(keyStates_, 0, sizeof(keyStates_));
 }
 void XInputManager::SetCursorPosition(int x, int y)
 {
@@ -103,26 +113,26 @@ void ReadKeyboard(char* keys)
 }
 void XInputManager::GetPressedKeys()
 {
-    ClearKeyBuffer();
-
-    char keysArray[256];
-    ZeroMemory(keysArray, 256);
-    ReadKeyboard(keysArray);
-
-    for (const auto& p : WinApiKeyConverter::GetKeysMap().GetXY())
+    if (not GetKeyboardState(keyStates_))
     {
-        if (keysArray[p.second])
-        {
-            keyBuffer.insert(p.first);
-        }
+        memset(keyStates_, 0, sizeof(keyStates_));
     }
+    keyStates_[VK_LSHIFT] = (GetAsyncKeyState(VK_LSHIFT) & 0x8000) ? 0x80 : 0;
+    keyStates_[VK_RSHIFT] = (GetAsyncKeyState(VK_RSHIFT) & 0x8000) ? 0x80 : 0;
 }
 void XInputManager::ShowCursor(bool show)
 {
-    if (cursorShowState_ != show)
+    isCursorVisible = show;
+
+    if (show)
     {
-        ::ShowCursor(show ? TRUE : FALSE);
-        cursorShowState_ = show;
+        while (::ShowCursor(TRUE) < 0)
+            ;
+    }
+    else
+    {
+        while (::ShowCursor(FALSE) >= 0)
+            ;
     }
 }
 KeyCodes::Type XInputManager::ConvertCode(uint32 value) const

@@ -64,9 +64,10 @@ void InputManager::SetDefaultKeys()
 
 bool InputManager::GetKey(GameAction action)
 {
-    if (keyGameActions_.count(action))
+    auto iter = keyGameActions_.find(action);
+    if (iter != keyGameActions_.end())
     {
-        return GetKey(keyGameActions_.at(action));
+        return GetKey(iter->second);
     }
     return false;
 }
@@ -443,8 +444,7 @@ bool InputManager::FindEvent(uint32 eventType, uint32 key)
 {
     std::lock_guard<std::mutex> lk(keyEventMutex);
 
-    auto iter = std::find_if(keyEvents_.begin(), keyEvents_.end(),
-                             [eventType, key](const KeyEvent& keyEvent)
+    auto iter = std::find_if(keyEvents_.begin(), keyEvents_.end(), [eventType, key](const KeyEvent& keyEvent)
                              { return keyEvent.first == eventType and key == keyEvent.second; });
 
     return iter != keyEvents_.end();
@@ -527,5 +527,9 @@ bool InputManager::GetMouseState(uint32 keyCode)
 void InputManager::RegisterGameAction(GameAction action, KeyCodes::Type key)
 {
     keyGameActions_.insert({action, key});
+}
+bool InputManager::IsCursorVisible() const
+{
+    return isCursorVisible;
 }
 }  // namespace Input

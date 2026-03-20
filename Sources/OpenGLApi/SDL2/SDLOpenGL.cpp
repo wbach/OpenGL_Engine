@@ -164,6 +164,7 @@ bool SdlOpenGlApi::CheckActiveWindow()
 void SdlOpenGlApi::ShowCursor(bool show)
 {
     SDL_ShowCursor(show ? SDL_ENABLE : SDL_DISABLE);
+
 }
 
 Input::InputManager& SdlOpenGlApi::GetInputManager()

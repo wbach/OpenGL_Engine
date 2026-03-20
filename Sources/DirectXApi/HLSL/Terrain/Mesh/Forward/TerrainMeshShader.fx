@@ -1,29 +1,44 @@
 //--------------------------------------------------------------------------------------
 // Constant Buffer Variables
 //--------------------------------------------------------------------------------------
+// Sampler (wspólny dla wszystkich tekstur terenu)
 SamplerState linearSamplerState : register(s0);
-Texture2D shadowMap : register(t0);
-Texture2D heightMap : register(t1);
-Texture2D blendMap : register(t2);
-Texture2D normalMap : register(t3);
-Texture2D backgroundTexture : register(t4);
-Texture2D backgroundTextureNormal : register(t5);
-Texture2D backgroundTextureDisplacment : register(t6);
-Texture2D redTexture : register(t7);
-Texture2D redTextureNormal : register(t8);
-Texture2D redTextureDisplacement : register(t9);
-Texture2D greenTexture : register(t10);
-Texture2D greenTextureNormal : register(t11);
-Texture2D greenTextureDisplacement : register(t12);
-Texture2D blueTexture : register(t13);
-Texture2D blueTextureNormal : register(t14);
-Texture2D blueTextureDisplacement : register(t15);
-Texture2D alphaTexture : register(t16);
-Texture2D alphaTextureNormal : register(t17);
-Texture2D alphaTextureDisplacement : register(t18);
-Texture2D rockTexture : register(t19);
-Texture2D rockTextureNormal : register(t20);
-Texture2D rockTextureDisplacement : register(t21);
+
+// Mapy bazowe terenu
+Texture2D blendMap : register(t0);
+Texture2D heightMap : register(t19); // Zgodnie z binding 19 w GLSL
+Texture2D normalMap : register(t20); // Zgodnie z binding 20 w GLSL
+Texture2D shadowMap : register(t21); // Dodatkowa, poza zakresem GLSL
+
+// Background (Slot 1-3)
+Texture2D backgroundTexture : register(t1);
+Texture2D backgroundTextureNormal : register(t2);
+Texture2D backgroundTextureDisplacement : register(t3);
+
+// Red Channel (Slot 4-6)
+Texture2D redTexture : register(t4);
+Texture2D redTextureNormal : register(t5);
+Texture2D redTextureDisplacement : register(t6);
+
+// Green Channel (Slot 7-9)
+Texture2D greenTexture : register(t7);
+Texture2D greenTextureNormal : register(t8);
+Texture2D greenTextureDisplacement : register(t9);
+
+// Blue Channel (Slot 10-12)
+Texture2D blueTexture : register(t10);
+Texture2D blueTextureNormal : register(t11);
+Texture2D blueTextureDisplacement : register(t12);
+
+// Alpha Channel (Slot 13-15)
+Texture2D alphaTexture : register(t13);
+Texture2D alphaTextureNormal : register(t14);
+Texture2D alphaTextureDisplacement : register(t15);
+
+// Rock (Slot 16-18)
+Texture2D rockTexture : register(t16);
+Texture2D rockTextureNormal : register(t17);
+Texture2D rockTextureDisplacement : register(t18);
 
 cbuffer PerApp : register(b0)
 {

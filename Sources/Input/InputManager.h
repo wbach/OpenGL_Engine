@@ -49,11 +49,12 @@ public:
     virtual vec2 GetMousePosition()              = 0;
 
     virtual void SetCursorPosition(int x, int y) = 0;
-    virtual void SetKeyToBuffer(KeyInteger, bool value){};
+    virtual void SetKeyToBuffer(KeyInteger, bool value) {};
     virtual void ClearKeyBuffer() = 0;
     virtual void GetPressedKeys() = 0;
     virtual void ShowCursor(bool) = 0;
 
+    bool IsCursorVisible() const;
     bool GetKey(GameAction);
 
     void AddEvent(KeyPressedFunc);
@@ -99,7 +100,6 @@ protected:
 
 protected:
     std::unordered_map<GameAction, KeyCodes::Type> keyGameActions_;
-    std::set<KeyCodes::Type> keyBuffer;
     std::vector<KeyPressedFunc> events_;
     std::list<KeyEvent> keyEvents_;
     Subscribers subscribers_;
@@ -107,5 +107,6 @@ protected:
     Subscribers quque_;
     uint32 idCounter_;
     bool needToQueue_;
+    bool isCursorVisible{true};
 };
 }  // namespace Input

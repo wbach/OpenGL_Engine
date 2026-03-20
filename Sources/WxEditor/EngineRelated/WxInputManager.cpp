@@ -21,12 +21,12 @@ struct KeyConverter
     static KeysMap keys;
 };
 
-KeysMap KeyConverter::keys = KeysMap({// Mysz
+KeysMap KeyConverter::keys = KeysMap({// Mysz (używając Twoich customowych kodów WxKeySpecialKodes)
                                       {KeyCodes::LMOUSE, WxKeySpecialKodes::WX_MOUSE_LEFT},
                                       {KeyCodes::RMOUSE, WxKeySpecialKodes::WX_MOUSE_RIGHT},
                                       {KeyCodes::MOUSE_WHEEL, WxKeySpecialKodes::WX_MOUSE_MIDDLE},
 
-                                      // Litery (ASCII)
+                                      // Litery (ASCII - zawsze wielkie litery w wxWidgets dla GetKeyCode)
                                       {KeyCodes::Q, 'Q'},
                                       {KeyCodes::W, 'W'},
                                       {KeyCodes::E, 'E'},
@@ -54,39 +54,64 @@ KeysMap KeyConverter::keys = KeysMap({// Mysz
                                       {KeyCodes::N, 'N'},
                                       {KeyCodes::M, 'M'},
 
-                                      // Cyfry (ASCII)
-                                      {KeyCodes::NUM0, '0'},
-                                      {KeyCodes::NUM1, '1'},
-                                      {KeyCodes::NUM2, '2'},
-                                      {KeyCodes::NUM3, '3'},
-                                      {KeyCodes::NUM4, '4'},
-                                      {KeyCodes::NUM5, '5'},
-                                      {KeyCodes::NUM6, '6'},
-                                      {KeyCodes::NUM7, '7'},
-                                      {KeyCodes::NUM8, '8'},
-                                      {KeyCodes::NUM9, '9'},
+                                      // Cyfry główne (ASCII)
+                                      {KeyCodes::K0, '0'},
+                                      {KeyCodes::K1, '1'},
+                                      {KeyCodes::K2, '2'},
+                                      {KeyCodes::K3, '3'},
+                                      {KeyCodes::K4, '4'},
+                                      {KeyCodes::K5, '5'},
+                                      {KeyCodes::K6, '6'},
+                                      {KeyCodes::K7, '7'},
+                                      {KeyCodes::K8, '8'},
+                                      {KeyCodes::K9, '9'},
 
-                                      // Klawisze modyfikujące (WXK_*)
+                                      // Klawiatura numeryczna (WXK_NUMPAD*)
+                                      {KeyCodes::NUM0, 324},
+                                      {KeyCodes::NUM1, 325},
+                                      {KeyCodes::NUM2, 326},
+                                      {KeyCodes::NUM3, 327},
+                                      {KeyCodes::NUM4, 328},
+                                      {KeyCodes::NUM5, 329},
+                                      {KeyCodes::NUM6, 330},
+                                      {KeyCodes::NUM7, 331},
+                                      {KeyCodes::NUM8, 332},
+                                      {KeyCodes::NUM9, 333},
+                                      {KeyCodes::NUM_ADD, 334},
+                                      {KeyCodes::NUM_SUB, 335},
+                                      {KeyCodes::NUM_MULT, 336},
+                                      {KeyCodes::NUM_DIV, 337},
+                                      {KeyCodes::NUM_DEC, 338},
+
+                                      // Modyfikatory (WXK_CONTROL, WXK_ALT, WXK_SHIFT)
                                       {KeyCodes::LCTRL, 308},
+                                      {KeyCodes::RCTRL, 308},
                                       {KeyCodes::LALT, 307},
+                                      {KeyCodes::RALT, 307},
                                       {KeyCodes::LSHIFT, 306},
-                                      {KeyCodes::RSHIFT, 306},  // WX nie rozróżnia L/R w prosty sposób
+                                      {KeyCodes::RSHIFT, 306},
 
-                                      // Klawisze sterujące
-                                      {KeyCodes::ENTER, 13},     // Enter / Return
-                                      {KeyCodes::SPACE, 32},     // Spacja
-                                      {KeyCodes::ESCAPE, 27},    // Escape
-                                      {KeyCodes::TAB, 9},        // Tab
-                                      {KeyCodes::BACKSPACE, 8},  // Backspace
-                                      {KeyCodes::DEL, 127},      // Delete
+                                      // Klawisze sterujące (Standardowe kody WXK)
+                                      {KeyCodes::ENTER, 13},
+                                      {KeyCodes::SPACE, 32},
+                                      {KeyCodes::ESCAPE, 27},
+                                      {KeyCodes::TAB, 9},
+                                      {KeyCodes::BACKSPACE, 8},
+                                      {KeyCodes::DEL, 127},
+                                      {KeyCodes::INSERT, 322},
+                                      {KeyCodes::HOME, 313},
+                                      {KeyCodes::END, 312},
+                                      {KeyCodes::PAGE_UP, 310},
+                                      {KeyCodes::PAGE_DOWN, 311},
+                                      {KeyCodes::CAPS_LOCK, 305},
 
-                                      // Strzałki (WXK_*)
+                                      // Strzałki
                                       {KeyCodes::LARROW, 314},
                                       {KeyCodes::RARROW, 316},
                                       {KeyCodes::UARROW, 315},
                                       {KeyCodes::DARROW, 317},
 
-                                      // Funkcyjne (WXK_F1 ... WXK_F12)
+                                      // Funkcyjne F1-F12
                                       {KeyCodes::F1, 340},
                                       {KeyCodes::F2, 341},
                                       {KeyCodes::F3, 342},
@@ -100,18 +125,26 @@ KeysMap KeyConverter::keys = KeysMap({// Mysz
                                       {KeyCodes::F11, 350},
                                       {KeyCodes::F12, 351},
 
-                                      // Znaki specjalne (ASCII)
+                                      // Znaki specjalne i OEM
                                       {KeyCodes::SLASH, '/'},
+                                      {KeyCodes::OEM_2, '/'},
                                       {KeyCodes::BACKSLASH, '\\'},
                                       {KeyCodes::MINUS, '-'},
+                                      {KeyCodes::OEM_MINUS, '-'},
                                       {KeyCodes::EQUALS, '='},
+                                      {KeyCodes::OEM_PLUS, '='},
                                       {KeyCodes::LEFTBRACKET, '['},
                                       {KeyCodes::RIGHTBRACKET, ']'},
                                       {KeyCodes::COMMA, ','},
+                                      {KeyCodes::OEM_COMMA, ','},
                                       {KeyCodes::PERIOD, '.'},
+                                      {KeyCodes::OEM_PERIOD, '.'},
                                       {KeyCodes::SEMICOLON, ';'},
+                                      {KeyCodes::OEM_1, ';'},
                                       {KeyCodes::APOSTROPHE, '\''},
-                                      {KeyCodes::GRAVE, '`'}});
+                                      {KeyCodes::GRAVE, '`'},
+                                      {KeyCodes::OEM_3, '`'},
+                                      {KeyCodes::TILD, '`'}});
 
 KeyCodes::Type KeyConverter::Convert(uint32 type)
 {
@@ -218,8 +251,9 @@ void WxInputManager::GetPressedKeys()
 {
 }
 
-void WxInputManager::ShowCursor(bool)
+void WxInputManager::ShowCursor(bool show)
 {
+    isCursorVisible = show;
 }
 
 KeyCodes::Type WxInputManager::ConvertCode(uint32 value) const

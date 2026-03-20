@@ -31,7 +31,7 @@ public:
     bool CheckActiveWindow() override;
 
     void BeginFrame() override;
-    void ShowCursor(bool show) override;
+    void ShowCursor(bool) override;
     Input::InputManager& GetInputManager() override;
     double GetTime() override;
     void SetCursorPosition(int x, int y) override;

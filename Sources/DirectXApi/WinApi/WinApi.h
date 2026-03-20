@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include <memory>
+
 #include "GraphicsApi/WindowApi.hpp"
 #include "Types.h"
 
@@ -43,23 +44,7 @@ public:
     const std::vector<GraphicsApi::DisplayMode>& GetDisplayModes() const override;
 
 private:
-    uint32 CreateWindowFlags(GraphicsApi::WindowType type) const;
-
-private:
-    bool RegiesterWindowClass();
-    void MessageLoop();
-    void ProcessSdlEvent() const;
-    void ProccesSdlKeyDown(uint32 type) const;
-
-private:
-    struct Pimpl;
+    class Pimpl;
     std::unique_ptr<Pimpl> impl_;
-    uint32 startTime;
-    bool fullScreenActive;
-    vec2ui windowSize;
-
-    std::function<void(uint32, uint32)> addKeyEvent_;
-    std::vector<GraphicsApi::DisplayMode> dispalyModes_;
-    std::unique_ptr<Input::InputManager> inputManager_;
 };
 }  // namespace DirectX

@@ -1,6 +1,9 @@
 #pragma once
 #include <Windows.h>
+
+#include <bitset>
 #include <optional>
+
 #include "Input/InputManager.h"
 #include "Types.h"
 
@@ -35,6 +38,8 @@ private:
     bool isRelativeMouseMode_;
     vec2i lastMouseMovmentPosition_;
     bool cursorShowState_;
+
+    unsigned char keyStates_[256];
 };
 
 }  // namespace DirectX

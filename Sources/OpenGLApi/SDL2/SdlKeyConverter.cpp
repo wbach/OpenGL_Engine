@@ -1,13 +1,17 @@
 #include "SdlKeyConverter.h"
+
 #include <SDL2/SDL_mouse.h>
 #include <SDL2/SDL_scancode.h>
 
 namespace OpenGLApi
 {
 SdlKeysMap SdlKeyConverter::keys = SdlKeysMap({
+    // Mysz (SDL używa indeksów przycisków)
     {KeyCodes::LMOUSE, SDL_BUTTON_LEFT},
     {KeyCodes::RMOUSE, SDL_BUTTON_RIGHT},
     {KeyCodes::MOUSE_WHEEL, SDL_BUTTON_MIDDLE},
+
+    // Alfabet
     {KeyCodes::Q, SDL_SCANCODE_Q},
     {KeyCodes::W, SDL_SCANCODE_W},
     {KeyCodes::E, SDL_SCANCODE_E},
@@ -34,15 +38,63 @@ SdlKeysMap SdlKeyConverter::keys = SdlKeysMap({
     {KeyCodes::B, SDL_SCANCODE_B},
     {KeyCodes::N, SDL_SCANCODE_N},
     {KeyCodes::M, SDL_SCANCODE_M},
+
+    // Cyfry główne (nad literami)
+    {KeyCodes::K0, SDL_SCANCODE_0},
+    {KeyCodes::K1, SDL_SCANCODE_1},
+    {KeyCodes::K2, SDL_SCANCODE_2},
+    {KeyCodes::K3, SDL_SCANCODE_3},
+    {KeyCodes::K4, SDL_SCANCODE_4},
+    {KeyCodes::K5, SDL_SCANCODE_5},
+    {KeyCodes::K6, SDL_SCANCODE_6},
+    {KeyCodes::K7, SDL_SCANCODE_7},
+    {KeyCodes::K8, SDL_SCANCODE_8},
+    {KeyCodes::K9, SDL_SCANCODE_9},
+
+    // Klawiatura numeryczna (Numpad)
+    {KeyCodes::NUM0, SDL_SCANCODE_KP_0},
+    {KeyCodes::NUM1, SDL_SCANCODE_KP_1},
+    {KeyCodes::NUM2, SDL_SCANCODE_KP_2},
+    {KeyCodes::NUM3, SDL_SCANCODE_KP_3},
+    {KeyCodes::NUM4, SDL_SCANCODE_KP_4},
+    {KeyCodes::NUM5, SDL_SCANCODE_KP_5},
+    {KeyCodes::NUM6, SDL_SCANCODE_KP_6},
+    {KeyCodes::NUM7, SDL_SCANCODE_KP_7},
+    {KeyCodes::NUM8, SDL_SCANCODE_KP_8},
+    {KeyCodes::NUM9, SDL_SCANCODE_KP_9},
+    {KeyCodes::NUM_DIV, SDL_SCANCODE_KP_DIVIDE},
+    {KeyCodes::NUM_MULT, SDL_SCANCODE_KP_MULTIPLY},
+    {KeyCodes::NUM_SUB, SDL_SCANCODE_KP_MINUS},
+    {KeyCodes::NUM_ADD, SDL_SCANCODE_KP_PLUS},
+    {KeyCodes::NUM_DEC, SDL_SCANCODE_KP_PERIOD},
+
+    // Sterowanie i systemowe
     {KeyCodes::LALT, SDL_SCANCODE_LALT},
+    {KeyCodes::RALT, SDL_SCANCODE_RALT},
     {KeyCodes::LCTRL, SDL_SCANCODE_LCTRL},
+    {KeyCodes::RCTRL, SDL_SCANCODE_RCTRL},
+    {KeyCodes::LSHIFT, SDL_SCANCODE_LSHIFT},
+    {KeyCodes::RSHIFT, SDL_SCANCODE_RSHIFT},
     {KeyCodes::ENTER, SDL_SCANCODE_RETURN},
     {KeyCodes::SPACE, SDL_SCANCODE_SPACE},
     {KeyCodes::ESCAPE, SDL_SCANCODE_ESCAPE},
+    {KeyCodes::TAB, SDL_SCANCODE_TAB},
+    {KeyCodes::BACKSPACE, SDL_SCANCODE_BACKSPACE},
+    {KeyCodes::CAPS_LOCK, SDL_SCANCODE_CAPSLOCK},
+
+    // Nawigacja
     {KeyCodes::LARROW, SDL_SCANCODE_LEFT},
     {KeyCodes::RARROW, SDL_SCANCODE_RIGHT},
     {KeyCodes::UARROW, SDL_SCANCODE_UP},
     {KeyCodes::DARROW, SDL_SCANCODE_DOWN},
+    {KeyCodes::INSERT, SDL_SCANCODE_INSERT},
+    {KeyCodes::DEL, SDL_SCANCODE_DELETE},
+    {KeyCodes::HOME, SDL_SCANCODE_HOME},
+    {KeyCodes::END, SDL_SCANCODE_END},
+    {KeyCodes::PAGE_UP, SDL_SCANCODE_PAGEUP},
+    {KeyCodes::PAGE_DOWN, SDL_SCANCODE_PAGEDOWN},
+
+    // F-klawisze
     {KeyCodes::F1, SDL_SCANCODE_F1},
     {KeyCodes::F2, SDL_SCANCODE_F2},
     {KeyCodes::F3, SDL_SCANCODE_F3},
@@ -55,9 +107,8 @@ SdlKeysMap SdlKeyConverter::keys = SdlKeysMap({
     {KeyCodes::F10, SDL_SCANCODE_F10},
     {KeyCodes::F11, SDL_SCANCODE_F11},
     {KeyCodes::F12, SDL_SCANCODE_F12},
-    {KeyCodes::TAB, SDL_SCANCODE_TAB},
-    {KeyCodes::LSHIFT, SDL_SCANCODE_LSHIFT},
-    {KeyCodes::RSHIFT, SDL_SCANCODE_RSHIFT},
+
+    // Znaki specjalne
     {KeyCodes::SLASH, SDL_SCANCODE_SLASH},
     {KeyCodes::BACKSLASH, SDL_SCANCODE_BACKSLASH},
     {KeyCodes::MINUS, SDL_SCANCODE_MINUS},
@@ -69,18 +120,15 @@ SdlKeysMap SdlKeyConverter::keys = SdlKeysMap({
     {KeyCodes::SEMICOLON, SDL_SCANCODE_SEMICOLON},
     {KeyCodes::APOSTROPHE, SDL_SCANCODE_APOSTROPHE},
     {KeyCodes::GRAVE, SDL_SCANCODE_GRAVE},
-    {KeyCodes::BACKSPACE, SDL_SCANCODE_BACKSPACE},
-    {KeyCodes::NUM1, SDL_SCANCODE_1},
-    {KeyCodes::NUM2, SDL_SCANCODE_2},
-    {KeyCodes::NUM3, SDL_SCANCODE_3},
-    {KeyCodes::NUM4, SDL_SCANCODE_4},
-    {KeyCodes::NUM5, SDL_SCANCODE_5},
-    {KeyCodes::NUM6, SDL_SCANCODE_6},
-    {KeyCodes::NUM7, SDL_SCANCODE_7},
-    {KeyCodes::NUM8, SDL_SCANCODE_8},
-    {KeyCodes::NUM9, SDL_SCANCODE_9},
-    {KeyCodes::NUM0, SDL_SCANCODE_0},
-    {KeyCodes::DEL, SDL_SCANCODE_DELETE}
+    {KeyCodes::TILD, SDL_SCANCODE_GRAVE},
+
+    {KeyCodes::OEM_PLUS, SDL_SCANCODE_EQUALS},    // W układzie US: + to ten sam klawisz co =
+    {KeyCodes::OEM_MINUS, SDL_SCANCODE_MINUS},    // -
+    {KeyCodes::OEM_COMMA, SDL_SCANCODE_COMMA},    // ,
+    {KeyCodes::OEM_PERIOD, SDL_SCANCODE_PERIOD},  // .
+    {KeyCodes::OEM_1, SDL_SCANCODE_SEMICOLON},    // ;
+    {KeyCodes::OEM_2, SDL_SCANCODE_SLASH},        // /
+    {KeyCodes::OEM_3, SDL_SCANCODE_GRAVE},        // ` (Tylda)
 });
 
 KeyCodes::Type SdlKeyConverter::Convert(uint32 type)
