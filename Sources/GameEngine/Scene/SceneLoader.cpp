@@ -3,13 +3,15 @@
 #include <Logger/Log.h>
 #include <Types.h>
 #include <Utils.h>
-#include <Utils/Time/TimeMeasurer.h>
 #include <Utils/Time/Stopwatch.h>
+#include <Utils/Time/TimeMeasurer.h>
 
 #include <atomic>
 #include <memory>
 #include <thread>
 
+#include "GameEngine/Audio/IAudioManager.h"
+#include "GameEngine/Audio/PlayGroup.h"
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/LoadingScreenRenderer.h"
@@ -23,10 +25,11 @@
 namespace GameEngine
 {
 SceneLoader::SceneLoader(ISceneFactory& factory, GraphicsApi::IGraphicsApi& graphicsApi,
-                         IResourceManagerFactory& resourceManagerFactory)
+                         IResourceManagerFactory& resourceManagerFactory, IAudioManager& audioManager)
     : sceneFactory_{factory}
     , resourceManager(resourceManagerFactory.create())
     , graphicsApi_(graphicsApi)
+    , audioManager(audioManager)
     , isReading(true)
     , loadingScreenRenderer(nullptr)
     , bgTexture_(nullptr)
@@ -59,6 +62,11 @@ void SceneLoader::CleanUp()
 
     bgTexture_     = nullptr;
     circleTexture_ = nullptr;
+
+    if (audioId)
+    {
+        audioManager.stop(*audioId);
+    }
 }
 
 void SceneLoader::Load(uint32 id)
@@ -110,6 +118,11 @@ void SceneLoader::Init()
     auto& texureLoader = resourceManager->GetTextureLoader();
     circleTexture_     = texureLoader.LoadTexture(EngineLocalConf.files.getLoadingCirclePath(), params);
     bgTexture_         = texureLoader.LoadTexture(EngineLocalConf.files.getLoadingBackgroundPath(), params);
+
+    if (EngineConf.sound.isEnabled and EngineConf.sound.isEnabledTmpNotSerialization)
+    {
+        audioId = audioManager.play(EngineLocalConf.files.getLoadingBackgroundAudioPath(), PlayGroup::Music, {});
+    }
 
     if (circleTexture_ and bgTexture_)
     {

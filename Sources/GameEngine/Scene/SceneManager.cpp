@@ -166,7 +166,7 @@ void SceneManager::SetSceneToLoad(const T& t)
     StopThread();
     sceneWrapper_.Reset();
     sceneLoader = std::make_unique<SceneLoader>(*sceneFactory_, engineContext_.GetGraphicsApi(),
-                                                engineContext_.GetResourceManagerFactory());
+                                                engineContext_.GetResourceManagerFactory(), engineContext_.GetAudioManager());
     sceneLoader->Load(t);
 }
 

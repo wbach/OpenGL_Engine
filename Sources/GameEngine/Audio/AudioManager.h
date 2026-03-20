@@ -24,6 +24,7 @@ public:
     void resume(AudioId) override;
     void finish(AudioId) override;
     void update() override;
+    void setAttenuation(AudioId, float, float) override;
 
     bool isPlaying(AudioId) const override;
 

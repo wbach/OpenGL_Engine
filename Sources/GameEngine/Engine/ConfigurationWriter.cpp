@@ -142,6 +142,7 @@ void Create(TreeNode& node, const Params::Files& param)
     node.addChild(CSTR_DATA_LOCATION, param.getRelativeIfCan(param.getDataPath()));
     node.addChild(CSTR_SHADER_LOCATION, param.getRelativeIfCan(param.getShaderPath()));
     node.addChild(CSTR_LOADING_SCREEN_BACKGROUND, param.getRelativeIfCan(param.getLoadingBackgroundPath()));
+    node.addChild(CSTR_LOADING_SCREEN_BACKGROUND_AUDIO, param.getRelativeIfCan(param.getLoadingBackgroundAudioPath()));
     node.addChild(CSTR_LOADING_SCREEN_CIRCLE, param.getRelativeIfCan(param.getLoadingCirclePath()));
 }
 void Create(TreeNode& node, const Params::Sound& param)

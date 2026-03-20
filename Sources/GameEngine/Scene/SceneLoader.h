@@ -3,6 +3,8 @@
 
 #include <atomic>
 #include <memory>
+#include <optional>
+#include "GameEngine/Audio/AudioId.h"
 
 namespace GraphicsApi
 {
@@ -19,11 +21,11 @@ class LoadingScreenRenderer;
 class IResourceManagerFactory;
 class IGpuResourceLoader;
 class GeneralTexture;
-
+class IAudioManager;
 class SceneLoader
 {
 public:
-    SceneLoader(ISceneFactory&, GraphicsApi::IGraphicsApi&, IResourceManagerFactory&);
+    SceneLoader(ISceneFactory&, GraphicsApi::IGraphicsApi&, IResourceManagerFactory&, IAudioManager&);
     ~SceneLoader();
     void Load(uint32);
     void Load(const std::string&);
@@ -43,6 +45,7 @@ private:
     ISceneFactory& sceneFactory_;
     std::unique_ptr<IResourceManager> resourceManager;
     GraphicsApi::IGraphicsApi& graphicsApi_;
+    IAudioManager& audioManager;
 
     std::atomic_bool isReading;
     std::unique_ptr<LoadingScreenRenderer> loadingScreenRenderer;
@@ -50,5 +53,7 @@ private:
 
     GeneralTexture* bgTexture_;
     GeneralTexture* circleTexture_;
+
+    std::optional<AudioId> audioId;
 };
 }  // namespace GameEngine

@@ -20,12 +20,13 @@ public:
 
     virtual AudioId play(const File&, PlayGroup = PlayGroup::SFX, const PlayParameters& = {}) = 0;
 
-    virtual void update()                 = 0;
-    virtual void stop(AudioId)            = 0;
-    virtual void pause(AudioId)           = 0;
-    virtual void finish(AudioId)          = 0;
-    virtual void resume(AudioId)          = 0;
-    virtual bool isPlaying(AudioId) const = 0;
+    virtual void update()                              = 0;
+    virtual void stop(AudioId)                         = 0;
+    virtual void pause(AudioId)                        = 0;
+    virtual void finish(AudioId)                       = 0;
+    virtual void resume(AudioId)                       = 0;
+    virtual bool isPlaying(AudioId) const              = 0;
+    virtual void setAttenuation(AudioId, float, float) = 0;
 
     virtual void setVolume(AudioId, Volume)                       = 0;
     virtual void setPitch(AudioId, float)                         = 0;

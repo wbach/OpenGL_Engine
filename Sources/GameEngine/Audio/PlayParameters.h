@@ -1,11 +1,12 @@
 #pragma once
 #include <EngineApi.h>
 #include <Types.h>
+
 #include <optional>
 
+#include "AudioId.h"
 #include "PlayType.h"
 #include "SoundCone.h"
-#include "AudioId.h"
 namespace GameEngine
 {
 using Position  = vec3;
@@ -22,6 +23,8 @@ struct ENGINE_API PlayParameters
     std::function<void()> playEndCallback{nullptr};
     PlayType playType{PlayType::Once};
 
+    std::optional<float> minDistance;
+    std::optional<float> maxDistance;
     std::optional<float> pitch{1.0f};
 };
 }  // namespace GameEngine

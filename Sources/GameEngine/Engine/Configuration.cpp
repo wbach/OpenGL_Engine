@@ -31,6 +31,11 @@ void Files::setLoadingBackgroundPath(const std::filesystem::path& newPath)
     loadingScreenBackgroundTexture = newPath;
     makeAbolutePath(loadingScreenBackgroundTexture);
 }
+void Files::setLoadingBackgroundAudioPath(const std::filesystem::path& newPath)
+{
+    loadingScreenBackgroundAudio = newPath;
+    makeAbolutePath(loadingScreenBackgroundAudio);
+}
 void Files::setLoadingCirclePath(const std::filesystem::path& newPath)
 {
     loadingScreenCircleTexture = newPath;
@@ -75,6 +80,10 @@ const std::filesystem::path& Files::getLoadingBackgroundPath() const
 {
     return loadingScreenBackgroundTexture;
 }
+const std::filesystem::path& Files::getLoadingBackgroundAudioPath() const
+{
+    return loadingScreenBackgroundAudio;
+}
 void Files::setProjectPath(const std::filesystem::path& path)
 {
     projectPath = path;
@@ -85,6 +94,7 @@ void Files::setProjectPath(const std::filesystem::path& path)
     makeAbolutePath(shaders);
     makeAbolutePath(loadingScreenCircleTexture);
     makeAbolutePath(loadingScreenBackgroundTexture);
+    makeAbolutePath(loadingScreenBackgroundAudio);
 }
 std::filesystem::path Files::getRelativeIfCan(const std::filesystem::path& input) const
 {

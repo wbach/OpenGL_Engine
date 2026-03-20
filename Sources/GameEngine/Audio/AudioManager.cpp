@@ -125,6 +125,16 @@ struct AudioManager::Pimpl
             ma_sound_set_end_callback(sound.get(), on_ma_sound_end, data);
         }
 
+        if (params.minDistance)
+        {
+            ma_sound_set_min_distance(sound.get(), *params.minDistance);
+        }
+
+        if (params.maxDistance)
+        {
+            ma_sound_set_min_distance(sound.get(), *params.maxDistance);
+        }
+
         ma_sound_start(sound.get());
 
         AudioId id{audioIdPool.getId()};
@@ -394,6 +404,19 @@ void AudioManager::finish(AudioId id)
         impl->activeSounds.erase(it);
 
         LOG_DEBUG << "Sound finished manually with callback: " << id;
+    }
+}
+void AudioManager::setAttenuation(AudioId id, float minDistance, float maxDistance)
+{
+    if (not impl)
+        return;
+    auto it = impl->activeSounds.find(id);
+    if (it != impl->activeSounds.end())
+    {
+        ma_sound_set_attenuation_model(it->second.get(), ma_attenuation_model_inverse);
+
+        ma_sound_set_min_distance(it->second.get(), minDistance);
+        ma_sound_set_max_distance(it->second.get(), maxDistance);
     }
 }
 }  // namespace GameEngine

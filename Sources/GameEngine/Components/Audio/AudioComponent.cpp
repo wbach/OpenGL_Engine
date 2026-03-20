@@ -23,9 +23,11 @@ namespace
 constexpr char CSTR_PLAY_TYPE[] = "type";
 constexpr char CSTR_GROUP[]     = "group";
 
-constexpr char CSTR_FILE[]   = "file";
-constexpr char CSTR_VOLUME[] = "volume";
-constexpr char CSTR_PITCH[]  = "pitch";
+constexpr char CSTR_FILE[]         = "file";
+constexpr char CSTR_VOLUME[]       = "volume";
+constexpr char CSTR_PITCH[]        = "pitch";
+constexpr char CSTR_MIN_DISTANCE[] = "minDistance";
+constexpr char CSTR_MAX_DISTANCE[] = "maxDistance";
 
 constexpr char CSTR_IS_SPATIAL[]     = "isSpatial";
 constexpr char CSTR_IS_DIRECTIONAL[] = "isDirectional";
@@ -75,7 +77,9 @@ PlayParameters AudioComponent::BuildParams() const
 
     if (isSpatial)
     {
-        params.position = thisObject_.GetWorldTransform().GetPosition();
+        params.position    = thisObject_.GetWorldTransform().GetPosition();
+        params.minDistance = minDistance;
+        params.maxDistance = maxDistance;
 
         if (isDirectional)
         {
@@ -152,6 +156,8 @@ void AudioComponent::registerReadFunctions()
         ::Read(input.getChild(CSTR_FILE), fileStr);
         component->file = fileStr;
 
+        ::Read(input.getChild(CSTR_MIN_DISTANCE), component->minDistance);
+        ::Read(input.getChild(CSTR_MAX_DISTANCE), component->maxDistance);
         ::Read(input.getChild(CSTR_VOLUME), component->volume);
         ::Read(input.getChild(CSTR_PITCH), component->pitch);
         ::Read(input.getChild(CSTR_PLAY_ON_START), component->playOnStart);
@@ -177,6 +183,8 @@ void AudioComponent::write(TreeNode& node) const
     ::write(node.addChild(CSTR_PITCH), pitch);
     ::write(node.addChild(CSTR_PLAY_ON_START), playOnStart);
     ::write(node.addChild(CSTR_IS_SPATIAL), isSpatial);
+    ::write(node.addChild(CSTR_MIN_DISTANCE), minDistance);
+    ::write(node.addChild(CSTR_MAX_DISTANCE), maxDistance);
     ::write(node.addChild(CSTR_IS_DIRECTIONAL), isDirectional);
     ::write(node.addChild(CSTR_INNER_ANGLE), innerAngle);
     ::write(node.addChild(CSTR_OUTER_ANGLE), outerAngle);

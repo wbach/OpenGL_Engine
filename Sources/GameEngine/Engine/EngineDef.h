@@ -25,6 +25,7 @@ extern const std::string CSTR_CACHE_LOCATION;
 extern const std::string CSTR_USER_DIR_LOCATION;
 extern const std::string CSTR_REQUIRED_FILE_OUTPUT;
 extern const std::string CSTR_LOADING_SCREEN_BACKGROUND;
+extern const std::string CSTR_LOADING_SCREEN_BACKGROUND_AUDIO;
 extern const std::string CSTR_LOADING_SCREEN_CIRCLE;
 // Renderer
 extern const std::string CSTR_PRESET;

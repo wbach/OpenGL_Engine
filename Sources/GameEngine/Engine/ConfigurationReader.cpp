@@ -340,6 +340,10 @@ void Read(TreeNode& node, Params::Files& files)
     {
         files.setLoadingBackgroundPath(child->value_);
     };
+    if (auto child = node.getChild(CSTR_LOADING_SCREEN_BACKGROUND_AUDIO))
+    {
+        files.setLoadingBackgroundAudioPath(child->value_);
+    };
     if (auto child = node.getChild(CSTR_LOADING_SCREEN_CIRCLE))
     {
         files.setLoadingCirclePath(child->value_);

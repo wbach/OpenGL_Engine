@@ -23,6 +23,8 @@ public:
 
     bool playOnStart{false};
     bool isSpatial{false};
+    float minDistance{1.0f};
+    float maxDistance{100.0f};
 
     bool isDirectional{false};
     float innerAngle{360.0f};
@@ -39,6 +41,8 @@ public:
         FIELD_FLOAT(pitch)
         FIELD_BOOL(playOnStart)
         FIELD_BOOL(isSpatial)
+        FIELD_FLOAT(minDistance)
+        FIELD_FLOAT(maxDistance)
         FIELD_BOOL(isDirectional)
         FIELD_FLOAT(innerAngle)
         FIELD_FLOAT(outerAngle)

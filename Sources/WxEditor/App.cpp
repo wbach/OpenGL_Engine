@@ -1,6 +1,7 @@
 
 #include "App.h"
 
+#include <GameEngine/Engine/Configuration.h>
 #include <Logger/Log.h>
 #include <Utils.h>
 #include <wx/version.h>
@@ -52,6 +53,8 @@ bool App::OnInit()
 
     CLogger::Instance().SetLogFilename("WxEditorLogs.txt");
     CLogger::Instance().EnableLogs();
+    EngineConf.sound.isEnabledTmpNotSerialization = false;  // disable loading sound
+
     LOG_DEBUG << "wxWidgets version: " << wxString(wxVERSION_STRING).ToStdString();
     auto* frame = new MainFrame("GameEngine", wxPoint(100, 100), wxSize(1920, 1080));
     SetTopWindow(frame);

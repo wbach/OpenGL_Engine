@@ -16,6 +16,7 @@ public:
     MOCK_METHOD(void, resume, (AudioId), (override));
     MOCK_METHOD(void, finish, (AudioId), (override));
     MOCK_METHOD(bool, isPlaying, (AudioId), (const, override));
+    MOCK_METHOD(void, setAttenuation, (AudioId, float, float), (override));
 
     MOCK_METHOD(void, setVolume, (AudioId, Volume), (override));
     MOCK_METHOD(void, setPitch, (AudioId, float), (override));
