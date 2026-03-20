@@ -17,7 +17,7 @@ namespace GameEngine
 struct GameState;
 namespace Components
 {
-class DialogueComponent : public BaseComponent
+class ENGINE_API DialogueComponent : public BaseComponent
 {
 public:
     using Nodes = std::unordered_map<int, DialogueNode>;

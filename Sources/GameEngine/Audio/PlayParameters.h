@@ -8,8 +8,8 @@
 #include "AudioId.h"
 namespace GameEngine
 {
-using Position  = glm::vec3;
-using Direction = glm::vec3;
+using Position  = vec3;
+using Direction = vec3;
 using Volume    = float;
 
 struct ENGINE_API PlayParameters

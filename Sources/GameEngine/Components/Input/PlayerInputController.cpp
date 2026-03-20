@@ -8,6 +8,7 @@
 #include <Utils/TreeNode.h>
 
 #include "GameEngine/Animations/AnimationClip.h"
+#include "GameEngine/Audio/IAudioManager.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
@@ -24,11 +25,6 @@ namespace GameEngine
 {
 namespace Components
 {
-namespace
-{
-const std::string COMPONENT_STR{"PlayerInputController"};
-}  // namespace
-
 PlayerInputController::PlayerInputController(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(GetComponentType<PlayerInputController>(), componentContext, gameObject)
     , characterController_{nullptr}
@@ -45,6 +41,7 @@ void PlayerInputController::CleanUp()
 void PlayerInputController::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&PlayerInputController::Init, this), MakeDependencies<CharacterController>());
+    RegisterFunction(FunctionType::Update, std::bind(&PlayerInputController::UpdateAudioPosition, this));
 }
 
 void PlayerInputController::Reload()
@@ -323,19 +320,38 @@ void PlayerInputController::SubscribeForPopActions()
 void PlayerInputController::registerReadFunctions()
 {
     auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    { return std::make_unique<PlayerInputController>(componentContext, gameObject); };
+    {
+        auto component = std::make_unique<PlayerInputController>(componentContext, gameObject);
+        component->read(node);
+        return component;
+    };
 
     regsiterComponentReadFunction(GetComponentType<PlayerInputController>(), readFunc);
 }
 
 void PlayerInputController::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
+    BaseComponent::write(node);
 }
 
 bool PlayerInputController::IsInitated() const
 {
     return init;
+}
+void PlayerInputController::UpdateAudioPosition()
+{
+    if (not EngineConf.sound.isEnabled)
+        return;
+
+    auto transform = thisObject_.GetWorldTransform();
+
+    auto pos = transform.GetPosition();
+    auto rot = transform.GetRotation().value_;
+
+    auto forward = rot * Direction(0.0f, 0.0f, 1.0f);
+    auto up      = rot * Direction(0.0f, 1.0f, 0.0f);
+
+    componentContext_.audioManager.setListenerTransform(pos, forward, up);
 }
 }  // namespace Components
 }  // namespace GameEngine

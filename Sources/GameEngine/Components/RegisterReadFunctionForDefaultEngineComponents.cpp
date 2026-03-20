@@ -2,6 +2,7 @@
 
 #include "Animation/Animator.h"
 #include "Animation/BowPoseUpdater.h"
+#include "Audio/AudioComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "Characters/Enemy.h"
@@ -42,6 +43,7 @@ void registerReadFunction()
 void RegisterReadFunctionForDefaultEngineComponents()
 {
     registerReadFunction<UnknownExternalComponent>();
+    registerReadFunction<AudioComponent>();
     registerReadFunction<Animator>();
     registerReadFunction<BowPoseUpdater>();
     registerReadFunction<CameraComponent>();

@@ -22,6 +22,7 @@ public:
 private:
     void SubscribeForPushActions();
     void SubscribeForPopActions();
+    void UpdateAudioPosition();
 
 private:
     CharacterController* characterController_;
