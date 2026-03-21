@@ -177,6 +177,11 @@ void Read(TreeNode& node, Params::Sound& sound)
 {
     SetParamIfExist(sound.isEnabled, node.attributes_, CSTR_SOUND_ENABLED);
     SetParamIfExist(sound.volume, node.attributes_, CSTR_SOUND_VOLUME);
+    SetParamIfExist(sound.masterVolume, node.attributes_, CSTR_SOUND_MASTER_VOLUME);
+    SetParamIfExist(sound.musicVolume, node.attributes_, CSTR_SOUND_MUSIC_VOLUME);
+    SetParamIfExist(sound.sfxVolume, node.attributes_, CSTR_SOUND_SFX_VOLUME);
+    SetParamIfExist(sound.dialogsVolume, node.attributes_, CSTR_SOUND_DIALOGS_VOLUME);
+    SetParamIfExist(sound.barksVolume, node.attributes_, CSTR_SOUND_BARKS_VOLUME);
 }
 
 void Read(TreeNode& node, Params::Shadows& shadows)

@@ -69,7 +69,12 @@ ConfigurationExplorer::ConfigurationExplorer()
     categories.push_back({"Sound",
                           {
                               {"Enabled", EngineConf.sound.isEnabled, ApplyPolicy::RestartNotNeeded},
-                              {"Volume", EngineConf.sound.volume, ApplyPolicy::RestartNotNeeded}
+                              {"Volume", EngineConf.sound.volume, ApplyPolicy::RestartNotNeeded},
+                              {"Master volume", EngineConf.sound.masterVolume, ApplyPolicy::RestartNotNeeded},
+                              {"Music volume", EngineConf.sound.musicVolume, ApplyPolicy::RestartNotNeeded},
+                              {"Sfx volume", EngineConf.sound.sfxVolume, ApplyPolicy::RestartNotNeeded},
+                              {"Dialogs volume", EngineConf.sound.dialogsVolume, ApplyPolicy::RestartNotNeeded},
+                              {"Barks volume", EngineConf.sound.barksVolume, ApplyPolicy::RestartNotNeeded}
                           }
                         });
     categories.push_back(

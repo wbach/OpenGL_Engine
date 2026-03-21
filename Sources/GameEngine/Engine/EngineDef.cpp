@@ -12,9 +12,15 @@ const std::string CSTR_WINDOW_WIDTH      = "width";
 const std::string CSTR_WINDOW_HEIGHT     = "height";
 const std::string CSTR_WINDOW_FULLSCREEN = "fullscreen";
 // Sound
-const std::string CSTR_SOUND         = "Sound";
-const std::string CSTR_SOUND_ENABLED = "enabled";
-const std::string CSTR_SOUND_VOLUME  = "volume";
+const std::string CSTR_SOUND                = "Sound";
+const std::string CSTR_SOUND_ENABLED        = "enabled";
+const std::string CSTR_SOUND_VOLUME         = "volume";
+const std::string CSTR_SOUND_MASTER_VOLUME  = "masterVolume";
+const std::string CSTR_SOUND_MUSIC_VOLUME   = "musicVolume";
+const std::string CSTR_SOUND_SFX_VOLUME     = "sfxVolume";
+const std::string CSTR_SOUND_DIALOGS_VOLUME = "dialogsVolume";
+const std::string CSTR_SOUND_BARKS_VOLUME   = "barksVolume";
+
 // Files
 const std::string CSTR_FILES                           = "Files";
 const std::string CSTR_DATA_LOCATION                   = "DataLocation";

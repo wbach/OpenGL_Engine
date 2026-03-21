@@ -16,6 +16,11 @@ extern const std::string CSTR_WINDOW_FULLSCREEN;
 extern const std::string CSTR_SOUND;
 extern const std::string CSTR_SOUND_ENABLED;
 extern const std::string CSTR_SOUND_VOLUME;
+extern const std::string CSTR_SOUND_MASTER_VOLUME;
+extern const std::string CSTR_SOUND_MUSIC_VOLUME;
+extern const std::string CSTR_SOUND_SFX_VOLUME;
+extern const std::string CSTR_SOUND_DIALOGS_VOLUME;
+extern const std::string CSTR_SOUND_BARKS_VOLUME;
 // Files
 extern const std::string CSTR_FILES;
 extern const std::string CSTR_DATA_LOCATION;

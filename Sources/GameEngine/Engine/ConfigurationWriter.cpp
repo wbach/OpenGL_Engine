@@ -149,6 +149,11 @@ void Create(TreeNode& node, const Params::Sound& param)
 {
     node.attributes_[CSTR_SOUND_ENABLED] = std::to_string(param.isEnabled);
     node.attributes_[CSTR_SOUND_VOLUME]  = std::to_string(param.volume);
+    node.attributes_[CSTR_SOUND_MASTER_VOLUME]  = std::to_string(param.masterVolume);
+    node.attributes_[CSTR_SOUND_MUSIC_VOLUME]   = std::to_string(param.musicVolume);
+    node.attributes_[CSTR_SOUND_SFX_VOLUME]     = std::to_string(param.sfxVolume);
+    node.attributes_[CSTR_SOUND_DIALOGS_VOLUME] = std::to_string(param.dialogsVolume);
+    node.attributes_[CSTR_SOUND_BARKS_VOLUME]   = std::to_string(param.barksVolume);
 }
 void Create(TreeNode& node, const Params::LineMeshVisualizatorParams& param)
 {
