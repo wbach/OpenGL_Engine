@@ -88,6 +88,10 @@ PlayParameters AudioComponent::BuildParams() const
             params.cone      = SoundCone{innerAngle, outerAngle, outerGain};
         }
     }
+
+    LOG_DEBUG << "Player params for : " << thisObject_.GetName() << ", file: " << file;
+    LOG_DEBUG << params;
+
     return params;
 }
 void AudioComponent::Play()

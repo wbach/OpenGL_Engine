@@ -2,6 +2,8 @@
 
 #include "../FsmContext.h"
 #include "GameEngine/Components/Animation/Animator.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
+#include "GameEngine/Components/Controllers/CharacterController/States/DialogState.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -15,6 +17,14 @@ IdleStateBase::IdleStateBase(FsmContext &context, const std::string &idleAnimNam
 {
 }
 
+void IdleStateBase::onEnter(const StartDialogEvent &)
+{
+    setIdleAnim();
+}
+void IdleStateBase::onEnter(const EndDialogEvent &)
+{
+    setIdleAnim();
+}
 void IdleStateBase::onEnter(const GroundDetectionEvent &)
 {
     setIdleAnim();

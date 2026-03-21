@@ -1642,6 +1642,8 @@ void MainFrame::OnToolStart(wxCommandEvent& event)
                       sceneFile.GetAbsolutePath().string() + "\" " + "--projectPath " +
                       ProjectManager::GetInstance().GetProjectPath().string();
 
+    LOG_DEBUG << "CMD: " << cmd;
+
     long pid = wxExecute(cmd, wxEXEC_ASYNC | wxEXEC_NOHIDE | wxEXEC_NODISABLE);
     if (pid == 0)
     {
@@ -2160,7 +2162,7 @@ void MainFrame::MenuEditCreateWaterTile(wxCommandEvent&)
 void MainFrame::SetLastSessionContext()
 {
     auto& manager = ProjectManager::GetInstance();
-    manager.SetLastSessionContext(ProjectManager::SessionContext{.sceneFile = canvas->GetScene().GetFile().GetAbsolutePath(),
+    manager.SetLastSessionContext(ProjectManager::SessionContext{.sceneFile      = canvas->GetScene().GetFile().GetAbsolutePath(),
                                                                  .cameraPosition = canvas->GetCameraEditor()->GetPosition(),
                                                                  .cameraRotation = canvas->GetCameraEditor()->GetRotation()});
 }
