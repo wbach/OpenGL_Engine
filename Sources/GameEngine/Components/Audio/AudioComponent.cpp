@@ -4,6 +4,7 @@
 
 #include <magic_enum/magic_enum.hpp>
 
+#include "GameEngine/Audio/Attenuation.h"
 #include "GameEngine/Audio/AudioId.h"
 #include "GameEngine/Audio/IAudioManager.h"
 #include "GameEngine/Audio/PlayGroup.h"
@@ -20,8 +21,9 @@ namespace Components
 {
 namespace
 {
-constexpr char CSTR_PLAY_TYPE[] = "type";
-constexpr char CSTR_GROUP[]     = "group";
+constexpr char CSTR_PLAY_TYPE[]   = "type";
+constexpr char CSTR_GROUP[]       = "group";
+constexpr char CSTR_ATTENUATION[] = "attenuation";
 
 constexpr char CSTR_FILE[]         = "file";
 constexpr char CSTR_VOLUME[]       = "volume";
@@ -155,6 +157,13 @@ void AudioComponent::registerReadFunctions()
                 component->playGroup = *v;
             }
         }
+        if (auto node = input.getChild(CSTR_ATTENUATION))
+        {
+            if (auto v = magic_enum::enum_cast<Attenuation>(node->value_))
+            {
+                component->attenuation = *v;
+            }
+        }
 
         std::string fileStr;
         ::Read(input.getChild(CSTR_FILE), fileStr);
@@ -182,6 +191,7 @@ void AudioComponent::write(TreeNode& node) const
 
     ::write(node.addChild(CSTR_PLAY_TYPE), magic_enum::enum_name(playType));
     ::write(node.addChild(CSTR_GROUP), magic_enum::enum_name(playGroup));
+    ::write(node.addChild(CSTR_ATTENUATION), magic_enum::enum_name(attenuation));
     ::write(node.addChild(CSTR_FILE), file.GetDataRelativePath());
     ::write(node.addChild(CSTR_VOLUME), volume);
     ::write(node.addChild(CSTR_PITCH), pitch);

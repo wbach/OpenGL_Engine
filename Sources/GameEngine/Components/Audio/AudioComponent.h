@@ -18,10 +18,11 @@ public:
     PlayGroup playGroup{PlayGroup::SFX};
     PlayType playType{PlayType::Once};
 
+    bool playOnStart{false};
     float volume{1.f};
     float pitch{1.f};
 
-    bool playOnStart{false};
+    Attenuation attenuation{Attenuation::Linear};
     bool isSpatial{false};
     float minDistance{1.0f};
     float maxDistance{100.0f};
@@ -34,12 +35,13 @@ public:
 public:
     // clang-format off
     BEGIN_FIELDS()
+        FIELD_BOOL(playOnStart)
         FIELD_FILE(file)
         FIELD_ENUM(playGroup)
         FIELD_ENUM(playType)
         FIELD_FLOAT(volume)
         FIELD_FLOAT(pitch)
-        FIELD_BOOL(playOnStart)
+        FIELD_ENUM(attenuation)
         FIELD_BOOL(isSpatial)
         FIELD_FLOAT(minDistance)
         FIELD_FLOAT(maxDistance)

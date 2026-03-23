@@ -99,6 +99,12 @@ struct AudioManager::Pimpl
             ma_sound_set_looping(sound.get(), MA_TRUE);
         }
 
+        if (params.position.has_value())
+        {
+            ma_sound_set_attenuation_model(sound.get(), ma_attenuation_model_linear);
+            ma_sound_set_position(sound.get(), params.position->x, params.position->y, params.position->z);
+        }
+
         if (params.direction.has_value())
         {
             ma_sound_set_direction(sound.get(), params.direction->x, params.direction->y, params.direction->z);
@@ -114,11 +120,6 @@ struct AudioManager::Pimpl
             ma_sound_set_cone(sound.get(), params.cone->innerAngle, params.cone->outerAngle, params.cone->outerGain);
         }
 
-        if (params.position.has_value())
-        {
-            ma_sound_set_position(sound.get(), params.position->x, params.position->y, params.position->z);
-        }
-
         if (params.playEndCallback)
         {
             auto* data = new SoundEndData{params.playEndCallback};
@@ -127,12 +128,14 @@ struct AudioManager::Pimpl
 
         if (params.minDistance)
         {
+            LOG_DEBUG << "Set min distance : " << params.minDistance;
             ma_sound_set_min_distance(sound.get(), *params.minDistance);
         }
 
         if (params.maxDistance)
         {
-            ma_sound_set_min_distance(sound.get(), *params.maxDistance);
+            LOG_DEBUG << "Set max distance : " << params.maxDistance;
+            ma_sound_set_max_distance(sound.get(), *params.maxDistance);
         }
 
         ma_sound_start(sound.get());
@@ -299,6 +302,8 @@ void AudioManager::setListenerTransform(const Position& pos, const Direction& fo
 {
     if (not impl or not impl->initStatus)
         return;
+
+    LOG_DEBUG << "Pos: " << pos << "forward: " << forward << "up: " << up;
 
     ma_engine_listener_set_position(&impl->engine, 0, pos.x, pos.y, pos.z);
     ma_engine_listener_set_direction(&impl->engine, 0, forward.x, forward.y, forward.z);

@@ -5,6 +5,7 @@
 #include <magic_enum/magic_enum.hpp>
 #include <optional>
 
+#include "Attenuation.h"
 #include "AudioId.h"
 #include "PlayType.h"
 #include "SoundCone.h"
@@ -24,6 +25,7 @@ struct ENGINE_API PlayParameters
 
     std::function<void()> playEndCallback{nullptr};
     PlayType playType{PlayType::Once};
+    Attenuation attenuation;
 
     std::optional<float> minDistance;
     std::optional<float> maxDistance;
@@ -41,7 +43,10 @@ inline std::ostream& operator<<(std::ostream& os, const PlayParameters& params)
         os << ", Pitch: " << *params.pitch;
 
     if (params.position)
+    {
         os << ", Pos: [" << params.position->x << ", " << params.position->y << ", " << params.position->z << "]";
+        os << "Attenuation: " << magic_enum::enum_name(params.attenuation);
+    }
     if (params.direction)
         os << ", Dir: [" << params.direction->x << ", " << params.direction->y << ", " << params.direction->z << "]";
 
