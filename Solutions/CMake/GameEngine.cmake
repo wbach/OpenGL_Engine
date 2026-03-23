@@ -12,7 +12,7 @@ if(BUILD_GAME_ENGINE)
     if(WIN32)
         set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE)
     else()
-        set(ASSIMP_BUILD_ZLIB OFF CACHE BOOL "" FORCE)
+        set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "Build zlib from assimp sources")
     endif()
 
     set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
