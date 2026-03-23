@@ -44,7 +44,7 @@ public:
     void onEnter();
 
     using RotatingMoveAndRotateStateBase::onEnter;
-    using RotatingMoveAndRotateStateBase::transitionCondition;
+    using RotatingMoveAndRotateStateBase::leaveCondition;
     using RotatingMoveAndRotateStateBase::update;
 
     void onEnter(DisarmedCrouchWalkAndRotateState&, const WeaponStateEvent&);

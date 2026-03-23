@@ -35,8 +35,8 @@ public:
     void onEnter(const StopAimEvent&);
     void onEnter(const MouseInactivityEvent&);
 
-    bool transitionCondition(const StopAimEvent&);
-    bool transitionCondition(const StartAimEvent&);
+    bool leaveCondition(const StopAimEvent&);
+    bool leaveCondition(const StartAimEvent&);
     void update() override;
 
 private:

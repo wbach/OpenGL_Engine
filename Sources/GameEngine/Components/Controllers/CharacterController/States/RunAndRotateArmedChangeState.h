@@ -42,9 +42,14 @@ public:
 
     using ArmedChangeStateBase::onLeave;
     using ArmedChangeStateBase::update;
+    using RotatingMoveAndRotateStateBase::leaveCondition;
     using RotatingMoveAndRotateStateBase::onEnter;
-    using RotatingMoveAndRotateStateBase::transitionCondition;
     using RotatingMoveAndRotateStateBase::update;
+
+    bool entryCondition(DisarmedSprintAndRotateState &) const;
+    bool entryCondition(DisarmedRunAndRotateState &) const;
+    bool entryCondition(ArmedSprintAndRotateState &) const;
+    bool entryCondition(ArmedRunAndRotateState &) const;
 
     void onEnter();
     void onEnter(const SprintStateChangeEvent &);

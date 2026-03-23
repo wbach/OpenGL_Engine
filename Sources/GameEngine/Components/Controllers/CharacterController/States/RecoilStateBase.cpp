@@ -26,8 +26,15 @@ void RecoilStateBase::onEnter(const AttackEvent &)
     context_.aimController.shoot();
     setAnim();
 
-    animationSubIds_.push_back(context_.animator.SubscribeForAnimationFrame(
-        animationClip, [&]() { context_.characterController.pushEventToQueue(ReloadArrowEvent{}); }));
+    auto callback = [&]() { context_.characterController.pushEventToQueue(ReloadArrowEvent{}); };
+    if (auto maybeId = context_.animator.SubscribeForAnimationFrame(animationClip, callback))
+    {
+        animationSubIds_.push_back(*maybeId);
+    }
+    else
+    {
+        callback();
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine

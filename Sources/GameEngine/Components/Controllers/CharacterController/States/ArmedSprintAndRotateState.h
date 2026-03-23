@@ -40,7 +40,7 @@ public:
     ArmedSprintAndRotateState(FsmContext&);
 
     using RotatingMoveAndRotateStateBase::onEnter;
-    using RotatingMoveAndRotateStateBase::transitionCondition;
+    using RotatingMoveAndRotateStateBase::leaveCondition;
     using RotatingMoveAndRotateStateBase::update;
 };
 }  // namespace Components

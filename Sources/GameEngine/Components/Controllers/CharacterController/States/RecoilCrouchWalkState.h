@@ -36,7 +36,7 @@ public:
     RecoilCrouchWalkState(FsmContext&);
 
     using MoveStateBase::onEnter;
-    using MoveStateBase::transitionCondition;
+    using MoveStateBase::leaveCondition;
     using MoveStateBase::update;
 
     void onEnter(const AttackEvent&);

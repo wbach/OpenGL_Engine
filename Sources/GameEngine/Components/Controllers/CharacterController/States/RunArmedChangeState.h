@@ -45,6 +45,13 @@ public:
     using RotatingMoveState::onEnter;
     using RotatingMoveState::update;
 
+    bool entryCondition(DisarmedRunState&) const;
+    bool entryCondition(DisarmedAttackState&) const;
+    bool entryCondition(DisarmedSprintState&) const;
+    bool entryCondition(ArmedRunState&) const;
+    bool entryCondition(ArmedAttackState&) const;
+    bool entryCondition(ArmedSprintState&) const;
+
     void onEnter();
 
     void onEnter(const SprintStateChangeEvent&);

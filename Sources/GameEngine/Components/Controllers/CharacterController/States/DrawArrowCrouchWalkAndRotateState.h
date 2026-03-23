@@ -37,7 +37,7 @@ public:
     DrawArrowCrouchWalkAndRotateState(FsmContext&);
 
     using MoveAndRotateStateBase::onEnter;
-    using MoveAndRotateStateBase::transitionCondition;
+    using MoveAndRotateStateBase::leaveCondition;
     using MoveAndRotateStateBase::update;
 
     void onEnter(ArmedSprintAndRotateState&, const DrawArrowEvent&);

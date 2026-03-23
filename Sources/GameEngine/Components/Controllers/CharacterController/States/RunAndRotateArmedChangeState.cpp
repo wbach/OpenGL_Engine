@@ -92,5 +92,26 @@ void RunAndRotateArmedChangeState::update(const WeaponStateEvent &e)
     ArmedChangeStateBase::update(e);
     onEnter();
 }
+
+bool RunAndRotateArmedChangeState::entryCondition(DisarmedSprintAndRotateState&) const
+{
+    return not context_.animClipNames.equip.empty();
+}
+
+bool RunAndRotateArmedChangeState::entryCondition(DisarmedRunAndRotateState&) const
+{
+    return not context_.animClipNames.equip.empty();
+}
+
+bool RunAndRotateArmedChangeState::entryCondition(ArmedSprintAndRotateState&) const
+{
+    return not context_.animClipNames.disarm.empty();
+}
+
+bool RunAndRotateArmedChangeState::entryCondition(ArmedRunAndRotateState&) const
+{
+    return not context_.animClipNames.disarm.empty();
+}
+
 }  // namespace Components
 }  // namespace GameEngine

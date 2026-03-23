@@ -74,24 +74,24 @@ void MoveStateBase::postEnter()
     setCurrentAnimIfNeeded();
 }
 
-bool MoveStateBase::transitionCondition(const EndForwardMoveEvent &)
+bool MoveStateBase::leaveCondition(const EndForwardMoveEvent &)
 {
     context_.moveController.endMoveForwad();
     return shouldLeaveAndSetCurrAnimIfNot();
 }
-bool MoveStateBase::transitionCondition(const EndBackwardMoveEvent &)
+bool MoveStateBase::leaveCondition(const EndBackwardMoveEvent &)
 {
     context_.moveController.endMoveBackward();
     return shouldLeaveAndSetCurrAnimIfNot();
 }
 
-bool MoveStateBase::transitionCondition(const EndMoveLeftEvent &)
+bool MoveStateBase::leaveCondition(const EndMoveLeftEvent &)
 {
     context_.moveController.endMoveLeft();
     return shouldLeaveAndSetCurrAnimIfNot();
 }
 
-bool MoveStateBase::transitionCondition(const EndMoveRightEvent &)
+bool MoveStateBase::leaveCondition(const EndMoveRightEvent &)
 {
     context_.moveController.endMoveRight();
     return shouldLeaveAndSetCurrAnimIfNot();

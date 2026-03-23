@@ -77,5 +77,21 @@ void IdleArmedChangeState::onEnter(const EndRotationEvent &)
 void IdleArmedChangeState::update(float)
 {
 }
+bool IdleArmedChangeState::entryCondition(DisarmedIdleState &) const
+{
+    return not context_.animClipNames.equip.empty();
+}
+bool IdleArmedChangeState::entryCondition(DisarmedAttackState &) const
+{
+    return not context_.animClipNames.equip.empty();
+}
+bool IdleArmedChangeState::entryCondition(ArmedIdleState &) const
+{
+    return not context_.animClipNames.disarm.empty();
+}
+bool IdleArmedChangeState::entryCondition(ArmedAttackState &) const
+{
+    return not context_.animClipNames.disarm.empty();
+}
 }  // namespace Components
 }  // namespace GameEngine

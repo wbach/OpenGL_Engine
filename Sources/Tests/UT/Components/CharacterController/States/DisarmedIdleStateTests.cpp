@@ -1,4 +1,5 @@
 #include "../CharacterControllerTests.h"
+#include "Components/Controllers/CharacterController/States/DisarmedIdleState.h"
 #include "GameEngine/Physics/CollisionContactInfo.h"
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_DrawArrowEvent)
@@ -26,6 +27,17 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_WeaponStateEvent)
     tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.equip}, {ADVANCED_TIME_TRANSITION_TIME});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_BlockWeaponStateEventWithoutAnim)
+{
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    sut_.animationClipsNames_.equip.clear();
+    tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.disarmed.posture.stand.idle}, {ADVANCED_TIME_TRANSITION_TIME});
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    EXPECT_EQ(sut_.getCurrentStateName(), typeName<DisarmedIdleState>());
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_DeathEvent)
@@ -95,6 +107,15 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_AttackEvent)
     tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name}, {ADVANCED_TIME_TRANSITION_TIME});
 }
 
+TEST_F(CharacterControllerTests, DisarmedIdleState_BlockTranistionAfterAttackEvent)
+{
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    sut_.animationClipsNames_.disarmed.attack.clear();
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.posture.stand.idle}, {ADVANCED_TIME_TRANSITION_TIME});
+
+    EXPECT_EQ(sut_.getCurrentStateName(), typeName<DisarmedIdleState>());
+}
+
 TEST_F(CharacterControllerTests, DisarmedIdleState_CrouchChangeStateEvent)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
@@ -111,7 +132,7 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_JumpEvent)
 
     for (int i = 0; i < 3; i++)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Iteration i=" + std::to_string(i));
+        /* LOG TO FIX*/ LOG_ERROR << ("Iteration i=" + std::to_string(i));
         EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
         EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.f, DEFAULT_JUMP_POWER, 0.f)));
 

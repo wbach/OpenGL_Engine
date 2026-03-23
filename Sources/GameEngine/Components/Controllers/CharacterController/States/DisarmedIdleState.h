@@ -33,7 +33,7 @@ class DisarmedIdleState
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
-    DisarmedIdleState(FsmContext&);
+    DisarmedIdleState(FsmContext &);
 };
 }  // namespace Components
 }  // namespace GameEngine

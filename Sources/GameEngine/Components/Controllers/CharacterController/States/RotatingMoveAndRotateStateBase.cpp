@@ -82,14 +82,14 @@ void RotatingMoveAndRotateStateBase::update(const MoveBackwardEvent &e)
     RotatingMoveState::update(e);
 }
 
-bool RotatingMoveAndRotateStateBase::transitionCondition(const EndForwardMoveEvent &e)
+bool RotatingMoveAndRotateStateBase::leaveCondition(const EndForwardMoveEvent &e)
 {
-    return RotatingMoveState::transitionCondition(e);
+    return RotatingMoveState::leaveCondition(e);
 }
 
-bool RotatingMoveAndRotateStateBase::transitionCondition(const EndBackwardMoveEvent &e)
+bool RotatingMoveAndRotateStateBase::leaveCondition(const EndBackwardMoveEvent &e)
 {
-    return RotatingMoveState::transitionCondition(e);
+    return RotatingMoveState::leaveCondition(e);
 }
 
 void RotatingMoveAndRotateStateBase::onMoveInactivity()

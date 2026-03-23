@@ -1,4 +1,5 @@
 #include "../CharacterControllerTests.h"
+#include "Components/Controllers/CharacterController/States/DisarmedSprintState.h"
 
 namespace
 {
@@ -111,6 +112,12 @@ TEST_F(CharacterControllerTests, DisarmedSprintState_WeaponStateEvent)
     expectForwardVelocity(DEFAULT_RUN_SPEED);
     tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.armed.movement.run.forward, sut_.animationClipsNames_.equip},
                                       {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME / 2.f});
+}
+TEST_F(CharacterControllerTests, DisarmedSprintState_EquipAnimNotSetWeaponStateEvent)
+{
+    prepareState(*this);
+    sut_.animationClipsNames_.equip.clear();
+    EXPECT_EQ(sut_.getCurrentStateName(), typeName<DisarmedSprintState>());
 }
 TEST_F(CharacterControllerTests, DisarmedSprintState_EndForwardMoveEvent)
 {

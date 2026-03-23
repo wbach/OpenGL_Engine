@@ -1,4 +1,5 @@
 #include "../CharacterControllerTests.h"
+#include "Components/Controllers/CharacterController/States/DisarmedRunState.h"
 #include "Logger/Log.h"
 
 namespace
@@ -110,6 +111,15 @@ TEST_F(CharacterControllerTests, DisarmedRunState_WeaponStateEvent)
     tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.armed.movement.run.forward, sut_.animationClipsNames_.equip});
 }
 
+TEST_F(CharacterControllerTests, DisarmedRunState_EquipAnimNotSetWeaponStateEvent)
+{
+    prepareState(*this);
+    sut_.animationClipsNames_.equip.clear();
+    tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward});
+
+    EXPECT_EQ(sut_.getCurrentStateName(), typeName<DisarmedRunState>());
+}
+
 TEST_F(CharacterControllerTests, DisarmedRunState_EndForwardMoveEvent)
 {
     prepareState(*this);
@@ -178,6 +188,15 @@ TEST_F(CharacterControllerTests, DisarmedRunState_AttackEvent)
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.movement.run.forward});
 }
+
+TEST_F(CharacterControllerTests, DisarmedRunState_AttackAnimationNotSetWhenAttackEventIncoming)
+{
+    prepareState(*this);
+    sut_.animationClipsNames_.disarmed.attack.clear();
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward});
+    EXPECT_EQ(sut_.getCurrentStateName(), typeName<DisarmedRunState>());
+}
+
 TEST_F(CharacterControllerTests, DisarmedRunState_AttackEventWhenRunBackward)
 {
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));

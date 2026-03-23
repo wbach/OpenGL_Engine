@@ -17,6 +17,7 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/CollisionContactInfo.h"
 #include "Logger/Log.h"
+#include "Logger/TypeName.h"
 #include "Serializers/ReadFunctions.h"
 #include "Serializers/Variables.h"
 #include "Serializers/WriteFunctions.h"
@@ -439,6 +440,11 @@ void CharacterController::pushEventToQueue(const CharacterControllerEvent& event
 {
     std::lock_guard<std::mutex> lk(eventQueueMutex);
     eventQueue.push_back(event);
+}
+std::string CharacterController::getCurrentStateName() const
+{
+    auto passEventToState = [](auto* statePtr) { return typeName<std::decay_t<decltype(*statePtr)>>(); };
+    return std::visit(passEventToState, impl->stateMachine_->currentState);
 }
 }  // namespace Components
 }  // namespace GameEngine

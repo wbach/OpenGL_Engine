@@ -111,7 +111,7 @@ void Animator::setPlayOnceForAnimationClip(const std::string& name)
         iter->second.playType = AnimationClipInfo::PlayType::once;
     }
 }
-IdType Animator::SubscribeForAnimationFrame(const std::string& animName, std::function<void()> function,
+std::optional<IdType> Animator::SubscribeForAnimationFrame(const std::string& animName, std::function<void()> function,
                                             Animation::FrameIndex index)
 {
     auto iter = animationClipInfo_.find(animName);
@@ -134,9 +134,9 @@ IdType Animator::SubscribeForAnimationFrame(const std::string& animName, std::fu
     }
 
     LOG_WARN << "SubscribeForAnimationFrame, animation " << animName << " not found or frames are empty!";
-    return 0;
+    return std::nullopt;
 }
-IdType Animator::SubscribeForAnimationFrame(const std::string& animName, std::function<void()> function, float frameTimeStamp)
+std::optional<IdType> Animator::SubscribeForAnimationFrame(const std::string& animName, std::function<void()> function, float frameTimeStamp)
 {
     auto iter = animationClipInfo_.find(animName);
     if (iter != animationClipInfo_.end() and not iter->second.clip.GetFrames().empty())
@@ -157,7 +157,7 @@ IdType Animator::SubscribeForAnimationFrame(const std::string& animName, std::fu
     }
 
     LOG_WARN << "SubscribeForAnimationFrame, animation " << animName << " not found or frames are empty!";
-    return 0;
+    return std::nullopt;
 }
 void Animator::UnSubscribeForAnimationFrame(IdType id)
 {

@@ -43,7 +43,7 @@ public:
     using ArmedChangeStateBase::onLeave;
     using ArmedChangeStateBase::update;
     using RotatingMoveAndRotateStateBase::onEnter;
-    using RotatingMoveAndRotateStateBase::transitionCondition;
+    using RotatingMoveAndRotateStateBase::leaveCondition;
     using RotatingMoveAndRotateStateBase::update;
 
     void onEnter();

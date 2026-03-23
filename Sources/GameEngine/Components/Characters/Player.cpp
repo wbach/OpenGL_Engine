@@ -102,11 +102,17 @@ void Player::Init()
         };
         for (const auto& attackAnim : characterController_->animationClipsNames_.armed.attack)
         {
-            animSubs_.push_back(animator_->SubscribeForAnimationFrame(attackAnim.name, attackAction));
+            if (auto maybeId = animator_->SubscribeForAnimationFrame(attackAnim.name, attackAction))
+            {
+                animSubs_.push_back(*maybeId);
+            }
         }
         for (const auto& attackAnim : characterController_->animationClipsNames_.disarmed.attack)
         {
-            animSubs_.push_back(animator_->SubscribeForAnimationFrame(attackAnim.name, attackAction));
+            if (auto maybeId = animator_->SubscribeForAnimationFrame(attackAnim.name, attackAction))
+            {
+                animSubs_.push_back(*maybeId);
+            }
         }
     }
 

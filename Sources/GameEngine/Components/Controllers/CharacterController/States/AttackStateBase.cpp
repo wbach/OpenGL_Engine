@@ -42,7 +42,8 @@ void AttackStateBase::onEnter(const AttackEvent &)
     if (not attackClipNames.empty())
     {
         const auto &clipName = attackClipNames[context_.attackStatesContext.currentAnimation].name;
-        context_.animator.ChangeAnimation(clipName, Animator::AnimationChangeType::smooth, PlayDirection::forward, jointGroupName);
+        context_.animator.ChangeAnimation(clipName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+                                          jointGroupName);
     }
 }
 
@@ -141,7 +142,7 @@ void AttackStateBase::onClipEnd()
     }
 
     context_.attackStatesContext.currentAnimation = context_.attackStatesContext.sequenceSize;
-    const auto &clip                             = attackClipNames[context_.attackStatesContext.currentAnimation];
+    const auto &clip                              = attackClipNames[context_.attackStatesContext.currentAnimation];
     context_.characterController.pushEventToQueue(ChangeAnimEvent{clip.name, clip.stateType});
 }
 
@@ -149,8 +150,10 @@ void AttackStateBase::subscribe()
 {
     for (const auto &clip : attackClipNames)
     {
-        auto subId = context_.animator.SubscribeForAnimationFrame(clip.name, [&]() { onClipEnd(); });
-        subIds.push_back(subId);
+        if (auto subId = context_.animator.SubscribeForAnimationFrame(clip.name, [&]() { onClipEnd(); }))
+        {
+            subIds.push_back(*subId);
+        }
     }
 }
 
@@ -169,6 +172,10 @@ const AttackAnimation &AttackStateBase::getCurrentAttackAnimation() const
         return attackClipNames[context_.attackStatesContext.sequenceSize];
     else
         return dummyAttackAnimation;
+}
+bool AttackStateBase::entryCondition() const
+{
+    return not attackClipNames.empty();
 }
 }  // namespace Components
 }  // namespace GameEngine

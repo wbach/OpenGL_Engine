@@ -6,7 +6,7 @@ https://github.com/AdamsPL/state-machine
 #include <Logger/Log.h>
 #include <Utils/Logger/TypeName.h>
 
-#include <list>
+#include <deque>
 #include <tuple>
 #include <variant>
 
@@ -86,7 +86,7 @@ public:
     }
 
     std::tuple<States...> states;
-    std::list<std::variant<States*...>> previousState{&std::get<0>(states)};
+    std::deque<std::variant<States*...>> previousState{&std::get<0>(states)};
     std::variant<States*...> currentState{&std::get<0>(states)};
 };
 }  // namespace StateMachine

@@ -40,8 +40,8 @@ public:
     void update(const MoveLeftEvent &);
     void update(const MoveRightEvent &);
 
-    bool transitionCondition(const EndForwardMoveEvent &);
-    bool transitionCondition(const EndBackwardMoveEvent &);
+    bool leaveCondition(const EndForwardMoveEvent &);
+    bool leaveCondition(const EndBackwardMoveEvent &);
 
     void onMoveInactivity() override;
 };

@@ -16,7 +16,7 @@ public:
     RotatingMoveState(FsmContext&, const std::optional<std::string>&, float, const std::string&);
 
     using MoveStateBase::onEnter;
-    using MoveStateBase::transitionCondition;
+    using MoveStateBase::leaveCondition;
     using MoveStateBase::update;
 
     void update(float);

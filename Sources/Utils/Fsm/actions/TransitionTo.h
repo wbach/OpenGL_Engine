@@ -13,19 +13,31 @@ public:
     template <typename Machine, typename State, typename Event>
     void execute(Machine& machine, State& prevState, const Event& event)
     {
-        if (not transitionCondition(prevState, event))
+        if (not leaveCondition(prevState, event))
         {
-//#ifdef NOREALTIME_LOG_ENABLED
-            LOG_DEBUG << "transitionConditions from " << typeName<State>() + " to "
+            //#ifdef NOREALTIME_LOG_ENABLED
+            LOG_DEBUG << "leaveConditions from " << typeName<State>() + " to "
                       << typeName<TargetState>() + " are not met, return";
-//#endif
+            //#endif
             return;
         }
 
-//#ifdef NOREALTIME_LOG_ENABLED
+        auto& targetState = std::get<TargetState>(machine.states);
+        bool canEnter     = entryCondition(targetState) && entryCondition(targetState, prevState) &&
+                        entryCondition(targetState, prevState, event);
+
+        if (not canEnter)
+        {
+            //#ifdef NOREALTIME_LOG_ENABLED
+            LOG_DEBUG << "entryCondition from " << typeName<State>() + " to " << typeName<TargetState>() + " are not met, return";
+            //#endif
+            return;
+        }
+
+        //#ifdef NOREALTIME_LOG_ENABLED
         LOG_DEBUG << "PrevState : " << typeName<State>();
         LOG_DEBUG << "Entering : " << typeName<TargetState>();
-//#endif
+        //#endif
 
         leave(prevState);
         leave(prevState, event);
@@ -98,15 +110,40 @@ private:
     }
 
     template <typename... Args>
-    bool transitionCondition(Args&...)
+    bool entryCondition(Args&...) const
+    {
+        return true;
+    }
+
+    template <typename NewState>
+    auto entryCondition(NewState& newState) -> decltype(newState.entryCondition())
+    {
+        return newState.entryCondition();
+    }
+
+    template <typename NewState, typename PrevState>
+    auto entryCondition(NewState& newState, PrevState& prevState) -> decltype(newState.entryCondition(prevState))
+    {
+        return newState.entryCondition(prevState);
+    }
+
+    template <typename NewState, typename PrevState, typename Event>
+    auto entryCondition(NewState& newState, PrevState& prevState, const Event& event)
+        -> decltype(newState.entryCondition(prevState, event))
+    {
+        return newState.entryCondition(prevState, event);
+    }
+
+    template <typename... Args>
+    bool leaveCondition(Args&...)
     {
         return true;
     }
 
     template <typename State, typename Event>
-    auto transitionCondition(State& state, const Event& event) -> decltype(state.transitionCondition(event))
+    auto leaveCondition(State& state, const Event& event) -> decltype(state.leaveCondition(event))
     {
-        return state.transitionCondition(event);
+        return state.leaveCondition(event);
     }
 };
 }  // namespace StateMachine

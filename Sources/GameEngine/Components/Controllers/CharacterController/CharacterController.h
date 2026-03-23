@@ -185,8 +185,8 @@ public:
 
     float getShapeSize() const;
 
-    // TO DO: Private
     void handleEvent(const CharacterControllerEvent&);
+    std::string getCurrentStateName() const;
 
 private:
     void processEvent();

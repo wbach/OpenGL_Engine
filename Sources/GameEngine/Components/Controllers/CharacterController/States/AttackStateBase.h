@@ -38,6 +38,8 @@ public:
     void onLeave(const EndAttackEvent&);
     void onLeave();
 
+    bool entryCondition() const;
+
 protected:
     void onClipEnd();
     void subscribe();

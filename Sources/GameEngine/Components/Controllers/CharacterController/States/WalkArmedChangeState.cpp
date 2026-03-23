@@ -75,5 +75,19 @@ void WalkArmedChangeState::onMoveInactivity()
 {
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
+bool WalkArmedChangeState::entryCondition(DisarmedWalkState&) const
+{
+    return not context_.animClipNames.equip.empty();
+}
+
+bool WalkArmedChangeState::entryCondition(ArmedWalkState&) const
+{
+    return not context_.animClipNames.disarm.empty();
+}
+
+bool WalkArmedChangeState::entryCondition(CrouchWalkArmedChangeState&) const
+{
+    return not context_.animClipNames.equip.empty();
+}
 }  // namespace Components
 }  // namespace GameEngine

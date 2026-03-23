@@ -40,7 +40,7 @@ public:
     void onEnter(const AttackEvent&);
 
     using MoveAndRotateStateBase::onEnter;
-    using MoveAndRotateStateBase::transitionCondition;
+    using MoveAndRotateStateBase::leaveCondition;
     using MoveAndRotateStateBase::update;
 
     void update(float);

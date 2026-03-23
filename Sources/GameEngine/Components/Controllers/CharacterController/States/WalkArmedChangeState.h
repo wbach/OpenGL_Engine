@@ -44,6 +44,10 @@ public:
     using RotatingMoveState::onEnter;
     using RotatingMoveState::update;
 
+    bool entryCondition(DisarmedWalkState&) const;
+    bool entryCondition(ArmedWalkState&) const;
+    bool entryCondition(CrouchWalkArmedChangeState&) const;
+
     void onEnter();
 
     void onEnter(CrouchWalkArmedChangeState&, const CrouchChangeStateEvent&);

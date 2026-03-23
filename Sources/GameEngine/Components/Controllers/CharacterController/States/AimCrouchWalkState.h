@@ -41,7 +41,7 @@ public:
     void onEnter(const AimStartEvent&);
 
     using MoveStateBase::onEnter;
-    using MoveStateBase::transitionCondition;
+    using MoveStateBase::leaveCondition;
     using MoveStateBase::update;
 
     void update(float);

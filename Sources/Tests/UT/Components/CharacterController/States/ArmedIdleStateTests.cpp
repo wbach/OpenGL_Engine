@@ -26,6 +26,13 @@ TEST_F(CharacterControllerTests, ArmedIdleStateTests_WeaponStateEvent)
     tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.disarm});
 }
 
+TEST_F(CharacterControllerTests, ArmedIdleStateTests_BlockWeaponStateEvent)
+{
+    prepareState(*this);
+    sut_.animationClipsNames_.disarm.clear();
+    tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.armed.posture.stand.idle});
+}
+
 TEST_F(CharacterControllerTests, ArmedIdleStateTests_DeathEvent)
 {
     prepareState(*this);

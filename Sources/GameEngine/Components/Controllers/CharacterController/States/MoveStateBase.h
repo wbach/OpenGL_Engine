@@ -36,10 +36,10 @@ public:
     void update(float);
     void postUpdate();
 
-    bool transitionCondition(const EndForwardMoveEvent &);
-    bool transitionCondition(const EndBackwardMoveEvent &);
-    bool transitionCondition(const EndMoveLeftEvent &);
-    bool transitionCondition(const EndMoveRightEvent &);
+    bool leaveCondition(const EndForwardMoveEvent &);
+    bool leaveCondition(const EndBackwardMoveEvent &);
+    bool leaveCondition(const EndMoveLeftEvent &);
+    bool leaveCondition(const EndMoveRightEvent &);
 
     void onLeave();
 

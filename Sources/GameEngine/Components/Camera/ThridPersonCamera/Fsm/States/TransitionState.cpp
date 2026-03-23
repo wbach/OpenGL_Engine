@@ -61,7 +61,7 @@ void TransitionState::onEnter(const MouseInactivityEvent& event)
     pitchConversion  = 1.f;
 }
 
-bool TransitionState::transitionCondition(const StopAimEvent& event)
+bool TransitionState::leaveCondition(const StopAimEvent& event)
 {
     if (progress > 1.f)
         return true;
@@ -71,7 +71,7 @@ bool TransitionState::transitionCondition(const StopAimEvent& event)
     return false;
 }
 
-bool TransitionState::transitionCondition(const StartAimEvent& event)
+bool TransitionState::leaveCondition(const StartAimEvent& event)
 {
     if (progress > 1.f)
         return true;

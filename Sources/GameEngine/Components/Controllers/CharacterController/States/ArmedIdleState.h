@@ -33,10 +33,13 @@ class ArmedIdleState
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
-    ArmedIdleState(FsmContext&);
+    ArmedIdleState(FsmContext &);
 
     using IdleStateBase::onEnter;
     using IdleStateBase::update;
+
+    bool leaveCondition(const AttackEvent &);
+    bool leaveCondition(const WeaponStateEvent &);
 };
 }  // namespace Components
 }  // namespace GameEngine

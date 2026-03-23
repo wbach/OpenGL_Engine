@@ -77,11 +77,17 @@ void Enemy::Init()
 
         for (const auto& attackName : characterController_->animationClipsNames_.armed.attack)
         {
-            animSubs_.push_back(animator_->SubscribeForAnimationFrame(attackName.name, attackAction));
+            if (auto id = animator_->SubscribeForAnimationFrame(attackName.name, attackAction))
+            {
+                animSubs_.push_back(*id);
+            }
         }
         for (const auto& attackName : characterController_->animationClipsNames_.disarmed.attack)
         {
-            animSubs_.push_back(animator_->SubscribeForAnimationFrame(attackName.name, attackAction));
+            if (auto id = animator_->SubscribeForAnimationFrame(attackName.name, attackAction))
+            {
+                animSubs_.push_back(*id);
+            }
         }
     }
 

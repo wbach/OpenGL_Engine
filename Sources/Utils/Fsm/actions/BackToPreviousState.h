@@ -104,15 +104,15 @@ private:
     }
 
     template <typename... Args>
-    bool transitionCondition(Args&...)
+    bool leaveCondition(Args&...)
     {
         return true;
     }
 
     template <typename State, typename Event>
-    auto transitionCondition(State& state, const Event& event) -> decltype(state.transitionCondition(event))
+    auto leaveCondition(State& state, const Event& event) -> decltype(state.leaveCondition(event))
     {
-        return state.transitionCondition(event);
+        return state.leaveCondition(event);
     }
 };
 }  // namespace StateMachine

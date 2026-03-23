@@ -46,9 +46,17 @@ void DrawArrowStateBase::onEnter(const ReloadArrowEvent &)
 
     unsubscribeAll();
 
+    auto callback = [&]() { context_.characterController.pushEventToQueue(AimStartEvent{}); };
     context_.aimController.reload();
-    animationSubIds_.push_back(context_.animator.SubscribeForAnimationFrame(
-        context_.animClipNames.aim.draw, [&]() { context_.characterController.pushEventToQueue(AimStartEvent{}); }));
+
+    if (auto maybeId = context_.animator.SubscribeForAnimationFrame(context_.animClipNames.aim.draw, callback))
+    {
+        animationSubIds_.push_back(*maybeId);
+    }
+    else
+    {
+        callback();
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine

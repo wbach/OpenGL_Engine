@@ -38,6 +38,12 @@ public:
 
     void onEnter(const CrouchChangeStateEvent&);
     void onEnter(IdleCrouchArmedChangeState&, const CrouchChangeStateEvent&);
+
+    bool entryCondition(DisarmedIdleState&) const;
+    bool entryCondition(DisarmedAttackState&) const;
+    bool entryCondition(ArmedIdleState&) const;
+    bool entryCondition(ArmedAttackState&) const;
+
     void onEnter(DisarmedIdleState&, const WeaponStateEvent&);
     void onEnter(DisarmedAttackState&, const WeaponStateEvent&);
     void onEnter(ArmedIdleState&, const WeaponStateEvent&);
