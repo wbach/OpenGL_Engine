@@ -1,5 +1,6 @@
 #pragma once
 #include <limits>
+
 namespace GameEngine
 {
 struct NavNode

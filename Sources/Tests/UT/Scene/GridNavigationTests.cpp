@@ -10,11 +10,12 @@ protected:
     const int width      = 10;
     const int height     = 10;
     const float cellSize = 1.0f;
+    const vec3 orgin{vec3(0)};
     GridNavigation* nav;
 
     void SetUp() override
     {
-        nav = new GridNavigation(width, height, cellSize);
+        nav = new GridNavigation(orgin, width, height, cellSize);
     }
 
     void TearDown() override
@@ -25,10 +26,9 @@ protected:
     void DumpGrid(const std::vector<vec3>& path = {}, vec3 start = {0, 0, 0}, vec3 end = {0, 0, 0})
     {
         const auto& nodes = nav->GetNodes();
-        // Kopia siatki do wizualizacji
+
         std::vector<std::string> display(height, std::string(width, '.'));
 
-        // 1. Naniesienie przeszkód
         for (int y = 0; y < height; ++y)
         {
             for (int x = 0; x < width; ++x)
@@ -40,31 +40,34 @@ protected:
             }
         }
 
-        // 2. Naniesienie ścieżki
+        auto worldToLocalIdx = [&](const vec3& p) -> std::pair<int, int>
+        {
+            int x = static_cast<int>(std::floor((p.x - orgin.x) / cellSize));
+            int z = static_cast<int>(std::floor((p.z - orgin.z) / cellSize));
+            return {x, z};
+        };
+
         for (const auto& p : path)
         {
-            int x = static_cast<int>(p.x / cellSize);
-            int z = static_cast<int>(p.z / cellSize);
+            auto [x, z] = worldToLocalIdx(p);
             if (x >= 0 && x < width && z >= 0 && z < height)
             {
                 display[z][x] = '*';
             }
         }
 
-        // 3. Naniesienie Startu i Końca
-        int sx = static_cast<int>(start.x / cellSize);
-        int sz = static_cast<int>(start.z / cellSize);
+        auto [sx, sz] = worldToLocalIdx(start);
         if (sx >= 0 && sx < width && sz >= 0 && sz < height)
             display[sz][sx] = 'S';
 
-        int ex = static_cast<int>(end.x / cellSize);
-        int ez = static_cast<int>(end.z / cellSize);
+        auto [ex, ez] = worldToLocalIdx(end);
         if (ex >= 0 && ex < width && ez >= 0 && ez < height)
             display[ez][ex] = 'E';
 
-        // 4. Wypisanie do loga
-        std::string output = "\n--- GRID VISUALIZATION ---\n";
-        for (int y = 0; y < height; ++y)
+        std::string output =
+            "\n--- GRID VISUALIZATION (Origin: " + std::to_string(orgin.x) + "," + std::to_string(orgin.z) + ") ---\n";
+
+        for (int y = height - 1; y >= 0; --y)
         {
             output += display[y] + "\n";
         }
@@ -159,4 +162,36 @@ TEST_F(GridNavigationTest, CustomPath)
     ASSERT_FALSE(path.empty());
     EXPECT_NEAR(path.back().z, 3.5f, 0.1f);
     EXPECT_EQ(path.back().x, 0.5f);
+}
+
+TEST_F(GridNavigationTest, OffsetOriginMapping)
+{
+    vec3 origin(100.0f, 0.0f, 100.0f);
+    GridNavigation navOffset(origin, 10, 10, 1.0f);
+
+    const vec3 start(100.5f, 0.0f, 100.5f);  // Indeks [0,0]
+    const vec3 end(103.5f, 0.0f, 103.5f);    // Indeks [3,3]
+
+    auto path = navOffset.CalculatePath(start, end);
+
+    ASSERT_FALSE(path.empty());
+
+    EXPECT_NEAR(path.front().x, 101.5f, 0.1f);
+    EXPECT_NEAR(path.front().z, 101.5f, 0.1f);
+
+    EXPECT_NEAR(path.back().x, 103.5f, 0.1f);
+    EXPECT_NEAR(path.back().z, 103.5f, 0.1f);
+}
+
+TEST_F(GridNavigationTest, OutOfBoundsWithOrigin)
+{
+    vec3 origin(-50.0f, 0.0f, -50.0f);
+    GridNavigation navOffset(origin, 10, 10, 1.0f);
+    const vec3 start{-60.0f, 0, -60.0f};
+    const vec3 end{-45.0f, 0, -45.0f};
+    auto path = navOffset.CalculatePath(start, end);
+
+    DumpGrid(path, start, end);
+
+    EXPECT_TRUE(path.empty());
 }

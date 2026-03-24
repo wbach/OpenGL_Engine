@@ -1,12 +1,16 @@
 #include "GridNavigation.h"
 
+#include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
+#include "GameEngine/Resources/Models/BoundingBox.h"
+
 namespace GameEngine
 {
 
-GridNavigation::GridNavigation(int w, int h, float size)
+GridNavigation::GridNavigation(const vec3& orgin, int w, int h, float size)
     : width(w)
     , height(h)
     , cellSize(size)
+    , origin(orgin)
 {
     nodes.resize(width * height);
     for (int y = 0; y < height; ++y)
@@ -32,7 +36,7 @@ std::vector<vec3> GridNavigation::CalculatePath(const vec3& startPos, const vec3
     int startIdx  = GetIndexFromWorldPos(startPos);
     int targetIdx = GetIndexFromWorldPos(targetPos);
 
-    if (startIdx == -1 || targetIdx == -1)
+    if (startIdx == -1 or targetIdx == -1)
     {
         LOG_WARN << "Get index failure";
         return {};
@@ -106,14 +110,17 @@ const std::vector<NavNode>& GridNavigation::GetNodes() const
 {
     return nodes;
 }
-vec2ui GridNavigation::WorldToGrid(vec3 pos)
+vec2ui GridNavigation::WorldToGrid(const vec3& pos)
 {
     return {(int)(pos.x / cellSize), (int)(pos.z / cellSize)};
 }
-int GridNavigation::GetIndexFromWorldPos(glm::vec3 worldPos)
+int GridNavigation::GetIndexFromWorldPos(const vec3& worldPos)
 {
-    int x = static_cast<int>(worldPos.x / cellSize);
-    int z = static_cast<int>(worldPos.z / cellSize);
+    float localX = worldPos.x - origin.x;
+    float localZ = worldPos.z - origin.z;
+
+    int x = static_cast<int>(std::floor(localX / cellSize));
+    int z = static_cast<int>(std::floor(localZ / cellSize));
 
     if (x < 0 || x >= width || z < 0 || z >= height)
         return -1;
@@ -157,8 +164,8 @@ std::vector<vec3> GridNavigation::RetracePath(NavNode* startNode, NavNode* endNo
 
     while (currentNode != startNode)
     {
-        path.push_back(
-            vec3((currentNode->x * cellSize) + (cellSize * 0.5f), 0.0f, (currentNode->y * cellSize) + (cellSize * 0.5f)));
+        path.push_back(origin + vec3((currentNode->x * cellSize) + (cellSize * 0.5f), currentNode->height,
+                                     (currentNode->y * cellSize) + (cellSize * 0.5f)));
 
         currentNode = currentNode->parent;
     }
@@ -175,5 +182,61 @@ float GridNavigation::GetDistance(NavNode* a, NavNode* b)
         return 1.41f * dstY + 1.0f * (dstX - dstY);
 
     return 1.41f * dstX + 1.0f * (dstY - dstX);
+}
+void GridNavigation::AddObstacle(const BoundingBox& box)
+{
+    auto getX = [&](auto worldX) { return static_cast<int>(std::floor((worldX - origin.x) / cellSize)); };
+    auto getZ = [&](auto worldZ) { return static_cast<int>(std::floor((worldZ - origin.z) / cellSize)); };
+
+    auto startX = std::max(0, getX(box.min().x));
+    auto endX   = std::min(width - 1, getX(box.max().x));
+    auto startZ = std::max(0, getZ(box.min().z));
+    auto endZ   = std::min(height - 1, getZ(box.max().z));
+
+    for (int x = startX; x <= endX; ++x)
+    {
+        for (int z = startZ; z <= endZ; ++z)
+        {
+            SetWalkable(x, z, false);
+        }
+    }
+}
+void GridNavigation::BakeTerrain(const TerrainHeightGetter& heightGetter, float maxClimbAngle)
+{
+    float maxSlope = std::tan(glm::radians(maxClimbAngle)) * cellSize;
+
+    for (int y = 0; y < height; ++y)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            int idx       = y * width + x;
+            vec3 worldPos = GetWorldPosFromIndex(x, y);
+
+            auto h = heightGetter.GetHeightofTerrain(worldPos.x, worldPos.z);
+            if (h.has_value())
+            {
+                nodes[idx].height     = h.value();
+                nodes[idx].isWalkable = true;
+            }
+            else
+            {
+                nodes[idx].isWalkable = false;
+                continue;
+            }
+
+            if (x > 0)
+            {
+                float hPrev = nodes[idx - 1].height;
+                if (std::abs(nodes[idx].height - hPrev) > maxSlope)
+                {
+                    nodes[idx].isWalkable = false;
+                }
+            }
+        }
+    }
+}
+vec3 GridNavigation::GetWorldPosFromIndex(int x, int y, float worldHeight)
+{
+    return origin + vec3((x * cellSize) + (cellSize * 0.5f), worldHeight, (y * cellSize) + (cellSize * 0.5f));
 }
 }  // namespace GameEngine
