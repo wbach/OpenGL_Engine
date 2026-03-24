@@ -22,6 +22,8 @@ public:
     const std::vector<NavNode>& GetNodes() const;
     void AddObstacle(const BoundingBox& box);
     int GetIndexFromWorldPos(const vec3&);
+    std::vector<vec3> SmoothPath(const std::vector<vec3>& path);
+    bool HasLineOfSight(const vec3& start, const vec3& end);
 
 private:
     vec2ui WorldToGrid(const vec3&);

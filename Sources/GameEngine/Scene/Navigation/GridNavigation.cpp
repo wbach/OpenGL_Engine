@@ -239,4 +239,63 @@ vec3 GridNavigation::GetWorldPosFromIndex(int x, int y, float worldHeight)
 {
     return origin + vec3((x * cellSize) + (cellSize * 0.5f), worldHeight, (y * cellSize) + (cellSize * 0.5f));
 }
+std::vector<vec3> GridNavigation::SmoothPath(const std::vector<vec3>& path)
+{
+    if (path.size() < 3)
+        return path;
+
+    std::vector<vec3> smoothedPath;
+    smoothedPath.push_back(path[0]);
+
+    size_t currentIndex = 0;
+    while (currentIndex < path.size() - 1)
+    {
+        size_t nextVisibleIndex = currentIndex + 1;
+
+        for (size_t i = currentIndex + 2; i < path.size(); ++i)
+        {
+            if (HasLineOfSight(path[currentIndex], path[i]))
+            {
+                nextVisibleIndex = i;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        smoothedPath.push_back(path[nextVisibleIndex]);
+        currentIndex = nextVisibleIndex;
+    }
+
+    return smoothedPath;
+}
+bool GridNavigation::HasLineOfSight(const vec3& start, const vec3& end)
+{
+    float dist     = glm::distance(vec2(start.x, start.z), vec2(end.x, end.z));
+    float stepDist = cellSize * 0.3f;
+    int steps      = static_cast<int>(dist / stepDist);
+
+    vec3 direction = glm::normalize(end - start);
+
+    for (int i = 1; i < steps; ++i)
+    {
+        vec3 checkPos = start + direction * (static_cast<float>(i) * stepDist);
+        int idx       = GetIndexFromWorldPos(checkPos);
+
+        if (idx == -1 || !nodes[idx].isWalkable)
+            return false;
+
+        float t              = static_cast<float>(i) / steps;
+        float expectedHeight = glm::mix(start.y, end.y, t);
+
+        float actualHeight = nodes[idx].height;
+        if (std::abs(actualHeight - expectedHeight) > (cellSize * 0.5f))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
 }  // namespace GameEngine

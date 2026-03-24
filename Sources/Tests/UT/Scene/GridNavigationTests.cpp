@@ -380,3 +380,40 @@ TEST_F(GridNavigationTest, RampClimbTest)
     EXPECT_GT(path.back().y, path.front().y);
     LOG_DEBUG << "Start Y: " << path.front().y << " End Y: " << path.back().y;
 }
+
+TEST_F(GridNavigationTest, PathSmoothingTest)
+{
+    origin = vec3(-10.0f, 0.0f, -10.0f);
+    width = height = 20;
+    cellSize       = 1.0f;
+    createSut();
+
+    vec3 startPos(-9.5f, 0.0f, -9.5f);
+    vec3 endPos(9.5f, 0.0f, 9.5f);
+
+    for (int y = 0; y < 15; ++y)
+    {
+        sut->SetWalkable(5, y, false);
+    }
+
+    for (int y = 5; y < 20; ++y)
+    {
+        sut->SetWalkable(10, y, false);
+    }
+
+    for (int y = 0; y < 15; ++y)
+    {
+        sut->SetWalkable(15, y, false);
+    }
+
+    auto rawPath    = sut->CalculatePath(startPos, endPos);
+    auto smoothPath = sut->SmoothPath(rawPath);
+
+    LOG_DEBUG << "Raw path nodes: " << rawPath.size();
+    LOG_DEBUG << "Smoothed path nodes: " << smoothPath.size();
+
+    DumpGrid(smoothPath, startPos, endPos);
+
+    ASSERT_FALSE(smoothPath.empty());
+    EXPECT_LE(smoothPath.size(), rawPath.size());
+}
