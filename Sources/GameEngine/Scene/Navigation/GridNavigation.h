@@ -21,10 +21,10 @@ public:
     void SetWalkable(int x, int y, bool walkable);
     const std::vector<NavNode>& GetNodes() const;
     void AddObstacle(const BoundingBox& box);
+    int GetIndexFromWorldPos(const vec3&);
 
 private:
     vec2ui WorldToGrid(const vec3&);
-    int GetIndexFromWorldPos(const vec3&);
     std::vector<NavNode*> GetNeighbors(NavNode* node);
     std::vector<vec3> RetracePath(NavNode* startNode, NavNode* endNode);
     float GetDistance(NavNode* a, NavNode* b);

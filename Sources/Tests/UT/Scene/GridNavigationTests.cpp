@@ -1,20 +1,18 @@
+#include <Utils/Image/Image.h>
 #include <gtest/gtest.h>
 
 #include <memory>
 
+#include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
 #include "GameEngine/Scene/Navigation/GridNavigation.h"
+#include "Resources/Textures/HeightMap.h"
+#include "Tests/Mocks/Api/GraphicsApiMock.h"
 
 using namespace GameEngine;
 
 class GridNavigationTest : public ::testing::Test
 {
 protected:
-    int width      = 10;
-    int height     = 10;
-    float cellSize = 1.0f;
-    vec3 origin{vec3(0)};
-    std::unique_ptr<GridNavigation> sut;
-
     void SetUp() override
     {
     }
@@ -26,6 +24,67 @@ protected:
     void createSut()
     {
         sut = std::make_unique<GridNavigation>(origin, width, height, cellSize);
+    }
+
+    Utils::Image createFakeHeightImage(uint32 w, uint32 h)
+    {
+        Utils::Image img;
+        img.width     = w;
+        img.height    = h;
+        img.channels_ = 1;
+
+        std::vector<float> heights;
+        heights.resize(w * h);
+
+        for (uint32 y = 0; y < h; ++y)
+        {
+            for (uint32 x = 0; x < w; ++x)
+            {
+                if (x < w / 2)
+                {
+                    heights[y * w + x] = 0.0f;
+                }
+                else
+                {
+                    heights[y * w + x] = 10.0f;
+                }
+            }
+        }
+
+        img.moveData(std::move(heights));
+        return img;
+    }
+
+    Utils::Image createRampImage(uint32 w, uint32 h)
+    {
+        Utils::Image img;
+        img.width     = w;
+        img.height    = h;
+        img.channels_ = 1;
+
+        std::vector<float> heights;
+        heights.resize(w * h);
+
+        for (uint32 y = 0; y < h; ++y)
+        {
+            for (uint32 x = 0; x < w; ++x)
+            {
+                heights[y * w + x] = (static_cast<float>(x) / w) * 2.0f;
+            }
+        }
+
+        img.moveData(std::move(heights));
+        return img;
+    }
+
+    TerrainHeightGetter createTerrainHeightGetter(Utils::Image&& image)
+    {
+        HeightMap heightMap(graphicsApi, {}, {}, std::move(image));
+
+        vec3 terrainScale(20.0f, 1.0f, 20.0f);
+        vec3 terrainPos(0.0f, 0.0f, 0.0f);
+
+        return TerrainHeightGetter(terrainScale, heightMap, terrainPos);
     }
 
     void DumpGrid(const std::vector<vec3>& path = {}, vec3 start = {0, 0, 0}, vec3 end = {0, 0, 0})
@@ -80,6 +139,14 @@ protected:
 
         LOG_DEBUG << output;
     }
+
+protected:
+    GraphicsApi::GraphicsApiMock graphicsApi;
+    int width      = 10;
+    int height     = 10;
+    float cellSize = 1.0f;
+    vec3 origin{vec3(0)};
+    std::unique_ptr<GridNavigation> sut;
 };
 
 TEST_F(GridNavigationTest, WorldToGridConversion)
@@ -243,4 +310,73 @@ TEST_F(GridNavigationTest, MazeNavigationTest)
     EXPECT_NEAR(path.back().z, endPos.z, 0.1f);
 
     LOG_DEBUG << "Maze path length: " << path.size() << " nodes.";
+}
+
+TEST_F(GridNavigationTest, BakeTerrainWithRealHeightMap)
+{
+    // 1. Setup (Origin -10, Size 20x20)
+    origin = vec3(-10.0f, 0.0f, -10.0f);
+    width = height = 20;
+    cellSize       = 1.0f;
+    createSut();
+
+    // 2. Setup Terrain (Wyspa 0m, potem skok na 10m od połowy mapy)
+    uint32 imgSize    = 64;
+    auto fakeImage    = createFakeHeightImage(imgSize, imgSize);
+    auto heightGetter = createTerrainHeightGetter(std::move(fakeImage));
+
+    // 3. Bake (Max 30 stopni)
+    sut->BakeTerrain(heightGetter, 30.0f);
+
+    // 4. Weryfikacja struktury siatki
+    const auto& nodes = sut->GetNodes();
+
+    // Sprawdzamy czy środek (gdzie jest uskok) jest zablokowany
+    // Przy x=0 w świecie jest granica naszego fakeImage (x < w/2)
+    int wallIdx = sut->GetIndexFromWorldPos({0.0f, 0.0f, 0.0f});
+    ASSERT_NE(wallIdx, -1);
+    EXPECT_FALSE(nodes[wallIdx].isWalkable) << "Krawędź uskoku powinna być zablokowana!";
+
+    // 5. TEST PATHFINDINGU przez ścianę
+    vec3 startPos(-5.0f, 0.0f, 0.0f);  // Po lewej (nisko)
+    vec3 endPos(5.0f, 0.0f, 0.0f);     // Po prawej (wysoko)
+
+    auto path = sut->CalculatePath(startPos, endPos);
+
+    // Wizualizacja - powinniśmy zobaczyć pionową linię '#' na środku
+    DumpGrid(path, startPos, endPos);
+
+    // Asercja: Nie da się przejść przez pionową ścianę 10m!
+    EXPECT_TRUE(path.empty()) << "NPC nie powinien umieć wspiąć się na pionową ścianę 10m!";
+
+    // 6. Test wysokości punktów (czy A* przepisuje Y z węzłów)
+    // Sprawdźmy punkt na płaskim terenie
+    int flatIdx = sut->GetIndexFromWorldPos(startPos);
+    EXPECT_NEAR(nodes[flatIdx].height, 0.0f, 0.1f);
+}
+
+TEST_F(GridNavigationTest, RampClimbTest)
+{
+    origin = vec3(-10.0f, 0.0f, -10.0f);
+    width = height = 20;
+    cellSize       = 1.0f;
+    createSut();
+
+    auto heightGetter = createTerrainHeightGetter(createRampImage(64, 64));
+
+    // 30 stopni to dużo więcej niż nasza rampa (0.1m na krok)
+    sut->BakeTerrain(heightGetter, 30.0f);
+
+    vec3 startPos(-8.5f, 0.0f, 0.0f);  // Nisko
+    vec3 endPos(8.5f, 0.0f, 0.0f);     // Wysoko
+
+    auto path = sut->CalculatePath(startPos, endPos);
+
+    DumpGrid(path, startPos, endPos);
+
+    ASSERT_FALSE(path.empty());
+
+    // KLUCZOWA ASERCJA: Czy punkty ścieżki mają rosnące Y?
+    EXPECT_GT(path.back().y, path.front().y);
+    LOG_DEBUG << "Start Y: " << path.front().y << " End Y: " << path.back().y;
 }
