@@ -70,6 +70,9 @@ public:
     const T* GetComponent() const;
 
     template <class T>
+    bool HasComponent() const;
+
+    template <class T>
     std::vector<T*> GetComponents();
     template <class T>
     std::vector<T*> GetComponents() const;
@@ -237,6 +240,15 @@ inline const T* GameObject::GetComponent() const
         return nullptr;
 
     return static_cast<T*>(it->second[0].get());
+}
+
+template <class T>
+inline bool GameObject::HasComponent() const
+{
+    const auto& type = Components::GetComponentType<T>();
+    auto it          = components_.find(type.id);
+
+    return (it != components_.end() and not it->second.empty());
 }
 
 template <class T>

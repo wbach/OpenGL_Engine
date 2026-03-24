@@ -303,8 +303,6 @@ void AudioManager::setListenerTransform(const Position& pos, const Direction& fo
     if (not impl or not impl->initStatus)
         return;
 
-    LOG_DEBUG << "Pos: " << pos << "forward: " << forward << "up: " << up;
-
     ma_engine_listener_set_position(&impl->engine, 0, pos.x, pos.y, pos.z);
     ma_engine_listener_set_direction(&impl->engine, 0, forward.x, forward.y, forward.z);
     ma_engine_listener_set_world_up(&impl->engine, 0, up.x, up.y, up.z);

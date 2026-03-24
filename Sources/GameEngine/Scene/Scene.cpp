@@ -150,7 +150,8 @@ void Scene::InitResources(EngineContext& context)
                                      .dialogueManager_     = *dialogueManager_,
                                      .tweenManager         = tweenManager,
                                      .audioManager         = context.GetAudioManager(),
-                                     .gamestate            = context.GetGameState()});
+                                     .gamestate            = context.GetGameState(),
+                                     .navigationManager    = navigationManager});
     componentFactory_ = std::make_unique<Components::ComponentFactory>(*componentContext_);
 
     rootGameObject_ = CreateGameObject("root");
@@ -465,7 +466,11 @@ void Scene::NotifySceneEventSubscribers(const SceneNotifEvent& event)
 {
     std::lock_guard<std::mutex> lk(eventSubscribersMutex);
     for (auto& [_, sub] : eventSubscribers)
+    {
         sub(event);
+    }
+
+    navigationManager.Update(event);
 }
 
 void Scene::UnSubscribeForSceneEvent(IdType id)

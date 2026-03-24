@@ -19,7 +19,7 @@ BaseComponentTestSchould::BaseComponentTestSchould()
     , dialogueManager_(audioManager_, timerService_, inputManagerMock_, guiElementFactory_, guiManager_, gameState_, tweenManager)
     , context_{scene,           sceneManager,      graphicsApiMock_,     gpuResourceLoader_, time_,       inputManagerMock_,
                physicsApiMock_, resourcesManager_, componentController_, renderersManager_,  guiManager_, guiElementFactory_,
-               timerService_,   dialogueManager_,  tweenManager,         audioManager_,      gameState_}
+               timerService_,   dialogueManager_,  tweenManager,         audioManager_,      gameState_,  navigationManager}
     , componentFactory_(context_)
     , obj_{std::make_unique<GameEngine::GameObject>("Test GameObject", componentController_, componentFactory_, gameObjectIdPool)}
 {

@@ -26,6 +26,7 @@
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Time/DayNightCycle.h"
 #include "SceneEvents.h"
+#include "Navigation/NavigationManager.h"
 #include "TweenManager.h"
 #include "Types.h"
 #include "WindParams.h"
@@ -168,6 +169,7 @@ protected:
     Utils::Thread::IThreadSync* threadSync_{nullptr};
     Utils::Time::TimerService* timerService_{nullptr};
     TweenManager tweenManager;
+    NavigationManager navigationManager;
 
     std::string name;
     File file_;

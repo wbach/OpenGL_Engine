@@ -11,6 +11,7 @@
 #include "GameEngine/Audio/IAudioManager.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Controllers/AIController.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Dialogue/DialogueComponent.h"
 #include "GameEngine/Dialogs/DialogueManager.h"
@@ -18,6 +19,7 @@
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Scene/TweenManager.h"
+#include "Input/KeyCodes.h"
 
 using namespace common::Controllers;
 
@@ -68,6 +70,19 @@ void PlayerInputController::Init()
 
 void PlayerInputController::SubscribeForPushActions()
 {
+    // TMP for testing
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
+        KeyCodes::M,
+        [&]()
+        {
+            auto ai = componentContext_.componentController_.GetAllComponentsOfType<AIController>();
+            for (auto& c : ai)
+            {
+               // c->MoveTo(vec3(0));
+               c->MoveTo(vec3(52.407, 68.898, -315.405));//Wiata
+            }
+        });
+
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
         Input::GameAction::DODGE,
         [&]()

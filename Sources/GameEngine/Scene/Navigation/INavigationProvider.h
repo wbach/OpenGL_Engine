@@ -3,13 +3,18 @@
 
 #include <vector>
 
+#include "EngineApi.h"
+
 namespace GameEngine
 {
-class INavigationProvider
+class BoundingBox;
+class TerrainHeightGetter;
+class ENGINE_API INavigationProvider
 {
 public:
     virtual ~INavigationProvider()                                    = default;
     virtual std::vector<vec3> CalculatePath(const vec3&, const vec3&) = 0;
-    virtual bool IsWalkable(const vec3&)                              = 0;
+    virtual void BakeTerrain(const TerrainHeightGetter&, float)       = 0;
+    virtual void AddObstacle(const BoundingBox&)                      = 0;
 };
 }  // namespace GameEngine

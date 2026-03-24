@@ -24,6 +24,7 @@ class ITweenManager;
 class IAudioManager;
 class GuiManager;
 struct GameState;
+class NavigationManager;
 
 namespace Physics
 {
@@ -57,6 +58,7 @@ struct ComponentContext
     ITweenManager& tweenManager;
     IAudioManager& audioManager;
     GameState& gamestate;
+    NavigationManager& navigationManager;
 };
 }  // namespace Components
 }  // namespace GameEngine

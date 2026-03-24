@@ -23,6 +23,7 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Time/Time.h"
 #include "GraphicsApi/IFrameBuffer.h"
+#include "Scene/Navigation/NavigationManager.h"
 #include "Tests/Mocks/Api/FrameBufferMock.h"
 #include "Tests/Mocks/Api/GraphicsApiMock.h"
 #include "Tests/Mocks/Api/InputManagerMock.h"
@@ -47,6 +48,7 @@ public:
     BaseComponentTestSchould();
     virtual ~BaseComponentTestSchould();
 
+    NavigationManager navigationManager;
     TweenManagerMock tweenManager;
     GameState gameState_;
     CameraManager cameraManager_;

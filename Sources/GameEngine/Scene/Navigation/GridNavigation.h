@@ -8,19 +8,17 @@
 
 namespace GameEngine
 {
-class BoundingBox;
-class TerrainHeightGetter;
-class GridNavigation : public INavigationProvider
+class ENGINE_API GridNavigation : public INavigationProvider
 {
 public:
     GridNavigation(const vec3&, int w, int h, float size);
 
-    void BakeTerrain(const TerrainHeightGetter&, float maxClimbAngle);
+    void BakeTerrain(const TerrainHeightGetter&, float maxClimbAngle) override;
     std::vector<vec3> CalculatePath(const vec3& startPos, const vec3& targetPos) override;
-    bool IsWalkable(const vec3& position) override;
+    void AddObstacle(const BoundingBox& box) override;
+    bool IsWalkable(const vec3& position);
     void SetWalkable(int x, int y, bool walkable);
     const std::vector<NavNode>& GetNodes() const;
-    void AddObstacle(const BoundingBox& box);
     int GetIndexFromWorldPos(const vec3&);
     std::vector<vec3> SmoothPath(const std::vector<vec3>& path);
     bool HasLineOfSight(const vec3& start, const vec3& end);

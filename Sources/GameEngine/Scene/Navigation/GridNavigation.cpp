@@ -23,6 +23,9 @@ GridNavigation::GridNavigation(const vec3& orgin, int w, int h, float size)
             nodes[idx].isWalkable = true;
         }
     }
+
+    LOG_DEBUG << "\n--- GRID DEBUG (Size: " << width << "x" << height << ", Cell: " << cellSize << ", Origin: " << origin.x << ","
+              << origin.z << ") ---";
 }
 std::vector<vec3> GridNavigation::CalculatePath(const vec3& startPos, const vec3& targetPos)
 {
@@ -164,8 +167,8 @@ std::vector<vec3> GridNavigation::RetracePath(NavNode* startNode, NavNode* endNo
 
     while (currentNode != startNode)
     {
-        path.push_back(origin + vec3((currentNode->x * cellSize) + (cellSize * 0.5f), currentNode->height,
-                                     (currentNode->y * cellSize) + (cellSize * 0.5f)));
+        path.push_back(vec3(origin.x + (currentNode->x * cellSize) + (cellSize * 0.5f), currentNode->height,
+                            origin.z + (currentNode->y * cellSize) + (cellSize * 0.5f)));
 
         currentNode = currentNode->parent;
     }
@@ -237,7 +240,7 @@ void GridNavigation::BakeTerrain(const TerrainHeightGetter& heightGetter, float 
 }
 vec3 GridNavigation::GetWorldPosFromIndex(int x, int y, float worldHeight)
 {
-    return origin + vec3((x * cellSize) + (cellSize * 0.5f), worldHeight, (y * cellSize) + (cellSize * 0.5f));
+    return vec3(origin.x + (x * cellSize) + (cellSize * 0.5f), worldHeight, origin.z + (y * cellSize) + (cellSize * 0.5f));
 }
 std::vector<vec3> GridNavigation::SmoothPath(const std::vector<vec3>& path)
 {
@@ -283,7 +286,7 @@ bool GridNavigation::HasLineOfSight(const vec3& start, const vec3& end)
         vec3 checkPos = start + direction * (static_cast<float>(i) * stepDist);
         int idx       = GetIndexFromWorldPos(checkPos);
 
-        if (idx == -1 || !nodes[idx].isWalkable)
+        if (idx == -1 or not nodes[idx].isWalkable)
             return false;
 
         float t              = static_cast<float>(i) / steps;

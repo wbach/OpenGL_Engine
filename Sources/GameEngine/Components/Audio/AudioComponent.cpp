@@ -48,6 +48,7 @@ AudioComponent::AudioComponent(ComponentContext& componentContext, GameObject& g
 
 void AudioComponent::CleanUp()
 {
+    Stop();
 }
 
 void AudioComponent::ReqisterFunctions()
