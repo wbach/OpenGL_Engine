@@ -91,7 +91,7 @@ void NavigationManager::ReCreateProvider()
     navigationProvider->BakeTerrain(terrainHeightGetter, 30.0f);
 
     int obstacleCount = 0;
-    // TO DO:
+    // //TO DO:
     // for (auto& [_, obj] : objectInPath)
     // {
     //     if (auto maybeRendererComponent = obj->GetComponent<Components::RendererComponent>())

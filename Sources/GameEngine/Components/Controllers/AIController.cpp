@@ -12,6 +12,14 @@ namespace GameEngine
 {
 namespace Components
 {
+namespace
+{
+Quaternion calculateTargetRotation(const vec3& direction)
+{
+    float angle = atan2f(direction.x, direction.z);
+    return glm::angleAxis(angle, vec3(0.0f, 1.0f, 0.0f));
+}
+}  // namespace
 AIController::AIController(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(GetComponentType<AIController>(), componentContext, gameObject)
     , characterController_{nullptr}
@@ -93,14 +101,11 @@ void AIController::UpdateNavigation()
         }
     }
 
-    vec3 direction = nextWaypoint - currentPos;
-    direction.y = 0.0f;
+    auto direction = nextWaypoint - currentPos;
+    direction.y    = 0.0f;
     if (glm::length(direction) > 0.0001f)
     {
-        direction = glm::normalize(direction);
-        auto targetRotation = glm::quatLookAt(direction, vec3(0, 1, 0));
-        //auto targetRotation = Utils::lookAtDirection2(nextWaypoint);
-        //auto targetRotation = Utils::lookAtDirection2(nextWaypoint);
+        auto targetRotation = calculateTargetRotation(glm::normalize(direction));
         characterController_->pushEventToQueue(RotateTargetEvent{targetRotation});
     }
 
@@ -110,5 +115,6 @@ void AIController::UpdateNavigation()
         isMovingForward_ = true;
     }
 }
+
 }  // namespace Components
 }  // namespace GameEngine

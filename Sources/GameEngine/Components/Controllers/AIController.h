@@ -22,7 +22,6 @@ public:
     void MoveTo(const vec3&);
 
 private:
-    Quaternion caclulateTargetRotation(const vec3&) const;
     void calculateMovingPoints();
     void UpdateNavigation();
 
