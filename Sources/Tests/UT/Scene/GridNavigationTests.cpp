@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <memory>
+
 #include "GameEngine/Scene/Navigation/GridNavigation.h"
 
 using namespace GameEngine;
@@ -7,25 +9,28 @@ using namespace GameEngine;
 class GridNavigationTest : public ::testing::Test
 {
 protected:
-    const int width      = 10;
-    const int height     = 10;
-    const float cellSize = 1.0f;
-    const vec3 orgin{vec3(0)};
-    GridNavigation* nav;
+    int width      = 10;
+    int height     = 10;
+    float cellSize = 1.0f;
+    vec3 origin{vec3(0)};
+    std::unique_ptr<GridNavigation> sut;
 
     void SetUp() override
     {
-        nav = new GridNavigation(orgin, width, height, cellSize);
     }
 
     void TearDown() override
     {
-        delete nav;
+    }
+
+    void createSut()
+    {
+        sut = std::make_unique<GridNavigation>(origin, width, height, cellSize);
     }
 
     void DumpGrid(const std::vector<vec3>& path = {}, vec3 start = {0, 0, 0}, vec3 end = {0, 0, 0})
     {
-        const auto& nodes = nav->GetNodes();
+        const auto& nodes = sut->GetNodes();
 
         std::vector<std::string> display(height, std::string(width, '.'));
 
@@ -42,8 +47,8 @@ protected:
 
         auto worldToLocalIdx = [&](const vec3& p) -> std::pair<int, int>
         {
-            int x = static_cast<int>(std::floor((p.x - orgin.x) / cellSize));
-            int z = static_cast<int>(std::floor((p.z - orgin.z) / cellSize));
+            int x = static_cast<int>(std::floor((p.x - origin.x) / cellSize));
+            int z = static_cast<int>(std::floor((p.z - origin.z) / cellSize));
             return {x, z};
         };
 
@@ -65,7 +70,7 @@ protected:
             display[ez][ex] = 'E';
 
         std::string output =
-            "\n--- GRID VISUALIZATION (Origin: " + std::to_string(orgin.x) + "," + std::to_string(orgin.z) + ") ---\n";
+            "\n--- GRID VISUALIZATION (Origin: " + std::to_string(origin.x) + "," + std::to_string(origin.z) + ") ---\n";
 
         for (int y = height - 1; y >= 0; --y)
         {
@@ -79,23 +84,26 @@ protected:
 
 TEST_F(GridNavigationTest, WorldToGridConversion)
 {
+    createSut();
     vec3 pos(5.5f, 0.0f, 5.5f);
-    auto path = nav->CalculatePath(pos, pos);
+    auto path = sut->CalculatePath(pos, pos);
     EXPECT_TRUE(path.empty() || path.size() == 1);
 }
 
 TEST_F(GridNavigationTest, OutOfBoundsReturnsEmpty)
 {
-    auto path = nav->CalculatePath({1.0f, 0.0f, 1.0f}, {50.0f, 0.0f, 50.0f});
+    createSut();
+    auto path = sut->CalculatePath({1.0f, 0.0f, 1.0f}, {50.0f, 0.0f, 50.0f});
     EXPECT_TRUE(path.empty());
 }
 
 TEST_F(GridNavigationTest, SimpleStraightPath)
 {
+    createSut();
     vec3 start(0.5f, 0.0f, 0.5f);
     vec3 end(0.5f, 0.0f, 3.5f);
 
-    auto path = nav->CalculatePath(start, end);
+    auto path = sut->CalculatePath(start, end);
 
     DumpGrid(path, start, end);
 
@@ -106,14 +114,15 @@ TEST_F(GridNavigationTest, SimpleStraightPath)
 
 TEST_F(GridNavigationTest, ObstacleAvoidance)
 {
-    nav->SetWalkable(1, 0, false);
-    nav->SetWalkable(1, 1, false);
-    nav->SetWalkable(1, 2, false);
+    createSut();
+    sut->SetWalkable(1, 0, false);
+    sut->SetWalkable(1, 1, false);
+    sut->SetWalkable(1, 2, false);
 
     glm::vec3 start(0.5f, 0.0f, 1.5f);
     glm::vec3 end(2.5f, 0.0f, 1.5f);
 
-    auto path = nav->CalculatePath(start, end);
+    auto path = sut->CalculatePath(start, end);
 
     DumpGrid(path, start, end);
     ASSERT_FALSE(path.empty());
@@ -126,14 +135,15 @@ TEST_F(GridNavigationTest, ObstacleAvoidance)
 
 TEST_F(GridNavigationTest, NoPathFound)
 {
-    nav->SetWalkable(0, 1, false);
-    nav->SetWalkable(1, 1, false);
-    nav->SetWalkable(1, 0, false);
+    createSut();
+    sut->SetWalkable(0, 1, false);
+    sut->SetWalkable(1, 1, false);
+    sut->SetWalkable(1, 0, false);
 
     glm::vec3 start(0.5f, 0.0f, 0.5f);
     glm::vec3 end(5.5f, 0.0f, 5.5f);
 
-    auto path = nav->CalculatePath(start, end);
+    auto path = sut->CalculatePath(start, end);
 
     DumpGrid(path, start, end);
 
@@ -142,20 +152,21 @@ TEST_F(GridNavigationTest, NoPathFound)
 
 TEST_F(GridNavigationTest, CustomPath)
 {
+    createSut();
     vec3 start(8.5f, 0.0f, 8.5f);
     vec3 end(0.5f, 0.0f, 3.5f);
 
     for (int x = 2; x < 8; ++x)
     {
-        nav->SetWalkable(7, x, false);
+        sut->SetWalkable(7, x, false);
     }
 
     for (int x = 0; x < 8; ++x)
     {
-        nav->SetWalkable(x, 7, false);
+        sut->SetWalkable(x, 7, false);
     }
 
-    auto path = nav->CalculatePath(start, end);
+    auto path = sut->CalculatePath(start, end);
 
     DumpGrid(path, start, end);
 
@@ -166,13 +177,13 @@ TEST_F(GridNavigationTest, CustomPath)
 
 TEST_F(GridNavigationTest, OffsetOriginMapping)
 {
-    vec3 origin(100.0f, 0.0f, 100.0f);
-    GridNavigation navOffset(origin, 10, 10, 1.0f);
+    origin = vec3(100.0f, 0.0f, 100.0f);
+    createSut();
 
     const vec3 start(100.5f, 0.0f, 100.5f);  // Indeks [0,0]
     const vec3 end(103.5f, 0.0f, 103.5f);    // Indeks [3,3]
 
-    auto path = navOffset.CalculatePath(start, end);
+    auto path = sut->CalculatePath(start, end);
 
     ASSERT_FALSE(path.empty());
 
@@ -185,13 +196,51 @@ TEST_F(GridNavigationTest, OffsetOriginMapping)
 
 TEST_F(GridNavigationTest, OutOfBoundsWithOrigin)
 {
-    vec3 origin(-50.0f, 0.0f, -50.0f);
-    GridNavigation navOffset(origin, 10, 10, 1.0f);
+    origin = vec3(-50.0f, 0.0f, -50.0f);
+    createSut();
+
     const vec3 start{-60.0f, 0, -60.0f};
     const vec3 end{-45.0f, 0, -45.0f};
-    auto path = navOffset.CalculatePath(start, end);
+    auto path = sut->CalculatePath(start, end);
 
     DumpGrid(path, start, end);
 
     EXPECT_TRUE(path.empty());
+}
+
+TEST_F(GridNavigationTest, MazeNavigationTest)
+{
+    origin = vec3(-10.0f, 0.0f, -10.0f);
+    width = height = 20;
+    cellSize       = 1.0f;
+    createSut();
+
+    vec3 startPos(-9.5f, 0.0f, -9.5f);
+    vec3 endPos(9.5f, 0.0f, 9.5f);
+
+    for (int y = 0; y < 15; ++y)
+    {
+        sut->SetWalkable(5, y, false);
+    }
+
+    for (int y = 5; y < 20; ++y)
+    {
+        sut->SetWalkable(10, y, false);
+    }
+
+    for (int y = 0; y < 15; ++y)
+    {
+        sut->SetWalkable(15, y, false);
+    }
+
+    auto path = sut->CalculatePath(startPos, endPos);
+
+    DumpGrid(path, startPos, endPos);
+
+    ASSERT_FALSE(path.empty()) << "Algorytm nie znalazł wyjścia z labiryntu!";
+
+    EXPECT_NEAR(path.back().x, endPos.x, 0.1f);
+    EXPECT_NEAR(path.back().z, endPos.z, 0.1f);
+
+    LOG_DEBUG << "Maze path length: " << path.size() << " nodes.";
 }
