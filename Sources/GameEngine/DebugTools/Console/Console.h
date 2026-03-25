@@ -1,4 +1,5 @@
 #pragma once
+#include <Input/KeysSubscriptionsManager.h>
 #include <Types.h>
 
 #include <Mutex.hpp>
@@ -7,7 +8,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <Input/KeysSubscriptionsManager.h>
 
 namespace GameEngine
 {
@@ -23,13 +23,15 @@ namespace Debug
 class Console
 {
 public:
-    Console(Scene& scene);
+    using Params = std::vector<std::string>;
+
+    Console(Scene&);
     ~Console();
     void ExecuteCommands();
 
 private:
     std::string GetCommandNameFromString(const std::string&) const;
-    std::vector<std::string> GetParams(const std::string& comannd) const;
+    Params GetParams(const std::string& comannd) const;
     bool IsKnownCommand(const std::string&) const;
 
     void AddCommand(const std::string& command);
@@ -51,36 +53,38 @@ private:
     void LoadCommandHistoryFromFile();
 
 private:
-    void CameraInfo(const std::vector<std::string>&);
-    void SetFreeCamera(const std::vector<std::string>&);
-    void DisableFreeCam(const std::vector<std::string>&);
-    void LoadPrefab(const std::vector<std::string>&);
-    void SetPosition(const std::vector<std::string>&);
-    void PrintPosition(const std::vector<std::string>&);
-    void SaveScene(const std::vector<std::string>&);
-    void LoadScene(const std::vector<std::string>&);
-    void ReloadScene(const std::vector<std::string>&);
-    void UseAsyncLogging(const std::vector<std::string>&);
-    void TakeSnapshoot(const std::vector<std::string>&);
-    void ReloadShaders(const std::vector<std::string>&);
-    void SwapRenderMode(const std::vector<std::string>&);
-    void EnableEditorNetworkInterface(const std::vector<std::string>&);
-    void SetPhysicsVisualization(const std::vector<std::string>&);
-    void SetTimeMulitplayer(const std::vector<std::string>&);
-    void DebugRender(const std::vector<std::string>&);
-    void Help(const std::vector<std::string>&);
-    void Exit(const std::vector<std::string>&);
+    void CameraInfo(const Params&);
+    void SetFreeCamera(const Params&);
+    void DisableFreeCam(const Params&);
+    void LoadPrefab(const Params&);
+    void SetPosition(const Params&);
+    void PrintPosition(const Params&);
+    void SaveScene(const Params&);
+    void LoadScene(const Params&);
+    void Select(const Params&);
+    void MoveTo(const Params&);
+    void ReloadScene(const Params&);
+    void UseAsyncLogging(const Params&);
+    void TakeSnapshoot(const Params&);
+    void ReloadShaders(const Params&);
+    void SwapRenderMode(const Params&);
+    void EnableEditorNetworkInterface(const Params&);
+    void SetPhysicsVisualization(const Params&);
+    void SetTimeMulitplayer(const Params&);
+    void DebugRender(const Params&);
+    void Help(const Params&);
+    void Exit(const Params&);
 
 private:
     Scene& scene_;
     GuiWindowElement* window_;
     VerticalLayout* windowVerticalLayout_;
     std::list<GuiTextElement*> guiTexts_;
-    std::vector<std::string> commandsHistory_;
+    Params commandsHistory_;
     std::list<std::string> commandsToExecute_;
     std::mutex commandsExecuteMutex_;
     GuiTextElement* currentCommand_;
-    std::unordered_map<std::string, std::function<void(const std::vector<std::string>&)>> commandsActions_;
+    std::unordered_map<std::string, std::function<void(const Params&)>> commandsActions_;
     int32 commandHistoryIndex_;
     std::optional<IdType> firstPersonCameraId_;
     ICamera* previousMainCamera_{nullptr};

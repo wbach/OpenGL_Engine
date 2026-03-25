@@ -801,6 +801,7 @@ bool BulletAdapter::checkBoxOverlap(const vec3& pos, const vec3& halfExtents) co
     short mask = CollisionGroup::Default | CollisionGroup::StaticObstacle;
     NavigationContactCallback callback(mask);
 
+    std::lock_guard<std::mutex> lk(dynamicWorldMutex);
     btDynamicWorld->contactTest(&tempObj, callback);
     return callback.hasCollision;
 }

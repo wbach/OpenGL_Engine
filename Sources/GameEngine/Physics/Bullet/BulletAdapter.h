@@ -101,7 +101,7 @@ private:
     bool simualtePhysics_;
 
     using Tasks = std::vector<Task>;
-    std::mutex dynamicWorldMutex;
+    mutable std::mutex dynamicWorldMutex;
     std::mutex tasksMutex;
     Tasks tasks;
     Tasks processing;

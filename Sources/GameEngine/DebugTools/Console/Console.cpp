@@ -7,6 +7,7 @@
 #include <fstream>
 
 #include "GameEngine/Camera/FirstPersonCamera.h"
+#include "GameEngine/Components/Controllers/AIController.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
@@ -18,6 +19,8 @@
 #include "GameEngine/Scene/SceneReader.h"
 #include "GameEngine/Scene/SceneUtils.h"
 #include "Input/KeyCodeToCharConverter.h"
+#include "Types.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -81,30 +84,32 @@ void Console::AddAndUpdateHistoryFileIfNeeded(const std::string &command)
 
 void Console::RegisterActions()
 {
-    commandsActions_.insert({"freecam", [this](const auto &params) { SetFreeCamera(params); }});
-    commandsActions_.insert({"showphysics", [this](const auto &params) { SetPhysicsVisualization(params); }});
-    commandsActions_.insert({"disablefreecam", [this](const auto &params) { DisableFreeCam(params); }});
-    commandsActions_.insert({"prefab", [this](const auto &params) { LoadPrefab(params); }});
-    commandsActions_.insert({"pos", [this](const auto &params) { PrintPosition(params); }});
-    commandsActions_.insert({"setpos", [this](const auto &params) { SetPosition(params); }});
-    commandsActions_.insert({"save", [this](const auto &params) { SaveScene(params); }});
-    commandsActions_.insert({"load", [this](const auto &params) { LoadScene(params); }});
-    commandsActions_.insert({"reload", [this](const auto &params) { ReloadScene(params); }});
-    commandsActions_.insert({"lognow", [this](const auto &params) { UseAsyncLogging(params); }});
-    commandsActions_.insert({"snap", [this](const auto &params) { TakeSnapshoot(params); }});
-    commandsActions_.insert({"reloadshaders", [this](const auto &params) { ReloadShaders(params); }});
-    commandsActions_.insert({"swapRenderMode", [this](const auto &params) { SwapRenderMode(params); }});
-    commandsActions_.insert({"editorinterface", [this](const auto &params) { EnableEditorNetworkInterface(params); }});
-    commandsActions_.insert({"editor", [this](const auto &params) { EnableEditorNetworkInterface(params); }});
-    commandsActions_.insert({"help", [this](const auto &params) { Help(params); }});
-    commandsActions_.insert({"timespeed", [this](const auto &params) { SetTimeMulitplayer(params); }});
-    commandsActions_.insert({"camera", [this](const auto &params) { CameraInfo(params); }});
-    commandsActions_.insert({"exit", [this](const auto &params) { Exit(params); }});
-    commandsActions_.insert({"drender", [this](const auto &params) { DebugRender(params); }});
-    commandsActions_.insert({"quit", [this](const auto &params) { Exit(params); }});
+    commandsActions_ = {{"freecam", [this](auto &p) { SetFreeCamera(p); }},
+                        {"showphysics", [this](auto &p) { SetPhysicsVisualization(p); }},
+                        {"disablefreecam", [this](auto &p) { DisableFreeCam(p); }},
+                        {"prefab", [this](auto &p) { LoadPrefab(p); }},
+                        {"pos", [this](auto &p) { PrintPosition(p); }},
+                        {"setpos", [this](auto &p) { SetPosition(p); }},
+                        {"save", [this](auto &p) { SaveScene(p); }},
+                        {"load", [this](auto &p) { LoadScene(p); }},
+                        {"select", [this](auto &p) { Select(p); }},
+                        {"reload", [this](auto &p) { ReloadScene(p); }},
+                        {"moveto", [this](auto &p) { MoveTo(p); }},
+                        {"lognow", [this](auto &p) { UseAsyncLogging(p); }},
+                        {"snap", [this](auto &p) { TakeSnapshoot(p); }},
+                        {"reloadshaders", [this](auto &p) { ReloadShaders(p); }},
+                        {"swapRenderMode", [this](auto &p) { SwapRenderMode(p); }},
+                        {"editorinterface", [this](auto &p) { EnableEditorNetworkInterface(p); }},
+                        {"editor", [this](auto &p) { EnableEditorNetworkInterface(p); }},
+                        {"help", [this](auto &p) { Help(p); }},
+                        {"timespeed", [this](auto &p) { SetTimeMulitplayer(p); }},
+                        {"camera", [this](auto &p) { CameraInfo(p); }},
+                        {"exit", [this](auto &p) { Exit(p); }},
+                        {"quit", [this](auto &p) { Exit(p); }},
+                        {"drender", [this](auto &p) { DebugRender(p); }}};
 }
 
-void Console::CameraInfo(const std::vector<std::string> &)
+void Console::CameraInfo(const Params &)
 {
     int index = 0;
     for (const auto &[_, activeCameraPtr] : scene_.GetCameraManager().GetActiveCameras())
@@ -116,7 +121,7 @@ void Console::CameraInfo(const std::vector<std::string> &)
     }
 }
 
-void Console::SetFreeCamera(const std::vector<std::string> &)
+void Console::SetFreeCamera(const Params &)
 {
     if (firstPersonCameraId_)
         return;
@@ -135,7 +140,7 @@ void Console::SetFreeCamera(const std::vector<std::string> &)
     cameraManager.SetCameraAsMain(id);
 }
 
-void Console::DisableFreeCam(const std::vector<std::string> &)
+void Console::DisableFreeCam(const Params &)
 {
     if (firstPersonCameraId_)
     {
@@ -247,7 +252,7 @@ void Console::CloseConsole()
     scene_.inputManager_->StashPopSubscribers();
 }
 
-void Console::LoadPrefab(const std::vector<std::string> &params)
+void Console::LoadPrefab(const Params &params)
 {
     if (params.size() < 2)
     {
@@ -261,7 +266,7 @@ void Console::LoadPrefab(const std::vector<std::string> &params)
     GameEngine::SceneReader(scene_).loadPrefab(filename, name);
 }
 
-void Console::SetPosition(const std::vector<std::string> &args)
+void Console::SetPosition(const Params &args)
 {
     if (args.size() < 3)
     {
@@ -366,7 +371,7 @@ void Console::SetPosition(const std::vector<std::string> &args)
     }
 }
 
-void Console::PrintPosition(const std::vector<std::string> &args)
+void Console::PrintPosition(const Params &args)
 {
     if (args.empty())
     {
@@ -385,7 +390,7 @@ void Console::PrintPosition(const std::vector<std::string> &args)
     }
 }
 
-void Console::SaveScene(const std::vector<std::string> &params)
+void Console::SaveScene(const Params &params)
 {
     if (params.empty())
     {
@@ -397,7 +402,7 @@ void Console::SaveScene(const std::vector<std::string> &params)
     }
 }
 
-void Console::LoadScene(const std::vector<std::string> &params)
+void Console::LoadScene(const Params &params)
 {
     if (params.empty())
         return;
@@ -430,12 +435,12 @@ void Console::LoadScene(const std::vector<std::string> &params)
     }
 }
 
-void Console::ReloadScene(const std::vector<std::string> &)
+void Console::ReloadScene(const Params &)
 {
     scene_.getEngineContext()->AddEngineEvent(ChangeSceneEvent(ChangeSceneEvent::Type::RELOAD_SCENE, 0));
 }
 
-void Console::UseAsyncLogging(const std::vector<std::string> &params)
+void Console::UseAsyncLogging(const Params &params)
 {
     if (params.empty())
         return;
@@ -445,7 +450,7 @@ void Console::UseAsyncLogging(const std::vector<std::string> &params)
     CLogger::Instance().UseAsyncLogging(use);
 }
 
-void Console::TakeSnapshoot(const std::vector<std::string> &params)
+void Console::TakeSnapshoot(const Params &params)
 {
     std::string path{"../../snapshoot/"};
     if (not params.empty())
@@ -457,17 +462,17 @@ void Console::TakeSnapshoot(const std::vector<std::string> &params)
     scene_.resourceManager_->GetGpuResourceLoader().AddFunctionToCall(takeSnapshoot);
 }
 
-void Console::ReloadShaders(const std::vector<std::string> &)
+void Console::ReloadShaders(const Params &)
 {
     scene_.renderersManager_->ReloadShaders();
 }
 
-void Console::SwapRenderMode(const std::vector<std::string> &)
+void Console::SwapRenderMode(const Params &)
 {
     scene_.renderersManager_->SwapLineFaceRender();
 }
 
-void Console::EnableEditorNetworkInterface(const std::vector<std::string> &params)
+void Console::EnableEditorNetworkInterface(const Params &params)
 {
     // need to close console for key subscribtions are stashed when console is running
     // subscribe and unsubsribe
@@ -484,7 +489,7 @@ void Console::EnableEditorNetworkInterface(const std::vector<std::string> &param
     }
 }
 
-void Console::SetPhysicsVisualization(const std::vector<std::string> &params)
+void Console::SetPhysicsVisualization(const Params &params)
 {
     auto state = DebugRenderer::RenderState::Physics;
     bool set   = not scene_.renderersManager_->GetDebugRenderer().IsStateEnabled(state);
@@ -512,7 +517,7 @@ void Console::SetPhysicsVisualization(const std::vector<std::string> &params)
     {
         for (size_t i = 1; i < params.size(); i++)
         {
-            if (auto go = scene_.GetGameObject(params[i]))
+            if (auto go = GetGameObject(params[i]))
             {
                 if (auto rigidbody = go->GetComponent<Components::Rigidbody>())
                 {
@@ -531,7 +536,7 @@ void Console::SetPhysicsVisualization(const std::vector<std::string> &params)
     }
 }
 
-void Console::SetTimeMulitplayer(const std::vector<std::string> &params)
+void Console::SetTimeMulitplayer(const Params &params)
 {
     if (params.empty())
     {
@@ -550,7 +555,7 @@ void Console::SetTimeMulitplayer(const std::vector<std::string> &params)
     }
 }
 
-void Console::Help(const std::vector<std::string> &)
+void Console::Help(const Params &)
 {
     LOG_DEBUG << "All commands : ";
 
@@ -560,12 +565,12 @@ void Console::Help(const std::vector<std::string> &)
     }
 }
 
-void Console::Exit(const std::vector<std::string> &)
+void Console::Exit(const Params &)
 {
     scene_.getEngineContext()->AddEngineEvent(EngineEvent{QuitEvent::ASK_QUIT});
 }
 
-std::vector<std::string> Console::GetParams(const std::string &command) const
+Console::Params Console::GetParams(const std::string &command) const
 {
     auto result = Utils::SplitString(command, ' ');
     if (result.size() > 1)
@@ -598,81 +603,92 @@ void Console::LoadCommandHistoryFromFile()
 
 void Console::SubscribeKeys()
 {
-    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ENTER, [&]() {
-        if (not window_->IsShow() or not currentCommand_)
+    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ENTER,
+                                             [&]()
+                                             {
+                                                 if (not window_->IsShow() or not currentCommand_)
+                                                 {
+                                                     return;
+                                                 }
+                                                 commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size() - 1);
+                                                 AddCommand(currentCommand_->GetText().substr(COMMAND_CURRSOR.size()));
+                                                 currentCommand_ = AddOrUpdateGuiText("");
+                                             });
+    scene_.inputManager_->SubscribeOnKeyDown(
+        KeyCodes::DARROW,
+        [this]()
         {
-            return;
-        }
-        commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size() - 1);
-        AddCommand(currentCommand_->GetText().substr(COMMAND_CURRSOR.size()));
-        currentCommand_ = AddOrUpdateGuiText("");
-    });
-    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::DARROW, [this]() {
-        if (commandsHistory_.empty())
-            return;
+            if (commandsHistory_.empty())
+                return;
 
-        ++commandHistoryIndex_;
+            ++commandHistoryIndex_;
 
-        if (commandHistoryIndex_ < 0)
+            if (commandHistoryIndex_ < 0)
+            {
+                commandHistoryIndex_ = static_cast<int>(commandsHistory_.size() - 1);
+            }
+            if (commandHistoryIndex_ >= static_cast<int>(commandsHistory_.size()))
+            {
+                commandHistoryIndex_ = 0;
+            }
+
+            currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[static_cast<size_t>(commandHistoryIndex_)]);
+        });
+
+    scene_.inputManager_->SubscribeOnKeyDown(
+        KeyCodes::UARROW,
+        [this]()
         {
-            commandHistoryIndex_ = static_cast<int>(commandsHistory_.size() - 1);
-        }
-        if (commandHistoryIndex_ >= static_cast<int>(commandsHistory_.size()))
-        {
-            commandHistoryIndex_ = 0;
-        }
+            if (commandsHistory_.empty())
+                return;
 
-        currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[static_cast<size_t>(commandHistoryIndex_)]);
-    });
+            --commandHistoryIndex_;
 
-    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::UARROW, [this]() {
-        if (commandsHistory_.empty())
-            return;
+            if (commandHistoryIndex_ < 0)
+            {
+                commandHistoryIndex_ = static_cast<int>(commandsHistory_.size() - 1);
+            }
+            if (commandHistoryIndex_ >= static_cast<int>(commandsHistory_.size()))
+            {
+                commandHistoryIndex_ = 0;
+            }
 
-        --commandHistoryIndex_;
-
-        if (commandHistoryIndex_ < 0)
-        {
-            commandHistoryIndex_ = static_cast<int>(commandsHistory_.size() - 1);
-        }
-        if (commandHistoryIndex_ >= static_cast<int>(commandsHistory_.size()))
-        {
-            commandHistoryIndex_ = 0;
-        }
-
-        currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[static_cast<size_t>(commandHistoryIndex_)]);
-    });
+            currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[static_cast<size_t>(commandHistoryIndex_)]);
+        });
 
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LSHIFT, [&]() { inputType = Input::SingleCharType::BIG; });
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::RSHIFT, [&]() { inputType = Input::SingleCharType::BIG; });
     scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LSHIFT, [&]() { inputType = Input::SingleCharType::SMALL; });
     scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::RSHIFT, [&]() { inputType = Input::SingleCharType::SMALL; });
-    scene_.inputManager_->SubscribeOnAnyKeyPress([this](KeyCodes::Type key) {
-        if (not window_->IsShow())
-            return;
-
-        switch (key)
+    scene_.inputManager_->SubscribeOnAnyKeyPress(
+        [this](KeyCodes::Type key)
         {
-            case KeyCodes::SPACE:
-                currentCommand_->Append(' ');
-                break;
+            if (not window_->IsShow())
+                return;
 
-            case KeyCodes::BACKSPACE:
-                if (currentCommand_->GetText().size() > COMMAND_CURRSOR.size())
-                    currentCommand_->Pop();
-                break;
-
-            default:
+            switch (key)
             {
-                auto character = Input::KeyCodeToCharConverter::Convert(key, inputType);
-                if (character)
+                case KeyCodes::SPACE:
+                    currentCommand_->Append(' ');
+                    break;
+
+                case KeyCodes::BACKSPACE:
+                    if (currentCommand_->GetText().size() > COMMAND_CURRSOR.size())
+                        currentCommand_->Pop();
+                    break;
+
+                default:
                 {
-                    currentCommand_->Append(*character);
+                    auto character = Input::KeyCodeToCharConverter::Convert(key, inputType);
+                    LOG_DEBUG << "key = " << magic_enum::enum_name(key) << " => " << character;
+                    if (character)
+                    {
+                        currentCommand_->Append(*character);
+                    }
                 }
+                break;
             }
-            break;
-        }
-    });
+        });
 
     auto closeConsole = [this]() { scene_.inputManager_->AddEvent([&]() { CloseConsole(); }); };
 
@@ -682,7 +698,13 @@ void Console::SubscribeKeys()
 
 GameObject *Console::GetGameObject(const std::string &name)
 {
-    return scene_.GetGameObject(name);
+    auto result = scene_.GetGameObject(name);
+    if (not result)
+    {
+        PrintMsgInConsole("Game object not found name: " + name);
+    }
+
+    return result;
 }
 
 void Console::PrepareConsoleWindow()
@@ -702,24 +724,29 @@ void Console::PrepareConsoleWindow()
 
     scene_.guiManager_.Add(CONSOLE_LAYER_NAME, std::move(window));
 
-    keysSubscribtionManager_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, [this]() {
-        window_->Show();
-        if (not commandsHistory_.empty())
-            commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size());
+    keysSubscribtionManager_ =
+        scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2,
+                                                 [this]()
+                                                 {
+                                                     window_->Show();
+                                                     if (not commandsHistory_.empty())
+                                                         commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size());
 
-        if (not currentCommand_ or currentCommand_->GetText() != COMMAND_CURRSOR)
-            currentCommand_ = AddOrUpdateGuiText("");
+                                                     if (not currentCommand_ or currentCommand_->GetText() != COMMAND_CURRSOR)
+                                                         currentCommand_ = AddOrUpdateGuiText("");
 
-        currentCommand_->Show();
+                                                     currentCommand_->Show();
 
-        scene_.GetCameraManager().LockAll();
-        scene_.inputManager_->AddEvent([&]() {
-            scene_.inputManager_->StashSubscribers();
-            SubscribeKeys();
-        });
-    });
+                                                     scene_.GetCameraManager().LockAll();
+                                                     scene_.inputManager_->AddEvent(
+                                                         [&]()
+                                                         {
+                                                             scene_.inputManager_->StashSubscribers();
+                                                             SubscribeKeys();
+                                                         });
+                                                 });
 }
-void Console::DebugRender(const std::vector<std::string> &params)
+void Console::DebugRender(const Params &params)
 {
     if (params.empty())
     {
@@ -734,6 +761,60 @@ void Console::DebugRender(const std::vector<std::string> &params)
     catch (...)
     {
         LOG_ERROR << "DebugRender error";
+    }
+}
+void Console::Select(const Params &args)
+{
+    if (args.empty())
+    {
+        PrintMsgInConsole("Not enough arguments, usage:  \"select gameObjectName\"");
+        return;
+    }
+
+    auto gameObject = GetGameObject(args[0]);
+    if (gameObject)
+    {
+        auto &debugRenderer = scene_.renderersManager_->GetDebugRenderer();
+        debugRenderer.ViewSelection(*gameObject);
+    }
+}
+void Console::MoveTo(const Params &args)
+{
+    if (args.size() < 2)
+    {
+        PrintMsgInConsole("Not enough arguments, usage:  \"moveto gameObjectName target\"");
+        return;
+    }
+
+    LOG_DEBUG << args;
+
+    auto gameObject = GetGameObject(args[0]);
+    if (gameObject)
+    {
+        if (auto ai = gameObject->GetComponent<Components::AIController>())
+        {
+            if (auto targetGameObject = scene_.GetGameObject(args[1]))
+            {
+                ai->MoveTo(targetGameObject->GetWorldTransform().GetPosition());
+                return;
+            }
+
+            try
+            {
+                vec3 target(0);
+                std::from_string(args[1], target);
+                LOG_DEBUG << target;
+                ai->MoveTo(target);
+            }
+            catch (...)
+            {
+                PrintMsgInConsole("Parse target error, use format : x,y,z ");
+            }
+        }
+        else
+        {
+            PrintMsgInConsole("Object should have AIController component");
+        }
     }
 }
 }  // namespace Debug

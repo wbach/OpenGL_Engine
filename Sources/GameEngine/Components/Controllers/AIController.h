@@ -21,13 +21,14 @@ public:
 
     void MoveTo(const vec3&);
 
+    std::vector<vec3> currentPath_;
+
 private:
     void calculateMovingPoints();
     void UpdateNavigation();
 
 private:
     CharacterController* characterController_;
-    std::vector<vec3> currentPath_;
     bool isMovingForward_{false};
 
 public:

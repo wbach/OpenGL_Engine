@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "GameEngine/Camera/ICamera.h"
+#include "GameEngine/Components/Controllers/AIController.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
@@ -31,6 +32,31 @@ struct ColorBuffer
 {
     AlignWrapper<vec4> color;
 };
+GraphicsApi::LineMesh CreateLineMeshFromPath(const std::vector<vec3>& path, const vec3& color = vec3(0, 1, 0))
+{
+    GraphicsApi::LineMesh mesh;
+    if (path.size() < 2)
+        return mesh;
+
+    for (size_t i = 0; i < path.size() - 1; ++i)
+    {
+        mesh.positions_.push_back(path[i].x);
+        mesh.positions_.push_back(path[i].y + 0.2f);
+        mesh.positions_.push_back(path[i].z);
+
+        mesh.positions_.push_back(path[i + 1].x);
+        mesh.positions_.push_back(path[i + 1].y + 0.2f);
+        mesh.positions_.push_back(path[i + 1].z);
+
+        for (int j = 0; j < 2; ++j)
+        {
+            mesh.colors_.push_back(color.r);
+            mesh.colors_.push_back(color.g);
+            mesh.colors_.push_back(color.b);
+        }
+    }
+    return mesh;
+}
 GraphicsApi::LineMesh CreateTerrainBrushCircle(const glm::vec3& center, float radius, int segments, const glm::vec4& color)
 {
     GraphicsApi::LineMesh mesh;
@@ -299,22 +325,32 @@ void DebugRenderer::init()
 
             if (objectSelection)
             {
-                GraphicsApi::LineMesh lineMesh;
-                if (auto rc = objectSelection->GetComponent<Components::RendererComponent>())
+                auto rcs = objectSelection->GetComponents<Components::RendererComponent>();
+                if (not rcs.empty())
                 {
-                    lineMesh = CreateLineMeshFromBoundingBox(rc->getWorldSpaceBoundingBox(), vec4(1, 0, 0, 1.f));
+                    for (auto& rc : rcs)
+                    {
+                        auto lineMesh = CreateLineMeshFromBoundingBox(rc->getWorldSpaceBoundingBox(), vec4(1, 0, 0, 1.f));
+                        result        = appendLineMesh(result, lineMesh);
+                    }
                 }
                 else if (auto rc = objectSelection->GetComponent<Components::TreeRendererComponent>())
                 {
-                    lineMesh = CreateLineMeshFromBoundingBox(rc->GetWorldBoundingBox(), vec4(1, 0, 0, 1.f));
+                    auto lineMesh = CreateLineMeshFromBoundingBox(rc->GetWorldBoundingBox(), vec4(1, 0, 0, 1.f));
+                    result        = appendLineMesh(result, lineMesh);
                 }
                 else
                 {
-                    lineMesh = CreateWorldSpaceBoundingBox(objectSelection->GetWorldTransform().CalculateCurrentMatrix(),
-                                                           vec4(1, 0, 0, 1.f));
+                    auto lineMesh = CreateWorldSpaceBoundingBox(objectSelection->GetWorldTransform().CalculateCurrentMatrix(),
+                                                                vec4(1, 0, 0, 1.f));
+                    result        = appendLineMesh(result, lineMesh);
                 }
 
-                result = appendLineMesh(result, lineMesh);
+                if (auto aic = objectSelection->GetComponent<Components::AIController>())
+                {
+                    auto lineMesh = CreateLineMeshFromPath(aic->currentPath_);
+                    result        = appendLineMesh(result, lineMesh);
+                }
             }
 
             return result;
