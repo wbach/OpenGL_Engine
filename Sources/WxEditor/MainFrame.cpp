@@ -237,9 +237,10 @@ void MainFrame::Init()
     wxSplitterWindow* topSplitter = new wxSplitterWindow(leftSplitter, wxID_ANY);
 
     // === Tree ===
-    auto treeCtrl      = new wxTreeCtrl(topSplitter, ID_OBJECT_TREE, wxPoint(0, 0), wxSize(160, 250),
-                                        wxTR_DEFAULT_STYLE | wxNO_BORDER | wxTR_EDIT_LABELS);
-    gameObjectsView    = std::make_unique<SceneTreeCtrl>(treeCtrl,
+    auto treeCtrl = new wxTreeCtrl(topSplitter, ID_OBJECT_TREE, wxPoint(0, 0), wxSize(160, 250),
+                                   wxTR_DEFAULT_STYLE | wxNO_BORDER | wxTR_EDIT_LABELS);
+
+    gameObjectsView = std::make_unique<SceneTreeCtrl>(treeCtrl,
                                                       [this](IdType item, IdType newParent)
                                                       {
                                                           auto& scene      = canvas->GetScene();
@@ -250,6 +251,7 @@ void MainFrame::Init()
                                                               ChangeGameObjectParent(*go, *newParentGo);
                                                           }
                                                       });
+
     auto onStartupDone = [this]()
     {
         auto& scene = canvas->GetScene();
@@ -372,8 +374,8 @@ void MainFrame::Init()
                                     {wxACCEL_CTRL | wxACCEL_SHIFT, (int)'Z', ID_REDO},
                                     {wxACCEL_NORMAL, WXK_DELETE, ID_TREE_MENU_REMOVE},
                                     {wxACCEL_NORMAL, (int)'G', ID_TREE_MENU_DRAG_OBJECT}};
-    wxAcceleratorTable accel(std::size(entries), entries);
-    SetAcceleratorTable(accel);
+    acceleratorTable             = wxAcceleratorTable(std::size(entries), entries);
+    SetAcceleratorTable(acceleratorTable);
 
     Bind(wxEVT_MENU, &MainFrame::MenuFileSaveScene, this, ID_SAVE);
     Bind(wxEVT_MENU, &MainFrame::OnUndo, this, ID_UNDO);
@@ -1505,6 +1507,8 @@ void MainFrame::OnEndLabelEdit(wxTreeEvent& event)
             }
         }
     }
+
+    SetAcceleratorTable(acceleratorTable);
 }
 
 void MainFrame::OnRename(wxCommandEvent& event)
@@ -1512,6 +1516,7 @@ void MainFrame::OnRename(wxCommandEvent& event)
     auto item = gameObjectsView->GetSelection();
     if (item.IsOk())
     {
+        SetAcceleratorTable(wxNullAcceleratorTable);
         gameObjectsView->EditLabel(item);
     }
 }

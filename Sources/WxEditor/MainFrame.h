@@ -213,6 +213,7 @@ private:
 
     wxSplitterWindow* rightSplitter = nullptr;
     bool terrainPanelVisible        = false;
+    wxAcceleratorTable acceleratorTable;
 
     wxSlider* timeSlider{nullptr};
     wxSpinCtrl* hourCtrl{nullptr};
