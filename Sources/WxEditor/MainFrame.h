@@ -117,6 +117,9 @@ private:
     void MenuComponentsRebuild(wxCommandEvent&);
     void MenuComponentsReload(wxCommandEvent&);
 
+    void MenuDebugCalulatePath(wxCommandEvent&);
+    void MenuVisualizationOfNavGrid(wxCommandEvent&);
+
     bool SetDeubgRendererState(GameEngine::DebugRenderer::RenderState);
 
     void OnObjectTreeSelChange(wxTreeEvent&);
@@ -148,6 +151,7 @@ private:
     wxMenu* CreateEditMenu();
     wxMenu* CreateRendererMenu();
     wxMenu* CreateComponentsMenu();
+    wxMenu* CreateDebugMenu();
     wxMenu* CreateAboutMenu();
 
     void UpdateMainMenuRendererOptionsCheckBoxes();
@@ -178,6 +182,8 @@ private:
     void OnLookAtPerspective(wxCommandEvent& event);
     void OnUndo(wxCommandEvent& event);
     void OnRedo(wxCommandEvent& event);
+
+    void LookAtGameObject(IdType);
 
     bool SaveSceneAs();
     void SaveSceneAs(const std::string&);

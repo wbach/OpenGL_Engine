@@ -27,6 +27,7 @@
 #include <wx/log.h>
 #include <wx/splitter.h>
 #include <wx/statbmp.h>
+#include <wx/statline.h>
 #include <wx/stdpaths.h>
 
 #include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
@@ -46,6 +47,7 @@
 #include "ComponentPanel/ComponentPanel.h"
 #include "ComponentPanel/ComponentPickerPopup.h"
 #include "ComponentPanel/TransformPanel.h"
+#include "Components/Controllers/AIController.h"
 #include "Components/Physics/Rigidbody.h"
 #include "Components/Renderer/Water/WaterRendererComponent.h"
 #include "ControlsIds.h"
@@ -177,6 +179,8 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_RENDERER_TEXTURE_NORMALS, MainFrame::MenuRendererTextureNormals)
     EVT_MENU(ID_MENU_RENDERER_TEXTURE_SPECULAR, MainFrame::MenuRendererTextureSpecular)
     EVT_MENU(ID_MENU_RENDERER_TEXTURE_DISPLACEMENT, MainFrame::MenuRendererTextureDisplacement)
+    EVT_MENU(ID_MENU_DEBUG_CALCULATE_PATH, MainFrame::MenuDebugCalulatePath)
+    EVT_MENU(ID_MENU_DEBUG_SHOW_NAV_GRID, MainFrame::MenuVisualizationOfNavGrid)
     EVT_MENU(ID_MENU_ABOUT_GL_INFO, MainFrame::OnGLVersion)
     EVT_MENU(ID_MENU_COMPONENTS_REBUILD, MainFrame::MenuComponentsRebuild)
     EVT_MENU(ID_MENU_COMPONENTS_RELOAD, MainFrame::MenuComponentsReload)
@@ -1052,6 +1056,7 @@ void MainFrame::CreateMainMenu()
     menuBar->Append(CreateEditMenu(), "&Edit");
     menuBar->Append(CreateRendererMenu(), "&Renderer");
     menuBar->Append(CreateComponentsMenu(), "&Components");
+    menuBar->Append(CreateDebugMenu(), "&Debug");
     menuBar->Append(CreateAboutMenu(), "&About");
     SetMenuBar(menuBar);
 }
@@ -1182,6 +1187,15 @@ wxMenu* MainFrame::CreateComponentsMenu()
     menuFile->Append(ID_MENU_COMPONENTS_RELOAD, "&Reload all project components", "Reload all project components");
 
     return menuFile;
+}
+
+wxMenu* MainFrame::CreateDebugMenu()
+{
+    wxMenu* menuAbout = new wxMenu;
+    menuAbout->Append(ID_MENU_DEBUG_CALCULATE_PATH, "&Calculate navigation path", "Calculate path");
+    menuAbout->Append(ID_MENU_DEBUG_SHOW_NAV_GRID, "&Visualization of navigation grid", "");
+
+    return menuAbout;
 }
 
 wxMenu* MainFrame::CreateAboutMenu()
@@ -1452,29 +1466,34 @@ void MainFrame::OnObjectTreeActivated(wxTreeEvent& event)
 {
     if (auto maybeGameObjectId = gameObjectsView->Get(event.GetItem().GetID()))
     {
-        if (auto* cameraEditor = canvas->GetCameraEditor())
+        LookAtGameObject(*maybeGameObjectId);
+    }
+}
+
+void MainFrame::LookAtGameObject(IdType gameObjectId)
+{
+    if (auto* cameraEditor = canvas->GetCameraEditor())
+    {
+        if (auto gameObject = canvas->GetScene().GetGameObject(gameObjectId))
         {
-            if (auto gameObject = canvas->GetScene().GetGameObject(*maybeGameObjectId))
+            cameraEditor->SetPerspectiveView();
+
+            const vec3& target = gameObject->GetWorldTransform().GetPosition();
+            float distance     = 1.f;
+
+            if (auto rc = gameObject->GetComponent<GameEngine::Components::RendererComponent>())
             {
-                cameraEditor->SetPerspectiveView();
-
-                const vec3& target = gameObject->GetWorldTransform().GetPosition();
-                float distance     = 1.f;
-
-                if (auto rc = gameObject->GetComponent<GameEngine::Components::RendererComponent>())
-                {
-                    const auto& bbox   = rc->getWorldSpaceBoundingBox();
-                    const float maxDim = glm::compMax(bbox.size());
-                    const float margin = 2.0f;
-                    distance           = maxDim * margin;
-                }
-
-                const vec3 direction = glm::normalize(vec3(1.f, 1.f, 1.f));
-                const vec3 camPos    = target + direction * distance;
-
-                cameraEditor->SetPosition(camPos);
-                cameraEditor->LookAt(target);
+                const auto& bbox   = rc->getWorldSpaceBoundingBox();
+                const float maxDim = glm::compMax(bbox.size());
+                const float margin = 2.0f;
+                distance           = maxDim * margin;
             }
+
+            const vec3 direction = glm::normalize(vec3(1.f, 1.f, 1.f));
+            const vec3 camPos    = target + direction * distance;
+
+            cameraEditor->SetPosition(camPos);
+            cameraEditor->LookAt(target);
         }
     }
 }
@@ -2301,4 +2320,103 @@ void MainFrame::UpdateRamUsage()
 void MainFrame::OnTimer(wxTimerEvent& event)
 {
     UpdateRamUsage();
+}
+
+void MainFrame::MenuDebugCalulatePath(wxCommandEvent&)
+{
+    wxDialog dlg(this, wxID_ANY, "Debug: Calculate Path", wxDefaultPosition, wxSize(450, 600));
+    wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
+
+    // --- PRZYGOTOWANIE DANYCH (Kopie zapasowe do filtrowania) ---
+    wxArrayString allAiNames;
+    auto allAiComponents =
+        canvas->GetScene().getComponentController().GetAllComponentsOfType<GameEngine::Components::AIController>();
+    for (auto& comp : allAiComponents)
+        allAiNames.Add(comp->getParentGameObject().GetName());
+
+    wxArrayString allGoNames;
+    const auto& gameObjects = canvas->GetScene().GetAllGameObjectsPtrs();
+    for (const auto& [_, go] : gameObjects)
+        allGoNames.Add(go->GetName());
+
+    // --- UI: SCROLLED WINDOW ---
+    wxScrolledWindow* scrollWin = new wxScrolledWindow(&dlg, wxID_ANY);
+    scrollWin->SetScrollRate(0, 10);
+    wxBoxSizer* scrollSizer = new wxBoxSizer(wxVERTICAL);
+
+    // Sekcja 1: Obiekt AI + Szukajka
+    scrollSizer->Add(new wxStaticText(scrollWin, wxID_ANY, "Filtruj Obiekt AI:"), 0, wxLEFT | wxTOP, 10);
+    wxTextCtrl* searchAi = new wxTextCtrl(scrollWin, wxID_ANY, "");
+    scrollSizer->Add(searchAi, 0, wxEXPAND | wxLEFT | wxRIGHT, 10);
+
+    wxComboBox* comboAi = new wxComboBox(scrollWin, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, allAiNames, wxCB_READONLY);
+    scrollSizer->Add(comboAi, 0, wxEXPAND | wxALL, 10);
+
+    scrollSizer->Add(new wxStaticLine(scrollWin), 0, wxEXPAND | wxALL, 5);
+
+    // Sekcja 2: Target + Szukajka
+    scrollSizer->Add(new wxStaticText(scrollWin, wxID_ANY, "Filtruj Target:"), 0, wxLEFT | wxTOP, 10);
+    wxTextCtrl* searchTarget = new wxTextCtrl(scrollWin, wxID_ANY, "");
+    scrollSizer->Add(searchTarget, 0, wxEXPAND | wxLEFT | wxRIGHT, 10);
+
+    wxComboBox* comboTarget =
+        new wxComboBox(scrollWin, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, allGoNames, wxCB_READONLY);
+    scrollSizer->Add(comboTarget, 0, wxEXPAND | wxALL, 10);
+
+    // --- LOGIKA FILTROWANIA (Lambda) ---
+    auto UpdateFilter = [](wxTextCtrl* txt, wxComboBox* cb, const wxArrayString& fullList)
+    {
+        wxString filter = txt->GetValue().Lower();
+        cb->Clear();
+        for (const auto& s : fullList)
+        {
+            if (filter.IsEmpty() || s.Lower().Contains(filter))
+            {
+                cb->Append(s);
+            }
+        }
+        if (cb->GetCount() > 0)
+            cb->SetSelection(0);
+    };
+
+    // Binding zdarzeń wpisywania tekstu
+    searchAi->Bind(wxEVT_TEXT, [=, &allAiNames](wxCommandEvent&) { UpdateFilter(searchAi, comboAi, allAiNames); });
+
+    searchTarget->Bind(wxEVT_TEXT, [=, &allGoNames](wxCommandEvent&) { UpdateFilter(searchTarget, comboTarget, allGoNames); });
+
+    // --- FINALIZACJA ---
+    scrollWin->SetSizer(scrollSizer);
+    topSizer->Add(scrollWin, 1, wxEXPAND);
+    topSizer->Add(dlg.CreateButtonSizer(wxOK | wxCANCEL), 0, wxALL | wxALIGN_CENTER, 15);
+
+    dlg.SetSizer(topSizer);
+    dlg.Layout();
+
+    if (dlg.ShowModal() == wxID_OK)
+    {
+        wxString startVal = comboAi->GetValue();
+        wxString endVal   = comboTarget->GetValue();
+
+        auto iter = std::find_if(allAiComponents.begin(), allAiComponents.end(),
+                                 [&startVal](const auto& item) { return item->getParentGameObject().GetName() == startVal; });
+
+        if (iter != allAiComponents.end())
+        {
+            auto iter2 = std::find_if(gameObjects.begin(), gameObjects.end(),
+                                      [&endVal](const auto& pair) { return pair.second->GetName() == endVal; });
+
+            if (iter2 != gameObjects.end())
+            {
+                const auto& parent = (*iter)->GetParentGameObject();
+                gameObjectsView->SelectItemWhenGameObjectBecomeAvaiable(parent.GetId());
+                LookAtGameObject(parent.GetId());
+                (*iter)->MoveTo(iter2->second->GetWorldTransform().GetPosition());
+            }
+        }
+    }
+}
+
+void MainFrame::MenuVisualizationOfNavGrid(wxCommandEvent&)
+{
+    wxMessageBox("Not implemented", "Info", wxOK);
 }

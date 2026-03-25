@@ -97,7 +97,7 @@ public:
 
     // GetObjects
     inline const GameObjects& GetGameObjects() const;
-    const std::unordered_map<uint32, GameObject*> GetAllGameObjectsPtrs() const;
+    const std::unordered_map<uint32, GameObject*>& GetAllGameObjectsPtrs() const;
     GameObject* GetGameObject(uint32) const;
     GameObject* GetGameObject(const std::string&) const;
     GameObject& GetRootGameObject();
@@ -238,7 +238,7 @@ inline const GameObjects& Scene::GetGameObjects() const
     return rootGameObject_->GetChildren();
 }
 
-inline const std::unordered_map<uint32, GameObject*> Scene::GetAllGameObjectsPtrs() const
+inline const std::unordered_map<uint32, GameObject*>& Scene::GetAllGameObjectsPtrs() const
 {
     return gameObjectsIds_;
 }
