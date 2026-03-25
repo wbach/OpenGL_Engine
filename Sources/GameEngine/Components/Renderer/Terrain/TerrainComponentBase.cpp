@@ -105,7 +105,7 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
     thisObject_.SetWorldScale(vec3(1.f));
     bool updateRigidbodyOnTransformChange_ = false;
     auto rigidBodyId_ =
-        componentContext_.physicsApi_.CreateRigidbody(*collisionShapeId, thisObject_, {}, 0.f, updateRigidbodyOnTransformChange_);
+        componentContext_.physicsApi_.CreateRigidbody(*collisionShapeId, thisObject_, Physics::CollisionGroup::Default, {}, 0.f, updateRigidbodyOnTransformChange_);
 
     if (not rigidBodyId_)
     {

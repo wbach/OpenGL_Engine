@@ -15,7 +15,7 @@ class Scene;
 class ENGINE_API NavigationManager
 {
 public:
-    NavigationManager();
+    NavigationManager(Physics::IPhysicsApi&);
 
     void Update(const SceneNotifEvent&);
     std::vector<vec3> CalculatePath(const vec3&, const vec3&);
@@ -24,6 +24,7 @@ private:
     void ReCreateProvider();
 
 private:
+    Physics::IPhysicsApi& physicsApi;
     std::unique_ptr<INavigationProvider> navigationProvider;
     std::unordered_map<IdType, GameObject*> objectInPath;
     bool isDirty{false};

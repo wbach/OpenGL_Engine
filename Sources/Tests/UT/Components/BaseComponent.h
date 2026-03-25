@@ -48,12 +48,13 @@ public:
     BaseComponentTestSchould();
     virtual ~BaseComponentTestSchould();
 
+    Scene scene;
+    PhysicsApiMock physicsApiMock_;
     NavigationManager navigationManager;
     TweenManagerMock tweenManager;
     GameState gameState_;
     CameraManager cameraManager_;
     AudioManagerMock audioManager_;
-    Scene scene;
     std::vector<GraphicsApi::DisplayMode> displayModes;
     Utils::IdPool gameObjectIdPool;
     ::testing::NiceMock<GpuResourceLoaderMock> gpuResourceLoader_;
@@ -68,7 +69,6 @@ public:
 
     Utils::Thread::ThreadSync threadSync_;
     Utils::Time::TimerServiceMock timerService_;
-    PhysicsApiMock physicsApiMock_;
     ResourceManagerMock resourcesManager_;
     ::testing::NiceMock<GraphicsApi::GraphicsApiMock> graphicsApiMock_;
     SceneManagerMock sceneManager;

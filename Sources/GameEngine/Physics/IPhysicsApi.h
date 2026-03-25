@@ -8,6 +8,7 @@
 #include <set>
 #include <vector>
 
+#include "GameEngine/Resources/Models/BoundingBox.h"
 #include "PhysicsApiTypes.h"
 #include "RayHit.h"
 #include "RigidbodyProperty.h"
@@ -49,6 +50,14 @@ struct CollisionDetection
     Predicate predicate;
 };
 
+enum CollisionGroup
+{
+    Default        = 1,
+    StaticObstacle = 2,
+    Terrain        = 4,
+    Player         = 8
+};
+
 class IPhysicsApi
 {
 public:
@@ -64,7 +73,7 @@ public:
     virtual ShapeId CreateTerrainColider(const PositionOffset&, const Scale&, const HeightMap&)     = 0;
     virtual ShapeId CreateMeshCollider(const PositionOffset&, const std::vector<float>& data, const IndicesVector&, const vec3&,
                                        bool)                                                        = 0;
-    virtual RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, const RigidbodyProperties&, float mass,
+    virtual RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, CollisionGroup, const RigidbodyProperties&, float mass,
                                         bool& isUpdating)                                           = 0;
     virtual void RemoveRigidBody(const RigidbodyId&)                                                = 0;
     virtual void RemoveShape(const ShapeId&)                                                        = 0;
@@ -74,9 +83,9 @@ public:
     virtual std::optional<vec3> GetVelocity(const RigidbodyId&)                                     = 0;
     virtual void SetAngularFactor(const RigidbodyId&, float)                                        = 0;
     virtual void SetAngularFactor(const RigidbodyId&, const vec3&)                                  = 0;
+    virtual void SetRotation(const RigidbodyId&, const Quaternion&)                                 = 0;
     virtual std::optional<vec3> GetAngularFactor(const RigidbodyId&)                                = 0;
     virtual void SetRotation(const RigidbodyId&, const vec3&)                                       = 0;
-    virtual void SetRotation(const RigidbodyId&, const Quaternion&)                                 = 0;
     virtual void SetPosition(const RigidbodyId&, const vec3&)                                       = 0;
     virtual void Translate(const RigidbodyId&, const vec3&)                                         = 0;
     virtual void SetRigidbodyScale(const RigidbodyId&, const vec3&)                                 = 0;
@@ -90,6 +99,8 @@ public:
     virtual void disableVisualizationForAllRigidbodys()                                             = 0;
     virtual CollisionSubId setCollisionCallback(const RigidbodyId&, const CollisionDetection&)      = 0;
     virtual void celarCollisionCallback(const CollisionSubId&)                                      = 0;
+    virtual std::optional<BoundingBox> getBoundingBox(const RigidbodyId&) const                     = 0;
+    virtual bool checkBoxOverlap(const vec3&, const vec3&) const                                    = 0;
 };
 
 using IPhysicsApiPtr = std::shared_ptr<IPhysicsApi>;

@@ -12,6 +12,7 @@
 #include "Common/Transform.h"
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Physics/IPhysicsApi.h"
 
 namespace GameEngine
 {
@@ -199,8 +200,8 @@ ShapeId BachPhysicsAdapter::CreateMeshCollider(const vec3&, const std::vector<fl
 {
     return impl_->id_++;
 }
-RigidbodyId BachPhysicsAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& transform, const RigidbodyProperties&,
-                                                float mass, bool&)
+RigidbodyId BachPhysicsAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& transform, CollisionGroup,
+                                                const RigidbodyProperties&, float mass, bool&)
 {
     impl_->rigidbodies_.insert({impl_->id_, Rigidbody(transform, mass, false, *shapeId)});
     return impl_->id_++;

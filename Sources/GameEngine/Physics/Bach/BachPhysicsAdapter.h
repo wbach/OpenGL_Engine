@@ -24,7 +24,7 @@ public:
     ShapeId CreateTerrainColider(const vec3& positionOffset, const Scale&, const HeightMap&) override;
     ShapeId CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data, const IndicesVector& indicies,
                                const vec3&, bool) override;
-    RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, const RigidbodyProperties&, float mass, bool&) override;
+    RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, CollisionGroup, const RigidbodyProperties&, float mass, bool&) override;
     void RemoveRigidBody(const RigidbodyId&) override;
     void RemoveShape(const ShapeId&) override;
     void SetVelocityRigidbody(const RigidbodyId&, const vec3& velocity) override;

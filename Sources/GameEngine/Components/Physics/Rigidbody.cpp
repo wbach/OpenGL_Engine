@@ -27,6 +27,7 @@ constexpr char CSTR_VELOCITY[]{"velocity"};
 constexpr char CSTR_ANGULAR_FACTOR[]{"angularFactor"};
 constexpr char CSTR_COLLISION_SHAPE[]{"collisionShape"};
 constexpr char CSTR_NO_CONCTACT_RESPONSE[]{"noConctactResponse"};
+constexpr char CSTR_COLLISION_GROUP[]{"collisionGroup"};
 }  // namespace
 
 Rigidbody::Rigidbody(ComponentContext& componentContext, GameObject& gameObject)
@@ -108,8 +109,8 @@ void Rigidbody::CreateRigidbody()
         return;
     }
 
-    rigidBodyId_ = componentContext_.physicsApi_.CreateRigidbody(*maybeShapeId, thisObject_, rigidbodyPropierties, mass,
-                                                                 updateRigidbodyOnTransformChange_);
+    rigidBodyId_ = componentContext_.physicsApi_.CreateRigidbody(*maybeShapeId, thisObject_, collisionGroup, rigidbodyPropierties,
+                                                                 mass, updateRigidbodyOnTransformChange_);
     if (not rigidBodyId_)
     {
         LOG_ERROR << "create rigidbody error.";
@@ -424,6 +425,15 @@ void Rigidbody::registerReadFunctions()
     auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
     {
         auto component = std::make_unique<Rigidbody>(componentContext, gameObject);
+        component->read(node);
+
+        if (auto gnode = node.getChild(CSTR_COLLISION_GROUP))
+        {
+            if (auto v = magic_enum::enum_cast<Physics::CollisionGroup>(gnode->value_))
+            {
+                component->collisionGroup = *v;
+            }
+        }
 
         float mass{1.f};
         ::Read(node.getChild(CSTR_MASS), mass);
@@ -464,8 +474,9 @@ void Rigidbody::registerReadFunctions()
 }
 void Rigidbody::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
+    BaseComponent::write(node);
 
+    ::write(node.addChild(CSTR_COLLISION_GROUP), magic_enum::enum_name(collisionGroup));
     ::write(node.addChild(CSTR_MASS), mass);
     ::write(node.addChild(CSTR_IS_STATIC), isStaticObject);
     ::write(node.addChild(CSTR_NO_CONCTACT_RESPONSE), isNoConctactResponse);

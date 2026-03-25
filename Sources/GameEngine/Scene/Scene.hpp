@@ -169,7 +169,7 @@ protected:
     Utils::Thread::IThreadSync* threadSync_{nullptr};
     Utils::Time::TimerService* timerService_{nullptr};
     TweenManager tweenManager;
-    NavigationManager navigationManager;
+    std::unique_ptr<NavigationManager> navigationManager;
 
     std::string name;
     File file_;

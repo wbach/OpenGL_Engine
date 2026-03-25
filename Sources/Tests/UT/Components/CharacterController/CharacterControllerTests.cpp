@@ -22,7 +22,7 @@ CharacterControllerTests::CharacterControllerTests()
 
     EXPECT_CALL(physicsApiMock_, SetAngularFactor(_, Matcher<float>(_))).Times(AtLeast(1));
     EXPECT_CALL(physicsApiMock_, CreateSphereColider(_, _, _)).WillOnce(Return(shapeId));
-    EXPECT_CALL(physicsApiMock_, CreateRigidbody(shapeId, _, _, _, _)).WillOnce(Return(rigidbodyid));
+    EXPECT_CALL(physicsApiMock_, CreateRigidbody(shapeId, _, _, _, _, _)).WillOnce(Return(rigidbodyid));
 
     EXPECT_CALL(physicsApiMock_,
                 setCollisionCallback(_, CollisionDetectionActionMatcher(GameEngine::Physics::CollisionDetection::Action::onExit)))

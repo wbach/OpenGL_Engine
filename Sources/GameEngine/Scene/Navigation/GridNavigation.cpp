@@ -1,6 +1,7 @@
 #include "GridNavigation.h"
 
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
+#include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Models/Model.h"
 
@@ -364,6 +365,37 @@ void GridNavigation::AddObstacle(Model& model, const glm::mat4& modelTransform, 
             if (hit)
             {
                 SetWalkable(x, z, false);
+            }
+        }
+    }
+}
+void GridNavigation::AddPhysicsObstacle(Physics::IPhysicsApi& api, const BoundingBox& worldBB, float agentHeight)
+{
+    auto getX = [&](auto worldX) { return static_cast<int>(std::floor((worldX - origin.x) / cellSize)); };
+    auto getZ = [&](auto worldZ) { return static_cast<int>(std::floor((worldZ - origin.z) / cellSize)); };
+
+    auto startX = std::max(0, getX(worldBB.min().x));
+    auto endX   = std::min(width - 1, getX(worldBB.max().x));
+    auto startZ = std::max(0, getZ(worldBB.min().z));
+    auto endZ   = std::min(height - 1, getZ(worldBB.max().z));
+
+    for (int z = startZ; z <= endZ; ++z)
+    {
+        for (int x = startX; x <= endX; ++x)
+        {
+            int idx = z * width + x;
+            if (!nodes[idx].isWalkable)
+                continue;
+
+            auto cellPos = GetWorldPosFromIndex(x, z, nodes[idx].height);
+            vec3 rayStart(cellPos.x, cellPos.y + 0.1f, cellPos.z);
+            vec3 rayEnd(cellPos.x, cellPos.y + agentHeight, cellPos.z);
+
+            auto rayTestResult = api.RayTest(rayStart, rayEnd);
+
+            if (rayTestResult)
+            {
+                nodes[idx].isWalkable = false;
             }
         }
     }

@@ -4,6 +4,7 @@
 #include <btBulletDynamicsCommon.h>
 
 #include <algorithm>
+#include <optional>
 #include <ranges>
 #include <unordered_map>
 
@@ -17,6 +18,7 @@
 #include "GameEngine/Physics/Bullet/Rigidbody.h"
 #include "GameEngine/Physics/CollisionContactInfo.h"
 #include "GameEngine/Physics/PhysicsApiTypes.h"
+#include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "MeshShape.h"
 #include "Rigidbodies.h"
@@ -320,8 +322,8 @@ ShapeId BulletAdapter::CreateMeshCollider(const PositionOffset& positionOffset, 
     return {};
 }
 
-RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& gameObject, const RigidbodyProperties& properties,
-                                           float mass, bool& isUpdating)
+RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& gameObject, CollisionGroup group,
+                                           const RigidbodyProperties& properties, float mass, bool& isUpdating)
 {
     if (not shapeId)
     {
@@ -383,8 +385,10 @@ RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& g
     Rigidbody body{std::make_unique<btRigidBody>(cInfo), gameObject, shape.positionOffset_, isUpdating, *shapeId};
     body.btRigidbody_->setCollisionFlags(flags);
     body.btRigidbody_->setFriction(1);
+
     std::lock_guard<std::mutex> lk(dynamicWorldMutex);
-    btDynamicWorld->addRigidBody(body.btRigidbody_.get());
+    auto mask = btBroadphaseProxy::AllFilter;
+    btDynamicWorld->addRigidBody(body.btRigidbody_.get(), group, mask);
     btDynamicWorld->updateSingleAabb(body.btRigidbody_.get());
     return impl_->rigidbodies.insert(std::move(body), isStatic);
 }
@@ -752,6 +756,54 @@ void BulletAdapter::executeTasks()
     processing.clear();
 }
 
+std::optional<BoundingBox> BulletAdapter::getBoundingBox(const RigidbodyId& rigidBodyId) const
+{
+    if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
+    {
+        btVector3 minAABB, maxAABB;
+        rigidbody->btRigidbody_->getAabb(minAABB, maxAABB);
+
+        return BoundingBox(Convert(minAABB), Convert(maxAABB));
+    }
+
+    return std::nullopt;
+}
+bool BulletAdapter::checkBoxOverlap(const vec3& pos, const vec3& halfExtents) const
+{
+    btBoxShape tempShape(btVector3(halfExtents.x, halfExtents.y, halfExtents.z));
+    btCollisionObject tempObj;
+    tempObj.setCollisionShape(&tempShape);
+
+    btTransform xform;
+    xform.setIdentity();
+    xform.setOrigin(btVector3(pos.x, pos.y, pos.z));
+    tempObj.setWorldTransform(xform);
+
+    struct NavigationContactCallback : public btCollisionWorld::ContactResultCallback
+    {
+        bool hasCollision = false;
+
+        NavigationContactCallback(short mask)
+        {
+            m_collisionFilterGroup = btBroadphaseProxy::DefaultFilter;
+            m_collisionFilterMask  = mask;
+        }
+
+        virtual btScalar addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0,
+                                         int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1,
+                                         int index1) override
+        {
+            hasCollision = true;
+            return 0.f;
+        }
+    };
+
+    short mask = CollisionGroup::Default | CollisionGroup::StaticObstacle;
+    NavigationContactCallback callback(mask);
+
+    btDynamicWorld->contactTest(&tempObj, callback);
+    return callback.hasCollision;
+}
 }  // namespace Bullet
 
 }  // namespace Physics

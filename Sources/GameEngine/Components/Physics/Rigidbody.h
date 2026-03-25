@@ -4,6 +4,7 @@
 
 #include "Common/Transform.h"
 #include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Physics/RigidbodyProperty.h"
 
 namespace GameEngine
@@ -21,10 +22,12 @@ public:
     vec3 velocity{0.f, 0.f, 0.f};
     vec3 angularFactor{1.f, 1.f, 1.f};
     std::string collisionShapeName;
+    Physics::CollisionGroup collisionGroup;
 
 public:
     // clang-format off
     BEGIN_FIELDS()
+        FIELD_ENUM(collisionGroup)
         FIELD_STRING(collisionShapeName)
         FIELD_FLOAT(mass)
         FIELD_BOOL(isStaticObject)

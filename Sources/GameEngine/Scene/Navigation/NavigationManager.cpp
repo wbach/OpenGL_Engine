@@ -4,16 +4,18 @@
 
 #include <memory>
 
+#include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Scene/Navigation/GridNavigation.h"
 
 namespace GameEngine
 {
-NavigationManager::NavigationManager()
-    : navigationProvider()
+NavigationManager::NavigationManager(Physics::IPhysicsApi& physicsApi)
+    : physicsApi(physicsApi)
 {
 }
 std::vector<vec3> NavigationManager::CalculatePath(const vec3& start, const vec3& end)
@@ -34,7 +36,8 @@ void NavigationManager::Update(const SceneNotifEvent& event)
                                return;
 
                            if (e.gameObject->HasComponent<Components::TerrainRendererComponent>() or
-                               e.gameObject->HasComponent<Components::RendererComponent>())
+                               e.gameObject->HasComponent<Components::RendererComponent>() or
+                               e.gameObject->HasComponent<Components::Rigidbody>())
                            {
                                objectInPath.insert({e.gameObject->GetId(), e.gameObject});
                                isDirty = true;
@@ -92,11 +95,19 @@ void NavigationManager::ReCreateProvider()
 
     const float defaultAgentRadius = 0.4f;
 
-    int obstacleCount              = 0;
+    int obstacleCount = 0;
     // TO DO:
     for (auto& [_, obj] : objectInPath)
     {
-        if (auto maybeRendererComponent = obj->GetComponent<Components::RendererComponent>())
+        if (auto maybRigidbody = obj->GetComponent<Components::Rigidbody>())
+        {
+            if (auto pBB = physicsApi.getBoundingBox(maybRigidbody->GetId()))
+            {
+                navigationProvider->AddPhysicsObstacle(physicsApi, *pBB, defaultAgentRadius);
+                obstacleCount++;
+            }
+        }
+        else if (auto maybeRendererComponent = obj->GetComponent<Components::RendererComponent>())
         {
             // auto aabb = maybeRendererComponent->getWorldSpaceBoundingBox();
             // navigationProvider->AddObstacle(aabb);

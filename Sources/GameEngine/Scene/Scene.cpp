@@ -130,6 +130,7 @@ void Scene::InitResources(EngineContext& context)
     guiEngineContextManger_ = std::make_unique<GuiEngineContextManger>(context.GetMeasurmentHandler(), *guiElementFactory_);
     dialogueManager_        = std::make_unique<DialogueManager>(context.GetAudioManager(), *timerService_, *inputManager_,
                                                          *guiElementFactory_, guiManager_, context.GetGameState(), tweenManager);
+    navigationManager       = std::make_unique<NavigationManager>(context.GetPhysicsApi());
 
     console_ = std::make_unique<Debug::Console>(*this);
 
@@ -151,7 +152,7 @@ void Scene::InitResources(EngineContext& context)
                                      .tweenManager         = tweenManager,
                                      .audioManager         = context.GetAudioManager(),
                                      .gamestate            = context.GetGameState(),
-                                     .navigationManager    = navigationManager});
+                                     .navigationManager    = *navigationManager});
     componentFactory_ = std::make_unique<Components::ComponentFactory>(*componentContext_);
 
     rootGameObject_ = CreateGameObject("root");
@@ -470,7 +471,8 @@ void Scene::NotifySceneEventSubscribers(const SceneNotifEvent& event)
         sub(event);
     }
 
-    navigationManager.Update(event);
+    if (navigationManager)
+        navigationManager->Update(event);
 }
 
 void Scene::UnSubscribeForSceneEvent(IdType id)

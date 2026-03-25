@@ -2,12 +2,12 @@
 #include <Utils/IdPool.h>
 
 #ifdef __GNUC__
-#  pragma GCC diagnostic push
-#  pragma GCC diagnostic ignored "-Wstringop-overflow"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
 #endif
 
 #ifdef __GNUC__
-#  pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
 #endif
 
 #include <memory>
@@ -52,7 +52,7 @@ public:
     ShapeId CreateTerrainColider(const PositionOffset&, const Scale&, const HeightMap& heightMap) override;
     ShapeId CreateMeshCollider(const PositionOffset&, const std::vector<float>& data, const IndicesVector& indicies, const vec3&,
                                bool) override;
-    RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, const RigidbodyProperties&, float, bool&) override;
+    RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, CollisionGroup, const RigidbodyProperties&, float, bool&) override;
     void RemoveRigidBody(const RigidbodyId&) override;
     void RemoveShape(const ShapeId&) override;
     void SetVelocityRigidbody(const RigidbodyId&, const vec3& velocity) override;
@@ -77,6 +77,8 @@ public:
     void disableVisualizationForAllRigidbodys() override;
     CollisionSubId setCollisionCallback(const RigidbodyId&, const CollisionDetection&) override;
     void celarCollisionCallback(const CollisionSubId&) override;
+    std::optional<BoundingBox> getBoundingBox(const RigidbodyId&) const override;
+    bool checkBoxOverlap(const vec3& pos, const vec3& halfExtents) const override;
 
 private:
     void createWorld();

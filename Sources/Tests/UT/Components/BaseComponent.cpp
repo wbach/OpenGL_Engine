@@ -7,11 +7,13 @@
 
 #include <GameEngine/Scene/Scene.hpp>
 #include <memory>
+#include "Scene/Navigation/NavigationManager.h"
 
 using namespace testing;
 
 BaseComponentTestSchould::BaseComponentTestSchould()
     : scene("TestScene")
+    , navigationManager(physicsApiMock_)
     , windowApiMock_()
     , threadSync_(measurementHandler_)
     , renderersManager_(graphicsApiMock_, gpuResourceLoader_, measurementHandler_, threadSync_, time_,
