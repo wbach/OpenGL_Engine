@@ -610,7 +610,7 @@ void Console::SubscribeKeys()
                                                  {
                                                      return;
                                                  }
-                                                 commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size() - 1);
+                                                 commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size());
                                                  AddCommand(currentCommand_->GetText().substr(COMMAND_CURRSOR.size()));
                                                  currentCommand_ = AddOrUpdateGuiText("");
                                              });
@@ -618,42 +618,30 @@ void Console::SubscribeKeys()
         KeyCodes::DARROW,
         [this]()
         {
-            if (commandsHistory_.empty())
+            if (commandHistoryIndex_ >= static_cast<int>(commandsHistory_.size()))
                 return;
 
             ++commandHistoryIndex_;
 
-            if (commandHistoryIndex_ < 0)
+            if (commandHistoryIndex_ < static_cast<int>(commandsHistory_.size()))
             {
-                commandHistoryIndex_ = static_cast<int>(commandsHistory_.size() - 1);
+                currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[commandHistoryIndex_]);
             }
-            if (commandHistoryIndex_ >= static_cast<int>(commandsHistory_.size()))
+            else
             {
-                commandHistoryIndex_ = 0;
+                currentCommand_->SetText(COMMAND_CURRSOR);
             }
-
-            currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[static_cast<size_t>(commandHistoryIndex_)]);
         });
 
     scene_.inputManager_->SubscribeOnKeyDown(
         KeyCodes::UARROW,
         [this]()
         {
-            if (commandsHistory_.empty())
+            if (commandsHistory_.empty() or commandHistoryIndex_ <= 0)
                 return;
 
             --commandHistoryIndex_;
-
-            if (commandHistoryIndex_ < 0)
-            {
-                commandHistoryIndex_ = static_cast<int>(commandsHistory_.size() - 1);
-            }
-            if (commandHistoryIndex_ >= static_cast<int>(commandsHistory_.size()))
-            {
-                commandHistoryIndex_ = 0;
-            }
-
-            currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[static_cast<size_t>(commandHistoryIndex_)]);
+            currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[commandHistoryIndex_]);
         });
 
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LSHIFT, [&]() { inputType = Input::SingleCharType::BIG; });
