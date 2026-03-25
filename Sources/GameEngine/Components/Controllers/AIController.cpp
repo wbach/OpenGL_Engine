@@ -83,14 +83,11 @@ void AIController::UpdateNavigation()
     auto currentPos   = thisObject_.GetWorldTransform().GetPosition();
     auto nextWaypoint = currentPath_.front();
 
-    LOG_DEBUG << "currentPos: " << currentPos << " Point nextWaypoint: " << nextWaypoint;
-
     auto toTarget = vec2(nextWaypoint.x - currentPos.x, nextWaypoint.z - currentPos.z);
     auto distance = glm::length(toTarget);
 
     if (distance < 0.5f)
     {
-        LOG_DEBUG << "Point reached. Waypoint : " << nextWaypoint;
         currentPath_.erase(currentPath_.begin());
 
         if (currentPath_.empty())

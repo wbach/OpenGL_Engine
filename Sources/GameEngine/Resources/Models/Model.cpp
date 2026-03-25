@@ -209,7 +209,7 @@ BoundingBox Model::transformBoundingBox(const glm::mat4& transform)
     for (const auto& mesh : meshes_)
     {
         auto meshBox            = mesh.getBoundingBox();
-        glm::mat4 fullTransform = transform * mesh.GetMeshTransform();
+        auto fullTransform = transform * mesh.GetMeshTransform();
         result.expandToInclude(meshBox.transformed(fullTransform));
     }
     return result;

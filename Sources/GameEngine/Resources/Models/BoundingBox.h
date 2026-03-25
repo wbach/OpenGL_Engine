@@ -28,6 +28,8 @@ public:
     float maxScale() const;
     BoundingBox transformed(const glm::mat4&) const;
     void expandToInclude(const BoundingBox&);
+    BoundingBox expanded(float) const;
+    bool contains(const vec3&) const;
 
 private:
     void calculate();

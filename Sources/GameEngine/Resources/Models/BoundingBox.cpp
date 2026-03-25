@@ -1,7 +1,7 @@
 #include "BoundingBox.h"
 
-#include <ostream>
 #include <array>
+#include <ostream>
 
 namespace GameEngine
 {
@@ -96,34 +96,28 @@ void BoundingBox::calculate()
     maxScale_ = glm::compMax(size_);
 }
 
-BoundingBox BoundingBox::transformed(const glm::mat4& transform) const
+BoundingBox BoundingBox::transformed(const glm::mat4 &transform) const
 {
-    std::array<glm::vec3, 8> corners = {
-        glm::vec3(min_.x, min_.y, min_.z),
-        glm::vec3(max_.x, min_.y, min_.z),
-        glm::vec3(min_.x, max_.y, min_.z),
-        glm::vec3(max_.x, max_.y, min_.z),
-        glm::vec3(min_.x, min_.y, max_.z),
-        glm::vec3(max_.x, min_.y, max_.z),
-        glm::vec3(min_.x, max_.y, max_.z),
-        glm::vec3(max_.x, max_.y, max_.z)
-    };
+    std::array<glm::vec3, 8> corners = {glm::vec3(min_.x, min_.y, min_.z), glm::vec3(max_.x, min_.y, min_.z),
+                                        glm::vec3(min_.x, max_.y, min_.z), glm::vec3(max_.x, max_.y, min_.z),
+                                        glm::vec3(min_.x, min_.y, max_.z), glm::vec3(max_.x, min_.y, max_.z),
+                                        glm::vec3(min_.x, max_.y, max_.z), glm::vec3(max_.x, max_.y, max_.z)};
 
     glm::vec3 newMin(std::numeric_limits<float>::max());
     glm::vec3 newMax(-std::numeric_limits<float>::max());
 
-    for (const auto& c : corners)
+    for (const auto &c : corners)
     {
         glm::vec4 transformed = transform * glm::vec4(c, 1.0f);
-        glm::vec3 p = glm::vec3(transformed);
-        newMin = glm::min(newMin, p);
-        newMax = glm::max(newMax, p);
+        glm::vec3 p           = glm::vec3(transformed);
+        newMin                = glm::min(newMin, p);
+        newMax                = glm::max(newMax, p);
     }
 
     return BoundingBox(newMin, newMax);
 }
 
-void BoundingBox::expandToInclude(const BoundingBox& other)
+void BoundingBox::expandToInclude(const BoundingBox &other)
 {
     min_.x = std::min(min_.x, other.min_.x);
     min_.y = std::min(min_.y, other.min_.y);
@@ -136,6 +130,12 @@ void BoundingBox::expandToInclude(const BoundingBox& other)
     calculate();
 }
 
+bool BoundingBox::contains(const vec3 &point) const
+{
+    return (point.x >= min_.x && point.x <= max_.x) && (point.y >= min_.y && point.y <= max_.y) &&
+           (point.z >= min_.z && point.z <= max_.z);
+}
+
 std::ostream &operator<<(std::ostream &os, const BoundingBox &box)
 {
     os << "BoundingBox(min: (" << box.min().x << ", " << box.min().y << ", " << box.min().z << "), "
@@ -144,5 +144,9 @@ std::ostream &operator<<(std::ostream &os, const BoundingBox &box)
        << "size: (" << box.size().x << ", " << box.size().y << ", " << box.size().z << "), "
        << "maxScale: " << box.maxScale() << ")";
     return os;
+}
+BoundingBox BoundingBox::expanded(float margin) const
+{
+    return BoundingBox(min() - vec3(margin, margin, margin), max() + vec3(margin, margin, margin));
 }
 }  // namespace GameEngine

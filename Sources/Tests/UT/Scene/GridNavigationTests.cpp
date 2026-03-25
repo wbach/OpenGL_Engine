@@ -2,10 +2,15 @@
 #include <gtest/gtest.h>
 
 #include <memory>
+#include <vector>
 
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
+#include "GameEngine/Resources/Models/BoundingBox.h"
+#include "GameEngine/Resources/Models/Model.h"
+#include "GameEngine/Resources/Textures/HeightMap.h"
 #include "GameEngine/Scene/Navigation/GridNavigation.h"
-#include "Resources/Textures/HeightMap.h"
+#include "GraphicsApi/RenderType.h"
+#include "Resources/Models/Mesh.h"
 #include "Tests/Mocks/Api/GraphicsApiMock.h"
 
 using namespace GameEngine;
@@ -85,6 +90,22 @@ protected:
         vec3 terrainPos(0.0f, 0.0f, 0.0f);
 
         return TerrainHeightGetter(terrainScale, heightMap, terrainPos);
+    }
+
+    Model createDummyModel(const std::vector<BoundingBox>& meshesBB = {})
+    {
+        BoundingBox bb(BoundingBox::NumericLimits{});
+        Model model(graphicsApi, bb);
+
+        for (int i = 0; i < meshesBB.size(); ++i)
+        {
+            Mesh mesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi);
+            mesh.setBoundingBox(meshesBB[i]);
+            mesh.SetTransformMatrix(mat4(1.f));
+            model.AddMesh(std::move(mesh));
+        }
+
+        return model;
     }
 
     void DumpGrid(const std::vector<vec3>& path = {}, vec3 start = {0, 0, 0}, vec3 end = {0, 0, 0})
@@ -416,4 +437,75 @@ TEST_F(GridNavigationTest, PathSmoothingTest)
 
     ASSERT_FALSE(smoothPath.empty());
     EXPECT_LE(smoothPath.size(), rawPath.size());
+}
+
+TEST_F(GridNavigationTest, RotatedObstacleOBB)
+{
+    origin = vec3(-5.0f, 0.0f, -5.0f);
+    width = height = 10;
+    cellSize       = 1.0f;
+    createSut();
+
+    auto model = createDummyModel({BoundingBox(vec3(-4.0f, -0.5f, -0.1f), vec3(4.0f, 0.5f, 0.1f))});
+
+    float angle              = glm::radians(45.0f);
+    glm::mat4 modelTransform = glm::rotate(glm::mat4(1.0f), angle, vec3(0, 1, 0));
+
+    sut->AddObstacle(model, modelTransform);
+    DumpGrid();
+
+    EXPECT_FALSE(sut->IsWalkable(vec3(0.5f, 0.0f, -0.5f)));
+    EXPECT_FALSE(sut->IsWalkable(vec3(-0.5f, 0.0f, 0.5f)));
+    EXPECT_TRUE(sut->IsWalkable(vec3(3.0f, 0.0f, 3.0f)));
+}
+
+TEST_F(GridNavigationTest, CompareAABBvsOBB)
+{
+    origin = vec3(-7.0f, 0.0f, -7.0f);
+    width = height = 15;
+    cellSize       = 1.0f;
+
+    BoundingBox localBox(vec3(-5.0f, -0.5f, -0.1f), vec3(5.0f, 0.5f, 0.1f));
+    float angle         = glm::radians(45.0f);
+    glm::mat4 transform = glm::rotate(glm::mat4(1.0f), angle, vec3(0, 1, 0));
+
+    createSut();
+    BoundingBox worldAABB = localBox.transformed(transform);
+    sut->AddObstacle(worldAABB);
+    LOG_DEBUG << "\n--- SCENARIUSZ A: STARE AABB (Puchnące) ---";
+    DumpGrid();
+    int aabbCount = 0;
+    for (const auto& n : sut->GetNodes())
+        if (!n.isWalkable)
+            aabbCount++;
+
+    createSut();
+    auto model = createDummyModel({localBox});
+    sut->AddObstacle(model, transform);
+    LOG_DEBUG << "\n--- SCENARIUSZ B: NOWE OBB (Precyzyjne) ---";
+    DumpGrid();
+    int obbCount = 0;
+    for (const auto& n : sut->GetNodes())
+        if (!n.isWalkable)
+            obbCount++;
+
+    LOG_DEBUG << "Zablokowane kafelki AABB: " << aabbCount;
+    LOG_DEBUG << "Zablokowane kafelki OBB: " << obbCount;
+
+    EXPECT_GT(aabbCount, obbCount) << "AABB powinno zablokować znacznie więcej miejsca niż OBB!";
+}
+
+TEST_F(GridNavigationTest, OBBPaddingTest)
+{
+    origin = vec3(-5.0f, 0.0f, -5.0f);
+    width = height = 10;
+    createSut();
+
+    auto model = createDummyModel({BoundingBox(vec3(-4.0f, -0.5f, -0.1f), vec3(4.0f, 0.5f, 0.1f))});
+
+    sut->AddObstacle(model, glm::mat4(1.0f), 1.0f);
+
+    DumpGrid();
+
+    EXPECT_FALSE(sut->IsWalkable(vec3(0.0f, 0.0f, 0.9f))) << "Punkt w strefie marginesu powinien być zablokowany!";
 }

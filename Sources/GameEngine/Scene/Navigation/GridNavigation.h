@@ -8,6 +8,7 @@
 
 namespace GameEngine
 {
+class Model;
 class ENGINE_API GridNavigation : public INavigationProvider
 {
 public:
@@ -16,6 +17,7 @@ public:
     void BakeTerrain(const TerrainHeightGetter&, float maxClimbAngle) override;
     std::vector<vec3> CalculatePath(const vec3& startPos, const vec3& targetPos) override;
     void AddObstacle(const BoundingBox& box) override;
+    void AddObstacle(Model&, const mat4&, float = 0.f) override;
     bool IsWalkable(const vec3& position);
     void SetWalkable(int x, int y, bool walkable);
     const std::vector<NavNode>& GetNodes() const;

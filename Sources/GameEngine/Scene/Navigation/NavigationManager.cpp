@@ -80,7 +80,7 @@ void NavigationManager::ReCreateProvider()
     vec3 terrainScale = terrainObj->GetWorldTransform().GetScale();
     vec3 terrainPos   = terrainObj->GetWorldTransform().GetPosition();
 
-    float cellSize = 1.0f;
+    float cellSize = 0.5f;
     int w          = static_cast<int>(terrainScale.x / cellSize);
     int h          = static_cast<int>(terrainScale.z / cellSize);
     vec3 origin    = terrainPos - (terrainScale * 0.5f);
@@ -90,17 +90,26 @@ void NavigationManager::ReCreateProvider()
     TerrainHeightGetter terrainHeightGetter(*terrain);
     navigationProvider->BakeTerrain(terrainHeightGetter, 30.0f);
 
-    int obstacleCount = 0;
-    // //TO DO:
-    // for (auto& [_, obj] : objectInPath)
-    // {
-    //     if (auto maybeRendererComponent = obj->GetComponent<Components::RendererComponent>())
-    //     {
-    //         auto aabb = maybeRendererComponent->getWorldSpaceBoundingBox();
-    //         navigationProvider->AddObstacle(aabb);
-    //         obstacleCount++;
-    //     }
-    // }
+    const float defaultAgentRadius = 0.4f;
+
+    int obstacleCount              = 0;
+    // TO DO:
+    for (auto& [_, obj] : objectInPath)
+    {
+        if (auto maybeRendererComponent = obj->GetComponent<Components::RendererComponent>())
+        {
+            // auto aabb = maybeRendererComponent->getWorldSpaceBoundingBox();
+            // navigationProvider->AddObstacle(aabb);
+            auto model = maybeRendererComponent->GetModelWrapper().Get();
+            if (not model)
+                continue;
+
+            const auto& worldMatrix = obj->GetWorldTransform().CalculateCurrentMatrix();
+            navigationProvider->AddObstacle(*model, worldMatrix, defaultAgentRadius);
+
+            obstacleCount++;
+        }
+    }
     LOG_INFO << "Navigation Grid Rebuilt: " << w << "x" << h << " cells, " << obstacleCount << " static obstacles.";
 }
 }  // namespace GameEngine
