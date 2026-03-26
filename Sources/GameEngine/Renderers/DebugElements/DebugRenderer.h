@@ -75,7 +75,7 @@ struct DebugMeshInfo
     DebugMeshInfoComponent component;
 };
 
-// typedef std::vector<DebugRendererSubscriber> DebugRendererSubscribers;
+class NavigationManager;
 
 class DebugRenderer : public IRenderer
 {
@@ -89,6 +89,7 @@ public:
         BoundingBox,
         ViewSelection,
         BrushVisualization,
+        NavMesh,
         Ray
     };
 
@@ -120,6 +121,7 @@ public:
     void RemoveTextureToRender(GraphicsApi::ID id);
     void ViewSelection(GameObject&);
     void VisualizationBrush(const vec3&, float);
+    void VisualizationNavMesh(const NavigationManager*);
 
 private:
     void CreateDebugObjects();
@@ -139,6 +141,7 @@ private:
     LineMeshVisualizator rayVisualizator_;
     LineMeshVisualizator selectionViewer_;
     LineMeshVisualizator brushVisualization_;
+    LineMeshVisualizator navMeshVisualization_;
 
     ShaderProgram debugObjectShader_;
     ShaderProgram gridShader_;
@@ -166,6 +169,7 @@ private:
     vec3 brushPos{0.f};
     float brushRadius{0.f};
     GameObject* objectSelection{nullptr};
+    const NavigationManager* navigationManager{nullptr};
 };
 
 }  // namespace GameEngine

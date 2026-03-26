@@ -56,6 +56,7 @@
 #include "OptionsFrame/Theme.h"
 #include "ProjectManager.h"
 #include "ProjectPanel/ProjectPanel.h"
+#include "Scene/Navigation/GridNavigation.h"
 #include "TerrainTool/TerrainToolPanel.h"
 #include "WxEditor/Commands/UndoManager.h"
 #include "WxEditor/EngineRelated/GLCanvas.h"
@@ -181,6 +182,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_RENDERER_TEXTURE_DISPLACEMENT, MainFrame::MenuRendererTextureDisplacement)
     EVT_MENU(ID_MENU_DEBUG_CALCULATE_PATH, MainFrame::MenuDebugCalulatePath)
     EVT_MENU(ID_MENU_DEBUG_SHOW_NAV_GRID, MainFrame::MenuVisualizationOfNavGrid)
+    EVT_MENU(ID_MENU_DEBUG_NAV_GRID_UPDATE, MainFrame::MenuNavGridUpdate)
     EVT_MENU(ID_MENU_ABOUT_GL_INFO, MainFrame::OnGLVersion)
     EVT_MENU(ID_MENU_COMPONENTS_REBUILD, MainFrame::MenuComponentsRebuild)
     EVT_MENU(ID_MENU_COMPONENTS_RELOAD, MainFrame::MenuComponentsReload)
@@ -482,6 +484,15 @@ void MainFrame::ClearScene()
         terrainPanel = nullptr;
 
         rightSplitter->Layout();
+    }
+
+    if (isNavVisualization)
+    {
+        canvas->GetEngine().GetEngineContext().GetRenderersManager().GetDebugRenderer().RemoveState(
+            GameEngine::DebugRenderer::RenderState::NavMesh);
+        canvas->GetEngine().GetEngineContext().GetRenderersManager().GetDebugRenderer().VisualizationNavMesh(nullptr);
+        isNavVisualization = false;
+        return;
     }
 
     canvas->GetScene().ClearGameObjects();
@@ -1194,6 +1205,7 @@ wxMenu* MainFrame::CreateDebugMenu()
     wxMenu* menuAbout = new wxMenu;
     menuAbout->Append(ID_MENU_DEBUG_CALCULATE_PATH, "&Calculate navigation path", "Calculate path");
     menuAbout->Append(ID_MENU_DEBUG_SHOW_NAV_GRID, "&Visualization of navigation grid", "");
+    menuAbout->Append(ID_MENU_DEBUG_NAV_GRID_UPDATE, "&Navigation grid update", "");
 
     return menuAbout;
 }
@@ -2418,5 +2430,25 @@ void MainFrame::MenuDebugCalulatePath(wxCommandEvent&)
 
 void MainFrame::MenuVisualizationOfNavGrid(wxCommandEvent&)
 {
-    wxMessageBox("Not implemented", "Info", wxOK);
+    if (isNavVisualization)
+    {
+        canvas->GetEngine().GetEngineContext().GetRenderersManager().GetDebugRenderer().RemoveState(
+            GameEngine::DebugRenderer::RenderState::NavMesh);
+        canvas->GetEngine().GetEngineContext().GetRenderersManager().GetDebugRenderer().VisualizationNavMesh(nullptr);
+        isNavVisualization = false;
+        return;
+    }
+
+    if (auto manager = canvas->GetScene().GetNavigationManager())
+    {
+        canvas->GetEngine().GetEngineContext().GetRenderersManager().GetDebugRenderer().VisualizationNavMesh(manager);
+        isNavVisualization = true;
+    }
+}
+void MainFrame::MenuNavGridUpdate(wxCommandEvent&)
+{
+    if (auto manager = canvas->GetScene().GetNavigationManager())
+    {
+        manager->ReCreateProvider();
+    }
 }

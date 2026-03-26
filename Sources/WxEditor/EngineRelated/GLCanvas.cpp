@@ -342,7 +342,6 @@ void GLCanvas::OnKeyDown(wxKeyEvent& event)
         GetParent()->SetFocus();
     }
     wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{keyCode}, true);
-    LOG_DEBUG << "Send key down event";
     auto& inputManager = engine->GetEngineContext().GetInputManager();
     inputManager.AddKeyEvent(WxEditor::WX_KEY_DOWN, keyCode);
 }

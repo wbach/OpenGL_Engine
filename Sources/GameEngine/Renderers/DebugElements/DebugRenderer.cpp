@@ -22,7 +22,10 @@
 #include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "GameEngine/Scene/Navigation/GridNavigation.h"
+#include "GameEngine/Scene/Navigation/NavigationManager.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "Utils.h"
 
 namespace GameEngine
 {
@@ -53,6 +56,44 @@ GraphicsApi::LineMesh CreateLineMeshFromPath(const std::vector<vec3>& path, cons
             mesh.colors_.push_back(color.r);
             mesh.colors_.push_back(color.g);
             mesh.colors_.push_back(color.b);
+        }
+    }
+    return mesh;
+}
+GraphicsApi::LineMesh CreateLineMeshFromGrid(const std::vector<NavNode>& nodes, int width, int height, float cellSize,
+                                             const vec3& origin)
+{
+    GraphicsApi::LineMesh mesh;
+    vec3 blockedColor(1.0f, 0.0f, 0.0f);   // Czerwony dla zablokowanych
+    vec3 walkableColor(0.2f, 0.2f, 0.2f);  // Ciemnoszary dla wolnych
+
+    for (int z = 0; z < height; ++z)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            int idx    = z * width + x;
+            vec3 color = nodes[idx].isWalkable ? walkableColor : blockedColor;
+
+            // if (nodes[idx].isWalkable)
+            //     continue;
+
+            float worldX = origin.x + x * cellSize;
+            float worldZ = origin.z + z * cellSize;
+            float y      = nodes[idx].height + 0.1f;
+
+            float h = cellSize * 0.4f;
+
+            // Linia 1 (X)
+            mesh.positions_.insert(mesh.positions_.end(), {worldX - h, y, worldZ, worldX + h, y, worldZ});
+            // Linia 2 (Z)
+            mesh.positions_.insert(mesh.positions_.end(), {worldX, y, worldZ - h, worldX, y, worldZ + h});
+
+            for (int j = 0; j < 4; ++j)
+            {
+                mesh.colors_.push_back(color.r);
+                mesh.colors_.push_back(color.g);
+                mesh.colors_.push_back(color.b);
+            }
         }
     }
     return mesh;
@@ -273,6 +314,7 @@ DebugRenderer::DebugRenderer(RendererContext& rendererContext, Utils::Thread::IT
     , rayVisualizator_(rendererContext.graphicsApi_, threadSync)
     , selectionViewer_(rendererContext.graphicsApi_, threadSync)
     , brushVisualization_(rendererContext.graphicsApi_, threadSync)
+    , navMeshVisualization_(rendererContext.graphicsApi_, threadSync)
     , debugObjectShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::DebugObject)
     , gridShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::Grid)
     , debugNormalShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::DebugNormal)
@@ -295,6 +337,7 @@ DebugRenderer::~DebugRenderer()
 void DebugRenderer::init()
 {
     physicsVisualizator_.Init();
+    navMeshVisualization_.Init();
     boundingBoxVisualizator_.Init();
     rayVisualizator_.Init();
     debugObjectShader_.Init();
@@ -402,6 +445,27 @@ void DebugRenderer::init()
             return result;
         });
 
+    navMeshVisualization_.SetMeshCreationFunction(
+        [&]() -> const GraphicsApi::LineMesh&
+        {
+            static GraphicsApi::LineMesh result;
+            result.positions_.clear();
+            result.colors_.clear();
+
+            if (navigationManager)
+            {
+                if (auto provider = navigationManager->GetNavigationProvider())
+                {
+                    if (auto gridProvider = std::dynamic_pointer_cast<GameEngine::GridNavigation>(provider))
+                    {
+                        result = CreateLineMeshFromGrid(gridProvider->GetNodes(), gridProvider->GetWidth(), gridProvider->GetHeight(),
+                                                        gridProvider->GetCellSize(), gridProvider->GetOrigin());
+                    }
+                }
+            }
+            return result;
+        });
+
     rayVisualizator_.SetMeshCreationFunction(
         [&]() -> const GraphicsApi::LineMesh&
         {
@@ -481,6 +545,7 @@ void DebugRenderer::reloadShaders()
     debugObjectShader_.Reload();
     gridShader_.Reload();
     physicsVisualizator_.ReloadShader();
+    navMeshVisualization_.ReloadShader();
     boundingBoxVisualizator_.ReloadShader();
     rayVisualizator_.ReloadShader();
     debugNormalShader_.Reload();
@@ -513,6 +578,9 @@ void DebugRenderer::render()
             case RenderState::BrushVisualization:
                 brushVisualization_.Render();
                 break;
+            case RenderState::NavMesh:
+                navMeshVisualization_.Render();
+                break;
             case RenderState::Normals:
                 DrawNormals();
                 break;
@@ -531,6 +599,8 @@ void DebugRenderer::render()
 void DebugRenderer::clear()
 {
     states_.clear();
+    objectSelection   = nullptr;
+    navigationManager = nullptr;
     clearDebugObjects();
 }
 
@@ -863,6 +933,7 @@ void DebugRenderer::AddTextureToRender(GraphicsApi::ID id)
 void DebugRenderer::cleanUp()
 {
     physicsVisualizator_.Cleanup();
+    navMeshVisualization_.Cleanup();
     boundingBoxVisualizator_.Cleanup();
     rayVisualizator_.Cleanup();
     selectionViewer_.Cleanup();
@@ -907,5 +978,11 @@ void DebugRenderer::VisualizationBrush(const vec3& p, float r)
     brushRadius = r;
     brushPos    = p;
     AddState(RenderState::BrushVisualization);
+}
+void DebugRenderer::VisualizationNavMesh(const NavigationManager* nav)
+{
+    LOG_DEBUG << "IsNav=" << Utils::BoolToString(nav != nullptr);
+    navigationManager = nav;
+    AddState(RenderState::NavMesh);
 }
 }  // namespace GameEngine

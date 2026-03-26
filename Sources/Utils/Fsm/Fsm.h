@@ -28,7 +28,6 @@ public:
     template <typename State>
     State& transitionTo()
     {
-        LOG_DEBUG << "push state to previous";
         previousState.push_back(currentState);
         if (previousState.size() > 10)
         {
@@ -62,9 +61,9 @@ public:
     template <typename Event, typename Machine>
     void handleBy(const Event& event, Machine& machine)
     {
-//#ifdef NOREALTIME_LOG_ENABLED
+#ifdef NOREALTIME_LOG_ENABLED
         LOG_DEBUG << "Handle event : " << typeName<Event>();
-//#endif
+#endif
         auto passEventToState = [&machine, &event](auto statePtr)
         {
             auto action = statePtr->handle(event);

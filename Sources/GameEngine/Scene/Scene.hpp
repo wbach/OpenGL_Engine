@@ -134,6 +134,8 @@ public:
     const Color& GetBackgroundColor() const;
     void ChangeBackgroundColor(const Color&);
 
+    NavigationManager* GetNavigationManager() const;
+
 public:
     uint32 objectCount;
     std::function<void(EngineEvent)> addEngineEvent;

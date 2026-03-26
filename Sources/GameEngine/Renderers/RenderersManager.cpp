@@ -317,6 +317,7 @@ void RenderersManager::UnSubscribe(const Components::IComponent& component)
 void RenderersManager::UnSubscribeAll()
 {
     debugRenderer_.unSubscribeAll();
+    debugRenderer_.clear();
 
     if (mainCameraRenderer_)
         mainCameraRenderer_->unSubscribeAll();

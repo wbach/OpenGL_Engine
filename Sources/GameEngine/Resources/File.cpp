@@ -1,13 +1,14 @@
 #include "File.h"
 
 #include <Logger/Log.h>
+#include <Utils.h>
+#include <Utils/TreeNode.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
 #include <filesystem>
 
 #include "GameEngine/Engine/Configuration.h"
-#include "Utils.h"
 
 namespace fs = std::filesystem;
 
@@ -324,4 +325,16 @@ std::ostream &operator<<(std::ostream &os, const GameEngine::File &file)
     os << "{dataRelative: " << file.GetDataRelativePath() << "}";
     os << "}";
     return os;
+}
+
+void Read(const TreeNode &input, GameEngine::File &file)
+{
+    std::string fileStr;
+    ::Read(input, fileStr);
+    file = fileStr;
+}
+
+void write(TreeNode &node, const GameEngine::File &file)
+{
+    ::write(node, file.GetDataRelativePath());
 }

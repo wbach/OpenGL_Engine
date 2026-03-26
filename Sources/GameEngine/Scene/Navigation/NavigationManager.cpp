@@ -3,6 +3,7 @@
 #include <Utils/Variant.h>
 
 #include <memory>
+#include <mutex>
 
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
@@ -11,6 +12,7 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Scene/Navigation/GridNavigation.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -20,12 +22,7 @@ NavigationManager::NavigationManager(Physics::IPhysicsApi& physicsApi)
 }
 std::vector<vec3> NavigationManager::CalculatePath(const vec3& start, const vec3& end)
 {
-    if (isDirty)
-    {
-        ReCreateProvider();
-        isDirty = false;
-    }
-
+    std::lock_guard lk(providerMutex);
     return navigationProvider ? navigationProvider->CalculatePath(start, end) : std::vector<vec3>{};
 }
 void NavigationManager::Update(const SceneNotifEvent& event)
@@ -59,8 +56,17 @@ void NavigationManager::Update(const SceneNotifEvent& event)
                        }},
                event);
 }
+void NavigationManager::Update()
+{
+    if (isDirty)
+    {
+        ReCreateProvider();
+        isDirty = false;
+    }
+}
 void NavigationManager::ReCreateProvider()
 {
+    std::lock_guard lk(providerMutex);
     Components::TerrainRendererComponent* terrain = nullptr;
     GameObject* terrainObj                        = nullptr;
 
@@ -68,9 +74,12 @@ void NavigationManager::ReCreateProvider()
     {
         if (auto t = obj->GetComponent<Components::TerrainRendererComponent>())
         {
-            terrain    = t;
-            terrainObj = obj;
-            break;  // TO DO: all terrains on scene
+            if (t->GetHeightMap())  // check is initalized
+            {
+                terrain    = t;
+                terrainObj = obj;
+                break;  // TO DO: all terrains on scene
+            }
         }
     }
 
@@ -83,7 +92,7 @@ void NavigationManager::ReCreateProvider()
     vec3 terrainScale = terrainObj->GetWorldTransform().GetScale();
     vec3 terrainPos   = terrainObj->GetWorldTransform().GetPosition();
 
-    float cellSize = 0.5f;
+    float cellSize = 0.3f;
     int w          = static_cast<int>(terrainScale.x / cellSize);
     int h          = static_cast<int>(terrainScale.z / cellSize);
     vec3 origin    = terrainPos - (terrainScale * 0.5f);
@@ -106,14 +115,23 @@ void NavigationManager::ReCreateProvider()
                 navigationProvider->AddPhysicsObstacle(physicsApi, *pBB, defaultAgentRadius);
                 obstacleCount++;
             }
+            else
+            {
+                LOG_DEBUG << "BB not ready";
+            }
         }
         else if (auto maybeRendererComponent = obj->GetComponent<Components::RendererComponent>())
         {
             // auto aabb = maybeRendererComponent->getWorldSpaceBoundingBox();
             // navigationProvider->AddObstacle(aabb);
+
+            LOG_DEBUG << "RendererComponent";
             auto model = maybeRendererComponent->GetModelWrapper().Get();
             if (not model)
+            {
+                LOG_DEBUG << "Model not ready";
                 continue;
+            }
 
             const auto& worldMatrix = obj->GetWorldTransform().CalculateCurrentMatrix();
             navigationProvider->AddObstacle(*model, worldMatrix, defaultAgentRadius);
@@ -122,5 +140,10 @@ void NavigationManager::ReCreateProvider()
         }
     }
     LOG_INFO << "Navigation Grid Rebuilt: " << w << "x" << h << " cells, " << obstacleCount << " static obstacles.";
+}
+std::shared_ptr<INavigationProvider> NavigationManager::GetNavigationProvider() const
+{
+    std::lock_guard<std::mutex> lock(providerMutex);
+    return navigationProvider;
 }
 }  // namespace GameEngine

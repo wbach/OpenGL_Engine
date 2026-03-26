@@ -773,6 +773,7 @@ bool BulletAdapter::checkBoxOverlap(const vec3& pos, const vec3& halfExtents) co
     btBoxShape tempShape(btVector3(halfExtents.x, halfExtents.y, halfExtents.z));
     btCollisionObject tempObj;
     tempObj.setCollisionShape(&tempShape);
+    tempObj.setCollisionFlags(tempObj.getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
 
     btTransform xform;
     xform.setIdentity();

@@ -17,16 +17,19 @@ class ENGINE_API NavigationManager
 public:
     NavigationManager(Physics::IPhysicsApi&);
 
+    void Update();
     void Update(const SceneNotifEvent&);
     std::vector<vec3> CalculatePath(const vec3&, const vec3&);
-
-private:
+    std::shared_ptr<INavigationProvider> GetNavigationProvider() const;
+    void lock();
+    void unlock();
     void ReCreateProvider();
 
 private:
     Physics::IPhysicsApi& physicsApi;
-    std::unique_ptr<INavigationProvider> navigationProvider;
+    std::shared_ptr<INavigationProvider> navigationProvider;
     std::unordered_map<IdType, GameObject*> objectInPath;
     bool isDirty{false};
+    mutable std::mutex providerMutex;
 };
 }  // namespace GameEngine

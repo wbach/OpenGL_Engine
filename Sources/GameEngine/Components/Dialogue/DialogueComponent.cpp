@@ -156,7 +156,7 @@ const DialogueOption* DialogueComponent::selectOption(size_t optionIndex)
     {
         LOG_DEBUG << "";
         auto& options = iter->second.options;
-        if (optionIndex < static_cast<int>(options.size()))
+        if (optionIndex < options.size())
         {
             selected = &options[optionIndex];
         }

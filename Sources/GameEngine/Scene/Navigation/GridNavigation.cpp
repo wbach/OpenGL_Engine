@@ -1,9 +1,12 @@
 #include "GridNavigation.h"
 
+#include <mutex>
+
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Models/Model.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -31,6 +34,7 @@ GridNavigation::GridNavigation(const vec3& orgin, int w, int h, float size)
 }
 std::vector<vec3> GridNavigation::CalculatePath(const vec3& startPos, const vec3& targetPos)
 {
+    std::lock_guard lk(nodesMutex);
     for (auto& node : nodes)
     {
         node.gCost  = std::numeric_limits<float>::max();
@@ -104,7 +108,7 @@ bool GridNavigation::IsWalkable(const vec3& position)
 {
     auto index = GetIndexFromWorldPos(position);
 
-    if (index < 0 or index >= nodes.size())
+    if (index < 0 or index >= static_cast<int>(nodes.size()))
     {
         return false;
     }
@@ -113,13 +117,14 @@ bool GridNavigation::IsWalkable(const vec3& position)
 }
 void GridNavigation::SetWalkable(int x, int y, bool walkable)
 {
-    if (x >= 0 && x < width && y >= 0 && y < height)
+    if (x >= 0 and x < width and y >= 0 and y < height)
     {
         nodes[y * width + x].isWalkable = walkable;
     }
 }
 const std::vector<NavNode>& GridNavigation::GetNodes() const
 {
+    std::lock_guard lk(nodesMutex);
     return nodes;
 }
 vec2ui GridNavigation::WorldToGrid(const vec3& pos)
@@ -134,7 +139,7 @@ int GridNavigation::GetIndexFromWorldPos(const vec3& worldPos)
     int x = static_cast<int>(std::floor(localX / cellSize));
     int z = static_cast<int>(std::floor(localZ / cellSize));
 
-    if (x < 0 || x >= width || z < 0 || z >= height)
+    if (x < 0 or x >= width or z < 0 or z >= height)
         return -1;
 
     return z * width + x;
@@ -147,15 +152,15 @@ std::vector<NavNode*> GridNavigation::GetNeighbors(NavNode* node)
     {
         for (int y = -1; y <= 1; y++)
         {
-            if (x == 0 && y == 0)
+            if (x == 0 and y == 0)
                 continue;
 
             int checkX = node->x + x;
             int checkY = node->y + y;
 
-            if (checkX >= 0 && checkX < width && checkY >= 0 && checkY < height)
+            if (checkX >= 0 and checkX < width and checkY >= 0 and checkY < height)
             {
-                if (std::abs(x) == 1 && std::abs(y) == 1)
+                if (std::abs(x) == 1 and std::abs(y) == 1)
                 {
                     if (not nodes[node->y * width + checkX].isWalkable or not nodes[checkY * width + node->x].isWalkable)
                     {
@@ -197,6 +202,7 @@ float GridNavigation::GetDistance(NavNode* a, NavNode* b)
 }
 void GridNavigation::AddObstacle(const BoundingBox& box)
 {
+    std::lock_guard lk(nodesMutex);
     auto getX = [&](auto worldX) { return static_cast<int>(std::floor((worldX - origin.x) / cellSize)); };
     auto getZ = [&](auto worldZ) { return static_cast<int>(std::floor((worldZ - origin.z) / cellSize)); };
 
@@ -215,6 +221,7 @@ void GridNavigation::AddObstacle(const BoundingBox& box)
 }
 void GridNavigation::BakeTerrain(const TerrainHeightGetter& heightGetter, float maxClimbAngle)
 {
+    std::lock_guard lk(nodesMutex);
     auto maxSlope = std::tan(glm::radians(maxClimbAngle)) * cellSize;
 
     for (int y = 0; y < height; ++y)
@@ -321,10 +328,11 @@ bool GridNavigation::HasLineOfSight(const vec3& start, const vec3& end)
 }
 void GridNavigation::AddObstacle(Model& model, const glm::mat4& modelTransform, float agentRadius)
 {
-    BoundingBox worldAABB = model.transformBoundingBox(modelTransform).expanded(agentRadius);
+    std::lock_guard lk(nodesMutex);
+    auto worldAABB = model.transformBoundingBox(modelTransform).expanded(agentRadius);
 
-    auto getX = [&](auto worldX) { return static_cast<int>(std::floor((worldX - origin.x) / cellSize)); };
-    auto getZ = [&](auto worldZ) { return static_cast<int>(std::floor((worldZ - origin.z) / cellSize)); };
+    auto getX = [&](auto worldX) { return static_cast<int>(std::round((worldX - origin.x) / cellSize)); };
+    auto getZ = [&](auto worldZ) { return static_cast<int>(std::round((worldZ - origin.z) / cellSize)); };
 
     auto startX = std::max(0, getX(worldAABB.min().x));
     auto endX   = std::min(width - 1, getX(worldAABB.max().x));
@@ -350,12 +358,14 @@ void GridNavigation::AddObstacle(Model& model, const glm::mat4& modelTransform, 
         {
             auto cellWorldPos = GetWorldPosFromIndex(x, z);
 
+            float r = cellSize * 0.5f;
+            BoundingBox cellAABB(cellWorldPos - vec3(r), cellWorldPos + vec3(r));
+
             bool hit = false;
             for (const auto& data : meshData)
             {
-                auto localPoint = vec3(data.invTransform * vec4(cellWorldPos, 1.0f));
-
-                if (data.localBox.contains(localPoint))
+                auto localCellBox = cellAABB.transformed(data.invTransform);
+                if (data.localBox.intersects(localCellBox))
                 {
                     hit = true;
                     break;
@@ -371,9 +381,9 @@ void GridNavigation::AddObstacle(Model& model, const glm::mat4& modelTransform, 
 }
 void GridNavigation::AddPhysicsObstacle(Physics::IPhysicsApi& api, const BoundingBox& worldBB, float agentHeight)
 {
+    std::lock_guard lk(nodesMutex);
     auto getX = [&](auto worldX) { return static_cast<int>(std::floor((worldX - origin.x) / cellSize)); };
     auto getZ = [&](auto worldZ) { return static_cast<int>(std::floor((worldZ - origin.z) / cellSize)); };
-
 
     auto startX = std::max(0, getX(worldBB.min().x));
     auto endX   = std::min(width - 1, getX(worldBB.max().x));
@@ -400,5 +410,21 @@ void GridNavigation::AddPhysicsObstacle(Physics::IPhysicsApi& api, const Boundin
             }
         }
     }
+}
+int GridNavigation::GetWidth() const
+{
+    return width;
+}
+int GridNavigation::GetHeight() const
+{
+    return height;
+}
+float GridNavigation::GetCellSize() const
+{
+    return cellSize;
+}
+const vec3& GridNavigation::GetOrigin() const
+{
+    return origin;
 }
 }  // namespace GameEngine

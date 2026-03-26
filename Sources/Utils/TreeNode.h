@@ -1,6 +1,7 @@
 #pragma once
 #include <algorithm>
 #include <filesystem>
+#include <magic_enum/magic_enum.hpp>
 #include <memory>
 #include <optional>
 #include <string>
@@ -20,8 +21,7 @@ public:
     TreeNode(const std::string&);
 
     template <typename T>
-        requires std::same_as<std::remove_cvref_t<T>, std::string>
-    TreeNode(const std::string& name, T&& value)
+    requires std::same_as<std::remove_cvref_t<T>, std::string> TreeNode(const std::string& name, T&& value)
         : parent(nullptr)
         , value_(std::forward<T>(value))
         , type_{"unknown"}
@@ -80,7 +80,20 @@ ENGINE_API void Read(const TreeNode&, std::vector<vec2>&);
 ENGINE_API void Read(const TreeNode&, std::vector<vec3>&);
 
 template <class T>
+requires std::is_enum_v<T>
 void Read(const TreeNode* node, T& v)
+{
+    if (node)
+    {
+        if (auto enum_value = magic_enum::enum_cast<T>(node->value_))
+        {
+            v = *enum_value;
+        }
+    }
+}
+
+template <class T>
+requires(!std::is_enum_v<T>) void Read(const TreeNode* node, T& v)
 {
     if (node)
     {
@@ -126,5 +139,12 @@ ENGINE_API void write(TreeNode&, const vec4&);
 ENGINE_API void write(TreeNode&, const Color&);
 ENGINE_API void write(TreeNode&, const std::optional<uint32>&);
 ENGINE_API void write(TreeNode&, const std::vector<vec3>&);
+
+template <class T>
+requires std::is_enum_v<T>
+void write(TreeNode& node, const T& v)
+{
+    write(node, magic_enum::enum_name(v));
+}
 
 ENGINE_API void PrintTree(const TreeNode&);

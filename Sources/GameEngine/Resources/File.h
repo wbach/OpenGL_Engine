@@ -1,13 +1,14 @@
 #pragma once
+#include <EngineApi.h>
 #include <Logger/Log.h>
 #include <Types.h>
 
 #include <filesystem>
 #include <string>
-#include <EngineApi.h>
 
 namespace GameEngine
 {
+
 class ENGINE_API File
 {
 public:
@@ -99,5 +100,9 @@ private:
     long fileSize_;
 };
 }  // namespace GameEngine
+
+class TreeNode;
+ENGINE_API void Read(const TreeNode&, GameEngine::File&);
+ENGINE_API void write(TreeNode&, const GameEngine::File&);
 
 std::ostream& operator<<(std::ostream&, const GameEngine::File&);

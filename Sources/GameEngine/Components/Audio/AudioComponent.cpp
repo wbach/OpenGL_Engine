@@ -144,32 +144,10 @@ void AudioComponent::registerReadFunctions()
         auto component = std::make_unique<AudioComponent>(componentContext, gameObject);
         component->read(input);
 
-        if (auto node = input.getChild(CSTR_PLAY_TYPE))
-        {
-            if (auto v = magic_enum::enum_cast<PlayType>(node->value_))
-            {
-                component->playType = *v;
-            }
-        }
-        if (auto node = input.getChild(CSTR_GROUP))
-        {
-            if (auto v = magic_enum::enum_cast<PlayGroup>(node->value_))
-            {
-                component->playGroup = *v;
-            }
-        }
-        if (auto node = input.getChild(CSTR_ATTENUATION))
-        {
-            if (auto v = magic_enum::enum_cast<Attenuation>(node->value_))
-            {
-                component->attenuation = *v;
-            }
-        }
-
-        std::string fileStr;
-        ::Read(input.getChild(CSTR_FILE), fileStr);
-        component->file = fileStr;
-
+        ::Read(input.getChild(CSTR_FILE), component->file);
+        ::Read(input.getChild(CSTR_PLAY_TYPE), component->playType);
+        ::Read(input.getChild(CSTR_GROUP), component->playGroup);
+        ::Read(input.getChild(CSTR_ATTENUATION), component->attenuation);
         ::Read(input.getChild(CSTR_MIN_DISTANCE), component->minDistance);
         ::Read(input.getChild(CSTR_MAX_DISTANCE), component->maxDistance);
         ::Read(input.getChild(CSTR_VOLUME), component->volume);
@@ -190,9 +168,9 @@ void AudioComponent::write(TreeNode& node) const
 {
     BaseComponent::write(node);
 
-    ::write(node.addChild(CSTR_PLAY_TYPE), magic_enum::enum_name(playType));
-    ::write(node.addChild(CSTR_GROUP), magic_enum::enum_name(playGroup));
-    ::write(node.addChild(CSTR_ATTENUATION), magic_enum::enum_name(attenuation));
+    ::write(node.addChild(CSTR_PLAY_TYPE), playType);
+    ::write(node.addChild(CSTR_GROUP), playGroup);
+    ::write(node.addChild(CSTR_ATTENUATION), attenuation);
     ::write(node.addChild(CSTR_FILE), file.GetDataRelativePath());
     ::write(node.addChild(CSTR_VOLUME), volume);
     ::write(node.addChild(CSTR_PITCH), pitch);

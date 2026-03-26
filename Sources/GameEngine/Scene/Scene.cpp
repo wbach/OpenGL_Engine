@@ -206,6 +206,9 @@ void Scene::FullUpdate(float deltaTime)
 
     componentController_.AlwaysUpdate();
 
+    if (navigationManager)
+        navigationManager->Update();
+
     ProcessEvents();
 }
 
@@ -535,8 +538,6 @@ void Scene::ClearGameObjects()
 
 GameObject* Scene::GetGameObject(uint32 id) const
 {
-    LOG_DEBUG << "GetGameObject " << id;
-
     if (id == 0)
         return rootGameObject_.get();
 
@@ -658,5 +659,9 @@ const Color& Scene::GetBackgroundColor() const
 GuiElementFactory& Scene::GetGuiElementFactory()
 {
     return *guiElementFactory_;
+}
+NavigationManager* Scene::GetNavigationManager() const
+{
+    return navigationManager.get();
 }
 }  // namespace GameEngine

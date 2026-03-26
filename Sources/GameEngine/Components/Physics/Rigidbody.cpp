@@ -427,29 +427,12 @@ void Rigidbody::registerReadFunctions()
         auto component = std::make_unique<Rigidbody>(componentContext, gameObject);
         component->read(node);
 
-        if (auto gnode = node.getChild(CSTR_COLLISION_GROUP))
-        {
-            if (auto v = magic_enum::enum_cast<Physics::CollisionGroup>(gnode->value_))
-            {
-                component->collisionGroup = *v;
-            }
-        }
-
-        float mass{1.f};
-        ::Read(node.getChild(CSTR_MASS), mass);
-        component->SetMass(mass);
-
-        bool isStaticValue(true);
-        ::Read(node.getChild(CSTR_IS_STATIC), isStaticValue);
-        component->SetIsStatic(isStaticValue);
-
-        bool isNoConctactResponseValue(false);
-        ::Read(node.getChild(CSTR_NO_CONCTACT_RESPONSE), isNoConctactResponseValue);
-        component->SetNoContactResponse(isNoConctactResponseValue);
-
-        vec3 velocity(0.f);
-        ::Read(node.getChild(CSTR_VELOCITY), velocity);
-        component->SetVelocity(velocity);
+        ::Read(node.getChild(CSTR_COLLISION_GROUP), component->collisionGroup);
+        ::Read(node.getChild(CSTR_MASS), component->mass);
+        ::Read(node.getChild(CSTR_IS_STATIC), component->isStaticObject);
+        ::Read(node.getChild(CSTR_NO_CONCTACT_RESPONSE), component->isNoConctactResponse);
+        ::Read(node.getChild(CSTR_COLLISION_SHAPE), component->collisionShapeName);
+        ::Read(node.getChild(CSTR_VELOCITY), component->velocity);
 
         vec3 angularFactor(1.f);
         const auto& angularFactorNode = node.getChild(CSTR_ANGULAR_FACTOR);
@@ -465,9 +448,6 @@ void Rigidbody::registerReadFunctions()
         }
         component->SetAngularFactor(angularFactor);
 
-        std::string collisionShapeName;
-        ::Read(node.getChild(CSTR_COLLISION_SHAPE), collisionShapeName);
-        component->SetCollisionShape(collisionShapeName);
         return component;
     };
     regsiterComponentReadFunction(GetComponentType<Rigidbody>(), readFunc);
@@ -476,7 +456,7 @@ void Rigidbody::write(TreeNode& node) const
 {
     BaseComponent::write(node);
 
-    ::write(node.addChild(CSTR_COLLISION_GROUP), magic_enum::enum_name(collisionGroup));
+    ::write(node.addChild(CSTR_COLLISION_GROUP), collisionGroup);
     ::write(node.addChild(CSTR_MASS), mass);
     ::write(node.addChild(CSTR_IS_STATIC), isStaticObject);
     ::write(node.addChild(CSTR_NO_CONCTACT_RESPONSE), isNoConctactResponse);

@@ -30,6 +30,7 @@ public:
     void expandToInclude(const BoundingBox&);
     BoundingBox expanded(float) const;
     bool contains(const vec3&) const;
+    bool intersects(const BoundingBox&) const;
 
 private:
     void calculate();

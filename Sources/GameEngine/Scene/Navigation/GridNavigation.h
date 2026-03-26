@@ -1,6 +1,7 @@
 #pragma once
 #include <Logger/Log.h>
 
+#include <mutex>
 #include <set>
 
 #include "INavigationProvider.h"
@@ -28,6 +29,11 @@ public:
     std::vector<vec3> SmoothPath(const std::vector<vec3>& path);
     bool HasLineOfSight(const vec3& start, const vec3& end);
 
+    int GetWidth() const;
+    int GetHeight() const;
+    float GetCellSize() const;
+    const vec3& GetOrigin() const;
+
 private:
     vec2ui WorldToGrid(const vec3&);
     std::vector<NavNode*> GetNeighbors(NavNode* node);
@@ -40,5 +46,7 @@ private:
     int width, height;
     float cellSize;
     vec3 origin;
+
+    mutable std::mutex nodesMutex;
 };
 }  // namespace GameEngine

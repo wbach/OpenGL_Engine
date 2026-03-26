@@ -119,6 +119,7 @@ private:
 
     void MenuDebugCalulatePath(wxCommandEvent&);
     void MenuVisualizationOfNavGrid(wxCommandEvent&);
+    void MenuNavGridUpdate(wxCommandEvent&);
 
     bool SetDeubgRendererState(GameEngine::DebugRenderer::RenderState);
 
@@ -235,4 +236,5 @@ private:
     bool physicsVisualizationForSelectedObject{false};
 
     wxTimer* ramUsageRefereshTimer;
+    bool isNavVisualization{false};
 };

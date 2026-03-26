@@ -149,4 +149,9 @@ BoundingBox BoundingBox::expanded(float margin) const
 {
     return BoundingBox(min() - vec3(margin, margin, margin), max() + vec3(margin, margin, margin));
 }
+bool BoundingBox::intersects(const BoundingBox &other) const
+{
+    return (min_.x <= other.max_.x and max_.x >= other.min_.x) and (min_.y <= other.max_.y and max_.y >= other.min_.y) and
+           (min_.z <= other.max_.z and max_.z >= other.min_.z);
+}
 }  // namespace GameEngine
