@@ -5,6 +5,8 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <xnamath.h>
+#include <cstddef>
+#include <optional>
 
 #include "GraphicsApi/IGraphicsApi.h"
 #undef CreateFont
@@ -759,7 +761,7 @@ uint32 DirectXApi::BindShaderBuffer(uint32 id)
     return 0;  // to do return last binded buffer
 }
 
-ID3D11ShaderResourceView *CreateTexture2DDesc(DirectXContext &context, const vec2ui &size, const void *data)
+ID3D11ShaderResourceView *CreateTexture2DDesc(DirectXContext &context, const vec2ui &size, const void *data, const std::optional<size_t>& pitch)
 {
     ID3D11ShaderResourceView *rv;
     ID3D11Texture2D *texture2d;
@@ -782,7 +784,15 @@ ID3D11ShaderResourceView *CreateTexture2DDesc(DirectXContext &context, const vec
 
     D3D11_SUBRESOURCE_DATA subResource;
     subResource.pSysMem          = data;
-    subResource.SysMemPitch      = desc.Width * 4;
+    if (pitch)
+    {
+        subResource.SysMemPitch = *img.pitch;
+    } else
+    {
+        subResource.SysMemPitch = img.width * 4;
+    }
+
+    //subResource.SysMemPitch      = desc.Width * 4;
     subResource.SysMemSlicePitch = 0;
     auto result                  = context.dev->CreateTexture2D(&desc, &subResource, &texture2d);
 
@@ -858,7 +868,7 @@ GraphicsApi::ID DirectXApi::CreateTexture(const Utils::Image &image, GraphicsApi
         return {};
     }
 
-    auto resourceview = CreateTexture2DDesc(impl_->dxContext_, image.size(), image.getRawDataPtr());
+    auto resourceview = CreateTexture2DDesc(impl_->dxContext_, image.size(), image.getRawDataPtr(), image.pitch);
 
     if (not resourceview)
         return {};
@@ -1010,7 +1020,7 @@ void DirectXApi::UpdateTexture(uint32 id, const Utils::Image &image)
 
     auto &texture = impl_->GetTexture(id);
     texture.Release();
-    texture.resourceView_ = CreateTexture2DDesc(impl_->dxContext_, image.size(), image.getRawDataPtr());
+    texture.resourceView_ = CreateTexture2DDesc(impl_->dxContext_, image.size(), image.getRawDataPtr(), image.pitch);
 }
 
 // void DirectXApi::ClearBuffer(GraphicsApi::BufferType type)

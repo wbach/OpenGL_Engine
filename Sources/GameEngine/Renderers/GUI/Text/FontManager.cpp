@@ -184,22 +184,21 @@ std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, c
 
     FontManager::TextureData sdlSizeImage;
     sdlSizeImage.name = text + "_" + std::to_string(fontId) + "_" + std::to_string(outline);
-    sdlSizeImage.image.setChannels(sdlSurface->format->BytesPerPixel);
-    sdlSizeImage.image.width  = static_cast<uint32>(sdlSurface->w);
-    sdlSizeImage.image.height = static_cast<uint32>(sdlSurface->h);
-    // sdlSizeImage.image.copyImage<uint8>(sdlSurface->pixels);
-    sdlSizeImage.image.allocateImage<uint8>();
 
-    for (uint32 y = 0; y < static_cast<uint32>(sdlSurface->h); y++)
-    {
-        for (uint32 x = 0; x < static_cast<uint32>(sdlSurface->w); x++)
-        {
-            SDL_Color color;
-            Uint32 data = getPixel(sdlSurface, x, y);
-            SDL_GetRGBA(data, sdlSurface->format, &color.r, &color.g, &color.b, &color.a);
-            sdlSizeImage.image.setPixel({x, y}, Color(vec4ui8(color.r, color.g, color.b, color.a)));
-        }
-    }
+    uint32 w   = static_cast<uint32>(sdlSurface->w);
+    uint32 h   = static_cast<uint32>(sdlSurface->h);
+    uint32 bpp = sdlSurface->format->BytesPerPixel;
+
+    sdlSizeImage.image.setChannels(bpp);
+    sdlSizeImage.image.width  = w;
+    sdlSizeImage.image.height = h;
+    sdlSizeImage.image.pitch  = sdlSurface->pitch;
+
+    size_t totalMemorySize = sdlSurface->pitch * h;
+    std::vector<uint8> data(totalMemorySize);
+    std::memcpy(data.data(), sdlSurface->pixels, totalMemorySize);
+    sdlSizeImage.image.moveData(std::move(data));
+
     SDL_UnlockSurface(sdlSurface);
     //    Utils::SaveImage(sdlSizeImage.image, text);
     //    SDL_SaveBMP(sdlSurface, (text + ".bmp").c_str());

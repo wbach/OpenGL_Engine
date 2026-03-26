@@ -12,6 +12,7 @@
 #include <ranges>
 #include <unordered_map>
 
+#include "GameEngine/Engine/Configuration.h"
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 #include "CollisionResultCallback.h"
@@ -93,8 +94,28 @@ const GraphicsApi::LineMesh& BulletAdapter::DebugDraw(const vec3& cameraPos)
 {
     bulletDebugDrawer_->clear();
     bulletDebugDrawer_->setCameraPos(cameraPos);
+    // {
+    //     btDynamicWorld->debugDrawWorld();
+    // }
+
+    //brak terenu ale sa te najblizsze punkty
+    auto drawDistSq = EngineConf.debugParams.debugRendererDistance * EngineConf.debugParams.debugRendererDistance;
+    const auto& objects = btDynamicWorld->getCollisionObjectArray();
+
+    for (int i = 0; i < objects.size(); i++)
     {
-        btDynamicWorld->debugDrawWorld();
+        const auto* obj = objects[i];
+
+        btVector3 minAABB, maxAABB;
+        obj->getCollisionShape()->getAabb(obj->getWorldTransform(), minAABB, maxAABB);
+
+        auto center = (minAABB + maxAABB) * 0.5f;
+        if (glm::distance2(Convert(center), cameraPos) < drawDistSq)
+        {
+            btDynamicWorld->debugDrawObject(
+                obj->getWorldTransform(), obj->getCollisionShape(), btVector3(0, 1, 0)  // Zielony kolor
+            );
+        }
     }
     return bulletDebugDrawer_->getMesh();
 }

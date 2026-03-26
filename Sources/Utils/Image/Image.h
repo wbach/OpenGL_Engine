@@ -68,6 +68,7 @@ public:
     uint8 channels_{4};
     ImageData data_;
     bool isCompressed{false};
+    std::optional<size_t> pitch;
 };
 
 std::ostream& operator<<(std::ostream&, const Utils::Image&);

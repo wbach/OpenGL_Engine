@@ -1083,11 +1083,24 @@ uint32 OpenGLApi::BindShaderBuffer(uint32 id)
 }
 
 void CreateGlTexture(GLuint texture, GraphicsApi::TextureType type, GraphicsApi::TextureFilter filter,
-                     GraphicsApi::TextureMipmap mimpamp, const vec2ui& size, const void* data)
+                     GraphicsApi::TextureMipmap mimpamp, const vec2ui& size, const void* data, const std::optional<size_t>& pitch,
+                     uint8 channels)
 {
     auto params = GetTextureTypeParams(type);
 
     glBindTexture(params.target, texture);
+
+    if (pitch and *pitch > 0)
+    {
+        glPixelStorei(GL_UNPACK_ROW_LENGTH, static_cast<GLint>(*pitch / channels));
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    }
+    else
+    {
+        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    }
+
     glTexImage2D(params.target, 0, params.internalFormat, static_cast<GLsizei>(size.x), static_cast<GLsizei>(size.y), 0,
                  params.format, params.dataType, data);
     glTexParameterf(params.target, GL_TEXTURE_MIN_FILTER, textureFilterMap_.at(filter));
@@ -1163,7 +1176,7 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const Utils::Image& image, GraphicsApi:
         },
         image.getImageData());
 
-    CreateGlTexture(texture, type, filter, mipmap, image.size(), image.getRawDataPtr());
+    CreateGlTexture(texture, type, filter, mipmap, image.size(), image.getRawDataPtr(), image.pitch, channels);
 
     int64 bytes = image.size().x * image.size().y * dataTypeSize;
     allocatedBytes(bytes);
@@ -1432,7 +1445,7 @@ void OpenGLApi::UpdateTexture(uint32 id, const Utils::Image& image)
     auto glId         = impl_->idPool_.ToGL(id);
 
     CreateGlTexture(glId, textureInfo.textureType, textureInfo.textureFilter, textureInfo.textureMipmap, image.size(),
-                    image.getRawDataPtr());
+                    image.getRawDataPtr(), image.pitch, image.channels_);
     textureInfo.size = vec3ui(image.size(), image.getChannelsCount());
 }
 

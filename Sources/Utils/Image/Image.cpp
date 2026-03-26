@@ -212,11 +212,13 @@ Image::Image(Image&& other) noexcept
     , channels_(other.channels_)
     , data_(std::move(other.data_))
     , isCompressed(other.isCompressed)
+    , pitch(other.pitch)
 {
     other.width        = 0;
     other.height       = 0;
     other.channels_    = 4;
     other.isCompressed = false;
+    pitch.reset();
 }
 Image::Image(const Image& other)
     : width(other.width)
@@ -224,6 +226,7 @@ Image::Image(const Image& other)
     , channels_(other.channels_)
     , data_(other.data_)
     , isCompressed(other.isCompressed)
+    , pitch(other.pitch)
 {
 }
 Image& Image::operator=(const Image& other)
@@ -235,6 +238,7 @@ Image& Image::operator=(const Image& other)
         channels_    = other.channels_;
         data_        = other.data_;
         isCompressed = other.isCompressed;
+        pitch        = other.pitch;
     }
     return *this;
 }
@@ -247,11 +251,13 @@ Image& Image::operator=(Image&& other) noexcept
         channels_    = other.channels_;
         data_        = std::move(other.data_);
         isCompressed = other.isCompressed;
+        pitch        = other.pitch;
 
         other.width        = 0;
         other.height       = 0;
         other.channels_    = 4;
         other.isCompressed = false;
+        pitch.reset();
     }
     return *this;
 }
