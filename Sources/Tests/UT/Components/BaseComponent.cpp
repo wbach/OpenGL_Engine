@@ -16,7 +16,7 @@ BaseComponentTestSchould::BaseComponentTestSchould()
     , navigationManager(physicsApiMock_)
     , windowApiMock_()
     , threadSync_(measurementHandler_)
-    , renderersManager_(graphicsApiMock_, gpuResourceLoader_, measurementHandler_, threadSync_, time_,
+    , renderersManager_(graphicsApiMock_, physicsApiMock_, gpuResourceLoader_, measurementHandler_, threadSync_, time_,
                         std::make_unique<RendererFactory>(graphicsApiMock_))
     , dialogueManager_(audioManager_, timerService_, inputManagerMock_, guiElementFactory_, guiManager_, gameState_, tweenManager)
     , context_{scene,           sceneManager,      graphicsApiMock_,     gpuResourceLoader_, time_,       inputManagerMock_,

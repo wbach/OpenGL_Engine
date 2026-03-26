@@ -328,7 +328,5 @@ void Engine::Init()
 {
     engineContext_.GetGraphicsApi().EnableDepthTest();
     engineContext_.GetRenderersManager().Init();
-    engineContext_.GetRenderersManager().GetDebugRenderer().SetPhysicsDebugDraw(
-        std::bind(&Physics::IPhysicsApi::DebugDraw, &engineContext_.GetPhysicsApi()));
 }
 }  // namespace GameEngine

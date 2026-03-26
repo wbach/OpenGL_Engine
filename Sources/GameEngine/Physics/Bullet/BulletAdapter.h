@@ -42,7 +42,7 @@ public:
     ~BulletAdapter() override;
 
     void Simulate(float) override;
-    const GraphicsApi::LineMesh& DebugDraw() override;
+    const GraphicsApi::LineMesh& DebugDraw(const vec3&) override;
     void EnableSimulation() override;
     void DisableSimulation() override;
     ShapeId CreateBoxColider(const PositionOffset&, const Scale&, const Size&) override;
@@ -78,7 +78,7 @@ public:
     CollisionSubId setCollisionCallback(const RigidbodyId&, const CollisionDetection&) override;
     void celarCollisionCallback(const CollisionSubId&) override;
     std::optional<BoundingBox> getBoundingBox(const RigidbodyId&) const override;
-    bool checkBoxOverlap(const vec3& pos, const vec3& halfExtents) const override;
+    bool checkBoxOverlap(const vec3&, const vec3&) const override;
 
 private:
     void createWorld();
@@ -88,6 +88,9 @@ private:
     void removeTask(IdType);
     void executeTasks();
     CollisionContactInfos contactTest(const Rigidbody&);
+    void updateTransforms();
+    void checkCollisions();
+    void stepSimulation(float);
 
 private:
     std::unique_ptr<BulletDebugDrawer> bulletDebugDrawer_;

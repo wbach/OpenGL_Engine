@@ -13,7 +13,7 @@ public:
     BachPhysicsAdapter();
     ~BachPhysicsAdapter();
     void Simulate(float) override;
-    const GraphicsApi::LineMesh& DebugDraw() override;
+    const GraphicsApi::LineMesh& DebugDraw(const vec3&) override;
     void EnableSimulation() override;
     void DisableSimulation() override;
     ShapeId CreateBoxColider(const vec3& positionOffset, const Scale&, const Size&) override;

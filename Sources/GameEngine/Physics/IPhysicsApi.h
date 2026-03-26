@@ -65,7 +65,7 @@ class IPhysicsApi
 public:
     virtual ~IPhysicsApi()                                                                          = default;
     virtual void Simulate(float)                                                                    = 0;
-    virtual const GraphicsApi::LineMesh& DebugDraw()                                                = 0;
+    virtual const GraphicsApi::LineMesh& DebugDraw(const vec3&)                                     = 0;
     virtual void EnableSimulation()                                                                 = 0;
     virtual void DisableSimulation()                                                                = 0;
     virtual ShapeId CreateBoxColider(const PositionOffset&, const Scale&, const Size&)              = 0;

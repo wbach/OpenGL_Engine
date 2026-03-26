@@ -44,13 +44,14 @@ class IFrameBuffer;
 class IShadowFrameBuffer;
 class IGpuResourceLoader;
 class IRendererFactory;
+class IPhysicsApi;
 
 namespace Renderer
 {
 class RenderersManager
 {
 public:
-    RenderersManager(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, Utils::MeasurementHandler&, Utils::Thread::IThreadSync&,
+    RenderersManager(GraphicsApi::IGraphicsApi&, Physics::IPhysicsApi&, IGpuResourceLoader&, Utils::MeasurementHandler&, Utils::Thread::IThreadSync&,
                      const Time&, std::unique_ptr<IRendererFactory>);
 
     ~RenderersManager();

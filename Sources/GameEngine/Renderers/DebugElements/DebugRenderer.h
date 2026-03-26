@@ -93,7 +93,7 @@ public:
         Ray
     };
 
-    DebugRenderer(RendererContext&, Utils::Thread::IThreadSync&);
+    DebugRenderer(Physics::IPhysicsApi&, RendererContext&, Utils::Thread::IThreadSync&);
     ~DebugRenderer();
 
     void init() override;
@@ -107,7 +107,6 @@ public:
     void unSubscribe(const Components::IComponent&) override;
     void unSubscribeAll() override;
     void renderTextures(const std::vector<GraphicsApi::ID>&);
-    void SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMesh&()>);
     void AddDebugObject(Model&, common::Transform&);
     void Enable();
     void Disable();
@@ -136,6 +135,7 @@ private:
 
 private:
     RendererContext& rendererContext_;
+    Physics::IPhysicsApi& physicsApi_;
     LineMeshVisualizator physicsVisualizator_;
     LineMeshVisualizator boundingBoxVisualizator_;
     LineMeshVisualizator rayVisualizator_;

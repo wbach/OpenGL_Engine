@@ -161,7 +161,7 @@ void BachPhysicsAdapter::Simulate(float)
         }
     }
 }
-const GraphicsApi::LineMesh& BachPhysicsAdapter::DebugDraw()
+const GraphicsApi::LineMesh& BachPhysicsAdapter::DebugDraw(const vec3&)
 {
     return lineMesh_;
 }

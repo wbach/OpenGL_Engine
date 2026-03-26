@@ -61,9 +61,10 @@ GraphicsApi::IFrameBuffer* createPerCameraFrameBuffer(GraphicsApi::IGraphicsApi&
 
 namespace Renderer
 {
-RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuLoader,
-                                   Utils::MeasurementHandler& measurmentHandler, Utils::Thread::IThreadSync& threadSync,
-                                   const Time& renderThreadTime, std::unique_ptr<IRendererFactory> rendererFactory)
+RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, Physics::IPhysicsApi& physicsApi,
+                                   IGpuResourceLoader& gpuLoader, Utils::MeasurementHandler& measurmentHandler,
+                                   Utils::Thread::IThreadSync& threadSync, const Time& renderThreadTime,
+                                   std::unique_ptr<IRendererFactory> rendererFactory)
     : graphicsApi_(graphicsApi)
     , gpuLoader_(gpuLoader)
     , measurmentHandler_(measurmentHandler)
@@ -73,7 +74,7 @@ RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuR
     , guiRenderer_(graphicsApi)
     , bufferDataUpdater_()
     , rendererContext_(frustrum_, graphicsApi_, gpuLoader_, measurmentHandler_, renderThreadTime)
-    , debugRenderer_(rendererContext_, threadSync)
+    , debugRenderer_(physicsApi, rendererContext_, threadSync)
 {
     frustrumCheckCount_ = &measurmentHandler_.AddNewMeasurment("FrustrumCheckCount", "0");
 

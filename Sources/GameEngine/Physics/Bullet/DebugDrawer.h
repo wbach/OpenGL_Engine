@@ -1,6 +1,6 @@
 #pragma once
-#include <LinearMath/btIDebugDraw.h>
 #include <GraphicsApi/IGraphicsApi.h>
+#include <LinearMath/btIDebugDraw.h>
 #include <Types.h>
 
 namespace GameEngine
@@ -12,6 +12,7 @@ class BulletDebugDrawer : public btIDebugDraw
 public:
     BulletDebugDrawer();
     ~BulletDebugDrawer();
+    void setCameraPos(const vec3&);
     void clear();
     void drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color) override;
     void drawContactPoint(const btVector3 &, const btVector3 &, btScalar, int, const btVector3 &) override;
@@ -19,11 +20,12 @@ public:
     void draw3dText(const btVector3 &, const char *) override;
     void setDebugMode(int p) override;
     int getDebugMode(void) const override;
-    const GraphicsApi::LineMesh& getMesh() const;
+    const GraphicsApi::LineMesh &getMesh() const;
 
 private:
     GraphicsApi::LineMesh lineMesh_;
     size_t lastMeshSize_ = 0;
+    vec3 cameraPos{0};
 };
 }  // namespace Physics
 }  // namespace GameEngine

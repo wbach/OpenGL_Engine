@@ -24,8 +24,8 @@ EngineContext::EngineContext(std::unique_ptr<GraphicsApi::IGraphicsApi> graphics
     , inputManager_(displayManager_.GetInputManager())
     , resourceManagerFactory{std::make_unique<ResourceManagerFactory>(*graphicsApi_, gpuResourceLoader_)}
     , physicsApi_(std::move(physicsApi))
-    , renderersManager_(*graphicsApi_, gpuResourceLoader_, measurmentHandler_, *threadSync_, displayManager_.GetTime(),
-                        std::make_unique<RendererFactory>(*graphicsApi_))
+    , renderersManager_(*graphicsApi_, *physicsApi_, gpuResourceLoader_, measurmentHandler_, *threadSync_,
+                        displayManager_.GetTime(), std::make_unique<RendererFactory>(*graphicsApi_))
     , sceneManager_{std::make_unique<SceneManager>(*this, std::move(sceneFactory))}
     , audioManager(std::make_unique<AudioManager>())
 {
@@ -44,8 +44,8 @@ EngineContext::EngineContext(std::unique_ptr<Physics::IPhysicsApi> physicsApi, s
     , inputManager_(displayManager_.GetInputManager())
     , resourceManagerFactory{std::move(resourceManagerFactory)}
     , physicsApi_(std::move(physicsApi))
-    , renderersManager_(*graphicsApi_, gpuResourceLoader_, measurmentHandler_, *threadSync_, displayManager_.GetTime(),
-                        std::move(rendererFactory))
+    , renderersManager_(*graphicsApi_, *physicsApi_, gpuResourceLoader_, measurmentHandler_, *threadSync_,
+                        displayManager_.GetTime(), std::move(rendererFactory))
     , sceneManager_{std::make_unique<SceneManager>(*this, std::move(sceneFactory))}
     , audioManager(std::make_unique<AudioManager>())
 {

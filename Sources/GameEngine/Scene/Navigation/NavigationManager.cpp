@@ -122,20 +122,20 @@ void NavigationManager::ReCreateProvider()
                 LOG_DEBUG << "BB not ready";
             }
         }
-        else if (auto maybeRendererComponent = obj->GetComponent<Components::RendererComponent>())
-        {
-            auto model = maybeRendererComponent->GetModelWrapper().Get();
-            if (not model)
-            {
-                LOG_DEBUG << "Model not ready";
-                continue;
-            }
+        // else if (auto maybeRendererComponent = obj->GetComponent<Components::RendererComponent>())
+        // {
+        //     auto model = maybeRendererComponent->GetModelWrapper().Get();
+        //     if (not model)
+        //     {
+        //         LOG_DEBUG << "Model not ready";
+        //         continue;
+        //     }
 
-            const auto& worldMatrix = obj->GetWorldTransform().CalculateCurrentMatrix();
-            navigationProvider->AddObstacle(*model, worldMatrix, defaultAgentRadius);
+        //     const auto& worldMatrix = obj->GetWorldTransform().CalculateCurrentMatrix();
+        //     navigationProvider->AddObstacle(*model, worldMatrix, defaultAgentRadius);
 
-            obstacleCount++;
-        }
+        //     obstacleCount++;
+        // }
     }
     LOG_INFO << "Navigation Grid Rebuilt: " << w << "x" << h << " cells, " << obstacleCount << " static obstacles.";
 }

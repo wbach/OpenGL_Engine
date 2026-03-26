@@ -1,6 +1,7 @@
 #include "DebugDrawer.h"
 
 #include "Converter.h"
+#include "GameEngine/Engine/Configuration.h"
 
 namespace GameEngine
 {
@@ -22,6 +23,12 @@ void BulletDebugDrawer::clear()
 }
 void BulletDebugDrawer::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color)
 {
+    auto viewDistance = EngineConf.debugParams.debugRendererDistance * EngineConf.debugParams.debugRendererDistance;
+    if (glm::distance2(Convert(from), cameraPos) > viewDistance and glm::distance2(Convert(to), cameraPos) > viewDistance)
+    {
+        return;
+    }
+
     lineMesh_.positions_.push_back(from.x());
     lineMesh_.positions_.push_back(from.y());
     lineMesh_.positions_.push_back(from.z());
@@ -50,11 +57,15 @@ void BulletDebugDrawer::setDebugMode(int)
 }
 int BulletDebugDrawer::getDebugMode(void) const
 {
-    return DebugDrawModes::DBG_DrawWireframe;//3;
+    return DebugDrawModes::DBG_DrawWireframe;  // 3;
 }
 const GraphicsApi::LineMesh &BulletDebugDrawer::getMesh() const
 {
     return lineMesh_;
+}
+void BulletDebugDrawer::setCameraPos(const vec3 &pos)
+{
+    cameraPos = pos;
 }
 }  // namespace Physics
 }  // namespace GameEngine

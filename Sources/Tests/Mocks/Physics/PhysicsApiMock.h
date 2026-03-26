@@ -11,7 +11,7 @@ namespace GameEngine
 struct PhysicsApiMock : public Physics::IPhysicsApi
 {
     MOCK_METHOD1(Simulate, void(float));
-    MOCK_METHOD0(DebugDraw, const GraphicsApi::LineMesh&());
+    MOCK_METHOD1(DebugDraw, const GraphicsApi::LineMesh&(const vec3&));
     MOCK_METHOD0(EnableSimulation, void());
     MOCK_METHOD0(DisableSimulation, void());
     MOCK_METHOD3(CreateBoxColider, Physics::ShapeId(const vec3&, const vec3&, const vec3&));

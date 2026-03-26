@@ -61,8 +61,8 @@ GraphicsApi::LineMesh CreateLineMeshFromPath(const std::vector<vec3>& path, cons
     }
     return mesh;
 }
-GraphicsApi::LineMesh CreateLineMeshFromGrid(const ICamera* camera, const std::vector<NavNode>& nodes, int width, int height, float cellSize,
-                                             const vec3& origin)
+GraphicsApi::LineMesh CreateLineMeshFromGrid(const ICamera* camera, const std::vector<NavNode>& nodes, int width, int height,
+                                             float cellSize, const vec3& origin)
 {
     GraphicsApi::LineMesh mesh;
     vec3 blockedColor(1.0f, 0.0f, 0.0f);   // Czerwony dla zablokowanych
@@ -314,8 +314,9 @@ void DebugObject::BindBuffer() const
     }
 }
 
-DebugRenderer::DebugRenderer(RendererContext& rendererContext, Utils::Thread::IThreadSync& threadSync)
+DebugRenderer::DebugRenderer(Physics::IPhysicsApi& physicsApi, RendererContext& rendererContext, Utils::Thread::IThreadSync& threadSync)
     : rendererContext_(rendererContext)
+    , physicsApi_(physicsApi)
     , physicsVisualizator_(rendererContext.graphicsApi_, threadSync)
     , boundingBoxVisualizator_(rendererContext.graphicsApi_, threadSync)
     , rayVisualizator_(rendererContext.graphicsApi_, threadSync)
@@ -353,6 +354,17 @@ void DebugRenderer::init()
     textureShader_.Init();
     selectionViewer_.Init();
     brushVisualization_.Init();
+
+    physicsVisualizator_.SetMeshCreationFunction(
+        [&]() -> const GraphicsApi::LineMesh&
+        {
+            auto camera = rendererContext_.scene_->GetCameraManager().GetMainCamera();
+            if (camera)
+                return physicsApi_.DebugDraw(camera->GetPosition());
+
+            static GraphicsApi::LineMesh result;
+            return result;
+        });
 
     brushVisualization_.SetMeshCreationFunction(
         [&]() -> const GraphicsApi::LineMesh&
@@ -741,11 +753,6 @@ void DebugRenderer::renderTextures(const std::vector<GraphicsApi::ID>& textures)
         textureShader_.Stop();
         rendererContext_.graphicsApi_.EnableDepthTest();
     }
-}
-
-void DebugRenderer::SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMesh&()> func)
-{
-    physicsVisualizator_.SetMeshCreationFunction(func);
 }
 
 void DebugRenderer::AddDebugObject(Model& model, common::Transform& transform)
