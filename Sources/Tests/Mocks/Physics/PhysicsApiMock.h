@@ -4,6 +4,7 @@
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "Types.h"
+#include "gmock/gmock.h"
 
 namespace GameEngine
 {
@@ -20,8 +21,8 @@ struct PhysicsApiMock : public Physics::IPhysicsApi
     MOCK_METHOD3(CreateTerrainColider, Physics::ShapeId(const vec3&, const vec3&, const HeightMap&));
     MOCK_METHOD5(CreateMeshCollider,
                  Physics::ShapeId(const vec3&, const std::vector<float>&, const IndicesVector&, const vec3&, bool));
-    MOCK_METHOD6(CreateRigidbody,
-                 Physics::RigidbodyId(const Physics::ShapeId&, GameObject&, Physics::CollisionGroup, const Physics::RigidbodyProperties&, float, bool&));
+    MOCK_METHOD6(CreateRigidbody, Physics::RigidbodyId(const Physics::ShapeId&, GameObject&, Physics::CollisionGroup,
+                                                       const Physics::RigidbodyProperties&, float, bool&));
     MOCK_METHOD1(RemoveRigidBody, void(const Physics::RigidbodyId&));
     MOCK_METHOD1(RemoveShape, void(const Physics::ShapeId&));
     MOCK_METHOD2(SetVelocityRigidbody, void(const Physics::RigidbodyId&, const vec3&));

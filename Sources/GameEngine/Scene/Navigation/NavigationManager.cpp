@@ -92,7 +92,7 @@ void NavigationManager::ReCreateProvider()
     vec3 terrainScale = terrainObj->GetWorldTransform().GetScale();
     vec3 terrainPos   = terrainObj->GetWorldTransform().GetPosition();
 
-    float cellSize = 0.3f;
+    float cellSize = 0.5f;//1.f;  // 0.3f;
     int w          = static_cast<int>(terrainScale.x / cellSize);
     int h          = static_cast<int>(terrainScale.z / cellSize);
     vec3 origin    = terrainPos - (terrainScale * 0.5f);
@@ -105,9 +105,11 @@ void NavigationManager::ReCreateProvider()
     const float defaultAgentRadius = 0.4f;
 
     int obstacleCount = 0;
-    // TO DO:
     for (auto& [_, obj] : objectInPath)
     {
+        if (obj == terrainObj)
+            continue;
+
         if (auto maybRigidbody = obj->GetComponent<Components::Rigidbody>())
         {
             if (auto pBB = physicsApi.getBoundingBox(maybRigidbody->GetId()))
@@ -122,10 +124,6 @@ void NavigationManager::ReCreateProvider()
         }
         else if (auto maybeRendererComponent = obj->GetComponent<Components::RendererComponent>())
         {
-            // auto aabb = maybeRendererComponent->getWorldSpaceBoundingBox();
-            // navigationProvider->AddObstacle(aabb);
-
-            LOG_DEBUG << "RendererComponent";
             auto model = maybeRendererComponent->GetModelWrapper().Get();
             if (not model)
             {

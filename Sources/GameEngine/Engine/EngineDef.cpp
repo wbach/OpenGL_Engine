@@ -109,3 +109,4 @@ const std::string CSTR_SHOW_RENDER_INFO               = "showRenderInfo";
 const std::string CSTR_SHOW_RENDER_TIMERS             = "showRenderTimers";
 const std::string CSTR_REFRESH_STEP_DOWN              = "refreshStepDown";
 const std::string CSTR_USE_WORKER                     = "useWorker";
+const std::string CSTR_DEBUG_RENDER_DISTANCE          = "debugRenderDistance";

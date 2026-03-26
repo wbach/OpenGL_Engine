@@ -50,12 +50,14 @@ struct CollisionDetection
     Predicate predicate;
 };
 
-enum CollisionGroup
+enum CollisionGroup : short
 {
+    None           = 0,
     Default        = 1,
     StaticObstacle = 2,
     Terrain        = 4,
-    Player         = 8
+    Player         = 8,
+    All            = -1
 };
 
 class IPhysicsApi

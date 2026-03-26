@@ -382,15 +382,28 @@ void GridNavigation::AddObstacle(Model& model, const glm::mat4& modelTransform, 
 void GridNavigation::AddPhysicsObstacle(Physics::IPhysicsApi& api, const BoundingBox& worldBB, float agentHeight)
 {
     std::lock_guard lk(nodesMutex);
+    LOG_DEBUG << worldBB;
     auto getX = [&](auto worldX) { return static_cast<int>(std::floor((worldX - origin.x) / cellSize)); };
     auto getZ = [&](auto worldZ) { return static_cast<int>(std::floor((worldZ - origin.z) / cellSize)); };
 
-    auto startX = std::max(0, getX(worldBB.min().x));
-    auto endX   = std::min(width - 1, getX(worldBB.max().x));
-    auto startZ = std::max(0, getZ(worldBB.min().z));
-    auto endZ   = std::min(height - 1, getZ(worldBB.max().z));
+    float xMin = std::min(worldBB.min().x, worldBB.max().x);
+    float xMax = std::max(worldBB.min().x, worldBB.max().x);
+    float zMin = std::min(worldBB.min().z, worldBB.max().z);
+    float zMax = std::max(worldBB.min().z, worldBB.max().z);
 
-    vec3 halfExtents(cellSize * 0.5f, agentHeight * 0.5f, cellSize * 0.5f);
+    // 2. Oblicz indeksy
+    int sX = getX(xMin);
+    int eX = getX(xMax);
+    int sZ = getZ(zMin);
+    int eZ = getZ(zMax);
+
+    // 3. Dodatkowe zabezpieczenie pętli
+    int startX = std::clamp(std::min(sX, eX), 0, width - 1);
+    int endX   = std::clamp(std::max(sX, eX), 0, width - 1);
+    int startZ = std::clamp(std::min(sZ, eZ), 0, height - 1);
+    int endZ   = std::clamp(std::max(sZ, eZ), 0, height - 1);
+
+    vec3 halfExtents(cellSize * 0.5f, cellSize * 0.5f, cellSize * 0.5f);
 
     for (int z = startZ; z <= endZ; ++z)
     {
@@ -402,7 +415,7 @@ void GridNavigation::AddPhysicsObstacle(Physics::IPhysicsApi& api, const Boundin
 
             auto cellPos = GetWorldPosFromIndex(x, z, nodes[idx].height);
 
-            vec3 testCenter(cellPos.x, cellPos.y + halfExtents.y, cellPos.z);
+            vec3 testCenter(cellPos.x, cellPos.y, cellPos.z);
 
             if (api.checkBoxOverlap(testCenter, halfExtents))
             {

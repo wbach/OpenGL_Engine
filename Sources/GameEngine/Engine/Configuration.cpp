@@ -15,6 +15,7 @@ DebugParams::DebugParams()
     , showRenderInfo{false, {false, true}}
     , showRenderersTimers{false, {false, true}}
     , showPhycicsVisualization{false, {false, true}}
+    , debugRendererDistance{25.f, {-1.f, 10.f, 25.f, 50.f, 100.f, 200.f, 500.f, 1000.f, 2000.f, 5000.f}}
 {
 }
 

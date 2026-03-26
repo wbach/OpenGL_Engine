@@ -4,6 +4,7 @@
 #include <btBulletDynamicsCommon.h>
 
 #include <algorithm>
+#include <bitset>
 #include <optional>
 #include <ranges>
 #include <unordered_map>
@@ -17,6 +18,7 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/Bullet/Rigidbody.h"
 #include "GameEngine/Physics/CollisionContactInfo.h"
+#include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Physics/PhysicsApiTypes.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
@@ -24,6 +26,7 @@
 #include "Rigidbodies.h"
 #include "Utils.h"
 #include "Utils/Variant.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -378,6 +381,10 @@ RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& g
     {
         btShape->calculateLocalInertia(mass, localInertia);
     }
+    else
+    {
+        mass = 0;
+    }
 
     auto myMotionState = new btDefaultMotionState(Convert(gameObject.GetWorldTransform(), Convert(shape.positionOffset_)));
     btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape.btShape_.get(), localInertia);
@@ -387,8 +394,16 @@ RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& g
     body.btRigidbody_->setFriction(1);
 
     std::lock_guard<std::mutex> lk(dynamicWorldMutex);
-    auto mask = btBroadphaseProxy::AllFilter;
-    btDynamicWorld->addRigidBody(body.btRigidbody_.get(), group, mask);
+
+    short btGroup = btBroadphaseProxy::DefaultFilter;
+    short btMask  = btBroadphaseProxy::AllFilter;
+
+    if (group != CollisionGroup::Default)
+    {
+        btGroup = static_cast<short>(group);
+    }
+
+    btDynamicWorld->addRigidBody(body.btRigidbody_.get(), btGroup, btMask);
     btDynamicWorld->updateSingleAabb(body.btRigidbody_.get());
     return impl_->rigidbodies.insert(std::move(body), isStatic);
 }
@@ -528,6 +543,7 @@ void BulletAdapter::SetRotation(const RigidbodyId& rigidBodyId, const vec3& rota
             if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
             {
                 rigidbody->btRigidbody_->getWorldTransform().setRotation(qt);
+                btDynamicWorld->updateSingleAabb(rigidbody->btRigidbody_.get());
             }
         });
 }
@@ -539,6 +555,7 @@ void BulletAdapter::SetRotation(const RigidbodyId& rigidBodyId, const Quaternion
             if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
             {
                 rigidbody->btRigidbody_->getWorldTransform().setRotation(Convert(rotation));
+                btDynamicWorld->updateSingleAabb(rigidbody->btRigidbody_.get());
             }
         });
 }
@@ -550,6 +567,7 @@ void BulletAdapter::SetPosition(const RigidbodyId& rigidBodyId, const vec3& posi
             if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
             {
                 rigidbody->btRigidbody_->getWorldTransform().setOrigin(Convert(position));
+                btDynamicWorld->updateSingleAabb(rigidbody->btRigidbody_.get());
             }
         });
 }
@@ -564,6 +582,7 @@ void BulletAdapter::Translate(const RigidbodyId& rigidBodyId, const vec3& vector
                 // rigidbody->btRigidbody_->translate(Convert(vector));
                 auto o = rigidbody->btRigidbody_->getWorldTransform().getOrigin();
                 rigidbody->btRigidbody_->getWorldTransform().setOrigin(o + Convert(vector));
+                btDynamicWorld->updateSingleAabb(rigidbody->btRigidbody_.get());
             }
         });
 }
@@ -579,6 +598,7 @@ void BulletAdapter::SetRigidbodyScale(const RigidbodyId& rigidBodyId, const vec3
         }
 
         rigidbody->btRigidbody_->getWorldTransform().setOrigin(Convert(position));
+        btDynamicWorld->updateSingleAabb(rigidbody->btRigidbody_.get());
     }
 }
 
@@ -586,7 +606,7 @@ void BulletAdapter::SetShapeScale(const ShapeId& shapeId, const vec3& position)
 {
     if (not shapeId)
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Invalid shapeId");
+        LOG_ERROR << "Invalid shapeId";
         return;
     }
 
@@ -770,43 +790,40 @@ std::optional<BoundingBox> BulletAdapter::getBoundingBox(const RigidbodyId& rigi
 }
 bool BulletAdapter::checkBoxOverlap(const vec3& pos, const vec3& halfExtents) const
 {
-    btBoxShape tempShape(btVector3(halfExtents.x, halfExtents.y, halfExtents.z));
-    btCollisionObject tempObj;
-    tempObj.setCollisionShape(&tempShape);
-    tempObj.setCollisionFlags(tempObj.getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+    btBoxShape boxShape(btVector3(halfExtents.x, halfExtents.y, halfExtents.z));
 
-    btTransform xform;
-    xform.setIdentity();
-    xform.setOrigin(btVector3(pos.x, pos.y, pos.z));
-    tempObj.setWorldTransform(xform);
+    btTransform transform;
+    transform.setIdentity();
+    transform.setOrigin(btVector3(pos.x, pos.y, pos.z));
 
-    struct NavigationContactCallback : public btCollisionWorld::ContactResultCallback
+    btCollisionObject tempObject;
+    tempObject.setCollisionShape(&boxShape);
+    tempObject.setWorldTransform(transform);
+
+    struct ContactSensorCallback : public btCollisionWorld::ContactResultCallback
     {
-        bool hasCollision = false;
+        bool m_connected = false;
 
-        NavigationContactCallback(short mask)
+        ContactSensorCallback()
         {
-            m_collisionFilterGroup = btBroadphaseProxy::DefaultFilter;
-            m_collisionFilterMask  = mask;
+            m_collisionFilterGroup = CollisionGroup::Default;
+            m_collisionFilterMask  = CollisionGroup::All ^ CollisionGroup::Terrain;
         }
 
         virtual btScalar addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0,
                                          int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1,
                                          int index1) override
         {
-            hasCollision = true;
-            return 0.f;
+            m_connected = true;
+            return 0;
         }
     };
 
-    short mask = CollisionGroup::Default | CollisionGroup::StaticObstacle;
-    NavigationContactCallback callback(mask);
+    ContactSensorCallback callback;
+    btDynamicWorld->contactTest(&tempObject, callback);
 
-    std::lock_guard<std::mutex> lk(dynamicWorldMutex);
-    btDynamicWorld->contactTest(&tempObj, callback);
-    return callback.hasCollision;
+    return callback.m_connected;
 }
 }  // namespace Bullet
-
 }  // namespace Physics
 }  // namespace GameEngine

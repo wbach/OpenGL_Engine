@@ -147,8 +147,8 @@ void Create(TreeNode& node, const Params::Files& param)
 }
 void Create(TreeNode& node, const Params::Sound& param)
 {
-    node.attributes_[CSTR_SOUND_ENABLED] = std::to_string(param.isEnabled);
-    node.attributes_[CSTR_SOUND_VOLUME]  = std::to_string(param.volume);
+    node.attributes_[CSTR_SOUND_ENABLED]        = std::to_string(param.isEnabled);
+    node.attributes_[CSTR_SOUND_VOLUME]         = std::to_string(param.volume);
     node.attributes_[CSTR_SOUND_MASTER_VOLUME]  = std::to_string(param.masterVolume);
     node.attributes_[CSTR_SOUND_MUSIC_VOLUME]   = std::to_string(param.musicVolume);
     node.attributes_[CSTR_SOUND_SFX_VOLUME]     = std::to_string(param.sfxVolume);
@@ -172,6 +172,7 @@ void Create(TreeNode& node, const Params::DebugParams& param)
     node.addChild(CSTR_SHOW_RENDER_INFO, Utils::BoolToString(param.showRenderInfo));
     node.addChild(CSTR_GENERATE_DEBUG_NORMAL_MESHES, Utils::BoolToString(param.generateDebugNormalsMeshes));
     node.addChild(CSTR_SHOW_RENDER_TIMERS, Utils::BoolToString(param.showRenderersTimers));
+    node.addChild(CSTR_DEBUG_RENDER_DISTANCE, std::to_string(param.debugRendererDistance));
 }
 void CreateBinary(TreeNode& node, bool param)
 {

@@ -26,6 +26,7 @@
 #include "GameEngine/Scene/Navigation/NavigationManager.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Utils.h"
+#include "glm/geometric.hpp"
 
 namespace GameEngine
 {
@@ -60,7 +61,7 @@ GraphicsApi::LineMesh CreateLineMeshFromPath(const std::vector<vec3>& path, cons
     }
     return mesh;
 }
-GraphicsApi::LineMesh CreateLineMeshFromGrid(const std::vector<NavNode>& nodes, int width, int height, float cellSize,
+GraphicsApi::LineMesh CreateLineMeshFromGrid(const ICamera* camera, const std::vector<NavNode>& nodes, int width, int height, float cellSize,
                                              const vec3& origin)
 {
     GraphicsApi::LineMesh mesh;
@@ -80,6 +81,12 @@ GraphicsApi::LineMesh CreateLineMeshFromGrid(const std::vector<NavNode>& nodes, 
             float worldX = origin.x + x * cellSize;
             float worldZ = origin.z + z * cellSize;
             float y      = nodes[idx].height + 0.1f;
+
+            float viewDistance = EngineConf.debugParams.debugRendererDistance;
+            if (glm::distance2(vec3(worldX, y, worldZ), camera->GetPosition()) > viewDistance * viewDistance)
+            {
+                continue;
+            }
 
             float h = cellSize * 0.4f;
 
@@ -458,8 +465,11 @@ void DebugRenderer::init()
                 {
                     if (auto gridProvider = std::dynamic_pointer_cast<GameEngine::GridNavigation>(provider))
                     {
-                        result = CreateLineMeshFromGrid(gridProvider->GetNodes(), gridProvider->GetWidth(), gridProvider->GetHeight(),
-                                                        gridProvider->GetCellSize(), gridProvider->GetOrigin());
+                        auto camera = rendererContext_.scene_->GetCameraManager().GetMainCamera();
+
+                        result = CreateLineMeshFromGrid(camera, gridProvider->GetNodes(), gridProvider->GetWidth(),
+                                                        gridProvider->GetHeight(), gridProvider->GetCellSize(),
+                                                        gridProvider->GetOrigin());
                     }
                 }
             }

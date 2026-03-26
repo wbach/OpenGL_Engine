@@ -58,6 +58,7 @@ struct ENGINE_API DebugParams
     Params::ConfigurationParam<bool> showRenderInfo;
     Params::ConfigurationParam<bool> showRenderersTimers;
     Params::ConfigurationParam<bool> showPhycicsVisualization;
+    Params::ConfigurationParam<float> debugRendererDistance;
 };
 }  // namespace Params
 

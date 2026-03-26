@@ -22,7 +22,7 @@ public:
     vec3 velocity{0.f, 0.f, 0.f};
     vec3 angularFactor{1.f, 1.f, 1.f};
     std::string collisionShapeName;
-    Physics::CollisionGroup collisionGroup;
+    Physics::CollisionGroup collisionGroup{Physics::CollisionGroup::Default};
 
 public:
     // clang-format off

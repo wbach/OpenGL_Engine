@@ -402,6 +402,8 @@ void Read(TreeNode* node, Params::DebugParams& params)
     {
         params.showRenderersTimers = Utils::StringToBool(showRenderTimersNode->value_);
     }
+
+    ::Read(node->getChild(CSTR_DEBUG_RENDER_DISTANCE), params.debugRendererDistance);
 }
 
 void ReadConfiguration(GlobalConfiguration& configuration, const std::filesystem::path& filename)

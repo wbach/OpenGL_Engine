@@ -1,6 +1,7 @@
 #pragma once
 #include <Logger/Log.h>
 #include <Types.h>
+#include <Utils.h>
 #include <Utils/IdPool.h>
 
 #include <Mutex.hpp>
@@ -10,7 +11,7 @@
 
 #include "IConfigurationParam.h"
 #include "ParamToString.h"
-#include "Utils.h"
+#include "TreeNode.h"
 
 namespace GameEngine
 {
@@ -274,3 +275,20 @@ private:
 };
 }  // namespace Params
 }  // namespace GameEngine
+
+class TreeNode;
+template <class T>
+void Read(const TreeNode* node, GameEngine::Params::ConfigurationParam<T>& param)
+{
+    if (node)
+    {
+        T tempValue;
+        Read(*node, tempValue);
+        param = tempValue;
+    }
+}
+template <class T>
+void write(TreeNode& node, const GameEngine::Params::ConfigurationParam<T>& param)
+{
+    ::write(node, *param);
+}
