@@ -1,9 +1,11 @@
 #include "Tween.h"
 
+#include <Logger/Log.h>
+#include <Rotation.h>
+
 #include <optional>
 
-#include "Logger/Log.h"
-#include "Rotation.h"
+#include "GameEngine/Components/Physics/Rigidbody.h"
 
 namespace GameEngine
 {
@@ -39,6 +41,50 @@ float Tween::ApplyEase(float t, EaseType type)
 }
 void Tween::ApplyToTransform(const TweenTransform& newTransform)
 {
+    if (auto rigidbody = gameObject.get().GetComponent<Components::Rigidbody>())
+    {
+        ApplyToRigidbodyTransform(newTransform, *rigidbody);
+    }
+    else
+    {
+        ApplyToEngineTransform(newTransform);
+    }
+}
+TweenTransform Tween::calulacteTransform(float easedT) const
+{
+    TweenTransform newTransform;
+    if (target.position)
+    {
+        newTransform.position = glm::mix(source.position, target.position.value(), easedT);
+    }
+    if (target.rotation)
+    {
+        newTransform.rotation = glm::slerp(source.rotation.value_, target.rotation->value_, easedT);
+    }
+    if (target.scale)
+    {
+        newTransform.scale = glm::mix(source.scale, target.scale.value(), easedT);
+    }
+
+    return newTransform;
+}
+void Tween::ApplyToRigidbodyTransform(const TweenTransform& newTransform, Components::Rigidbody& rigidbody)
+{
+    if (newTransform.position)
+    {
+        rigidbody.SetPosition(*newTransform.position);
+    }
+    if (newTransform.rotation)
+    {
+        rigidbody.SetRotation(*newTransform.rotation);
+    }
+    if (newTransform.scale)
+    {
+        rigidbody.SetScale(*newTransform.scale);
+    }
+}
+void Tween::ApplyToEngineTransform(const TweenTransform& newTransform)
+{
     if (newTransform.position and newTransform.rotation and newTransform.scale)
     {
         gameObject.get().SetWorldPositionRotationScale(*newTransform.position, *newTransform.rotation, *newTransform.scale);
@@ -63,23 +109,5 @@ void Tween::ApplyToTransform(const TweenTransform& newTransform)
             gameObject.get().SetWorldScale(*newTransform.scale);
         }
     }
-}
-TweenTransform Tween::calulacteTransform(float easedT) const
-{
-    TweenTransform newTransform;
-    if (target.position)
-    {
-        newTransform.position = glm::mix(source.position, target.position.value(), easedT);
-    }
-    if (target.rotation)
-    {
-        newTransform.rotation = glm::slerp(source.rotation.value_, target.rotation->value_, easedT);
-    }
-    if (target.scale)
-    {
-        newTransform.scale = glm::mix(source.scale, target.scale.value(), easedT);
-    }
-
-    return newTransform;
 }
 }  // namespace GameEngine

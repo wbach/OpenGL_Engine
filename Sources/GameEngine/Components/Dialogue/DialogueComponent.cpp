@@ -224,13 +224,6 @@ void DialogueComponent::RotateObjectToPlayer(const vec3& playerPos)
 
     auto targetQuat = Utils::lookAtDirection2(dir);
 
-    // if (auto characterControllerr = thisObject_.GetComponent<CharacterController>())
-    // {
-    //     LOG_DEBUG << "Pus   t: " << targetQuat << ", current state= " << characterControllerr->getCurrentStateName();
-    //     characterControllerr->pushEventToQueue(RotateTargetEvent{.target = targetQuat});
-    //     return;
-    // }
-
     TweenTransform tween;
     tween.rotation = Rotation(targetQuat);
     componentContext_.tweenManager.Add(thisObject_, tween, 0.5f, EaseType::CubicOut);
