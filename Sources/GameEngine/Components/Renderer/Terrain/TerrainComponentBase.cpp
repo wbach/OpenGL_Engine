@@ -8,6 +8,7 @@
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
+#include <atomic>
 #include <optional>
 #include <string>
 
@@ -103,7 +104,7 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
     thisObject_.SetWorldPosition(offset);
     thisObject_.SetWorldRotation(Rotation{});
     thisObject_.SetWorldScale(vec3(1.f));
-    bool updateRigidbodyOnTransformChange_ = false;
+    std::atomic_bool updateRigidbodyOnTransformChange_ = false;
     auto rigidBodyId_ =
         componentContext_.physicsApi_.CreateRigidbody(*collisionShapeId, thisObject_, Physics::CollisionGroup::Default, {}, 0.f, updateRigidbodyOnTransformChange_);
 

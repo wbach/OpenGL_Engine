@@ -34,7 +34,7 @@ Rigidbody::Rigidbody(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(GetComponentType<Rigidbody>(), componentContext, gameObject)
     , mass(1.0f)
     , collisionShape_(nullptr)
-    , updateRigidbodyOnTransformChange_(false)
+    , isSynchronizingWitPhysicsApi_(false)
 {
 #define Shape(X) {X::name, GetComponentType<X>().id}
 
@@ -110,7 +110,7 @@ void Rigidbody::CreateRigidbody()
     }
 
     rigidBodyId_ = componentContext_.physicsApi_.CreateRigidbody(*maybeShapeId, thisObject_, collisionGroup, rigidbodyPropierties,
-                                                                 mass, updateRigidbodyOnTransformChange_);
+                                                                 mass, isSynchronizingWitPhysicsApi_);
     if (not rigidBodyId_)
     {
         LOG_ERROR << "create rigidbody error.";
@@ -124,9 +124,12 @@ void Rigidbody::CreateRigidbody()
     worldTransformSubscriptionId_ = thisObject_.SubscribeOnWorldTransfomChange(
         [this](const auto& transform)
         {
-            if (not updateRigidbodyOnTransformChange_)
+            if (not isSynchronizingWitPhysicsApi_)
             {
+                LOG_DEBUG << "World pos:  " << transform.GetPosition();
+                // LOG_DEBUG << "Bt World pos: " << *componentContext_.physicsApi_.GetPosition(*rigidBodyId_);
                 SetPosition(transform.GetPosition());
+                LOG_DEBUG << "transform.GetPosition() : " << transform.GetPosition();
                 SetRotation(transform.GetRotation());
                 SetScale(transform.GetScale());
             }

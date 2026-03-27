@@ -52,7 +52,7 @@ public:
     ShapeId CreateTerrainColider(const PositionOffset&, const Scale&, const HeightMap& heightMap) override;
     ShapeId CreateMeshCollider(const PositionOffset&, const std::vector<float>& data, const IndicesVector& indicies, const vec3&,
                                bool) override;
-    RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, CollisionGroup, const RigidbodyProperties&, float, bool&) override;
+    RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, CollisionGroup, const RigidbodyProperties&, float, std::atomic_bool&) override;
     void RemoveRigidBody(const RigidbodyId&) override;
     void RemoveShape(const ShapeId&) override;
     void SetVelocityRigidbody(const RigidbodyId&, const vec3& velocity) override;
@@ -88,7 +88,6 @@ private:
     void removeTask(IdType);
     void executeTasks();
     CollisionContactInfos contactTest(const Rigidbody&);
-    void updateTransforms();
     void checkCollisions();
     void stepSimulation(float);
 

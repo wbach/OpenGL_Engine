@@ -92,7 +92,7 @@ private:
     std::unordered_map<size_t, CollisionShape*> detectedCollisionShapes_;
     std::unordered_map<std::string, size_t> nameToTypeMap_;
 
-    bool updateRigidbodyOnTransformChange_;
+    std::atomic_bool isSynchronizingWitPhysicsApi_;
     std::optional<IdType> worldTransformSubscriptionId_;
 
     Physics::RigidbodyProperties rigidbodyPropierties;

@@ -6,19 +6,21 @@
 #include <btBulletDynamicsCommon.h>
 
 #include <algorithm>
+#include <atomic>
 #include <bitset>
 #include <magic_enum/magic_enum.hpp>
+#include <memory>
 #include <optional>
 #include <ranges>
 #include <unordered_map>
 
-#include "GameEngine/Engine/Configuration.h"
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 #include "CollisionResultCallback.h"
 #include "Container.h"
 #include "Converter.h"
 #include "DebugDrawer.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/Bullet/Rigidbody.h"
 #include "GameEngine/Physics/CollisionContactInfo.h"
@@ -26,6 +28,7 @@
 #include "GameEngine/Physics/PhysicsApiTypes.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
+#include "LinearMath/btVector3.h"
 #include "MeshShape.h"
 #include "Rigidbodies.h"
 
@@ -37,7 +40,37 @@ namespace Bullet
 {
 namespace
 {
-const float TRANSFROM_CHANGED_EPSILON = std::numeric_limits<float>::epsilon();
+class BulletMotionState : public btMotionState
+{
+public:
+    BulletMotionState(GameObject& go, const btVector3& offset, std::atomic_bool& isSynchronizing)
+        : go{go}
+        , offset(offset)
+        , isSynchronizing{isSynchronizing}
+    {
+    }
+
+    void getWorldTransform(btTransform& worldTrans) const override
+    {
+        btTransform graphicTrans;
+        graphicTrans.setOrigin(Convert(go.GetWorldTransform().GetPosition()));
+        graphicTrans.setRotation(Convert(go.GetWorldTransform().GetRotation().value_));
+        worldTrans = graphicTrans * btTransform(btQuaternion::getIdentity(), offset);
+    }
+
+    void setWorldTransform(const btTransform& worldTrans) override
+    {
+        isSynchronizing   = true;
+        auto graphicTrans = worldTrans * btTransform(btQuaternion::getIdentity(), offset).inverse();
+        go.SetWorldPositionRotation(Convert(graphicTrans.getOrigin()), Convert(graphicTrans.getRotation()));
+        isSynchronizing = false;
+    }
+
+private:
+    GameObject& go;
+    btVector3 offset;
+    std::atomic_bool& isSynchronizing;
+};
 }  // namespace
 
 struct BulletAdapter::Pimpl
@@ -87,37 +120,7 @@ void BulletAdapter::Simulate(float deltaTime)
         return;
 
     stepSimulation(deltaTime);
-    updateTransforms();
     checkCollisions();
-}
-const GraphicsApi::LineMesh& BulletAdapter::DebugDraw(const vec3& cameraPos)
-{
-    bulletDebugDrawer_->clear();
-    bulletDebugDrawer_->setCameraPos(cameraPos);
-    // {
-    //     btDynamicWorld->debugDrawWorld();
-    // }
-
-    //brak terenu ale sa te najblizsze punkty
-    auto drawDistSq = EngineConf.debugParams.debugRendererDistance * EngineConf.debugParams.debugRendererDistance;
-    const auto& objects = btDynamicWorld->getCollisionObjectArray();
-
-    for (int i = 0; i < objects.size(); i++)
-    {
-        const auto* obj = objects[i];
-
-        btVector3 minAABB, maxAABB;
-        obj->getCollisionShape()->getAabb(obj->getWorldTransform(), minAABB, maxAABB);
-
-        auto center = (minAABB + maxAABB) * 0.5f;
-        if (glm::distance2(Convert(center), cameraPos) < drawDistSq)
-        {
-            btDynamicWorld->debugDrawObject(
-                obj->getWorldTransform(), obj->getCollisionShape(), btVector3(0, 1, 0)  // Zielony kolor
-            );
-        }
-    }
-    return bulletDebugDrawer_->getMesh();
 }
 void BulletAdapter::DisableSimulation()
 {
@@ -247,7 +250,7 @@ ShapeId BulletAdapter::CreateMeshCollider(const PositionOffset& positionOffset, 
 }
 
 RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& gameObject, CollisionGroup group,
-                                           const RigidbodyProperties& properties, float mass, bool& isUpdating)
+                                           const RigidbodyProperties& properties, float mass, std::atomic_bool& isUpdating)
 {
     if (not shapeId)
     {
@@ -307,10 +310,10 @@ RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& g
         mass = 0;
     }
 
-    auto myMotionState = new btDefaultMotionState(Convert(gameObject.GetWorldTransform(), Convert(shape.positionOffset_)));
-    btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape.btShape_.get(), localInertia);
+    auto myMotionState = std::make_unique<BulletMotionState>(gameObject, shape.positionOffset_, isUpdating);
+    btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState.get(), shape.btShape_.get(), localInertia);
 
-    Rigidbody body{std::make_unique<btRigidBody>(cInfo), gameObject, shape.positionOffset_, isUpdating, *shapeId};
+    Rigidbody body{std::make_unique<btRigidBody>(cInfo), std::move(myMotionState), gameObject, shape.positionOffset_, *shapeId};
     body.btRigidbody_->setCollisionFlags(flags);
     body.btRigidbody_->setFriction(1);
 
@@ -739,34 +742,6 @@ bool BulletAdapter::checkBoxOverlap(const vec3& pos, const vec3& halfExtents) co
 
     return callback.connected;
 }
-void BulletAdapter::updateTransforms()
-{
-    impl_->rigidbodies.dynamic_.foreach (
-        [](auto, auto& rigidbody)
-        {
-            if (rigidbody.isMarkedToRelease)
-            {
-                return;
-            }
-
-            auto rotatedOffset =
-                Convert(rigidbody.btRigidbody_->getWorldTransform().getRotation()) * Convert(rigidbody.positionOffset_);
-
-            auto newPosition = Convert(rigidbody.btRigidbody_->getWorldTransform().getOrigin() - Convert(rotatedOffset));
-
-            Quaternion newRotation = Convert(rigidbody.btRigidbody_->getWorldTransform().getRotation());
-
-            auto l1 = glm::length(rigidbody.gameObject.GetWorldTransform().GetPosition() - newPosition);
-            auto l2 = glm::length(rigidbody.gameObject.GetWorldTransform().GetRotation().value_ - newRotation);
-
-            if (l1 > TRANSFROM_CHANGED_EPSILON or l2 > TRANSFROM_CHANGED_EPSILON)
-            {
-                rigidbody.isUpdating_ = true;
-                rigidbody.gameObject.SetWorldPositionRotation(newPosition, newRotation);
-                rigidbody.isUpdating_ = false;
-            }
-        });
-}
 void BulletAdapter::checkCollisions()
 {
     std::lock_guard<std::mutex> lk(dynamicWorldMutex);
@@ -849,6 +824,35 @@ void BulletAdapter::stepSimulation(float deltaTime)
 {
     std::lock_guard<std::mutex> lk(dynamicWorldMutex);
     btDynamicWorld->stepSimulation(deltaTime, 1, deltaTime);
+}
+const GraphicsApi::LineMesh& BulletAdapter::DebugDraw(const vec3& cameraPos)
+{
+    bulletDebugDrawer_->clear();
+    // bulletDebugDrawer_->setCameraPos(cameraPos);
+    // {
+    //     btDynamicWorld->debugDrawWorld();
+    // }
+
+    // brak terenu ale sa te najblizsze punkty
+    auto drawDistSq     = EngineConf.debugParams.debugRendererDistance * EngineConf.debugParams.debugRendererDistance;
+    const auto& objects = btDynamicWorld->getCollisionObjectArray();
+
+    for (int i = 0; i < objects.size(); i++)
+    {
+        const auto* obj = objects[i];
+
+        btVector3 minAABB, maxAABB;
+        obj->getCollisionShape()->getAabb(obj->getWorldTransform(), minAABB, maxAABB);
+
+        auto center = (minAABB + maxAABB) * 0.5f;
+        if (glm::distance2(Convert(center), cameraPos) < drawDistSq)
+        {
+            btDynamicWorld->debugDrawObject(
+                obj->getWorldTransform(), obj->getCollisionShape(), btVector3(0, 1, 0)  // Zielony kolor
+            );
+        }
+    }
+    return bulletDebugDrawer_->getMesh();
 }
 }  // namespace Bullet
 }  // namespace Physics

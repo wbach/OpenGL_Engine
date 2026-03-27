@@ -3,6 +3,7 @@
 #include <GraphicsApi/LineMesh.h>
 #include <Types.h>
 
+#include <atomic>
 #include <memory>
 #include <optional>
 #include <set>
@@ -13,7 +14,6 @@
 #include "RayHit.h"
 #include "RigidbodyProperty.h"
 #include "ShapeType.h"
-
 namespace GameEngine
 {
 class GameObject;
@@ -76,7 +76,7 @@ public:
     virtual ShapeId CreateMeshCollider(const PositionOffset&, const std::vector<float>& data, const IndicesVector&, const vec3&,
                                        bool)                                                        = 0;
     virtual RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, CollisionGroup, const RigidbodyProperties&, float mass,
-                                        bool& isUpdating)                                           = 0;
+                                        std::atomic_bool&)                                          = 0;
     virtual void RemoveRigidBody(const RigidbodyId&)                                                = 0;
     virtual void RemoveShape(const ShapeId&)                                                        = 0;
     virtual void SetVelocityRigidbody(const RigidbodyId&, const vec3&)                              = 0;

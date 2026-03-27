@@ -201,7 +201,7 @@ ShapeId BachPhysicsAdapter::CreateMeshCollider(const vec3&, const std::vector<fl
     return impl_->id_++;
 }
 RigidbodyId BachPhysicsAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& transform, CollisionGroup,
-                                                const RigidbodyProperties&, float mass, bool&)
+                                                const RigidbodyProperties&, float mass, std::atomic_bool&)
 {
     impl_->rigidbodies_.insert({impl_->id_, Rigidbody(transform, mass, false, *shapeId)});
     return impl_->id_++;

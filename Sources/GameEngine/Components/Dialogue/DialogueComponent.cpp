@@ -7,6 +7,8 @@
 #include "Common/Transform.h"
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "GameEngine/Dialogs/DialogueOption.h"
 #include "GameEngine/Dialogs/GameState.h"
 #include "GameEngine/Scene/Scene.hpp"
@@ -209,21 +211,29 @@ void DialogueComponent::RotateObjectToPlayer(const vec3& playerPos)
         return;
     }
 
-    Utils::lookAt({}, {});
     tmpRotation = thisObject_.GetWorldTransform().GetRotation();
 
     vec3 targetPosXZ(playerPos.x, npcPos.y, playerPos.z);
     auto dir = targetPosXZ - npcPos;
 
-    if (glm::length(dir) > 0.001f)
+    if (glm::length(dir) < 0.001f)
     {
-        auto targetQuat = Utils::lookAtDirection2(dir);
-
-        TweenTransform tween;
-        tween.rotation = Rotation(targetQuat);
-
-        componentContext_.tweenManager.Add(thisObject_, tween, 0.5f, EaseType::CubicOut);
+        LOG_DEBUG << "Rotate not neded";
+        return;
     }
+
+    auto targetQuat = Utils::lookAtDirection2(dir);
+
+    // if (auto characterControllerr = thisObject_.GetComponent<CharacterController>())
+    // {
+    //     LOG_DEBUG << "Pus   t: " << targetQuat << ", current state= " << characterControllerr->getCurrentStateName();
+    //     characterControllerr->pushEventToQueue(RotateTargetEvent{.target = targetQuat});
+    //     return;
+    // }
+
+    TweenTransform tween;
+    tween.rotation = Rotation(targetQuat);
+    componentContext_.tweenManager.Add(thisObject_, tween, 0.5f, EaseType::CubicOut);
 }
 void DialogueComponent::RestoreRotation()
 {
