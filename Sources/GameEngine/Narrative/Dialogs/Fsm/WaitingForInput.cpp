@@ -6,7 +6,7 @@
 
 #include "DialogContext.h"
 #include "GameEngine/Components/Dialogue/DialogueComponent.h"
-#include "GameEngine/Dialogs/Fsm/DialogEvents.h"
+#include "GameEngine/Narrative/Dialogs/Fsm/DialogEvents.h"
 #include "GameEngine/Renderers/GUI/IGuiElementFactory.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
 #include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"

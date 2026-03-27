@@ -14,6 +14,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+
 #include "EngineApi.h"
 
 #ifndef M_PI
@@ -967,12 +968,12 @@ std::string to_string(const std::vector<T>& values)
     return result;
 }
 
-ENGINE_API void from_string(const std::string& s, vec2& v);
-ENGINE_API void from_string(const std::string& s, vec2i& v);
-ENGINE_API void from_string(const std::string& s, vec2ui& v);
-ENGINE_API void from_string(const std::string& s, vec3i& v);
-ENGINE_API void from_string(const std::string& s, vec3& v);
-ENGINE_API void from_string(const std::string& s, vec4& v);
-ENGINE_API void from_string(const std::string& s, Quaternion& q);
-ENGINE_API void from_string(const std::string& s, mat4& m);
+ENGINE_API bool from_string(const std::string&, vec2&);
+ENGINE_API bool from_string(const std::string&, vec2i&);
+ENGINE_API bool from_string(const std::string&, vec2ui&);
+ENGINE_API bool from_string(const std::string&, vec3i&);
+ENGINE_API bool from_string(const std::string&, vec3&);
+ENGINE_API bool from_string(const std::string&, vec4&);
+ENGINE_API bool from_string(const std::string&, Quaternion&);
+ENGINE_API bool from_string(const std::string&, mat4&);
 }  // namespace std

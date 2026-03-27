@@ -5,9 +5,9 @@
 
 #include "DialogueNode.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
-#include "GameEngine/Dialogs/Fsm/DialogContext.h"
-#include "GameEngine/Dialogs/Fsm/DialogEvents.h"
-#include "GameEngine/Dialogs/Fsm/DialogFsm.h"
+#include "GameEngine/Narrative/Dialogs/Fsm/DialogContext.h"
+#include "GameEngine/Narrative/Dialogs/Fsm/DialogEvents.h"
+#include "GameEngine/Narrative/Dialogs/Fsm/DialogFsm.h"
 
 namespace Utils::Time
 {
@@ -23,7 +23,7 @@ namespace GameEngine
 {
 class ITweenManager;
 class IAudioManager;
-struct GameState;
+class GameState;
 class GuiManager;
 class GameObject;
 

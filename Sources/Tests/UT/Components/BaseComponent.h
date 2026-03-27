@@ -8,12 +8,12 @@
 #include <memory>
 
 #include "Camera/CameraManager.h"
-#include "Dialogs/DialogueManager.h"
-#include "Dialogs/GameState.h"
 #include "GameEngine/Camera/Frustrum.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentFactory.h"
+#include "GameEngine/Narrative/Dialogs/DialogueManager.h"
+#include "GameEngine/Narrative/GameState.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/GUI/GuiElementFactory.h"
 #include "GameEngine/Renderers/GUI/GuiManager.h"
@@ -30,14 +30,14 @@
 #include "Tests/Mocks/Api/WindowApiMock.hpp"
 #include "Tests/Mocks/Audio/AudioManagerMock.h"
 #include "Tests/Mocks/Camera/CameraMock.h"
+#include "Tests/Mocks/Gui/GuiElementFactoryMock.h"
 #include "Tests/Mocks/Physics/PhysicsApiMock.h"
 #include "Tests/Mocks/Resources/GpuResourceLoaderMock.h"
 #include "Tests/Mocks/Resources/ModelLoaderFactoryMock.h"
 #include "Tests/Mocks/Resources/ResourcesManagerMock.h"
 #include "Tests/Mocks/Scene/SceneManagerMock.h"
-#include "Tests/Mocks/Utils/TimerServiceMock.h"
-#include "Tests/Mocks/Gui/GuiElementFactoryMock.h"
 #include "Tests/Mocks/Scene/TweenManagerMock.h"
+#include "Tests/Mocks/Utils/TimerServiceMock.h"
 
 using namespace GameEngine;
 using namespace GameEngine::Components;

@@ -19,7 +19,7 @@ namespace GameEngine
 class IAudioManager;
 class IGuiElementFactory;
 class GuiManager;
-struct GameState;
+class GameState;
 class ITweenManager;
 class GuiWindowElement;
 class VerticalLayout;

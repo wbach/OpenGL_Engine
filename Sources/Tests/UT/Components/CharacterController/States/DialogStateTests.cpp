@@ -1,6 +1,6 @@
 #include "../CharacterControllerTests.h"
-#include "Components/Controllers/CharacterController/CharacterControllerEvents.h"
-#include "Dialogs/Fsm/DialogEvents.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
+#include "GameEngine/Narrative/Dialogs/Fsm/DialogEvents.h"
 
 namespace
 {

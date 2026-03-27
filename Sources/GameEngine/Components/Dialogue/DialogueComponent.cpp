@@ -9,8 +9,8 @@
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
-#include "GameEngine/Dialogs/DialogueOption.h"
-#include "GameEngine/Dialogs/GameState.h"
+#include "GameEngine/Narrative/Dialogs/DialogueOption.h"
+#include "GameEngine/Narrative/GameState.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Json/JsonReader.h"
 #include "Logger/Log.h"
@@ -176,11 +176,11 @@ const DialogueOption* DialogueComponent::selectOption(size_t optionIndex)
 
     if (not selected->setGameStateflag.empty())
     {
-        componentContext_.gamestate.flags[selected->setGameStateflag] = true;
+        componentContext_.gamestate.setFlag(selected->setGameStateflag, 1);
     }
     if (not selected->removeGameStateFlag.empty())
     {
-        componentContext_.gamestate.flags[selected->removeGameStateFlag] = false;
+        componentContext_.gamestate.setFlag(selected->removeGameStateFlag, 0);
         // componentContext_.gamestate.flags.erase(selected->removeGameStateFlag);
     }
     return selected;

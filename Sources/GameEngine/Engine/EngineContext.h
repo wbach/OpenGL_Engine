@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "EngineEvent.h"
-#include "GameEngine/Dialogs/GameState.h"
+#include "GameEngine/Narrative/GameState.h"
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"

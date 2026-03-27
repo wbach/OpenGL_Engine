@@ -1,4 +1,6 @@
 #pragma once
+#include <EngineApi.h>
+
 #include "ISceneManager.h"
 #include "SceneWrapper.h"
 
@@ -7,7 +9,7 @@ namespace GameEngine
 class EngineContext;
 class SceneLoader;
 
-class SceneManager : public ISceneManager
+class ENGINE_API SceneManager : public ISceneManager
 {
 public:
     SceneManager(EngineContext&, std::unique_ptr<ISceneFactory>);
@@ -33,7 +35,7 @@ private:
     void LoadPreviousScene();
     bool IsGpuLoading() const;
 
-    template<typename T>
+    template <typename T>
     void SetSceneToLoad(const T&);
     void SetSceneContext(Scene* scene);
 

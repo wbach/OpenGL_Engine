@@ -5,8 +5,8 @@
 #include <variant>
 #include <vector>
 
-#include "GameEngine/Dialogs/DialogueNode.h"
-#include "GameEngine/Dialogs/DialogueOption.h"
+#include "GameEngine/Narrative/Dialogs/DialogueNode.h"
+#include "GameEngine/Narrative/Dialogs/DialogueOption.h"
 
 namespace GameEngine
 {

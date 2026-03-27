@@ -14,7 +14,7 @@
 #include "GameEngine/Camera/Camera.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentFactory.h"
-#include "GameEngine/Dialogs/DialogueManager.h"
+#include "GameEngine/Narrative/Dialogs/DialogueManager.h"
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/GUI/GuiEngineContextManger.h"

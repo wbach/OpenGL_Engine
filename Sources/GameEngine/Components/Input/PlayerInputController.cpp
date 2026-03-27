@@ -14,7 +14,7 @@
 #include "GameEngine/Components/Controllers/AIController.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Dialogue/DialogueComponent.h"
-#include "GameEngine/Dialogs/DialogueManager.h"
+#include "GameEngine/Narrative/Dialogs/DialogueManager.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Scene/Scene.hpp"

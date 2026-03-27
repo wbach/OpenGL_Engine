@@ -1,7 +1,7 @@
 #pragma once
 #include "CharacterControllerCommonDefs.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
-#include "GameEngine/Dialogs/Fsm/DialogEvents.h"
+#include "GameEngine/Narrative/Dialogs/Fsm/DialogEvents.h"
 #include "IdleStateBase.h"
 
 namespace GameEngine

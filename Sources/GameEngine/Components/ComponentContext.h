@@ -23,7 +23,7 @@ class DialogueManager;
 class ITweenManager;
 class IAudioManager;
 class GuiManager;
-struct GameState;
+class GameState;
 class NavigationManager;
 
 namespace Physics

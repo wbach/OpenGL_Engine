@@ -1,5 +1,5 @@
 #pragma once
-#include <GameEngine/Dialogs/DialogueNode.h>
+#include <GameEngine/Narrative/Dialogs/DialogueNode.h>
 
 #include <cstddef>
 #include <optional>
@@ -14,7 +14,7 @@
 
 namespace GameEngine
 {
-struct GameState;
+class GameState;
 namespace Components
 {
 class ENGINE_API DialogueComponent : public BaseComponent

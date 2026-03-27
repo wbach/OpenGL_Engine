@@ -6,7 +6,7 @@
 #include <memory>
 
 #include "GameEngine/Audio/AudioManager.h"
-#include "GameEngine/Dialogs/DialogueManager.h"
+#include "GameEngine/Narrative/Dialogs/DialogueManager.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Renderers/RendererFactory.h"
 #include "GameEngine/Resources/ResourceManagerFactory.h"

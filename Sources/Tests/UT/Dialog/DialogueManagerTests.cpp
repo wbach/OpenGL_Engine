@@ -1,7 +1,24 @@
-#include <Dialogs/GameState.h>
-#include <GameEngine/Dialogs/DialogueManager.h>
+#include <GameEngine/Components/Camera/CameraComponent.h>
+#include <GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h>
+#include <GameEngine/Components/ComponentController.h>
+#include <GameEngine/Components/ComponentFactory.h>
+#include <GameEngine/Components/Dialogue/DialogueComponent.h>
+#include <GameEngine/Narrative/Dialogs/DialogueManager.h>
+#include <GameEngine/Narrative/Dialogs/DialogueOption.h>
+#include <GameEngine/Narrative/Dialogs/Fsm/DialogEvents.h>
+#include <GameEngine/Narrative/GameState.h>
+#include <GameEngine/Objects/GameObject.h>
+#include <GameEngine/Renderers/GUI/GuiRenderer.h>
+#include <GameEngine/Renderers/GUI/Layout/VerticalLayout.h>
+#include <GameEngine/Renderers/GUI/Text/GuiTextElement.h>
+#include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
+#include <GameEngine/Renderers/GUI/Window/GuiWindowStyle.h>
+#include <Logger/Log.h>
 #include <Renderers/GUI/GuiManager.h>
 #include <Scene/TweenManager.h>
+#include <Types.h>
+#include <Utils/IdPool.h>
+#include <Utils/Image/Image.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -10,30 +27,12 @@
 #include <memory>
 #include <string>
 
-#include "Components/Camera/CameraComponent.h"
-#include "Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
-#include "Components/ComponentController.h"
-#include "Components/ComponentFactory.h"
-#include "Components/Dialogue/DialogueComponent.h"
-#include "Dialogs/DialogueOption.h"
-#include "Dialogs/Fsm/DialogEvents.h"
-#include "IdPool.h"
-#include "Image/Image.h"
-#include "Logger/Log.h"
-#include "Objects/GameObject.h"
-#include "Renderers/GUI/GuiRenderer.h"
-#include "Renderers/GUI/Layout/VerticalLayout.h"
-#include "Renderers/GUI/Text/GuiTextElement.h"
-#include "Renderers/GUI/Window/GuiWindow.h"
-#include "Renderers/GUI/Window/GuiWindowStyle.h"
 #include "Tests/Mocks/Api/InputManagerMock.h"
 #include "Tests/Mocks/Gui/FontManagerMock.h"
 #include "Tests/Mocks/Gui/GuiElementFactoryMock.h"
 #include "Tests/Mocks/Resources/TextureLoaderMock.h"
 #include "Tests/Mocks/Utils/TimerServiceMock.h"
 #include "Tests/UT/Components/BaseComponent.h"
-#include "Types.h"
-#include "gmock/gmock.h"
 
 using namespace std::chrono_literals;
 using namespace testing;
@@ -457,8 +456,8 @@ TEST_F(DialogueManagerTests, ShouldShowOptionOnlyWhenAllConditionsAreMet)
     dialogueComponent->startNodeID = 0;
     dialogueComponent->resetCurrent();
 
-    gameState_.flags["has_letter"] = false;
-    gameState_.flags["is_traitor"] = false;
+    gameState_.setFlag("has_letter", false);
+    gameState_.setFlag("is_traitor", false);
 
     std::function<void()> firstTimer;
     std::function<void()> playerResposeTimer;
@@ -490,7 +489,7 @@ TEST_F(DialogueManagerTests, ShouldShowOptionOnlyWhenAllConditionsAreMet)
 
     expectGotToIdle();
 
-    gameState_.flags["has_letter"] = true;
+    gameState_.setFlag("has_letter", true);
 
     Mock::VerifyAndClearExpectations(&guiElementFactory_);
 
