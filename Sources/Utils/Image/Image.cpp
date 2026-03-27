@@ -218,7 +218,7 @@ Image::Image(Image&& other) noexcept
     other.height       = 0;
     other.channels_    = 4;
     other.isCompressed = false;
-    pitch.reset();
+    other.pitch.reset();
 }
 Image::Image(const Image& other)
     : width(other.width)
@@ -257,7 +257,7 @@ Image& Image::operator=(Image&& other) noexcept
         other.height       = 0;
         other.channels_    = 4;
         other.isCompressed = false;
-        pitch.reset();
+        other.pitch.reset();
     }
     return *this;
 }
