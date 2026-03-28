@@ -786,13 +786,12 @@ ID3D11ShaderResourceView *CreateTexture2DDesc(DirectXContext &context, const vec
     subResource.pSysMem          = data;
     if (pitch)
     {
-        subResource.SysMemPitch = *img.pitch;
+        subResource.SysMemPitch = *pitch;
     } else
     {
-        subResource.SysMemPitch = img.width * 4;
+        subResource.SysMemPitch = desc.Width * 4;
     }
 
-    //subResource.SysMemPitch      = desc.Width * 4;
     subResource.SysMemSlicePitch = 0;
     auto result                  = context.dev->CreateTexture2D(&desc, &subResource, &texture2d);
 
