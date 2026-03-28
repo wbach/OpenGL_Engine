@@ -353,6 +353,10 @@ void Read(TreeNode& node, Params::Files& files)
     {
         files.setLoadingCirclePath(child->value_);
     };
+    if (auto child = node.getChild(CSTR_QUESTS_FILE_PATH))
+    {
+        files.setQuestsFile(child->value_);
+    };
 }
 
 void Read(TreeNode* node, Params::LineMeshVisualizatorParams& params)

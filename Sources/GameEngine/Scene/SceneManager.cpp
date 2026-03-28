@@ -7,6 +7,7 @@
 
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/EngineContext.h"
+#include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "Scene.hpp"
 #include "SceneLoader.h"
@@ -75,6 +76,8 @@ void SceneManager::Update()
         {
             onSceneLoadDoneCallback();
         }
+
+        engineContext_.AddEngineEvent(ChangeSceneEndEvent{});
 
         StartUpdateThreadIfNeeded();
     }

@@ -563,6 +563,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/Dialogs/Fsm/Waiti
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/Dialogs/Fsm/DialogContext.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/Dialogs/Fsm/DialogFsm.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/Dialogs/Fsm/DialogEvents.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/Quests/Quest.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/Quests/QuestManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/CollisionContactInfo.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/PhysicsScene.h

@@ -290,9 +290,10 @@ void Engine::ProcessEngineEvents()
 
     for (auto& event : events)
     {
-        std::visit(visitor{[&](QuitEvent& e) { Quit(e); },
-                           [&](ChangeSceneEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); },
-                           [&](ChangeSceneConfirmEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); }},
+        std::visit(visitor{[&](const ChangeSceneEndEvent&) { engineContext_.GetQuestManager().sceneChanged(); },
+                           [&](const QuitEvent& e) { Quit(e); },
+                           [&](const ChangeSceneEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); },
+                           [&](const ChangeSceneConfirmEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); }},
                    event);
     }
 }

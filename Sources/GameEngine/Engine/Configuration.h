@@ -22,6 +22,7 @@ public:
     const std::filesystem::path& getShaderPath() const;
     const std::filesystem::path& getGeneratedDirPath() const;
     const std::filesystem::path& getCacheDirPath() const;
+    const std::filesystem::path& getQuestsFilePath() const;
     const std::filesystem::path& getLoadingCirclePath() const;
     const std::filesystem::path& getLoadingBackgroundPath() const;
     const std::filesystem::path& getLoadingBackgroundAudioPath() const;
@@ -29,6 +30,7 @@ public:
     void setProjectPath(const std::filesystem::path&);
     void setDataPath(const std::filesystem::path&);
     void setShaderPath(const std::filesystem::path&);
+    void setQuestsFile(const std::filesystem::path&);
     void setLoadingCirclePath(const std::filesystem::path&);
     void setLoadingBackgroundPath(const std::filesystem::path&);
     void setLoadingBackgroundAudioPath(const std::filesystem::path&);
@@ -42,6 +44,7 @@ private:
     std::filesystem::path projectPath;
     std::filesystem::path data{"../Data/"};
     std::filesystem::path shaders{"../Sources/"};
+    std::filesystem::path quests;
     std::filesystem::path loadingScreenCircleTexture{std::filesystem::path("GUI") / "aLoadingCircle.png"};
     std::filesystem::path loadingScreenBackgroundTexture{std::filesystem::path("GUI") / "dark3.png"};
     std::filesystem::path loadingScreenBackgroundAudio{std::filesystem::path("GUI") / "audio.ogg"};

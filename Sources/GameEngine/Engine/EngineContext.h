@@ -8,8 +8,9 @@
 #include <vector>
 
 #include "EngineEvent.h"
-#include "GameEngine/Narrative/GameState.h"
 #include "GameEngine/Display/DisplayManager.hpp"
+#include "GameEngine/Narrative/GameState.h"
+#include "GameEngine/Narrative/Quests/QuestManager.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Scene/SceneManager.h"
@@ -72,6 +73,7 @@ public:
     inline ISceneManager& GetSceneManager();
     inline IResourceManagerFactory& GetResourceManagerFactory();
     inline GameState& GetGameState();
+    inline QuestManager& GetQuestManager();
     inline IAudioManager& GetAudioManager();
 
 private:
@@ -89,6 +91,7 @@ private:
     std::unique_ptr<IAudioManager> audioManager;
 
     GameState gameState_;
+    QuestManager questManager_;
 
     std::mutex engineEventsMutex_;
     EngineEvents engineEvents_;
@@ -148,6 +151,10 @@ IResourceManagerFactory& EngineContext::GetResourceManagerFactory()
 GameState& EngineContext::GetGameState()
 {
     return gameState_;
+}
+QuestManager& EngineContext::GetQuestManager()
+{
+    return questManager_;
 }
 IAudioManager& EngineContext::GetAudioManager()
 {

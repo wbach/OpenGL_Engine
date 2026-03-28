@@ -25,8 +25,8 @@
 #include "GameEngine/Renderers/GUI/GuiManager.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Time/DayNightCycle.h"
-#include "SceneEvents.h"
 #include "Navigation/NavigationManager.h"
+#include "SceneEvents.h"
 #include "TweenManager.h"
 #include "Types.h"
 #include "WindParams.h"
@@ -135,6 +135,7 @@ public:
     void ChangeBackgroundColor(const Color&);
 
     NavigationManager* GetNavigationManager() const;
+    DialogueManager* GetDialogueManager() const;
 
 public:
     uint32 objectCount;

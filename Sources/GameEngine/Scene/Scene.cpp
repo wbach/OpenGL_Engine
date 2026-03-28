@@ -664,4 +664,8 @@ NavigationManager* Scene::GetNavigationManager() const
 {
     return navigationManager.get();
 }
+DialogueManager* Scene::GetDialogueManager() const
+{
+    return dialogueManager_.get();
+}
 }  // namespace GameEngine

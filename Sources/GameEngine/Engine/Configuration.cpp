@@ -42,6 +42,11 @@ void Files::setLoadingCirclePath(const std::filesystem::path& newPath)
     loadingScreenCircleTexture = newPath;
     makeAbolutePath(loadingScreenCircleTexture);
 }
+void Files::setQuestsFile(const std::filesystem::path& newPath)
+{
+    quests = newPath;
+    makeAbolutePath(quests);
+}
 void Files::setShaderPath(const std::filesystem::path& newPath)
 {
     shaders = newPath;
@@ -76,6 +81,10 @@ const std::filesystem::path& Files::getShaderPath() const
 const std::filesystem::path& Files::getLoadingCirclePath() const
 {
     return loadingScreenCircleTexture;
+}
+const std::filesystem::path& Files::getQuestsFilePath() const
+{
+    return quests;
 }
 const std::filesystem::path& Files::getLoadingBackgroundPath() const
 {

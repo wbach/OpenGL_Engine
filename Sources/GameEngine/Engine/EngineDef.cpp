@@ -32,6 +32,7 @@ const std::string CSTR_REQUIRED_FILE_OUTPUT            = "RequiredFilesOutputFil
 const std::string CSTR_LOADING_SCREEN_BACKGROUND       = "loadingScreenBackground";
 const std::string CSTR_LOADING_SCREEN_BACKGROUND_AUDIO = "loadingScreenBackgroundAudio";
 const std::string CSTR_LOADING_SCREEN_CIRCLE           = "loadingScreenCircle";
+const std::string CSTR_QUESTS_FILE_PATH                = "questsFile";
 // Renderer
 const std::string CSTR_RENDERER                        = "Renderer";
 const std::string CSTR_PRESET                          = "preset";
