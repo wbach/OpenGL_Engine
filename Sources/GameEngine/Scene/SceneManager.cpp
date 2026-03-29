@@ -77,8 +77,6 @@ void SceneManager::Update()
             onSceneLoadDoneCallback();
         }
 
-        engineContext_.AddEngineEvent(ChangeSceneEndEvent{});
-
         StartUpdateThreadIfNeeded();
     }
 }

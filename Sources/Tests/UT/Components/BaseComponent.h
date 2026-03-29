@@ -49,6 +49,7 @@ public:
     virtual ~BaseComponentTestSchould();
 
     Scene scene;
+    std::function<void(EngineEvent)> addEngineEvent;
     PhysicsApiMock physicsApiMock_;
     NavigationManager navigationManager;
     TweenManagerMock tweenManager;
@@ -81,4 +82,6 @@ public:
     std::unique_ptr<GameObject> obj_;
 
     GuiManager guiManager_;
+
+    virtual void onEngineEvent(const EngineEvent&);
 };

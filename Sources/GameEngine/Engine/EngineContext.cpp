@@ -28,7 +28,7 @@ EngineContext::EngineContext(std::unique_ptr<GraphicsApi::IGraphicsApi> graphics
                         displayManager_.GetTime(), std::make_unique<RendererFactory>(*graphicsApi_))
     , sceneManager_{std::make_unique<SceneManager>(*this, std::move(sceneFactory))}
     , audioManager(std::make_unique<AudioManager>())
-    , questManager_(gameState_, *sceneManager_)
+    , questManager_(gameState_, *sceneManager_, [this](const auto& event) { AddEngineEvent(event); })
 {
 }
 
@@ -49,7 +49,7 @@ EngineContext::EngineContext(std::unique_ptr<Physics::IPhysicsApi> physicsApi, s
                         displayManager_.GetTime(), std::move(rendererFactory))
     , sceneManager_{std::make_unique<SceneManager>(*this, std::move(sceneFactory))}
     , audioManager(std::make_unique<AudioManager>())
-    , questManager_(gameState_, *sceneManager_)
+    , questManager_(gameState_, *sceneManager_, [this](const auto& event) { AddEngineEvent(event); })
 {
 }
 

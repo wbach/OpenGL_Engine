@@ -38,8 +38,6 @@ public:
     void CleanUp() override;
     void ReqisterFunctions() override;
     void Reload() override;
-
-private:
     void readFile();
 
 public:
@@ -61,11 +59,13 @@ public:
     const DialogueNode* goToNode(int);
     void setNodes(Nodes&&);
     void resetCurrent();
+    const std::string& GetName() const;
 
 private:
     Nodes nodes;
     int currentNodeID = 0;
     std::optional<Rotation> tmpRotation;
+    std::string dialogName;
 
 public:
     static void registerReadFunctions();

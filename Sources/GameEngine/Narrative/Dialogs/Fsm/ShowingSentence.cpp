@@ -15,6 +15,7 @@
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "GameEngine/Components/Dialogue/DialogueComponent.h"
+#include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Narrative/Dialogs/DialogueNode.h"
 #include "GameEngine/Narrative/Dialogs/Fsm/DialogEvents.h"
 #include "GameEngine/Narrative/GameState.h"
@@ -79,15 +80,15 @@ std::vector<std::pair<int, DialogueOption>> getVisibleOptions(const DialogueNode
 }
 
 template <typename T>
-void updateGameStateFlags(GameState& gameState, const T& dialog)
+void updateGameStateFlags(DialogContext& context, const T& dialog)
 {
     if (not dialog.setGameStateflag.empty())
     {
-        gameState.setFlag(dialog.setGameStateflag, true);
+        context.addEngineEvent(SetGameStateFlag{.flag = dialog.setGameStateflag, .value = 1});
     }
     if (not dialog.removeGameStateFlag.empty())
     {
-        gameState.setFlag(dialog.removeGameStateFlag, false);
+        context.addEngineEvent(SetGameStateFlag{.flag = dialog.setGameStateflag, .value = 0});
     }
 }
 
@@ -128,7 +129,7 @@ void ShowingSentence::onEnter()
 void ShowingSentence::onEnter(const StartSentence& event)
 {
     createGuiTexts(event.component.getParentGameObject().GetName(), event.dialogNode.text);
-    updateGameStateFlags(dialogContext.gameState, event.dialogNode);
+    updateGameStateFlags(dialogContext, event.dialogNode);
     setAnimations(event.playerGameObject, event.component.GetParentGameObject());
 
     auto sendNextEvent = [this, e = event]()
@@ -192,7 +193,7 @@ void ShowingSentence::createGuiTexts(const std::string& characterName, const std
 void ShowingSentence::onEnter(const OptionSelected& event)
 {
     createGuiTexts(event.playerGameObject.GetName(), event.option.text);
-    updateGameStateFlags(dialogContext.gameState, event.option);
+    updateGameStateFlags(dialogContext, event.option);
     setAnimations(event.component.GetParentGameObject(), event.playerGameObject);
 
     auto sendNextEvent = [this, e = event]()

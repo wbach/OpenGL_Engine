@@ -30,7 +30,7 @@ namespace GameEngine
 {
 DialogueManager::DialogueManager(IAudioManager& audioManager, Utils::Time::ITimerService& timerService,
                                  Input::InputManager& inputManager, IGuiElementFactory& factory, GuiManager& manager,
-                                 GameState& gs, ITweenManager& tweenManager)
+                                 GameState& gs, ITweenManager& tweenManager, std::function<void(EngineEvent)> addEngineEvent)
     : dialogContext{.timerService = timerService,
                     .audioManager = audioManager,
                     .inputManager = inputManager,
@@ -43,7 +43,8 @@ DialogueManager::DialogueManager(IAudioManager& audioManager, Utils::Time::ITime
                     {
                         std::lock_guard lk(eventQueueMutex);
                         eventQueue.push_back(std::move(event));
-                    }}
+                    },
+                    .addEngineEvent = addEngineEvent}
     , dialogFsm{IdleState{dialogContext}, TransitionState{dialogContext}, ShowingSentence{dialogContext},
                 WaitingForInput{dialogContext}}
 {

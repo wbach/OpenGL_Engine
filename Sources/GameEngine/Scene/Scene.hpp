@@ -118,7 +118,7 @@ public:
     std::optional<Physics::RayHit> getHeightPositionInWorld(float, float) const;
 
     void SendEvent(SceneEvent&&);
-    void SendEvent(EngineEvent&);
+    void SendEngineEvent(EngineEvent&&);
 
     EngineContext* getEngineContext();
     DisplayManager* getDisplayManager();

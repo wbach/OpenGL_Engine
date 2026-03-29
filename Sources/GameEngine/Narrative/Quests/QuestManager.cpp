@@ -8,6 +8,7 @@
 
 #include "GameEngine/Components/Controllers/AIController.h"
 #include "GameEngine/Components/Dialogue/DialogueComponent.h"
+#include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Narrative/Dialogs/DialogueManager.h"
 #include "GameEngine/Narrative/GameState.h"
 #include "GameEngine/Resources/File.h"
@@ -20,9 +21,10 @@
 
 namespace GameEngine
 {
-QuestManager::QuestManager(GameState& gs, ISceneManager& sceneManager)
+QuestManager::QuestManager(GameState& gs, ISceneManager& sceneManager, std::function<void(EngineEvent)> addEngineEvent)
     : gameState(gs)
     , sceneManager(sceneManager)
+    , addEngineEvent(addEngineEvent)
 {
     registerDefaultActions();
 
@@ -60,28 +62,53 @@ void QuestManager::registerDefaultActions()
     registerAction("setFlag",
                    [this](const auto& params)
                    {
-                       if (params.size() >= 2)
-                           gameState.setFlag(params[0], std::stoi(params[1]));
+                       try
+                       {
+                           if (params.size() >= 2)
+                           {
+                               addEngineEvent(SetGameStateFlag{.flag = params[0], .value = std::stoi(params[1])});
+                           }
+                       }
+                       catch (...)
+                       {
+                           LOG_WARN << "Parse error";
+                       }
                    });
 
     registerAction("moveToPos",
                    [&](const std::vector<std::string>& params)
                    {
                        if (params.size() < 2)
+                       {
+                           LOG_DEBUG << "not enough arguments";
                            return;
+                       }
+
+                       const std::string& gameObjectName = params[0];
 
                        vec3 target(0);
                        if (not std::from_string(params[1], target))
+                       {
+                           LOG_DEBUG << "Target pos parse error.";
                            return;
+                       }
 
                        if (auto scene = sceneManager.GetActiveScene())
                        {
-                           if (auto go = scene->GetGameObject(params[0]))
+                           if (auto go = scene->GetGameObject(gameObjectName))
                            {
                                if (auto ai = go->GetComponent<Components::AIController>())
                                {
                                    ai->MoveTo(target);
                                }
+                               else
+                               {
+                                   LOG_DEBUG << "ai controller not found : " << gameObjectName;
+                               }
+                           }
+                           else
+                           {
+                               LOG_DEBUG << "gameobject not found : " << gameObjectName;
                            }
                        }
                    });
@@ -90,22 +117,47 @@ void QuestManager::registerDefaultActions()
                    [&](const std::vector<std::string>& params)
                    {
                        if (params.size() < 2)
+                       {
+                           LOG_DEBUG << "not enough arguments";
                            return;
+                       }
 
                        const std::string& targetObjectName = params[1];
+                       const std::string& gameObjectName   = params[0];
+
+                       LOG_DEBUG << "GameObject: " << gameObjectName << ", targetObjectName " << targetObjectName;
 
                        if (auto scene = sceneManager.GetActiveScene())
                        {
-                           if (auto go = scene->GetGameObject(params[0]))
+                           LOG_DEBUG << "GetGameObject " << gameObjectName;
+                           if (auto go = scene->GetGameObject(gameObjectName))
                            {
+                               LOG_DEBUG << "GetComponent " << gameObjectName;
                                if (auto ai = go->GetComponent<Components::AIController>())
                                {
+                                   LOG_DEBUG << "GetGameObject " << targetObjectName;
                                    if (auto trargetGo = scene->GetGameObject(targetObjectName))
                                    {
                                        ai->MoveTo(trargetGo->GetWorldTransform().GetPosition());
                                    }
+                                   else
+                                   {
+                                       LOG_DEBUG << "target game object not found: " << trargetGo;
+                                   }
+                               }
+                               else
+                               {
+                                   LOG_DEBUG << "ai controller not found : " << gameObjectName;
                                }
                            }
+                           else
+                           {
+                               LOG_DEBUG << "gameobject not found : " << gameObjectName;
+                           }
+                       }
+                       else
+                       {
+                           LOG_DEBUG << "No active scene";
                        }
                    });
 
@@ -127,9 +179,14 @@ void QuestManager::registerDefaultActions()
                                {
                                    auto& component        = npc->AddComponent<Components::DialogueComponent>();
                                    component.dialogueFile = dialogFile;
+                                   component.readFile();
 
                                    if (auto dialogManager = scene->GetDialogueManager())
+                                   {
+                                       LOG_DEBUG << "startDialogue";
                                        dialogManager->startDialogue(*player, component);
+                                       LOG_DEBUG << "startDialogue end";
+                                   }
 
                                    //    // Add dialog component with based on  params[2]?
                                    //    if (auto maybeDialogComponent = npc->GetComponent<Components::DialogueComponent>())
@@ -158,7 +215,7 @@ void QuestManager::registerDefaultActions()
                        }
                    });
 }
-void QuestManager::sceneChanged()
+void QuestManager::onSceneStarted()
 {
     for (auto& quest : quests)
     {
@@ -170,7 +227,7 @@ void QuestManager::update(Quest& quest)
     if (not quest.isActive)
         return;
 
-    QuestStep* step = quest.getCurrentStep();
+    auto* step = quest.getCurrentStep();
     if (not step or step->isCompleted)
         return;
 

@@ -5,6 +5,7 @@
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "GameEngine/Components/Dialogue/DialogueComponent.h"
+#include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/GUI/GuiManager.h"
 #include "GameEngine/Renderers/GUI/IGuiElementFactory.h"
@@ -83,6 +84,7 @@ void IdleState::onEnter(const EndDialog& event)
 
     sendEventToCharactercontroller(event.playerGameObject, EndDialogEvent{});
     sendEventToCharactercontroller(event.component.GetParentGameObject(), EndDialogEvent{});
+    dialogContext.addEngineEvent(SetGameStateFlag{.flag = event.component.GetName() + "_end", .value = 1});
 }
 
 void IdleState::onLeave(const StartRequested& event)

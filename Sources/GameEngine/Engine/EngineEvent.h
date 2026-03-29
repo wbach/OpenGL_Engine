@@ -44,9 +44,16 @@ struct ChangeSceneConfirmEvent
     ChangeSceneEvent event;
 };
 
-struct ChangeSceneEndEvent
+struct SceneStartedEvent
 {
 };
 
-using EngineEvent = std::variant<QuitEvent, ChangeSceneEvent, ChangeSceneConfirmEvent, ChangeSceneEndEvent>;
+struct SetGameStateFlag
+{
+    std::string flag;
+    int value{0};
+};
+
+
+using EngineEvent = std::variant<QuitEvent, ChangeSceneEvent, ChangeSceneConfirmEvent, SceneStartedEvent, SetGameStateFlag>;
 }  // namespace GameEngine

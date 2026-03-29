@@ -15,6 +15,7 @@
 #include "GameEngine/Audio/AudioManager.h"
 #include "GameEngine/Components/RegisterReadFunctionForDefaultEngineComponents.h"
 #include "GameEngine/Display/DisplayManager.hpp"
+#include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Resources/IResourceManagerFactory.h"
 
@@ -290,7 +291,8 @@ void Engine::ProcessEngineEvents()
 
     for (auto& event : events)
     {
-        std::visit(visitor{[&](const ChangeSceneEndEvent&) { engineContext_.GetQuestManager().sceneChanged(); },
+        std::visit(visitor{[&](const SetGameStateFlag& e) { engineContext_.GetGameState().setFlag(e.flag, e.value); },
+                           [&](const SceneStartedEvent&) { engineContext_.GetQuestManager().onSceneStarted(); },
                            [&](const QuitEvent& e) { Quit(e); },
                            [&](const ChangeSceneEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); },
                            [&](const ChangeSceneConfirmEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); }},

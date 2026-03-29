@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 #include "EngineApi.h"
+#include "GameEngine/Engine/EngineEvent.h"
 #include "Quest.h"
 
 namespace GameEngine
@@ -20,13 +21,13 @@ using ActionFunc = std::function<void(const std::vector<std::string>&)>;
 class ENGINE_API QuestManager
 {
 public:
-    QuestManager(GameState&, ISceneManager&);
+    QuestManager(GameState&, ISceneManager&, std::function<void(EngineEvent)>);
 
     void registerAction(const std::string&, ActionFunc);
     void readMainFile(const GameEngine::File&);
     void readQuest(const GameEngine::File&);
 
-    void sceneChanged();
+    void onSceneStarted();
     void update(Quest&);
 
 private:
@@ -39,6 +40,7 @@ private:
     std::list<Quest> quests;
     std::unordered_map<std::string, ActionFunc> actionMap;
     std::vector<IdType> activeObservers;
+    std::function<void(EngineEvent)> addEngineEvent;
 };
 
 }  // namespace GameEngine

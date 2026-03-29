@@ -86,6 +86,11 @@ void DialogueComponent::readFile()
         return;
     }
 
+    if (auto nameNode = reader.Get("dialogue_name"))
+    {
+        dialogName = nameNode->value_;
+    }
+
     if (auto nodesNode = reader.Get("nodes"))
     {
         for (const auto& nodeNode : nodesNode->getChildren())
@@ -176,12 +181,11 @@ const DialogueOption* DialogueComponent::selectOption(size_t optionIndex)
 
     if (not selected->setGameStateflag.empty())
     {
-        componentContext_.gamestate.setFlag(selected->setGameStateflag, 1);
+        componentContext_.scene_.SendEngineEvent(SetGameStateFlag{.flag = selected->setGameStateflag, .value = 1});
     }
     if (not selected->removeGameStateFlag.empty())
     {
-        componentContext_.gamestate.setFlag(selected->removeGameStateFlag, 0);
-        // componentContext_.gamestate.flags.erase(selected->removeGameStateFlag);
+        componentContext_.scene_.SendEngineEvent(SetGameStateFlag{.flag = selected->setGameStateflag, .value = 0});
     }
     return selected;
 }
@@ -269,6 +273,10 @@ void DialogueComponent::setNodes(Nodes&& n)
 void DialogueComponent::resetCurrent()
 {
     currentNodeID = startNodeID;
+}
+const std::string& DialogueComponent::GetName() const
+{
+    return dialogName;
 }
 }  // namespace Components
 }  // namespace GameEngine

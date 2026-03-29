@@ -3,6 +3,7 @@
 
 #include "DialogEvents.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
+#include "GameEngine/Scene/Scene.hpp"
 
 namespace Utils::Time
 {
@@ -23,6 +24,7 @@ class GameState;
 class ITweenManager;
 class GuiWindowElement;
 class VerticalLayout;
+class Scene;
 
 const uint32_t WRAP_WIDTH{1500};
 
@@ -36,6 +38,7 @@ struct DialogContext
     GameState& gameState;
     ITweenManager& tweenManager;
     std::function<void(DialogEvent&&)> sendEvent;
+    std::function<void(EngineEvent)> addEngineEvent;
 
     struct GuiWindow
     {
@@ -45,7 +48,6 @@ struct DialogContext
 
     GuiWindow sentenceWindow;
     GuiWindow optionsWindow;
-
 };
 void setAnimation(GameObject&, StartDialogEvent::Role);
 }  // namespace GameEngine

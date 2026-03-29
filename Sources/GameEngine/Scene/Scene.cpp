@@ -14,9 +14,10 @@
 #include "GameEngine/Camera/Camera.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentFactory.h"
-#include "GameEngine/Narrative/Dialogs/DialogueManager.h"
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Engine/EngineEvent.h"
+#include "GameEngine/Narrative/Dialogs/DialogueManager.h"
 #include "GameEngine/Renderers/GUI/GuiEngineContextManger.h"
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
 #include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
@@ -128,9 +129,10 @@ void Scene::InitResources(EngineContext& context)
     GuiElementFactory::EntryParameters guiFactoryParams{guiManager_, *inputManager_, *resourceManager_, *renderersManager_};
     guiElementFactory_      = std::make_unique<GuiElementFactory>(guiFactoryParams);
     guiEngineContextManger_ = std::make_unique<GuiEngineContextManger>(context.GetMeasurmentHandler(), *guiElementFactory_);
-    dialogueManager_        = std::make_unique<DialogueManager>(context.GetAudioManager(), *timerService_, *inputManager_,
-                                                         *guiElementFactory_, guiManager_, context.GetGameState(), tweenManager);
-    navigationManager       = std::make_unique<NavigationManager>(context.GetPhysicsApi());
+    dialogueManager_ =
+        std::make_unique<DialogueManager>(context.GetAudioManager(), *timerService_, *inputManager_, *guiElementFactory_,
+                                          guiManager_, context.GetGameState(), tweenManager, addEngineEvent);
+    navigationManager = std::make_unique<NavigationManager>(context.GetPhysicsApi());
 
     console_ = std::make_unique<Debug::Console>(*this);
 
@@ -228,6 +230,8 @@ void Scene::Start()
 
     if (physicsApi_)
         physicsApi_->EnableSimulation();
+
+    SendEngineEvent(SceneStartedEvent{});
     LOG_DEBUG << "Started";
 }
 
@@ -612,7 +616,7 @@ void Scene::SendEvent(SceneEvent&& event)
     events.push_back(std::move(event));
 }
 
-void Scene::SendEvent(EngineEvent& event)
+void Scene::SendEngineEvent(EngineEvent&& event)
 {
     engineContext->AddEngineEvent(event);
 }

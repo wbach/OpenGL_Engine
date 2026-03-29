@@ -36,7 +36,7 @@ class ENGINE_API DialogueManager
 {
 public:
     DialogueManager(IAudioManager&, Utils::Time::ITimerService&, Input::InputManager&, IGuiElementFactory&, GuiManager&,
-                    GameState&, ITweenManager&);
+                    GameState&, ITweenManager&, std::function<void(EngineEvent)>);
 
     void startDialogue(GameObject&, Components::DialogueComponent&);
     bool isActive() const;

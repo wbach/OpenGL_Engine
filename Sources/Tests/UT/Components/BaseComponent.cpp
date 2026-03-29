@@ -3,22 +3,26 @@
 #include <GameEngine/Objects/GameObject.h>
 #include <GameEngine/Renderers/RendererFactory.h>
 #include <Logger/Log.h>
+#include <Utils/Variant.h>
 #include <gmock/gmock.h>
 
 #include <GameEngine/Scene/Scene.hpp>
 #include <memory>
+
 #include "Scene/Navigation/NavigationManager.h"
 
 using namespace testing;
 
 BaseComponentTestSchould::BaseComponentTestSchould()
     : scene("TestScene")
+    , addEngineEvent([this](const auto& e) { onEngineEvent(e); })
     , navigationManager(physicsApiMock_)
     , windowApiMock_()
     , threadSync_(measurementHandler_)
     , renderersManager_(graphicsApiMock_, physicsApiMock_, gpuResourceLoader_, measurementHandler_, threadSync_, time_,
                         std::make_unique<RendererFactory>(graphicsApiMock_))
-    , dialogueManager_(audioManager_, timerService_, inputManagerMock_, guiElementFactory_, guiManager_, gameState_, tweenManager)
+    , dialogueManager_(audioManager_, timerService_, inputManagerMock_, guiElementFactory_, guiManager_, gameState_, tweenManager,
+                       addEngineEvent)
     , context_{scene,           sceneManager,      graphicsApiMock_,     gpuResourceLoader_, time_,       inputManagerMock_,
                physicsApiMock_, resourcesManager_, componentController_, renderersManager_,  guiManager_, guiElementFactory_,
                timerService_,   dialogueManager_,  tweenManager,         audioManager_,      gameState_,  navigationManager}
@@ -36,4 +40,10 @@ BaseComponentTestSchould::BaseComponentTestSchould()
 BaseComponentTestSchould::~BaseComponentTestSchould()
 {
     LOG_DEBUG << "";
+}
+void BaseComponentTestSchould::onEngineEvent(const EngineEvent& event)
+{
+    std::visit(visitor{[&](const SetGameStateFlag& e) { gameState_.setFlag(e.flag, e.value); }, [&](const SceneStartedEvent&) {},
+                       [&](const QuitEvent&) {}, [&](const ChangeSceneEvent&) {}, [&](const ChangeSceneConfirmEvent&) {}},
+               event);
 }
