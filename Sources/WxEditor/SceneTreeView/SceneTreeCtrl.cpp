@@ -173,6 +173,7 @@ void SceneTreeCtrl::OnTreeItemRightClick(wxTreeEvent &event)
     menu.Append(ID_TREE_MENU_UNMARK_PREFAB, "Unmark prefab");
     menu.AppendSeparator();
     menu.Append(ID_TREE_MENU_ADJUST_PARENT_POS, "Adjust parent position to children");
+    menu.Append(ID_TREE_ADD_COMPONENT_TO_CHILDREN, "Add component to children");
 
     if (auto maybeId = itemIdToObjectId.Get(itemId))
     {

@@ -125,6 +125,7 @@ private:
 
     void OnObjectTreeSelChange(wxTreeEvent&);
     void OnObjectTreeActivated(wxTreeEvent&);
+    void AddComponentToChildren(wxCommandEvent&);
     void OnBeginLabelEdit(wxTreeEvent&);
     void OnEndLabelEdit(wxTreeEvent&);
     void OnAddObject(wxCommandEvent&);

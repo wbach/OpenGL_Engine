@@ -212,6 +212,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_TREE_MENU_REMOVE, MainFrame::OnDeleteObject)
     EVT_MENU(ID_TREE_MENU_RENAME, MainFrame::OnRename)
     EVT_MENU(ID_TREE_MENU_CLONE, MainFrame::CloneGameObject)
+    EVT_MENU(ID_TREE_ADD_COMPONENT_TO_CHILDREN, MainFrame::AddComponentToChildren)
     EVT_MENU(ID_TREE_SET_VALUES_FROM_CAMERA_EDITOR, MainFrame::SetValuesFromCameraEditor)
     EVT_MENU(ID_TREE_MENU_ADJUST_PARENT_POS, MainFrame::AdjustParentPosition)
     EVT_MENU(ID_TREE_MENU_DRAG_OBJECT, MainFrame::DragSelectedObject)
@@ -2451,4 +2452,43 @@ void MainFrame::MenuNavGridUpdate(wxCommandEvent&)
     {
         manager->ReCreateProvider();
     }
+}
+
+void MainFrame::AddComponentToChildren(wxCommandEvent&)
+{
+    auto parentObject = GetSelectedGameObject();
+    if (not parentObject)
+        return;
+
+    auto recursiveAdd = [](auto& self, GameEngine::GameObject& target, const TreeNode& node) -> void
+    {
+        LOG_DEBUG << "Adding component to: " << target.GetName();
+        target.AddComponent(node);
+
+        for (auto& child : target.GetChildren())
+        {
+            self(self, *child, node);
+        }
+    };
+
+    auto popup = new ComponentPickerPopup(gameObjectPanels, canvas->GetScene().getComponentController(), *parentObject,
+                                          [this, parentObject, recursiveAdd](auto& component) mutable
+                                          {
+                                              LOG_DEBUG << "Start processing children of: " << parentObject->GetName();
+
+                                              TreeNode node;
+                                              component.write(node);
+
+                                              for (auto& child : parentObject->GetChildren())
+                                              {
+                                                  recursiveAdd(recursiveAdd, *child, node);
+                                              }
+
+                                              LOG_DEBUG << "Batch add finished.";
+
+                                              this->Refresh();
+                                          });
+
+    wxPoint mousePos = wxGetMousePosition();
+    popup->Popup(mousePos);
 }
