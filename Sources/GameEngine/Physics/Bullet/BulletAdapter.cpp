@@ -201,42 +201,33 @@ ShapeId BulletAdapter::CreateTerrainColider(const PositionOffset& positionOffset
 ShapeId BulletAdapter::CreateMeshCollider(const PositionOffset& positionOffset, const std::vector<float>& data,
                                           const IndicesVector& indicies, const vec3& scale, bool autoOptimize)
 {
-    if (data.empty() or indicies.empty())
+    if (data.empty())
     {
         return std::nullopt;
     }
 
     if (not autoOptimize)
     {
-        auto meshShape = std::make_unique<MeshShape>(std::make_unique<btTriangleMesh>(true, false));
-        auto btMesh    = meshShape->btMesh_.get();
+        if (indicies.empty())
+            return std::nullopt;
+
+        auto btMesh = std::make_unique<btTriangleMesh>(true, false);
 
         for (size_t i = 0; i < indicies.size(); i += 3)
         {
-            if (i + 2 >= indicies.size())
-            {
-                LOG_ERROR << "Index out of range";
-                break;
-            }
+            auto idx0 = indicies[i];
+            auto idx1 = indicies[i + 1];
+            auto idx2 = indicies[i + 2];
 
-            auto i1 = 3 * static_cast<size_t>(indicies[i]);
-            auto i2 = 3 * static_cast<size_t>(indicies[i + 1]);
-            auto i3 = 3 * static_cast<size_t>(indicies[i + 2]);
+            btVector3 v0(data[3 * idx0], data[3 * idx0 + 1], data[3 * idx0 + 2]);
+            btVector3 v1(data[3 * idx1], data[3 * idx1 + 1], data[3 * idx1 + 2]);
+            btVector3 v2(data[3 * idx2], data[3 * idx2 + 1], data[3 * idx2 + 2]);
 
-            if (i1 + 2 < data.size() and i2 + 2 < data.size() and i3 + 2 < data.size())
-            {
-                btVector3 v0(data[i1], data[i1 + 1], data[i1 + 2]);
-                btVector3 v1(data[i2], data[i2 + 1], data[i2 + 2]);
-                btVector3 v2(data[i3], data[i3 + 1], data[i3 + 2]);
-                btMesh->addTriangle(v0, v1, v2);
-            }
-            else
-            {
-                LOG_ERROR << "Out of range";
-            }
+            btMesh->addTriangle(v0, v1, v2);
         }
 
-        meshShape->btShape_ = std::make_unique<btBvhTriangleMeshShape>(btMesh, true, true);
+        auto meshShape      = std::make_unique<MeshShape>(std::move(btMesh));
+        meshShape->btShape_ = std::make_unique<btBvhTriangleMeshShape>(meshShape->btMesh_.get(), true, true);
         meshShape->btShape_->setLocalScaling(Convert(scale));
         meshShape->positionOffset_ = Convert(positionOffset);
 
@@ -246,16 +237,14 @@ ShapeId BulletAdapter::CreateMeshCollider(const PositionOffset& positionOffset, 
     {
         auto hullShape = std::make_unique<btConvexHullShape>();
 
-        for (uint32 i = 0; i < indicies.size(); i += 3)
+        for (size_t i = 0; i < data.size(); i += 3)
         {
-            auto i1 = i;
-            btVector3 v0(data[i1], data[i1 + 1], data[i1 + 2]);
-            hullShape->addPoint(v0, false);
+            hullShape->addPoint(btVector3(data[i], data[i + 1], data[i + 2]), false);
         }
 
         hullShape->optimizeConvexHull();
-        hullShape->recalcLocalAabb();
         hullShape->setLocalScaling(Convert(scale));
+        hullShape->recalcLocalAabb();
 
         return impl_->shapes_.insert(std::make_unique<Shape>(std::move(hullShape), Convert(positionOffset)));
     }
