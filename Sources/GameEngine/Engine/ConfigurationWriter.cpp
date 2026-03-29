@@ -174,6 +174,7 @@ void Create(TreeNode& node, const Params::DebugParams& param)
     node.addChild(CSTR_GENERATE_DEBUG_NORMAL_MESHES, Utils::BoolToString(param.generateDebugNormalsMeshes));
     node.addChild(CSTR_SHOW_RENDER_TIMERS, Utils::BoolToString(param.showRenderersTimers));
     node.addChild(CSTR_DEBUG_RENDER_DISTANCE, std::to_string(param.debugRendererDistance));
+    node.addChild(CSTR_DEBUG_VISUALIZATION_OF_TERRAIN_SHAPE, std::to_string(param.visualizationTerrainShapeInPhysicsDebugDraw));
 }
 void CreateBinary(TreeNode& node, bool param)
 {

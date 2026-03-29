@@ -112,6 +112,7 @@ private:
     std::unique_ptr<Pimpl> impl_;
 
     Utils::IdPool taskIdPool_;
+    IdType terrainShapeVisualizationConfigParamSubId;
 };
 }  // namespace Bullet
 }  // namespace Physics

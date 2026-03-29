@@ -100,12 +100,25 @@ BulletAdapter::BulletAdapter()
 
     tasks.reserve(1024);
     processing.reserve(1024);
+
+    terrainShapeVisualizationConfigParamSubId =
+        EngineConf.debugParams.visualizationTerrainShapeInPhysicsDebugDraw.subscribeForChange(
+            [this]()
+            {
+                if (impl_->visualizationForAllObjectEnabled)
+                {
+                    disableVisualizationForAllRigidbodys();
+                    enableVisualizationForAllRigidbodys();
+                }
+            });
 }
 BulletAdapter::~BulletAdapter()
 {
     LOG_DEBUG << "destructor";
     impl_->rigidbodies.foreach ([&](auto, auto& body) { btDynamicWorld->removeRigidBody(body.btRigidbody_.get()); });
     impl_->rigidbodies.clear();
+
+    EngineConf.debugParams.visualizationTerrainShapeInPhysicsDebugDraw.unsubscribe(terrainShapeVisualizationConfigParamSubId);
 }
 void BulletAdapter::EnableSimulation()
 {
@@ -602,6 +615,15 @@ void BulletAdapter::enableVisualizationForAllRigidbodys()
     auto action = [&](auto, auto& rigidbody)
     {
         auto& body = *rigidbody.btRigidbody_;
+
+        if (not EngineConf.debugParams.visualizationTerrainShapeInPhysicsDebugDraw)
+        {
+            if (const auto& shape = impl_->shapes_.get(rigidbody.shapeId); (*shape)->isTerrainShape)
+            {
+                return;
+            }
+        }
+
         body.setCollisionFlags(body.getCollisionFlags() & (~btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT));
     };
 
@@ -828,29 +850,9 @@ void BulletAdapter::stepSimulation(float deltaTime)
 const GraphicsApi::LineMesh& BulletAdapter::DebugDraw(const vec3& cameraPos)
 {
     bulletDebugDrawer_->clear();
-    // bulletDebugDrawer_->setCameraPos(cameraPos);
-    // {
-    //     btDynamicWorld->debugDrawWorld();
-    // }
-
-    // brak terenu ale sa te najblizsze punkty
-    auto drawDistSq     = EngineConf.debugParams.debugRendererDistance * EngineConf.debugParams.debugRendererDistance;
-    const auto& objects = btDynamicWorld->getCollisionObjectArray();
-
-    for (int i = 0; i < objects.size(); i++)
+    bulletDebugDrawer_->setCameraPos(cameraPos);
     {
-        const auto* obj = objects[i];
-
-        btVector3 minAABB, maxAABB;
-        obj->getCollisionShape()->getAabb(obj->getWorldTransform(), minAABB, maxAABB);
-
-        auto center = (minAABB + maxAABB) * 0.5f;
-        if (glm::distance2(Convert(center), cameraPos) < drawDistSq)
-        {
-            btDynamicWorld->debugDrawObject(
-                obj->getWorldTransform(), obj->getCollisionShape(), btVector3(0, 1, 0)  // Zielony kolor
-            );
-        }
+        btDynamicWorld->debugDrawWorld();
     }
     return bulletDebugDrawer_->getMesh();
 }

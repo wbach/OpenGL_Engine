@@ -111,3 +111,4 @@ extern const std::string CSTR_SHOW_RENDER_TIMERS;
 extern const std::string CSTR_REFRESH_STEP_DOWN;
 extern const std::string CSTR_USE_WORKER;
 extern const std::string CSTR_DEBUG_RENDER_DISTANCE;
+extern const std::string CSTR_DEBUG_VISUALIZATION_OF_TERRAIN_SHAPE;

@@ -85,6 +85,7 @@ ConfigurationExplorer::ConfigurationExplorer()
              {"Show renders timers", EngineConf.debugParams.showRenderersTimers, ApplyPolicy::RestartRequired},
              {"Generate debug normal meshes", EngineConf.debugParams.generateDebugNormalsMeshes, ApplyPolicy::RestartRequired},
              {"Enable physics visualization", EngineConf.debugParams.showPhycicsVisualization, ApplyPolicy::RestartNotNeeded},
+             {"Visualization of terrain shape in physics", EngineConf.debugParams.visualizationTerrainShapeInPhysicsDebugDraw, ApplyPolicy::RestartNotNeeded},
              {"Debug render distance", EngineConf.debugParams.debugRendererDistance, ApplyPolicy::RestartNotNeeded}
           }
         });

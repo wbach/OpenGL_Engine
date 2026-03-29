@@ -408,6 +408,7 @@ void Read(TreeNode* node, Params::DebugParams& params)
     }
 
     ::Read(node->getChild(CSTR_DEBUG_RENDER_DISTANCE), params.debugRendererDistance);
+    ::Read(node->getChild(CSTR_DEBUG_VISUALIZATION_OF_TERRAIN_SHAPE), params.visualizationTerrainShapeInPhysicsDebugDraw);
 }
 
 void ReadConfiguration(GlobalConfiguration& configuration, const std::filesystem::path& filename)
