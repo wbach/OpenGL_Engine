@@ -39,8 +39,6 @@ void WaitingForInput::onEnter(const StartInputWaiting& event)
     setAnimations(event.playerGameObject, event.component.GetParentGameObject());
 
     int i = 0;
-    const vec2 textSize{1.0f, 0.25};
-
     visibleOptions   = event.visibleOptions;
     component        = &event.component;
     playerGameObject = &event.playerGameObject;
@@ -48,8 +46,9 @@ void WaitingForInput::onEnter(const StartInputWaiting& event)
 
     for (const auto& [_, option] : visibleOptions)
     {
+        const uint32 WRAP_WIDTH{EngineConf.window.size->x - 20};
         auto optionGuiText = dialogContext.guiFactory.CreateGuiTextWrapped(option.text, WRAP_WIDTH);
-        optionGuiText->SetLocalScale(textSize);
+        optionGuiText->setRenderMode(GuiTextElement::RenderMode::NATIVE);
         optionGuiText->SetAlgin(GuiTextElement::Algin::LEFT);
         if (i == 0)
         {

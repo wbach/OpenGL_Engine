@@ -26,8 +26,6 @@ class GuiWindowElement;
 class VerticalLayout;
 class Scene;
 
-const uint32_t WRAP_WIDTH{1500};
-
 struct DialogContext
 {
     Utils::Time::ITimerService& timerService;

@@ -2,11 +2,12 @@
 #include <functional>
 #include <optional>
 #include <string>
+
 #include "GameEngine/Renderers/GUI/GuiRendererElementBase.h"
 #include "GameEngine/Resources/Textures/Texture.h"
+#include "IFontManager.h"
 #include "Surface.h"
 #include "Types.h"
-#include "IFontManager.h"
 
 namespace GameEngine
 {
@@ -16,6 +17,12 @@ class IResourceManager;
 class ENGINE_API GuiTextElement : public GuiRendererElementBase
 {
 public:
+    enum class RenderMode
+    {
+        STRETCH,
+        NATIVE
+    };
+
     enum class Algin
     {
         LEFT,
@@ -34,8 +41,10 @@ public:
     GuiTextElement(IFontManager&, GUIRenderer&, IResourceManager&, const std::string& font);
     GuiTextElement(IFontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str);
     GuiTextElement(IFontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str, uint32 size);
-    GuiTextElement(IFontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str, uint32 size, uint32 outline);
-    GuiTextElement(IFontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str, uint32 size, uint32 outline, int wrapWidth);
+    GuiTextElement(IFontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str, uint32 size,
+                   uint32 outline);
+    GuiTextElement(IFontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str, uint32 size,
+                   uint32 outline, int wrapWidth);
     ~GuiTextElement();
 
 public:
@@ -55,11 +64,16 @@ public:
     const FontInfo& GetFontInfo() const;
     mat4 GetTransformMatrix() const override;
 
+    void SetLocalScale(const vec2& scale) override;
+    void setParent(GuiElement*) override;
+    void setRenderMode(RenderMode);
+
 private:
     void UpdateTexture(IFontManager::TextureData);
     void RenderText(bool fontOverride = false);
 
 private:
+    RenderMode renderMode_{RenderMode::STRETCH};
     IFontManager& fontManager_;
     std::string text_;
     std::string textureName_;

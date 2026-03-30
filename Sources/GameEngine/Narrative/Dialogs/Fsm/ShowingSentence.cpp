@@ -179,14 +179,15 @@ void ShowingSentence::onEnter(const StartSentence& event)
 }
 void ShowingSentence::createGuiTexts(const std::string& characterName, const std::string& sentance)
 {
-    const vec2 textSize{1.0f, 0.25};
     auto characterNameText = dialogContext.guiFactory.CreateGuiTextWrapped(characterName, 0);
-    characterNameText->SetLocalScale(textSize + vec2(0.1f, 0.1f));
+    characterNameText->setRenderMode(GuiTextElement::RenderMode::NATIVE);
 
     dialogContext.sentenceWindow.layout->AddChild(std::move(characterNameText));
 
+    const uint32 WRAP_WIDTH{EngineConf.window.size->x - 20};
     auto sentanceGuiText = dialogContext.guiFactory.CreateGuiTextWrapped(sentance, WRAP_WIDTH);
-    sentanceGuiText->SetLocalScale({1.0f, 0.4});
+    sentanceGuiText->setRenderMode(GuiTextElement::RenderMode::NATIVE);
+
     dialogContext.sentenceWindow.layout->AddChild(std::move(sentanceGuiText));
 }
 

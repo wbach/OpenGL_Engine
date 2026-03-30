@@ -7,6 +7,7 @@
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -146,10 +147,9 @@ const GuiTextElement::FontInfo& GuiTextElement::GetFontInfo() const
 
 mat4 GuiTextElement::GetTransformMatrix() const
 {
-    auto scale   = GetScreenScale();
-    auto factorX = scale.x / rendererdTextScale_.x;
-    auto factorY = scale.y / rendererdTextScale_.y;
-
+    auto scale          = GetScreenScale();
+    auto factorX        = scale.x / rendererdTextScale_.x;
+    auto factorY        = scale.y / rendererdTextScale_.y;
     auto renderScale    = rendererdTextScale_ * ((factorX < factorY) ? factorX : factorY);
     auto renderPosition = GetScreenPosition();
 
@@ -188,10 +188,9 @@ void GuiTextElement::setUniqueTextureName(const std::string& name)
 
 vec2 ConvertSizeToScale(const vec2ui& size, const vec2ui& windowSize)
 {
-    vec2 scale(0);
-    scale.x = static_cast<float>(size.x) / static_cast<float>(windowSize.x);
-    scale.y = static_cast<float>(size.y) / static_cast<float>(windowSize.y);
-    return scale;
+    return vec2{static_cast<float>(size.x) / static_cast<float>(windowSize.x),
+                static_cast<float>(size.y) / static_cast<float>(windowSize.y)} *
+           2.f;
 }
 
 vec2ui ConvertScaleToSize(const vec2& scale, const vec2ui& windowSize)
@@ -213,11 +212,12 @@ void GuiTextElement::RenderText(bool fontOverride)
         return;
     }
 
+    const uint32 fontSizeMultiplier = 3;
     if (not text_.empty())
     {
         if (not fontId_ or fontOverride)
         {
-            fontId_ = fontManager_.openFont(fontInfo_.file_, fontInfo_.fontSize_);
+            fontId_ = fontManager_.openFont(fontInfo_.file_, fontInfo_.fontSize_ * fontSizeMultiplier);
 
             if (not fontId_)
             {
@@ -226,12 +226,34 @@ void GuiTextElement::RenderText(bool fontOverride)
             }
         }
 
-        auto imageData = fontManager_.renderFont(*fontId_, text_, fontInfo_.outline_, wrapWidth_);
+        LOG_DEBUG << "text_ " << text_;
+
+        auto imageData = fontManager_.renderFont(*fontId_, text_, fontInfo_.outline_, wrapWidth_ );
         if (imageData)
         {
-            rendererdTextScale_ = ConvertSizeToScale(imageData->image.size(), EngineConf.window.size);
+            auto windowsSize = *EngineConf.window.size;
+            if (parent_)
+            {
+                vec2 pScale = parent_->GetScreenScale();
+                auto ar     = static_cast<float>(windowsSize.x) / static_cast<float>(windowsSize.y);
+                auto x      = pScale.y * ar * 0.5f; // 0.5?
+                windowsSize = vec2ui{static_cast<float>(windowsSize.x) * x, static_cast<float>(windowsSize.y) * pScale.y};
+
+                // auto y = pScale.x / ar;
+                // windowsSize = vec2ui{static_cast<float>(windowsSize.x) * pScale.x, static_cast<float>(windowsSize.y) * y};
+            }
+
+            rendererdTextScale_ = ConvertSizeToScale(imageData->image.size() / fontSizeMultiplier, windowsSize);
+
             if (not uniqueName_)
                 textureName_ = imageData->name;
+
+            if (renderMode_ == RenderMode::NATIVE)
+            {
+                transform_.scale = rendererdTextScale_;
+                if (parent_)
+                    parent_->CallOnChange();
+            }
 
             CallOnChange();
             UpdateTexture(std::move(*imageData));
@@ -278,5 +300,26 @@ void GuiTextElement::UpdateTexture(IFontManager::TextureData data)
     {
         SetTexture(fontTexture);
     }
+}
+void GuiTextElement::SetLocalScale(const vec2& scale)
+{
+    if (renderMode_ == RenderMode::STRETCH)
+    {
+        GuiElement::SetLocalScale(scale);
+    }
+}
+void GuiTextElement::setParent(GuiElement* parent)
+{
+    GuiRendererElementBase::setParent(parent);
+
+    if (renderMode_ == RenderMode::NATIVE)
+    {
+        RenderText();
+    }
+}
+void GuiTextElement::setRenderMode(RenderMode mode)
+{
+    renderMode_ = mode;
+    RenderText();
 }
 }  // namespace GameEngine

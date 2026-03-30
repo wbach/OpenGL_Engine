@@ -57,27 +57,28 @@ void VerticalLayout::OnChange()
 
     DisableChangeNotif();
 
-    auto visibility = GetAllShowed();
+    auto visibleChilds = GetAllShowed();
 
-    if (visibility.empty())
+    if (visibleChilds.empty())
     {
         if (adjustSize_)
             transform_.scale.y = 0;
         return;
     }
+    LOG_DEBUG << "";
 
-    AdjustSize(visibility);
-    auto &firstChild = *visibility[0];
+    AdjustSize(visibleChilds);
+    auto &firstChild = *visibleChilds[0];
 
     vec2 newPosition{};
     newPosition.x = CalculateXPosition(firstChild);
     newPosition.y = 1.f - (firstChild.GetLocalScale().y / 2.f) - viewPosition_;
     firstChild.SetLocalPostion(newPosition);
 
-    for (std::size_t i = 1; i < visibility.size(); ++i)
+    for (std::size_t i = 1; i < visibleChilds.size(); ++i)
     {
-        const auto &parent = *visibility[i - 1];
-        auto &child        = *visibility[i];
+        const auto &parent = *visibleChilds[i - 1];
+        auto &child        = *visibleChilds[i];
 
         const auto &parentPositionY = parent.GetLocalPosition().y;
         const auto &parentScaleY    = parent.GetLocalScale().y;
@@ -125,28 +126,32 @@ void VerticalLayout::EnableScroll()
 {
     if (not mouseWheelDownSub_)
     {
-        mouseWheelDownSub_ = inputManager_.SubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, [this]() {
-            if (IsShow() and viewPosition_ < 0.f)
-            {
-                viewPosition_ += scrollSensitive_;
-                OnChange();
-            }
-        });
+        mouseWheelDownSub_ = inputManager_.SubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL,
+                                                              [this]()
+                                                              {
+                                                                  if (IsShow() and viewPosition_ < 0.f)
+                                                                  {
+                                                                      viewPosition_ += scrollSensitive_;
+                                                                      OnChange();
+                                                                  }
+                                                              });
     }
 
     if (not mouseWheelUpSub_)
     {
-        mouseWheelUpSub_ = inputManager_.SubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL, [this]() {
-            if (not children_.empty())
-            {
-                auto isLastShow = children_.back()->IsActive();
-                if (IsShow() and not isLastShow)
-                {
-                    viewPosition_ -= scrollSensitive_;
-                    OnChange();
-                }
-            }
-        });
+        mouseWheelUpSub_ = inputManager_.SubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL,
+                                                          [this]()
+                                                          {
+                                                              if (not children_.empty())
+                                                              {
+                                                                  auto isLastShow = children_.back()->IsActive();
+                                                                  if (IsShow() and not isLastShow)
+                                                                  {
+                                                                      viewPosition_ -= scrollSensitive_;
+                                                                      OnChange();
+                                                                  }
+                                                              }
+                                                          });
     }
 }
 
@@ -176,12 +181,11 @@ void VerticalLayout::AdjustSize(const std::vector<GuiElement *> &elements)
 
 bool VerticalLayout::IsVisible(const GuiElement &child) const
 {
-    bool bottomBorder = child.GetLocalPosition().y - (child.GetLocalScale().y / 2.f) <
-                        (- std::numeric_limits<float>::epsilon());
-    bool upperBorder = child.GetLocalPosition().y + (child.GetLocalScale().y / 2.f) >
-                       (1.f + std::numeric_limits<float>::epsilon());
+    bool bottomBorder = child.GetLocalPosition().y - (child.GetLocalScale().y / 2.f) < (-std::numeric_limits<float>::epsilon());
+    bool upperBorder =
+        child.GetLocalPosition().y + (child.GetLocalScale().y / 2.f) > (1.f + std::numeric_limits<float>::epsilon());
 
-    return not(bottomBorder or upperBorder);
+    return allChildrenAllwaysVisible_ or not(bottomBorder or upperBorder);
 }
 
 void VerticalLayout::SetXOffset(float value)
@@ -211,4 +215,8 @@ float VerticalLayout::GetXOffset() const
     return 0;
 }
 
+void VerticalLayout::AllChildrenAllwaysVisible()
+{
+    allChildrenAllwaysVisible_ = true;
+}
 }  // namespace GameEngine

@@ -12,41 +12,6 @@
 
 namespace GameEngine
 {
-namespace
-{
-uint32 getPixel(SDL_Surface *surface, int x, int y)
-{
-    int bpp = surface->format->BytesPerPixel;
-    /* Here p is the address to the pixel we want to retrieve */
-    uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
-
-    switch (bpp)
-    {
-        case 1:
-            return *p;
-            break;
-
-        case 2:
-            return *(uint16 *)p;
-            break;
-
-        case 3:
-            if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-                return p[0] << 16 | p[1] << 8 | p[2];
-            else
-                return p[0] | p[1] << 8 | p[2] << 16;
-            break;
-
-        case 4:
-            return *(uint32 *)p;
-            break;
-
-        default:
-            return 0; /* shouldn't happen, but avoids warnings */
-    }
-}
-}  // namespace
-
 struct FontManager::Pimpl
 {
     struct Font
@@ -165,7 +130,7 @@ std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, c
     if (wrapWidth > 0)
     {
         uint32 scaledWrapWidth = (EngineConf.window.size->y * wrapWidth) / 768;
-        LOG_DEBUG << "Wrapped width : " << wrapWidth << ", scaledWrapWidth = " << scaledWrapWidth;
+        LOG_DEBUG << "text:" << text << ", Wrapped width : " << wrapWidth << ", scaledWrapWidth = " << scaledWrapWidth;
 
         sdlSurface = TTF_RenderText_Blended_Wrapped(font.ptr, text.c_str(), sdlColor, wrapWidth);
     }
@@ -198,6 +163,8 @@ std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, c
     std::vector<uint8> data(totalMemorySize);
     std::memcpy(data.data(), sdlSurface->pixels, totalMemorySize);
     sdlSizeImage.image.moveData(std::move(data));
+
+    LOG_DEBUG << "Created image: " << sdlSizeImage.image;
 
     SDL_UnlockSurface(sdlSurface);
     //    Utils::SaveImage(sdlSizeImage.image, text);

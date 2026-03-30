@@ -36,6 +36,7 @@ void IdleState::initGui()
         auto dialogueWindowPtr  = dialogContext.guiFactory.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, position, scale);
         auto textDialogueWindow = dialogueWindowPtr.get();
         auto layout             = dialogContext.guiFactory.CreateVerticalLayout();
+        layout->AllChildrenAllwaysVisible();
         auto textWindowLayout   = layout.get();
         dialogueWindowPtr->AddChild(std::move(layout));
         dialogContext.guiManager.Add(std::move(dialogueWindowPtr));
@@ -46,7 +47,8 @@ void IdleState::initGui()
     if (not dialogContext.sentenceWindow.window or not dialogContext.sentenceWindow.layout)
     {
         const vec2& position{0.5f, 0.75f};
-        const vec2& scale{0.5f, 0.2f};
+        const uint32 WRAP_WIDTH{EngineConf.window.size->x - 20};
+        const vec2& scale{(float)WRAP_WIDTH / (float)EngineConf.window.size->x, 0.25f};
         dialogContext.sentenceWindow = createWindowWithLayout(position, scale);
         dialogContext.sentenceWindow.window->Hide();
     }

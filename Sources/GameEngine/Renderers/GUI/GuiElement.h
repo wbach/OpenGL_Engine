@@ -70,8 +70,8 @@ public:
 
     virtual void setParent(GuiElement*);
 
-protected:
     void CallOnChange();
+protected:
 
 public:
     GuiElementTypes GetType() const;
