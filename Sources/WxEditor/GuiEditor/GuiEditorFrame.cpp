@@ -8,7 +8,7 @@
 #include <GameEngine/Renderers/GUI/Text/GuiTextElement.h>
 #include <GameEngine/Renderers/GUI/TreeView/TreeView.h>
 #include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
-
+#include <GameEngine/Renderers/GUI/GuiElementsDef.h>
 #include <unordered_map>
 
 #include "AddElementDialog.h"
@@ -18,6 +18,7 @@
 #include "WxEditor/EngineRelated/GLCanvas.h"
 #include "WxEditor/EngineRelated/WxScenesDef.h"
 #include "WxEditor/ProjectManager.h"
+#include "wx/log.h"
 #include "wx/propgrid/props.h"
 
 GuiEditorFrame::GuiEditorFrame(const std::optional<GameEngine::File>& maybeFile, const wxString& title, const wxPoint& pos,
@@ -116,36 +117,6 @@ void GuiEditorFrame::CreateMainMenu()
 
 void GuiEditorFrame::OnAddElement(wxCommandEvent& event)
 {
-    auto& guiManager = canvas->GetScene().GetGuiManager();
-    auto& layers     = guiManager.GetGuiLayers();
-
-    std::vector<std::string> layerNames;
-    for (const auto& l : layers)
-    {
-        if (l.GetName() == "consoleLayer")
-            continue;
-
-        layerNames.push_back(l.GetName());
-    }
-
-    AddElementDialog dlg(this, layerNames);
-    int result = dlg.ShowModal();
-
-    if (result == wxID_ADD)
-    {
-        OnCreateNewLayer(event);
-        OnAddElement(event);
-        return;
-    }
-
-    if (result == wxID_OK)
-    {
-        OnAddElementToLayer(dlg.GetSelectedLayer(), event);
-    }
-}
-
-void GuiEditorFrame::OnAddElementToLayer(const std::string& layer, wxCommandEvent& event)
-{
     auto& factory = canvas->GetScene().GetGuiElementFactory();
     std::unique_ptr<GameEngine::GuiElement> newElem;
 
@@ -174,7 +145,7 @@ void GuiEditorFrame::OnAddElementToLayer(const std::string& layer, wxCommandEven
     if (newElem)
     {
         auto* ptrToSelect = newElem.get();
-        canvas->GetScene().GetGuiManager().Add(layer, std::move(newElem));
+        canvas->GetScene().GetGuiManager().Add(std::move(newElem));
         RefreshTree();
         FocusElementInTree(ptrToSelect);
         canvas->Refresh();
@@ -190,7 +161,6 @@ void GuiEditorFrame::OnTreeSelectionChanged(wxTreeEvent& event)
 
     auto* data      = static_cast<GuiTreeItemData*>(sceneTree->GetItemData(id));
     selectedElement = data ? data->element : nullptr;
-    selectedLayer   = data ? data->layer : nullptr;
 
     if (selectedElement and data->element)
     {
@@ -224,11 +194,6 @@ void GuiEditorFrame::OnTreeSelectionChanged(wxTreeEvent& event)
             }
             propGrid->Append(new wxFileProperty("Image path", "ImagePath", filePath));
         }
-    }
-    if (selectedLayer and data->layer)
-    {
-        propGrid->Append(new wxPropertyCategory("Layer"));
-        propGrid->Append(new wxBoolProperty("IsShow", "LayerIsShow", data->layer->isShow()));
     }
 }
 
@@ -272,14 +237,6 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
         }
     }
 
-    if (selectedLayer)
-    {
-        if (name == "LayerIsShow")
-        {
-            p->GetValue().GetBool() ? selectedLayer->Show() : selectedLayer->Hide();
-        }
-    }
-
     canvas->Refresh();
 }
 
@@ -301,6 +258,7 @@ void GuiEditorFrame::OnOpen(wxCommandEvent&)
     {
         currentFile = file;
         lastDirPath = currentFile->GetAbsolutePath().parent_path();
+        RefreshTree();
     }
 }
 void GuiEditorFrame::OnSave(wxCommandEvent& e)
@@ -335,10 +293,12 @@ void GuiEditorFrame::OnSaveAs(wxCommandEvent&)
     lastDirPath = currentFile->GetAbsolutePath().parent_path();
 }
 void GuiEditorFrame::OnUndo(wxCommandEvent&)
-{ /* Logika Undo w silniku */
+{
+    /* Logika Undo w silniku */
 }
 void GuiEditorFrame::OnRedo(wxCommandEvent&)
-{ /* Logika Redo w silniku */
+{
+    /* Logika Redo w silniku */
 }
 void GuiEditorFrame::OnExit(wxCommandEvent&)
 {
@@ -354,21 +314,13 @@ void GuiEditorFrame::OnTimer(wxTimerEvent&)
 void GuiEditorFrame::RefreshTree()
 {
     sceneTree->DeleteAllItems();
-    auto root    = sceneTree->AddRoot("GUI Root");
-    auto& layers = canvas->GetScene().GetGuiManager().GetGuiLayers();
-    for (auto& layer : layers)
+    auto root  = sceneTree->AddRoot("GUI Root");
+    auto layer = canvas->GetScene().GetGuiManager().GetLayer(GameEngine::Gui::DEFAULT_LAYER);
+    for (auto& element : layer->GetElements())
     {
-        if (layer.GetName() == "consoleLayer")
-            continue;
-
-        auto layerItemName = "[Layer] " + layer.GetName();
-        auto layerId       = sceneTree->AppendItem(root, layerItemName, -1, -1, new GuiTreeItemData(&layer));
-
-        for (auto& element : layer.GetElements())
-        {
-            AddTreeItem(layerId, element.get());
-        }
+        AddTreeItem(root, element.get());
     }
+
     sceneTree->Expand(root);
 }
 
@@ -419,17 +371,6 @@ void GuiEditorFrame::AddTreeItem(wxTreeItemId parentId, GameEngine::GuiElement* 
     for (const auto& child : element->GetChildren())
     {
         AddTreeItem(item, child.get());
-    }
-}
-void GuiEditorFrame::OnCreateNewLayer(wxCommandEvent&)
-{
-    wxTextEntryDialog dlg(this, "Enter new layer name:", "Create Layer", "NewLayer_1");
-
-    if (dlg.ShowModal() == wxID_OK)
-    {
-        auto layerName = dlg.GetValue().ToStdString();
-        canvas->GetScene().GetGuiManager().AddLayer(layerName);
-        RefreshTree();
     }
 }
 void GuiEditorFrame::FocusElementInTree(GameEngine::GuiElement* target)
@@ -535,36 +476,30 @@ void GuiEditorFrame::OnTreeContextMenu(wxTreeEvent& event)
 
     if (newElem)
     {
-        auto* ptrToSelect = newElem.get();
-
         if (data->element)
         {
+            auto* ptrToSelect = newElem.get();
             data->element->AddChild(std::move(newElem));
+            RefreshTree();
+            FocusElementInTree(ptrToSelect);
+            canvas->Refresh();
         }
-        else if (data->layer)
-        {
-            canvas->GetScene().GetGuiManager().Add(data->layer->GetName(), std::move(newElem));
-        }
-
-        RefreshTree();
-        FocusElementInTree(ptrToSelect);
-        canvas->Refresh();
     }
 }
 void GuiEditorFrame::OnDeleteElement(GuiTreeItemData& data)
 {
     if (data.element)
     {
-        canvas->GetScene().GetGuiManager().Remove(*data.element);
-        selectedElement = nullptr;
+        if (canvas->GetScene().GetGuiManager().Remove(*data.element))
+        {
+            selectedElement = nullptr;
+            propGrid->Clear();
+            RefreshTree();
+            canvas->Refresh();
+        }
+        else
+        {
+            wxLogError("Remove error");
+        }
     }
-    if (data.layer)
-    {
-        canvas->GetScene().GetGuiManager().RemoveLayer(data.layer->GetName());
-        selectedLayer = nullptr;
-    }
-
-    propGrid->Clear();
-    RefreshTree();
-    canvas->Refresh();
 }

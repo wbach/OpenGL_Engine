@@ -1,6 +1,5 @@
 #pragma once
 #include <GameEngine/Renderers/GUI/IGuiElementFactory.h>
-#include <GameEngine/Renderers/GUI/Layer/GuiLayer.h>
 #include <GameEngine/Resources/File.h>
 #include <wx/propgrid/propgrid.h>
 #include <wx/splitter.h>
@@ -32,8 +31,6 @@ private:
     void OnUndo(wxCommandEvent&);
     void OnRedo(wxCommandEvent&);
     void OnAddElement(wxCommandEvent&);
-    void OnAddElementToLayer(const std::string&, wxCommandEvent&);
-    void OnCreateNewLayer(wxCommandEvent&);
 
     void OnTreeSelectionChanged(wxTreeEvent&);
     void OnPropertyChange(wxPropertyGridEvent&);
@@ -57,7 +54,6 @@ private:
 
     GameEngine::IGuiElementFactory* guiFactory = nullptr;
     GameEngine::GuiElement* selectedElement    = nullptr;
-    GameEngine::GuiLayer* selectedLayer        = nullptr;
     std::filesystem::path lastDirPath;
     std::optional<GameEngine::File> currentFile;
 };

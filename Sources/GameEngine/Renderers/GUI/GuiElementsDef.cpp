@@ -46,5 +46,7 @@ const std::string BACKGROUND         = "background";
 const std::string THEME              = "theme";
 const std::string STARTUP_FUNCTION   = "startupFunction";
 const std::string STYLE              = "style";
+const std::string DEFAULT_ACTION = "DefaultAction";
+const std::string DEFAULT_LAYER  = "DefaultLayer";
 }  // namespace Gui
 }  // namespace GameEngine

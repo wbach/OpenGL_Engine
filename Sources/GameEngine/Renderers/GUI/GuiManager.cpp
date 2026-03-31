@@ -3,18 +3,14 @@
 #include <algorithm>
 
 #include "GuiElementWriter.h"
-#include "Logger/Log.h"
+#include <Logger/Log.h>
+#include "GuiElementsDef.h"
 
 namespace GameEngine
 {
-namespace
-{
-const std::string DEFAULT_ACTION = "DefaultAction";
-const std::string DEFAULT_LAYER  = "DefaultLayer";
-}  // namespace
 GuiManager::GuiManager()
 {
-    AddLayer(DEFAULT_LAYER);
+    AddLayer(Gui::DEFAULT_LAYER);
 }
 
 GuiManager::~GuiManager()
@@ -53,7 +49,7 @@ void GuiManager::Add(const std::string& layerName, std::unique_ptr<GuiElement> e
 
 void GuiManager::Add(std::unique_ptr<GuiElement> element)
 {
-    Add(DEFAULT_LAYER, std::move(element));
+    Add(Gui::DEFAULT_LAYER, std::move(element));
 }
 void GuiManager::add(GuiAnimation element)
 {
@@ -140,9 +136,9 @@ ActionFunction GuiManager::GetActionFunction(const std::string& name)
     {
         return registeredActions_.at(name);
     }
-    if (registeredActions_.count(DEFAULT_ACTION))
+    if (registeredActions_.count(Gui::DEFAULT_ACTION))
     {
-        return registeredActions_.at(DEFAULT_ACTION);
+        return registeredActions_.at(Gui::DEFAULT_ACTION);
     }
     return [](auto&) { LOG_WARN << "Button action not found. Default action not set."; };
 }
@@ -160,12 +156,12 @@ void GuiManager::RegisterAction(const std::string& name, ActionFunction action)
 
 void GuiManager::RegisterDefaultAction(ActionFunction action)
 {
-    registeredActions_.insert({DEFAULT_ACTION, action});
+    registeredActions_.insert({Gui::DEFAULT_ACTION, action});
 }
 
 bool GuiManager::SaveToFile(const std::string& filename)
 {
-    return SaveToFile(filename, DEFAULT_LAYER);
+    return SaveToFile(filename, Gui::DEFAULT_LAYER);
 }
 
 bool GuiManager::SaveToFile(const std::string& filename, const std::string& layerName)
@@ -228,14 +224,16 @@ void GuiManager::Remove(uint32 id)
     }
 }
 
-void GuiManager::Remove(const GuiElement& element)
+bool GuiManager::Remove(const GuiElement& element)
 {
     std::lock_guard<std::mutex> lk(elementMutex_);
     for (auto& layer : layers_)
     {
         if (layer.removeElement(element))
-            return;
+            return true;
     }
+
+    return false;
 }
 
 void GuiManager::RemoveAll()

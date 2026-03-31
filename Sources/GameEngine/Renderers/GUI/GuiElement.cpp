@@ -1,8 +1,8 @@
 #include "GuiElement.h"
 
-#include <algorithm>
-
 #include <Logger/Log.h>
+
+#include <algorithm>
 
 namespace GameEngine
 {
@@ -46,13 +46,18 @@ std::vector<GuiElement*> GuiElement::GetAllShowed() const
 }
 bool GuiElement::RemoveChild(uint32 id)
 {
-    auto iter =
-        std::remove_if(children_.begin(), children_.end(), [id](const auto& child) { return child->GetId() == id; });
+    auto iter = std::remove_if(children_.begin(), children_.end(), [id](const auto& child) { return child->GetId() == id; });
 
     if (iter != children_.end())
     {
         children_.erase(iter);
         return true;
+    }
+
+    for (const auto& child : children_)
+    {
+        if (child->RemoveChild(id))
+            return true;
     }
     return false;
 }
@@ -323,8 +328,8 @@ GuiElement* GuiElement::Get(const std::string& label)
 
 GuiElement* GuiElement::GetChild(uint32 childId)
 {
-    auto child = std::find_if(children_.begin(), children_.end(),
-                              [childId](const auto& element) { return element->GetId() == childId; });
+    auto child =
+        std::find_if(children_.begin(), children_.end(), [childId](const auto& element) { return element->GetId() == childId; });
 
     return child != children_.end() ? child->get() : nullptr;
 }

@@ -26,8 +26,8 @@ public:
     GuiManager();
     ~GuiManager();
     GuiLayer& AddLayer(const std::string&);
-    void Add(const std::string& layerName, std::unique_ptr<GuiElement> element);
-    void Add(std::unique_ptr<GuiElement> element);
+    void Add(const std::string&, std::unique_ptr<GuiElement>);
+    void Add(std::unique_ptr<GuiElement>);
     void add(GuiAnimation);
     void Update(float);
     void RegisterAction(const std::string&, ActionFunction);
@@ -37,7 +37,7 @@ public:
     void RemoveLayer(const std::string&);
     void RemoveLayersExpect(const std::vector<std::string>& = {});
     void Remove(uint32);
-    void Remove(const GuiElement&);
+    bool Remove(const GuiElement&);
     void RemoveAll();
 
     GuiLayer* GetLayer(const std::string&);

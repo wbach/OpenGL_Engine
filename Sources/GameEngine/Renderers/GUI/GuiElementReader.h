@@ -1,7 +1,8 @@
 #pragma once
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
+#include "GuiElementsDef.h"
 
 class TreeNode;
 
@@ -23,7 +24,7 @@ class GuiElementReader
 {
 public:
     GuiElementReader(GuiManager& manager, GuiElementFactory& factory);
-    bool Read(const std::string &filename);
+    bool Read(const std::string&, const std::string& = Gui::DEFAULT_LAYER);
 
 private:
     void ReadGuiElementBasic(GuiElement& element, TreeNode& node);
@@ -34,8 +35,8 @@ private:
     std::vector<std::unique_ptr<GuiElement>> ReadChildrenElemets(TreeNode& node);
     std::unique_ptr<VerticalLayout> ReadVerticalLayout(TreeNode& node);
     std::unique_ptr<HorizontalLayout> ReadHorizontalLayout(TreeNode& node);
-    std::unique_ptr<GuiWindowElement> ReadGuiWindow(TreeNode &node);
-    std::unique_ptr<TreeView> ReadTreeView(TreeNode &node);
+    std::unique_ptr<GuiWindowElement> ReadGuiWindow(TreeNode& node);
+    std::unique_ptr<TreeView> ReadTreeView(TreeNode& node);
 
 private:
     GuiManager& manager_;
