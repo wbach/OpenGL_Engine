@@ -2,8 +2,7 @@
 
 #include <Logger/Log.h>
 #include <Utils.h>
-#include <Utils/XML/XMLUtils.h>
-#include <Utils/XML/XmlReader.h>
+#include <Utils/Json/JsonReader.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
@@ -79,24 +78,16 @@ GuiElementReader::GuiElementReader(GuiManager &manager, GuiElementFactory &facto
 
 bool GuiElementReader::Read(const std::string &filename, const std::string &layerName)
 {
-    /* LOG TO FIX*/ LOG_ERROR << (filename);
+    LOG_DEBUG << filename;
 
-    if (not Utils::CheckExtension(filename, "xml"))
+    if (not Utils::CheckExtension(filename, "gui"))
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("This is not xml file. Format should be \".xml\". File name : " + filename);
+        LOG_ERROR << "This is not gui file. Format should be \".xml\". File name : " << filename;
         return false;
     }
 
-    auto fileContent = Utils::ReadFile(filename);
-
-    if (fileContent.empty())
-    {
-        /* LOG TO FIX*/ LOG_ERROR << (filename + " is empty!");
-        return false;
-    }
-
-    Utils::XmlReader reader;
-    if (not reader.ReadXml(fileContent))
+    Utils::JsonReader reader;
+    if (not reader.Read(filename))
     {
         return false;
     }
@@ -104,7 +95,7 @@ bool GuiElementReader::Read(const std::string &filename, const std::string &laye
     auto guiNode = reader.Get(Gui::ROOT);
     if (not guiNode)
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("This is not gui file.");
+        LOG_ERROR << "This is not gui file.";
         return false;
     }
 
@@ -202,7 +193,7 @@ std::unique_ptr<GuiTextElement> GuiElementReader::ReadGuiText(TreeNode &node)
         }
         catch (...)
         {
-            /* LOG TO FIX*/ LOG_ERROR << ("Read gui file, parse font size error.");
+            LOG_ERROR << "Read gui file, parse font size error.";
         }
     }
 
@@ -215,7 +206,7 @@ std::unique_ptr<GuiTextElement> GuiElementReader::ReadGuiText(TreeNode &node)
         }
         catch (...)
         {
-            /* LOG TO FIX*/ LOG_ERROR << ("Read gui file, parse outline error.");
+            LOG_ERROR << "Read gui file, parse outline error.";
         }
     }
 
@@ -228,7 +219,7 @@ std::unique_ptr<GuiTextElement> GuiElementReader::ReadGuiText(TreeNode &node)
         vec4 color(0.f, 0.f, 0.f, 1.f);
         ::Read(*paramNode, color);
 
-        /* LOG TO FIX*/ LOG_ERROR << ("SetColor " + std::to_string(color));
+        LOG_ERROR << "SetColor " << color;
         text->SetColor(color);
     }
     return text;
@@ -410,7 +401,7 @@ std::unique_ptr<TreeView> GuiElementReader::ReadTreeView(TreeNode &treeNode)
 
     if (not action)
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("No action found for tree view \"" + actionNode->value_ + "\"");
+        LOG_ERROR << "No action found for tree view \"" << actionNode->value_ + "\"";
         return nullptr;
     }
 
@@ -474,7 +465,7 @@ std::vector<std::unique_ptr<GuiElement>> GuiElementReader::ReadChildrenElemets(T
             }
             else
             {
-                /* LOG TO FIX*/ LOG_ERROR << ("read vertical layout error.");
+                LOG_ERROR << "read vertical layout error.";
             }
         }
         else if (child->name() == Gui::WINDOW)
@@ -486,7 +477,7 @@ std::vector<std::unique_ptr<GuiElement>> GuiElementReader::ReadChildrenElemets(T
             }
             else
             {
-                /* LOG TO FIX*/ LOG_ERROR << ("read window error.");
+                LOG_ERROR << "read window error.";
             }
         }
         else if (child->name() == Gui::TREE_VIEW)
@@ -498,12 +489,12 @@ std::vector<std::unique_ptr<GuiElement>> GuiElementReader::ReadChildrenElemets(T
             }
             else
             {
-                /* LOG TO FIX*/ LOG_ERROR << ("read tree view error.");
+                LOG_ERROR << "read tree view error.";
             }
         }
         else
         {
-            /* LOG TO FIX*/ LOG_ERROR << ("try read unknown gui element type : " + child->name());
+            LOG_ERROR << "try read unknown gui element type : " + child->name();
             continue;
         }
     }

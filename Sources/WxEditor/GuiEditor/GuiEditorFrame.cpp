@@ -242,7 +242,7 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
 
 void GuiEditorFrame::OnOpen(wxCommandEvent&)
 {
-    wxFileDialog openFileDialog(this, "Choose file", lastDirPath.string(), "", "Gui file (*.xml)|*.xml|All files (*.*)|*.*",
+    wxFileDialog openFileDialog(this, "Choose file", lastDirPath.string(), "", "Gui file (*.gui)|*.gui|All files (*.*)|*.*",
                                 wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
     if (openFileDialog.ShowModal() == wxID_CANCEL)
@@ -274,7 +274,7 @@ void GuiEditorFrame::OnSave(wxCommandEvent& e)
 }
 void GuiEditorFrame::OnSaveAs(wxCommandEvent&)
 {
-    wxFileDialog fileDialog(this, "Choose file", lastDirPath.string(), "", "Gui file (*.xml)|*.xml|All files (*.*)|*.*",
+    wxFileDialog fileDialog(this, "Choose file", lastDirPath.string(), "", "Gui file (*.gui)|*.gui|All files (*.*)|*.*",
                             wxFD_SAVE);
 
     if (fileDialog.ShowModal() == wxID_CANCEL)
@@ -285,7 +285,7 @@ void GuiEditorFrame::OnSaveAs(wxCommandEvent&)
 
     if (not file.HasExtension())
     {
-        file.ChangeExtension("xml");
+        file.ChangeExtension("gui");
     }
 
     canvas->GetScene().GetGuiManager().SaveToFile(file.GetAbsolutePath());

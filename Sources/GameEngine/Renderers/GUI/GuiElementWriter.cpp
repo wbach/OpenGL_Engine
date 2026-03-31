@@ -11,7 +11,7 @@
 #include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
 #include <Logger/Log.h>
 #include <Utils/Utils.h>
-#include <Utils/XML/XmlWriter.h>
+#include <Utils/Json/JsonWriter.h>
 
 #include "GameEngine/Renderers/GUI/GuiElementTypes.h"
 #include "GuiElementsDef.h"
@@ -225,7 +225,7 @@ void write(const std::string& name, const GuiLayer& layer)
         write(root, *element);
     }
 
-    Utils::Xml::Write(name, root);
+    Utils::Json::Write(name, root);
 }
 }  // namespace GuiElementWriter
 }  // namespace GameEngine
