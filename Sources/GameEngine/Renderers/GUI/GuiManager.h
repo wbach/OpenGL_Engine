@@ -32,8 +32,8 @@ public:
     void Update(float);
     void RegisterAction(const std::string&, ActionFunction);
     void RegisterDefaultAction(ActionFunction);
-    bool SaveToFile(const std::string&);
-    bool SaveToFile(const std::string&, const std::string&);
+    bool SaveToFile(const File&);
+    bool SaveToFile(const File&, const std::string&);
     void RemoveLayer(const std::string&);
     void RemoveLayersExpect(const std::vector<std::string>& = {});
     void Remove(uint32);

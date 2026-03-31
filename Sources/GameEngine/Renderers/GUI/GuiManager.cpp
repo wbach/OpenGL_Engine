@@ -1,9 +1,10 @@
 #include "GuiManager.h"
 
+#include <Logger/Log.h>
+
 #include <algorithm>
 
 #include "GuiElementWriter.h"
-#include <Logger/Log.h>
 #include "GuiElementsDef.h"
 
 namespace GameEngine
@@ -159,17 +160,17 @@ void GuiManager::RegisterDefaultAction(ActionFunction action)
     registeredActions_.insert({Gui::DEFAULT_ACTION, action});
 }
 
-bool GuiManager::SaveToFile(const std::string& filename)
+bool GuiManager::SaveToFile(const File& file)
 {
-    return SaveToFile(filename, Gui::DEFAULT_LAYER);
+    return SaveToFile(file, Gui::DEFAULT_LAYER);
 }
 
-bool GuiManager::SaveToFile(const std::string& filename, const std::string& layerName)
+bool GuiManager::SaveToFile(const File& file, const std::string& layerName)
 {
     auto layer = GetLayer(layerName);
     if (layer)
     {
-        GuiElementWriter::write(filename, *layer);
+        GuiElementWriter::write(file, *layer);
         return true;
     }
 
@@ -179,10 +180,8 @@ bool GuiManager::SaveToFile(const std::string& filename, const std::string& laye
 void GuiManager::RemoveLayersExpect(const std::vector<std::string>& exceptions)
 {
     std::lock_guard<std::mutex> lk(elementMutex_);
-    LOG_DEBUG << "Remove ";
     if (exceptions.empty())
     {
-        LOG_DEBUG << "Remove all";
         layers_.clear();
     }
     else
@@ -195,7 +194,6 @@ void GuiManager::RemoveLayersExpect(const std::vector<std::string>& exceptions)
 
             if (skip == exceptions.end())
             {
-                LOG_DEBUG << "Remove " << layerName;
                 iter = layers_.erase(iter);
             }
             else

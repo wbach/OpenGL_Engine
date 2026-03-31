@@ -254,7 +254,7 @@ void GuiEditorFrame::OnOpen(wxCommandEvent&)
         return;
 
     GameEngine::GuiElementReader reader(canvas->GetScene().GetGuiManager(), canvas->GetScene().GetGuiElementFactory());
-    if (reader.Read(file.GetAbsolutePath()))
+    if (reader.Read(file))
     {
         currentFile = file;
         lastDirPath = currentFile->GetAbsolutePath().parent_path();
@@ -288,7 +288,7 @@ void GuiEditorFrame::OnSaveAs(wxCommandEvent&)
         file.ChangeExtension("gui");
     }
 
-    canvas->GetScene().GetGuiManager().SaveToFile(file.GetAbsolutePath());
+    canvas->GetScene().GetGuiManager().SaveToFile(file);
     currentFile = file;
     lastDirPath = currentFile->GetAbsolutePath().parent_path();
 }
