@@ -2,6 +2,7 @@
 
 #include <GameEngine/Renderers/GUI/Button/GuiButton.h>
 #include <GameEngine/Renderers/GUI/GuiElement.h>
+#include <GameEngine/Renderers/GUI/GuiElementReader.h>
 #include <GameEngine/Renderers/GUI/Layout/HorizontalLayout.h>
 #include <GameEngine/Renderers/GUI/Layout/VerticalLayout.h>
 #include <GameEngine/Renderers/GUI/Text/GuiTextElement.h>
@@ -16,11 +17,13 @@
 #include "Renderers/GUI/EditText/GuiEditText.h"
 #include "WxEditor/EngineRelated/GLCanvas.h"
 #include "WxEditor/EngineRelated/WxScenesDef.h"
+#include "WxEditor/ProjectManager.h"
 #include "wx/propgrid/props.h"
 
 GuiEditorFrame::GuiEditorFrame(const std::optional<GameEngine::File>& maybeFile, const wxString& title, const wxPoint& pos,
                                const wxSize& size)
     : wxFrame(nullptr, wxID_ANY, title, pos, size)
+    , currentFile(maybeFile)
 {
     mainSplitter    = new wxSplitterWindow(this, wxID_ANY);
     leftPanel       = new wxPanel(mainSplitter);
@@ -34,6 +37,15 @@ GuiEditorFrame::GuiEditorFrame(const std::optional<GameEngine::File>& maybeFile,
 
     contentSplitter->SplitVertically(canvas, propGrid, -300);
     mainSplitter->SplitVertically(leftPanel, contentSplitter, 250);
+
+    if (not currentFile)
+    {
+        lastDirPath = ProjectManager::GetInstance().GetDataDir().string();
+    }
+    else
+    {
+        lastDirPath = currentFile->GetAbsolutePath().parent_path();
+    }
 }
 
 void GuiEditorFrame::Init()
@@ -140,7 +152,7 @@ void GuiEditorFrame::OnAddElementToLayer(const std::string& layer, wxCommandEven
     switch (event.GetId())
     {
         case ID_ADD_WINDOW:
-            newElem = factory.CreateGuiWindow(GameEngine::GuiWindowStyle::BACKGROUND_ONLY, {50, 50}, {300, 200});
+            newElem = factory.CreateGuiWindow(GameEngine::GuiWindowStyle::BACKGROUND_ONLY, {0.5, 0.5}, {0.8, 0.6});
             break;
         case ID_ADD_TEXT:
             newElem = factory.CreateGuiText("New Label");
@@ -272,13 +284,55 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
 }
 
 void GuiEditorFrame::OnOpen(wxCommandEvent&)
-{ /* Logika otwierania */
+{
+    wxFileDialog openFileDialog(this, "Choose file", lastDirPath.string(), "", "Gui file (*.xml)|*.xml|All files (*.*)|*.*",
+                                wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+    if (openFileDialog.ShowModal() == wxID_CANCEL)
+        return;
+
+    auto path = openFileDialog.GetPath();
+    GameEngine::File file{std::string{path.c_str()}};
+    if (not file.exist())
+        return;
+
+    GameEngine::GuiElementReader reader(canvas->GetScene().GetGuiManager(), canvas->GetScene().GetGuiElementFactory());
+    if (reader.Read(file.GetAbsolutePath()))
+    {
+        currentFile = file;
+        lastDirPath = currentFile->GetAbsolutePath().parent_path();
+    }
 }
-void GuiEditorFrame::OnSave(wxCommandEvent&)
-{ /* Logika zapisu */
+void GuiEditorFrame::OnSave(wxCommandEvent& e)
+{
+    if (currentFile)
+    {
+        canvas->GetScene().GetGuiManager().SaveToFile(currentFile->GetAbsolutePath());
+    }
+    else
+    {
+        OnSaveAs(e);
+    }
 }
 void GuiEditorFrame::OnSaveAs(wxCommandEvent&)
-{ /* Logika zapisu jako */
+{
+    wxFileDialog fileDialog(this, "Choose file", lastDirPath.string(), "", "Gui file (*.xml)|*.xml|All files (*.*)|*.*",
+                            wxFD_SAVE);
+
+    if (fileDialog.ShowModal() == wxID_CANCEL)
+        return;
+
+    auto path = fileDialog.GetPath();
+    GameEngine::File file{std::string{path.c_str()}};
+
+    if (not file.HasExtension())
+    {
+        file.ChangeExtension("xml");
+    }
+
+    canvas->GetScene().GetGuiManager().SaveToFile(file.GetAbsolutePath());
+    currentFile = file;
+    lastDirPath = currentFile->GetAbsolutePath().parent_path();
 }
 void GuiEditorFrame::OnUndo(wxCommandEvent&)
 { /* Logika Undo w silniku */
@@ -467,7 +521,7 @@ void GuiEditorFrame::OnTreeContextMenu(wxTreeEvent& event)
     std::unique_ptr<GameEngine::GuiElement> newElem;
 
     if (selection == idWin)
-        newElem = factory.CreateGuiWindow(GameEngine::GuiWindowStyle::BACKGROUND_ONLY, {50, 50}, {300, 200});
+        newElem = factory.CreateGuiWindow(GameEngine::GuiWindowStyle::BACKGROUND_ONLY, {0.5, 0.5}, {0.8, 0.6});
     else if (selection == idText)
         newElem = factory.CreateGuiText("New Label");
     else if (selection == idTex)

@@ -1,5 +1,7 @@
 #pragma once
 #include <GameEngine/Renderers/GUI/IGuiElementFactory.h>
+#include <GameEngine/Renderers/GUI/Layer/GuiLayer.h>
+#include <GameEngine/Resources/File.h>
 #include <wx/propgrid/propgrid.h>
 #include <wx/splitter.h>
 #include <wx/treectrl.h>
@@ -7,8 +9,6 @@
 
 #include <filesystem>
 #include <optional>
-
-#include "Renderers/GUI/Layer/GuiLayer.h"
 
 class GLCanvas;
 class GuiTreeItemData;
@@ -59,4 +59,5 @@ private:
     GameEngine::GuiElement* selectedElement    = nullptr;
     GameEngine::GuiLayer* selectedLayer        = nullptr;
     std::filesystem::path lastDirPath;
+    std::optional<GameEngine::File> currentFile;
 };
