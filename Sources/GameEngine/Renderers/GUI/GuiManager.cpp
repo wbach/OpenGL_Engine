@@ -260,4 +260,19 @@ GuiLayer* GuiManager::GetLayer(const std::string& name)
     return nullptr;
 }
 
+void GuiManager::RemoveLayer(const std::string& layerName)
+{
+    std::lock_guard<std::mutex> lk(elementMutex_);
+    auto iter =
+        std::find_if(layers_.begin(), layers_.end(), [layerName](const auto& layer) { return layer.GetName() == layerName; });
+
+    if (iter != layers_.end())
+    {
+        layers_.erase(iter);
+    }
+    else
+    {
+        LOG_WARN << "Layer with name : " << layerName << " not found";
+    }
+}
 }  // namespace GameEngine

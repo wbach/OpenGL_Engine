@@ -11,6 +11,7 @@
 #include "Renderers/GUI/Layer/GuiLayer.h"
 
 class GLCanvas;
+class GuiTreeItemData;
 
 class GuiEditorFrame : public wxFrame
 {
@@ -37,6 +38,9 @@ private:
     void OnTreeSelectionChanged(wxTreeEvent&);
     void OnPropertyChange(wxPropertyGridEvent&);
     void OnTimer(wxTimerEvent&);
+
+    void OnTreeContextMenu(wxTreeEvent&);
+    void OnDeleteElement(GuiTreeItemData&);
 
 private:
     void FocusElementInTree(GameEngine::GuiElement*);

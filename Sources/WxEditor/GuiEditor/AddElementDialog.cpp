@@ -1,7 +1,7 @@
 #include "AddElementDialog.h"
 
 AddElementDialog::AddElementDialog(wxWindow* parent, const std::vector<std::string>& layers)
-    : wxDialog(parent, wxID_ANY, "Add Element", wxDefaultPosition, wxSize(300, 200))
+    : wxDialog(parent, wxID_ANY, "Add Element", wxDefaultPosition, wxSize(350, 200))
 {
     auto* mainSizer = new wxBoxSizer(wxVERTICAL);
 
@@ -15,7 +15,7 @@ AddElementDialog::AddElementDialog(wxWindow* parent, const std::vector<std::stri
     if (layerCombo->GetCount() > 0)
         layerCombo->SetSelection(0);
 
-    auto* addLayerBtn = new wxButton(this, wxID_ANY, "+", wxDefaultPosition, wxSize(30, -1));
+    auto* addLayerBtn = new wxButton(this, wxID_ANY, "create layer", wxDefaultPosition, wxSize(100, -1));
 
     comboSizer->Add(layerCombo, 1, wxEXPAND | wxRIGHT, 5);
     comboSizer->Add(addLayerBtn, 0);

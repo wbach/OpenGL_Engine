@@ -8,6 +8,8 @@
 #include <GameEngine/Renderers/GUI/TreeView/TreeView.h>
 #include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
 
+#include <unordered_map>
+
 #include "AddElementDialog.h"
 #include "GuiEditorControlIds.h"
 #include "GuiTreeItemData.h"
@@ -96,6 +98,8 @@ void GuiEditorFrame::CreateMainMenu()
     Bind(wxEVT_MENU, &GuiEditorFrame::OnRedo, this, ID_REDO);
 
     Bind(wxEVT_MENU, &GuiEditorFrame::OnAddElement, this, ID_ADD_WINDOW, ID_ADD_H_LAYOUT);
+
+    sceneTree->Bind(wxEVT_TREE_ITEM_MENU, &GuiEditorFrame::OnTreeContextMenu, this);
 }
 
 void GuiEditorFrame::OnAddElement(wxCommandEvent& event)
@@ -157,26 +161,8 @@ void GuiEditorFrame::OnAddElementToLayer(const std::string& layer, wxCommandEven
 
     if (newElem)
     {
-        auto selectedId = sceneTree->GetSelection();
-        GameEngine::GuiElement* parent{nullptr};
-
-        if (selectedId.IsOk() && selectedId != sceneTree->GetRootItem())
-        {
-            if (auto* data = static_cast<GuiTreeItemData*>(sceneTree->GetItemData(selectedId)))
-            {
-                parent = data->element;
-            }
-        }
-
         auto* ptrToSelect = newElem.get();
-        if (parent)
-        {
-            parent->AddChild(std::move(newElem));
-        }
-        else
-        {
-            canvas->GetScene().GetGuiManager().Add(layer, std::move(newElem));
-        }
+        canvas->GetScene().GetGuiManager().Add(layer, std::move(newElem));
         RefreshTree();
         FocusElementInTree(ptrToSelect);
         canvas->Refresh();
@@ -433,4 +419,98 @@ wxTreeItemId GuiEditorFrame::FindItemByElement(wxTreeItemId parent, GameEngine::
     }
 
     return wxTreeItemId();
+}
+void GuiEditorFrame::OnTreeContextMenu(wxTreeEvent& event)
+{
+    auto itemId = event.GetItem();
+    if (not itemId.IsOk())
+        return;
+
+    auto* data = static_cast<GuiTreeItemData*>(sceneTree->GetItemData(itemId));
+    if (not data)
+        return;
+
+    int idWin     = wxWindow::NewControlId();
+    int idText    = wxWindow::NewControlId();
+    int idBtn     = wxWindow::NewControlId();
+    int idTex     = wxWindow::NewControlId();
+    int idVLayout = wxWindow::NewControlId();
+    int idHLayout = wxWindow::NewControlId();
+    int idDel     = wxWindow::NewControlId();
+
+    wxMenu menu;
+    wxMenu* addSubMenu = new wxMenu();
+    addSubMenu->Append(idWin, "Window");
+    addSubMenu->Append(idText, "Text Label");
+    addSubMenu->Append(idTex, "Image/Texture");
+    addSubMenu->Append(idBtn, "Button");
+    addSubMenu->AppendSeparator();
+    addSubMenu->Append(idVLayout, "Vertical Layout");
+    addSubMenu->Append(idHLayout, "Horizontal Layout");
+
+    menu.AppendSubMenu(addSubMenu, "Add Child");
+    menu.AppendSeparator();
+    menu.Append(idDel, "Delete");
+
+    int selection = GetPopupMenuSelectionFromUser(menu);
+
+    if (selection == wxID_NONE)
+        return;
+
+    if (selection == idDel)
+    {
+        OnDeleteElement(*data);
+        return;
+    }
+
+    auto& factory = canvas->GetScene().GetGuiElementFactory();
+    std::unique_ptr<GameEngine::GuiElement> newElem;
+
+    if (selection == idWin)
+        newElem = factory.CreateGuiWindow(GameEngine::GuiWindowStyle::BACKGROUND_ONLY, {50, 50}, {300, 200});
+    else if (selection == idText)
+        newElem = factory.CreateGuiText("New Label");
+    else if (selection == idTex)
+        newElem = factory.CreateGuiTexture("DefaultTexture.png");
+    else if (selection == idBtn)
+        newElem = factory.CreateGuiButton("Button", [](auto&) {});
+    else if (selection == idVLayout)
+        newElem = factory.CreateVerticalLayout();
+    else if (selection == idHLayout)
+        newElem = factory.CreateHorizontalLayout();
+
+    if (newElem)
+    {
+        auto* ptrToSelect = newElem.get();
+
+        if (data->element)
+        {
+            data->element->AddChild(std::move(newElem));
+        }
+        else if (data->layer)
+        {
+            canvas->GetScene().GetGuiManager().Add(data->layer->GetName(), std::move(newElem));
+        }
+
+        RefreshTree();
+        FocusElementInTree(ptrToSelect);
+        canvas->Refresh();
+    }
+}
+void GuiEditorFrame::OnDeleteElement(GuiTreeItemData& data)
+{
+    if (data.element)
+    {
+        canvas->GetScene().GetGuiManager().Remove(*data.element);
+        selectedElement = nullptr;
+    }
+    if (data.layer)
+    {
+        canvas->GetScene().GetGuiManager().RemoveLayer(data.layer->GetName());
+        selectedLayer = nullptr;
+    }
+
+    propGrid->Clear();
+    RefreshTree();
+    canvas->Refresh();
 }
