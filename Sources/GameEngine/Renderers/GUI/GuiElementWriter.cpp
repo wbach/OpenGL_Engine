@@ -10,10 +10,11 @@
 #include <GameEngine/Renderers/GUI/TreeView/TreeView.h>
 #include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
 #include <Logger/Log.h>
-#include <Utils/Utils.h>
 #include <Utils/Json/JsonWriter.h>
+#include <Utils/Utils.h>
 
 #include "GameEngine/Renderers/GUI/GuiElementTypes.h"
+#include "GameEngine/Renderers/GUI/Layer/GuiLayer.h"
 #include "GuiElementsDef.h"
 
 namespace GameEngine
@@ -189,10 +190,10 @@ void write(TreeNode& node, const GuiElement& element)
             write(node, *static_cast<const GuiTextureElement*>(&element));
             break;
         case GuiElementTypes::Checkbox:
-            /* LOG TO FIX*/ LOG_ERROR << ("Gui Checkbox write method not implemented.");
+            LOG_WARN << "Gui Checkbox write method not implemented.";
             break;
         case GuiElementTypes::ComboBox:
-            /* LOG TO FIX*/ LOG_ERROR << ("Gui ComboBox write method not implemented.");
+            LOG_WARN << "Gui ComboBox write method not implemented.";
             break;
         case GuiElementTypes::TreeView:
             write(node, *static_cast<const TreeView*>(&element));
@@ -216,7 +217,7 @@ void write(std::vector<GuiLayer> layers)
     }
 }
 
-void write(const std::string& name, const GuiLayer& layer)
+void write(const File& file, const GuiLayer& layer)
 {
     TreeNode root(Gui::ROOT);
 
@@ -225,7 +226,7 @@ void write(const std::string& name, const GuiLayer& layer)
         write(root, *element);
     }
 
-    Utils::Json::Write(name, root);
+    Utils::Json::Write(file.GetAbsolutePath(), root);
 }
 }  // namespace GuiElementWriter
 }  // namespace GameEngine

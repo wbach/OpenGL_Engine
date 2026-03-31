@@ -76,18 +76,18 @@ GuiElementReader::GuiElementReader(GuiManager &manager, GuiElementFactory &facto
 {
 }
 
-bool GuiElementReader::Read(const std::string &filename, const std::string &layerName)
+bool GuiElementReader::Read(const File &file, const std::string &layerName)
 {
-    LOG_DEBUG << filename;
+    LOG_DEBUG << file;
 
-    if (not Utils::CheckExtension(filename, "gui"))
+    if (not file.IsFormat("gui"))
     {
-        LOG_ERROR << "This is not gui file. Format should be \".xml\". File name : " << filename;
+        LOG_ERROR << "This is not gui file. Format should be \".xml\". File name : " << file;
         return false;
     }
 
     Utils::JsonReader reader;
-    if (not reader.Read(filename))
+    if (not reader.Read(file.GetAbsolutePath()))
     {
         return false;
     }

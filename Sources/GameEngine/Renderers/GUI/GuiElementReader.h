@@ -19,12 +19,13 @@ class GuiTextureElement;
 class GuiEditBoxElement;
 class GuiElementFactory;
 class TreeView;
+class File;
 
 class GuiElementReader
 {
 public:
     GuiElementReader(GuiManager& manager, GuiElementFactory& factory);
-    bool Read(const std::string&, const std::string& = Gui::DEFAULT_LAYER);
+    bool Read(const File&, const std::string& = Gui::DEFAULT_LAYER);
 
 private:
     void ReadGuiElementBasic(GuiElement& element, TreeNode& node);
