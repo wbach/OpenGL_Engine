@@ -48,7 +48,7 @@ public:
     ~GuiTextElement();
 
 public:
-    std::optional<uint32> GetTextureId() const;
+    std::optional<uint32> GetTextureId() const override;
     const std::string& GetText() const;
     void SetTexture(GeneralTexture*);
     void UnsetTexture();
@@ -67,6 +67,11 @@ public:
     void SetLocalScale(const vec2& scale) override;
     void setParent(GuiElement*) override;
     void setRenderMode(RenderMode);
+    RenderMode GetRenderMode() const;
+    Algin GetAlgin() const;
+    uint32 GetOutline() const;
+    uint32 GetFontSize() const;
+    const File& GetFontFile() const;
 
 private:
     void UpdateTexture(IFontManager::TextureData);

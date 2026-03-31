@@ -1,6 +1,7 @@
 #include "GuiRenderer.h"
 
 #include <algorithm>
+#include <limits>
 #include <mutex>
 
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
@@ -73,7 +74,7 @@ void GUIRenderer::render()
     graphicsApi_.SetBlendFunction(GraphicsApi::BlendFunctionType::ONE_MINUS_SRC_ALPHA);
     std::lock_guard<std::mutex> lk(subscriberMutex);
 
-    float min = 100000000.f;
+    auto min = std::numeric_limits<float>::max();
     bool sortNeeded{false};
 
     for (const auto& subscriber : subscribers_)
@@ -87,7 +88,7 @@ void GUIRenderer::render()
         graphicsApi_.BindShaderBuffer(transformBuffer_);
 
         ColorBuffer colorBuffer;
-        colorBuffer.color = subscriber->GetColor();
+        colorBuffer.color = subscriber->GetColor().value;
         graphicsApi_.UpdateShaderBuffer(colorBuffer_, &colorBuffer);
         graphicsApi_.BindShaderBuffer(colorBuffer_);
 
@@ -96,7 +97,7 @@ void GUIRenderer::render()
 
         if (subscriber->GetZValue() > min)
         {
-            /* LOG TO FIX*/ LOG_ERROR << ("Sort needed");
+            LOG_DEBUG << "Sort needed";
             sortNeeded = true;
         }
         min = subscriber->GetZValue();

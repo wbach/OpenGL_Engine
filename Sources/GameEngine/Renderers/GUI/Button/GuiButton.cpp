@@ -112,6 +112,7 @@ void GuiButtonElement::SetText(std::unique_ptr<GuiTextElement> text)
     text_ = text.get();
     text_->SetZPosition(-0.2f);
     AddChild(std::move(text));
+
     backgroundTextColor_ = text_->GetColor();
     onHoverTextColor_    = text_->GetColor();
     onActiveTextColor_   = text_->GetColor();
@@ -183,12 +184,17 @@ void GuiButtonElement::ResetOnActiveTexture()
     onActiveTextue_ = nullptr;
 }
 
-void GuiButtonElement::SetHoverTextColor(const vec4 &color)
+void GuiButtonElement::SetHoverTextColor(const Color &color)
 {
     onHoverTextColor_ = color;
 }
 
-void GuiButtonElement::SetActiveTextColor(const vec4 &color)
+void GuiButtonElement::SetBackgroundTextColor(const Color &color)
+{
+    backgroundTextColor_ = color;
+}
+
+void GuiButtonElement::SetActiveTextColor(const Color &color)
 {
     onActiveTextColor_ = color;
 }
@@ -253,7 +259,7 @@ void GuiButtonElement::UnsubscribeInputAction()
     }
     else
     {
-        LOG_DEBUG<< ("Subscribtion not exist.");
+        LOG_DEBUG << ("Subscribtion not exist.");
     }
 }
 
@@ -324,5 +330,17 @@ void GuiButtonElement::ApplyActiveState()
         onActiveTextue_->Show();
     if (text_)
         text_->SetColor(onActiveTextColor_);
+}
+const Color &GuiButtonElement::GetBackgroundColor() const
+{
+    return backgroundTextColor_;
+}
+const Color &GuiButtonElement::GetActiveColor() const
+{
+    return onActiveTextColor_;
+}
+const Color &GuiButtonElement::GetOnHoverColor() const
+{
+    return onHoverTextColor_;
 }
 }  // namespace GameEngine

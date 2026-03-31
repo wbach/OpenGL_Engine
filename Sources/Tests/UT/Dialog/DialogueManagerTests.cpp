@@ -365,7 +365,7 @@ TEST_F(DialogueManagerTests, ShouldAutomaticallyGoToNextNodeWhenNoOptionsAvailab
 
     LOG_DEBUG << "expectedighlighetColor";
     const vec4 expectedighlighetColor(1, 1, 0, 1);
-    EXPECT_TRUE(glm::all(glm::epsilonEqual(optionguiText->GetColor(), expectedighlighetColor, 0.001f)));
+    EXPECT_TRUE(glm::all(glm::epsilonEqual(optionguiText->GetColor().value, expectedighlighetColor, 0.001f)));
 
     LOG_DEBUG << optionguiText->GetColor();
     EXPECT_TRUE(optionguiText->IsShow());

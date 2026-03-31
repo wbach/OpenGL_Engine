@@ -9,7 +9,9 @@ class ENGINE_API GuiTextureElement : public GuiRendererElementBase
 {
 public:
     GuiTextureElement(IResourceManager&, GUIRenderer&, GeneralTexture&);
+    GuiTextureElement(IResourceManager&, GUIRenderer&);
     void Flip();
+    void SetTexture(const File&);
 
 public:
     static GuiElementTypes type;

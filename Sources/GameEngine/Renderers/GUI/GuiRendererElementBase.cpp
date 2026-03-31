@@ -50,14 +50,7 @@ void GuiRendererElementBase::SetScreenPostion(const vec2& position)
     GuiElement::SetScreenPostion(position);
 }
 
-void GuiRendererElementBase::SetColor(const vec3& color)
-{
-    color_.x = color.x;
-    color_.y = color.y;
-    color_.z = color.z;
-    color_.w = 1.f;
-}
-void GuiRendererElementBase::SetColor(const vec4& color)
+void GuiRendererElementBase::SetColor(const Color& color)
 {
     color_ = color;
 }
@@ -71,5 +64,17 @@ mat4 GuiRendererElementBase::GetTransformMatrix() const
     // convert from range 0.f - 1.f to -1.f - 1.f
     // api rendering quad -1 - 1f  (*2f not needed)
     return Utils::CreateTransformationMatrix(GetScreenPosition() * 2.f - 1.f, GetScreenScale(), DegreesFloat(0.f));
+}
+std::optional<uint32> GuiRendererElementBase::GetTextureId() const
+{
+    return texture_ ? texture_->GetGraphicsObjectId() : std::optional<uint32>();
+}
+const Color& GuiRendererElementBase::GetColor() const
+{
+    return color_;
+}
+const GeneralTexture* GuiRendererElementBase::GetTexture() const
+{
+    return texture_;
 }
 }  // namespace GameEngine

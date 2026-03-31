@@ -119,11 +119,8 @@ void GuiTextElement::SetFontSize(uint32 size)
 
 void GuiTextElement::SetOutline(uint32 outline)
 {
-    if (fontInfo_.outline_ == outline)
-        return;
-
     fontInfo_.outline_ = outline;
-    RenderText();
+    RenderText(true);
 }
 
 void GuiTextElement::SetFont(const File& font)
@@ -138,6 +135,7 @@ void GuiTextElement::SetFont(const File& font)
 void GuiTextElement::SetAlgin(GuiTextElement::Algin algin)
 {
     algin_ = algin;
+    RenderText(true);
 }
 
 const GuiTextElement::FontInfo& GuiTextElement::GetFontInfo() const
@@ -226,9 +224,7 @@ void GuiTextElement::RenderText(bool fontOverride)
             }
         }
 
-        LOG_DEBUG << "text_ " << text_;
-
-        auto imageData = fontManager_.renderFont(*fontId_, text_, fontInfo_.outline_, wrapWidth_ );
+        auto imageData = fontManager_.renderFont(*fontId_, text_, fontInfo_.outline_, wrapWidth_);
         if (imageData)
         {
             auto windowsSize = *EngineConf.window.size;
@@ -236,11 +232,8 @@ void GuiTextElement::RenderText(bool fontOverride)
             {
                 vec2 pScale = parent_->GetScreenScale();
                 auto ar     = static_cast<float>(windowsSize.x) / static_cast<float>(windowsSize.y);
-                auto x      = pScale.y * ar * 0.5f; // 0.5?
+                auto x      = pScale.y * ar * 0.5f;  // 0.5?
                 windowsSize = vec2ui{static_cast<float>(windowsSize.x) * x, static_cast<float>(windowsSize.y) * pScale.y};
-
-                // auto y = pScale.x / ar;
-                // windowsSize = vec2ui{static_cast<float>(windowsSize.x) * pScale.x, static_cast<float>(windowsSize.y) * y};
             }
 
             rendererdTextScale_ = ConvertSizeToScale(imageData->image.size() / fontSizeMultiplier, windowsSize);
@@ -288,6 +281,7 @@ void GuiTextElement::UpdateTexture(IFontManager::TextureData data)
                 resourceManager_.GetTextureLoader().UpdateTexture(*texture_);
             }
         }
+
         return;
     }
 
@@ -306,6 +300,7 @@ void GuiTextElement::SetLocalScale(const vec2& scale)
     if (renderMode_ == RenderMode::STRETCH)
     {
         GuiElement::SetLocalScale(scale);
+        RenderText(true);
     }
 }
 void GuiTextElement::setParent(GuiElement* parent)
@@ -314,12 +309,32 @@ void GuiTextElement::setParent(GuiElement* parent)
 
     if (renderMode_ == RenderMode::NATIVE)
     {
-        RenderText();
+        RenderText(true);
     }
 }
 void GuiTextElement::setRenderMode(RenderMode mode)
 {
     renderMode_ = mode;
-    RenderText();
+    RenderText(true);
+}
+GuiTextElement::RenderMode GuiTextElement::GetRenderMode() const
+{
+    return renderMode_;
+}
+GuiTextElement::Algin GuiTextElement::GetAlgin() const
+{
+    return algin_;
+}
+uint32 GuiTextElement::GetOutline() const
+{
+    return fontInfo_.outline_;
+}
+uint32 GuiTextElement::GetFontSize() const
+{
+    return fontInfo_.fontSize_;
+}
+const File& GuiTextElement::GetFontFile() const
+{
+    return fontInfo_.file_;
 }
 }  // namespace GameEngine

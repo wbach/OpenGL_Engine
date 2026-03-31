@@ -1,6 +1,7 @@
 #include "GuiWindow.h"
 
 #include "Logger/Log.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -128,5 +129,10 @@ void GuiWindowElement::ShowPartial(uint32 depth)
     {
         bar_->Show();
     }
+}
+void GuiWindowElement::SetStyle(GuiWindowStyle s)
+{
+    LOG_DEBUG << "Change window style: " << magic_enum::enum_name(s);
+    style_ = s;
 }
 }  // namespace GameEngine

@@ -3,23 +3,75 @@
 #include <GameEngine/Renderers/GUI/Button/GuiButton.h>
 #include <GameEngine/Renderers/GUI/GuiElement.h>
 #include <GameEngine/Renderers/GUI/GuiElementReader.h>
+#include <GameEngine/Renderers/GUI/GuiElementsDef.h>
 #include <GameEngine/Renderers/GUI/Layout/HorizontalLayout.h>
 #include <GameEngine/Renderers/GUI/Layout/VerticalLayout.h>
 #include <GameEngine/Renderers/GUI/Text/GuiTextElement.h>
 #include <GameEngine/Renderers/GUI/TreeView/TreeView.h>
 #include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
-#include <GameEngine/Renderers/GUI/GuiElementsDef.h>
+#include <wx/propgrid/advprops.h>
+
 #include <unordered_map>
 
 #include "AddElementDialog.h"
 #include "GuiEditorControlIds.h"
 #include "GuiTreeItemData.h"
 #include "Renderers/GUI/EditText/GuiEditText.h"
+#include "Renderers/GUI/Texutre/GuiTextureElement.h"
+#include "Renderers/GUI/Window/GuiWindowStyle.h"
+#include "Types.h"
 #include "WxEditor/EngineRelated/GLCanvas.h"
 #include "WxEditor/EngineRelated/WxScenesDef.h"
 #include "WxEditor/ProjectManager.h"
+#include "magic_enum/magic_enum.hpp"
 #include "wx/log.h"
 #include "wx/propgrid/props.h"
+
+namespace
+{
+template <typename T>
+wxPGChoices CreateChoicesFromEnum()
+{
+    wxPGChoices choices;
+    for (auto const& [value, name] : magic_enum::enum_entries<T>())
+    {
+        choices.Add(wxString(name.data(), name.size()), static_cast<int>(value));
+    }
+    return choices;
+}
+void AppendColorProperty(wxPropertyGrid* pg, const Color& color, const wxString& label = "Color",
+                         const wxString& propName = "ElementColor")
+{
+    if (not pg)
+        return;
+
+    wxColour wxC(color.r(), color.g(), color.b(), color.a());
+    wxPGProperty* p = pg->Append(new wxColourProperty(label, propName, wxC));
+    p->SetAttribute(wxPG_COLOUR_HAS_ALPHA, true);
+}
+Color ConvertVariantToColor(const wxVariant& value)
+{
+    wxColour col;
+    if (value.IsType("wxColourPropertyValue"))
+    {
+        auto* cpv = static_cast<wxColourPropertyValue*>(value.GetVoidPtr());
+        if (cpv)
+        {
+            col = cpv->m_colour;
+        }
+    }
+    else
+    {
+        col << value;
+    }
+
+    if (not col.IsOk())
+    {
+        return Color(0);
+    }
+    return Color(col.Red(), col.Green(), col.Blue(), col.Alpha());
+}
+}  // namespace
 
 GuiEditorFrame::GuiEditorFrame(const std::optional<GameEngine::File>& maybeFile, const wxString& title, const wxPoint& pos,
                                const wxSize& size)
@@ -172,17 +224,45 @@ void GuiEditorFrame::OnTreeSelectionChanged(wxTreeEvent& event)
         propGrid->Append(new wxFloatProperty("Scale X", "ScaleX", scale.x));
         propGrid->Append(new wxFloatProperty("Scale Y", "ScaleY", scale.y));
 
-        if (auto* txt = dynamic_cast<GameEngine::GuiButtonElement*>(selectedElement))
+        if (auto* el = dynamic_cast<GameEngine::GuiRendererElementBase*>(selectedElement))
+        {
+            propGrid->Append(new wxPropertyCategory("Renderer Base Settings"));
+            AppendColorProperty(propGrid, el->GetColor(), "Color", "ElementColor");
+        }
+
+        if (auto* window = dynamic_cast<GameEngine::GuiWindowElement*>(selectedElement))
+        {
+            auto choices = CreateChoicesFromEnum<GameEngine::GuiWindowStyle>();
+            auto index   = magic_enum::enum_index(window->GetStyle());
+
+            propGrid->Append(new wxPropertyCategory("Window Settings"));
+            propGrid->Append(new wxEnumProperty("Style", "GuiWindowStyle", choices, index.value_or(0)));
+        }
+        else if (auto* txt = dynamic_cast<GameEngine::GuiButtonElement*>(selectedElement))
         {
             propGrid->Append(new wxPropertyCategory("Button Settings"));
-            propGrid->Append(new wxStringProperty("Action name", "ActionName", ""));
+            // propGrid->Append(new wxStringProperty("Action name", "ActionName", ""));
+            AppendColorProperty(propGrid, txt->GetBackgroundColor(), "Normal Color", "ButtonBackgorundColor");
+            AppendColorProperty(propGrid, txt->GetOnHoverColor(), "On Hover Color", "ButtonHoverColor");
+            AppendColorProperty(propGrid, txt->GetActiveColor(), "Active Color", "ButtonActiveColor");
         }
-        if (auto* txt = dynamic_cast<GameEngine::GuiTextElement*>(selectedElement))
+        else if (auto* txt = dynamic_cast<GameEngine::GuiTextElement*>(selectedElement))
         {
+            auto renderModes = CreateChoicesFromEnum<GameEngine::GuiTextElement::RenderMode>();
+            auto renderMode  = magic_enum::enum_index(txt->GetRenderMode());
+
+            auto algines = CreateChoicesFromEnum<GameEngine::GuiTextElement::Algin>();
+            auto algin   = magic_enum::enum_index(txt->GetRenderMode());
+
             propGrid->Append(new wxPropertyCategory("Text Settings"));
-            propGrid->Append(new wxStringProperty("Label Text", "LabelText", txt->GetText()));
+            propGrid->Append(new wxStringProperty("Label text", "LabelText", txt->GetText()));
+            propGrid->Append(new wxEnumProperty("Render mode", "TextRenderMode", renderModes, renderMode.value_or(0)));
+            propGrid->Append(new wxEnumProperty("Algin", "TextAlgin", algines, algin.value_or(0)));
+            propGrid->Append(new wxIntProperty("Outline", "TextOutline", txt->GetOutline()));
+            propGrid->Append(new wxIntProperty("Font size", "TextFontSize", txt->GetFontSize()));
+            propGrid->Append(new wxFileProperty("Font size", "TextFontFile", txt->GetFontFile().GetDataRelativePath().string()));
         }
-        if (auto* txt = dynamic_cast<GameEngine::GuiTextureElement*>(selectedElement))
+        else if (auto* txt = dynamic_cast<GameEngine::GuiTextureElement*>(selectedElement))
         {
             propGrid->Append(new wxPropertyCategory("Texture Settings"));
 
@@ -204,35 +284,124 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
 
     if (selectedElement)
     {
-        if (name == "PosX")
+        if (name == "GuiWindowStyle")
         {
-            vec2 pos = selectedElement->GetLocalPosition();
+            if (auto window = dynamic_cast<GameEngine::GuiWindowElement*>(selectedElement))
+            {
+                auto intVal = p->GetValue().GetInteger();
+                if (auto style = magic_enum::enum_cast<GameEngine::GuiWindowStyle>(intVal))
+                {
+                    window->SetStyle(*style);
+                }
+            }
+        }
+        else if (name == "PosX")
+        {
+            auto pos = selectedElement->GetLocalPosition();
             pos.x    = p->GetValue().GetDouble();
             selectedElement->SetLocalPosition(pos);
         }
-        if (name == "PosY")
+        else if (name == "PosY")
         {
-            vec2 pos = selectedElement->GetLocalPosition();
+            auto pos = selectedElement->GetLocalPosition();
             pos.y    = p->GetValue().GetDouble();
             selectedElement->SetLocalPosition(pos);
         }
-        if (name == "ScaleX")
+        else if (name == "ScaleX")
         {
-            vec2 scale = selectedElement->GetLocalScale();
+            auto scale = selectedElement->GetLocalScale();
             scale.x    = p->GetValue().GetDouble();
             selectedElement->SetLocalScale(scale);
         }
-        if (name == "ScaleY")
+        else if (name == "ScaleY")
         {
-            vec2 scale = selectedElement->GetLocalScale();
+            auto scale = selectedElement->GetLocalScale();
             scale.y    = p->GetValue().GetDouble();
             selectedElement->SetLocalScale(scale);
         }
-        if (name == "LabelText")
+        else if (name == "ElementColor")
+        {
+            if (auto el = dynamic_cast<GameEngine::GuiRendererElementBase*>(selectedElement))
+            {
+                el->SetColor(ConvertVariantToColor(p->GetValue()));
+            }
+        }
+        else if (name == "ButtonBackgorundColor")
+        {
+            if (auto el = dynamic_cast<GameEngine::GuiButtonElement*>(selectedElement))
+            {
+                el->SetBackgroundTextColor(ConvertVariantToColor(p->GetValue()));
+            }
+        }
+        else if (name == "ButtonHoverColor")
+        {
+            if (auto el = dynamic_cast<GameEngine::GuiButtonElement*>(selectedElement))
+            {
+                el->SetHoverTextColor(ConvertVariantToColor(p->GetValue()));
+            }
+        }
+        else if (name == "ButtonActiveColor")
+        {
+            if (auto el = dynamic_cast<GameEngine::GuiButtonElement*>(selectedElement))
+            {
+                el->SetActiveTextColor(ConvertVariantToColor(p->GetValue()));
+            }
+        }
+        else if (name == "LabelText")
         {
             if (auto text = dynamic_cast<GameEngine::GuiTextElement*>(selectedElement))
             {
-                text->SetText(p->GetValue());
+                text->SetText(p->GetValue().GetString().ToStdString());
+            }
+        }
+        else if (name == "TextRenderMode")
+        {
+            if (auto text = dynamic_cast<GameEngine::GuiTextElement*>(selectedElement))
+            {
+                int intVal = p->GetValue().GetInteger();
+                if (auto renderMode = magic_enum::enum_cast<GameEngine::GuiTextElement::RenderMode>(intVal))
+                {
+                    text->setRenderMode(*renderMode);
+                }
+            }
+        }
+        else if (name == "TextAlgin")
+        {
+            if (auto text = dynamic_cast<GameEngine::GuiTextElement*>(selectedElement))
+            {
+                auto intVal = p->GetValue().GetInteger();
+                if (auto v = magic_enum::enum_cast<GameEngine::GuiTextElement::Algin>(intVal))
+                {
+                    text->SetAlgin(*v);
+                }
+            }
+        }
+        else if (name == "TextOutline")
+        {
+            if (auto text = dynamic_cast<GameEngine::GuiTextElement*>(selectedElement))
+            {
+                text->SetOutline(p->GetValue().GetInteger());
+            }
+        }
+        else if (name == "TextFontSize")
+        {
+            if (auto text = dynamic_cast<GameEngine::GuiTextElement*>(selectedElement))
+            {
+                text->SetFontSize(p->GetValue().GetInteger());
+            }
+        }
+        else if (name == "TextFontFile")
+        {
+            if (auto text = dynamic_cast<GameEngine::GuiTextElement*>(selectedElement))
+            {
+                text->SetFont(p->GetValue().GetString().ToStdString());
+            }
+        }
+        else if (name == "ImagePath")
+        {
+            if (auto text = dynamic_cast<GameEngine::GuiTextureElement*>(selectedElement))
+            {
+                text->SetTexture(p->GetValue().GetString().ToStdString());
             }
         }
     }

@@ -215,16 +215,16 @@ void Player::renderDmg(const common::Transform& enemyTransform, int64 dmg)
                          auto currentColor = hitTextPtr->GetColor();
                          if (elapsedTime < 0.4f)
                          {
-                             if (currentColor.a < 1.f)
+                             if (currentColor.a() < 1.f)
                              {
-                                 currentColor.a += 3.f * deltaTime;
+                                 currentColor.a(currentColor.a() + 3.f * deltaTime);
                              }
                          }
                          else if (elapsedTime > 0.6f)
                          {
-                             if (currentColor.a > 0.f)
+                             if (currentColor.a() > 0.f)
                              {
-                                 currentColor.a -= 3.f * deltaTime;
+                                 currentColor.a(currentColor.a() - 3.f * deltaTime);
                              }
                          }
                          hitTextPtr->SetColor(currentColor);

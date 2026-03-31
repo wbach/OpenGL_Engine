@@ -13,11 +13,12 @@ const float GUI_WINDOW_BAR_HEIGHT{0.05f};
 class ENGINE_API GuiWindowElement : public GuiElement
 {
 public:
-    GuiWindowElement(GuiWindowStyle style, Input::InputManager& inputManager);
+    GuiWindowElement(GuiWindowStyle, Input::InputManager&);
     ~GuiWindowElement() override;
     virtual void Update() override;
     void CheckCollisionPoint();
     GuiWindowStyle GetStyle() const;
+    void SetStyle(GuiWindowStyle);
     void SetBackground(std::unique_ptr<GuiElement>);
     void SetBar(std::unique_ptr<GuiElement>);
 
