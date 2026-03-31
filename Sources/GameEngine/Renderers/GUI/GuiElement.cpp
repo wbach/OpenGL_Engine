@@ -91,7 +91,7 @@ void GuiElement::SetLocalScale(const vec2& scale)
     transform_.scale = scale;
     CallOnChange();
 }
-void GuiElement::SetLocalPostion(const vec2& position)
+void GuiElement::SetLocalPosition(const vec2& position)
 {
     transform_.position = position;
     CallOnChange();
@@ -145,11 +145,11 @@ void GuiElement::SetScreenPostion(const vec2& position)
 {
     if (parent_)
     {
-        SetLocalPostion(((position - parent_->GetScreenPosition()) / parent_->GetScreenScale()) + vec2(0.5f));
+        SetLocalPosition(((position - parent_->GetScreenPosition()) / parent_->GetScreenScale()) + vec2(0.5f));
     }
     else
     {
-        SetLocalPostion(position);
+        SetLocalPosition(position);
     }
 }
 void GuiElement::Show(bool b)

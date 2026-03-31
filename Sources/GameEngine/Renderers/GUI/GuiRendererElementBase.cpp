@@ -35,9 +35,9 @@ void GuiRendererElementBase::SetLocalScale(const vec2& scale)
     GuiElement::SetLocalScale(scale);
 }
 
-void GuiRendererElementBase::SetLocalPostion(const vec2& position)
+void GuiRendererElementBase::SetLocalPosition(const vec2& position)
 {
-    GuiElement::SetLocalPostion(position);
+    GuiElement::SetLocalPosition(position);
 }
 
 void GuiRendererElementBase::SetScreenScale(const vec2& scale)

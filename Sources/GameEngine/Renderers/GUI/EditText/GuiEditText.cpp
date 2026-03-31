@@ -88,11 +88,11 @@ void GuiEditBoxElement::Update()
     {
         if (not text_->GetText().empty())
         {
-            cursor_->SetLocalPostion(text_->GetLocalPosition() + vec2(text_->GetLocalScale().x + cursor_->GetLocalScale().x, 0));
+            cursor_->SetLocalPosition(text_->GetLocalPosition() + vec2(text_->GetLocalScale().x + cursor_->GetLocalScale().x, 0));
         }
         else
         {
-            cursor_->SetLocalPostion(GetLocalPosition());
+            cursor_->SetLocalPosition(GetLocalPosition());
         }
     }
 

@@ -40,7 +40,7 @@ public:
     virtual bool IsCollision(const vec2&) const;
     virtual std::optional<vec2> GetCollisionPoint(const vec2&) const;
     virtual void SetLocalScale(const vec2&);
-    virtual void SetLocalPostion(const vec2&);
+    virtual void SetLocalPosition(const vec2&);
     virtual void SetScreenScale(const vec2&);
     virtual void SetScreenPostion(const vec2&);
     virtual void Show(bool);

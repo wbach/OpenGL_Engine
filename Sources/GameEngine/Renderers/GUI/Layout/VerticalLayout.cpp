@@ -73,7 +73,7 @@ void VerticalLayout::OnChange()
     vec2 newPosition{};
     newPosition.x = CalculateXPosition(firstChild);
     newPosition.y = 1.f - (firstChild.GetLocalScale().y / 2.f) - viewPosition_;
-    firstChild.SetLocalPostion(newPosition);
+    firstChild.SetLocalPosition(newPosition);
 
     for (std::size_t i = 1; i < visibleChilds.size(); ++i)
     {
@@ -85,7 +85,7 @@ void VerticalLayout::OnChange()
 
         newPosition.x = CalculateXPosition(child);
         newPosition.y = parentPositionY - (parentScaleY / 2.f) - ((child.GetLocalScale().y / 2.f));
-        child.SetLocalPostion(newPosition);
+        child.SetLocalPosition(newPosition);
     }
     UpdateVisibility();
     EnableChangeNotif();

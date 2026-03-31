@@ -122,7 +122,7 @@ std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(GuiWindowSt
                                                                      const vec4 &backgorundColor)
 {
     auto guiWindow = std::make_unique<GuiWindowElement>(style, inputManager_);
-    guiWindow->SetLocalPostion(position);
+    guiWindow->SetLocalPosition(position);
     guiWindow->SetLocalScale(scale);
 
     if (style != GuiWindowStyle::EMPTY)
@@ -281,7 +281,7 @@ void GuiElementFactory::CreateMessageBox(const std::string &title, const std::st
     window->SetZPosition(-100.f);
 
     auto titleText = CreateGuiText(title);
-    titleText->SetLocalPostion(vec2(0, 0.275));
+    titleText->SetLocalPosition(vec2(0, 0.275));
     window->AddChild(std::move(titleText));
 
     auto messageText = CreateGuiText(message);
@@ -297,7 +297,7 @@ void GuiElementFactory::CreateMessageBox(const std::string &title, const std::st
                                   });
 
     button->SetLocalScale(1.5f * button->GetLocalScale());
-    button->SetLocalPostion(vec2(0, -0.25));
+    button->SetLocalPosition(vec2(0, -0.25));
     window->AddChild(std::move(button));
     guiManager_.Add(std::move(window));
 }
@@ -337,12 +337,12 @@ void GuiElementFactory::CreateWindowBar(GuiWindowStyle style, GuiWindowElement &
 
     auto horizontalLayout = CreateHorizontalLayout();
     horizontalLayout->SetLocalScale({0.99f, GUI_WINDOW_BAR_HEIGHT});
-    horizontalLayout->SetLocalPostion(barPosition);
+    horizontalLayout->SetLocalPosition(barPosition);
     horizontalLayout->SetAlgin(Layout::Algin::RIGHT);
 
     auto barButton = CreateGuiButton([ptr](auto &) { ptr->CheckCollisionPoint(); });
     barButton->SetLocalScale({1.f, 1.f});
-    barButton->SetLocalPostion(barPosition);
+    barButton->SetLocalPosition(barPosition);
 
     auto barTexture = CreateGuiTexture(theme_.windowBarTexture);
     if (barTexture)
@@ -380,7 +380,7 @@ bool GuiElementFactory::ReadGuiFile(const File &filename)
 std::unique_ptr<GuiElement> GuiElementFactory::CreateGuiElement(const vec2 &position, const vec2 &scale) const
 {
     auto element = std::make_unique<GuiElement>(GuiElementTypes::Element);
-    element->SetLocalPostion(position);
+    element->SetLocalPosition(position);
     element->SetLocalScale(scale);
     return element;
 }

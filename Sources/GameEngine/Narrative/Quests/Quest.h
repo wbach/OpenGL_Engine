@@ -27,6 +27,7 @@ struct QuestStep
 struct Quest
 {
     std::string name;
+    std::vector<std::string> descriptionNotes{"test description"};
     std::vector<QuestStep> steps;
     size_t currentStepIndex = 0;
     bool isActive           = false;

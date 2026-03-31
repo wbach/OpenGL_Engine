@@ -21,6 +21,8 @@ using ActionFunc = std::function<void(const std::vector<std::string>&)>;
 class ENGINE_API QuestManager
 {
 public:
+    using Quests = std::list<Quest>;
+
     QuestManager(GameState&, ISceneManager&, std::function<void(EngineEvent)>);
 
     void registerAction(const std::string&, ActionFunc);
@@ -30,6 +32,8 @@ public:
     void onSceneStarted();
     void update(Quest&);
 
+    const Quests& getQuests() const;
+
 private:
     void registerDefaultActions();
     void executeStepActions(QuestStep&);
@@ -37,7 +41,7 @@ private:
 
     GameState& gameState;
     ISceneManager& sceneManager;
-    std::list<Quest> quests;
+    Quests quests;
     std::unordered_map<std::string, ActionFunc> actionMap;
     std::vector<IdType> activeObservers;
     std::function<void(EngineEvent)> addEngineEvent;

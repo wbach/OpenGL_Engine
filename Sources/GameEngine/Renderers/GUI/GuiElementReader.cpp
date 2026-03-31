@@ -139,7 +139,7 @@ void GuiElementReader::ReadGuiElementBasic(GuiElement &element, TreeNode &node)
     {
         vec2 position(0);
         ::Read(*paramNode, position);
-        element.SetLocalPostion(position);
+        element.SetLocalPosition(position);
     }
     paramNode = node.getChild(Gui::SHOW);
     if (paramNode)

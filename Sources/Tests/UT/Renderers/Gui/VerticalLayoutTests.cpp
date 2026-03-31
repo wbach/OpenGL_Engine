@@ -45,7 +45,7 @@ TEST_F(GuiVerticalLayoutTests, VerticalAlginCenterWithParent)
 {
     GuiElement parent(GuiElementTypes::Window);
     parent.SetLocalScale({ 0.1, 0.5f });
-    parent.SetLocalPostion({0.3f, 0.3f});
+    parent.SetLocalPosition({0.3f, 0.3f});
 
     sut_.setParent(&parent);
     sut_.SetAlgin(GameEngine::Layout::Algin::CENTER);
@@ -76,12 +76,12 @@ TEST_F(GuiVerticalLayoutTests, VerticalAlginCenterWithParentPauseMenuIssue)
 {
     GuiElement parent(GuiElementTypes::Window);
     parent.SetLocalScale({ 0.1f, 1.f });
-    parent.SetLocalPostion({ 0.25f, 0.f });
+    parent.SetLocalPosition({ 0.25f, 0.f });
 
     sut_.setParent(&parent);
     sut_.SetAlgin(GameEngine::Layout::Algin::CENTER);
     sut_.SetLocalScale({ 1.f, 0.5f });
-    sut_.SetLocalPostion({ 0.f, 0.25f });
+    sut_.SetLocalPosition({ 0.f, 0.25f });
 
     createElement({ 1.f, 0.05f });
     createElement({ 0.2f, 0.2f });

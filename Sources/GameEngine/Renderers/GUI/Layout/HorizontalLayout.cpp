@@ -65,7 +65,7 @@ void HorizontalLayout::OnChange()
     DisableChangeNotif();
     calculateTotalChildrenScaleX();
 
-    children_.front()->SetLocalPostion({calculateFirstChildXPosition(), 0});
+    children_.front()->SetLocalPosition({calculateFirstChildXPosition(), 0});
 
     for (std::size_t i = 1; i < children_.size(); ++i)
     {
@@ -73,7 +73,7 @@ void HorizontalLayout::OnChange()
         auto &current      = *children_[i];
 
         auto posX = parent.GetLocalPosition().x + (parent.GetLocalScale().x / 2.f) + (current.GetLocalScale().x / 2.f);
-        current.SetLocalPostion({posX, 0.f});
+        current.SetLocalPosition({posX, 0.f});
     }
 
     EnableChangeNotif();

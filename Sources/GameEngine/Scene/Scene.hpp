@@ -137,6 +137,8 @@ public:
     NavigationManager* GetNavigationManager() const;
     DialogueManager* GetDialogueManager() const;
 
+    GuiManager& GetGuiManager();
+
 public:
     uint32 objectCount;
     std::function<void(EngineEvent)> addEngineEvent;

@@ -672,4 +672,8 @@ DialogueManager* Scene::GetDialogueManager() const
 {
     return dialogueManager_.get();
 }
+GuiManager& Scene::GetGuiManager()
+{
+    return guiManager_;
+}
 }  // namespace GameEngine

@@ -362,4 +362,8 @@ void QuestManager::registerAction(const std::string& type, ActionFunc action)
 {
     actionMap[type] = action;
 }
+const QuestManager::Quests& QuestManager::getQuests() const
+{
+    return quests;
+}
 }  // namespace GameEngine

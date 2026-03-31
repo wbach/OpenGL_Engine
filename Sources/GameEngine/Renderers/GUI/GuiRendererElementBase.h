@@ -14,7 +14,7 @@ public:
     ~GuiRendererElementBase() override;
 
     void SetLocalScale(const vec2&) override;
-    void SetLocalPostion(const vec2&) override;
+    void SetLocalPosition(const vec2&) override;
 
     void SetScreenScale(const vec2&) override;
     void SetScreenPostion(const vec2&) override;

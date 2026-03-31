@@ -41,6 +41,7 @@ public:
 
     GuiLayer* GetLayer(const std::string&);
     const GuiLayers& GetGuiLayers() const;
+    GuiLayers& GetGuiLayers();
 
     ActionFunction GetActionFunction(const std::string& name);
 

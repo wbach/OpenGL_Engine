@@ -18,7 +18,7 @@ struct GuiElementShould : public ::testing::Test
     std::tuple<vec2, vec2, vec2, vec2> init(const vec2& position, const vec2& scale)
     {
         sut_.SetLocalScale(scale);
-        sut_.SetLocalPostion(position);
+        sut_.SetLocalPosition(position);
 
         vec2 halfScale(scale / 2.f);
         vec2 lbCorner = position - halfScale;

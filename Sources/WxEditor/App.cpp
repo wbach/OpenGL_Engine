@@ -7,6 +7,7 @@
 #include <wx/version.h>
 
 #include "AnimationViewer/AnimationViewerFrame.h"
+#include "GuiEditor/GuiEditorFrame.h"
 #include "MainFrame.h"
 #include "MaterialEditor/MaterialEditorFrame.h"
 #include "StartupDialog/StartupDialog.h"
@@ -29,6 +30,25 @@ bool App::OnInit()
         {
             frame->ShowModel(*file);
         }
+        return true;
+    }
+
+    if (Utils::GetValue(args, "guiEditor"))
+    {
+        CLogger::Instance().SetLogFilename("GuiEdiorLogs.txt");
+        CLogger::Instance().EnableLogs();
+        LOG_DEBUG << "wxWidgets version: " << wxString(wxVERSION_STRING).ToStdString();
+        LOG_DEBUG << args;
+
+        std::optional<GameEngine::File> file;
+        if (auto f = Utils::GetValue(args, "file"))
+        {
+            file = *f;
+        }
+
+        auto* frame = new GuiEditorFrame(file, "GuiEditor", wxPoint(100, 100), wxSize(1920, 1080));
+        SetTopWindow(frame);
+        frame->Show(true);
         return true;
     }
 

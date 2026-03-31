@@ -93,7 +93,10 @@ const GuiLayers& GuiManager::GetGuiLayers() const
 {
     return layers_;
 }
-
+GuiLayers& GuiManager::GetGuiLayers()
+{
+    return layers_;
+}
 void GuiManager::Update(float deltaTime)
 {
     for (auto iter = animations.begin(); iter != animations.end();)
