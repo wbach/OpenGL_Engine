@@ -224,7 +224,7 @@ void GuiTextElement::RenderText(bool fontOverride)
             }
         }
 
-        auto imageData = fontManager_.renderFont(*fontId_, text_, fontInfo_.outline_, wrapWidth_);
+        auto imageData = fontManager_.renderFont(*fontId_, text_, fontInfo_.outline_, wrapWidth_ / fontSizeMultiplier);
         if (imageData)
         {
             auto windowsSize = *EngineConf.window.size;
@@ -315,6 +315,7 @@ void GuiTextElement::setParent(GuiElement* parent)
 void GuiTextElement::setRenderMode(RenderMode mode)
 {
     renderMode_ = mode;
+
     RenderText(true);
 }
 GuiTextElement::RenderMode GuiTextElement::GetRenderMode() const
@@ -336,5 +337,14 @@ uint32 GuiTextElement::GetFontSize() const
 const File& GuiTextElement::GetFontFile() const
 {
     return fontInfo_.file_;
+}
+void GuiTextElement::SetWrapWidth(uint32 v)
+{
+    wrapWidth_ = v;
+    RenderText();
+}
+uint32 GuiTextElement::GetWrapWith() const
+{
+    return wrapWidth_;
 }
 }  // namespace GameEngine

@@ -75,7 +75,7 @@ void QuestViewerComponent::createWindow()
     auto mainWndowPtr = guiFactory.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2{0.5, 0.5}, vec2{1, 1});
     mainWindow        = mainWndowPtr.get();
     auto mainLayout   = guiFactory.CreateVerticalLayout();
-    mainLayout->AllChildrenAllwaysVisible();
+    mainLayout->AutoHideElements(false);
 
     auto title = guiFactory.CreateGuiText("Quests");
    // title->setRenderMode(GuiTextElement::RenderMode::NATIVE);

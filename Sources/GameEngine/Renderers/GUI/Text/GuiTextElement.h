@@ -73,6 +73,9 @@ public:
     uint32 GetFontSize() const;
     const File& GetFontFile() const;
 
+    void SetWrapWidth(uint32);
+    uint32 GetWrapWith() const;
+
 private:
     void UpdateTexture(IFontManager::TextureData);
     void RenderText(bool fontOverride = false);

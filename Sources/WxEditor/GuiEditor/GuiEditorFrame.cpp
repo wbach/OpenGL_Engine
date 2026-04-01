@@ -265,6 +265,7 @@ void GuiEditorFrame::OnTreeSelectionChanged(wxTreeEvent& event)
 
             propGrid->Append(new wxPropertyCategory("Text Settings"));
             propGrid->Append(new wxStringProperty("Label text", "LabelText", txt->GetText()));
+            propGrid->Append(new wxIntProperty("Wrap width", "TextWrapWith", txt->GetWrapWith()));
             propGrid->Append(new wxEnumProperty("Render mode", "TextRenderMode", renderModes, renderMode.value_or(0)));
             propGrid->Append(new wxEnumProperty("Algin", "TextAlgin", algines, algin.value_or(0)));
             propGrid->Append(new wxIntProperty("Outline", "TextOutline", txt->GetOutline()));
@@ -282,6 +283,11 @@ void GuiEditorFrame::OnTreeSelectionChanged(wxTreeEvent& event)
                 filePath = texture->GetFile()->GetDataRelativePath();
             }
             propGrid->Append(new wxFileProperty("Image path", "ImagePath", filePath));
+        }
+        else if (auto* txt = dynamic_cast<GameEngine::VerticalLayout*>(selectedElement))
+        {
+            propGrid->Append(new wxPropertyCategory("Vertical Layout"));
+            propGrid->Append(new wxBoolProperty("Auto hide elements", "VL_AutoHideElements", txt->AutoHideElements()));
         }
     }
 }
@@ -363,6 +369,13 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
                 text->SetText(p->GetValue().GetString().ToStdString());
             }
         }
+        else if (name == "TextWrapWith")
+        {
+            if (auto text = dynamic_cast<GameEngine::GuiTextElement*>(selectedElement))
+            {
+                text->SetWrapWidth(p->GetValue().GetInteger());
+            }
+        }
         else if (name == "TextRenderMode")
         {
             if (auto text = dynamic_cast<GameEngine::GuiTextElement*>(selectedElement))
@@ -411,6 +424,13 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
             if (auto text = dynamic_cast<GameEngine::GuiTextureElement*>(selectedElement))
             {
                 text->SetTexture(p->GetValue().GetString().ToStdString());
+            }
+        }
+        else if (name == "VL_AutoHideElements")
+        {
+            if (auto text = dynamic_cast<GameEngine::VerticalLayout*>(selectedElement))
+            {
+                text->AutoHideElements(p->GetValue().GetBool());
             }
         }
     }
@@ -777,6 +797,7 @@ bool GuiEditorFrame::OpenFile(const GameEngine::File& file)
     if (not file.exist())
         return false;
 
+    canvas->GetScene().GetGuiManager().RemoveAllFromLayer(GameEngine::Gui::DEFAULT_LAYER);
     GameEngine::GuiElementReader reader(canvas->GetScene().GetGuiManager(), canvas->GetScene().GetGuiElementFactory());
     if (reader.Read(file))
     {

@@ -185,7 +185,7 @@ bool VerticalLayout::IsVisible(const GuiElement &child) const
     bool upperBorder =
         child.GetLocalPosition().y + (child.GetLocalScale().y / 2.f) > (1.f + std::numeric_limits<float>::epsilon());
 
-    return allChildrenAllwaysVisible_ or not(bottomBorder or upperBorder);
+    return (not autoHideElements_) or not(bottomBorder or upperBorder);
 }
 
 void VerticalLayout::SetXOffset(float value)
@@ -215,8 +215,13 @@ float VerticalLayout::GetXOffset() const
     return 0;
 }
 
-void VerticalLayout::AllChildrenAllwaysVisible()
+void VerticalLayout::AutoHideElements(bool v)
 {
-    allChildrenAllwaysVisible_ = true;
+    autoHideElements_ = v;
+    UpdateVisibility();
+}
+bool VerticalLayout::AutoHideElements() const
+{
+    return autoHideElements_;
 }
 }  // namespace GameEngine

@@ -271,4 +271,11 @@ void GuiManager::RemoveLayer(const std::string& layerName)
         LOG_WARN << "Layer with name : " << layerName << " not found";
     }
 }
+void GuiManager::RemoveAllFromLayer(const std::string& layerName)
+{
+    if (auto layer = GetLayer(layerName))
+    {
+        layer->clear();
+    }
+}
 }  // namespace GameEngine

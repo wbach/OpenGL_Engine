@@ -8,6 +8,8 @@ namespace Gui
 extern const std::string NONE;
 extern const std::string ROOT;
 extern const std::string LABEL;
+extern const std::string WRAP_WIDTH;
+extern const std::string RENDER_MODE;
 extern const std::string COLOR;
 extern const std::string POSITION;
 extern const std::string SCALE;
@@ -49,5 +51,6 @@ extern const std::string STARTUP_FUNCTION;
 extern const std::string STYLE;
 extern const std::string DEFAULT_ACTION;
 extern const std::string DEFAULT_LAYER;
+extern const std::string AUTO_HIDE_ELEMENTS;
 }  // namespace Gui
 }  // namespace GameEngine

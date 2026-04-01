@@ -7,6 +7,8 @@ namespace Gui
 const std::string NONE               = "none";
 const std::string ROOT               = "gui";
 const std::string LABEL              = "label";
+const std::string WRAP_WIDTH         = "wrapWidth";
+const std::string RENDER_MODE        = "renderMode";
 const std::string COLOR              = "color";
 const std::string POSITION           = "position";
 const std::string SCALE              = "scale";
@@ -19,6 +21,7 @@ const std::string FONT_SIZE          = "fontSize";
 const std::string FONT_OUTLINE       = "outline";
 const std::string HORIZONTAL_LAYOUT  = "horizontalLayout";
 const std::string VERTICAL_LAYOUT    = "verticalLayout";
+const std::string AUTO_HIDE_ELEMENTS = "autoHideElements";
 const std::string EDIT_BOX           = "editBox";
 const std::string TREE_VIEW          = "treeView";
 const std::string ROOT_NODE          = "root";
@@ -46,7 +49,7 @@ const std::string BACKGROUND         = "background";
 const std::string THEME              = "theme";
 const std::string STARTUP_FUNCTION   = "startupFunction";
 const std::string STYLE              = "style";
-const std::string DEFAULT_ACTION = "DefaultAction";
-const std::string DEFAULT_LAYER  = "DefaultLayer";
+const std::string DEFAULT_ACTION     = "DefaultAction";
+const std::string DEFAULT_LAYER      = "DefaultLayer";
 }  // namespace Gui
 }  // namespace GameEngine

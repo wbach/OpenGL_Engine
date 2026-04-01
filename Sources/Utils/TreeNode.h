@@ -147,4 +147,13 @@ void write(TreeNode& node, const T& v)
     write(node, magic_enum::enum_name(v));
 }
 
+template <class T>
+void write(TreeNode& node, const std::optional<T>& v)
+{
+    if (v)
+    {
+        write(node, v);
+    }
+}
+
 ENGINE_API void PrintTree(const TreeNode&);

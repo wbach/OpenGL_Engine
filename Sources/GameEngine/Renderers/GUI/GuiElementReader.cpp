@@ -18,6 +18,7 @@
 #include "Text/GuiTextElement.h"
 #include "Texutre/GuiTextureElement.h"
 #include "TreeView/TreeView.h"
+#include "Types.h"
 #include "Window/GuiWindow.h"
 
 namespace GameEngine
@@ -48,9 +49,12 @@ GuiTheme ReadTheme(TreeNode &node)
     }
     return theme;
 }
-Layout::Algin ReadLayoutAlgin(TreeNode &node)
+Layout::Algin ReadLayoutAlgin(TreeNode *node)
 {
-    auto paramNode = node.getChild(Gui::ALGIN);
+    if (not node)
+        return Layout::Algin::CENTER;
+
+    auto paramNode = node->getChild(Gui::ALGIN);
     if (paramNode)
     {
         if (paramNode->value_ == Gui::LEFT)
@@ -169,59 +173,24 @@ void GuiElementReader::ReadGuiElementBasic(GuiElement &element, TreeNode &node)
 
 std::unique_ptr<GuiTextElement> GuiElementReader::ReadGuiText(TreeNode &node)
 {
-    std::string font = "GUI/Ubuntu-M.ttf", value = "empty string";
-    uint32 fontSize = 10, outline = 0;
+    std::string font = "", value = "empty string";
+    uint32 fontSize = 10, outline = 0, wrapWidth = 0;
+    Color color;
+    GuiTextElement::RenderMode renderMode;
 
-    auto paramNode = node.getChild(Gui::FONT);
-    if (paramNode)
-    {
-        font = paramNode->value_;
-    }
+    ::Read(node.getChild(Gui::FONT), font);
+    ::Read(node.getChild(Gui::VALUE), value);
+    ::Read(node.getChild(Gui::FONT_SIZE), fontSize);
+    ::Read(node.getChild(Gui::FONT_OUTLINE), outline);
+    ::Read(node.getChild(Gui::COLOR), color);
+    ::Read(node.getChild(Gui::RENDER_MODE), renderMode);
+    ::Read(node.getChild(Gui::WRAP_WIDTH), wrapWidth);
 
-    paramNode = node.getChild(Gui::VALUE);
-    if (paramNode)
-    {
-        value = paramNode->value_;
-    }
-
-    paramNode = node.getChild(Gui::FONT_SIZE);
-    if (paramNode)
-    {
-        try
-        {
-            fontSize = std::stoi(paramNode->value_);
-        }
-        catch (...)
-        {
-            LOG_ERROR << "Read gui file, parse font size error.";
-        }
-    }
-
-    paramNode = node.getChild(Gui::FONT_OUTLINE);
-    if (paramNode)
-    {
-        try
-        {
-            outline = std::stoi(paramNode->value_);
-        }
-        catch (...)
-        {
-            LOG_ERROR << "Read gui file, parse outline error.";
-        }
-    }
-
-    auto text = factory_.CreateGuiText(font, value, fontSize, outline);
+    auto text = factory_.CreateGuiTextWrapped(font, value, fontSize, outline, wrapWidth);
     ReadGuiElementBasic(*text, node);
+    text->SetColor(color);
+    text->setRenderMode(renderMode);
 
-    paramNode = node.getChild(Gui::COLOR);
-    if (paramNode)
-    {
-        vec4 color(0.f, 0.f, 0.f, 1.f);
-        ::Read(*paramNode, color);
-
-        LOG_ERROR << "SetColor " << color;
-        text->SetColor(color);
-    }
     return text;
 }
 
@@ -505,7 +474,12 @@ std::unique_ptr<VerticalLayout> GuiElementReader::ReadVerticalLayout(TreeNode &n
 {
     auto layout = factory_.CreateVerticalLayout();
     ReadGuiElementBasic(*layout, node);
-    layout->SetAlgin(ReadLayoutAlgin(node));
+    layout->SetAlgin(ReadLayoutAlgin(node.getChild(Gui::ALGIN)));
+
+    if (auto n = node.getChild(Gui::AUTO_HIDE_ELEMENTS))
+    {
+        layout->AutoHideElements(Utils::StringToBool(n->value_));
+    }
 
     auto children = ReadChildrenElemets(node);
     for (auto &subChild : children)
@@ -519,7 +493,7 @@ std::unique_ptr<HorizontalLayout> GuiElementReader::ReadHorizontalLayout(TreeNod
 {
     auto layout = factory_.CreateHorizontalLayout();
     ReadGuiElementBasic(*layout, node);
-    layout->SetAlgin(ReadLayoutAlgin(node));
+    layout->SetAlgin(ReadLayoutAlgin(node.getChild(Gui::ALGIN)));
 
     auto children = ReadChildrenElemets(node);
     for (auto &subChild : children)

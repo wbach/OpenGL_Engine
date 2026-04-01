@@ -16,7 +16,8 @@ public:
     void SetXOffset(float value);
     void EnableFixedSize();
     void DisableFixedSize();
-    void AllChildrenAllwaysVisible();
+    void AutoHideElements(bool);
+    bool AutoHideElements() const;
 
 private:
     void OnChange() override;
@@ -34,7 +35,7 @@ private:
     std::optional<uint32> mouseWheelDownSub_;
     float scrollSensitive_;
     bool adjustSize_;
-    bool allChildrenAllwaysVisible_{false};
+    bool autoHideElements_{true};
 
     std::vector<uint32> hiddenELements_;
 

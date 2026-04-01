@@ -35,6 +35,7 @@ public:
     bool SaveToFile(const File&);
     bool SaveToFile(const File&, const std::string&);
     void RemoveLayer(const std::string&);
+    void RemoveAllFromLayer(const std::string&);
     void RemoveLayersExpect(const std::vector<std::string>& = {});
     void Remove(uint32);
     bool Remove(const GuiElement&);

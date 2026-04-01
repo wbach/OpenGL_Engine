@@ -36,7 +36,7 @@ void IdleState::initGui()
         auto dialogueWindowPtr  = dialogContext.guiFactory.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, position, scale);
         auto textDialogueWindow = dialogueWindowPtr.get();
         auto layout             = dialogContext.guiFactory.CreateVerticalLayout();
-        layout->AllChildrenAllwaysVisible();
+        layout->AutoHideElements(false);
         auto textWindowLayout   = layout.get();
         dialogueWindowPtr->AddChild(std::move(layout));
         dialogContext.guiManager.Add(std::move(dialogueWindowPtr));
