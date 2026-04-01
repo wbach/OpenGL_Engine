@@ -60,8 +60,8 @@ protected:
         EXPECT_CALL(guiElementFactory_, CreateGuiWindow(_, _, _)).WillRepeatedly(Invoke(createGuiWindow));
         EXPECT_CALL(guiElementFactory_, CreateVerticalLayout()).WillRepeatedly(Invoke(createVerticalLayout));
 
-        ON_CALL(fontManagerMock, openFont(_, _)).WillByDefault(Return(1));
-        ON_CALL(fontManagerMock, renderFont(_, _, _, _)).WillByDefault(Return(IFontManager::TextureData{}));
+        ON_CALL(fontManagerMock, openFont(_, _, _, _)).WillByDefault(Return(1));
+        ON_CALL(fontManagerMock, renderFont(_, _, _)).WillByDefault(Return(IFontManager::TextureData{}));
         ON_CALL(fontManagerMock, closeFont(_)).WillByDefault(Return());
     }
 

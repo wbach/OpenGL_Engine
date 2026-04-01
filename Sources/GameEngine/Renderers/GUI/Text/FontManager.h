@@ -14,9 +14,12 @@ public:
     FontManager();
     ~FontManager() override;
 
-    std::optional<uint32> openFont(const File&, uint32) override;
-    std::optional<TextureData> renderFont(uint32, const std::string&, uint32, uint32) override;
+    std::optional<uint32> openFont(const File&, FontStyle, uint32, uint32) override;
+    std::optional<TextureData> renderFont(uint32, const std::string&, uint32) override;
     void closeFont(uint32) override;
+
+private:
+    std::string getFontName(const File&, FontStyle, uint32, uint32) const;
 
 private:
     struct Pimpl;

@@ -210,12 +210,11 @@ void GuiTextElement::RenderText(bool fontOverride)
         return;
     }
 
-    const uint32 fontSizeMultiplier = 3;
     if (not text_.empty())
     {
         if (not fontId_ or fontOverride)
         {
-            fontId_ = fontManager_.openFont(fontInfo_.file_, fontInfo_.fontSize_ * fontSizeMultiplier);
+            fontId_ = fontManager_.openFont(fontInfo_.file_, fontInfo_.style, fontInfo_.fontSize_, fontInfo_.outline_);
 
             if (not fontId_)
             {
@@ -224,7 +223,7 @@ void GuiTextElement::RenderText(bool fontOverride)
             }
         }
 
-        auto imageData = fontManager_.renderFont(*fontId_, text_, fontInfo_.outline_, wrapWidth_ / fontSizeMultiplier);
+        auto imageData = fontManager_.renderFont(*fontId_, text_, wrapWidth_);
         if (imageData)
         {
             auto windowsSize = *EngineConf.window.size;
@@ -236,7 +235,7 @@ void GuiTextElement::RenderText(bool fontOverride)
                 windowsSize = vec2ui{static_cast<float>(windowsSize.x) * x, static_cast<float>(windowsSize.y) * pScale.y};
             }
 
-            rendererdTextScale_ = ConvertSizeToScale(imageData->image.size() / fontSizeMultiplier, windowsSize);
+            rendererdTextScale_ = ConvertSizeToScale(imageData->image.size(), windowsSize);
 
             if (not uniqueName_)
                 textureName_ = imageData->name;

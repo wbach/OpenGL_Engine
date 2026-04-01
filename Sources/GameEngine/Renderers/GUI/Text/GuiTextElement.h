@@ -35,6 +35,7 @@ public:
         uint32 outline_;
         uint32 fontSize_;
         File file_;
+        FontStyle style{FontStyle::Normal};
     };
 
 public:

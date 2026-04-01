@@ -7,9 +7,8 @@ namespace GameEngine
 class FontManagerMock : public IFontManager
 {
 public:
-    MOCK_METHOD(std::optional<uint32>, openFont, (const File& file, uint32 fontSize), (override));
-    MOCK_METHOD(std::optional<TextureData>, renderFont, (uint32 fontId, const std::string& text, uint32 color, uint32 wrapWidth),
-                (override));
-    MOCK_METHOD(void, closeFont, (uint32 fontId), (override));
+    MOCK_METHOD(std::optional<uint32>, openFont, (const File&, FontStyle, uint32, uint32), (override));
+    MOCK_METHOD(std::optional<TextureData>, renderFont, (uint32, const std::string&, uint32), (override));
+    MOCK_METHOD(void, closeFont, (uint32), (override));
 };
 }  // namespace GameEngine
