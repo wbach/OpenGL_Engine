@@ -156,7 +156,7 @@ std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, c
         uint32 scaledWrapWidth = (EngineConf.window.size->y * wrapWidth) / 768;
         LOG_DEBUG << "text:" << text << ", Wrapped width : " << wrapWidth << ", scaledWrapWidth = " << scaledWrapWidth;
 
-        sdlSurface = TTF_RenderText_Blended_Wrapped(font.ptr, text.c_str(), sdlColor, wrapWidth);
+        sdlSurface = TTF_RenderText_Blended_Wrapped(font.ptr, text.c_str(), sdlColor, scaledWrapWidth);
     }
     else
     {

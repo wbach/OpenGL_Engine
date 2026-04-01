@@ -148,7 +148,8 @@ mat4 GuiTextElement::GetTransformMatrix() const
     auto scale          = GetScreenScale();
     auto factorX        = scale.x / rendererdTextScale_.x;
     auto factorY        = scale.y / rendererdTextScale_.y;
-    auto renderScale    = rendererdTextScale_ * ((factorX < factorY) ? factorX : factorY);
+    auto finalFactor    = std::min(factorX, factorY);
+    auto renderScale    = rendererdTextScale_ * finalFactor;
     auto renderPosition = GetScreenPosition();
 
     if (algin_ == Algin::LEFT)
@@ -223,22 +224,16 @@ void GuiTextElement::RenderText(bool fontOverride)
             }
         }
 
+        SyncWrapWidthWithParent();
         auto imageData = fontManager_.renderFont(*fontId_, text_, wrapWidth_);
         if (imageData)
         {
-            auto windowsSize = *EngineConf.window.size;
-            if (parent_)
-            {
-                vec2 pScale = parent_->GetScreenScale();
-                auto ar     = static_cast<float>(windowsSize.x) / static_cast<float>(windowsSize.y);
-                auto x      = pScale.y * ar * 0.5f;  // 0.5?
-                windowsSize = vec2ui{static_cast<float>(windowsSize.x) * x, static_cast<float>(windowsSize.y) * pScale.y};
-            }
-
-            rendererdTextScale_ = ConvertSizeToScale(imageData->image.size(), windowsSize);
+            rendererdTextScale_ = ConvertSizeToScale(imageData->image.size(), *EngineConf.window.size);
 
             if (not uniqueName_)
+            {
                 textureName_ = imageData->name;
+            }
 
             if (renderMode_ == RenderMode::NATIVE)
             {
@@ -296,7 +291,7 @@ void GuiTextElement::UpdateTexture(IFontManager::TextureData data)
 }
 void GuiTextElement::SetLocalScale(const vec2& scale)
 {
-    if (renderMode_ == RenderMode::STRETCH)
+    if (renderMode_ == RenderMode::FIT)
     {
         GuiElement::SetLocalScale(scale);
         RenderText(true);
@@ -345,5 +340,18 @@ void GuiTextElement::SetWrapWidth(uint32 v)
 uint32 GuiTextElement::GetWrapWith() const
 {
     return wrapWidth_;
+}
+void GuiTextElement::SyncWrapWidthWithParent()
+{
+    if (parent_ and renderMode_ == RenderMode::WRAPPED)
+    {
+        float parentWidth = parent_->GetScreenScale().x;
+        uint32 pixels     = static_cast<uint32>(parentWidth * EngineConf.window.size->x / 2.0f);
+
+        if (this->wrapWidth_ != pixels)
+        {
+            this->wrapWidth_ = pixels;
+        }
+    }
 }
 }  // namespace GameEngine

@@ -19,8 +19,9 @@ class ENGINE_API GuiTextElement : public GuiRendererElementBase
 public:
     enum class RenderMode
     {
-        STRETCH,
-        NATIVE
+        FIT,
+        NATIVE,
+        WRAPPED
     };
 
     enum class Algin
@@ -79,10 +80,11 @@ public:
 
 private:
     void UpdateTexture(IFontManager::TextureData);
-    void RenderText(bool fontOverride = false);
+    void RenderText(bool = false);
+    void SyncWrapWidthWithParent();
 
 private:
-    RenderMode renderMode_{RenderMode::STRETCH};
+    RenderMode renderMode_{RenderMode::FIT};
     IFontManager& fontManager_;
     std::string text_;
     std::string textureName_;
