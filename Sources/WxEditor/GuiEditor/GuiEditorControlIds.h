@@ -2,7 +2,9 @@
 
 enum GuiEditorControlIds
 {
-    ID_UNDO = 3000,
+    ID_RECENT_FIRST = 3000,
+    ID_RECENT_LAST = 3010,
+    ID_UNDO = 3011,
     ID_REDO,
     ID_ADD_WINDOW,
     ID_ADD_TEXT,

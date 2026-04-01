@@ -51,6 +51,7 @@ bool GuiElement::RemoveChild(uint32 id)
     if (iter != children_.end())
     {
         children_.erase(iter);
+        CallOnChange();
         return true;
     }
 

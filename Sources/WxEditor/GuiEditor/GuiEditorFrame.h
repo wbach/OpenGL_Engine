@@ -24,6 +24,7 @@ private:
     void AddTreeItem(wxTreeItemId, GameEngine::GuiElement*);
 
     void OnOpen(wxCommandEvent&);
+    void OnOpenRecent(wxCommandEvent&);
     void OnSave(wxCommandEvent&);
     void OnSaveAs(wxCommandEvent&);
     void OnExit(wxCommandEvent&);
@@ -42,6 +43,11 @@ private:
 private:
     void FocusElementInTree(GameEngine::GuiElement*);
     wxTreeItemId FindItemByElement(wxTreeItemId, GameEngine::GuiElement*);
+    void ReadRecentOpenedFiles();
+    void SaveRecentFiles();
+    void AddToRecentFile(const GameEngine::File&);
+    void UpdateRecentFilesMenu();
+    bool OpenFile(const GameEngine::File&);
 
 private:
     wxSplitterWindow* mainSplitter;
@@ -51,9 +57,11 @@ private:
     wxPropertyGrid* propGrid;
     GLCanvas* canvas;
     wxTimer* timer;
+    wxMenu* recentMenu;
 
     GameEngine::IGuiElementFactory* guiFactory = nullptr;
     GameEngine::GuiElement* selectedElement    = nullptr;
     std::filesystem::path lastDirPath;
     std::optional<GameEngine::File> currentFile;
+    std::vector<std::filesystem::path> recentFiles;
 };

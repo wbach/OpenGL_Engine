@@ -12,6 +12,7 @@
 #include <wx/propgrid/advprops.h>
 
 #include <unordered_map>
+#include <vector>
 
 #include "AddElementDialog.h"
 #include "GuiEditorControlIds.h"
@@ -78,6 +79,8 @@ GuiEditorFrame::GuiEditorFrame(const std::optional<GameEngine::File>& maybeFile,
     : wxFrame(nullptr, wxID_ANY, title, pos, size)
     , currentFile(maybeFile)
 {
+    ReadRecentOpenedFiles();
+
     mainSplitter    = new wxSplitterWindow(this, wxID_ANY);
     leftPanel       = new wxPanel(mainSplitter);
     contentSplitter = new wxSplitterWindow(mainSplitter, wxID_ANY);
@@ -129,6 +132,11 @@ void GuiEditorFrame::CreateMainMenu()
 
     auto* fileMenu = new wxMenu();
     fileMenu->Append(wxID_OPEN, "&Open...\tCtrl+O");
+
+    recentMenu = new wxMenu();
+    UpdateRecentFilesMenu();
+    fileMenu->AppendSubMenu(recentMenu, "Open &Recent");
+
     fileMenu->Append(wxID_SAVE, "&Save\tCtrl+S");
     fileMenu->Append(wxID_SAVEAS, "Save &As...");
     fileMenu->AppendSeparator();
@@ -163,6 +171,7 @@ void GuiEditorFrame::CreateMainMenu()
     Bind(wxEVT_MENU, &GuiEditorFrame::OnRedo, this, ID_REDO);
 
     Bind(wxEVT_MENU, &GuiEditorFrame::OnAddElement, this, ID_ADD_WINDOW, ID_ADD_H_LAYOUT);
+    Bind(wxEVT_MENU, &GuiEditorFrame::OnOpenRecent, this, ID_RECENT_FIRST, ID_RECENT_LAST);
 
     sceneTree->Bind(wxEVT_TREE_ITEM_MENU, &GuiEditorFrame::OnTreeContextMenu, this);
 }
@@ -418,16 +427,30 @@ void GuiEditorFrame::OnOpen(wxCommandEvent&)
         return;
 
     auto path = openFileDialog.GetPath();
-    GameEngine::File file{std::string{path.c_str()}};
-    if (not file.exist())
-        return;
-
-    GameEngine::GuiElementReader reader(canvas->GetScene().GetGuiManager(), canvas->GetScene().GetGuiElementFactory());
-    if (reader.Read(file))
+    if (OpenFile(path.ToStdString()))
     {
-        currentFile = file;
-        lastDirPath = currentFile->GetAbsolutePath().parent_path();
-        RefreshTree();
+        AddToRecentFile(path.ToStdString());
+    }
+}
+void GuiEditorFrame::OnOpenRecent(wxCommandEvent& event)
+{
+    int index = event.GetId() - ID_RECENT_FIRST;
+
+    if (index >= 0 && index < (int)recentFiles.size())
+    {
+        std::filesystem::path path = recentFiles[index];
+
+        if (std::filesystem::exists(path))
+        {
+            OpenFile(path);
+        }
+        else
+        {
+            wxMessageBox("File no longer exists!", "Error", wxICON_ERROR);
+            recentFiles.erase(recentFiles.begin() + index);
+            UpdateRecentFilesMenu();
+            SaveRecentFiles();
+        }
     }
 }
 void GuiEditorFrame::OnSave(wxCommandEvent& e)
@@ -460,6 +483,7 @@ void GuiEditorFrame::OnSaveAs(wxCommandEvent&)
     canvas->GetScene().GetGuiManager().SaveToFile(file);
     currentFile = file;
     lastDirPath = currentFile->GetAbsolutePath().parent_path();
+    AddToRecentFile(file);
 }
 void GuiEditorFrame::OnUndo(wxCommandEvent&)
 {
@@ -671,4 +695,96 @@ void GuiEditorFrame::OnDeleteElement(GuiTreeItemData& data)
             wxLogError("Remove error");
         }
     }
+}
+void GuiEditorFrame::ReadRecentOpenedFiles()
+{
+    recentFiles.clear();
+
+    wxConfig config("GuiEditor");
+
+    long count = 0;
+    config.Read("Recent/Count", &count, 0);
+
+    for (long i = 0; i < count; i++)
+    {
+        wxString key    = wxString::Format("Recent/File%ld", i);
+        wxString wxPath = config.Read(key, "");
+
+        if (not wxPath.IsEmpty())
+        {
+            std::filesystem::path p(wxPath.ToStdWstring());
+            p.make_preferred();
+
+            if (std::filesystem::exists(p))
+            {
+                recentFiles.push_back(p);
+            }
+        }
+    }
+}
+void GuiEditorFrame::SaveRecentFiles()
+{
+    wxConfig config("GuiEditor");
+    config.DeleteGroup("Recent");
+    config.Write("Recent/Count", static_cast<long>(recentFiles.size()));
+    for (size_t i = 0; i < recentFiles.size(); ++i)
+    {
+        wxString key = wxString::Format("Recent/File%zu", i);
+        wxString wxPath(recentFiles[i].wstring());
+        config.Write(key, wxPath);
+    }
+    config.Flush();
+}
+void GuiEditorFrame::AddToRecentFile(const GameEngine::File& file)
+{
+    auto normalizedPath = file.GetAbsolutePath().lexically_normal();
+    normalizedPath.make_preferred();
+    recentFiles.erase(std::remove(recentFiles.begin(), recentFiles.end(), normalizedPath), recentFiles.end());
+    recentFiles.insert(recentFiles.begin(), normalizedPath);
+    if (recentFiles.size() > 10)
+    {
+        recentFiles.resize(10);
+    }
+
+    SaveRecentFiles();
+    UpdateRecentFilesMenu();
+}
+void GuiEditorFrame::UpdateRecentFilesMenu()
+{
+    if (!recentMenu)
+        return;
+
+    for (size_t i = recentMenu->GetMenuItemCount(); i > 0; i--)
+    {
+        recentMenu->Destroy(recentMenu->FindItemByPosition(i - 1));
+    }
+
+    if (recentFiles.empty())
+    {
+        auto* item = recentMenu->Append(wxID_NONE, "No Recent Files");
+        item->Enable(false);
+        return;
+    }
+
+    for (size_t i = 0; i < recentFiles.size() && i < 10; ++i)
+    {
+        auto label = wxString::Format("&%zu %s", i + 1, recentFiles[i].filename().string());
+        recentMenu->Append(ID_RECENT_FIRST + i, label, recentFiles[i].string());
+    }
+}
+bool GuiEditorFrame::OpenFile(const GameEngine::File& file)
+{
+    if (not file.exist())
+        return false;
+
+    GameEngine::GuiElementReader reader(canvas->GetScene().GetGuiManager(), canvas->GetScene().GetGuiElementFactory());
+    if (reader.Read(file))
+    {
+        currentFile = file;
+        lastDirPath = currentFile->GetAbsolutePath().parent_path();
+        RefreshTree();
+        return true;
+    }
+
+    return false;
 }
