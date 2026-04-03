@@ -20,7 +20,7 @@ GuiEngineContextManger::GuiEngineContextManger(Utils::MeasurementHandler& measur
     rootWindow_->SetZPosition(-11.f);
     rootWindow_->Show(EngineConf.debugParams.showRenderInfo);
     auto verticalLayout = guiFactory_.CreateVerticalLayout();
-    verticalLayout->SetAlgin(GameEngine::VerticalLayout::Algin::CENTER);
+    verticalLayout->SetAlign(GameEngine::VerticalLayout::Align::CENTER);
     verticalLayout_ = verticalLayout.get();
     rootWindow_->AddChild(std::move(verticalLayout));
 
@@ -48,9 +48,12 @@ void GuiEngineContextManger::Update()
 
         if (guiTexts_.count(measurment.first) == 0)
         {
-            auto text = guiFactory_.CreateGuiText(printedText, 40);
+            auto text = guiFactory_.CreateGuiText(printedText);
+
+            text->font.size    = 40;
+            text->render.align = Align::LEFT;
             text->SetColor(vec3(.1f));
-            text->SetAlgin(GuiTextElement::Algin::LEFT);
+
             text->setUniqueTextureName(measurment.first);
             guiTexts_.insert({measurment.first, text.get()});
             verticalLayout_->AddChild(std::move(text));

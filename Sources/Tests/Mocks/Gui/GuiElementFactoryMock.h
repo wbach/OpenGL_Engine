@@ -23,15 +23,7 @@ public:
     MOCK_METHOD(std::unique_ptr<GuiElement>, CreateGuiElement, (), (const, override));
     MOCK_METHOD(std::unique_ptr<GuiElement>, CreateGuiElement, (const vec2&, const vec2&), (const, override));
 
-    MOCK_METHOD(std::unique_ptr<GuiTextElement>, CreateGuiText, (const std::string&, const std::string&, uint32, uint32),
-                (override));
-    MOCK_METHOD(std::unique_ptr<GuiTextElement>, CreateGuiText, (const std::string&, uint32), (override));
     MOCK_METHOD(std::unique_ptr<GuiTextElement>, CreateGuiText, (const std::string&), (override));
-
-    MOCK_METHOD(std::unique_ptr<GuiTextElement>, CreateGuiTextWrapped, (const std::string&, const std::string&, uint32, uint32, uint32),
-                (override));
-    MOCK_METHOD(std::unique_ptr<GuiTextElement>, CreateGuiTextWrapped, (const std::string&, uint32, uint32), (override));
-    MOCK_METHOD(std::unique_ptr<GuiTextElement>, CreateGuiTextWrapped, (const std::string&, uint32), (override));
 
     MOCK_METHOD(std::unique_ptr<GuiTextureElement>, CreateGuiTexture, (const std::string&), (override));
 

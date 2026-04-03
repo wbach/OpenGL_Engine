@@ -21,9 +21,9 @@ struct GuiHorizontalLayoutTests : public ::testing::Test
     HorizontalLayout sut_;
 };
 
-TEST_F(GuiHorizontalLayoutTests, HorizontalLayoutPositioningLocalScaleAlginCenterOneElement)
+TEST_F(GuiHorizontalLayoutTests, HorizontalLayoutPositioningLocalScaleAlignCenterOneElement)
 {
-    sut_.SetAlgin(GameEngine::Layout::Algin::CENTER);
+    sut_.SetAlign(GameEngine::Layout::Align::CENTER);
     sut_.SetScreenScale({1.f, 1.f});
     createElement({0.2f, 0.05f});
 
@@ -32,9 +32,9 @@ TEST_F(GuiHorizontalLayoutTests, HorizontalLayoutPositioningLocalScaleAlginCente
     EXPECT_FLOAT_EQ(localPosition.x, 0.5f);
 }
 
-TEST_F(GuiHorizontalLayoutTests, HorizontalLayoutPositioningLocalScaleAlginCenterTwoElement)
+TEST_F(GuiHorizontalLayoutTests, HorizontalLayoutPositioningLocalScaleAlignCenterTwoElement)
 {
-    sut_.SetAlgin(GameEngine::Layout::Algin::CENTER);
+    sut_.SetAlign(GameEngine::Layout::Align::CENTER);
     sut_.SetScreenScale({1.f, 1.f});
 
     vec2 childScale1{0.2f, 0.05f};
@@ -49,7 +49,7 @@ TEST_F(GuiHorizontalLayoutTests, HorizontalLayoutPositioningLocalScaleAlginCente
     EXPECT_FLOAT_EQ(children[1]->GetLocalPosition().x, 0.5f - halfSumChildX + childScale1.x + 0.5f * childScale2.x);
 }
 
-TEST_F(GuiHorizontalLayoutTests, ChildHorizontalLayoutPosAlginCenterTwoElement)
+TEST_F(GuiHorizontalLayoutTests, ChildHorizontalLayoutPosAlignCenterTwoElement)
 {
     const auto& children = sut_.GetChildren();
 
@@ -57,7 +57,7 @@ TEST_F(GuiHorizontalLayoutTests, ChildHorizontalLayoutPosAlginCenterTwoElement)
     parent.SetLocalScale({0.5f, 0.5f});
     sut_.setParent(&parent);
 
-    sut_.SetAlgin(GameEngine::Layout::Algin::CENTER);
+    sut_.SetAlign(GameEngine::Layout::Align::CENTER);
     sut_.SetLocalScale({1.f, 1.f});
 
     EXPECT_FLOAT_EQ(sut_.GetScreenScale().x, 0.5f);
@@ -75,10 +75,10 @@ TEST_F(GuiHorizontalLayoutTests, ChildHorizontalLayoutPosAlginCenterTwoElement)
     EXPECT_FLOAT_EQ(children[1]->GetScreenPosition().x, 0.5f -halfSumChildX + children[0]->GetScreenScale().x + (children[1]->GetScreenScale().x / 2.f));
 }
 
-TEST_F(GuiHorizontalLayoutTests, HorizontalLayoutPositioningLocalScaleAlginLeftOneElement)
+TEST_F(GuiHorizontalLayoutTests, HorizontalLayoutPositioningLocalScaleAlignLeftOneElement)
 {
     sut_.setParent(nullptr);
-    sut_.SetAlgin(GameEngine::Layout::Algin::LEFT);
+    sut_.SetAlign(GameEngine::Layout::Align::LEFT);
     sut_.SetScreenScale({1.f, 1.f});
     createElement({0.2f, 0.05f});
 
@@ -86,10 +86,10 @@ TEST_F(GuiHorizontalLayoutTests, HorizontalLayoutPositioningLocalScaleAlginLeftO
     auto& localPosition  = children[0]->GetLocalPosition();
     EXPECT_FLOAT_EQ(localPosition.x, 0.1f);
 }
-TEST_F(GuiHorizontalLayoutTests, HorizontalLayoutPositioningLocalScaleAlginRightOneElement)
+TEST_F(GuiHorizontalLayoutTests, HorizontalLayoutPositioningLocalScaleAlignRightOneElement)
 {
     sut_.setParent(nullptr);
-    sut_.SetAlgin(GameEngine::Layout::Algin::RIGHT);
+    sut_.SetAlign(GameEngine::Layout::Align::RIGHT);
     sut_.SetScreenScale({1.f, 1.f});
     createElement({0.2f, 0.05f});
 

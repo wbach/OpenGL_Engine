@@ -12,11 +12,13 @@ GuiTextureElement::GuiTextureElement(IResourceManager& resourceManager, GUIRende
     : GuiRendererElementBase(resourceManager, guiRenderer, GuiTextureElement::type)
 {
     texture_ = &texture;
+    InactivityRelease(0);
 }
 
 GuiTextureElement::GuiTextureElement(IResourceManager& resourceManager, GUIRenderer& guiRenderer)
     : GuiRendererElementBase(resourceManager, guiRenderer, GuiTextureElement::type)
 {
+    InactivityRelease(0);
 }
 
 void GuiTextureElement::Flip()

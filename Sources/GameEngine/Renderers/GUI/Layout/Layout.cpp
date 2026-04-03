@@ -6,7 +6,7 @@ namespace GameEngine
 {
 Layout::Layout(GuiElementTypes type)
     : GuiElement(type)
-    , algin_(Algin::CENTER)
+    , align_(Align::CENTER)
 {
     SubscribeForChange([this]() { OnChange(); });
 }
@@ -27,13 +27,13 @@ void Layout::ResetView()
 {
 }
 
-void Layout::SetAlgin(Algin algin)
+void Layout::SetAlign(Align align)
 {
-    algin_ = algin;
+    align_ = align;
 }
 
-Layout::Algin Layout::GetAlgin() const
+Layout::Align Layout::GetAlign() const
 {
-    return algin_;
+    return align_;
 }
 }  // namespace GameEngine

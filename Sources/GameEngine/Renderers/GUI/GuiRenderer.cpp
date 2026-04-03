@@ -77,9 +77,17 @@ void GUIRenderer::render()
     auto min = std::numeric_limits<float>::max();
     bool sortNeeded{false};
 
-    for (const auto& subscriber : subscribers_)
+    for (auto& subscriber : subscribers_)
     {
-        if (not subscriber or not subscriber->IsShow() or not subscriber->IsActive() or not subscriber->GetTextureId())
+        if (not subscriber or not subscriber->IsActive() or not subscriber->IsShow())
+        {
+            subscriber->OnSkipRender();
+            continue;
+        }
+
+        subscriber->OnRender();
+
+        if (not subscriber->GetTextureId())
             continue;
 
         PerObjectUpdate buffer;

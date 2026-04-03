@@ -26,7 +26,7 @@ Menu::Menu(GuiElementFactory& factory)
 {
     auto layout = factory_.CreateHorizontalLayout();
     rootLayout_ = layout.get();
-    rootLayout_->SetAlgin(GameEngine::HorizontalLayout::Algin::LEFT);
+    rootLayout_->SetAlign(GameEngine::HorizontalLayout::Align::LEFT);
     rootLayout_->SetLabel(rootLabel_);
     rootLayout_->SetScreenScale(rootScale_);
     rootLayout_->SetScreenPostion(rootPosition_);
@@ -46,7 +46,7 @@ void Menu::AddRootElement(const std::string& label)
         vLayout->SetLabel(label);
         vLayout->SetScreenScale({0.05, 0.8f});
         vLayout->Deactivate();
-        //vLayout->SetAlgin(GameEngine::Layout::Algin::LEFT);
+        //vLayout->SetAlign(GameEngine::Layout::Align::LEFT);
         //vLayout->EnableFixedSize();
         vLayoutPtr = vLayout.get();
         AddChild(std::move(vLayout));

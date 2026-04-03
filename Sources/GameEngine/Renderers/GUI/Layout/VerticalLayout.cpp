@@ -95,11 +95,11 @@ float VerticalLayout::CalculateXPosition(const GuiElement &element)
 {
     float result = 0.5f;
 
-    if (algin_ == Algin::LEFT)
+    if (align_ == Align::LEFT)
     {
         result -= (1.f - element.GetLocalScale().x) / 2.f;
     }
-    else if (algin_ == Algin::RIGHT)
+    else if (align_ == Align::RIGHT)
     {
         result += (1.f - element.GetLocalScale().x) / 2.f;
     }

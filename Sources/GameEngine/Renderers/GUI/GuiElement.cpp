@@ -4,6 +4,8 @@
 
 #include <algorithm>
 
+#include "IdPool.h"
+
 namespace GameEngine
 {
 uint32 GuiElement::ID = 0;
@@ -21,9 +23,10 @@ GuiElement::GuiElement(GuiElementTypes type)
 void GuiElement::AddChild(std::unique_ptr<GuiElement> child)
 {
     child->setParent(this);
-    for (auto& sub : changeSubscribers_)
+    for (auto& [_, sub] : changeSubscribers_)
     {
-        child->SubscribeForChange(sub);
+        auto id = child->SubscribeForChange(sub);
+        subscribtions_[child.get()].push_back(id);
     }
 
     children_.push_back(std::move(child));
@@ -186,6 +189,11 @@ void GuiElement::Hide()
     CallOnChange();
 }
 
+void GuiElement::Activate(bool v)
+{
+    isActive_ = v;
+}
+
 void GuiElement::Activate()
 {
     isActive_ = true;
@@ -344,14 +352,20 @@ void GuiElement::CallOnChange()
 {
     if (changeNotif_)
     {
-        for (auto& subscriber : changeSubscribers_)
+        for (auto& [_, subscriber] : changeSubscribers_)
         {
             subscriber();
         }
     }
 }
-void GuiElement::SubscribeForChange(std::function<void()> function)
+IdType GuiElement::SubscribeForChange(std::function<void()> function)
 {
-    changeSubscribers_.push_back(function);
+    auto id                = subscribersIdPool_.getId();
+    changeSubscribers_[id] = function;
+    return id;
+}
+void GuiElement::UnsubscribeForChange(IdType id)
+{
+    changeSubscribers_.erase(id);
 }
 }  // namespace GameEngine

@@ -58,40 +58,13 @@ GuiElementFactory::~GuiElementFactory()
     LOG_DEBUG << "destructor";
 }
 
-std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiText(const std::string &font, const std::string &text,
-                                                                 uint32 fontSize, uint32 outline)
-{
-    auto textElement =
-        std::make_unique<GuiTextElement>(fontManger_, guiRenderer_, resourceManager_, font, text, fontSize, outline);
-    return textElement;
-}
-
-std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiText(const std::string &text, uint32 fontSize)
-{
-    return CreateGuiText(theme_.font, text, fontSize, theme_.fontOutline);
-}
-
 std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiText(const std::string &text)
 {
-    return CreateGuiText(theme_.font, text, theme_.fontSize_, theme_.fontOutline);
-}
-
-std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiTextWrapped(const std::string &font, const std::string &text,
-                                                                        uint32 fontSize, uint32 outline, uint32 wrapWidth)
-{
-    auto textElement =
-        std::make_unique<GuiTextElement>(fontManger_, guiRenderer_, resourceManager_, font, text, fontSize, outline, wrapWidth);
-    return textElement;
-}
-
-std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiTextWrapped(const std::string &text, uint32 fontSize, uint32 wrapWidth)
-{
-    return CreateGuiTextWrapped(theme_.font, text, fontSize, theme_.fontOutline, wrapWidth);
-}
-
-std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiTextWrapped(const std::string &text, uint32 wrapWidth)
-{
-    return CreateGuiTextWrapped(theme_.font, text, theme_.fontSize_, theme_.fontOutline, wrapWidth);
+    auto guiText          = std::make_unique<GuiTextElement>(fontManger_, guiRenderer_, resourceManager_, text);
+    guiText->font.file    = theme_.font;
+    guiText->font.outline = theme_.fontOutline;
+    guiText->font.size    = theme_.fontSize_;
+    return guiText;
 }
 
 std::unique_ptr<GuiTextureElement> GuiElementFactory::CreateGuiTexture(const std::string &filename)
@@ -238,7 +211,7 @@ std::unique_ptr<GuiEditBoxElement> GuiElementFactory::CreateEditBox(const std::s
 std::unique_ptr<GuiEditBoxElement> GuiElementFactory::CreateEditBox(const std::string &font, const std::string &str, uint32 size,
                                                                     uint32 outline)
 {
-    auto text = CreateGuiText(font, str, size, outline);
+    auto text = CreateGuiText(str);
     return CreateEditBox(std::move(text));
 }
 
@@ -338,7 +311,7 @@ void GuiElementFactory::CreateWindowBar(GuiWindowStyle style, GuiWindowElement &
     auto horizontalLayout = CreateHorizontalLayout();
     horizontalLayout->SetLocalScale({0.99f, GUI_WINDOW_BAR_HEIGHT});
     horizontalLayout->SetLocalPosition(barPosition);
-    horizontalLayout->SetAlgin(Layout::Algin::RIGHT);
+    horizontalLayout->SetAlign(Layout::Align::RIGHT);
 
     auto barButton = CreateGuiButton([ptr](auto &) { ptr->CheckCollisionPoint(); });
     barButton->SetLocalScale({1.f, 1.f});

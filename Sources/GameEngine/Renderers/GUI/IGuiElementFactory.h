@@ -32,15 +32,7 @@ public:
     virtual std::unique_ptr<GuiElement> CreateGuiElement() const                                   = 0;
     virtual std::unique_ptr<GuiElement> CreateGuiElement(const vec2& pos, const vec2& scale) const = 0;
 
-    virtual std::unique_ptr<GuiTextElement> CreateGuiText(const std::string& text, const std::string& font, uint32 size,
-                                                          uint32 color)                         = 0;
-    virtual std::unique_ptr<GuiTextElement> CreateGuiText(const std::string& text, uint32 size) = 0;
-    virtual std::unique_ptr<GuiTextElement> CreateGuiText(const std::string& text)              = 0;
-
-    virtual std::unique_ptr<GuiTextElement> CreateGuiTextWrapped(const std::string& text, const std::string& font, uint32 size,
-                                                                 uint32 color, uint32)                         = 0;
-    virtual std::unique_ptr<GuiTextElement> CreateGuiTextWrapped(const std::string& text, uint32 size, uint32) = 0;
-    virtual std::unique_ptr<GuiTextElement> CreateGuiTextWrapped(const std::string& text, uint32)              = 0;
+    virtual std::unique_ptr<GuiTextElement> CreateGuiText(const std::string& text) = 0;
 
     virtual std::unique_ptr<GuiTextureElement> CreateGuiTexture(const std::string& texturePath) = 0;
 

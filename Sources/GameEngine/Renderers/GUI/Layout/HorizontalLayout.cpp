@@ -44,12 +44,12 @@ float HorizontalLayout::calculateFirstChildXPosition() const
 {
     if (not resizeAble_)
     {
-        if (algin_ == Algin::LEFT)
+        if (align_ == Align::LEFT)
         {
             return children_.front()->GetLocalScale().x / 2.f;
         }
 
-        if (algin_ == Algin::RIGHT)
+        if (align_ == Align::RIGHT)
         {
             return 1.f -totalChildrenScaleX_ + children_.front()->GetLocalScale().x / 2.f;
         }

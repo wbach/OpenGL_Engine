@@ -11,47 +11,15 @@
 
 namespace GameEngine
 {
-GuiElementTypes GuiTextElement::type = GuiElementTypes::Text;
-
 GuiTextElement::GuiTextElement(IFontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
-                               const std::string& font)
-    : GuiTextElement(fontManager, guiRenderer, resourceManager, font, "")
-{
-}
-
-GuiTextElement::GuiTextElement(IFontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
-                               const std::string& font, const std::string& str)
-    : GuiTextElement(fontManager, guiRenderer, resourceManager, font, str, 10)
-{
-}
-
-GuiTextElement::GuiTextElement(IFontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
-                               const std::string& font, const std::string& str, uint32 size)
-    : GuiTextElement(fontManager, guiRenderer, resourceManager, font, str, size, 0)
-{
-}
-
-GuiTextElement::GuiTextElement(IFontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
-                               const std::string& font, const std::string& str, uint32 size, uint32 outline)
-    : GuiTextElement(fontManager, guiRenderer, resourceManager, font, str, size, outline, 0)
-
-{
-}
-
-GuiTextElement::GuiTextElement(IFontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
-                               const std::string& font, const std::string& str, uint32 size, uint32 outline, int wrapWidth)
-    : GuiRendererElementBase(resourceManager, guiRenderer, type)
+                               const std::string& inputText)
+    : GuiRendererElementBase(resourceManager, guiRenderer, GuiElementTypes::Text)
     , fontManager_(fontManager)
-    , text_(str)
     , uniqueName_{false}
-    , fontInfo_{outline, size, font}
     , openFontFailed_(false)
-    , algin_(Algin::CENTER)
     , rendererdTextScale_(0)
-    , wrapWidth_(wrapWidth)
 {
-    LOG_DEBUG << text_;
-    RenderText();
+    text.text = inputText;
 }
 
 GuiTextElement::~GuiTextElement()
@@ -63,111 +31,61 @@ GuiTextElement::~GuiTextElement()
     }
 }
 
-std::optional<uint32> GuiTextElement::GetTextureId() const
-{
-    return texture_ ? texture_->GetGraphicsObjectId() : std::optional<uint32>();
-}
-
 const std::string& GuiTextElement::GetText() const
 {
-    return text_;
+    return text.text;
 }
 
-void GuiTextElement::SetTexture(GeneralTexture* texture)
+void GuiTextElement::SetText(const std::string& input)
 {
-    texture_ = texture;
-}
-
-void GuiTextElement::SetText(const std::string& text)
-{
-    if (text == text_)
+    if (input == text.text)
         return;
 
-    text_ = text;
-    RenderText();
+    text.text = input;
 }
 
-void GuiTextElement::Append(const std::string& text)
+void GuiTextElement::Append(const std::string& input)
 {
-    text_ = text_ + text;
-    RenderText();
+    text.text = text.text.get() + input;
 }
 
 void GuiTextElement::Append(char c)
 {
-    text_ = text_ + c;
-    RenderText();
+    text.text = text.text.get() + c;
 }
 
 void GuiTextElement::Pop()
 {
-    if (not text_.empty())
+    if (not text.text->empty())
     {
-        text_.pop_back();
-        RenderText();
+        text.text.modify().pop_back();
     }
 }
 
-void GuiTextElement::SetFontSize(uint32 size)
-{
-    if (fontInfo_.fontSize_ == size)
-        return;
-
-    fontInfo_.fontSize_ = size;
-    RenderText(true);
-}
-
-void GuiTextElement::SetOutline(uint32 outline)
-{
-    fontInfo_.outline_ = outline;
-    RenderText(true);
-}
-
-void GuiTextElement::SetFont(const File& font)
-{
-    if (fontInfo_.file_ == font)
-        return;
-
-    fontInfo_.file_ = font;
-    RenderText(true);
-}
-
-void GuiTextElement::SetAlgin(GuiTextElement::Algin algin)
-{
-    algin_ = algin;
-    RenderText(true);
-}
-
-const GuiTextElement::FontInfo& GuiTextElement::GetFontInfo() const
-{
-    return fontInfo_;
-}
-
-mat4 GuiTextElement::GetTransformMatrix() const
+void GuiTextElement::UpdateTransformMatrix()
 {
     auto scale          = GetScreenScale();
     auto factorX        = scale.x / rendererdTextScale_.x;
     auto factorY        = scale.y / rendererdTextScale_.y;
+
     auto finalFactor    = std::min(factorX, factorY);
     auto renderScale    = rendererdTextScale_ * finalFactor;
     auto renderPosition = GetScreenPosition();
 
-    if (algin_ == Algin::LEFT)
+    switch (*render.align)
     {
-        renderPosition.x += (renderScale.x / 2.f) - scale.x / 2.f;
-    }
-    else if (algin_ == Algin::RIGHT)
-    {
-        renderPosition.x -= renderScale.x / 2.f;
-        renderPosition.x += scale.x / 2.f;
+        case Align::LEFT:
+            renderPosition.x += (renderScale.x / 2.f) - scale.x / 2.f;
+            break;
+        case Align::RIGHT:
+            renderPosition.x -= renderScale.x / 2.f;
+            renderPosition.x += scale.x / 2.f;
+            break;
+        default:
+            break;
     }
 
-    return Utils::CreateTransformationMatrix(renderPosition * 2.f - 1.f, renderScale, DegreesFloat(0.f));
-}
-
-void GuiTextElement::UnsetTexture()
-{
-    texture_ = nullptr;
+    transformMatrix_ = Utils::CreateTransformationMatrix(renderPosition * 2.f - 1.f, renderScale, DegreesFloat(0.f));
 }
 
 void GuiTextElement::setUniqueTextureName(const std::string& name)
@@ -200,64 +118,6 @@ vec2ui ConvertScaleToSize(const vec2& scale, const vec2ui& windowSize)
     return size;
 }
 
-void GuiTextElement::RenderText(bool fontOverride)
-{
-    if (fontOverride)
-    {
-        openFontFailed_ = false;
-    }
-    else if (openFontFailed_)
-    {
-        return;
-    }
-
-    if (not text_.empty())
-    {
-        if (not fontId_ or fontOverride)
-        {
-            fontId_ = fontManager_.openFont(fontInfo_.file_, fontInfo_.style, fontInfo_.fontSize_, fontInfo_.outline_);
-
-            if (not fontId_)
-            {
-                openFontFailed_ = true;
-                return;
-            }
-        }
-
-        SyncWrapWidthWithParent();
-        auto imageData = fontManager_.renderFont(*fontId_, text_, wrapWidth_);
-        if (imageData)
-        {
-            rendererdTextScale_ = ConvertSizeToScale(imageData->image.size(), *EngineConf.window.size);
-
-            if (not uniqueName_)
-            {
-                textureName_ = imageData->name;
-            }
-
-            if (renderMode_ == RenderMode::NATIVE)
-            {
-                transform_.scale = rendererdTextScale_;
-                if (parent_)
-                    parent_->CallOnChange();
-            }
-
-            CallOnChange();
-            UpdateTexture(std::move(*imageData));
-        }
-        else
-        {
-            LOG_ERROR << "RenderFont error for : " << text_;
-        }
-
-        Show();
-    }
-    else
-    {
-        Hide();
-    }
-}
-
 void GuiTextElement::UpdateTexture(IFontManager::TextureData data)
 {
     if (texture_)
@@ -282,76 +142,75 @@ void GuiTextElement::UpdateTexture(IFontManager::TextureData data)
     TextureParameters params;
     params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
     params.filter          = GraphicsApi::TextureFilter::LINEAR;
-    auto fontTexture       = resourceManager_.GetTextureLoader().CreateTexture(textureName_, params, std::move(data.image));
-
-    if (fontTexture)
-    {
-        SetTexture(fontTexture);
-    }
-}
-void GuiTextElement::SetLocalScale(const vec2& scale)
-{
-    if (renderMode_ == RenderMode::FIT)
-    {
-        GuiElement::SetLocalScale(scale);
-        RenderText(true);
-    }
-}
-void GuiTextElement::setParent(GuiElement* parent)
-{
-    GuiRendererElementBase::setParent(parent);
-
-    if (renderMode_ == RenderMode::NATIVE)
-    {
-        RenderText(true);
-    }
-}
-void GuiTextElement::setRenderMode(RenderMode mode)
-{
-    renderMode_ = mode;
-
-    RenderText(true);
-}
-GuiTextElement::RenderMode GuiTextElement::GetRenderMode() const
-{
-    return renderMode_;
-}
-GuiTextElement::Algin GuiTextElement::GetAlgin() const
-{
-    return algin_;
-}
-uint32 GuiTextElement::GetOutline() const
-{
-    return fontInfo_.outline_;
-}
-uint32 GuiTextElement::GetFontSize() const
-{
-    return fontInfo_.fontSize_;
-}
-const File& GuiTextElement::GetFontFile() const
-{
-    return fontInfo_.file_;
-}
-void GuiTextElement::SetWrapWidth(uint32 v)
-{
-    wrapWidth_ = v;
-    RenderText();
-}
-uint32 GuiTextElement::GetWrapWith() const
-{
-    return wrapWidth_;
+    texture_               = resourceManager_.GetTextureLoader().CreateTexture(textureName_, params, std::move(data.image));
 }
 void GuiTextElement::SyncWrapWidthWithParent()
 {
-    if (parent_ and renderMode_ == RenderMode::WRAPPED)
+    if (parent_ and render.mode == RenderMode::WRAPPED)
     {
         float parentWidth = parent_->GetScreenScale().x;
         uint32 pixels     = static_cast<uint32>(parentWidth * EngineConf.window.size->x / 2.0f);
 
-        if (this->wrapWidth_ != pixels)
+        if (text.wrapWidth != pixels)
         {
-            this->wrapWidth_ = pixels;
+            text.wrapWidth = pixels;
         }
     }
+}
+void GuiTextElement::UpdateTexture()
+{
+    auto isRenderTextNeeded = not texture_ or font.isDirty() or text.isDirty();
+    if (not isRenderTextNeeded)
+    {
+        return;
+    }
+
+    if (text.text->empty())
+    {
+        DeleteTexture();
+        return;
+    }
+
+    if (font.isDirty())
+    {
+        fontId_ = fontManager_.openFont(font.style, font.size, font.outline, font.file);
+        font.clearDirty();
+    }
+
+    if (not fontId_)
+    {
+        DeleteTexture();
+        return;
+    }
+
+    if (not isRenderTextNeeded)
+    {
+        return;
+    }
+
+    auto imageData = fontManager_.renderText(text.text, *fontId_, text.wrapWidth);
+    if (not imageData)
+    {
+        LOG_ERROR << "RenderFont error for : " << text.text;
+        return;
+    }
+
+    text.clearDirty();
+    rendererdTextScale_ = ConvertSizeToScale(imageData->image.size(), *EngineConf.window.size);
+
+    if (not uniqueName_)
+    {
+        textureName_ = imageData->name;
+    }
+
+    if (render.mode == RenderMode::NATIVE)
+    {
+        transform_.scale = rendererdTextScale_;
+        if (parent_)
+            parent_->CallOnChange();
+    }
+
+    CallOnChange();
+    UpdateTexture(std::move(*imageData));
 }
 }  // namespace GameEngine

@@ -28,9 +28,9 @@ struct GuiVerticalLayoutTests : public ::testing::Test
     VerticalLayout sut_;
 };
 
-TEST_F(GuiVerticalLayoutTests, VerticalAlginCenter)
+TEST_F(GuiVerticalLayoutTests, VerticalAlignCenter)
 {
-    sut_.SetAlgin(GameEngine::Layout::Algin::CENTER);
+    sut_.SetAlign(GameEngine::Layout::Align::CENTER);
     sut_.SetScreenScale({1.f, 1.f});
     createElement({0.2f, 0.05f});
     createElement({0.2f, 0.2f });
@@ -41,14 +41,14 @@ TEST_F(GuiVerticalLayoutTests, VerticalAlginCenter)
     EXPECT_FLOAT_EQ(children[0]->GetLocalPosition().y, 0.975f);
     EXPECT_FLOAT_EQ(children[1]->GetLocalPosition().y, 1.0f - 0.05f - 0.1f);
 }
-TEST_F(GuiVerticalLayoutTests, VerticalAlginCenterWithParent)
+TEST_F(GuiVerticalLayoutTests, VerticalAlignCenterWithParent)
 {
     GuiElement parent(GuiElementTypes::Window);
     parent.SetLocalScale({ 0.1, 0.5f });
     parent.SetLocalPosition({0.3f, 0.3f});
 
     sut_.setParent(&parent);
-    sut_.SetAlgin(GameEngine::Layout::Algin::CENTER);
+    sut_.SetAlign(GameEngine::Layout::Align::CENTER);
     sut_.SetLocalScale({ 1.f, 1.f });
 
     createElement({ 0.2f, 0.05f });
@@ -72,14 +72,14 @@ TEST_F(GuiVerticalLayoutTests, VerticalAlginCenterWithParent)
     EXPECT_FLOAT_EQ(children[0]->GetScreenPosition().y, parentPositionY + screenScaleY - halfScreenScaleChild1);
     EXPECT_FLOAT_EQ(children[1]->GetScreenPosition().y, parentPositionY + screenScaleY - screenScaleChild1 - halfScreenScaleChild2);
 }
-TEST_F(GuiVerticalLayoutTests, VerticalAlginCenterWithParentPauseMenuIssue)
+TEST_F(GuiVerticalLayoutTests, VerticalAlignCenterWithParentPauseMenuIssue)
 {
     GuiElement parent(GuiElementTypes::Window);
     parent.SetLocalScale({ 0.1f, 1.f });
     parent.SetLocalPosition({ 0.25f, 0.f });
 
     sut_.setParent(&parent);
-    sut_.SetAlgin(GameEngine::Layout::Algin::CENTER);
+    sut_.SetAlign(GameEngine::Layout::Align::CENTER);
     sut_.SetLocalScale({ 1.f, 0.5f });
     sut_.SetLocalPosition({ 0.f, 0.25f });
 

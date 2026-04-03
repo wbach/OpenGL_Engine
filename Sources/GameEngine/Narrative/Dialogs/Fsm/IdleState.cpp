@@ -58,7 +58,7 @@ void IdleState::initGui()
         const vec2& position{0.5f, 0.25f};
         const vec2& scale{0.95f, 0.24f};
         dialogContext.optionsWindow = createWindowWithLayout(position, scale);
-        dialogContext.optionsWindow.layout->SetAlgin(Layout::Algin::LEFT);
+        dialogContext.optionsWindow.layout->SetAlign(Layout::Align::LEFT);
         dialogContext.optionsWindow.window->Hide();
     }
 }

@@ -61,7 +61,7 @@ protected:
         EXPECT_CALL(guiElementFactory_, CreateVerticalLayout()).WillRepeatedly(Invoke(createVerticalLayout));
 
         ON_CALL(fontManagerMock, openFont(_, _, _, _)).WillByDefault(Return(1));
-        ON_CALL(fontManagerMock, renderFont(_, _, _)).WillByDefault(Return(IFontManager::TextureData{}));
+        ON_CALL(fontManagerMock, renderText(_, _, _)).WillByDefault(Return(IFontManager::TextureData{}));
         ON_CALL(fontManagerMock, closeFont(_)).WillByDefault(Return());
     }
 
@@ -77,22 +77,22 @@ protected:
 
     void expectGuiTextCreation(const std::string& text)
     {
-        auto createGuiText = [&](const std::string& t, uint32)
-        { return std::make_unique<GuiTextElement>(fontManagerMock, guiRenderer, resourcesManager_, font, t); };
+        auto createGuiText = [&](const std::string& t)
+        { return std::make_unique<GuiTextElement>(fontManagerMock, guiRenderer, resourcesManager_, t); };
 
-        EXPECT_CALL(guiElementFactory_, CreateGuiTextWrapped(text, _)).WillOnce(Invoke(createGuiText));
+        EXPECT_CALL(guiElementFactory_, CreateGuiText(text)).WillOnce(Invoke(createGuiText));
     }
 
     void expectGuiTextCreation(const std::string& text, GuiTextElement*& outPtr)
     {
-        auto createGuiText = [&](const std::string& t, uint32) mutable
+        auto createGuiText = [&](const std::string& t) mutable
         {
-            auto result = std::make_unique<GuiTextElement>(fontManagerMock, guiRenderer, resourcesManager_, font, t);
+            auto result = std::make_unique<GuiTextElement>(fontManagerMock, guiRenderer, resourcesManager_, t);
             outPtr      = result.get();
             return result;
         };
 
-        EXPECT_CALL(guiElementFactory_, CreateGuiTextWrapped(text, _)).WillOnce(Invoke(createGuiText));
+        EXPECT_CALL(guiElementFactory_, CreateGuiText(text)).WillOnce(Invoke(createGuiText));
     }
 
     void createPlayerGameObjectWitoutCamera()

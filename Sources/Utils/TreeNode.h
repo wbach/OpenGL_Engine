@@ -80,6 +80,29 @@ ENGINE_API void Read(const TreeNode&, std::vector<vec2>&);
 ENGINE_API void Read(const TreeNode&, std::vector<vec3>&);
 
 template <class T>
+void Read(const TreeNode& node, std::optional<T>& v)
+{
+    v.emplace();
+    Read(node, *v);
+}
+
+template <class T>
+void Read(const TreeNode& node, Property<T>& v)
+{
+    Read(node, v.modify());
+}
+
+template <class T>
+requires std::is_enum_v<T>
+void Read(const TreeNode& node, T& v)
+{
+    if (auto enum_value = magic_enum::enum_cast<T>(node.value_))
+    {
+        v = *enum_value;
+    }
+}
+
+template <class T>
 requires std::is_enum_v<T>
 void Read(const TreeNode* node, T& v)
 {
@@ -154,6 +177,12 @@ void write(TreeNode& node, const std::optional<T>& v)
     {
         write(node, v);
     }
+}
+
+template <class T>
+void write(TreeNode& node, const Property<T>& v)
+{
+    write(node, v.get());
 }
 
 ENGINE_API void PrintTree(const TreeNode&);

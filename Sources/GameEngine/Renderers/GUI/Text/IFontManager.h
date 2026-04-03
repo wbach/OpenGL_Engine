@@ -26,8 +26,12 @@ public:
 
     virtual ~IFontManager() = default;
 
-    virtual std::optional<uint32> openFont(const File&, FontStyle, uint32, uint32)        = 0;
-    virtual std::optional<TextureData> renderFont(uint32, const std::string&, uint32 = 0) = 0;
-    virtual void closeFont(uint32)                                                        = 0;
+    using FontSize      = uint32;
+    using FontOutline   = uint32;
+    using TextWrapWidth = uint32;
+
+    virtual std::optional<IdType> openFont(FontStyle, FontSize, FontOutline, const std::optional<File>& = std::nullopt) = 0;
+    virtual std::optional<TextureData> renderText(const std::string&, IdType, const std::optional<TextWrapWidth>& = 0)  = 0;
+    virtual void closeFont(IdType)                                                                                      = 0;
 };
 }  // namespace GameEngine

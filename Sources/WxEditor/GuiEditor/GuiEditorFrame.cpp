@@ -225,6 +225,10 @@ void GuiEditorFrame::OnTreeSelectionChanged(wxTreeEvent& event)
 
     if (selectedElement and data->element)
     {
+        propGrid->Append(new wxPropertyCategory("General"));
+        propGrid->Append(new wxBoolProperty("Active", "Active", selectedElement->IsActive()));
+        propGrid->Append(new wxBoolProperty("Show", "IsShow", selectedElement->IsShow()));
+
         propGrid->Append(new wxPropertyCategory("Transform"));
         auto pos   = selectedElement->GetLocalPosition();
         auto scale = selectedElement->GetLocalScale();
@@ -237,6 +241,7 @@ void GuiEditorFrame::OnTreeSelectionChanged(wxTreeEvent& event)
         {
             propGrid->Append(new wxPropertyCategory("Renderer Base Settings"));
             AppendColorProperty(propGrid, el->GetColor(), "Color", "ElementColor");
+            propGrid->Append(new wxIntProperty("Inactivity release", "InactivityRelease", el->InactivityRelease()));
         }
 
         if (auto* window = dynamic_cast<GameEngine::GuiWindowElement*>(selectedElement))
@@ -257,20 +262,27 @@ void GuiEditorFrame::OnTreeSelectionChanged(wxTreeEvent& event)
         }
         else if (auto* txt = dynamic_cast<GameEngine::GuiTextElement*>(selectedElement))
         {
-            auto renderModes = CreateChoicesFromEnum<GameEngine::GuiTextElement::RenderMode>();
-            auto renderMode  = magic_enum::enum_index(txt->GetRenderMode());
+            auto renderModes = CreateChoicesFromEnum<GameEngine::RenderMode>();
+            auto renderMode  = magic_enum::enum_index(txt->render.mode.get());
 
-            auto algines = CreateChoicesFromEnum<GameEngine::GuiTextElement::Algin>();
-            auto algin   = magic_enum::enum_index(txt->GetRenderMode());
+            auto alignes = CreateChoicesFromEnum<GameEngine::Align>();
+            auto align   = magic_enum::enum_index(txt->render.align.get());
 
             propGrid->Append(new wxPropertyCategory("Text Settings"));
             propGrid->Append(new wxStringProperty("Label text", "LabelText", txt->GetText()));
-            propGrid->Append(new wxIntProperty("Wrap width", "TextWrapWith", txt->GetWrapWith()));
+            propGrid->Append(new wxIntProperty("Wrap width", "TextWrapWith", txt->text.wrapWidth.get().value_or(0)));
             propGrid->Append(new wxEnumProperty("Render mode", "TextRenderMode", renderModes, renderMode.value_or(0)));
-            propGrid->Append(new wxEnumProperty("Algin", "TextAlgin", algines, algin.value_or(0)));
-            propGrid->Append(new wxIntProperty("Outline", "TextOutline", txt->GetOutline()));
-            propGrid->Append(new wxIntProperty("Font size", "TextFontSize", txt->GetFontSize()));
-            propGrid->Append(new wxFileProperty("Font size", "TextFontFile", txt->GetFontFile().GetDataRelativePath().string()));
+            propGrid->Append(new wxEnumProperty("Align", "TextAlign", alignes, align.value_or(0)));
+            propGrid->Append(new wxIntProperty("Outline", "TextOutline", txt->font.outline));
+            propGrid->Append(new wxIntProperty("Font size", "TextFontSize", txt->font.size));
+
+            std::string filepath;
+            if (txt->font.file.get().has_value())
+            {
+                filepath = txt->font.file.get()->GetDataRelativePath().string();
+            }
+
+            propGrid->Append(new wxFileProperty("Font size", "TextFontFile", filepath));
         }
         else if (auto* txt = dynamic_cast<GameEngine::GuiTextureElement*>(selectedElement))
         {
@@ -310,6 +322,14 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
                 }
             }
         }
+        else if (name == "Active")
+        {
+            selectedElement->Activate(p->GetValue().GetBool());
+        }
+        else if (name == "IsShow")
+        {
+            selectedElement->Show(p->GetValue().GetBool());
+        }
         else if (name == "PosX")
         {
             auto pos = selectedElement->GetLocalPosition();
@@ -339,6 +359,13 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
             if (auto el = dynamic_cast<GameEngine::GuiRendererElementBase*>(selectedElement))
             {
                 el->SetColor(ConvertVariantToColor(p->GetValue()));
+            }
+        }
+        else if (name == "InactivityRelease")
+        {
+            if (auto el = dynamic_cast<GameEngine::GuiRendererElementBase*>(selectedElement))
+            {
+                el->InactivityRelease(p->GetValue().GetInteger());
             }
         }
         else if (name == "ButtonBackgorundColor")
@@ -373,7 +400,7 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
         {
             if (auto text = dynamic_cast<GameEngine::GuiTextElement*>(selectedElement))
             {
-                text->SetWrapWidth(p->GetValue().GetInteger());
+                text->text.wrapWidth = p->GetValue().GetInteger();
             }
         }
         else if (name == "TextRenderMode")
@@ -381,20 +408,20 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
             if (auto text = dynamic_cast<GameEngine::GuiTextElement*>(selectedElement))
             {
                 int intVal = p->GetValue().GetInteger();
-                if (auto renderMode = magic_enum::enum_cast<GameEngine::GuiTextElement::RenderMode>(intVal))
+                if (auto renderMode = magic_enum::enum_cast<GameEngine::RenderMode>(intVal))
                 {
-                    text->setRenderMode(*renderMode);
+                    text->render.mode = *renderMode;
                 }
             }
         }
-        else if (name == "TextAlgin")
+        else if (name == "TextAlign")
         {
             if (auto text = dynamic_cast<GameEngine::GuiTextElement*>(selectedElement))
             {
                 auto intVal = p->GetValue().GetInteger();
-                if (auto v = magic_enum::enum_cast<GameEngine::GuiTextElement::Algin>(intVal))
+                if (auto v = magic_enum::enum_cast<GameEngine::Align>(intVal))
                 {
-                    text->SetAlgin(*v);
+                    text->render.align = *v;
                 }
             }
         }
@@ -402,21 +429,21 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
         {
             if (auto text = dynamic_cast<GameEngine::GuiTextElement*>(selectedElement))
             {
-                text->SetOutline(p->GetValue().GetInteger());
+                text->font.outline = p->GetValue().GetInteger();
             }
         }
         else if (name == "TextFontSize")
         {
             if (auto text = dynamic_cast<GameEngine::GuiTextElement*>(selectedElement))
             {
-                text->SetFontSize(p->GetValue().GetInteger());
+                text->font.size = p->GetValue().GetInteger();
             }
         }
         else if (name == "TextFontFile")
         {
             if (auto text = dynamic_cast<GameEngine::GuiTextElement*>(selectedElement))
             {
-                text->SetFont(p->GetValue().GetString().ToStdString());
+                text->font.file = p->GetValue().GetString().ToStdString();
             }
         }
         else if (name == "ImagePath")

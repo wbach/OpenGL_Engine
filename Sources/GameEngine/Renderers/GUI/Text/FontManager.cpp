@@ -72,7 +72,7 @@ FontManager::~FontManager()
     impl_->Clear();
     TTF_Quit();
 }
-std::optional<uint32> FontManager::openFont(const File &file, FontStyle style, uint32 size, uint32 outline)
+std::optional<IdType> FontManager::openFont(FontStyle style, FontSize size, FontOutline outline, const std::optional<File> &file)
 {
     if (not isInit_)
         return std::nullopt;
@@ -92,7 +92,7 @@ std::optional<uint32> FontManager::openFont(const File &file, FontStyle style, u
     LOG_DEBUG << "Font percent size : " << percentFontSize << "/" << size;
 
     TTF_Font *font{nullptr};
-    if (not file.exist())
+    if (not file or not file->exist())
     {
         auto *rw = SDL_RWFromConstMem(segoe_ui_ttf, segoe_ui_ttf_len);
         if (not rw)
@@ -110,7 +110,7 @@ std::optional<uint32> FontManager::openFont(const File &file, FontStyle style, u
     }
     else
     {
-        font = TTF_OpenFont(file.GetAbsolutePath().string().c_str(), static_cast<int>(percentFontSize));
+        font = TTF_OpenFont(file->GetAbsolutePath().string().c_str(), static_cast<int>(percentFontSize));
     }
 
     if (font)
@@ -127,11 +127,12 @@ std::optional<uint32> FontManager::openFont(const File &file, FontStyle style, u
         return id;
     }
 
-    LOG_ERROR << "Cannot open font : " << file.GetFilename();
+    LOG_ERROR << "Cannot open font : " << file;
     return {};
 }
 
-std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, const std::string &text, uint32 wrapWidth)
+std::optional<FontManager::TextureData> FontManager::renderText(const std::string &text, IdType fontId,
+                                                                const std::optional<TextWrapWidth> &wrapWidth)
 {
     if (not isInit_ or text.empty())
         return std::nullopt;
@@ -151,15 +152,16 @@ std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, c
     sdlColor.a = 255;
 
     SDL_Surface *sdlSurface = nullptr;
-    if (wrapWidth > 0)
+    if (wrapWidth and wrapWidth > 0)
     {
-        uint32 scaledWrapWidth = (EngineConf.window.size->y * wrapWidth) / 768;
+        uint32 scaledWrapWidth = (EngineConf.window.size->y * *wrapWidth) / 768;
         LOG_DEBUG << "text:" << text << ", Wrapped width : " << wrapWidth << ", scaledWrapWidth = " << scaledWrapWidth;
 
         sdlSurface = TTF_RenderText_Blended_Wrapped(font.ptr, text.c_str(), sdlColor, scaledWrapWidth);
     }
     else
     {
+        LOG_DEBUG << "Render text: " << text;
         sdlSurface = TTF_RenderText_Blended(font.ptr, text.c_str(), sdlColor);
     }
 
@@ -197,7 +199,7 @@ std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, c
     SDL_FreeSurface(sdlSurface);
     return sdlSizeImage;
 }
-void FontManager::closeFont(uint32 fontId)
+void FontManager::closeFont(IdType fontId)
 {
     if (not impl_)
         return;
@@ -233,9 +235,9 @@ void FontManager::closeFont(uint32 fontId)
         }
     }
 }
-std::string FontManager::getFontName(const File &file, FontStyle style, uint32 size, uint32 outline) const
+std::string FontManager::getFontName(const std::optional<File> &file, FontStyle style, uint32 size, uint32 outline) const
 {
-    return file.GetAbsolutePath().string() + "_" + std::string(magic_enum::enum_name(style)) + "_" + std::to_string(size) + "_" +
-           std::to_string(outline);
+    auto path = (file and file->exist()) ? file->GetAbsolutePath().string() : "defaultFont";
+    return +"_" + std::string(magic_enum::enum_name(style)) + "_" + std::to_string(size) + "_" + std::to_string(outline);
 }
 }  // namespace GameEngine

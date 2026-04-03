@@ -186,8 +186,10 @@ GuiTextElement *Console::AddOrUpdateGuiText(const std::string &command)
         guiTexts_.pop_front();
     }
 
-    auto text = scene_.guiElementFactory_->CreateGuiText("GUI/Ubuntu-M.ttf", COMMAND_CURRSOR + command, 35, 0);
-    text->SetAlgin(GuiTextElement::Algin::LEFT);
+    auto text                       = scene_.guiElementFactory_->CreateGuiText(COMMAND_CURRSOR + command);
+    text->font.size = 35;
+    text->render.align  = Align::LEFT;
+
     text->SetLocalScale({1.f, 0.05f});
     result = text.get();
     guiTexts_.push_back(result);

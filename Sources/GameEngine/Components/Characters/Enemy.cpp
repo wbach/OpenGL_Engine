@@ -98,7 +98,7 @@ void Enemy::Init()
         componentContext_.guiElementFactory_.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, windowPosition, windowSize);
     hud_.window         = window.get();
     auto verticalLayout = componentContext_.guiElementFactory_.CreateVerticalLayout();
-    verticalLayout->SetAlgin(Layout::Algin::LEFT);
+    verticalLayout->SetAlign(Layout::Align::LEFT);
 
     auto hpRedBar   = componentContext_.guiElementFactory_.CreateGuiTexture("GUI/Health_Bars/HP/Style_1.png");
     hud_.hp.texture = hpRedBar.get();

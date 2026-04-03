@@ -4,9 +4,11 @@
 #include <functional>
 #include <memory>
 #include <optional>
+#include <unordered_map>
 #include <vector>
 
 #include "GuiElementTypes.h"
+#include "IdPool.h"
 
 namespace GameEngine
 {
@@ -47,6 +49,7 @@ public:
     virtual void Show();
     virtual void ShowPartial(uint32 depth);
     virtual void Hide();
+    virtual void Activate(bool);
     virtual void Activate();
     virtual void Deactivate();
     virtual bool IsActive() const;
@@ -88,11 +91,12 @@ public:
     void DisableChangeNotif();
 
     const GuiElementTransform& getTransform() const;
-    void SubscribeForChange(std::function<void()>);
+    IdType SubscribeForChange(std::function<void()>);
+    void UnsubscribeForChange(IdType);
 
 private:
     GuiElementTypes type_;
-    std::vector<std::function<void()>> changeSubscribers_;
+    std::unordered_map<IdType, std::function<void()>> changeSubscribers_;
     bool changeNotif_;
 
 protected:
@@ -109,6 +113,9 @@ protected:
     bool isInternal_;
 
     uint32 id_;
+
+    Utils::IdPool subscribersIdPool_;
+    std::unordered_map<GuiElement*, std::vector<IdType>> subscribtions_;
 
 public:
     static uint32 ID;

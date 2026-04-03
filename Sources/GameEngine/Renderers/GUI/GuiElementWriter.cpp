@@ -46,20 +46,19 @@ TreeNode& write(TreeNode& node, const GuiTextElement& text)
 
     writeBasicParams(textNode, text);
 
-    write(textNode.addChild(Gui::FONT), text.GetFontInfo().file_);
-    write(textNode.addChild(Gui::FONT_SIZE), text.GetFontInfo().fontSize_);
-    write(textNode.addChild(Gui::FONT_OUTLINE), text.GetFontInfo().outline_);
+    write(textNode.addChild(Gui::FONT), text.font.file);
+    write(textNode.addChild(Gui::FONT_SIZE), text.font.size);
+    write(textNode.addChild(Gui::FONT_OUTLINE), text.font.outline);
     write(textNode.addChild(Gui::VALUE), text.GetText());
     write(textNode.addChild(Gui::COLOR), text.GetColor());
-    write(textNode.addChild(Gui::WRAP_WIDTH), text.GetWrapWith());
-    write(textNode.addChild(Gui::RENDER_MODE), text.GetRenderMode());
+    write(textNode.addChild(Gui::WRAP_WIDTH), text.text.wrapWidth);
+    write(textNode.addChild(Gui::RENDER_MODE), text.render.mode);
     return textNode;
 }
 
 TreeNode& write(TreeNode& node, const GuiTextureElement& element)
 {
     auto& textureNode = node.addChild(Gui::TEXTURE);
-
     writeBasicParams(textureNode, element);
 
     auto texture = element.GetTexture();
@@ -116,13 +115,13 @@ void write(TreeNode& node, const GuiEditBoxElement& editBox)
     writeChildren(editBoxNode, editBox);
 }
 
-void write(TreeNode& node, Layout::Algin algin)
+void write(TreeNode& node, Layout::Align Align)
 {
-    if (algin == Layout::Algin::LEFT)
+    if (Align == Layout::Align::LEFT)
         node.value_ = Gui::LEFT;
-    if (algin == Layout::Algin::RIGHT)
+    if (Align == Layout::Align::RIGHT)
         node.value_ = Gui::RIGHT;
-    if (algin == Layout::Algin::CENTER)
+    if (Align == Layout::Align::CENTER)
         node.value_ = Gui::CENTER;
 }
 
@@ -130,7 +129,7 @@ void write(TreeNode& node, const VerticalLayout& verticalLayout)
 {
     auto& verticalLayutNode = node.addChild(Gui::VERTICAL_LAYOUT);
     writeBasicParams(verticalLayutNode, verticalLayout);
-    write(verticalLayutNode.addChild(Gui::ALGIN), verticalLayout.GetAlgin());
+    write(verticalLayutNode.addChild(Gui::Align), verticalLayout.GetAlign());
     write(verticalLayutNode.addChild(Gui::AUTO_HIDE_ELEMENTS), verticalLayout.AutoHideElements());
     write(verticalLayutNode, verticalLayout.AutoHideElements());
     writeChildren(verticalLayutNode, verticalLayout);
@@ -140,7 +139,7 @@ void write(TreeNode& node, const HorizontalLayout& horizontalLayout)
 {
     auto& horizontalLayoutNode = node.addChild(Gui::HORIZONTAL_LAYOUT);
     writeBasicParams(horizontalLayoutNode, horizontalLayout);
-    write(horizontalLayoutNode.addChild(Gui::ALGIN), horizontalLayout.GetAlgin());
+    write(horizontalLayoutNode.addChild(Gui::Align), horizontalLayout.GetAlign());
     writeChildren(horizontalLayoutNode, horizontalLayout);
 }
 

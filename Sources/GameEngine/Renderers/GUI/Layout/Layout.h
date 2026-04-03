@@ -11,7 +11,7 @@ namespace GameEngine
 class ENGINE_API Layout : public GuiElement
 {
 public:
-    enum class Algin
+    enum class Align
     {
         LEFT,
         CENTER,
@@ -24,10 +24,10 @@ public:
     virtual void ResetView();
     virtual void OnChange() = 0;
 
-    void SetAlgin(Algin algin);
-    Algin GetAlgin() const;
+    void SetAlign(Align);
+    Align GetAlign() const;
 
 protected:
-    Algin algin_;
+    Align align_;
 };
 }  // namespace GameEngine

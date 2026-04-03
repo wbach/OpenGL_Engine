@@ -49,29 +49,29 @@ GuiTheme ReadTheme(TreeNode &node)
     }
     return theme;
 }
-Layout::Algin ReadLayoutAlgin(TreeNode *node)
+Layout::Align ReadLayoutAlign(TreeNode *node)
 {
     if (not node)
-        return Layout::Algin::CENTER;
+        return Layout::Align::CENTER;
 
-    auto paramNode = node->getChild(Gui::ALGIN);
+    auto paramNode = node->getChild(Gui::Align);
     if (paramNode)
     {
         if (paramNode->value_ == Gui::LEFT)
         {
-            return Layout::Algin::LEFT;
+            return Layout::Align::LEFT;
         }
         else if (paramNode->value_ == Gui::CENTER)
         {
-            return Layout::Algin::CENTER;
+            return Layout::Align::CENTER;
         }
         else if (paramNode->value_ == Gui::RIGHT)
         {
-            return Layout::Algin::RIGHT;
+            return Layout::Align::RIGHT;
         }
     }
 
-    return Layout::Algin::LEFT;
+    return Layout::Align::LEFT;
 }
 }  // namespace
 GuiElementReader::GuiElementReader(GuiManager &manager, GuiElementFactory &factory)
@@ -173,23 +173,19 @@ void GuiElementReader::ReadGuiElementBasic(GuiElement &element, TreeNode &node)
 
 std::unique_ptr<GuiTextElement> GuiElementReader::ReadGuiText(TreeNode &node)
 {
-    std::string font = "", value = "empty string";
-    uint32 fontSize = 10, outline = 0, wrapWidth = 0;
+    auto text = factory_.CreateGuiText("");
+
     Color color;
-    GuiTextElement::RenderMode renderMode;
-
-    ::Read(node.getChild(Gui::FONT), font);
-    ::Read(node.getChild(Gui::VALUE), value);
-    ::Read(node.getChild(Gui::FONT_SIZE), fontSize);
-    ::Read(node.getChild(Gui::FONT_OUTLINE), outline);
+    ::Read(node.getChild(Gui::FONT), text->font.file);
+    ::Read(node.getChild(Gui::VALUE), text->text.text);
+    ::Read(node.getChild(Gui::FONT_SIZE), text->font.size);
+    ::Read(node.getChild(Gui::FONT_OUTLINE), text->font.outline);
     ::Read(node.getChild(Gui::COLOR), color);
-    ::Read(node.getChild(Gui::RENDER_MODE), renderMode);
-    ::Read(node.getChild(Gui::WRAP_WIDTH), wrapWidth);
+    ::Read(node.getChild(Gui::RENDER_MODE), text->render.mode);
+    ::Read(node.getChild(Gui::WRAP_WIDTH), text->text.wrapWidth);
 
-    auto text = factory_.CreateGuiTextWrapped(font, value, fontSize, outline, wrapWidth);
     ReadGuiElementBasic(*text, node);
     text->SetColor(color);
-    text->setRenderMode(renderMode);
 
     return text;
 }
@@ -474,7 +470,7 @@ std::unique_ptr<VerticalLayout> GuiElementReader::ReadVerticalLayout(TreeNode &n
 {
     auto layout = factory_.CreateVerticalLayout();
     ReadGuiElementBasic(*layout, node);
-    layout->SetAlgin(ReadLayoutAlgin(node.getChild(Gui::ALGIN)));
+    layout->SetAlign(ReadLayoutAlign(node.getChild(Gui::Align)));
 
     if (auto n = node.getChild(Gui::AUTO_HIDE_ELEMENTS))
     {
@@ -493,7 +489,7 @@ std::unique_ptr<HorizontalLayout> GuiElementReader::ReadHorizontalLayout(TreeNod
 {
     auto layout = factory_.CreateHorizontalLayout();
     ReadGuiElementBasic(*layout, node);
-    layout->SetAlgin(ReadLayoutAlgin(node.getChild(Gui::ALGIN)));
+    layout->SetAlign(ReadLayoutAlign(node.getChild(Gui::Align)));
 
     auto children = ReadChildrenElemets(node);
     for (auto &subChild : children)
