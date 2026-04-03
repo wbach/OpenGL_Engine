@@ -141,7 +141,7 @@ void GUIRenderer::Subscribe(GuiElement& element)
             return;
         }
         std::lock_guard<std::mutex> lk(subscriberMutex);
-        auto guiBaseRendererElement = static_cast<GuiRendererElementBase*>(&element);
+        auto guiBaseRendererElement = static_cast<GuiRenderAble*>(&element);
         subscribers_.push_back(guiBaseRendererElement);
         SortSubscribers();
     }

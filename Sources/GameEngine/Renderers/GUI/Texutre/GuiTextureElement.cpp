@@ -9,14 +9,14 @@ namespace GameEngine
 GuiElementTypes GuiTextureElement::type = GuiElementTypes::Texture;
 
 GuiTextureElement::GuiTextureElement(IResourceManager& resourceManager, GUIRenderer& guiRenderer, GeneralTexture& texture)
-    : GuiRendererElementBase(resourceManager, guiRenderer, GuiTextureElement::type)
+    : GuiRenderAble(resourceManager, guiRenderer, GuiTextureElement::type)
 {
     texture_ = &texture;
     InactivityRelease(0);
 }
 
 GuiTextureElement::GuiTextureElement(IResourceManager& resourceManager, GUIRenderer& guiRenderer)
-    : GuiRendererElementBase(resourceManager, guiRenderer, GuiTextureElement::type)
+    : GuiRenderAble(resourceManager, guiRenderer, GuiTextureElement::type)
 {
     InactivityRelease(0);
 }

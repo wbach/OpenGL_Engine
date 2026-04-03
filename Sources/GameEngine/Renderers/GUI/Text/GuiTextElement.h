@@ -5,7 +5,7 @@
 #include <optional>
 #include <string>
 
-#include "GameEngine/Renderers/GUI/GuiRendererElementBase.h"
+#include "GameEngine/Renderers/GUI/GuiRenderAble.h"
 #include "GameEngine/Resources/Textures/Texture.h"
 #include "IFontManager.h"
 #include "Surface.h"
@@ -52,7 +52,7 @@ public:
     Property<std::string> text{"", &dirty};
 };
 
-class ENGINE_API GuiTextElement : public GuiRendererElementBase
+class ENGINE_API GuiTextElement : public GuiRenderAble
 {
 public:
 public:

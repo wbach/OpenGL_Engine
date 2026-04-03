@@ -1,4 +1,4 @@
-#include "GuiRendererElementBase.h"
+#include "GuiRenderAble.h"
 
 #include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
@@ -10,7 +10,7 @@
 
 namespace GameEngine
 {
-GuiRendererElementBase::GuiRendererElementBase(IResourceManager& resourceManager, GUIRenderer& guiRenderer, GuiElementTypes type)
+GuiRenderAble::GuiRenderAble(IResourceManager& resourceManager, GUIRenderer& guiRenderer, GuiElementTypes type)
     : GuiElement(type)
     , resourceManager_(resourceManager)
     , guiRenderer_(guiRenderer)
@@ -22,42 +22,42 @@ GuiRendererElementBase::GuiRendererElementBase(IResourceManager& resourceManager
     UpdateTransformMatrix();
 }
 
-GuiRendererElementBase::~GuiRendererElementBase()
+GuiRenderAble::~GuiRenderAble()
 {
     guiRenderer_.UnSubscribe(*this);
     DeleteTexture();
 }
 
-void GuiRendererElementBase::SetColor(const Color& color)
+void GuiRenderAble::SetColor(const Color& color)
 {
     color_ = color;
 }
-const mat4& GuiRendererElementBase::GetTransformMatrix() const
+const mat4& GuiRenderAble::GetTransformMatrix() const
 {
     return transformMatrix_;
 }
-std::optional<uint32> GuiRendererElementBase::GetTextureId() const
+std::optional<uint32> GuiRenderAble::GetTextureId() const
 {
     return texture_ ? texture_->GetGraphicsObjectId() : std::optional<uint32>();
 }
-const Color& GuiRendererElementBase::GetColor() const
+const Color& GuiRenderAble::GetColor() const
 {
     return color_;
 }
-const GeneralTexture* GuiRendererElementBase::GetTexture() const
+const GeneralTexture* GuiRenderAble::GetTexture() const
 {
     return texture_;
 }
-void GuiRendererElementBase::UpdateTransformMatrix()
+void GuiRenderAble::UpdateTransformMatrix()
 {
     // convert from range 0.f - 1.f to -1.f - 1.f
     // api rendering quad -1 - 1f  (*2f not needed)
     transformMatrix_ = Utils::CreateTransformationMatrix(GetScreenPosition() * 2.f - 1.f, GetScreenScale(), DegreesFloat(0.f));
 }
-void GuiRendererElementBase::UpdateTexture()
+void GuiRenderAble::UpdateTexture()
 {
 }
-void GuiRendererElementBase::DeleteTexture()
+void GuiRenderAble::DeleteTexture()
 {
     if (texture_)
     {
@@ -65,14 +65,14 @@ void GuiRendererElementBase::DeleteTexture()
         texture_ = nullptr;
     }
 }
-void GuiRendererElementBase::OnRender()
+void GuiRenderAble::OnRender()
 {
     releaseTimerStart_.reset();
 
     UpdateTexture();
     UpdateTransformMatrix();
 }
-void GuiRendererElementBase::OnSkipRender()
+void GuiRenderAble::OnSkipRender()
 {
     if (texture_ and inactivityRelease > 0)
     {
@@ -94,11 +94,11 @@ void GuiRendererElementBase::OnSkipRender()
         }
     }
 }
-void GuiRendererElementBase::InactivityRelease(int v)
+void GuiRenderAble::InactivityRelease(int v)
 {
     inactivityRelease = v;
 }
-int GuiRendererElementBase::InactivityRelease() const
+int GuiRenderAble::InactivityRelease() const
 {
     return inactivityRelease;
 }

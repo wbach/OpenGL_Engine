@@ -1,11 +1,11 @@
 #pragma once
-#include "GameEngine/Renderers/GUI/GuiRendererElementBase.h"
+#include "GameEngine/Renderers/GUI/GuiRenderAble.h"
 #include "Types.h"
 
 namespace GameEngine
 {
 class Texture;
-class ENGINE_API GuiTextureElement : public GuiRendererElementBase
+class ENGINE_API GuiTextureElement : public GuiRenderAble
 {
 public:
     GuiTextureElement(IResourceManager&, GUIRenderer&, GeneralTexture&);

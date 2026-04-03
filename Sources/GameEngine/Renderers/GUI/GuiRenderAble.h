@@ -10,11 +10,11 @@ namespace GameEngine
 class GUIRenderer;
 class IResourceManager;
 
-class ENGINE_API GuiRendererElementBase : public GuiElement
+class ENGINE_API GuiRenderAble : public GuiElement
 {
 public:
-    GuiRendererElementBase(IResourceManager&, GUIRenderer&, GuiElementTypes);
-    ~GuiRendererElementBase() override;
+    GuiRenderAble(IResourceManager&, GUIRenderer&, GuiElementTypes);
+    ~GuiRenderAble() override;
 
 
     virtual std::optional<uint32> GetTextureId() const;

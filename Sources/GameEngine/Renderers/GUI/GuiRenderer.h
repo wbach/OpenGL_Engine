@@ -5,7 +5,7 @@
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
 #include "GraphicsApi/IGraphicsApi.h"
-#include "GuiRendererElementBase.h"
+#include "GuiRenderAble.h"
 #include "IGuiRenderer.h"
 #include "Logger/Log.h"
 
@@ -33,7 +33,7 @@ private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
 
     ShaderProgram shader_;
-    std::vector<GuiRendererElementBase*> subscribers_;
+    std::vector<GuiRenderAble*> subscribers_;
 
     bool isInit_;
     uint32 colorBuffer_;

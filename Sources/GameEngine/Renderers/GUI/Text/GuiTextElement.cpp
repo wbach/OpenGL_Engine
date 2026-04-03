@@ -13,7 +13,7 @@ namespace GameEngine
 {
 GuiTextElement::GuiTextElement(IFontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
                                const std::string& inputText)
-    : GuiRendererElementBase(resourceManager, guiRenderer, GuiElementTypes::Text)
+    : GuiRenderAble(resourceManager, guiRenderer, GuiElementTypes::Text)
     , fontManager_(fontManager)
     , uniqueName_{false}
     , openFontFailed_(false)

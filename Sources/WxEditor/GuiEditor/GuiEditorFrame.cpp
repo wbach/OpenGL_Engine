@@ -237,7 +237,7 @@ void GuiEditorFrame::OnTreeSelectionChanged(wxTreeEvent& event)
         propGrid->Append(new wxFloatProperty("Scale X", "ScaleX", scale.x));
         propGrid->Append(new wxFloatProperty("Scale Y", "ScaleY", scale.y));
 
-        if (auto* el = dynamic_cast<GameEngine::GuiRendererElementBase*>(selectedElement))
+        if (auto* el = dynamic_cast<GameEngine::GuiRenderAble*>(selectedElement))
         {
             propGrid->Append(new wxPropertyCategory("Renderer Base Settings"));
             AppendColorProperty(propGrid, el->GetColor(), "Color", "ElementColor");
@@ -356,14 +356,14 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
         }
         else if (name == "ElementColor")
         {
-            if (auto el = dynamic_cast<GameEngine::GuiRendererElementBase*>(selectedElement))
+            if (auto el = dynamic_cast<GameEngine::GuiRenderAble*>(selectedElement))
             {
                 el->SetColor(ConvertVariantToColor(p->GetValue()));
             }
         }
         else if (name == "InactivityRelease")
         {
-            if (auto el = dynamic_cast<GameEngine::GuiRendererElementBase*>(selectedElement))
+            if (auto el = dynamic_cast<GameEngine::GuiRenderAble*>(selectedElement))
             {
                 el->InactivityRelease(p->GetValue().GetInteger());
             }
