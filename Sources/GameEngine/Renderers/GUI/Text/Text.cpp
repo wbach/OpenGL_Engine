@@ -30,14 +30,14 @@ Text::Text(IFontManager& fontManager, IResourceManager& resourceManager, GUI::Re
 }
 
 Text::Text(const Text& other)
-    : RenderAble(other.resourceManager_, other.renderer_)
+    : RenderAble(other)
+    , text(other.text)
+    , font(other.font)
+    , render(other.render)
     , fontManager_(other.fontManager_)
     , openFontFailed_(false)
     , rendererdTextScale_(0)
 {
-    text.text      = other.text.text;
-    text.wrapWidth = other.text.wrapWidth;
-
     subId_ = EngineConf.renderer.resolution.subscribeForChange(
         [this]()
         {

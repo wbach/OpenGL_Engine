@@ -23,7 +23,7 @@ Sprite::Sprite(IResourceManager& resourceManager, Renderer& renderer)
 }
 
 Sprite::Sprite(const Sprite& other)
-    : RenderAble(other.resourceManager_, other.renderer_)
+    : RenderAble(other)
 {
     if (auto texture = other.getTexture())
     {
