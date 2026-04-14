@@ -19,6 +19,8 @@ public:
     RenderAble(IResourceManager&, Renderer&);
     ~RenderAble() override;
 
+    RenderAble(const RenderAble&);
+
     virtual std::optional<uint32> getTextureId() const;
 
     void setColor(const Color&);

@@ -199,5 +199,9 @@ int Text::calculatePtSize(const vec2& screenScale, const vec2ui& windowSize, flo
     auto ptSize             = static_cast<int>(targetHeightPixels * marginFactor);
     return std::clamp(ptSize, 4, 144);
 }
+std::unique_ptr<Element> Text::clone() const
+{
+    return std::make_unique<Text>(*this);
+}
 }  // namespace GUI
 }  // namespace GameEngine

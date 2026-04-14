@@ -189,5 +189,9 @@ void MultiLineText::setScreenScaleLineHeight(float v)
 {
     lineHeight = v / layout.getScreenScale().y;
 }
+std::unique_ptr<Element> MultiLineText::clone() const
+{
+    return std::make_unique<MultiLineText>(*this);
+}
 }  // namespace GUI
 }  // namespace GameEngine

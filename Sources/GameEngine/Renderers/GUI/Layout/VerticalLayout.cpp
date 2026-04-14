@@ -180,5 +180,9 @@ bool VerticalLayout::onMouseWheel(const vec2 &delta)
 
     return true;
 }
+std::unique_ptr<Element> VerticalLayout::clone() const
+{
+    return std::make_unique<VerticalLayout>(*this);
+}
 }  // namespace GUI
 }  // namespace GameEngine

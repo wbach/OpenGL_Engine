@@ -22,9 +22,11 @@ class EditText : public Element
 {
 public:
     EditText(std::unique_ptr<Text>, std::unique_ptr<Text>, Input::InputManager&);
+    EditText(const EditText&);
     ~EditText() override;
     void update() override;
     void onMouseClick(const vec2&, KeyCodes::Type) override;
+    std::unique_ptr<Element> clone() const override;
 
     void setBackground(std::unique_ptr<Sprite>);
     void setOnEnterAction(std::function<void(const std::string&)>);
@@ -41,9 +43,9 @@ private:
     Input::KeysSubscriptionsManager keysSubscriptionsManager;
 
     std::string textBeforeEdit_;
-    Text* text_;
-    Text* cursor_;
-    Sprite* background_;
+    std::unique_ptr<Text> text_;
+    std::unique_ptr<Text> cursor_;
+    std::unique_ptr<Sprite> background_;
 
     std::unique_ptr<TextInput> textInput_;
     std::function<void(const std::string&)> onEnterAction_;

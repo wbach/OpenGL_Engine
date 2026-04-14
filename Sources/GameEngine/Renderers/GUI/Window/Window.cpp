@@ -3,6 +3,7 @@
 #include <Logger/Log.h>
 
 #include <magic_enum/magic_enum.hpp>
+#include <memory>
 
 #include "GameEngine/Renderers/GUI/Element.h"
 #include "GameEngine/Renderers/GUI/Sprite/Sprite.h"
@@ -16,6 +17,28 @@ namespace GUI
 Window::Window(WindowStyle style)
     : style_(style)
 {
+}
+Window::Window(const Window& other)
+    : Element(other)
+    , style_(other.style_)
+    , mousePosition(std::nullopt)
+    , mouseReferencePosition(std::nullopt)
+{
+    if (other.background_)
+    {
+        setBackground(std::unique_ptr<Sprite>(static_cast<Sprite*>(other.background_->clone().release())));
+        background_->setParent(this);
+    }
+
+    if (other.bar_)
+    {
+        setBar(other.bar_->clone());
+    }
+
+    for (const auto& child : other.children)
+    {
+        this->addChild(child->clone());
+    }
 }
 
 void Window::update()
@@ -86,6 +109,10 @@ void Window::setBackground(const Color& color)
 void Window::accept(IElementVisitor& visitor)
 {
     visitor.visit(*this);
+}
+std::unique_ptr<Element> Window::clone() const
+{
+    return std::make_unique<Window>(*this);
 }
 }  // namespace GUI
 }  // namespace GameEngine

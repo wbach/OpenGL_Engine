@@ -13,9 +13,11 @@ class ENGINE_API Sprite : public RenderAble
 public:
     Sprite(IResourceManager&, Renderer&, GeneralTexture&);
     Sprite(IResourceManager&, Renderer&);
+    Sprite(const Sprite&);
 
     void Flip();
     void SetTexture(const FileHandle&);
+    std::unique_ptr<Element> clone() const override;
 
 private:
     void accept(IElementVisitor&) override;

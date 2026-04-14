@@ -19,10 +19,12 @@ class ENGINE_API Window : public Element
 {
 public:
     Window(WindowStyle);
+    Window(const Window&);
 
     void onMouseClick(const vec2&, KeyCodes::Type) override;
     void onMouseClickRelease(KeyCodes::Type) override;
     void onMousePositionUpdate(const vec2&) override;
+    std::unique_ptr<Element> clone() const override;
 
     void update() override;
     WindowStyle getStyle() const;

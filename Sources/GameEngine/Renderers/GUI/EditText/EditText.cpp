@@ -13,15 +13,17 @@ namespace GUI
 EditText::EditText(std::unique_ptr<Text> text, std::unique_ptr<Text> cursor, Input::InputManager &inputManager)
     : inputManager_(inputManager)
     , keysSubscriptionsManager(inputManager)
-    , text_(text.get())
-    , cursor_(cursor.get())
+    , text_(std::move(text))
+    , cursor_(std::move(cursor))
     , background_{nullptr}
     , timer_(false, 500)
 {
-    addChild(std::move(text));
-    addChild(std::move(cursor));
-
     cursor_->activate(false);
+
+    if (text_)
+        text_->setParent(this);
+    if (cursor_)
+        cursor_->setParent(this);
 
     timer_.AddOnTickCallback(
         [this]()
@@ -31,6 +33,35 @@ EditText::EditText(std::unique_ptr<Text> text, std::unique_ptr<Text> cursor, Inp
                 cursor_->activate(not cursor_->isActive());
             }
         });
+}
+
+EditText::EditText(const EditText &other)
+    : Element(other)
+    , inputManager_(other.inputManager_)
+    , keysSubscriptionsManager(other.inputManager_)
+    , textBeforeEdit_(other.textBeforeEdit_)
+    , onEnterAction_(other.onEnterAction_)
+{
+    if (other.text_)
+    {
+        text_ = std::unique_ptr<Text>(static_cast<Text *>(other.text_->clone().release()));
+        text_->setParent(this);
+    }
+
+    if (other.cursor_)
+    {
+        cursor_ = std::unique_ptr<Text>(static_cast<Text *>(other.cursor_->clone().release()));
+        cursor_->setParent(this);
+    }
+
+    if (other.background_)
+    {
+        background_ = std::unique_ptr<Sprite>(static_cast<Sprite *>(other.background_->clone().release()));
+        background_->setParent(this);
+    }
+
+    textInput_ = nullptr;
+
 }
 EditText::~EditText()
 {
@@ -58,9 +89,12 @@ void EditText::update()
 }
 void EditText::setBackground(std::unique_ptr<Sprite> texture)
 {
-    background_ = texture.get();
-    background_->setScreenScale(transform.scale);
-    addChild(std::move(texture));
+    background_ = std::move(texture);
+    if (background_)
+    {
+        background_->setScreenScale(transform.scale);
+        background_->setParent(this);
+    }
 }
 
 void EditText::setOnEnterAction(std::function<void(const std::string &)> f)
@@ -70,7 +104,7 @@ void EditText::setOnEnterAction(std::function<void(const std::string &)> f)
 
 Text *EditText::getText() const
 {
-    return text_;
+    return text_.get();
 }
 
 const std::string &EditText::getTextString() const
@@ -161,6 +195,10 @@ void EditText::onMouseClick(const vec2 &position, KeyCodes::Type key)
 void EditText::accept(IElementVisitor &visitor)
 {
     visitor.visit(*this);
+}
+std::unique_ptr<Element> EditText::clone() const
+{
+    return std::make_unique<EditText>(*this);
 }
 }  // namespace GUI
 }  // namespace GameEngine

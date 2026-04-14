@@ -21,6 +21,16 @@ Element::Element()
     , id{idPool.getId()}
 {
 }
+Element::Element(const Element& other)
+    : parent(nullptr)
+    , transform(other.transform)
+    , label(other.label)
+    , mouseFocused(false)
+    , isDirty(true)
+    , active(other.active)
+    , id{idPool.getId()}
+{
+}
 Element::~Element()
 {
     idPool.releaseId(id);
@@ -282,5 +292,13 @@ void Element::setInternalPosition(const vec2& position)
 {
     transform.position = position;
 }
+std::unique_ptr<Element> Element::clone() const
+{
+    return std::make_unique<Element>(*this);
+};
+Element* Element::getParent()
+{
+    return parent;
+};
 }  // namespace GUI
 }  // namespace GameEngine

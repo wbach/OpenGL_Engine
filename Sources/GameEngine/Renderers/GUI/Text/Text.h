@@ -27,6 +27,7 @@ public:
     void append(const std::string&);
     void append(char);
     void pop();
+    std::unique_ptr<Element> clone() const override;
 
 public:
     TextParameters text;

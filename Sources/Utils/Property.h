@@ -27,7 +27,19 @@ public:
     {
     }
 
-    Property(const Property&) = delete;
+    Property(const Property& other)
+        : value(other.value)
+        , ownDirtyFlag(true)
+    {
+        if (other.dirtyFlag == &other.ownDirtyFlag)
+        {
+            this->dirtyFlag = &this->ownDirtyFlag;
+        }
+        else
+        {
+            this->dirtyFlag = other.dirtyFlag;
+        }
+    }
 
     Property& operator=(const T& newValue)
     {

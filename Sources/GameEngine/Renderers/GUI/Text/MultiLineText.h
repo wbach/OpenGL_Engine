@@ -24,6 +24,8 @@ public:
 
 public:
     bool onMouseWheel(const vec2&) override;
+    std::unique_ptr<Element> clone() const override;
+
     const std::string& getText() const;
     void setText(const std::string&);
     void append(const std::string&);

@@ -27,6 +27,33 @@ Button::Button()
     , currentState_{State::Normal}
 {
 }
+Button::Button(const Button &other)
+    : Element(other)
+    , onClick_(other.onClick_)
+    , textScale(other.textScale)
+    , theme(other.theme)
+    , currentState_(State::Normal)
+{
+    if (other.text_)
+    {
+        setText(std::unique_ptr<Text>(static_cast<Text *>(other.text_->clone().release())));
+    }
+
+    if (other.backgroundSprite)
+    {
+        setBackground(std::unique_ptr<Sprite>(static_cast<Sprite *>(other.backgroundSprite->clone().release())));
+    }
+
+    if (other.onHoverSprite)
+    {
+        setOnHover(std::unique_ptr<Sprite>(static_cast<Sprite *>(other.onHoverSprite->clone().release())));
+    }
+
+    if (other.onActiveSprite)
+    {
+        setOnActive(std::unique_ptr<Sprite>(static_cast<Sprite *>(other.onActiveSprite->clone().release())));
+    }
+}
 void Button::update()
 {
     if (not isActive())
@@ -303,6 +330,10 @@ void Button::executeAction()
 void Button::setTheme(const Theme::Button &t)
 {
     theme = t;
+}
+std::unique_ptr<Element> Button::clone() const
+{
+    return std::make_unique<Button>(*this);
 }
 }  // namespace GUI
 }  // namespace GameEngine

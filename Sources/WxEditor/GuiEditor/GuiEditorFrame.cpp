@@ -32,6 +32,7 @@
 #include "GuiTreeItemData.h"
 #include "Renderers/GUI/IElementVisitor.h"
 #include "Resources/FileHandle.h"
+#include "TreeNode.h"
 #include "WxEditor/EngineRelated/GLCanvas.h"
 #include "WxEditor/EngineRelated/WxScenesDef.h"
 #include "WxEditor/ProjectManager.h"
@@ -1030,14 +1031,16 @@ void GuiEditorFrame::OnTreeContextMenu(wxTreeEvent& event)
     // if (not data)
     //     return;
 
-    int idWin       = wxWindow::NewControlId();
-    int idText      = wxWindow::NewControlId();
-    int idMultiText = wxWindow::NewControlId();
-    int idBtn       = wxWindow::NewControlId();
-    int idTex       = wxWindow::NewControlId();
-    int idVLayout   = wxWindow::NewControlId();
-    int idHLayout   = wxWindow::NewControlId();
-    int idDel       = wxWindow::NewControlId();
+    int idWin         = wxWindow::NewControlId();
+    int idText        = wxWindow::NewControlId();
+    int idMultiText   = wxWindow::NewControlId();
+    int idClone       = wxWindow::NewControlId();
+    int idBtn         = wxWindow::NewControlId();
+    int idTex         = wxWindow::NewControlId();
+    int idVLayout     = wxWindow::NewControlId();
+    int idHLayout     = wxWindow::NewControlId();
+    int idDel         = wxWindow::NewControlId();
+    int idDelChildren = wxWindow::NewControlId();
 
     wxMenu menu;
     wxMenu* addSubMenu = new wxMenu();
@@ -1051,6 +1054,7 @@ void GuiEditorFrame::OnTreeContextMenu(wxTreeEvent& event)
     addSubMenu->Append(idHLayout, "Horizontal Layout");
 
     menu.AppendSubMenu(addSubMenu, "Add Child");
+    menu.Append(idClone, "Clone");
 
     if (data)
     {
@@ -1058,14 +1062,47 @@ void GuiEditorFrame::OnTreeContextMenu(wxTreeEvent& event)
         menu.Append(idDel, "Delete");
     }
 
+    menu.Append(idDelChildren, "Delete all children");
+
     int selection = GetPopupMenuSelectionFromUser(menu);
 
     if (selection == wxID_NONE)
         return;
 
+    if (data and selection == idClone)
+    {
+        if (data->element)
+        {
+            auto element      = data->element->clone();
+            auto* ptrToSelect = element.get();
+            if (auto parent = data->element->getParent())
+            {
+                parent->addChild(std::move(element));
+            }
+            else
+            {
+                canvas->GetScene().GetGuiManager().add(std::move(element));
+            }
+
+            RefreshTree();
+            FocusElementInTree(ptrToSelect);
+            canvas->Refresh();
+        }
+        return;
+    }
+
     if (data and selection == idDel)
     {
         OnDeleteElement(*data);
+        return;
+    }
+
+    if (data and selection == idDelChildren)
+    {
+        data->element->removeAll();
+        RefreshTree();
+        FocusElementInTree(data->element);
+        canvas->Refresh();
         return;
     }
 

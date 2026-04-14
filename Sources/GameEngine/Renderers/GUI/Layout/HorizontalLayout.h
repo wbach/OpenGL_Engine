@@ -9,6 +9,7 @@ class ENGINE_API HorizontalLayout : public Layout
 public:
     HorizontalLayout();
     void autoResize();
+    std::unique_ptr<Element> clone() const override;
 
 private:
     float calculateFirstChildXPosition() const;

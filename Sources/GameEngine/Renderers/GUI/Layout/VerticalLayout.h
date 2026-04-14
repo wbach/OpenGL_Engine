@@ -12,6 +12,7 @@ public:
 
     void resetView() override;
     bool onMouseWheel(const vec2&) override;
+    std::unique_ptr<Element> clone() const override;
     void enableFixedSize();
     void disableFixedSize();
     void autoHideElements(bool);

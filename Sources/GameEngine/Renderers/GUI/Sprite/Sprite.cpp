@@ -22,6 +22,19 @@ Sprite::Sprite(IResourceManager& resourceManager, Renderer& renderer)
     inactivityRelease(0);
 }
 
+Sprite::Sprite(const Sprite& other)
+    : RenderAble(other.resourceManager_, other.renderer_)
+{
+    if (auto texture = other.getTexture())
+    {
+        if (auto file = texture->GetFile())
+        {
+            texture_ = resourceManager_.GetTextureLoader().LoadTexture(*file, texture->getTextureParameters());
+        }
+    }
+    inactivityRelease(0);
+}
+
 void Sprite::Flip()
 {
     transform.scale.y *= -1;
@@ -38,11 +51,15 @@ void Sprite::SetTexture(const FileHandle& file)
     params.flipMode        = TextureFlip::VERTICAL;
     params.filter          = GraphicsApi::TextureFilter::LINEAR;
 
-    texture_               = resourceManager_.GetTextureLoader().LoadTexture(file, params);
+    texture_ = resourceManager_.GetTextureLoader().LoadTexture(file, params);
 }
 void Sprite::accept(IElementVisitor& visitor)
 {
     visitor.visit(*this);
+}
+std::unique_ptr<Element> Sprite::clone() const
+{
+    return std::make_unique<Sprite>(*this);
 }
 }  // namespace GUI
 }  // namespace GameEngine

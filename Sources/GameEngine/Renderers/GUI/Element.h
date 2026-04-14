@@ -24,11 +24,7 @@ public:
     Element();
     virtual ~Element();
 
-    Element(const Element&)            = delete;
-    Element& operator=(const Element&) = delete;
-
-    Element(Element&&) noexcept            = default;
-    Element& operator=(Element&&) noexcept = default;
+    Element(const Element&);
 
 public:
     virtual void update();
@@ -39,8 +35,10 @@ public:
     virtual void onMouseLeave();
     virtual bool onMouseWheel(const vec2&);
     virtual void accept(IElementVisitor&);
+    virtual std::unique_ptr<Element> clone() const;
 
     void setParent(Element*);
+    Element* getParent();
     void addChild(std::unique_ptr<Element>);
     const Children& getChildren() const;
 

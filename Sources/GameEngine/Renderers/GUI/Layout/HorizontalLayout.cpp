@@ -108,5 +108,9 @@ float HorizontalLayout::calculateYPosition(const Element &element)
 
     return 0.5f;
 }
+std::unique_ptr<Element> HorizontalLayout::clone() const
+{
+    return std::make_unique<HorizontalLayout>(*this);
+}
 }  // namespace GUI
 }  // namespace GameEngine

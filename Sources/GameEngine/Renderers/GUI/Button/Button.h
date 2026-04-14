@@ -27,8 +27,11 @@ class ENGINE_API Button : public Element
 
 public:
     Button();
+    Button(const Button&);
 
     void update() override;
+    std::unique_ptr<Element> clone() const override;
+
     void onMouseClick(const vec2&, KeyCodes::Type) override;
     void onMouseEnter() override;
     void onMouseLeave() override;
@@ -86,8 +89,6 @@ private:
     Theme::Button theme;
 
     Utils::Stopwatch activeTimer_;
-    std::optional<uint32> subscribtion_;
-    std::string actionName_;
     State currentState_;
 };
 }  // namespace GUI
