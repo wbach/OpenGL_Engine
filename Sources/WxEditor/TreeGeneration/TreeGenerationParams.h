@@ -1,7 +1,8 @@
 #pragma once
 #include <GameEngine/Components/Renderer/Trees/TreeMeshBuilder.h>
 #include <Types.h>
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/TreeNodeReadFunctions.h>
 
 #include <filesystem>
 

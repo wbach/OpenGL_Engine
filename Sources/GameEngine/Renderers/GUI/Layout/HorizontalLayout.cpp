@@ -4,38 +4,24 @@
 
 namespace GameEngine
 {
-GuiElementTypes HorizontalLayout::type = GuiElementTypes::HorizontalLayout;
-
+namespace GUI
+{
 HorizontalLayout::HorizontalLayout()
-    : Layout(type)
-    , totalChildrenScaleX_{0}
+    : totalChildrenScaleX_{0}
     , resizeAble_{false}
 {
 }
 
-void HorizontalLayout::AddChild(std::unique_ptr<GuiElement> child)
-{
-    if (resizeAble_)
-    {
-        if (transform_.scale.y < child->GetLocalScale().y)
-        {
-            SetLocalScale({transform_.scale.x, child->GetLocalScale().y});
-        }
-    }
-
-    GuiElement::AddChild(std::move(child));
-}
-
 void HorizontalLayout::autoResize()
 {
-    resizeAble_      = true;
-    transform_.scale = {0, 0};
+    resizeAble_     = true;
+    transform.scale = {0, 0};
 
-    for (auto &child : children_)
+    for (auto &child : children)
     {
-        if (transform_.scale.y < child->GetLocalScale().y)
+        if (transform.scale.y < child->getLocalScale().y)
         {
-            SetLocalScale({transform_.scale.x, child->GetLocalScale().y});
+            transform.scale = {transform.scale.x, child->getLocalScale().y};
         }
     }
 }
@@ -44,52 +30,83 @@ float HorizontalLayout::calculateFirstChildXPosition() const
 {
     if (not resizeAble_)
     {
-        if (align_ == Align::LEFT)
+        if (hAlign_ == HorizontalAlign::LEFT)
         {
-            return children_.front()->GetLocalScale().x / 2.f;
+            return children.front()->getLocalScale().x / 2.f;
         }
 
-        if (align_ == Align::RIGHT)
+        if (hAlign_ == HorizontalAlign::RIGHT)
         {
-            return 1.f -totalChildrenScaleX_ + children_.front()->GetLocalScale().x / 2.f;
+            return 1.f - totalChildrenScaleX_ + children.front()->getLocalScale().x / 2.f;
         }
     }
-    return 0.5f - (totalChildrenScaleX_ / 2.f) + children_.front()->GetLocalScale().x / 2.f;
+    return 0.5f - (totalChildrenScaleX_ / 2.f) + children.front()->getLocalScale().x / 2.f;
 }
 
-void HorizontalLayout::OnChange()
+void HorizontalLayout::refreshSelf()
 {
-    if (children_.empty())
+    if (children.empty())
         return;
 
-    DisableChangeNotif();
-    calculateTotalChildrenScaleX();
+    calculateTotalChildrenScale();
 
-    children_.front()->SetLocalPosition({calculateFirstChildXPosition(), 0});
+    auto &firstChild = children.front();
+    firstChild->setInternalPosition({calculateFirstChildXPosition(), calculateYPosition(*firstChild)});
 
-    for (std::size_t i = 1; i < children_.size(); ++i)
+    for (std::size_t i = 1; i < children.size(); ++i)
     {
-        const auto &parent = *children_[i - 1];
-        auto &current      = *children_[i];
+        const auto &parent = *children[i - 1];
+        auto &current      = *children[i];
 
-        auto posX = parent.GetLocalPosition().x + (parent.GetLocalScale().x / 2.f) + (current.GetLocalScale().x / 2.f);
-        current.SetLocalPosition({posX, 0.f});
+        auto posX = parent.getLocalPosition().x + (parent.getLocalScale().x / 2.f) + (current.getLocalScale().x / 2.f);
+        current.setInternalPosition({posX, calculateYPosition(current)});
     }
-
-    EnableChangeNotif();
 }
 
-void GameEngine::HorizontalLayout::calculateTotalChildrenScaleX()
+void HorizontalLayout::calculateTotalChildrenScale()
 {
-    totalChildrenScaleX_ = 0.f;
-    for (auto &child : children_)
+    float newTotalX = 0.f;
+    float maxHeight = 0.f;
+
+    for (auto &child : children)
     {
-        totalChildrenScaleX_ += child->GetLocalScale().x;
+        newTotalX += child->getLocalScale().x;
+        if (child->getLocalScale().y > maxHeight)
+        {
+            maxHeight = child->getLocalScale().y;
+        }
     }
+
+    totalChildrenScaleX_ = newTotalX;
 
     if (resizeAble_)
     {
-        SetLocalScale({totalChildrenScaleX_, GetLocalScale().y});
+        if (std::abs(transform.scale.x - newTotalX) > 0.0001f or std::abs(transform.scale.y - maxHeight) > 0.0001f)
+        {
+            transform.scale = {newTotalX, maxHeight};
+            if (parent)
+                parent->invalidate();
+        }
     }
 }
+void HorizontalLayout::accept(IElementVisitor &visitor)
+{
+    visitor.visit(*this);
+}
+float HorizontalLayout::calculateYPosition(const Element &element)
+{
+    float childHeight = element.getLocalScale().y;
+
+    if (vAlign_ == VerticalAlign::TOP)
+    {
+        return 1.0f - (childHeight / 2.0f);
+    }
+    else if (vAlign_ == VerticalAlign::BOTTOM)
+    {
+        return 0.0f + (childHeight / 2.0f);
+    }
+
+    return 0.5f;
+}
+}  // namespace GUI
 }  // namespace GameEngine

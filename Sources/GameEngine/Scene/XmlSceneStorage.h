@@ -1,6 +1,7 @@
 #pragma once
 #include "ISceneStorage.h"
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/TreeNodeReadFunctions.h>
 #include <optional>
 
 namespace GameEngine

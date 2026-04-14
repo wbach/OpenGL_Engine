@@ -20,10 +20,10 @@
 #include "GameEngine/Narrative/Dialogs/Fsm/DialogEvents.h"
 #include "GameEngine/Narrative/GameState.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Renderers/GUI/IGuiElementFactory.h"
+#include "GameEngine/Renderers/GUI/IElementFactory.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
-#include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
-#include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
+#include "GameEngine/Renderers/GUI/Text/Text.h"
+#include "GameEngine/Renderers/GUI/Window/Window.h"
 
 namespace GameEngine
 {
@@ -122,8 +122,8 @@ ShowingSentence::ShowingSentence(DialogContext& dialogContext)
 }
 void ShowingSentence::onEnter()
 {
-    dialogContext.sentenceWindow.window->Show();
-    dialogContext.sentenceWindow.layout->RemoveAll();
+    dialogContext.sentenceWindow.window->activate(true);
+    dialogContext.sentenceWindow.layout->removeAll();
     subscribeForInput();
 }
 void ShowingSentence::onEnter(const StartSentence& event)
@@ -179,17 +179,17 @@ void ShowingSentence::onEnter(const StartSentence& event)
 }
 void ShowingSentence::createGuiTexts(const std::string& characterName, const std::string& sentance)
 {
-    auto characterNameText         = dialogContext.guiFactory.CreateGuiText(characterName);
-    characterNameText->render.mode = RenderMode::NATIVE;
+    auto characterNameText         = dialogContext.guiFactory.createText(characterName);
+    characterNameText->render.mode = GUI::RenderMode::NATIVE;
 
-    dialogContext.sentenceWindow.layout->AddChild(std::move(characterNameText));
+    dialogContext.sentenceWindow.layout->addChild(std::move(characterNameText));
 
-    auto sentanceGuiText            = dialogContext.guiFactory.CreateGuiText(sentance);
-    sentanceGuiText->render.mode    = RenderMode::NATIVE;
-    sentanceGuiText->render.align   = Align::LEFT;
+    auto sentanceGuiText            = dialogContext.guiFactory.createText(sentance);
+    sentanceGuiText->render.mode    = GUI::RenderMode::NATIVE;
+    sentanceGuiText->render.align   = GUI::HorizontalAlign::LEFT;
     sentanceGuiText->text.wrapWidth = EngineConf.window.size->x - 20;
 
-    dialogContext.sentenceWindow.layout->AddChild(std::move(sentanceGuiText));
+    dialogContext.sentenceWindow.layout->addChild(std::move(sentanceGuiText));
 }
 
 void ShowingSentence::onEnter(const OptionSelected& event)
@@ -231,7 +231,7 @@ void ShowingSentence::onEnter(const OptionSelected& event)
 
 void ShowingSentence::update(const StartSentence& event)
 {
-    dialogContext.sentenceWindow.layout->RemoveAll();
+    dialogContext.sentenceWindow.layout->removeAll();
     onEnter(event);
 };
 void ShowingSentence::subscribeForInput()

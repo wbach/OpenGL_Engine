@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/TreeNodeReadFunctions.h>
 
 namespace GameEngine
 {

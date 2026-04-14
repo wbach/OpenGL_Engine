@@ -24,7 +24,7 @@ public:
     MOCK_METHOD(GeneralTexture*, LoadTexture, (const std::string&, const unsigned char*, unsigned int, const TextureParameters&),
                 (override));
     MOCK_METHOD(GeneralTexture*, LoadTexture, (const std::string&, Utils::Image&&, const TextureParameters&), (override));
-    MOCK_METHOD(GeneralTexture*, LoadTexture, (const File&, const TextureParameters&), (override));
+    MOCK_METHOD(GeneralTexture*, LoadTexture, (const FileHandle&, const TextureParameters&), (override));
 
     MOCK_METHOD(CubeMapTexture*, LoadCubeMap, ((const std::array<File, 6>&), const TextureParameters&), (override));
     MOCK_METHOD(HeightMap*, LoadHeightMap, (const File&, const TextureParameters&), (override));

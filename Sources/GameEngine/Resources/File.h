@@ -5,10 +5,10 @@
 
 #include <filesystem>
 #include <string>
+#include <variant>
 
 namespace GameEngine
 {
-
 class ENGINE_API File
 {
 public:
@@ -99,6 +99,7 @@ private:
     FILE* fp_;
     long fileSize_;
 };
+
 }  // namespace GameEngine
 
 class TreeNode;
@@ -106,3 +107,4 @@ ENGINE_API void Read(const TreeNode&, GameEngine::File&);
 ENGINE_API void write(TreeNode&, const GameEngine::File&);
 
 std::ostream& operator<<(std::ostream&, const GameEngine::File&);
+

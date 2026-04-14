@@ -2,7 +2,8 @@
 
 #include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/TreeNodeReadFunctions.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>

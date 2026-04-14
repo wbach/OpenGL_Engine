@@ -2,7 +2,8 @@
 
 #include <Common/Controllers/CharacterController/Character.h>
 #include <Common/Controllers/CharacterController/CharacterActions.h>
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/TreeNodeReadFunctions.h>
 
 #include <Utils/math.hpp>
 

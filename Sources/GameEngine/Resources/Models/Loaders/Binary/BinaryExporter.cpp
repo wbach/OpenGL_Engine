@@ -16,9 +16,9 @@ TextureSerilizeData convert(GeneralTexture* texture)
     if (texture)
     {
         TextureSerilizeData result;
-        if (texture->GetFile())
+        if (const auto& fileHandle = texture->GetFile())
         {
-            result.path = texture->GetFile()->GetDataRelativePath().string();
+            result.path = getPath(*fileHandle);
         }
         else
         {

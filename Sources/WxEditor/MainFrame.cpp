@@ -8,8 +8,8 @@
 #include <GameEngine/Components/Lights/SpotLightComponent.h>
 #include <GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h>
 #include <GameEngine/Engine/Configuration.h>
-#include <GameEngine/Renderers/GUI/GuiRenderer.h>
-#include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
+#include <GameEngine/Renderers/GUI/Renderer.h>
+#include <GameEngine/Renderers/GUI/Window/Window.h>
 #include <GameEngine/Resources/ITextureLoader.h>
 #include <GameEngine/Resources/Models/Material.h>
 #include <GameEngine/Resources/Models/MaterialPresets.h>

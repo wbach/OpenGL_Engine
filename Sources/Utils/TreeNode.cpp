@@ -7,14 +7,6 @@
 #include "Types.h"
 #include "Utils/Utils.h"
 
-namespace
-{
-const std::string CSTR_X = "x";
-const std::string CSTR_Y = "y";
-const std::string CSTR_Z = "z";
-const std::string CSTR_W = "w";
-}  // namespace
-
 TreeNode::TreeNode()
     : TreeNode("unknown")
 {
@@ -102,168 +94,6 @@ std::string TreeNode::getAttributeValue(const std::string& attributeName) const
     return iter != attributes_.end() ? iter->second : std::string();
 }
 
-const std::string CSTR_VEC3 = "vec3";
-
-void Read(const TreeNode& node, float& v)
-{
-    try
-    {
-        v = std::stof(node.value_);
-    }
-    catch (...)
-    {
-        LOG_ERROR << "read error " << node.value_;
-    }
-}
-
-void Read(const TreeNode& node, bool& v)
-{
-    v = Utils::StringToBool(node.value_);
-}
-
-void Read(const TreeNode& node, int32& v)
-{
-    v = std::stoi(node.value_);
-}
-
-bool setIfExist(const TreeNode& node, const std::string& attributeName, float& v)
-{
-    auto attributeValueStr = node.getAttributeValue(attributeName);
-    if (not attributeValueStr.empty())
-    {
-        v = std::stof(attributeValueStr);
-        return true;
-    }
-
-    return false;
-}
-
-void setIfExist(const TreeNode& node, const std::string& attributeName, uint32& v)
-{
-    auto attributeValueStr = node.getAttributeValue(attributeName);
-    if (not attributeValueStr.empty())
-    {
-        v = std::stoi(attributeValueStr);
-    }
-}
-
-void Read(const TreeNode& node, vec3& v)
-{
-    try
-    {
-        bool is = setIfExist(node, CSTR_X, v.x) and setIfExist(node, CSTR_Y, v.y) and setIfExist(node, CSTR_Z, v.z);
-        if (not is)
-        {
-            std::from_string(node.value_, v);
-        }
-    }
-    catch (...)
-    {
-        LOG_ERROR << "Read error";
-    }
-}
-void Read(const TreeNode& node, vec4& v)
-{
-    try
-    {
-        bool is = setIfExist(node, CSTR_X, v.x) and setIfExist(node, CSTR_Y, v.y) and setIfExist(node, CSTR_Z, v.z) and
-                  setIfExist(node, CSTR_W, v.w);
-
-        if (not is)
-        {
-            std::from_string(node.value_, v);
-        }
-    }
-    catch (...)
-    {
-        LOG_ERROR << "Read error";
-    }
-}
-
-void Read(const TreeNode& node, Color& color)
-{
-    Read(node, color.value);
-}
-
-void Read(const TreeNode& node, Quaternion& v)
-{
-    try
-    {
-        bool is = setIfExist(node, CSTR_X, v.x) and setIfExist(node, CSTR_Y, v.y) and setIfExist(node, CSTR_Z, v.z) and
-                  setIfExist(node, CSTR_W, v.w);
-
-        if (not is)
-        {
-            std::from_string(node.value_, v);
-        }
-    }
-    catch (...)
-    {
-        LOG_ERROR << "Read error";
-    }
-}
-
-void Read(const TreeNode& node, Rotation& v)
-{
-    Read(node, v.value_);
-}
-
-void Read(const TreeNode& node, std::string& v)
-{
-    v = node.value_;
-}
-void Read(const TreeNode& node, std::filesystem::path& v)
-{
-    v = node.value_;
-}
-void Read(const TreeNode& node, std::vector<vec2>& result)
-{
-    for (const auto& node : node.getChildren())
-    {
-        vec2 v(0);
-        Read(*node, v);
-        result.push_back(v);
-    }
-}
-
-void Read(const TreeNode& node, std::vector<vec3>& result)
-{
-    for (const auto& node : node.getChildren())
-    {
-        vec3 v(0);
-        Read(*node, v);
-        result.push_back(v);
-    }
-}
-
-void Read(const TreeNode& node, vec2ui& v)
-{
-    setIfExist(node, CSTR_X, v.x);
-    setIfExist(node, CSTR_Y, v.y);
-}
-
-void Read(const TreeNode& node, uint32& v)
-{
-    v = std::stoi(node.value_);
-}
-
-void Read(const TreeNode& node, vec2& v)
-{
-    try
-    {
-        bool is = setIfExist(node, CSTR_X, v.x) and setIfExist(node, CSTR_Y, v.y);
-
-        if (not is)
-        {
-            std::from_string(node.value_, v);
-        }
-    }
-    catch (...)
-    {
-        LOG_ERROR << "Read error";
-    }
-}
-
 std::unique_ptr<TreeNode> Convert(const std::string& v)
 {
     return std::make_unique<TreeNode>("v", v);
@@ -313,89 +143,51 @@ std::unique_ptr<TreeNode> Convert(const std::string& label, const Quaternion& v)
 
 vec2 ConvertToVec2(TreeNode& node)
 {
-    vec2 result;
-    result.x = std::stof(node.attributes_.at("x"));
-    result.y = std::stof(node.attributes_.at("y"));
+    vec2 result{0.f};
+    auto& attr = node.attributes_;
+
+    auto itX = attr.find("x");
+    auto itY = attr.find("y");
+
+    try
+    {
+        if (itX != attr.end())
+            result.x = std::stof(itX->second);
+        if (itY != attr.end())
+            result.y = std::stof(itY->second);
+    }
+    catch (...)
+    {
+        LOG_ERROR << "Read error (vec2): " << node;
+    }
+
     return result;
 }
 
 vec3 ConvertToVec3(TreeNode& node)
 {
-    vec3 result;
-    result.x = std::stof(node.attributes_.at("x"));
-    result.y = std::stof(node.attributes_.at("y"));
-    result.z = std::stof(node.attributes_.at("z"));
-    return result;
-}
+    vec3 result{0.f};
+    auto& attr = node.attributes_;
 
-void write(TreeNode& node, float v)
-{
-    node.value_ = std::to_string(v);
-}
-void write(TreeNode& node, int v)
-{
-    node.value_ = std::to_string(v);
-}
-void write(TreeNode& node, uint32 v)
-{
-    node.value_ = std::to_string(v);
-}
-void write(TreeNode& node, bool b)
-{
-    node.value_ = Utils::BoolToString(b);
-}
-void write(TreeNode& node, const std::string& str)
-{
-    node.value_ = str;
-}
-void write(TreeNode& node, const std::string_view& str)
-{
-    node.value_ = str;
-}
-void write(TreeNode& node, const std::filesystem::path& value)
-{
-    node.value_ = value.generic_string();
-}
-void write(TreeNode& node, const vec2ui& v)
-{
-    node.attributes_[CSTR_X] = std::to_string(v.x);
-    node.attributes_[CSTR_Y] = std::to_string(v.y);
-}
-void write(TreeNode& node, const vec2& v)
-{
-    node.attributes_[CSTR_X] = std::to_string(v.x);
-    node.attributes_[CSTR_Y] = std::to_string(v.y);
-}
-void write(TreeNode& node, const vec3& v)
-{
-    node.attributes_[CSTR_X] = std::to_string(v.x);
-    node.attributes_[CSTR_Y] = std::to_string(v.y);
-    node.attributes_[CSTR_Z] = std::to_string(v.z);
-}
-void write(TreeNode& node, const vec4& v)
-{
-    node.attributes_[CSTR_X] = std::to_string(v.x);
-    node.attributes_[CSTR_Y] = std::to_string(v.y);
-    node.attributes_[CSTR_Z] = std::to_string(v.z);
-    node.attributes_[CSTR_W] = std::to_string(v.w);
-}
-void write(TreeNode& node, const Color& v)
-{
-    write(node, v.value);
-}
-void write(TreeNode& node, const std::optional<uint32>& v)
-{
-    if (v)
-        write(node, *v);
-    else
-        node.value_ = "-";
-}
-void write(TreeNode& node, const std::vector<vec3>& v)
-{
-    for (const auto& value : v)
+    auto itX = attr.find("x");
+    auto itY = attr.find("y");
+    auto itZ = attr.find("z");
+
+    try
     {
-        ::write(node.addChild(CSTR_VEC3), value);
+        if (itX != attr.end())
+            result.x = std::stof(itX->second);
+        if (itY != attr.end())
+            result.y = std::stof(itY->second);
+        if (itZ != attr.end())
+            result.z = std::stof(itZ->second);
     }
+    catch (...)
+    {
+        LOG_ERROR << "Read error (vec3): " << node;
+    }
+
+    return result;
 }
 
 void TreeNode::CopyTreeNode(const TreeNode& source, TreeNode& target)

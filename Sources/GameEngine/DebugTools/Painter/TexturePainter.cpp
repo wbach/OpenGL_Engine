@@ -225,11 +225,12 @@ void TexturePainter::CreateBlendMapIfNeeded(Components::TerrainRendererComponent
         params.filter          = GraphicsApi::TextureFilter::LINEAR;
         params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
         auto blendmapTexture   = textureLoader.CreateTexture(textureName, params, std::move(image));
-        blendmapTexture->SetFile(EngineLocalConf.files.getGeneratedDirPath() / (textureName + ".png"));
-        Utils::SaveImage(blendmapTexture->GetImage(), blendmapTexture->GetFile()->GetAbsolutePath().string());
+        File file{EngineLocalConf.files.getGeneratedDirPath() / (textureName + ".png")};
+        blendmapTexture->SetFile(file);
+        Utils::SaveImage(blendmapTexture->GetImage(), file.GetAbsolutePath().string());
 
         tc.LoadTexture(Components::TerrainTexture{
-            .file       = blendmapTexture->GetFile()->GetAbsolutePath(),
+            .file       = file.GetAbsolutePath(),
             .tiledScale = 1.f,
             .type       = TerrainTextureType::blendMap,
         });

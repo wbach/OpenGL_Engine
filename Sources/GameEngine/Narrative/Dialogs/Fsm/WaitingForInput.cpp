@@ -7,10 +7,10 @@
 #include "DialogContext.h"
 #include "GameEngine/Components/Dialogue/DialogueComponent.h"
 #include "GameEngine/Narrative/Dialogs/Fsm/DialogEvents.h"
-#include "GameEngine/Renderers/GUI/IGuiElementFactory.h"
+#include "GameEngine/Renderers/GUI/IElementFactory.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
-#include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
-#include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
+#include "GameEngine/Renderers/GUI/Text/Text.h"
+#include "GameEngine/Renderers/GUI/Window/Window.h"
 
 namespace GameEngine
 {
@@ -26,11 +26,11 @@ WaitingForInput::WaitingForInput(DialogContext& dialogContext)
 }
 void WaitingForInput::onEnter()
 {
-    dialogContext.optionsWindow.window->Show();
-    dialogContext.optionsWindow.layout->RemoveAll();
-    for (auto& child : dialogContext.optionsWindow.window->GetChildren())
+    dialogContext.optionsWindow.window->activate(true);
+    dialogContext.optionsWindow.layout->removeAll();
+    for (auto& child : dialogContext.optionsWindow.window->getChildren())
     {
-        child->Show();
+        child->activate(true);
     }
     subscribeForInput();
 }
@@ -46,17 +46,17 @@ void WaitingForInput::onEnter(const StartInputWaiting& event)
 
     for (const auto& [_, option] : visibleOptions)
     {
-        auto optionGuiText            = dialogContext.guiFactory.CreateGuiText(option.text);
-        optionGuiText->render.mode    = RenderMode::NATIVE;
-        optionGuiText->render.align   = Align::LEFT;
+        auto optionGuiText            = dialogContext.guiFactory.createText(option.text);
+        optionGuiText->render.mode    = GUI::RenderMode::NATIVE;
+        optionGuiText->render.align   = GUI::HorizontalAlign::LEFT;
         optionGuiText->text.wrapWidth = EngineConf.window.size->x - 20;
 
         if (i == 0)
         {
-            optionGuiText->SetColor(HIGHLIGHT_COLOR);
+            optionGuiText->setColor(HIGHLIGHT_COLOR);
             i++;
         }
-        dialogContext.optionsWindow.layout->AddChild(std::move(optionGuiText));
+        dialogContext.optionsWindow.layout->addChild(std::move(optionGuiText));
     }
 }
 void WaitingForInput::onEnter(const BackToSentence& event)
@@ -109,23 +109,23 @@ void WaitingForInput::onLeave()
     component   = nullptr;
     highlighted = 0;
 
-    dialogContext.optionsWindow.window->Hide();
-    dialogContext.optionsWindow.layout->RemoveAll();
+    dialogContext.optionsWindow.window->activate(false);
+    dialogContext.optionsWindow.layout->removeAll();
 }
 void WaitingForInput::updateHighLightedColor(size_t oldItem, size_t newItem)
 {
-    auto& children = dialogContext.optionsWindow.layout->GetChildren();
+    auto& children = dialogContext.optionsWindow.layout->getChildren();
     if (children.empty())
         return;
 
     auto updateColor = [this](auto index, const auto& color)
     {
-        auto& children = dialogContext.optionsWindow.layout->GetChildren();
+        auto& children = dialogContext.optionsWindow.layout->getChildren();
         if (index >= 0 && index < children.size())
         {
-            if (auto* text = dynamic_cast<GuiTextElement*>(children[index].get()))
+            if (auto* text = dynamic_cast<GUI::Text*>(children[index].get()))
             {
-                text->SetColor(color);
+                text->setColor(color);
             }
         }
     };

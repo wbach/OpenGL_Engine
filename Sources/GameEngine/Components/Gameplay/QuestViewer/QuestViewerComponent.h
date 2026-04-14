@@ -3,8 +3,12 @@
 
 namespace GameEngine
 {
+namespace GUI
+{
+class Window;
+}
+
 class GameState;
-class GuiWindowElement;
 class Quest;
 
 namespace Components
@@ -29,7 +33,7 @@ private:
     void createWindow();
 
 private:
-    GuiWindowElement* mainWindow{nullptr};
+    GUI::Window* mainWindow{nullptr};
     const Quest* currentQuest{nullptr};
 
 public:

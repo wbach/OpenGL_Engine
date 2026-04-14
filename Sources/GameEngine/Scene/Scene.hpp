@@ -21,8 +21,8 @@
 #include "GameEngine/Objects/Particle.h"
 #include "GameEngine/Objects/Prefab.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
-#include "GameEngine/Renderers/GUI/GuiElementFactory.h"
-#include "GameEngine/Renderers/GUI/GuiManager.h"
+#include "GameEngine/Renderers/GUI/ElementFactory.h"
+#include "GameEngine/Renderers/GUI/Manager.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Time/DayNightCycle.h"
 #include "Navigation/NavigationManager.h"
@@ -45,10 +45,7 @@ namespace Renderer
 class RenderersManager;
 }  // namespace Renderer
 
-class GuiTextElement;
-class GuiTextureElement;
-class GuiWindowElement;
-class GuiEngineContextManger;
+class DebugOverlay;
 class DialogueManager;
 
 class ENGINE_API Scene
@@ -124,7 +121,6 @@ public:
     DisplayManager* getDisplayManager();
     Input::InputManager* getInputManager();
     Components::ComponentController& getComponentController();
-    GuiElementFactory& GetGuiElementFactory();
 
     const Components::ComponentController& getComponentController() const;
 
@@ -137,7 +133,8 @@ public:
     NavigationManager* GetNavigationManager() const;
     DialogueManager* GetDialogueManager() const;
 
-    GuiManager& GetGuiManager();
+    GUI::Manager& GetGuiManager();
+    GUI::IElementFactory& GetGuiElementFactory();
 
 public:
     uint32 objectCount;
@@ -158,9 +155,9 @@ protected:
     Components::ComponentController componentController_;
     std::unique_ptr<Components::ComponentContext> componentContext_;
     std::unique_ptr<Components::ComponentFactory> componentFactory_;
-    GuiManager guiManager_;
-    std::unique_ptr<GuiElementFactory> guiElementFactory_;
-    std::unique_ptr<GuiEngineContextManger> guiEngineContextManger_;
+    std::unique_ptr<GUI::Manager> guiManager_;
+    std::unique_ptr<GUI::IElementFactory> guiElementFactory_;
+    std::unique_ptr<DebugOverlay> debugOverlay_;
 
     std::unique_ptr<GameObject> rootGameObject_;
     std::unordered_map<uint32, GameObject*> gameObjectsIds_;

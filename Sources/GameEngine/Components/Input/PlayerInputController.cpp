@@ -5,7 +5,8 @@
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
 #include <Types.h>
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/TreeNodeReadFunctions.h>
 
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Audio/IAudioManager.h"

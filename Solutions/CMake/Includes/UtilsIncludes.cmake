@@ -1,4 +1,5 @@
 set(UtilsIncludes
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Property.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/StreamOperators.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/XML/XmlReader.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/XML/XMLUtils.h
@@ -10,8 +11,10 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Logger/LogHelpers.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Logger/Log.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Utils.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Variant.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/TreeNodeWriteFunctions.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Glm.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Rotation.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/TreeNodeReadFunctions.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/ThreadSubscriber.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/FileSystem/TextureSet.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/UndifineWindows.h
@@ -30,6 +33,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Json/JsonWriter.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Json/JsonUtils.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Json/JsonReader.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/EngineApi.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Params.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Worker.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/EngineUitls.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/PoissonDiskSample.h

@@ -47,7 +47,7 @@ void ArrayTexture::GpuLoadingPass()
     std::string debugFileNamePrint{"{genertated}"};
     if (file_)
     {
-        debugFileNamePrint = file_->GetBaseName();
+        debugFileNamePrint = getBaseName(*file_);
     }
     if (images_.empty())
     {

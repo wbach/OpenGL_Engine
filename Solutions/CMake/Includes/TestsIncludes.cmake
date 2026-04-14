@@ -5,7 +5,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/Mocks/Scene/SceneManagerMock.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/Mocks/Scene/TweenManagerMock.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/Mocks/Utils/TimerServiceMock.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/Mocks/MockThreadSync.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/Mocks/Renderers/GuiTextFactoryMock.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/Mocks/Renderers/RendererFactoryMock.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/Mocks/Resources/ResourcesManagerMock.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/Mocks/Resources/OpenGLLoaderMock.h

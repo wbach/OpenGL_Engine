@@ -1,16 +1,18 @@
 #include "QuestViewerComponent.h"
 
 #include <Input/InputManager.h>
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/TreeNodeReadFunctions.h>
 
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
-#include "GameEngine/Renderers/GUI/GuiManager.h"
-#include "GameEngine/Renderers/GUI/IGuiElementFactory.h"
+#include "GameEngine/Renderers/GUI/IElementFactory.h"
 #include "GameEngine/Renderers/GUI/Layout/HorizontalLayout.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
-#include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
-#include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
+#include "GameEngine/Renderers/GUI/Manager.h"
+#include "GameEngine/Renderers/GUI/Text/Text.h"
+#include "GameEngine/Renderers/GUI/Transform.h"
+#include "GameEngine/Renderers/GUI/Window/Window.h"
 #include "GameEngine/Scene/Scene.hpp"
 
 namespace GameEngine
@@ -32,24 +34,24 @@ void QuestViewerComponent::Reload()
 }
 void QuestViewerComponent::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::OnStart,
-                     [this]()
-                     {
-                         componentContext_.inputManager_.SubscribeOnKeyDown(
-                             Input::GameAction::QUEST_VIEW,
-                             [this]()
-                             {
-                                 if (mainWindow)
-                                 {
-                                     componentContext_.guiManager_.Remove(*mainWindow);
-                                     mainWindow = nullptr;
-                                 }
-                                 else
-                                 {
-                                     createWindow();
-                                 }
-                             });
-                     });
+    // RegisterFunction(FunctionType::OnStart,
+    //                  [this]()
+    //                  {
+    //                      componentContext_.inputManager_.SubscribeOnKeyDown(
+    //                          Input::GameAction::QUEST_VIEW,
+    //                          [this]()
+    //                          {
+    //                              if (mainWindow)
+    //                              {
+    //                                  componentContext_.guiManager_.remove(*mainWindow);
+    //                                  mainWindow = nullptr;
+    //                              }
+    //                              else
+    //                              {
+    //                                  createWindow();
+    //                              }
+    //                          });
+    //                  });
 }
 void QuestViewerComponent::registerReadFunctions()
 {
@@ -72,52 +74,53 @@ void QuestViewerComponent::createWindow()
     const auto& quests = componentContext_.scene_.getEngineContext()->GetQuestManager().getQuests();
 
     auto& guiFactory  = componentContext_.guiElementFactory_;
-    auto mainWndowPtr = guiFactory.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2{0.5, 0.5}, vec2{1, 1});
-    mainWindow        = mainWndowPtr.get();
-    auto mainLayout   = guiFactory.CreateVerticalLayout();
-    mainLayout->AutoHideElements(false);
+    auto mainWndowPtr = guiFactory.createWindow(GUI::WindowStyle::BACKGROUND_ONLY);
+    mainWndowPtr->setTransform(GUI::Transform{.position = vec2{0.5, 0.5}, .scale = vec2{1, 1}});
+    mainWindow      = mainWndowPtr.get();
+    auto mainLayout = guiFactory.createVerticalLayout();
+    mainLayout->autoHideElements(false);
 
-    auto title = guiFactory.CreateGuiText("Quests");
-   // title->setRenderMode(GuiTextElement::RenderMode::NATIVE);
-    title->SetLocalScale( vec2(0.5, 0.05));
-    mainLayout->AddChild(std::move(title));
+    auto title = guiFactory.createText("Quests");
+    // title->setRenderMode(GuiTextElement::RenderMode::NATIVE);
+    title->setLocalScale(vec2(0.5, 0.05));
+    mainLayout->addChild(std::move(title));
 
     // ************** LEFT
-    auto leftLayout = guiFactory.CreateHorizontalLayout();
-    leftLayout->SetLocalScale(vec2ui(0.2, 0.5));
-    auto innerOfleftLayout = guiFactory.CreateVerticalLayout();
+    auto leftLayout = guiFactory.createHorizontalLayout();
+    leftLayout->setLocalScale(vec2ui(0.2, 0.5));
+    auto innerOfleftLayout = guiFactory.createVerticalLayout();
 
     for (const auto& quest : quests)
     {
-        auto questName = guiFactory.CreateGuiText(quest.name);
-        //questName->setRenderMode(GuiTextElement::RenderMode::NATIVE);
-        questName->SetLocalScale( vec2(0.5, 0.05));
-        innerOfleftLayout->AddChild(std::move(questName));
+        auto questName = guiFactory.createText(quest.name);
+        // questName->setRenderMode(GuiTextElement::RenderMode::NATIVE);
+        questName->setLocalScale(vec2(0.5, 0.05));
+        innerOfleftLayout->addChild(std::move(questName));
     }
 
-    leftLayout->AddChild(std::move(innerOfleftLayout));
-    mainLayout->AddChild(std::move(leftLayout));
+    leftLayout->addChild(std::move(innerOfleftLayout));
+    mainLayout->addChild(std::move(leftLayout));
 
     // ************* RIGHT
-    auto rightLayout = guiFactory.CreateHorizontalLayout();
-    rightLayout->SetLocalScale(vec2ui(0.2, 0.5));
-    auto innerOfRightLayout = guiFactory.CreateVerticalLayout();
+    auto rightLayout = guiFactory.createHorizontalLayout();
+    rightLayout->setLocalScale(vec2ui(0.2, 0.5));
+    auto innerOfRightLayout = guiFactory.createVerticalLayout();
 
     currentQuest = &quests.front();
 
     for (const auto& note : currentQuest->descriptionNotes)
     {
-        auto noteTxt = guiFactory.CreateGuiText(note);
-        //noteTxt->setRenderMode(GuiTextElement::RenderMode::NATIVE);
-        noteTxt->SetLocalScale( vec2(0.5, 0.05));
-        innerOfRightLayout->AddChild(std::move(noteTxt));
+        auto noteTxt = guiFactory.createText(note);
+        // noteTxt->setRenderMode(GuiTextElement::RenderMode::NATIVE);
+        noteTxt->setLocalScale(vec2(0.5, 0.05));
+        innerOfRightLayout->addChild(std::move(noteTxt));
     }
 
-    rightLayout->AddChild(std::move(innerOfRightLayout));
-    mainLayout->AddChild(std::move(rightLayout));
+    rightLayout->addChild(std::move(innerOfRightLayout));
+    mainLayout->addChild(std::move(rightLayout));
 
-    mainWndowPtr->AddChild(std::move(mainLayout));
-    componentContext_.guiManager_.Add(std::move(mainWndowPtr));
+    mainWndowPtr->addChild(std::move(mainLayout));
+    componentContext_.guiManager_.add(std::move(mainWndowPtr));
 }
 }  // namespace Components
 }  // namespace GameEngine

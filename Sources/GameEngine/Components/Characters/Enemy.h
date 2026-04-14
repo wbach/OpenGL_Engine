@@ -7,9 +7,11 @@
 
 namespace GameEngine
 {
-class GuiManager;
-class GuiTextureElement;
-class GuiWindowElement;
+namespace GUI
+{
+class Manager;
+class Window;
+}  // namespace GUI
 
 namespace Components
 {
@@ -21,7 +23,7 @@ class Enemy : public BaseComponent
     struct HudElements
     {
         Bar hp;
-        GuiWindowElement* window{nullptr};
+        GUI::Window* window{nullptr};
     };
 
 public:
@@ -40,7 +42,7 @@ private:
     void isOnGround();
 
 private:
-    GuiManager& guiManager_;
+    GUI::Manager& guiManager_;
     Animator* animator_;
     CharacterController* characterController_;
     CharacterStatistic characterStatistic_;

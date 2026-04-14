@@ -2,7 +2,8 @@
 
 #include <Logger/Log.h>
 #include <Utils.h>
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
@@ -65,6 +66,7 @@ void File::Init(const std::filesystem::path &input)
     catch (...)
     {
         LOG_ERROR << "File init error: " << input;
+        return;
     }
 
     ClearSpecialCharacters();
@@ -315,6 +317,7 @@ void File::ClearSpecialCharacters()
         ChangeFileName(fname);
     }
 }
+
 }  // namespace GameEngine
 
 std::ostream &operator<<(std::ostream &os, const GameEngine::File &file)

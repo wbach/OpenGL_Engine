@@ -8,7 +8,7 @@
 
 #include "BufferDataUpdater.h"
 #include "DebugElements/DebugRenderer.h"
-#include "GUI/GuiRenderer.h"
+#include "GUI/Renderer.h"
 #include "GameEngine/Camera/Frustrum.h"
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/IComponent.h"
@@ -38,8 +38,6 @@ namespace GameEngine
 {
 class Scene;
 class GameObject;
-class GuiTextElement;
-class GuiTextureElement;
 class IFrameBuffer;
 class IShadowFrameBuffer;
 class IGpuResourceLoader;
@@ -51,8 +49,8 @@ namespace Renderer
 class RenderersManager
 {
 public:
-    RenderersManager(GraphicsApi::IGraphicsApi&, Physics::IPhysicsApi&, IGpuResourceLoader&, Utils::MeasurementHandler&, Utils::Thread::IThreadSync&,
-                     const Time&, std::unique_ptr<IRendererFactory>);
+    RenderersManager(GraphicsApi::IGraphicsApi&, Physics::IPhysicsApi&, IGpuResourceLoader&, Utils::MeasurementHandler&,
+                     Utils::Thread::IThreadSync&, const Time&, std::unique_ptr<IRendererFactory>);
 
     ~RenderersManager();
 
@@ -69,7 +67,7 @@ public:
     void setLineRenderMode(bool);
     bool getLineRenderMode() const;
 
-    GUIRenderer& GetGuiRenderer();
+    GUI::Renderer& GetGuiRenderer();
     DebugRenderer& GetDebugRenderer();
     bool IsTesselationSupported() const;
     void UpdatePerAppBuffer();
@@ -114,7 +112,7 @@ private:
     std::unordered_map<ICamera*, CameraRendererContext> camerasRenderers;
     std::set<GameObject*> subscribedGameObjects;
 
-    GUIRenderer guiRenderer_;
+    GUI::Renderer guiRenderer_;
 
     GraphicsApi::ID perFrameId_;
     GraphicsApi::ID perAppId_;

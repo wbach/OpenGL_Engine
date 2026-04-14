@@ -21,10 +21,15 @@ class InputManager;
 
 namespace GameEngine
 {
+namespace GUI
+{
+class Manager;
+class IElementFactory;
+}  // namespace GUI
+
 class ITweenManager;
 class IAudioManager;
 class GameState;
-class GuiManager;
 class GameObject;
 
 namespace Components
@@ -35,7 +40,7 @@ class DialogueComponent;
 class ENGINE_API DialogueManager
 {
 public:
-    DialogueManager(IAudioManager&, Utils::Time::ITimerService&, Input::InputManager&, IGuiElementFactory&, GuiManager&,
+    DialogueManager(IAudioManager&, Utils::Time::ITimerService&, Input::InputManager&, GUI::IElementFactory&, GUI::Manager&,
                     GameState&, ITweenManager&, std::function<void(EngineEvent)>);
 
     void startDialogue(GameObject&, Components::DialogueComponent&);

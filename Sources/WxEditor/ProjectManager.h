@@ -7,7 +7,8 @@
 #include <Utils/Json/JsonReader.h>
 #include <Utils/Json/JsonWriter.h>
 #include <Utils/Rotation.h>
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/TreeNodeReadFunctions.h>
 #include <wx/config.h>
 #include <wx/wx.h>
 

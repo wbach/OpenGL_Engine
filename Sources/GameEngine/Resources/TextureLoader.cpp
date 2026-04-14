@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <array>
 #include <fstream>
+#include <variant>
 #include <vector>
 
 #include "DefaultFiles/darkGrayButton.h"
@@ -15,6 +16,8 @@
 #include "DefaultFiles/whiteClear.h"
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Resources/File.h"
+#include "GameEngine/Resources/MemoryFile.h"
 #include "GameEngine/Resources/Textures/ArrayTexture.h"
 #include "GpuResourceLoader.h"
 #include "HeightMapHeader.h"
@@ -24,6 +27,7 @@
 #include "Textures/CubeMapTexture.h"
 #include "Textures/GeneralTexture.h"
 #include "Textures/HeightMap.h"
+#include "Variant.h"
 #include "textureNotFound.h"
 
 namespace GameEngine
@@ -105,46 +109,52 @@ void TextureLoader::UpdateTexture(GeneralTexture*& texture, const std::string& n
         }
     }
 }
-GeneralTexture* TextureLoader::LoadTexture(const File& inputFileName, const TextureParameters& params)
+GeneralTexture* TextureLoader::LoadTexture(const FileHandle& fileHandle, const TextureParameters& params)
 {
-    auto memoryImagesIter = memoryImages.find(inputFileName.GetFilename());
+    return std::visit(visitor{[this, &params](const MemoryFile& m)
+                              {
+                                  auto memoryImagesIter = memoryImages.find(m.name);
+                                  if (memoryImagesIter != memoryImages.end())
+                                  {
+                                      LOG_DEBUG << "Image found in memoryImages " << m;
+                                      const auto& memoryImage = memoryImagesIter->second;
+                                      return LoadTexture(m.name, memoryImage.data, memoryImage.length, params);
+                                  }
+                              },
+                              [this, &params](const File& file)
+                              {
+                                  std::lock_guard<std::mutex> lk(textureMutex_);
 
-    if (memoryImagesIter != memoryImages.end())
-    {
-        LOG_DEBUG << "Image found in memoryImages " << inputFileName.GetFilename();
-        const auto& memoryImage = memoryImagesIter->second;
-        return LoadTexture(inputFileName.GetFilename(), memoryImage.data, memoryImage.length, params);
-    }
+                                  File inputFile = file;
+                                  if (not file)
+                                  {
+                                      auto filepath = Utils::FindFile(file.GetFilename(), EngineLocalConf.files.getDataPath());
+                                      if (not filepath.empty())
+                                      {
+                                          inputFile = File(filepath);
+                                      }
+                                      else
+                                      {
+                                          LOG_ERROR << "File not exist : " << file;
+                                          return GetTextureNotFound();
+                                      }
+                                  }
 
-    std::lock_guard<std::mutex> lk(textureMutex_);
+                                  if (auto texture = GetTextureIfLoaded(inputFile.GetAbsolutePath().string(), params))
+                                      return static_cast<GeneralTexture*>(texture);
 
-    File inputFile = inputFileName;
-    if (not inputFileName)
-    {
-        auto filepath = Utils::FindFile(inputFileName.GetFilename(), EngineLocalConf.files.getDataPath());
-        if (not filepath.empty())
-        {
-            inputFile = File(filepath);
-        }
-        else
-        {
-            LOG_ERROR << "File not exist : " << inputFileName;
-            return GetTextureNotFound();
-        }
-    }
+                                  auto image = ReadFile(inputFile, params);
 
-    if (auto texture = GetTextureIfLoaded(inputFile.GetAbsolutePath().string(), params))
-        return static_cast<GeneralTexture*>(texture);
+                                  if (not image)
+                                      return GetTextureNotFound();
 
-    auto image = ReadFile(inputFile, params);
-
-    if (not image)
-        return GetTextureNotFound();
-
-    auto texture    = std::make_unique<GeneralTexture>(graphicsApi_, std::move(*image), params, inputFile);
-    auto texturePtr = texture.get();
-    AddTexture(inputFile.GetAbsolutePath().string(), std::move(texture), params.loadType);
-    return texturePtr;
+                                  auto texture =
+                                      std::make_unique<GeneralTexture>(graphicsApi_, std::move(*image), params, inputFile);
+                                  auto texturePtr = texture.get();
+                                  AddTexture(inputFile.GetAbsolutePath().string(), std::move(texture), params.loadType);
+                                  return texturePtr;
+                              }},
+                      fileHandle);
 }
 
 GeneralTexture* TextureLoader::LoadTexture(const std::string& name, Utils::Image&& image, const TextureParameters& params)
@@ -179,7 +189,7 @@ GeneralTexture* TextureLoader::LoadTexture(const std::string& name, const unsign
     if (not image)
         return GetTextureNotFound();
 
-    auto texture    = std::make_unique<GeneralTexture>(graphicsApi_, std::move(*image), params);
+    auto texture    = std::make_unique<GeneralTexture>(graphicsApi_, std::move(*image), params, MemoryFile{.name = name});
     auto texturePtr = texture.get();
     AddTexture(name, std::move(texture), params.loadType);
     return texturePtr;

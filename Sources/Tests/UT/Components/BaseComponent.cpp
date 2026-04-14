@@ -9,6 +9,7 @@
 #include <GameEngine/Scene/Scene.hpp>
 #include <memory>
 
+#include "Renderers/GUI/Manager.h"
 #include "Scene/Navigation/NavigationManager.h"
 
 using namespace testing;
@@ -17,14 +18,15 @@ BaseComponentTestSchould::BaseComponentTestSchould()
     : scene("TestScene")
     , addEngineEvent([this](const auto& e) { onEngineEvent(e); })
     , navigationManager(physicsApiMock_)
+    , guiManager_{std::make_unique<GUI::Manager>(inputManagerMock_)}
     , windowApiMock_()
     , threadSync_(measurementHandler_)
     , renderersManager_(graphicsApiMock_, physicsApiMock_, gpuResourceLoader_, measurementHandler_, threadSync_, time_,
                         std::make_unique<RendererFactory>(graphicsApiMock_))
-    , dialogueManager_(audioManager_, timerService_, inputManagerMock_, guiElementFactory_, guiManager_, gameState_, tweenManager,
+    , dialogueManager_(audioManager_, timerService_, inputManagerMock_, guiElementFactory_, *guiManager_, gameState_, tweenManager,
                        addEngineEvent)
     , context_{scene,           sceneManager,      graphicsApiMock_,     gpuResourceLoader_, time_,       inputManagerMock_,
-               physicsApiMock_, resourcesManager_, componentController_, renderersManager_,  guiManager_, guiElementFactory_,
+               physicsApiMock_, resourcesManager_, componentController_, renderersManager_,  *guiManager_, guiElementFactory_,
                timerService_,   dialogueManager_,  tweenManager,         audioManager_,      gameState_,  navigationManager}
     , componentFactory_(context_)
     , obj_{std::make_unique<GameEngine::GameObject>("Test GameObject", componentController_, componentFactory_, gameObjectIdPool)}

@@ -9,10 +9,17 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Property.h"
 #include "Rotation.h"
 #include "Types.h"
 
 typedef std::unordered_map<std::string, std::string> Attributes;
+
+inline const std::string CSTR_X    = "x";
+inline const std::string CSTR_Y    = "y";
+inline const std::string CSTR_Z    = "z";
+inline const std::string CSTR_W    = "w";
+inline const std::string CSTR_VEC3 = "vec3";
 
 class ENGINE_API TreeNode
 {
@@ -61,69 +68,6 @@ private:
 
 std::ostream& operator<<(std::ostream&, const TreeNode&);
 
-extern const std::string CSTR_VEC3;
-
-ENGINE_API void Read(const TreeNode&, float&);
-ENGINE_API void Read(const TreeNode&, bool&);
-ENGINE_API void Read(const TreeNode&, int32&);
-ENGINE_API void Read(const TreeNode&, uint32&);
-ENGINE_API void Read(const TreeNode&, vec2&);
-ENGINE_API void Read(const TreeNode&, vec2ui&);
-ENGINE_API void Read(const TreeNode&, vec3&);
-ENGINE_API void Read(const TreeNode&, vec4&);
-ENGINE_API void Read(const TreeNode&, Color&);
-ENGINE_API void Read(const TreeNode&, Quaternion&);
-ENGINE_API void Read(const TreeNode&, Rotation&);
-ENGINE_API void Read(const TreeNode&, std::string&);
-ENGINE_API void Read(const TreeNode&, std::filesystem::path&);
-ENGINE_API void Read(const TreeNode&, std::vector<vec2>&);
-ENGINE_API void Read(const TreeNode&, std::vector<vec3>&);
-
-template <class T>
-void Read(const TreeNode& node, std::optional<T>& v)
-{
-    v.emplace();
-    Read(node, *v);
-}
-
-template <class T>
-void Read(const TreeNode& node, Property<T>& v)
-{
-    Read(node, v.modify());
-}
-
-template <class T>
-requires std::is_enum_v<T>
-void Read(const TreeNode& node, T& v)
-{
-    if (auto enum_value = magic_enum::enum_cast<T>(node.value_))
-    {
-        v = *enum_value;
-    }
-}
-
-template <class T>
-requires std::is_enum_v<T>
-void Read(const TreeNode* node, T& v)
-{
-    if (node)
-    {
-        if (auto enum_value = magic_enum::enum_cast<T>(node->value_))
-        {
-            v = *enum_value;
-        }
-    }
-}
-
-template <class T>
-requires(!std::is_enum_v<T>) void Read(const TreeNode* node, T& v)
-{
-    if (node)
-    {
-        Read(*node, v);
-    }
-}
-
 vec2 ConvertToVec2(TreeNode&);
 vec3 ConvertToVec3(TreeNode&);
 std::unique_ptr<TreeNode> Convert(const std::string&);
@@ -146,43 +90,6 @@ std::unique_ptr<TreeNode> Convert(const std::string& label, const std::vector<T>
         root->addChild(std::move(Convert(element)));
     }
     return root;
-}
-
-ENGINE_API void write(TreeNode&, float);
-ENGINE_API void write(TreeNode&, int);
-ENGINE_API void write(TreeNode&, uint32);
-ENGINE_API void write(TreeNode&, bool);
-ENGINE_API void write(TreeNode&, const std::string&);
-ENGINE_API void write(TreeNode&, const std::string_view&);
-ENGINE_API void write(TreeNode&, const std::filesystem::path&);
-ENGINE_API void write(TreeNode&, const vec2ui&);
-ENGINE_API void write(TreeNode&, const vec2&);
-ENGINE_API void write(TreeNode&, const vec3&);
-ENGINE_API void write(TreeNode&, const vec4&);
-ENGINE_API void write(TreeNode&, const Color&);
-ENGINE_API void write(TreeNode&, const std::optional<uint32>&);
-ENGINE_API void write(TreeNode&, const std::vector<vec3>&);
-
-template <class T>
-requires std::is_enum_v<T>
-void write(TreeNode& node, const T& v)
-{
-    write(node, magic_enum::enum_name(v));
-}
-
-template <class T>
-void write(TreeNode& node, const std::optional<T>& v)
-{
-    if (v)
-    {
-        write(node, v);
-    }
-}
-
-template <class T>
-void write(TreeNode& node, const Property<T>& v)
-{
-    write(node, v.get());
 }
 
 ENGINE_API void PrintTree(const TreeNode&);

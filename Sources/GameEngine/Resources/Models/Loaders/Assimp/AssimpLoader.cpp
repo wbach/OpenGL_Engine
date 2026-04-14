@@ -4,6 +4,7 @@
 #include <Logger/Log.h>
 #include <XML/XMLUtils.h>
 #include <XML/XmlReader.h>
+#include <Utils/TreeNodeReadFunctions.h>
 
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/Models/MeshData.h"

@@ -1,6 +1,6 @@
 #include <GameEngine/Camera/Camera.h>
 #include <GameEngine/Camera/Frustrum.h>
-#include <GameEngine/Renderers/GUI/Text/GuiTextElement.h>
+#include <GameEngine/Renderers/GUI/Text/Text.h>
 #include <Types.h>
 #include <Utils/GLM/GLMUtils.h>
 #include <gtest/gtest.h>

@@ -1,52 +1,39 @@
 #pragma once
-#include <GameEngine/Renderers/GUI/Button/GuiButton.h>
-#include <GameEngine/Renderers/GUI/EditText/GuiEditText.h>
-#include <GameEngine/Renderers/GUI/IGuiElementFactory.h>
+#include <GameEngine/Renderers/GUI/Button/Button.h>
+#include <GameEngine/Renderers/GUI/EditText/EditText.h>
+#include <GameEngine/Renderers/GUI/IElementFactory.h>
 #include <GameEngine/Renderers/GUI/Layout/HorizontalLayout.h>
 #include <GameEngine/Renderers/GUI/Layout/VerticalLayout.h>
-#include <GameEngine/Renderers/GUI/Menu/Menu.h>
-#include <GameEngine/Renderers/GUI/Text/GuiTextElement.h>
-#include <GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h>
-#include <GameEngine/Renderers/GUI/TreeView/TreeView.h>
-#include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
+#include <GameEngine/Renderers/GUI/Sprite/Sprite.h>
+#include <GameEngine/Renderers/GUI/Text/MultiLineText.h>
+#include <GameEngine/Renderers/GUI/Text/Text.h>
+#include <GameEngine/Renderers/GUI/Window/Window.h>
 #include <gmock/gmock.h>
 
 namespace GameEngine
 {
-class GuiElementFactoryMock : public IGuiElementFactory
+namespace GUI
+{
+class MockElementFactory : public IElementFactory
 {
 public:
-    MOCK_METHOD(bool, ReadGuiFile, (const File&), (override));
-    MOCK_METHOD(void, SetTheme, (const GuiTheme&), (override));
-    MOCK_METHOD(const GuiTheme&, GetTheme, (), (const, override));
+    // Destruktor
+    virtual ~MockElementFactory() = default;
 
-    MOCK_METHOD(std::unique_ptr<GuiElement>, CreateGuiElement, (), (const, override));
-    MOCK_METHOD(std::unique_ptr<GuiElement>, CreateGuiElement, (const vec2&, const vec2&), (const, override));
+    MOCK_METHOD(void, setTheme, (const Theme&), (override));
+    MOCK_METHOD(const Theme&, getTheme, (), (const, override));
 
-    MOCK_METHOD(std::unique_ptr<GuiTextElement>, CreateGuiText, (const std::string&), (override));
+    MOCK_METHOD(std::unique_ptr<Text>, createText, (const std::string&), (override));
+    MOCK_METHOD(std::unique_ptr<MultiLineText>, createMultiLineText, (const std::string&), (override));
+    MOCK_METHOD(std::unique_ptr<Sprite>, createSprite, (const FileHandle&), (override));
+    MOCK_METHOD(std::unique_ptr<Window>, createWindow, (WindowStyle), (override));
+    MOCK_METHOD(std::unique_ptr<Button>, createButton, (const std::optional<std::string>&), (override));
+    MOCK_METHOD(std::unique_ptr<EditText>, createEditText, (), (override));
+    MOCK_METHOD(std::unique_ptr<VerticalLayout>, createVerticalLayout, (), (override));
+    MOCK_METHOD(std::unique_ptr<HorizontalLayout>, createHorizontalLayout, (), (override));
 
-    MOCK_METHOD(std::unique_ptr<GuiTextureElement>, CreateGuiTexture, (const std::string&), (override));
-
-    MOCK_METHOD(std::unique_ptr<GuiWindowElement>, CreateGuiWindow, (GuiWindowStyle, const vec2&, const vec2&), (override));
-    MOCK_METHOD(std::unique_ptr<GuiWindowElement>, CreateGuiWindow, (GuiWindowStyle, const vec2&, const vec2&, const vec4&),
+    MOCK_METHOD(std::unique_ptr<Window>, createMessageBox, (const std::string&, const std::string&, std::function<void()>),
                 (override));
-    MOCK_METHOD(std::unique_ptr<GuiWindowElement>, CreateGuiWindow,
-                (GuiWindowStyle, const vec2&, const vec2&, const std::string&), (override));
-
-    MOCK_METHOD(std::unique_ptr<GuiButtonElement>, CreateGuiButton, (std::function<void(GuiElement&)>), (override));
-    MOCK_METHOD(std::unique_ptr<GuiButtonElement>, CreateGuiButton, (const std::string&, std::function<void(GuiElement&)>),
-                (override));
-
-    MOCK_METHOD(std::unique_ptr<GuiEditBoxElement>, CreateEditBox, (), (override));
-    MOCK_METHOD(std::unique_ptr<GuiEditBoxElement>, CreateEditBox, (const std::string&), (override));
-
-    MOCK_METHOD(std::unique_ptr<VerticalLayout>, CreateVerticalLayout, (), (override));
-    MOCK_METHOD(std::unique_ptr<HorizontalLayout>, CreateHorizontalLayout, (), (override));
-
-    MOCK_METHOD(std::unique_ptr<TreeView>, CreateTreeView, (std::function<void(GuiElement&)>), (override));
-    MOCK_METHOD(std::unique_ptr<Menu>, CreateMenu, (), (override));
-
-    MOCK_METHOD(void, CreateMessageBox, (const std::string&, const std::string&, std::function<void()>), (override));
 };
-
+}  // namespace GUI
 }  // namespace GameEngine

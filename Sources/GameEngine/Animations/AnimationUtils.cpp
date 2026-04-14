@@ -3,6 +3,7 @@
 #include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
 #include <Utils/Utils.h>
+#include <Utils/TreeNodeReadFunctions.h>
 #include <Utils/XML/XMLUtils.h>
 #include <Utils/XML/XmlReader.h>
 #include <Utils/XML/XmlWriter.h>

@@ -8,13 +8,13 @@
 #include <GameEngine/Narrative/Dialogs/Fsm/DialogEvents.h>
 #include <GameEngine/Narrative/GameState.h>
 #include <GameEngine/Objects/GameObject.h>
-#include <GameEngine/Renderers/GUI/GuiRenderer.h>
 #include <GameEngine/Renderers/GUI/Layout/VerticalLayout.h>
-#include <GameEngine/Renderers/GUI/Text/GuiTextElement.h>
-#include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
-#include <GameEngine/Renderers/GUI/Window/GuiWindowStyle.h>
+#include <GameEngine/Renderers/GUI/Renderer.h>
+#include <GameEngine/Renderers/GUI/Text/Text.h>
+#include <GameEngine/Renderers/GUI/Window/Window.h>
+#include <GameEngine/Renderers/GUI/Window/WindowStyle.h>
 #include <Logger/Log.h>
-#include <Renderers/GUI/GuiManager.h>
+#include <Renderers/GUI/Manager.h>
 #include <Scene/TweenManager.h>
 #include <Types.h>
 #include <Utils/IdPool.h>
@@ -53,15 +53,15 @@ protected:
         EXPECT_CALL(resourcesManager_, GetTextureLoader()).WillRepeatedly(ReturnRef(textureLoaderMock));
         EXPECT_CALL(textureLoaderMock, CreateTexture(_, _, Matcher<Utils::Image&&>(_))).WillRepeatedly(Return(&texture));
 
-        auto createVerticalLayout = [&]() { return std::make_unique<VerticalLayout>(inputManagerMock_); };
-        auto createGuiWindow      = [&](GuiWindowStyle style, const vec2& pos, const vec2& scale)
-        { return std::make_unique<GuiWindowElement>(style, inputManagerMock_); };
+        auto createVerticalLayout = [&]() { return std::make_unique<GUI::VerticalLayout>(); };
+        auto createWindow      = [&](GUI::WindowStyle style)
+        { return std::make_unique<GUI::Window>(style); };
 
-        EXPECT_CALL(guiElementFactory_, CreateGuiWindow(_, _, _)).WillRepeatedly(Invoke(createGuiWindow));
-        EXPECT_CALL(guiElementFactory_, CreateVerticalLayout()).WillRepeatedly(Invoke(createVerticalLayout));
+        EXPECT_CALL(guiElementFactory_, createWindow(_)).WillRepeatedly(Invoke(createWindow));
+        EXPECT_CALL(guiElementFactory_, createVerticalLayout()).WillRepeatedly(Invoke(createVerticalLayout));
 
         ON_CALL(fontManagerMock, openFont(_, _, _, _)).WillByDefault(Return(1));
-        ON_CALL(fontManagerMock, renderText(_, _, _)).WillByDefault(Return(IFontManager::TextureData{}));
+        ON_CALL(fontManagerMock, renderText(_, _, _)).WillByDefault(Return(GUI::TextureData{}));
         ON_CALL(fontManagerMock, closeFont(_)).WillByDefault(Return());
     }
 
@@ -78,21 +78,21 @@ protected:
     void expectGuiTextCreation(const std::string& text)
     {
         auto createGuiText = [&](const std::string& t)
-        { return std::make_unique<GuiTextElement>(fontManagerMock, guiRenderer, resourcesManager_, t); };
+        { return std::make_unique<GUI::Text>(fontManagerMock, resourcesManager_, guiRenderer, t); };
 
-        EXPECT_CALL(guiElementFactory_, CreateGuiText(text)).WillOnce(Invoke(createGuiText));
+        EXPECT_CALL(guiElementFactory_, createText(text)).WillOnce(Invoke(createGuiText));
     }
 
-    void expectGuiTextCreation(const std::string& text, GuiTextElement*& outPtr)
+    void expectGuiTextCreation(const std::string& text, GUI::Text*& outPtr)
     {
         auto createGuiText = [&](const std::string& t) mutable
         {
-            auto result = std::make_unique<GuiTextElement>(fontManagerMock, guiRenderer, resourcesManager_, t);
+            auto result = std::make_unique<GUI::Text>(fontManagerMock, resourcesManager_, guiRenderer, t);
             outPtr      = result.get();
             return result;
         };
 
-        EXPECT_CALL(guiElementFactory_, CreateGuiText(text)).WillOnce(Invoke(createGuiText));
+        EXPECT_CALL(guiElementFactory_, createText(text)).WillOnce(Invoke(createGuiText));
     }
 
     void createPlayerGameObjectWitoutCamera()
@@ -187,11 +187,11 @@ protected:
         EXPECT_FALSE(dialogueManager_.isActive());
     }
 
-    NiceMock<FontManagerMock> fontManagerMock;
+    NiceMock<GUI::FontManagerMock> fontManagerMock;
     TextureLoaderMock textureLoaderMock;
     GeneralTexture texture;
     Components::DialogueComponent* dialogueComponent;
-    GUIRenderer guiRenderer;
+    GUI::Renderer guiRenderer;
     std::string font{"arial.ttf"};
 
     std::unique_ptr<GameObject> playerGameObject;
@@ -356,7 +356,7 @@ TEST_F(DialogueManagerTests, ShouldAutomaticallyGoToNextNodeWhenNoOptionsAvailab
     EXPECT_EQ(dialogueComponent->getCurrent()->id, 2);
 
     LOG_DEBUG << "optionguiText";
-    GuiTextElement* optionguiText{nullptr};
+    GUI::Text* optionguiText{nullptr};
     expectGuiTextCreation(node3.options[0].text, optionguiText);
 
     LOG_DEBUG << "thridTimer";
@@ -365,10 +365,10 @@ TEST_F(DialogueManagerTests, ShouldAutomaticallyGoToNextNodeWhenNoOptionsAvailab
 
     LOG_DEBUG << "expectedighlighetColor";
     const vec4 expectedighlighetColor(1, 1, 0, 1);
-    EXPECT_TRUE(glm::all(glm::epsilonEqual(optionguiText->GetColor().value, expectedighlighetColor, 0.001f)));
+    EXPECT_TRUE(glm::all(glm::epsilonEqual(optionguiText->getColor().value, expectedighlighetColor, 0.001f)));
 
-    LOG_DEBUG << optionguiText->GetColor();
-    EXPECT_TRUE(optionguiText->IsShow());
+    LOG_DEBUG << optionguiText->getColor();
+    EXPECT_TRUE(optionguiText->isActive());
 
     expectGuiTextCreation(playerGameObject->GetName());
     expectGuiTextCreation(node3.options[0].text);

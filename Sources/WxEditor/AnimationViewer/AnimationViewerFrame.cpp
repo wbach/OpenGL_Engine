@@ -10,6 +10,7 @@
 #include <GameEngine/Physics/Bullet/BulletAdapter.h>
 #include <GameEngine/Scene/SceneFactoryBase.h>
 #include <GameEngine/Scene/SceneReader.h>
+#include <Variant.h>
 #include <Input/KeyCodes.h>
 #include <Logger/Log.h>
 #include <Utils.h>
@@ -179,18 +180,22 @@ void AnimationViewerFrame::CreateMainMenu()
         },
         ID_REFRESH_CLIPS);
 
-    Bind(wxEVT_MENU, [this](wxCommandEvent& e) { OnExportToFile(e); }, ID_EXPORT_SELECTED_CLIP);
+    Bind(
+        wxEVT_MENU, [this](wxCommandEvent& e) { OnExportToFile(e); }, ID_EXPORT_SELECTED_CLIP);
 
-    Bind(wxEVT_MENU, [this](wxCommandEvent& e) { OnExportAll(e); }, ID_EXPORT_ALL_CLIPS);
+    Bind(
+        wxEVT_MENU, [this](wxCommandEvent& e) { OnExportAll(e); }, ID_EXPORT_ALL_CLIPS);
 
-    Bind(wxEVT_MENU, [this](wxCommandEvent& e) { CreatePrefab(e); }, ID_CREATE_PREFAB);
+    Bind(
+        wxEVT_MENU, [this](wxCommandEvent& e) { CreatePrefab(e); }, ID_CREATE_PREFAB);
 
     fileMenu->AppendSeparator();
     fileMenu->Append(wxID_EXIT);
 
     menuBar->Append(fileMenu, "&File");
 
-    Bind(wxEVT_MENU, [this](wxCommandEvent&) { Close(true); }, wxID_EXIT);
+    Bind(
+        wxEVT_MENU, [this](wxCommandEvent&) { Close(true); }, wxID_EXIT);
 
     SetMenuBar(menuBar);
 }
@@ -535,28 +540,35 @@ void AnimationViewerFrame::ImportCurrentObject()
         {
             if (texture)
             {
-                auto textureFile = Utils::FindFile(texture->GetFile()->GetFilename(),
-                                                   currentGameObject->currentModelFile->GetAbsolutePath().parent_path());
+                std::visit(
+                    visitor{[&](GameEngine::File& file)
+                            {
+                                auto textureFile =
+                                    Utils::FindFile(file.GetFilename(),
+                                                    currentGameObject->currentModelFile->GetAbsolutePath().parent_path());
 
-                const auto fsTargetPath = std::filesystem::path(wxFileName(targetPath).GetPath().ToStdString());
+                                const auto fsTargetPath = std::filesystem::path(wxFileName(targetPath).GetPath().ToStdString());
 
-                if (not textureFile.empty())
-                {
-                    auto relPath = Utils::GetRelativePathToFile(
-                        currentGameObject->currentModelFile->GetAbsolutePath().parent_path(), textureFile);
-                    LOG_DEBUG << "relPath : " << relPath;
+                                if (not textureFile.empty())
+                                {
+                                    auto relPath = Utils::GetRelativePathToFile(
+                                        currentGameObject->currentModelFile->GetAbsolutePath().parent_path(), textureFile);
+                                    LOG_DEBUG << "relPath : " << relPath;
 
-                    if (relPath)
-                    {
-                        auto targetTexturePath = fsTargetPath / relPath.value();
-                        Utils::CreateDirectories(targetTexturePath);
-                        auto copiedFile = Utils::CopyFileToDirectory(textureFile, targetTexturePath);
-                    }
-                    else
-                    {
-                        Utils::CopyFileToDirectory(textureFile, wxFileName(targetPath).GetPath().ToStdString());
-                    }
-                }
+                                    if (relPath)
+                                    {
+                                        auto targetTexturePath = fsTargetPath / relPath.value();
+                                        Utils::CreateDirectories(targetTexturePath);
+                                        auto copiedFile = Utils::CopyFileToDirectory(textureFile, targetTexturePath);
+                                    }
+                                    else
+                                    {
+                                        Utils::CopyFileToDirectory(textureFile, wxFileName(targetPath).GetPath().ToStdString());
+                                    }
+                                }
+                            },
+                            [](auto&) { LOG_DEBUG << "File type not supported"; }},
+                    *texture->GetFile());
             }
         };
 

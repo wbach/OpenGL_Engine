@@ -1,26 +1,27 @@
 #include "Console.h"
 
 #include <Input/InputManager.h>
+#include <Input/KeyCodeToCharConverter.h>
 #include <Logger/Log.h>
+#include <Types.h>
 
 #include <algorithm>
 #include <fstream>
+#include <magic_enum/magic_enum.hpp>
 
 #include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Components/Controllers/AIController.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
-#include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
+#include "GameEngine/Renderers/GUI/Transform.h"
+#include "GameEngine/Renderers/GUI/Window/Window.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Scene/SceneEvents.h"
 #include "GameEngine/Scene/SceneReader.h"
 #include "GameEngine/Scene/SceneUtils.h"
-#include "Input/KeyCodeToCharConverter.h"
-#include "Types.h"
-#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -28,8 +29,8 @@ namespace Debug
 {
 namespace
 {
-const std::string COMMAND_CURRSOR{"> "};
-const std::string CONSOLE_LAYER_NAME{"consoleLayer"};
+constexpr char COMMAND_CURRSOR[]    = "> ";
+constexpr char CONSOLE_LAYER_NAME[] = "consoleLayer";
 Input::SingleCharType inputType{Input::SingleCharType::SMALL};
 const float WINDOW_Z_POSITION{-100.f};
 }  // namespace
@@ -173,34 +174,34 @@ void Console::ExecuteComand(const std::string &commandWithParams)
     commandsActions_.at(command)(params);
 }
 
-GuiTextElement *Console::AddOrUpdateGuiText(const std::string &command)
+GUI::Text *Console::AddOrUpdateGuiText(const std::string &command)
 {
     MoveUpTexts();
-    GuiTextElement *result{nullptr};
+    GUI::Text *result{nullptr};
 
     const float textHeight = 0.05f;
 
     if (guiTexts_.size() * textHeight > 1.f - textHeight)
     {
-        windowVerticalLayout_->RemoveChild(guiTexts_.front()->GetId());
+        windowVerticalLayout_->removeChild(guiTexts_.front()->getId());
         guiTexts_.pop_front();
     }
 
-    auto text                       = scene_.guiElementFactory_->CreateGuiText(COMMAND_CURRSOR + command);
-    text->font.size = 35;
-    text->render.align  = Align::LEFT;
+    auto text          = scene_.guiElementFactory_->createText(COMMAND_CURRSOR + command);
+    text->font.size    = 35;
+    text->render.align = GUI::HorizontalAlign::LEFT;
 
-    text->SetLocalScale({1.f, 0.05f});
+    text->setLocalScale({1.f, 0.05f});
     result = text.get();
     guiTexts_.push_back(result);
-    windowVerticalLayout_->AddChild(std::move(text));
+    windowVerticalLayout_->addChild(std::move(text));
 
     return result;
 }
 
 void Console::PrintMsgInConsole(const std::string &msg)
 {
-    currentCommand_->SetText(msg);
+    currentCommand_->setText(msg);
     currentCommand_ = AddOrUpdateGuiText("");
 }
 
@@ -208,10 +209,10 @@ void Console::MoveUpTexts()
 {
     for (auto &guiText : guiTexts_)
     {
-        auto position = guiText->GetScreenPosition();
-        auto scale    = guiText->GetScreenScale();
+        auto position = guiText->getScreenPosition();
+        auto scale    = guiText->getScreenScale();
         position.y += 2.f * scale.y;
-        guiText->SetScreenPostion(position);
+        guiText->setScreenPostion(position);
     }
 }
 
@@ -241,13 +242,13 @@ std::string Console::GetCommandToExecute()
 
 void Console::CloseConsole()
 {
-    window_->Hide();
+    window_->activate(false);
     scene_.GetCameraManager().UnlockAll();
 
-    if (currentCommand_ and currentCommand_->GetText() != COMMAND_CURRSOR)
+    if (currentCommand_ and currentCommand_->getText() != COMMAND_CURRSOR)
     {
-        currentCommand_->Append(" (not executed)");
-        currentCommand_->Hide();
+        currentCommand_->append(" (not executed)");
+        currentCommand_->activate(false);
     }
 
     // stash pop remove existing subscriptions
@@ -596,7 +597,7 @@ void Console::LoadCommandHistoryFromFile()
         while (std::getline(file, command))
         {
             auto text = AddOrUpdateGuiText(command);
-            text->Hide();
+            text->activate(false);
             commandsHistory_.push_back(command);
         }
         file.close();
@@ -608,12 +609,12 @@ void Console::SubscribeKeys()
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ENTER,
                                              [&]()
                                              {
-                                                 if (not window_->IsShow() or not currentCommand_)
+                                                 if (not window_->isActive() or not currentCommand_)
                                                  {
                                                      return;
                                                  }
                                                  commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size());
-                                                 AddCommand(currentCommand_->GetText().substr(COMMAND_CURRSOR.size()));
+                                                 AddCommand(currentCommand_->getText().substr(sizeof(COMMAND_CURRSOR) - 1));
                                                  currentCommand_ = AddOrUpdateGuiText("");
                                              });
     scene_.inputManager_->SubscribeOnKeyDown(
@@ -627,11 +628,11 @@ void Console::SubscribeKeys()
 
             if (commandHistoryIndex_ < static_cast<int>(commandsHistory_.size()))
             {
-                currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[commandHistoryIndex_]);
+                currentCommand_->setText(COMMAND_CURRSOR + commandsHistory_[commandHistoryIndex_]);
             }
             else
             {
-                currentCommand_->SetText(COMMAND_CURRSOR);
+                currentCommand_->setText(COMMAND_CURRSOR);
             }
         });
 
@@ -643,7 +644,7 @@ void Console::SubscribeKeys()
                 return;
 
             --commandHistoryIndex_;
-            currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[commandHistoryIndex_]);
+            currentCommand_->setText(COMMAND_CURRSOR + commandsHistory_[commandHistoryIndex_]);
         });
 
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LSHIFT, [&]() { inputType = Input::SingleCharType::BIG; });
@@ -653,18 +654,18 @@ void Console::SubscribeKeys()
     scene_.inputManager_->SubscribeOnAnyKeyPress(
         [this](KeyCodes::Type key)
         {
-            if (not window_->IsShow())
+            if (not window_->isActive())
                 return;
 
             switch (key)
             {
                 case KeyCodes::SPACE:
-                    currentCommand_->Append(' ');
+                    currentCommand_->append(' ');
                     break;
 
                 case KeyCodes::BACKSPACE:
-                    if (currentCommand_->GetText().size() > COMMAND_CURRSOR.size())
-                        currentCommand_->Pop();
+                    if (currentCommand_->getText().size() > sizeof(COMMAND_CURRSOR) - 1)
+                        currentCommand_->pop();
                     break;
 
                 default:
@@ -673,7 +674,7 @@ void Console::SubscribeKeys()
                     LOG_DEBUG << "key = " << magic_enum::enum_name(key) << " => " << character;
                     if (character)
                     {
-                        currentCommand_->Append(*character);
+                        currentCommand_->append(*character);
                     }
                 }
                 break;
@@ -699,33 +700,31 @@ GameObject *Console::GetGameObject(const std::string &name)
 
 void Console::PrepareConsoleWindow()
 {
-    scene_.guiManager_.AddLayer(CONSOLE_LAYER_NAME);
+    auto &layer = scene_.GetGuiManager().createLayer(CONSOLE_LAYER_NAME);
 
-    auto window = scene_.guiElementFactory_->CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0.5, 0.75), vec2(1, 0.5f));
-
+    auto window = scene_.guiElementFactory_->createWindow(GUI::WindowStyle::BACKGROUND_ONLY);
+    window->setTransform(GUI::Transform{.position = vec2(0.5, 0.75), .scale = vec2(1, 0.5f), .zValue = WINDOW_Z_POSITION});
     window_ = window.get();
-    window_->Hide();
-    window_->SetZPosition(WINDOW_Z_POSITION);
-
-    auto vl = scene_.guiElementFactory_->CreateVerticalLayout();
+    auto vl = scene_.guiElementFactory_->createVerticalLayout();
 
     windowVerticalLayout_ = vl.get();
-    window_->AddChild(std::move(vl));
+    window_->addChild(std::move(vl));
 
-    scene_.guiManager_.Add(CONSOLE_LAYER_NAME, std::move(window));
+    layer.add(std::move(window));
+    window_->activate(false);
 
     keysSubscribtionManager_ =
         scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2,
                                                  [this]()
                                                  {
-                                                     window_->Show();
+                                                     window_->activate(true);
                                                      if (not commandsHistory_.empty())
                                                          commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size());
 
-                                                     if (not currentCommand_ or currentCommand_->GetText() != COMMAND_CURRSOR)
+                                                     if (not currentCommand_ or currentCommand_->getText() != COMMAND_CURRSOR)
                                                          currentCommand_ = AddOrUpdateGuiText("");
 
-                                                     currentCommand_->Show();
+                                                     currentCommand_->activate(true);
 
                                                      scene_.GetCameraManager().LockAll();
                                                      scene_.inputManager_->AddEvent(

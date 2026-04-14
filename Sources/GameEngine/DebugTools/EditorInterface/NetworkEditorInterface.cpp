@@ -2,13 +2,15 @@
 
 #include <Input/InputManager.h>
 #include <Utils.h>
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 #include <UtilsNetwork/Messages/TextMessage.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
 #include <filesystem>
 #include <magic_enum/magic_enum.hpp>
+#include <variant>
 
 #include "CameraEditor.h"
 #include "GameEngine/Camera/FirstPersonCamera.h"
@@ -32,6 +34,7 @@
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
+#include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/ResourceUtils.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "GameEngine/Scene/Scene.hpp"
@@ -58,6 +61,7 @@
 #include "Messages/Transform.h"
 #include "Messages/XmlMessageConverter.h"
 #include "Types.h"
+#include "Variant.h"
 
 namespace GameEngine
 {
@@ -1880,14 +1884,20 @@ void NetworkEditorInterface::GenerateTerrainBlendMapToFile()
     {
         const auto &heightMap = *terrain->GetHeightMap();
 
-        auto heightMapFile = *terrain->GetTexture(TerrainTextureType::heightmap)->GetFile();
-
-        if (not generetedBlendMaps.count(heightMapFile.GetAbsolutePath().string()))
+        if (auto heightMapFileHandle = terrain->GetTexture(TerrainTextureType::heightmap)->GetFile())
         {
-            heightMapFile.AddSuffixToBaseName("_generatedBlendmap");
+            std::visit(visitor{[&](File &file)
+                               {
+                                   if (not generetedBlendMaps.count(file.GetAbsolutePath().string()))
+                                   {
+                                       file.AddSuffixToBaseName("_generatedBlendmap");
 
-            GenerateBlendMap(terrain->GetTerrainConfiguration().GetScale(), heightMap, heightMapFile);
-            generetedBlendMaps.insert(heightMapFile.GetAbsolutePath().string());
+                                       GenerateBlendMap(terrain->GetTerrainConfiguration().GetScale(), heightMap, file);
+                                       generetedBlendMaps.insert(file.GetAbsolutePath().string());
+                                   }
+                               },
+                               [](auto &) { LOG_DEBUG << "File type not supported"; }},
+                       *heightMapFileHandle);
         }
     }
 }

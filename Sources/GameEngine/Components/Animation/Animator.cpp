@@ -2,7 +2,8 @@
 
 #include <Common/Transform.h>
 #include <Logger/Log.h>
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/TreeNodeReadFunctions.h>
 
 #include <algorithm>
 #include <optional>
@@ -221,7 +222,7 @@ void Animator::alignAnimations(const std::string& animName1, const std::string& 
 
     if (clipIter1 == animationClipInfo_.end() or clipIter2 == animationClipInfo_.end())
     {
-        LOG_WARN << "Align not found animation!  : " << animName1 << " or " << animName2;
+        LOG_WARN << "HorizontalAlign not found animation!  : " << animName1 << " or " << animName2;
         return;
     }
     auto& clip1       = clipIter1->second.clip;
@@ -232,7 +233,7 @@ void Animator::alignAnimations(const std::string& animName1, const std::string& 
 
     if (clip1Frames.empty() or clip2Frames.empty())
     {
-        LOG_WARN << "Align empty frames!  : " << animName1 << " or " << animName2;
+        LOG_WARN << "HorizontalAlign empty frames!  : " << animName1 << " or " << animName2;
         return;
     }
 

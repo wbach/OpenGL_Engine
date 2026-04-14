@@ -26,11 +26,10 @@ void HeightMap::GpuLoadingPass()
 {
     if (image_.empty() or graphicsObjectId_)
     {
-        LOG_ERROR << "There was an error loading the texture : " << file_->GetBaseName()
-                  << ". floatData is null or is initialized.";
+        LOG_ERROR << "There was an error loading the texture : " << file_ << ". floatData is null or is initialized.";
         return;
     }
-    LOG_DEBUG << "Create texutre filneame : " << file_->GetBaseName();
+    LOG_DEBUG << "Create texutre filneame : " << file_;
 
     auto graphicsObjectId =
         graphicsApi_.CreateTexture(image_, GraphicsApi::TextureFilter::LINEAR, GraphicsApi::TextureMipmap::NONE);
@@ -38,11 +37,11 @@ void HeightMap::GpuLoadingPass()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
-        LOG_DEBUG << "File " << file_->GetBaseName() << " is in GPU.";
+        LOG_DEBUG << "File " << file_ << " is in GPU.";
     }
     else
     {
-        LOG_ERROR << "Texutre not created. Filename : " << file_->GetBaseName();
+        LOG_ERROR << "Texutre not created. Filename : " << file_;
     }
 }
 const Utils::Image& HeightMap::GetImage() const
@@ -52,8 +51,8 @@ const Utils::Image& HeightMap::GetImage() const
 void HeightMap::setImage(Utils::Image&& image)
 {
     std::lock_guard<std::mutex> lk(mutex);
-    image_       = std::move(image);
-    size_        = vec2ui(image.width, image.height);
+    image_ = std::move(image);
+    size_  = vec2ui(image.width, image.height);
 }
 
 float HeightMap::GetMaximumHeight() const

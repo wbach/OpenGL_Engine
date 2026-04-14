@@ -10,9 +10,11 @@ class Transform;
 
 namespace GameEngine
 {
-class GuiManager;
-class GuiTextureElement;
-class GuiWindowElement;
+namespace GUI
+{
+class Manager;
+class Window;
+}  // namespace GUI
 
 namespace Components
 {
@@ -26,7 +28,7 @@ class Player : public BaseComponent
         Bar hp;
         Bar stamina;
         Bar mana;
-        GuiWindowElement* window{nullptr};
+        GUI::Window* window{nullptr};
     };
 
 public:
@@ -42,7 +44,7 @@ public:
     void renderDmg(const common::Transform&, int64);
 
 private:
-    GuiManager& guiManager_;
+    GUI::Manager& guiManager_;
     Animator* animator_;
     CharacterController* characterController_;
     CharacterStatistic characterStatistic_;

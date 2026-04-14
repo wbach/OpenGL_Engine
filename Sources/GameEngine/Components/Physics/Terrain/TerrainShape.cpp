@@ -1,7 +1,8 @@
 #include "TerrainShape.h"
 
 #include <Logger/Log.h>
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/TreeNodeReadFunctions.h>
 
 #include <algorithm>
 

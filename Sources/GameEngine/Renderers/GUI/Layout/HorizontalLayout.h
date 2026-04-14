@@ -1,25 +1,25 @@
 #pragma once
 #include "Layout.h"
-
 namespace GameEngine
+{
+namespace GUI
 {
 class ENGINE_API HorizontalLayout : public Layout
 {
 public:
     HorizontalLayout();
-    void AddChild(std::unique_ptr<GuiElement>) override;
     void autoResize();
 
 private:
     float calculateFirstChildXPosition() const;
-    void OnChange() override;
-    void calculateTotalChildrenScaleX();
+    float calculateYPosition(const Element &);
+    void refreshSelf() override;
+    void calculateTotalChildrenScale();
+    void accept(IElementVisitor &) override;
 
 private:
     float totalChildrenScaleX_;
     bool resizeAble_;
-
-public:
-    static GuiElementTypes type;
 };
+}  // namespace GUI
 }  // namespace GameEngine

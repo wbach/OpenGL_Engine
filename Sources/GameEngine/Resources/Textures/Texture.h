@@ -3,6 +3,7 @@
 
 #include "../GpuObject.h"
 #include "GameEngine/Resources/File.h"
+#include "GameEngine/Resources/FileHandle.h"
 #include "GameEngine/Resources/TextureParameters.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "TextureFlip.h"
@@ -19,31 +20,31 @@ class Texture : public GpuObject
 public:
     Texture(GraphicsApi::IGraphicsApi&, const TextureParameters&);
     Texture(GraphicsApi::IGraphicsApi&, const TextureParameters&, const GraphicsApi::ID& id);
-    Texture(GraphicsApi::IGraphicsApi&, const TextureParameters&, const vec2ui&, const std::optional<File>&);
+    Texture(GraphicsApi::IGraphicsApi&, const TextureParameters&, const vec2ui&, const std::optional<FileHandle>&);
     Texture(const Texture&) = delete;
     ~Texture() override;
     void GpuLoadingPass() override;
     void ReleaseGpuPass() override;
 
-    void SetFile(const File&);
+    void SetFile(const FileHandle&);
     inline const vec2ui& GetSize() const;
-    inline const std::optional<File>& GetFile() const;
+    inline const std::optional<FileHandle>& GetFile() const;
     inline float GetTextureXOffset(uint32 textureIndex) const;
     inline float GetTextureYOffset(uint32 textureIndex) const;
     inline vec2 GetTextureOffset(uint32 textureIndex) const;
-    std::optional<uint32> GetNumberOfRowsBasedOnTextureFileName(const std::string& file) const;
+    std::optional<uint32> GetNumberOfRowsBasedOnTextureFileName(const std::string&) const;
     uint32 getNumberOfRows() const;
     const TextureParameters& getTextureParameters() const;
 
 protected:
     GraphicsApi::IGraphicsApi& graphicsApi_;
     TextureParameters textureParamters_;
-    std::optional<File> file_;
+    std::optional<FileHandle> file_;
     vec2ui size_;
     uint32 numberOfRows_;
 };
 
-const std::optional<File>& Texture::GetFile() const
+const std::optional<FileHandle>& Texture::GetFile() const
 {
     return file_;
 }

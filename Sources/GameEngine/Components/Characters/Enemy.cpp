@@ -1,6 +1,7 @@
 #include "Enemy.h"
 
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/TreeNodeReadFunctions.h>
 
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Camera/ICamera.h"
@@ -12,11 +13,12 @@
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/ControllerUtlis.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Renderers/GUI/GuiElementFactory.h"
-#include "GameEngine/Renderers/GUI/GuiManager.h"
+#include "GameEngine/Renderers/GUI/IElementFactory.h"
 #include "GameEngine/Renderers/GUI/Layer/DefaultLayers.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
-#include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
+#include "GameEngine/Renderers/GUI/Manager.h"
+#include "GameEngine/Renderers/GUI/Transform.h"
+#include "GameEngine/Renderers/GUI/Window/Window.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Scene/Scene.hpp"
 
@@ -40,7 +42,7 @@ Enemy::Enemy(ComponentContext& componentContext, GameObject& gameObject)
 void Enemy::CleanUp()
 {
     if (hud_.window)
-        guiManager_.Remove(*hud_.window);
+        guiManager_.remove(*hud_.window);
 
     for (auto& id : animSubs_)
         animator_->UnSubscribeForAnimationFrame(id);
@@ -94,21 +96,22 @@ void Enemy::Init()
     const vec2 windowSize(0.2f, 0.033f);
     const vec2 windowPosition(0.5f, 1.f - windowSize.y);
 
-    auto window =
-        componentContext_.guiElementFactory_.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, windowPosition, windowSize);
+    auto window = componentContext_.guiElementFactory_.createWindow(GUI::WindowStyle::BACKGROUND_ONLY);
+    window->setTransform(GUI::Transform{.position = windowPosition, .scale = windowSize});
+
     hud_.window         = window.get();
-    auto verticalLayout = componentContext_.guiElementFactory_.CreateVerticalLayout();
-    verticalLayout->SetAlign(Layout::Align::LEFT);
+    auto verticalLayout = componentContext_.guiElementFactory_.createVerticalLayout();
+    verticalLayout->setAlign(GUI::HorizontalAlign::LEFT);
 
-    auto hpRedBar   = componentContext_.guiElementFactory_.CreateGuiTexture("GUI/Health_Bars/HP/Style_1.png");
+    auto hpRedBar   = componentContext_.guiElementFactory_.createSprite("GUI/Health_Bars/HP/Style_1.png");
     hud_.hp.texture = hpRedBar.get();
-    verticalLayout->AddChild(std::move(hpRedBar));
+    verticalLayout->addChild(std::move(hpRedBar));
 
-    auto frame = componentContext_.guiElementFactory_.CreateGuiTexture("GUI/liberated_frame_video.png");
-    window->AddChild(std::move(frame));
-    window->AddChild(std::move(verticalLayout));
-    guiManager_.AddLayer(DefaultGuiLayers::hud);
-    guiManager_.Add(DefaultGuiLayers::hud, std::move(window));
+    auto frame = componentContext_.guiElementFactory_.createSprite("GUI/liberated_frame_video.png");
+    window->addChild(std::move(frame));
+    window->addChild(std::move(verticalLayout));
+    auto& layer = guiManager_.createLayer(DefaultGuiLayers::hud);
+    layer.add(std::move(window));
 }
 void Enemy::Update()
 {
@@ -120,13 +123,13 @@ void Enemy::Update()
 
         if (glm::length(toCameraVector) > 20.f)
         {
-            if (hud_.window->IsShow())
-                hud_.window->Hide();
+            if (hud_.window->isActive())
+                hud_.window->activate(false);
         }
         else
         {
-            if (not hud_.window->IsShow())
-                hud_.window->Show();
+            if (not hud_.window->isActive())
+                hud_.window->activate(true);
         }
 
         return;

@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <memory>
 
-#include "GUI/GuiRenderer.h"
+#include "GUI/Renderer.h"
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -348,7 +348,7 @@ bool RenderersManager::getLineRenderMode() const
 {
     return renderAsLines.load();
 }
-GUIRenderer& RenderersManager::GetGuiRenderer()
+GUI::Renderer& RenderersManager::GetGuiRenderer()
 {
     return guiRenderer_;
 }

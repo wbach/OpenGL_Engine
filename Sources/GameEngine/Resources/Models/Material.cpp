@@ -151,9 +151,9 @@ void SaveMaterial(const Material& material, const File& requestedFile)
 
     auto texToNode = [](const std::string& name, GeneralTexture* tex)
     {
-        if (!tex || !tex->GetFile())
+        if (not tex or not tex->GetFile())
             return std::make_unique<TreeNode>(name, "");
-        return std::make_unique<TreeNode>(name, tex->GetFile()->GetDataRelativePath());
+        return std::make_unique<TreeNode>(name, getPath(*tex->GetFile()));
     };
 
     // Serializacja danych

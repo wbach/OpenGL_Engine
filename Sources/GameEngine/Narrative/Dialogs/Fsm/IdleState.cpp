@@ -7,10 +7,11 @@
 #include "GameEngine/Components/Dialogue/DialogueComponent.h"
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Renderers/GUI/GuiManager.h"
-#include "GameEngine/Renderers/GUI/IGuiElementFactory.h"
+#include "GameEngine/Renderers/GUI/Manager.h"
+#include "GameEngine/Renderers/GUI/IElementFactory.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
-#include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
+#include "GameEngine/Renderers/GUI/Transform.h"
+#include "GameEngine/Renderers/GUI/Window/Window.h"
 
 namespace GameEngine
 {
@@ -33,13 +34,14 @@ void IdleState::initGui()
 {
     auto createWindowWithLayout = [&](const vec2& position, const vec2& scale)
     {
-        auto dialogueWindowPtr  = dialogContext.guiFactory.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, position, scale);
+        auto dialogueWindowPtr  = dialogContext.guiFactory.createWindow(GUI::WindowStyle::BACKGROUND_ONLY);
+        dialogueWindowPtr->setTransform(GUI::Transform{.position = position, .scale = scale});
         auto textDialogueWindow = dialogueWindowPtr.get();
-        auto layout             = dialogContext.guiFactory.CreateVerticalLayout();
-        layout->AutoHideElements(false);
+        auto layout             = dialogContext.guiFactory.createVerticalLayout();
+        layout->autoHideElements(false);
         auto textWindowLayout   = layout.get();
-        dialogueWindowPtr->AddChild(std::move(layout));
-        dialogContext.guiManager.Add(std::move(dialogueWindowPtr));
+        dialogueWindowPtr->addChild(std::move(layout));
+        dialogContext.guiManager.add(std::move(dialogueWindowPtr));
 
         return DialogContext::GuiWindow{.window = textDialogueWindow, .layout = textWindowLayout};
     };
@@ -50,7 +52,7 @@ void IdleState::initGui()
         const uint32 WRAP_WIDTH{EngineConf.window.size->x - 20};
         const vec2& scale{(float)WRAP_WIDTH / (float)EngineConf.window.size->x, 0.25f};
         dialogContext.sentenceWindow = createWindowWithLayout(position, scale);
-        dialogContext.sentenceWindow.window->Hide();
+        dialogContext.sentenceWindow.window->activate(false);
     }
 
     if (not dialogContext.optionsWindow.window or not dialogContext.optionsWindow.layout)
@@ -58,8 +60,8 @@ void IdleState::initGui()
         const vec2& position{0.5f, 0.25f};
         const vec2& scale{0.95f, 0.24f};
         dialogContext.optionsWindow = createWindowWithLayout(position, scale);
-        dialogContext.optionsWindow.layout->SetAlign(Layout::Align::LEFT);
-        dialogContext.optionsWindow.window->Hide();
+        dialogContext.optionsWindow.layout->setAlign(GUI::HorizontalAlign::LEFT);
+        dialogContext.optionsWindow.window->activate(false);
     }
 }
 void IdleState::onEnter()
@@ -68,12 +70,12 @@ void IdleState::onEnter()
     {
         if (window.window)
         {
-            window.window->Hide();
+            window.window->activate(false);
         }
 
         if (window.layout)
         {
-            window.layout->RemoveAll();
+            window.layout->removeAll();
         }
     };
 

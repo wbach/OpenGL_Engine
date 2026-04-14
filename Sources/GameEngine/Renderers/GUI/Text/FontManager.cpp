@@ -3,19 +3,25 @@
 #include <Logger/Log.h>
 #include <SDL2/SDL_ttf.h>
 #include <Utils/Image/ImageUtils.h>
+#include <Variant.h>
 
 #include <filesystem>
+#include <magic_enum/magic_enum.hpp>
 #include <optional>
+#include <unordered_map>
 
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/DefaultFiles/segoe-ui.h"
-#include "magic_enum/magic_enum.hpp"
-
+#include "GameEngine/Resources/MemoryData.h"
 namespace GameEngine
 {
-
+namespace GUI
+{
 namespace
 {
+const std::unordered_map<std::string, MemoryData> memoryFonts{
+    {"segoe-ui.ttf", MemoryData{.data = segoe_ui_ttf, .length = segoe_ui_ttf_len}}};
+
 int ToSDLStyle(FontStyle style)
 {
     auto sdlStyle = TTF_STYLE_NORMAL;
@@ -32,6 +38,23 @@ int ToSDLStyle(FontStyle style)
 
     return sdlStyle;
 }
+
+auto loadFontFromMemory = [](const auto &data, const auto dataLength, int ptSize) -> TTF_Font *
+{
+    auto *rw = SDL_RWFromConstMem(data, dataLength);
+    if (not rw)
+    {
+        LOG_ERROR << "Create default font error: " << SDL_GetError();
+        return nullptr;
+    }
+
+    auto font = TTF_OpenFontRW(rw, 1, ptSize);
+    if (not font)
+    {
+        LOG_ERROR << "Create default font error: " << TTF_GetError();
+    }
+    return font;
+};
 }  // namespace
 struct FontManager::Pimpl
 {
@@ -72,12 +95,13 @@ FontManager::~FontManager()
     impl_->Clear();
     TTF_Quit();
 }
-std::optional<IdType> FontManager::openFont(FontStyle style, FontSize size, FontOutline outline, const std::optional<File> &file)
+std::optional<IdType> FontManager::openFont(FontStyle style, FontSize size, FontOutline outline,
+                                            const std::optional<FileHandle> &fileHandle)
 {
     if (not isInit_)
         return std::nullopt;
 
-    auto fname = getFontName(file, style, size, outline);
+    auto fname = getFontName(fileHandle, style, size, outline);
 
     auto iter = fontNameToIdMap_.find(fname);
     if (iter != fontNameToIdMap_.end())
@@ -86,31 +110,44 @@ std::optional<IdType> FontManager::openFont(FontStyle style, FontSize size, Font
         return iter->second;
     }
 
-    auto percentFontSize = EngineConf.window.size->y * size / 768;
+    auto percentFontSize = size;//static_cast<int>(EngineConf.window.size->y * size / 768);
     // auto percentFontSize = windowSize.y / size;
 
-    LOG_DEBUG << "Font percent size : " << percentFontSize << "/" << size;
+    LOG_DEBUG << "Font size : " << percentFontSize << " (actual skaled) /" << size << " (requested)";
 
     TTF_Font *font{nullptr};
-    if (not file or not file->exist())
+    if (fileHandle)
     {
-        auto *rw = SDL_RWFromConstMem(segoe_ui_ttf, segoe_ui_ttf_len);
-        if (not rw)
-        {
-            LOG_ERROR << "Create default font error: " << SDL_GetError();
-            return std::nullopt;
-        }
+        std::visit(visitor{[&](const MemoryFile &m)
+                           {
+                               auto iter = memoryFonts.find(m.name);
+                               if (iter != memoryFonts.end())
+                               {
+                                   auto data = iter->second;
+                                   font      = loadFontFromMemory(data.data, data.length, percentFontSize);
 
-        font = TTF_OpenFontRW(rw, 1, 24);
+                                   if (not font)
+                                   {
+                                       LOG_ERROR << "Create font error: " << TTF_GetError();
+                                   }
+                               }
+                               else
+                               {
+                                   LOG_ERROR << "Font not found in memory : " << m;
+                               }
+                           },
+                           [&](const File &file)
+                           { font = TTF_OpenFont(file.GetAbsolutePath().string().c_str(), percentFontSize); }},
+                   *fileHandle);
+    }
+    else
+    {
+        font = loadFontFromMemory(segoe_ui_ttf, segoe_ui_ttf_len, percentFontSize);
         if (not font)
         {
             LOG_ERROR << "Create default font error: " << TTF_GetError();
             return std::nullopt;
         }
-    }
-    else
-    {
-        font = TTF_OpenFont(file->GetAbsolutePath().string().c_str(), static_cast<int>(percentFontSize));
     }
 
     if (font)
@@ -127,12 +164,12 @@ std::optional<IdType> FontManager::openFont(FontStyle style, FontSize size, Font
         return id;
     }
 
-    LOG_ERROR << "Cannot open font : " << file;
+    LOG_ERROR << "Cannot open font : " << fileHandle;
     return {};
 }
 
-std::optional<FontManager::TextureData> FontManager::renderText(const std::string &text, IdType fontId,
-                                                                const std::optional<TextWrapWidth> &wrapWidth)
+std::optional<TextureData> FontManager::renderText(const std::string &text, IdType fontId,
+                                                   const std::optional<TextWrapWidth> &wrapWidth)
 {
     if (not isInit_ or text.empty())
         return std::nullopt;
@@ -173,7 +210,7 @@ std::optional<FontManager::TextureData> FontManager::renderText(const std::strin
 
     SDL_LockSurface(sdlSurface);
 
-    FontManager::TextureData sdlSizeImage;
+    TextureData sdlSizeImage;
     sdlSizeImage.name = text + "_" + font.name;
 
     uint32 w   = static_cast<uint32>(sdlSurface->w);
@@ -235,9 +272,19 @@ void FontManager::closeFont(IdType fontId)
         }
     }
 }
-std::string FontManager::getFontName(const std::optional<File> &file, FontStyle style, uint32 size, uint32 outline) const
+std::string FontManager::getFontName(const std::optional<FileHandle> &fileHandle, FontStyle style, uint32 size,
+                                     uint32 outline) const
 {
-    auto path = (file and file->exist()) ? file->GetAbsolutePath().string() : "defaultFont";
+    std::string path{"defaultFont"};
+
+    if (fileHandle)
+    {
+        path = std::visit(
+            visitor{[](const MemoryFile &m) { return m.name; }, [](const File &file) { return file.GetAbsolutePath().string(); }},
+            *fileHandle);
+    }
+
     return +"_" + std::string(magic_enum::enum_name(style)) + "_" + std::to_string(size) + "_" + std::to_string(outline);
 }
+}  // namespace GUI
 }  // namespace GameEngine

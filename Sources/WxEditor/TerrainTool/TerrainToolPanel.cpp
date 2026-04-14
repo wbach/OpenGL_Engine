@@ -685,19 +685,24 @@ void TerrainToolPanel::SelectedPainterTexture(wxMouseEvent& event)
         {
             if (GameEngine::isPaintAbleTexture(type) and texture->GetFile())
             {
-                auto iter = std::find_if(textures.begin(), textures.end(),
-                                         [t = texture->GetFile()](const auto& info)
-                                         { return info.file.GetAbsolutePath() == t->GetAbsolutePath(); });
+                std::visit(visitor{[&](GameEngine::File& file)
+                                   {
+                                       auto iter = std::find_if(textures.begin(), textures.end(),
+                                                                [t = file](const auto& info)
+                                                                { return info.file.GetAbsolutePath() == t.GetAbsolutePath(); });
 
-                if (iter != textures.end())
-                {
-                    iter->usedIn.push_back(getObjectNameWithId(terrain->GetParentGameObject()));
-                }
-                else
-                {
-                    textures.push_back(TexturePickerPopup::TexureInfo{
-                        .file = texture->GetFile().value(), .usedIn = {getObjectNameWithId(terrain->GetParentGameObject())}});
-                }
+                                       if (iter != textures.end())
+                                       {
+                                           iter->usedIn.push_back(getObjectNameWithId(terrain->GetParentGameObject()));
+                                       }
+                                       else
+                                       {
+                                           textures.push_back(TexturePickerPopup::TexureInfo{
+                                               .file = file, .usedIn = {getObjectNameWithId(terrain->GetParentGameObject())}});
+                                       }
+                                   },
+                                   [](auto&) { LOG_DEBUG << "File type not supported"; }},
+                           *texture->GetFile());
             }
         }
     }
@@ -1626,10 +1631,18 @@ void TerrainToolPanel::GeneratePlantsBasedOnTerrainTexture()
     {
         for (const auto& [type, texture] : terrain->GetTextures())
         {
-            const auto& file = texture->GetFile();
-            if (GameEngine::isPaintAbleTexture(type) and file and file->exist())
+            const auto& fileHandle = texture->GetFile();
+            if (GameEngine::isPaintAbleTexture(type) and fileHandle)
             {
-                textures.push_back(TexturePickerPopup::TexureInfo{.file = *file});
+                std::visit(visitor{[&](GameEngine::File& file)
+                                   {
+                                       if (file.exist())
+                                       {
+                                           textures.push_back(TexturePickerPopup::TexureInfo{.file = file});
+                                       }
+                                   },
+                                   [](auto&) { LOG_DEBUG << "File type not supported"; }},
+                           *fileHandle);
             }
         }
     }

@@ -1,11 +1,10 @@
 #include "GameEngine/Scene/Scene.hpp"
-#include <GameEngine/Renderers/GUI/Text/GuiTextElement.h>
+#include <GameEngine/Renderers/GUI/Text/Text.h>
 #include <Utils/GLM/GLMUtils.h>
 #include <gtest/gtest.h>
 #include "GameEngine/Resources/ResourceManager.h"
 #include "Tests/Mocks/Api/GraphicsApiMock.h"
 #include "Tests/Mocks/Api/WindowApiMock.hpp"
-#include "Tests/Mocks/Renderers/GuiTextFactoryMock.h"
 
 using namespace testing;
 
@@ -31,7 +30,6 @@ struct SceneTest : public Scene
 
     GraphicsApi::WindowApiMock windowApiMock_;
     GraphicsApi::GraphicsApiMock graphicsApiMock_;
-    GuiTextFactoryMock* guiTextFactoryMock_;
 };
 struct SceneShould : public ::testing::Test
 {

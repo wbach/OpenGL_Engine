@@ -1,39 +1,39 @@
 #include "Layout.h"
-#include <Logger/Log.h>
-#include <algorithm>
+
+#include "GameEngine/Renderers/GUI/VerticalAlign.h"
 
 namespace GameEngine
 {
-Layout::Layout(GuiElementTypes type)
-    : GuiElement(type)
-    , align_(Align::CENTER)
+namespace GUI
 {
-    SubscribeForChange([this]() { OnChange(); });
+Layout::Layout()
+    : hAlign_(HorizontalAlign::CENTER)
+    , vAlign_(VerticalAlign::CENTER)
+{
 }
-
 Layout::~Layout()
 {
 }
-
-void Layout::Update()
-{
-    for (auto& child : children_)
-    {
-        child->Update();
-    }
-}
-
-void Layout::ResetView()
+void Layout::resetView()
 {
 }
-
-void Layout::SetAlign(Align align)
+void Layout::setAlign(HorizontalAlign align)
 {
-    align_ = align;
+    hAlign_ = align;
+    invalidate();
 }
-
-Layout::Align Layout::GetAlign() const
+HorizontalAlign Layout::getHorizontalAlign() const
 {
-    return align_;
+    return hAlign_;
 }
+void Layout::setAlign(VerticalAlign v)
+{
+    vAlign_ = v;
+    invalidate();
+}
+VerticalAlign Layout::getVerticalAlign() const
+{
+    return vAlign_;
+}
+}  // namespace GUI
 }  // namespace GameEngine

@@ -34,37 +34,37 @@ aiMaterial* CreateAiMaterialFromGameMaterial(const Material& mat)
 
     if (mat.baseColorTexture && mat.baseColorTexture->GetFile().has_value())
     {
-        aiString texPath(mat.baseColorTexture->GetFile()->GetAbsolutePath().string());
+        aiString texPath(getPath(*mat.baseColorTexture->GetFile()));
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_DIFFUSE(0));
     }
     if (mat.normalTexture && mat.normalTexture->GetFile().has_value())
     {
-        aiString texPath(mat.normalTexture->GetFile()->GetAbsolutePath().string());
+        aiString texPath(getPath(*mat.normalTexture->GetFile()));
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_NORMALS(0));
     }
     if (mat.metallicTexture && mat.metallicTexture->GetFile().has_value())
     {
-        aiString texPath(mat.metallicTexture->GetFile()->GetAbsolutePath().string());
+        aiString texPath(getPath(*mat.metallicTexture->GetFile()));
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_SPECULAR(0));
     }
     if (mat.roughnessTexture && mat.roughnessTexture->GetFile().has_value())
     {
-        aiString texPath(mat.roughnessTexture->GetFile()->GetAbsolutePath().string());
+        aiString texPath(getPath(*mat.roughnessTexture->GetFile()));
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_SHININESS(0));
     }
     if (mat.occlusionTexture && mat.occlusionTexture->GetFile().has_value())
     {
-        aiString texPath(mat.occlusionTexture->GetFile()->GetAbsolutePath().string());
+        aiString texPath(getPath(*mat.occlusionTexture->GetFile()));
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_AMBIENT(0));
     }
     if (mat.opacityTexture && mat.opacityTexture->GetFile().has_value())
     {
-        aiString texPath(mat.opacityTexture->GetFile()->GetAbsolutePath().string());
+        aiString texPath(getPath(*mat.opacityTexture->GetFile()));
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_OPACITY(0));
     }
     if (mat.displacementTexture && mat.displacementTexture->GetFile().has_value())
     {
-        aiString texPath(mat.displacementTexture->GetFile()->GetAbsolutePath().string());
+        aiString texPath(getPath(*mat.displacementTexture->GetFile()));
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_HEIGHT(0));
     }
     return aiMat;

@@ -19,7 +19,7 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/GUI/Layout/Layout.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
-#include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
+#include "GameEngine/Renderers/GUI/Text/Text.h"
 #include "GameEngine/Scene/EaseType.h"
 #include "GameEngine/Scene/ITweenManager.h"
 #include "GameEngine/Scene/Tween.h"
@@ -29,7 +29,7 @@
 namespace GameEngine
 {
 DialogueManager::DialogueManager(IAudioManager& audioManager, Utils::Time::ITimerService& timerService,
-                                 Input::InputManager& inputManager, IGuiElementFactory& factory, GuiManager& manager,
+                                 Input::InputManager& inputManager, GUI::IElementFactory& factory, GUI::Manager& manager,
                                  GameState& gs, ITweenManager& tweenManager, std::function<void(EngineEvent)> addEngineEvent)
     : dialogContext{.timerService = timerService,
                     .audioManager = audioManager,

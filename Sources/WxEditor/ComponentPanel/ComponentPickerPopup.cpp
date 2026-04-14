@@ -2,7 +2,8 @@
 
 #include <GameEngine/Components/ComponentsReadFunctions.h>
 #include <GameEngine/Objects/GameObject.h>
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/TreeNodeReadFunctions.h>
 
 ComponentPickerPopup::ComponentPickerPopup(wxWindow* parent, GameEngine::Components::ComponentController& componentController,
                                            GameEngine::GameObject& gameObject, SelectCallback onSelect)

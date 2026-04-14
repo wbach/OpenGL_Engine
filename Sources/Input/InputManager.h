@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "GameActions.h"
+#include "IdPool.h"
 #include "KeyCodes.h"
 
 namespace Input
@@ -96,7 +97,7 @@ protected:
     void ExecuteOnKeyDown(KeyCodes::Type);
     void ExecuteOnKeyUp(KeyCodes::Type);
     void ExecuteAnyKey(KeyCodes::Type);
-    void Unquque();
+    void Exectute(KeyPressedSubscribers&, KeyCodes::Type);
 
 protected:
     std::unordered_map<GameAction, KeyCodes::Type> keyGameActions_;
@@ -104,9 +105,7 @@ protected:
     std::list<KeyEvent> keyEvents_;
     Subscribers subscribers_;
     std::deque<Subscribers> stash_;
-    Subscribers quque_;
-    uint32 idCounter_;
-    bool needToQueue_;
+    Utils::IdPool idPool_;
     bool isCursorVisible{true};
 };
 }  // namespace Input

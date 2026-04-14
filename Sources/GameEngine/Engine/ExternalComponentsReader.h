@@ -1,5 +1,6 @@
 #pragma once
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/TreeNodeReadFunctions.h>
 
 #include <string>
 #include <vector>

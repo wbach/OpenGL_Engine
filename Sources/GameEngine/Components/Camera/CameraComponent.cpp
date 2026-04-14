@@ -4,7 +4,8 @@
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
 #include <Utils/Fsm/Fsm.h>
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/TreeNodeReadFunctions.h>
 #include <Utils/Variant.h>
 
 #include <memory>

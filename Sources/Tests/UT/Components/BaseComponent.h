@@ -15,8 +15,8 @@
 #include "GameEngine/Narrative/Dialogs/DialogueManager.h"
 #include "GameEngine/Narrative/GameState.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Renderers/GUI/GuiElementFactory.h"
-#include "GameEngine/Renderers/GUI/GuiManager.h"
+#include "GameEngine/Renderers/GUI/ElementFactory.h"
+#include "GameEngine/Renderers/GUI/Manager.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/ResourceManager.h"
@@ -61,6 +61,7 @@ public:
     ::testing::NiceMock<GpuResourceLoaderMock> gpuResourceLoader_;
     Utils::MeasurementHandler measurementHandler_;
     Input::InputManagerMock inputManagerMock_;
+    std::unique_ptr<GUI::Manager> guiManager_;
     GraphicsApi::FrameBufferMock frameBufferMock_;
     Time time_;
     ComponentController componentController_;
@@ -75,13 +76,12 @@ public:
     SceneManagerMock sceneManager;
     Renderer::RenderersManager renderersManager_;
     CameraMock cameraMock_;
-    GuiElementFactoryMock guiElementFactory_;
+    GUI::MockElementFactory guiElementFactory_;
     DialogueManager dialogueManager_;
     ComponentContext context_;
     ComponentFactory componentFactory_;
     std::unique_ptr<GameObject> obj_;
 
-    GuiManager guiManager_;
 
     virtual void onEngineEvent(const EngineEvent&);
 };

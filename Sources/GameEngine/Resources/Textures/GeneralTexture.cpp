@@ -10,12 +10,12 @@
 namespace GameEngine
 {
 GeneralTexture::GeneralTexture(GraphicsApi::IGraphicsApi& graphicsApi, Utils::Image&& image, const TextureParameters& paramters,
-                               const std::optional<File>& file)
+                               const std::optional<FileHandle>& file)
     : Texture(graphicsApi, paramters, vec2ui(image.width, image.height), file)
     , image_(std::move(image))
     , paramters_(paramters)
 {
-    if ((not file or file->empty()) and textureParamters_.dataStorePolicy == DataStorePolicy::ToRelease)
+    if ((not file) and textureParamters_.dataStorePolicy == DataStorePolicy::ToRelease)
     {
         LOG_DEBUG << "File not set in texture, data could be lost, override data store police to keep data.";
         paramters_.dataStorePolicy = DataStorePolicy::Store;
@@ -31,7 +31,7 @@ void GeneralTexture::GpuLoadingPass()
     std::string debugFileNamePrint{"{genertated}"};
     if (file_)
     {
-        debugFileNamePrint = file_->GetBaseName();
+        debugFileNamePrint = getBaseName(*file_);
     }
     if (image_.empty() or graphicsObjectId_)
     {

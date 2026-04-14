@@ -1,16 +1,16 @@
 #pragma once
 #include <wx/treectrl.h>
 
-namespace GameEngine
+namespace GameEngine::GUI
 {
-class GuiElement;
-}  // namespace GameEngine
+class Element;
+}  // namespace GameEngine::GUI
 
 class GuiTreeItemData : public wxTreeItemData
 {
 public:
-    GameEngine::GuiElement* element{nullptr};
-    GuiTreeItemData(GameEngine::GuiElement* e)
+    GameEngine::GUI::Element* element{nullptr};
+    GuiTreeItemData(GameEngine::GUI::Element* e)
         : element(e)
     {
     }

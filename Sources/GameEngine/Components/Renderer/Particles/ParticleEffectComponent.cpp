@@ -1,6 +1,7 @@
 #include "ParticleEffectComponent.h"
 
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/TreeNodeReadFunctions.h>
 
 #include <algorithm>
 

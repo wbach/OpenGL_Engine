@@ -18,10 +18,10 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Narrative/Dialogs/DialogueManager.h"
-#include "GameEngine/Renderers/GUI/GuiEngineContextManger.h"
-#include "GameEngine/Renderers/GUI/GuiRenderer.h"
-#include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
-#include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
+#include "GameEngine/Renderers/GUI/DebugOverlay.h"
+#include "GameEngine/Renderers/GUI/Manager.h"
+#include "GameEngine/Renderers/GUI/Renderer.h"
+#include "GameEngine/Renderers/GUI/Window/Window.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/IResourceManagerFactory.h"
 #include "GameEngine/Resources/ResourceManager.h"
@@ -63,16 +63,19 @@ Scene::~Scene()
 
     componentController_.UnRegisterAll();
 
-    guiManager_.RemoveAll();
+    if (guiManager_)
+    {
+        guiManager_->removeAll();
+    }
 
     if (guiElementFactory_)
     {
         guiElementFactory_.reset();
     }
 
-    if (guiEngineContextManger_)
+    if (debugOverlay_)
     {
-        guiEngineContextManger_.reset();
+        debugOverlay_.reset();
     }
 
     if (console_)
@@ -126,12 +129,13 @@ void Scene::InitResources(EngineContext& context)
     {
         LOG_ERROR << "resourceManager  creation error!";
     }
-    GuiElementFactory::EntryParameters guiFactoryParams{guiManager_, *inputManager_, *resourceManager_, *renderersManager_};
-    guiElementFactory_      = std::make_unique<GuiElementFactory>(guiFactoryParams);
-    guiEngineContextManger_ = std::make_unique<GuiEngineContextManger>(context.GetMeasurmentHandler(), *guiElementFactory_);
+    GUI::ElementFactory::EntryParameters guiFactoryParams{*inputManager_, *resourceManager_, renderersManager_->GetGuiRenderer()};
+    guiElementFactory_ = std::make_unique<GUI::ElementFactory>(guiFactoryParams);
+    guiManager_        = std::make_unique<GUI::Manager>(*inputManager_);
+    debugOverlay_      = std::make_unique<DebugOverlay>(context.GetMeasurmentHandler(), *guiManager_, *guiElementFactory_);
     dialogueManager_ =
         std::make_unique<DialogueManager>(context.GetAudioManager(), *timerService_, *inputManager_, *guiElementFactory_,
-                                          guiManager_, context.GetGameState(), tweenManager, addEngineEvent);
+                                          *guiManager_, context.GetGameState(), tweenManager, addEngineEvent);
     navigationManager = std::make_unique<NavigationManager>(context.GetPhysicsApi());
 
     console_ = std::make_unique<Debug::Console>(*this);
@@ -147,7 +151,7 @@ void Scene::InitResources(EngineContext& context)
                                      .resourceManager_     = *resourceManager_,
                                      .componentController_ = componentController_,
                                      .renderersManager_    = *renderersManager_,
-                                     .guiManager_          = guiManager_,
+                                     .guiManager_          = *guiManager_,
                                      .guiElementFactory_   = *guiElementFactory_,
                                      .timerService_        = *timerService_,
                                      .dialogueManager_     = *dialogueManager_,
@@ -178,11 +182,14 @@ void Scene::FullUpdate(float deltaTime)
         inputManager_->ProcessKeysEvents();
     }
 
-    guiManager_.Update(deltaTime);
-
-    if (guiEngineContextManger_)
+    if (guiManager_)
     {
-        guiEngineContextManger_->Update();
+        guiManager_->update(deltaTime);
+    }
+
+    if (debugOverlay_)
+    {
+        debugOverlay_->Update();
     }
     if (displayManager_)
     {
@@ -660,7 +667,7 @@ const Color& Scene::GetBackgroundColor() const
 {
     return backgroundColor;
 }
-GuiElementFactory& Scene::GetGuiElementFactory()
+GUI::IElementFactory& Scene::GetGuiElementFactory()
 {
     return *guiElementFactory_;
 }
@@ -672,8 +679,8 @@ DialogueManager* Scene::GetDialogueManager() const
 {
     return dialogueManager_.get();
 }
-GuiManager& Scene::GetGuiManager()
+GUI::Manager& Scene::GetGuiManager()
 {
-    return guiManager_;
+    return *guiManager_;
 }
 }  // namespace GameEngine

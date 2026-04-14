@@ -1,33 +1,28 @@
 #pragma once
-#include <functional>
-#include <memory>
-#include <optional>
-#include <vector>
-#include "GameEngine/Renderers/GUI/GuiElement.h"
-#include "Input/InputManager.h"
-
+#include "GameEngine/Renderers/GUI/Element.h"
+#include "GameEngine/Renderers/GUI/HorizontalAlign.h"
+#include "GameEngine/Renderers/GUI/VerticalAlign.h"
 namespace GameEngine
 {
-class ENGINE_API Layout : public GuiElement
+namespace GUI
+{
+class ENGINE_API Layout : public Element
 {
 public:
-    enum class Align
-    {
-        LEFT,
-        CENTER,
-        RIGHT
-    };
+    Layout();
+    ~Layout() override;
 
-    Layout(GuiElementTypes type);
-    ~Layout();
-    virtual void Update() override;
-    virtual void ResetView();
-    virtual void OnChange() = 0;
+    virtual void resetView();
 
-    void SetAlign(Align);
-    Align GetAlign() const;
+    void setAlign(HorizontalAlign);
+    void setAlign(VerticalAlign);
+
+    HorizontalAlign getHorizontalAlign() const;
+    VerticalAlign getVerticalAlign() const;
 
 protected:
-    Align align_;
+    HorizontalAlign hAlign_;
+    VerticalAlign vAlign_;
 };
+}  // namespace GUI
 }  // namespace GameEngine

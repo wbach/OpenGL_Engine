@@ -1,5 +1,5 @@
 #include "Bar.h"
-#include "GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h"
+#include "GameEngine/Renderers/GUI/Sprite/Sprite.h"
 
 namespace GameEngine
 {
@@ -13,7 +13,7 @@ void Bar::update()
         currentRendered = current;
 
         auto p = static_cast<float>(current) / static_cast<float>(maxValue);
-        texture->SetLocalScale(vec2(p, texture->GetLocalScale().y));
+        texture->setLocalScale(vec2(p, texture->getLocalScale().y));
     }
 }
 }  // namespace Components

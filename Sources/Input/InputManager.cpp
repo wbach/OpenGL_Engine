@@ -25,8 +25,6 @@ MouseState mouseState;
 }  // namespace
 
 InputManager::InputManager()
-    : idCounter_(0)
-    , needToQueue_{false}
 {
     SetDefaultKeys();
 }
@@ -82,48 +80,22 @@ void InputManager::AddEvent(KeyPressedFunc eventFunc)
 
 uint32 InputManager::SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func)
 {
-    auto id = idCounter_++;
-
-    if (needToQueue_)
-    {
-        quque_.keyDownSubscribers_[key].insert({id, func});
-    }
-    else
-    {
-        subscribers_.keyDownSubscribers_[key].insert({id, func});
-    }
+    auto id = idPool_.getId();
+    subscribers_.keyDownSubscribers_[key].insert({id, func});
     return id;
 }
 
 uint32 InputManager::SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func)
 {
-    auto id = idCounter_++;
-
-    if (needToQueue_)
-    {
-        quque_.keyUpSubscribers_[key].insert({id, func});
-    }
-    else
-    {
-        subscribers_.keyUpSubscribers_[key].insert({id, func});
-    }
-
+    auto id = idPool_.getId();
+    subscribers_.keyUpSubscribers_[key].insert({id, func});
     return id;
 }
 
 uint32 InputManager::SubscribeOnAnyKeyPress(KeysPressedFunc func)
 {
-    auto id = idCounter_++;
-
-    if (needToQueue_)
-    {
-        quque_.keysSubscribers_.insert({id, func});
-    }
-    else
-    {
-        subscribers_.keysSubscribers_.insert({id, func});
-    }
-
+    auto id = idPool_.getId();
+    subscribers_.keysSubscribers_.insert({id, func});
     return id;
 }
 
@@ -158,10 +130,6 @@ void InputManager::Unsubscribe(uint32 id)
     if (UnsubscribeImpl(subscribers_.keyDownSubscribers_, id)) return;
     if (UnsubscribeImpl(subscribers_.keyUpSubscribers_, id)) return;
     if (UnsubscribeImpl(subscribers_.keysSubscribers_, id)) return;
-
-    if (UnsubscribeImpl(quque_.keyDownSubscribers_, id)) return;
-    if (UnsubscribeImpl(quque_.keyUpSubscribers_, id)) return;
-    if (UnsubscribeImpl(quque_.keysSubscribers_, id)) return;
     // clang-format on
 }
 
@@ -191,95 +159,67 @@ void InputManager::ProcessEvents()
 }
 void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key)
 {
-    auto ququeKeyIter = quque_.keyDownSubscribers_.find(key);
-    if (ququeKeyIter != quque_.keyDownSubscribers_.end())
-    {
-        quque_.keyDownSubscribers_.erase(ququeKeyIter);
-        return;
-    }
-
-    auto subscribersKeyIter = subscribers_.keyDownSubscribers_.find(key);
-    if (subscribersKeyIter != subscribers_.keyDownSubscribers_.end())
+    auto iter = subscribers_.keyDownSubscribers_.find(key);
+    if (iter == subscribers_.keyDownSubscribers_.end())
     {
         LOG_WARN << "Not existing subscribtion : {" << magic_enum::enum_name(key);
         return;
     }
-    subscribers_.keyDownSubscribers_.erase(subscribersKeyIter);
+    subscribers_.keyDownSubscribers_.erase(iter);
 }
 void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key)
 {
-    if (quque_.keyDownSubscribers_.count(key) > 0)
-    {
-        quque_.keyUpSubscribers_.erase(key);
-        return;
-    }
-
-    if (subscribers_.keyUpSubscribers_.count(key) == 0)
+    auto iter = subscribers_.keyUpSubscribers_.find(key);
+    if (iter == subscribers_.keyUpSubscribers_.end())
     {
         LOG_WARN << "Not existing subscribtion : {" << magic_enum::enum_name(key);
         return;
     }
-    subscribers_.keyUpSubscribers_.erase(key);
+    subscribers_.keyUpSubscribers_.erase(iter);
 }
 
 void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key, uint32 id)
 {
-    if (quque_.keyDownSubscribers_.count(key) > 0)
-    {
-        auto& keys = quque_.keyDownSubscribers_.at(key);
-        keys.erase(id);
-        return;
-    }
-
-    if (subscribers_.keyDownSubscribers_.count(key) == 0)
+    auto iter = subscribers_.keyDownSubscribers_.find(key);
+    if (iter == subscribers_.keyDownSubscribers_.end())
     {
         LOG_WARN << "Not existing subscribtion : {" << magic_enum::enum_name(key) << ", " << id << "}";
         return;
     }
-    auto& keys = subscribers_.keyDownSubscribers_.at(key);
+    auto& keys = iter->second;
     keys.erase(id);
 }
 
 void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key, uint32 id)
 {
-    if (quque_.keyUpSubscribers_.count(key) > 0)
-    {
-        auto& keys = quque_.keyUpSubscribers_.at(key);
-        keys.erase(id);
-        return;
-    }
-
-    if (subscribers_.keyUpSubscribers_.count(key) == 0)
+    auto iter = subscribers_.keyUpSubscribers_.find(key);
+    if (subscribers_.keyUpSubscribers_.end() == iter)
     {
         LOG_WARN << "Not existing subscribtion : {" << magic_enum::enum_name(key) << ", " << id << "}";
         return;
     }
 
-    auto& keys = subscribers_.keyUpSubscribers_.at(key);
+    auto& keys = iter->second;
     keys.erase(id);
 }
 
 void InputManager::UnsubscribeAnyKey(uint32 id)
 {
-    if (quque_.keysSubscribers_.count(id) > 0)
-    {
-        quque_.keysSubscribers_.erase(id);
-        return;
-    }
-
-    if (subscribers_.keysSubscribers_.count(id) == 0)
+    auto iter = subscribers_.keysSubscribers_.find(id);
+    if (subscribers_.keysSubscribers_.end() == iter)
     {
         LOG_WARN << "Not existing subscribtion : {" << id << "}";
         return;
     }
-    subscribers_.keysSubscribers_.erase(id);
+    subscribers_.keysSubscribers_.erase(iter);
 }
 
 uint32 InputManager::SubscribeOnKeyDown(GameAction action, KeyPressedFunc func)
 {
-    if (keyGameActions_.count(action))
+    auto iter = keyGameActions_.find(action);
+    if (keyGameActions_.end() != iter)
     {
-        return SubscribeOnKeyDown(keyGameActions_.at(action), func);
+        return SubscribeOnKeyDown(iter->second, func);
     }
     else
     {
@@ -290,9 +230,10 @@ uint32 InputManager::SubscribeOnKeyDown(GameAction action, KeyPressedFunc func)
 
 uint32 InputManager::SubscribeOnKeyUp(GameAction action, KeyPressedFunc func)
 {
-    if (keyGameActions_.count(action))
+    auto iter = keyGameActions_.find(action);
+    if (keyGameActions_.end() != iter)
     {
-        return SubscribeOnKeyUp(keyGameActions_.at(action), func);
+        return SubscribeOnKeyUp(iter->second, func);
     }
     else
     {
@@ -303,9 +244,10 @@ uint32 InputManager::SubscribeOnKeyUp(GameAction action, KeyPressedFunc func)
 
 void InputManager::UnsubscribeOnKeyDown(GameAction action, uint32 id)
 {
-    if (keyGameActions_.count(action))
+    auto iter = keyGameActions_.find(action);
+    if (keyGameActions_.end() != iter)
     {
-        UnsubscribeOnKeyDown(keyGameActions_.at(action), id);
+        UnsubscribeOnKeyDown(iter->second, id);
     }
     else
     {
@@ -315,9 +257,10 @@ void InputManager::UnsubscribeOnKeyDown(GameAction action, uint32 id)
 
 void InputManager::UnsubscribeOnKeyUp(GameAction action, uint32 id)
 {
-    if (keyGameActions_.count(action))
+    auto iter = keyGameActions_.find(action);
+    if (keyGameActions_.end() != iter)
     {
-        UnsubscribeOnKeyUp(keyGameActions_.at(action), id);
+        UnsubscribeOnKeyUp(iter->second, id);
     }
     else
     {
@@ -327,9 +270,10 @@ void InputManager::UnsubscribeOnKeyUp(GameAction action, uint32 id)
 
 void InputManager::UnsubscribeOnKeyDown(GameAction action)
 {
-    if (keyGameActions_.count(action))
+    auto iter = keyGameActions_.find(action);
+    if (keyGameActions_.end() != iter)
     {
-        UnsubscribeOnKeyDown(keyGameActions_.at(action));
+        UnsubscribeOnKeyDown(iter->second);
     }
     else
     {
@@ -339,9 +283,10 @@ void InputManager::UnsubscribeOnKeyDown(GameAction action)
 
 void InputManager::UnsubscribeOnKeyUp(GameAction action)
 {
-    if (keyGameActions_.count(action))
+    auto iter = keyGameActions_.find(action);
+    if (keyGameActions_.end() != iter)
     {
-        UnsubscribeOnKeyUp(keyGameActions_.at(action));
+        UnsubscribeOnKeyUp(iter->second);
     }
     else
     {
@@ -362,75 +307,41 @@ void InputManager::StashPopSubscribers()
     subscribers_ = stash_.back();
     stash_.pop_back();
 }
-void InputManager::ExecuteOnKeyDown(KeyCodes::Type keyCode)
+void InputManager::Exectute(KeyPressedSubscribers& subscribers, KeyCodes::Type keyCode)
 {
-    needToQueue_ = true;
-
-    if (subscribers_.keyDownSubscribers_.count(keyCode) > 0)
+    auto iter = subscribers.find(keyCode);
+    if (iter != subscribers.end())
     {
-        const auto& subscribers = subscribers_.keyDownSubscribers_.at(keyCode);
+        auto& originalMap      = iter->second;
+        auto copyOfSubscribers = originalMap;
 
-        for (const auto& subscriber : subscribers)
+        for (const auto& [id, callback] : copyOfSubscribers)
         {
-            subscriber.second();
+            if (originalMap.find(id) != originalMap.end())
+            {
+                callback();
+            };
         }
     }
+}
+void InputManager::ExecuteOnKeyDown(KeyCodes::Type keyCode)
+{
+    Exectute(subscribers_.keyDownSubscribers_, keyCode);
 }
 void InputManager::ExecuteOnKeyUp(KeyCodes::Type keyCode)
 {
-    needToQueue_ = true;
-
-    if (subscribers_.keyUpSubscribers_.count(keyCode) > 0)
-    {
-        const auto& subscribers = subscribers_.keyUpSubscribers_.at(keyCode);
-
-        for (const auto& subscriber : subscribers)
-        {
-            subscriber.second();
-        }
-    }
+    Exectute(subscribers_.keyUpSubscribers_, keyCode);
 }
 void InputManager::ExecuteAnyKey(KeyCodes::Type keyCode)
 {
-    needToQueue_ = true;
-
-    for (const auto& keysSubscriber : subscribers_.keysSubscribers_)
+    auto copy = subscribers_.keysSubscribers_;
+    for (const auto& [id, callback] : copy)
     {
-        keysSubscriber.second(keyCode);
-    }
-}
-void InputManager::Unquque()
-{
-    for (const auto& keysSubscriber : quque_.keyDownSubscribers_)
-    {
-        for (const auto& keys : keysSubscriber.second)
+        if (subscribers_.keysSubscribers_.find(id) != subscribers_.keysSubscribers_.end())
         {
-            if (subscribers_.keyDownSubscribers_.count(keysSubscriber.first) == 0)
-            {
-                subscribers_.keyDownSubscribers_.insert({keysSubscriber.first, {}});
-            }
-            subscribers_.keyDownSubscribers_.at(keysSubscriber.first).insert(keys);
+            callback(keyCode);
         }
     }
-    for (const auto& keysSubscriber : quque_.keyUpSubscribers_)
-    {
-        for (const auto& keys : keysSubscriber.second)
-        {
-            if (subscribers_.keyUpSubscribers_.count(keysSubscriber.first) == 0)
-            {
-                subscribers_.keyUpSubscribers_.insert({keysSubscriber.first, {}});
-            }
-            subscribers_.keyUpSubscribers_.at(keysSubscriber.first).insert(keys);
-        }
-    }
-
-    for (const auto& keysSubscriber : quque_.keysSubscribers_)
-    {
-        subscribers_.keysSubscribers_.insert(keysSubscriber);
-    }
-
-    quque_       = Subscribers();
-    needToQueue_ = false;
 }
 
 void InputManager::AddKeyEvent(uint32 eventType, uint32 key)
@@ -446,7 +357,8 @@ bool InputManager::FindEvent(uint32 eventType, uint32 key)
 {
     std::lock_guard<std::mutex> lk(keyEventMutex);
 
-    auto iter = std::find_if(keyEvents_.begin(), keyEvents_.end(), [eventType, key](const KeyEvent& keyEvent)
+    auto iter = std::find_if(keyEvents_.begin(), keyEvents_.end(),
+                             [eventType, key](const KeyEvent& keyEvent)
                              { return keyEvent.first == eventType and key == keyEvent.second; });
 
     return iter != keyEvents_.end();
@@ -489,7 +401,7 @@ void InputManager::ProcessKeysEvents()
             UpdateMouseState(keyCode, false);
             ExecuteOnKeyUp(keyCode);
         }
-        Unquque();
+
         ProcessEvents();
     }
 }

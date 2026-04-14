@@ -8,6 +8,7 @@ enum GuiEditorControlIds
     ID_REDO,
     ID_ADD_WINDOW,
     ID_ADD_TEXT,
+    ID_ADD_MULTI_LINE_TEXT,
     ID_ADD_TEXTURE,
     ID_ADD_BUTTON,
     ID_ADD_V_LAYOUT,

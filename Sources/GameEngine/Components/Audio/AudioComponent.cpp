@@ -1,6 +1,9 @@
 #include "AudioComponent.h"
 
-#include <Utils/TreeNode.h>
+#include <Logger/Log.h>
+#include <Types.h>
+#include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/TreeNodeReadFunctions.h>
 
 #include <magic_enum/magic_enum.hpp>
 
@@ -12,8 +15,6 @@
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "Logger/Log.h"
-#include "Types.h"
 
 namespace GameEngine
 {

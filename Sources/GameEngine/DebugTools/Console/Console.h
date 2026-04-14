@@ -13,10 +13,14 @@ namespace GameEngine
 {
 class Scene;
 class GameObject;
-class GuiTextElement;
-class GuiWindowElement;
-class VerticalLayout;
 class ICamera;
+
+namespace GUI
+{
+class VerticalLayout;
+class Text;
+class Window;
+}  // namespace GUI
 
 namespace Debug
 {
@@ -42,7 +46,7 @@ private:
     std::string GetCommandToExecute();
 
     void MoveUpTexts();
-    GuiTextElement* AddOrUpdateGuiText(const std::string& command);
+    GUI::Text* AddOrUpdateGuiText(const std::string& command);
     void PrintMsgInConsole(const std::string& msg);
     void CloseConsole();
     void SubscribeKeys();
@@ -77,13 +81,13 @@ private:
 
 private:
     Scene& scene_;
-    GuiWindowElement* window_;
-    VerticalLayout* windowVerticalLayout_;
-    std::list<GuiTextElement*> guiTexts_;
+    GUI::Window* window_;
+    GUI::VerticalLayout* windowVerticalLayout_;
+    std::list<GUI::Text*> guiTexts_;
+    GUI::Text* currentCommand_;
     Params commandsHistory_;
     std::list<std::string> commandsToExecute_;
     std::mutex commandsExecuteMutex_;
-    GuiTextElement* currentCommand_;
     std::unordered_map<std::string, std::function<void(const Params&)>> commandsActions_;
     int32 commandHistoryIndex_;
     std::optional<IdType> firstPersonCameraId_;

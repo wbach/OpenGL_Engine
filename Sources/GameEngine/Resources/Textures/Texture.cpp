@@ -2,10 +2,10 @@
 
 #include <Logger/Log.h>
 #include <Utils.h>
+#include <Variant.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
-
 namespace GameEngine
 {
 float GetTextureXOffset(uint32 textureIndex, uint32 numberOfRows)
@@ -41,7 +41,7 @@ Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const TextureParameters
 }
 
 Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const TextureParameters& textureParamters, const vec2ui& size,
-                 const std::optional<File>& file)
+                 const std::optional<FileHandle>& file)
     : graphicsApi_(graphicsApi)
     , textureParamters_(textureParamters)
     , file_(file)
@@ -50,7 +50,10 @@ Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const TextureParameters
 {
     if (file_)
     {
-        auto rows = GetNumberOfRowsBasedOnTextureFileName(file_->GetBaseName());
+        auto baseName = std::visit(
+            visitor{[](const MemoryFile& m) { return m.name; }, [](const File& file) { return file.GetBaseName(); }}, *file_);
+
+        auto rows = GetNumberOfRowsBasedOnTextureFileName(baseName);
         if (rows)
         {
             numberOfRows_ = *rows;
@@ -69,7 +72,6 @@ void Texture::ReleaseGpuPass()
     if (not graphicsObjectId_)
         return;
 
-    auto filename = file_ ? file_->GetBaseName() : "";
     graphicsApi_.DeleteObject(*graphicsObjectId_);
     GpuObject::ReleaseGpuPass();
 }
@@ -93,7 +95,7 @@ std::optional<uint32> Texture::GetNumberOfRowsBasedOnTextureFileName(const std::
 
     return std::nullopt;
 }
-void Texture::SetFile(const File& file)
+void Texture::SetFile(const FileHandle& file)
 {
     file_ = file;
 }

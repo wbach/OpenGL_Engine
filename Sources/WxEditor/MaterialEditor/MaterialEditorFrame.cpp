@@ -221,7 +221,7 @@ void MaterialEditorFrame::LoadMaterial(const std::string& file)
         if (ctrl)
         {
             if (tex && tex->GetFile())
-                ctrl->SetValue(tex->GetFile()->GetDataRelativePath().generic_string());
+                ctrl->SetValue(GameEngine::getPath(*tex->GetFile()));
             else
                 ctrl->Clear();
         }

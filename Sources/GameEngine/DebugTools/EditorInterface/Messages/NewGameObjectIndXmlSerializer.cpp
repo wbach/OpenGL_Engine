@@ -1,6 +1,7 @@
 #include "NewGameObjectIndXmlSerializer.h"
 #include <Utils.h>
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/TreeNodeReadFunctions.h>
 #include <UtilsNetwork/MessageFormat.h>
 #include <UtilsNetwork/Messages/XmlConverterUtils.h>
 

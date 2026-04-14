@@ -1,6 +1,7 @@
 #include "Player.h"
 
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/TreeNodeReadFunctions.h>
 
 #include "Common/Controllers/CharacterController/Character.h"
 #include "Common/Controllers/CharacterController/CharacterActions.h"
@@ -17,12 +18,14 @@
 #include "GameEngine/Components/Controllers/ControllerUtlis.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Renderers/GUI/GuiAnimation.h"
-#include "GameEngine/Renderers/GUI/GuiElementFactory.h"
-#include "GameEngine/Renderers/GUI/GuiManager.h"
+#include "GameEngine/Renderers/GUI/Animation.h"
+#include "GameEngine/Renderers/GUI/Element.h"
+#include "GameEngine/Renderers/GUI/IElementFactory.h"
 #include "GameEngine/Renderers/GUI/Layer/DefaultLayers.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
-#include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
+#include "GameEngine/Renderers/GUI/Manager.h"
+#include "GameEngine/Renderers/GUI/Transform.h"
+#include "GameEngine/Renderers/GUI/Window/Window.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 
 namespace GameEngine
@@ -60,7 +63,7 @@ void Player::CleanUp()
 {
     if (hudElements_.window)
     {
-        guiManager_.Remove(*hudElements_.window);
+        guiManager_.remove(*hudElements_.window);
     }
 
     for (auto& id : animSubs_)
@@ -119,33 +122,34 @@ void Player::Init()
     const vec2 windowSize(0.2f, 0.1f);
     const vec2 windowPosition(0.01f);
 
-    auto window = componentContext_.guiElementFactory_.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY,
-                                                                       windowPosition + 0.5f * windowSize, windowSize);
+    auto window = componentContext_.guiElementFactory_.createWindow(GUI::WindowStyle::BACKGROUND_ONLY);
+
+    window->setTransform(GUI::Transform{.position = windowPosition + 0.5f * windowSize, .scale = windowSize});
 
     hudElements_.window = window.get();
-    auto verticalLayout = componentContext_.guiElementFactory_.CreateVerticalLayout();
-    verticalLayout->SetAlign(Layout::Align::LEFT);
+    auto verticalLayout = componentContext_.guiElementFactory_.createVerticalLayout();
+    verticalLayout->setAlign(GUI::HorizontalAlign::LEFT);
 
-    auto hpRedBar           = componentContext_.guiElementFactory_.CreateGuiTexture("GUI/Health_Bars/HP/Style_1.png");
+    auto hpRedBar           = componentContext_.guiElementFactory_.createSprite("GUI/Health_Bars/HP/Style_1.png");
     hudElements_.hp.texture = hpRedBar.get();
-    hpRedBar->SetLocalScale({1.f, 0.33f});
-    verticalLayout->AddChild(std::move(hpRedBar));
+    hpRedBar->setLocalScale({1.f, 0.33f});
+    verticalLayout->addChild(std::move(hpRedBar));
 
-    auto staminaRedBar           = componentContext_.guiElementFactory_.CreateGuiTexture("GUI/yellow.jpg");
+    auto staminaRedBar           = componentContext_.guiElementFactory_.createSprite("GUI/yellow.jpg");
     hudElements_.stamina.texture = staminaRedBar.get();
-    staminaRedBar->SetLocalScale({1.f, 0.33f});
-    verticalLayout->AddChild(std::move(staminaRedBar));
+    staminaRedBar->setLocalScale({1.f, 0.33f});
+    verticalLayout->addChild(std::move(staminaRedBar));
 
-    auto manaBar              = componentContext_.guiElementFactory_.CreateGuiTexture("GUI/blue.jpg");
+    auto manaBar              = componentContext_.guiElementFactory_.createSprite("GUI/blue.jpg");
     hudElements_.mana.texture = manaBar.get();
-    manaBar->SetLocalScale({1.f, 0.33f});
-    verticalLayout->AddChild(std::move(manaBar));
+    manaBar->setLocalScale({1.f, 0.33f});
+    verticalLayout->addChild(std::move(manaBar));
 
-    auto frame = componentContext_.guiElementFactory_.CreateGuiTexture("GUI/liberated_frame_video.png");
-    window->AddChild(std::move(frame));
-    window->AddChild(std::move(verticalLayout));
-    guiManager_.AddLayer(DefaultGuiLayers::hud);
-    guiManager_.Add(DefaultGuiLayers::hud, std::move(window));
+    auto frame = componentContext_.guiElementFactory_.createSprite("GUI/liberated_frame_video.png");
+    window->addChild(std::move(frame));
+    window->addChild(std::move(verticalLayout));
+    auto& layer = guiManager_.createLayer(DefaultGuiLayers::hud);
+    layer.add(std::move(window));
 }
 void Player::Update()
 {
@@ -181,22 +185,22 @@ void Player::renderDmg(const common::Transform& enemyTransform, int64 dmg)
     }
     const auto& projectionViewMatrix = camera->GetProjectionViewMatrix();
     auto hitInfoScreenPosition       = convertToScreenPosition(projectionViewMatrix, hitInfoWorldPoision);
-    auto hitText                     = componentContext_.guiElementFactory_.CreateGuiText(std::to_string(dmg));
-    hitText->SetScreenScale(vec2(0.05f));
-    hitText->SetScreenPostion(hitInfoScreenPosition + offset);
-    hitText->SetColor(vec4(1.f, 1.f, 1.f, 0.f));
+    auto hitText                     = componentContext_.guiElementFactory_.createText(std::to_string(dmg));
+    hitText->setScreenScale(vec2(0.05f));
+    hitText->setScreenPostion(hitInfoScreenPosition + offset);
+    hitText->setColor(vec4(1.f, 1.f, 1.f, 0.f));
 
     auto hitTextPtr = hitText.get();
 
     guiManager_.add(
-        GuiAnimation(std::move(hitText), GuiAnimation::Duration(1.f),
+        GUI::Animation(std::move(hitText), GUI::Animation::Duration(1.f),
                      [offset, hitTextPtr, &enemyTransform, &componentContext = componentContext_](
-                         GuiElement& text, GuiAnimation::DeltaTime deltaTime, GuiAnimation::Duration elapsedTime) mutable
+                         GUI::Element& text, GUI::Animation::DeltaTime deltaTime, GUI::Animation::Duration elapsedTime) mutable
                      {
                          if (elapsedTime > 0.5f)
                          {
                              const float speed    = 0.05f;
-                             auto currentPosition = text.GetScreenPosition();
+                             auto currentPosition = text.getScreenPosition();
                              currentPosition.y += (speed * deltaTime);
                              offset.y += (speed * deltaTime);
                          }
@@ -210,9 +214,9 @@ void Player::renderDmg(const common::Transform& enemyTransform, int64 dmg)
                          }
                          const auto& projectionViewMatrix = camera->GetProjectionViewMatrix();
                          auto hitInfoScreenPosition       = convertToScreenPosition(projectionViewMatrix, hitInfoWorldPoision);
-                         text.SetScreenPostion(hitInfoScreenPosition + offset);
+                         text.setScreenPostion(hitInfoScreenPosition + offset);
 
-                         auto currentColor = hitTextPtr->GetColor();
+                         auto currentColor = hitTextPtr->getColor();
                          if (elapsedTime < 0.4f)
                          {
                              if (currentColor.a() < 1.f)
@@ -227,7 +231,7 @@ void Player::renderDmg(const common::Transform& enemyTransform, int64 dmg)
                                  currentColor.a(currentColor.a() - 3.f * deltaTime);
                              }
                          }
-                         hitTextPtr->SetColor(currentColor);
+                         hitTextPtr->setColor(currentColor);
                      }));
 }
 void Player::registerReadFunctions()

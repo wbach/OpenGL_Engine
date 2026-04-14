@@ -1,227 +1,184 @@
 #include "VerticalLayout.h"
 
+#include <Input/InputManager.h>
 #include <Logger/Log.h>
-
 namespace GameEngine
 {
-GuiElementTypes VerticalLayout::type = GuiElementTypes::VerticalLayout;
-
-VerticalLayout::VerticalLayout(Input::InputManager &inputManager)
-    : Layout(type)
-    , inputManager_(inputManager)
-    , viewPosition_(0.f)
+namespace GUI
+{
+VerticalLayout::VerticalLayout()
+    : viewPosition_(0.f)
     , scrollSensitive_(0.02f)
     , adjustSize_{false}
 
 {
-    EnableScroll();
 }
-
 VerticalLayout::~VerticalLayout()
 {
-    DisableScroll();
 }
-
-void VerticalLayout::SetScale(const vec2 &scale)
-{
-    if (adjustSize_)
-    {
-        vec2 newScale(transform_.scale.x, scale.y);
-        GuiElement::SetLocalScale(newScale);
-    }
-    else
-    {
-        GuiElement::SetLocalScale(scale);
-    }
-}
-
-void VerticalLayout::ResetView()
+void VerticalLayout::resetView()
 {
     viewPosition_ = 0.f;
 }
-
-void VerticalLayout::Activate()
+void VerticalLayout::refreshSelf()
 {
-    isActive_ = true;
-    UpdateVisibility();
-}
-
-void VerticalLayout::OnChange()
-{
-    if (children_.empty() or not IsShow())
+    if (children.empty() or not isActive())
     {
         if (adjustSize_)
-            transform_.scale.y = 0;
+            transform.scale.y = 0;
         return;
     }
 
-    DisableChangeNotif();
-
-    auto visibleChilds = GetAllShowed();
-
-    if (visibleChilds.empty())
-    {
-        if (adjustSize_)
-            transform_.scale.y = 0;
-        return;
-    }
-    LOG_DEBUG << "";
-
-    AdjustSize(visibleChilds);
-    auto &firstChild = *visibleChilds[0];
+    adjustSize();
+    auto &firstChild = *children[0];
 
     vec2 newPosition{};
-    newPosition.x = CalculateXPosition(firstChild);
-    newPosition.y = 1.f - (firstChild.GetLocalScale().y / 2.f) - viewPosition_;
-    firstChild.SetLocalPosition(newPosition);
+    newPosition.x = calculateXPosition(firstChild);
+    newPosition.y = calculateFirstChildYPosition();
+    firstChild.setInternalPosition(newPosition);
 
-    for (std::size_t i = 1; i < visibleChilds.size(); ++i)
+    for (std::size_t i = 1; i < children.size(); ++i)
     {
-        const auto &parent = *visibleChilds[i - 1];
-        auto &child        = *visibleChilds[i];
+        const auto &parent = *children[i - 1];
+        auto &child        = *children[i];
 
-        const auto &parentPositionY = parent.GetLocalPosition().y;
-        const auto &parentScaleY    = parent.GetLocalScale().y;
+        const auto &parentPositionY = parent.getLocalPosition().y;
+        const auto &parentScaleY    = parent.getLocalScale().y;
 
-        newPosition.x = CalculateXPosition(child);
-        newPosition.y = parentPositionY - (parentScaleY / 2.f) - ((child.GetLocalScale().y / 2.f));
-        child.SetLocalPosition(newPosition);
+        newPosition.x = calculateXPosition(child);
+        newPosition.y = parentPositionY - (parentScaleY / 2.f) - ((child.getLocalScale().y / 2.f));
+        child.setInternalPosition(newPosition);
     }
-    UpdateVisibility();
-    EnableChangeNotif();
-}
 
-float VerticalLayout::CalculateXPosition(const GuiElement &element)
+    updateVisibility();
+}
+float VerticalLayout::calculateXPosition(const Element &element)
 {
     float result = 0.5f;
 
-    if (align_ == Align::LEFT)
+    if (hAlign_ == HorizontalAlign::LEFT)
     {
-        result -= (1.f - element.GetLocalScale().x) / 2.f;
+        result -= (1.f - element.getLocalScale().x) / 2.f;
     }
-    else if (align_ == Align::RIGHT)
+    else if (hAlign_ == HorizontalAlign::RIGHT)
     {
-        result += (1.f - element.GetLocalScale().x) / 2.f;
+        result += (1.f - element.getLocalScale().x) / 2.f;
     }
 
     return result;
 }
-
-void VerticalLayout::UpdateVisibility()
+void VerticalLayout::updateVisibility()
 {
-    for (auto &element : children_)
+    for (auto &element : children)
     {
-        if (IsVisible(*element))
-        {
-            element->Activate();
-        }
-        else
-        {
-            element->Deactivate();
-        }
+        element->activateInternal(isVisible(*element));
     }
 }
-
-void VerticalLayout::EnableScroll()
+void VerticalLayout::adjustSize()
 {
-    if (not mouseWheelDownSub_)
-    {
-        mouseWheelDownSub_ = inputManager_.SubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL,
-                                                              [this]()
-                                                              {
-                                                                  if (IsShow() and viewPosition_ < 0.f)
-                                                                  {
-                                                                      viewPosition_ += scrollSensitive_;
-                                                                      OnChange();
-                                                                  }
-                                                              });
-    }
-
-    if (not mouseWheelUpSub_)
-    {
-        mouseWheelUpSub_ = inputManager_.SubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL,
-                                                          [this]()
-                                                          {
-                                                              if (not children_.empty())
-                                                              {
-                                                                  auto isLastShow = children_.back()->IsActive();
-                                                                  if (IsShow() and not isLastShow)
-                                                                  {
-                                                                      viewPosition_ -= scrollSensitive_;
-                                                                      OnChange();
-                                                                  }
-                                                              }
-                                                          });
-    }
-}
-
-void VerticalLayout::DisableScroll()
-{
-    if (mouseWheelUpSub_)
-    {
-        inputManager_.UnsubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL, *mouseWheelUpSub_);
-    }
-    if (mouseWheelDownSub_)
-    {
-        inputManager_.UnsubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, *mouseWheelDownSub_);
-    }
-}
-
-void VerticalLayout::AdjustSize(const std::vector<GuiElement *> &elements)
-{
-    if (not adjustSize_ or elements.empty())
+    if (not adjustSize_ or children.empty())
         return;
 
-    transform_.scale.y = 0;
-    for (const auto &element : elements)
+    float newHeight = calculateTotalChildrenHeight();
+
+    if (std::abs(transform.scale.y - newHeight) > 0.0001f)
     {
-        transform_.scale.y += element->GetLocalScale().y;
+        transform.scale.y = newHeight;
+        if (parent)
+            parent->invalidate();
     }
 }
-
-bool VerticalLayout::IsVisible(const GuiElement &child) const
+bool VerticalLayout::isVisible(const Element &child) const
 {
-    bool bottomBorder = child.GetLocalPosition().y - (child.GetLocalScale().y / 2.f) < (-std::numeric_limits<float>::epsilon());
+    bool bottomBorder = child.getLocalPosition().y - (child.getLocalScale().y / 2.f) < (-std::numeric_limits<float>::epsilon());
     bool upperBorder =
-        child.GetLocalPosition().y + (child.GetLocalScale().y / 2.f) > (1.f + std::numeric_limits<float>::epsilon());
+        child.getLocalPosition().y + (child.getLocalScale().y / 2.f) > (1.f + std::numeric_limits<float>::epsilon());
 
     return (not autoHideElements_) or not(bottomBorder or upperBorder);
 }
-
-void VerticalLayout::SetXOffset(float value)
-{
-}
-
-void VerticalLayout::EnableFixedSize()
+void VerticalLayout::enableFixedSize()
 {
     adjustSize_ = true;
-    DisableScroll();
 }
-
-void VerticalLayout::DisableFixedSize()
+void VerticalLayout::disableFixedSize()
 {
     adjustSize_ = false;
-    EnableScroll();
 }
-
-void VerticalLayout::Deactivate()
-{
-    isActive_ = false;
-    UpdateVisibility();
-}
-
-float VerticalLayout::GetXOffset() const
-{
-    return 0;
-}
-
-void VerticalLayout::AutoHideElements(bool v)
+void VerticalLayout::autoHideElements(bool v)
 {
     autoHideElements_ = v;
-    UpdateVisibility();
+    updateVisibility();
 }
-bool VerticalLayout::AutoHideElements() const
+bool VerticalLayout::autoHideElements() const
 {
     return autoHideElements_;
 }
+void VerticalLayout::accept(IElementVisitor &visitor)
+{
+    visitor.visit(*this);
+}
+float VerticalLayout::calculateFirstChildYPosition() const
+{
+    float totalHeight = calculateTotalChildrenHeight();
+
+    if (not adjustSize_)
+    {
+        if (vAlign_ == VerticalAlign::TOP)
+        {
+            return 1.f - (children.front()->getLocalScale().y / 2.f) - viewPosition_;
+        }
+        if (vAlign_ == VerticalAlign::BOTTOM)
+        {
+            return totalHeight - (children.front()->getLocalScale().y / 2.f) - viewPosition_;
+        }
+        if (vAlign_ == VerticalAlign::CENTER)
+        {
+            return 0.5f + (totalHeight / 2.f) - (children.front()->getLocalScale().y / 2.f) - viewPosition_;
+        }
+    }
+
+    return 1.f - (children.front()->getLocalScale().y / 2.f) - viewPosition_;
+}
+float VerticalLayout::calculateTotalChildrenHeight() const
+{
+    float totalHeight = 0.f;
+    for (const auto &child : children)
+    {
+        totalHeight += child->getLocalScale().y;
+    }
+    return totalHeight;
+}
+bool VerticalLayout::onMouseWheel(const vec2 &delta)
+{
+    if (not isActive() or adjustSize_)
+    {
+        return Element::onMouseWheel(delta);
+    }
+
+    if (children.empty())
+    {
+        return true;
+    }
+
+    if (delta.y > 0.f)
+    {
+        if (viewPosition_ < 0.f)
+        {
+            viewPosition_ += scrollSensitive_;
+            invalidate();
+        }
+    }
+    else if (delta.y < 0.f)
+    {
+        bool isLastVisible = children.back()->isActive();
+        if (!isLastVisible)
+        {
+            viewPosition_ -= scrollSensitive_;
+            invalidate();
+        }
+    }
+
+    return true;
+}
+}  // namespace GUI
 }  // namespace GameEngine

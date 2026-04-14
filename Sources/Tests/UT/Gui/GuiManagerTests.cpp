@@ -1,10 +1,10 @@
-#include <GameEngine/Renderers/GUI/Button/GuiButton.h>
-#include <GameEngine/Renderers/GUI/EditText/GuiEditText.h>
-#include <GameEngine/Renderers/GUI/GuiManager.h>
+#include <GameEngine/Renderers/GUI/Button/Button.h>
+#include <GameEngine/Renderers/GUI/EditText/EditText.h>
 #include <GameEngine/Renderers/GUI/Layout/HorizontalLayout.h>
 #include <GameEngine/Renderers/GUI/Layout/VerticalLayout.h>
-#include <GameEngine/Renderers/GUI/Text/GuiTextElement.h>
-#include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
+#include <GameEngine/Renderers/GUI/Manager.h>
+#include <GameEngine/Renderers/GUI/Text/Text.h>
+#include <GameEngine/Renderers/GUI/Window/Window.h>
 #include <gtest/gtest.h>
 
 #include <atomic>
@@ -21,18 +21,17 @@ using namespace ::testing;
 struct GuiManagerTests : public ::testing::Test
 {
     GuiManagerTests()
+    : sut(inputManager)
     {
-        isOnTop = [](const auto &) { return true; };
     }
 
-    std::function<bool(const GuiElement &)> isOnTop;
     NiceMock<Input::InputManagerMock> inputManager;
-    GuiManager sut;
+    GUI::Manager sut;
 };
 
 TEST_F(GuiManagerTests, addRemoveButton)
 {
-    sut.AddLayer("1");
+    auto &layer = sut.createLayer("1");
 
     std::atomic_bool isRunning(true);
     std::thread updateThread(
@@ -40,7 +39,7 @@ TEST_F(GuiManagerTests, addRemoveButton)
         {
             while (isRunning)
             {
-                sut.Update(0.1f);
+                sut.update(0.1f);
                 std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int>(getRandomFloat() * 100)));
             }
         });
@@ -48,12 +47,11 @@ TEST_F(GuiManagerTests, addRemoveButton)
     std::vector<std::string> callLog;
     for (int i = 0; i < 100; i++)
     {
-        OnClick onClik = [&](auto &) { callLog.push_back(std::to_string(i)); };
-        auto window    = std::make_unique<GuiWindowElement>(GuiWindowStyle::FULL, inputManager);
-        auto button    = std::make_unique<GuiButtonElement>(isOnTop, inputManager, onClik);
+        auto window = std::make_unique<GUI::Window>(GUI::WindowStyle::FULL);
+        auto button = std::make_unique<GUI::Button>();
 
-        window->AddChild(std::move(button));
-        sut.Add("1", std::move(window));
+        window->addChild(std::move(button));
+        layer.add(std::move(window));
         std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int>(getRandomFloat() * 100)));
     }
 

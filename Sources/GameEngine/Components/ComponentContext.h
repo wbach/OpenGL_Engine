@@ -14,15 +14,19 @@ class IGraphicsApi;
 }  // namespace GraphicsApi
 namespace GameEngine
 {
+namespace GUI
+{
+class Manager;
+class IElementFactory;
+}
+
 class IResourceManager;
 class IGpuResourceLoader;
-class IGuiElementFactory;
 class Scene;
 class ISceneManager;
 class DialogueManager;
 class ITweenManager;
 class IAudioManager;
-class GuiManager;
 class GameState;
 class NavigationManager;
 
@@ -51,8 +55,8 @@ struct ComponentContext
     IResourceManager& resourceManager_;
     ComponentController& componentController_;
     Renderer::RenderersManager& renderersManager_;
-    GuiManager& guiManager_;
-    IGuiElementFactory& guiElementFactory_;
+    GUI::Manager& guiManager_;
+    GUI::IElementFactory& guiElementFactory_;
     Utils::Time::ITimerService& timerService_;
     DialogueManager& dialogueManager_;
     ITweenManager& tweenManager;

@@ -1,6 +1,7 @@
 #include "ReadFunctions.h"
 
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/TreeNodeReadFunctions.h>
 
 #include "../AnimationClipNames.h"
 #include "GameEngine/Components/CommonReadDef.h"

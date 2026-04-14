@@ -3,7 +3,10 @@
 
 namespace GameEngine
 {
-class GuiTextureElement;
+namespace GUI
+{
+class Sprite;
+}
 
 namespace Components
 {
@@ -12,7 +15,7 @@ struct Bar
     int64& current;
     int64& maxValue;
 
-    GuiTextureElement* texture{nullptr};
+    GUI::Sprite* texture{nullptr};
     int64 maxRendered{0};
     int64 currentRendered{0};
 

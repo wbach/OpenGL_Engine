@@ -3,6 +3,7 @@
 #include <Types.h>
 #include <Utils.h>
 #include <Utils/IdPool.h>
+#include <Utils/TreeNodeReadFunctions.h>
 
 #include <Mutex.hpp>
 #include <algorithm>

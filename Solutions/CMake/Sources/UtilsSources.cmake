@@ -26,10 +26,12 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/ThreadSync.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/md5.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/EngineUitls.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Rotation.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/TreeNodeReadFunctions.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/IdPool.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Worker.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Time/TimeMeasurer.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Time/Timer.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Time/TimerService.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Time/Stopwatch.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/TreeNodeWriteFunctions.cpp
 )

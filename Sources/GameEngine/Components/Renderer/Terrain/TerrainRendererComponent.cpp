@@ -1,7 +1,8 @@
 #include "TerrainRendererComponent.h"
 
 #include <Logger/Log.h>
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/Variant.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
@@ -309,7 +310,13 @@ void TerrainRendererComponent::write(TreeNode& node) const
         auto heightMap = static_cast<HeightMap*>(heightMapTexture);
         if (heightMap and heightMap->GetFile())
         {
-            SaveHeightMap(*heightMap, heightMap->GetFile()->GetAbsolutePath());
+            if (auto heightMapFileHandle = heightMap->GetFile())
+            {
+                std::visit(visitor{[&](File& file) { SaveHeightMap(*heightMap, file.GetAbsolutePath()); },
+                                   [](auto&) { LOG_DEBUG << "File type not supported"; }},
+                           *heightMapFileHandle);
+            }
+
             heightmapFileUpdateNeeded = false;
         }
         else
@@ -326,8 +333,15 @@ void TerrainRendererComponent::write(TreeNode& node) const
         {
             auto blendMap     = static_cast<GeneralTexture*>(blendMapTexture);
             const auto& image = blendMap->GetImage();
-            Utils::CreateBackupFile(blendMapTexture->GetFile()->GetAbsolutePath().string());
-            Utils::SaveImage(image, blendMapTexture->GetFile()->GetAbsolutePath().string());
+
+            std::visit(visitor{[&](const File& file)
+                               {
+                                   Utils::CreateBackupFile(file.GetAbsolutePath().string());
+                                   Utils::SaveImage(image, file.GetAbsolutePath().string());
+                               },
+                               [](auto&) { LOG_DEBUG << "File type not supported"; }},
+                       *blendMapTexture->GetFile());
+
             blendmapFileUpdateNeeded = false;
         }
     }

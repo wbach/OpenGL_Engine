@@ -1,45 +1,39 @@
 #pragma once
 #include "Layout.h"
-
 namespace GameEngine
+{
+namespace GUI
 {
 class ENGINE_API VerticalLayout : public Layout
 {
 public:
-    VerticalLayout(Input::InputManager&);
+    VerticalLayout();
     ~VerticalLayout() override;
-    virtual void SetScale(const vec2& scale);
-    void ResetView() override;
-    void Activate() override;
-    void Deactivate() override;
-    float GetXOffset() const;
-    void SetXOffset(float value);
-    void EnableFixedSize();
-    void DisableFixedSize();
-    void AutoHideElements(bool);
-    bool AutoHideElements() const;
+
+    void resetView() override;
+    bool onMouseWheel(const vec2&) override;
+    void enableFixedSize();
+    void disableFixedSize();
+    void autoHideElements(bool);
+    bool autoHideElements() const;
 
 private:
-    void OnChange() override;
-    float CalculateXPosition(const GuiElement&);
-    void UpdateVisibility();
-    void EnableScroll();
-    void DisableScroll();
-    void AdjustSize(const std::vector<GuiElement*>&);
-    bool IsVisible(const GuiElement&) const;
+    void refreshSelf() override;
+    float calculateXPosition(const Element&);
+    void updateVisibility();
+    void adjustSize();
+    bool isVisible(const Element&) const;
+    void accept(IElementVisitor&) override;
+    float calculateFirstChildYPosition() const;
+    float calculateTotalChildrenHeight() const;
 
 private:
-    Input::InputManager& inputManager_;
     float viewPosition_;
-    std::optional<uint32> mouseWheelUpSub_;
-    std::optional<uint32> mouseWheelDownSub_;
     float scrollSensitive_;
     bool adjustSize_;
     bool autoHideElements_{true};
 
     std::vector<uint32> hiddenELements_;
-
-public:
-    static GuiElementTypes type;
 };
+}  // namespace GUI
 }  // namespace GameEngine

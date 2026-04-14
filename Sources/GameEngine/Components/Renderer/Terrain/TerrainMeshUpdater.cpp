@@ -1,6 +1,7 @@
 #include "TerrainMeshUpdater.h"
 
 #include <Logger/Log.h>
+#include <Variant.h>
 
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainHeightTools.h"
@@ -11,7 +12,6 @@
 #include "GameEngine/Resources/Models/Mesh.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
-
 namespace GameEngine
 {
 namespace Components
@@ -38,7 +38,8 @@ void TerrainMeshUpdater::create()
 
     if (heightMap_.GetFile())
     {
-        newModel->SetFile(*heightMap_.GetFile());
+        std::visit(visitor{[&](const File& file) { newModel->SetFile(file); }, [](auto&) { LOG_DEBUG << "File type not supported"; }},
+                   *heightMap_.GetFile());
     }
 
     LOG_DEBUG << "Mesh count " << newModel->GetMeshes().size();

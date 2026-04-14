@@ -1,7 +1,8 @@
 #include "PointLightComponent.h"
 
 #include <Logger/Log.h>
-#include <Utils/TreeNode.h>
+#include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/TreeNodeReadFunctions.h>
 
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Components/ComponentType.h"

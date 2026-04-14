@@ -2,6 +2,7 @@
 #include <Utils/Image/Image.h>
 
 #include "GameEngine/Resources/DataStorePolicy.h"
+#include "GameEngine/Resources/FileHandle.h"
 #include "GameEngine/Resources/TextureParameters.h"
 #include "Texture.h"
 
@@ -11,7 +12,7 @@ class ENGINE_API GeneralTexture : public Texture
 {
 public:
     GeneralTexture(GraphicsApi::IGraphicsApi&, Utils::Image&&, const TextureParameters&,
-                   const std::optional<File>& = std::nullopt);
+                   const std::optional<FileHandle>& = std::nullopt);
     ~GeneralTexture();
     void GpuLoadingPass() override;
     void UpdateGpuPass() override;

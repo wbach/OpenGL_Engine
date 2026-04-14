@@ -441,25 +441,28 @@ void GLCanvas::OnMouseWheel(wxMouseEvent& event)
 
     if (wxWindowApi)
     {
-        GameObject* selectedGameObject{nullptr};
-        auto treeSelectedItemId = sceneTreeCtrl->GetSelection();
-        if (treeSelectedItemId.IsOk())
+        if (sceneTreeCtrl)
         {
-            if (auto goId = sceneTreeCtrl->Get(treeSelectedItemId))
+            GameObject* selectedGameObject{nullptr};
+            auto treeSelectedItemId = sceneTreeCtrl->GetSelection();
+            if (treeSelectedItemId.IsOk())
             {
-                selectedGameObject = GetScene().GetGameObject(*goId);
+                if (auto goId = sceneTreeCtrl->Get(treeSelectedItemId))
+                {
+                    selectedGameObject = GetScene().GetGameObject(*goId);
+                }
             }
-        }
 
-        if (event.ControlDown() and selectedGameObject)
-        {
-            auto currentQuat   = selectedGameObject->GetWorldTransform().GetRotation().value_;
-            auto direction     = (event.GetWheelRotation() > 0) ? -1.0f : 1.0f;
-            auto angle         = glm::radians(5.0f) * direction;
-            auto rotationDelta = glm::angleAxis(angle, glm::vec3(0.0f, 1.0f, 0.0f));
-            auto newRotation   = rotationDelta * currentQuat;
-            selectedGameObject->SetWorldRotation(glm::normalize(newRotation));
-            return;
+            if (event.ControlDown() and selectedGameObject)
+            {
+                auto currentQuat   = selectedGameObject->GetWorldTransform().GetRotation().value_;
+                auto direction     = (event.GetWheelRotation() > 0) ? -1.0f : 1.0f;
+                auto angle         = glm::radians(5.0f) * direction;
+                auto rotationDelta = glm::angleAxis(angle, glm::vec3(0.0f, 1.0f, 0.0f));
+                auto newRotation   = rotationDelta * currentQuat;
+                selectedGameObject->SetWorldRotation(glm::normalize(newRotation));
+                return;
+            }
         }
 
         int rotation = event.GetWheelRotation();

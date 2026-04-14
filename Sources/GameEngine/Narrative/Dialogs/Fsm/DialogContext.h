@@ -17,13 +17,17 @@ class InputManager;
 
 namespace GameEngine
 {
+namespace GUI
+{
+class Manager;
+class Window;
+class IElementFactory;
+class VerticalLayout;
+}  // namespace GUI
+
 class IAudioManager;
-class IGuiElementFactory;
-class GuiManager;
 class GameState;
 class ITweenManager;
-class GuiWindowElement;
-class VerticalLayout;
 class Scene;
 
 struct DialogContext
@@ -31,8 +35,8 @@ struct DialogContext
     Utils::Time::ITimerService& timerService;
     IAudioManager& audioManager;
     Input::InputManager& inputManager;
-    IGuiElementFactory& guiFactory;
-    GuiManager& guiManager;
+    GUI::IElementFactory& guiFactory;
+    GUI::Manager& guiManager;
     GameState& gameState;
     ITweenManager& tweenManager;
     std::function<void(DialogEvent&&)> sendEvent;
@@ -40,8 +44,8 @@ struct DialogContext
 
     struct GuiWindow
     {
-        GuiWindowElement* window{nullptr};
-        VerticalLayout* layout{nullptr};
+        GUI::Window* window{nullptr};
+        GUI::VerticalLayout* layout{nullptr};
     };
 
     GuiWindow sentenceWindow;
