@@ -36,6 +36,7 @@ int main(int argc, char* argv[])
 
     if (auto path = Utils::GetValue(args, "projectPath"))
     {
+        CLogger::Instance().EnableLogs();
         auto& pm = ProjectManager::GetInstance();
         pm.SetProjectPath(*path);
     }

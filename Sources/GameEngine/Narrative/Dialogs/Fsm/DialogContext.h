@@ -1,4 +1,6 @@
 #pragma once
+#include <TreeNode.h>
+
 #include <functional>
 
 #include "DialogEvents.h"
@@ -23,6 +25,8 @@ class Manager;
 class Window;
 class IElementFactory;
 class VerticalLayout;
+class MultiLineText;
+class Text;
 }  // namespace GUI
 
 class IAudioManager;
@@ -48,8 +52,14 @@ struct DialogContext
         GUI::VerticalLayout* layout{nullptr};
     };
 
-    GuiWindow sentenceWindow;
-    GuiWindow optionsWindow;
+    GUI::Window* sentenceWindow{nullptr};
+    GUI::Text* npcNameText{nullptr};
+    GUI::MultiLineText* sentenceText{nullptr};
+
+    GUI::Window* optionsWindow{nullptr};
+    GUI::VerticalLayout* optionsLayout{nullptr};
+
+    TreeNode optionsButtonTemplate;
 };
 void setAnimation(GameObject&, StartDialogEvent::Role);
 }  // namespace GameEngine

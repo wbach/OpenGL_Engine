@@ -51,10 +51,6 @@ void MultiLineText::rebuildLines()
         return;
     }
 
-    LOG_DEBUG << not font.isDirty();
-    LOG_DEBUG << not text.isDirty();
-    LOG_DEBUG << not lineHeight.isDirty();
-
     layout.removeAll();
 
     std::string fullText = text.text;

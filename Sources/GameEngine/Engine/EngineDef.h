@@ -33,6 +33,7 @@ extern const std::string CSTR_LOADING_SCREEN_BACKGROUND;
 extern const std::string CSTR_LOADING_SCREEN_BACKGROUND_AUDIO;
 extern const std::string CSTR_LOADING_SCREEN_CIRCLE;
 extern const std::string CSTR_QUESTS_FILE_PATH;
+extern const std::string CSTR_DIALOG_GUI_FILE_PATH;
 // Renderer
 extern const std::string CSTR_PRESET;
 extern const std::string CSTR_EXPOSURE;

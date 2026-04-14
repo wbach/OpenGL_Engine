@@ -357,6 +357,10 @@ void Read(TreeNode& node, Params::Files& files)
     {
         files.setQuestsFile(child->value_);
     };
+    if (auto child = node.getChild(CSTR_DIALOG_GUI_FILE_PATH))
+    {
+        files.setDialogGuiPath(child->value_);
+    };
 }
 
 void Read(TreeNode* node, Params::LineMeshVisualizatorParams& params)
@@ -449,6 +453,7 @@ void ReadConfigFromFile(GlobalConfiguration& config)
     }
 
     auto filename = getConfigFile();
+    LOG_DEBUG << filename;
 
     if (Utils::CheckFileExist(filename))
     {
@@ -471,6 +476,7 @@ void ReadConfigFromFile(GlobalConfiguration& config)
 
 void ReadConfigFromFile(LocalConfiguration& config, const std::filesystem::path& filename)
 {
+    LOG_DEBUG << filename;
     if (not config.filename.empty())
     {
         LOG_DEBUG << "LocalConfiguration already read. Skip";

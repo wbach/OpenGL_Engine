@@ -32,7 +32,6 @@ public:
     ElementReader(Manager&, IElementFactory&);
     bool read(const File&, const std::string& = GUI::DEFAULT_LAYER);
 
-private:
     void readGuiElementBasic(Element&, const TreeNode&);
     std::unique_ptr<Element> read(const TreeNode&);
     std::unique_ptr<Text> readText(const TreeNode&);

@@ -390,6 +390,34 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
                         });
     }
 
+    {
+        wxBoxSizer* rowSizer = new wxBoxSizer(wxHORIZONTAL);
+
+        wxTextCtrl* pathCtrl = new wxTextCtrl(panel, wxID_ANY, EngineLocalConf.files.getDialogGuiPath().string(),
+                                              wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+        rowSizer->Add(pathCtrl, 1, wxEXPAND | wxALL, 5);
+
+        wxButton* browseBtn = new wxButton(panel, wxID_ANY, "Browse");
+        rowSizer->Add(browseBtn, 0, wxALL, 5);
+
+        textureSizer->Add(rowSizer, 0, wxEXPAND | wxALL, 5);
+
+        browseBtn->Bind(wxEVT_BUTTON,
+                        [=](wxCommandEvent&) mutable
+                        {
+                            wxString startDir = EngineLocalConf.files.getDataPath().string();
+                            wxFileDialog dlg(panel, "Select dialog file", startDir, "", "*.gui;*.*",
+                                             wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+                            if (dlg.ShowModal() == wxID_OK)
+                            {
+                                EngineLocalConf.files.setDialogGuiPath(dlg.GetPath().ToStdString());
+                                pathCtrl->SetValue(dlg.GetPath());
+                                ProjectManager::GetInstance().SaveLocalConfigFile();
+                            }
+                        });
+    }
+
     mainSizer->Add(textureSizer, 0, wxEXPAND | wxALL, 10);  // margines na dole sekcji
 
     panel->SetSizer(mainSizer);

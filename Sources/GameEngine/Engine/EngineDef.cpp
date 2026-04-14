@@ -33,6 +33,7 @@ const std::string CSTR_LOADING_SCREEN_BACKGROUND       = "loadingScreenBackgroun
 const std::string CSTR_LOADING_SCREEN_BACKGROUND_AUDIO = "loadingScreenBackgroundAudio";
 const std::string CSTR_LOADING_SCREEN_CIRCLE           = "loadingScreenCircle";
 const std::string CSTR_QUESTS_FILE_PATH                = "questsFile";
+const std::string CSTR_DIALOG_GUI_FILE_PATH            = "dialogGuiFile";
 // Renderer
 const std::string CSTR_RENDERER                        = "Renderer";
 const std::string CSTR_PRESET                          = "preset";

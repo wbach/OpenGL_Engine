@@ -5,18 +5,42 @@
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "GameEngine/Components/Dialogue/DialogueComponent.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Renderers/GUI/Manager.h"
+#include "GameEngine/Renderers/GUI/ElementReader.h"
+#include "GameEngine/Renderers/GUI/ElementWriter.h"
 #include "GameEngine/Renderers/GUI/IElementFactory.h"
+#include "GameEngine/Renderers/GUI/IElementVisitor.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
+#include "GameEngine/Renderers/GUI/Manager.h"
+#include "GameEngine/Renderers/GUI/Text/MultiLineText.h"
 #include "GameEngine/Renderers/GUI/Transform.h"
 #include "GameEngine/Renderers/GUI/Window/Window.h"
-
+#include "Logger/Log.h"
+#include "TreeNode.h"
 namespace GameEngine
 {
 namespace
 {
+template <typename T>
+T* getTypedElement(GUI::Layer* layer, const std::string& name)
+{
+    auto element = layer->get(name);
+    if (not element)
+    {
+        LOG_WARN << "Element not found: " << name;
+        return nullptr;
+    }
+    auto typed = dynamic_cast<T*>(element);
+    if (not typed)
+    {
+        LOG_WARN << "Wrong element type for: " << name;
+        return nullptr;
+    }
+    return typed;
+}
+
 void sendEventToCharactercontroller(GameObject& gameObject, CharacterControllerEvent event)
 {
     if (auto characterController = gameObject.GetComponent<Components::CharacterController>())
@@ -32,55 +56,63 @@ IdleState::IdleState(DialogContext& context)
 }
 void IdleState::initGui()
 {
-    auto createWindowWithLayout = [&](const vec2& position, const vec2& scale)
-    {
-        auto dialogueWindowPtr  = dialogContext.guiFactory.createWindow(GUI::WindowStyle::BACKGROUND_ONLY);
-        dialogueWindowPtr->setTransform(GUI::Transform{.position = position, .scale = scale});
-        auto textDialogueWindow = dialogueWindowPtr.get();
-        auto layout             = dialogContext.guiFactory.createVerticalLayout();
-        layout->autoHideElements(false);
-        auto textWindowLayout   = layout.get();
-        dialogueWindowPtr->addChild(std::move(layout));
-        dialogContext.guiManager.add(std::move(dialogueWindowPtr));
+    const std::string layerName{"Dialog"};
+    GUI::ElementReader reader(dialogContext.guiManager, dialogContext.guiFactory);
 
-        return DialogContext::GuiWindow{.window = textDialogueWindow, .layout = textWindowLayout};
-    };
-
-    if (not dialogContext.sentenceWindow.window or not dialogContext.sentenceWindow.layout)
+    const auto& dialogFilePath = EngineLocalConf.files.getDialogGuiPath();
+    if (reader.read(dialogFilePath, layerName))
     {
-        const vec2& position{0.5f, 0.75f};
-        const uint32 WRAP_WIDTH{EngineConf.window.size->x - 20};
-        const vec2& scale{(float)WRAP_WIDTH / (float)EngineConf.window.size->x, 0.25f};
-        dialogContext.sentenceWindow = createWindowWithLayout(position, scale);
-        dialogContext.sentenceWindow.window->activate(false);
-    }
+        auto layer = dialogContext.guiManager.getLayer(layerName);
 
-    if (not dialogContext.optionsWindow.window or not dialogContext.optionsWindow.layout)
-    {
-        const vec2& position{0.5f, 0.25f};
-        const vec2& scale{0.95f, 0.24f};
-        dialogContext.optionsWindow = createWindowWithLayout(position, scale);
-        dialogContext.optionsWindow.layout->setAlign(GUI::HorizontalAlign::LEFT);
-        dialogContext.optionsWindow.window->activate(false);
+        dialogContext.sentenceWindow = getTypedElement<GUI::Window>(layer, "SentenceWindow");
+        dialogContext.npcNameText    = getTypedElement<GUI::Text>(layer, "SentenceName");
+        dialogContext.sentenceText   = getTypedElement<GUI::MultiLineText>(layer, "Sentence");
+        dialogContext.optionsWindow  = getTypedElement<GUI::Window>(layer, "OptionsWindow");
+        dialogContext.optionsLayout  = getTypedElement<GUI::VerticalLayout>(layer, "OptionsLayout");
+
+        if (dialogContext.sentenceWindow)
+        {
+            dialogContext.sentenceWindow->activate(false);
+        }
+        if (dialogContext.optionsWindow)
+        {
+            dialogContext.optionsWindow->activate(false);
+        }
+
+        if (dialogContext.optionsLayout)
+        {
+            const auto& children = dialogContext.optionsLayout->getChildren();
+            if (not children.empty())
+            {
+                if (auto text = dynamic_cast<GUI::Text*>(children.front().get()))
+                {
+                    GUI::ElementWriter::write(dialogContext.optionsButtonTemplate, *text);
+                }
+                else
+                {
+                    LOG_WARN << "Wrong element type";
+                }
+            }
+            else
+            {
+                LOG_WARN << "No option template text";
+            }
+
+            dialogContext.optionsLayout->removeAll();
+        }
     }
 }
 void IdleState::onEnter()
 {
-    auto hideAndClear = [](DialogContext::GuiWindow& window)
+    if (dialogContext.sentenceWindow)
     {
-        if (window.window)
-        {
-            window.window->activate(false);
-        }
+        dialogContext.sentenceWindow->activate(false);
+    }
 
-        if (window.layout)
-        {
-            window.layout->removeAll();
-        }
-    };
-
-    hideAndClear(dialogContext.sentenceWindow);
-    hideAndClear(dialogContext.optionsWindow);
+    if (dialogContext.optionsWindow)
+    {
+        dialogContext.optionsWindow->activate(false);
+    }
 }
 void IdleState::onEnter(const EndDialog& event)
 {

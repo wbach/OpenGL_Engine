@@ -3,6 +3,8 @@
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
 
+#include "Logger/Log.h"
+
 namespace GameEngine
 {
 namespace Params
@@ -48,6 +50,11 @@ void Files::setQuestsFile(const std::filesystem::path& newPath)
     quests = newPath;
     makeAbolutePath(quests);
 }
+void Files::setDialogGuiPath(const std::filesystem::path& newPath)
+{
+    dialogGuiLayout = newPath;
+    makeAbolutePath(dialogGuiLayout);
+}
 void Files::setShaderPath(const std::filesystem::path& newPath)
 {
     shaders = newPath;
@@ -87,6 +94,10 @@ const std::filesystem::path& Files::getQuestsFilePath() const
 {
     return quests;
 }
+const std::filesystem::path& Files::getDialogGuiPath() const
+{
+    return dialogGuiLayout;
+}
 const std::filesystem::path& Files::getLoadingBackgroundPath() const
 {
     return loadingScreenBackgroundTexture;
@@ -106,6 +117,8 @@ void Files::setProjectPath(const std::filesystem::path& path)
     makeAbolutePath(loadingScreenCircleTexture);
     makeAbolutePath(loadingScreenBackgroundTexture);
     makeAbolutePath(loadingScreenBackgroundAudio);
+    makeAbolutePath(quests);
+    makeAbolutePath(dialogGuiLayout);
 }
 std::filesystem::path Files::getRelativeIfCan(const std::filesystem::path& input) const
 {
@@ -128,7 +141,9 @@ const std::filesystem::path& Files::getProjectPath() const
 void Files::makeAbolutePath(std::filesystem::path& input)
 {
     if (projectPath.empty() or input.is_absolute())
+    {
         return;
+    }
 
     input = std::filesystem::absolute(projectPath / input).lexically_normal();
 }

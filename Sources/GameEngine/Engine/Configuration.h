@@ -26,11 +26,13 @@ public:
     const std::filesystem::path& getLoadingCirclePath() const;
     const std::filesystem::path& getLoadingBackgroundPath() const;
     const std::filesystem::path& getLoadingBackgroundAudioPath() const;
+    const std::filesystem::path& getDialogGuiPath() const;
 
     void setProjectPath(const std::filesystem::path&);
     void setDataPath(const std::filesystem::path&);
     void setShaderPath(const std::filesystem::path&);
     void setQuestsFile(const std::filesystem::path&);
+    void setDialogGuiPath(const std::filesystem::path&);
     void setLoadingCirclePath(const std::filesystem::path&);
     void setLoadingBackgroundPath(const std::filesystem::path&);
     void setLoadingBackgroundAudioPath(const std::filesystem::path&);
@@ -48,6 +50,7 @@ private:
     std::filesystem::path loadingScreenCircleTexture{std::filesystem::path("GUI") / "aLoadingCircle.png"};
     std::filesystem::path loadingScreenBackgroundTexture{std::filesystem::path("GUI") / "dark3.png"};
     std::filesystem::path loadingScreenBackgroundAudio{std::filesystem::path("GUI") / "audio.ogg"};
+    std::filesystem::path dialogGuiLayout{std::filesystem::path("GUI") / "Dialog.gui"};
     std::filesystem::path cache;
     std::filesystem::path generated;
 };

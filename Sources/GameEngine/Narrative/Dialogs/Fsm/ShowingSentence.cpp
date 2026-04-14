@@ -22,6 +22,7 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/GUI/IElementFactory.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
+#include "GameEngine/Renderers/GUI/Text/MultiLineText.h"
 #include "GameEngine/Renderers/GUI/Text/Text.h"
 #include "GameEngine/Renderers/GUI/Window/Window.h"
 
@@ -122,8 +123,7 @@ ShowingSentence::ShowingSentence(DialogContext& dialogContext)
 }
 void ShowingSentence::onEnter()
 {
-    dialogContext.sentenceWindow.window->activate(true);
-    dialogContext.sentenceWindow.layout->removeAll();
+    dialogContext.sentenceWindow->activate(true);
     subscribeForInput();
 }
 void ShowingSentence::onEnter(const StartSentence& event)
@@ -179,17 +179,15 @@ void ShowingSentence::onEnter(const StartSentence& event)
 }
 void ShowingSentence::createGuiTexts(const std::string& characterName, const std::string& sentance)
 {
-    auto characterNameText         = dialogContext.guiFactory.createText(characterName);
-    characterNameText->render.mode = GUI::RenderMode::NATIVE;
+    if (dialogContext.npcNameText)
+    {
+        dialogContext.npcNameText->text.text = characterName;
+    }
 
-    dialogContext.sentenceWindow.layout->addChild(std::move(characterNameText));
-
-    auto sentanceGuiText            = dialogContext.guiFactory.createText(sentance);
-    sentanceGuiText->render.mode    = GUI::RenderMode::NATIVE;
-    sentanceGuiText->render.align   = GUI::HorizontalAlign::LEFT;
-    sentanceGuiText->text.wrapWidth = EngineConf.window.size->x - 20;
-
-    dialogContext.sentenceWindow.layout->addChild(std::move(sentanceGuiText));
+    if (dialogContext.sentenceText)
+    {
+        dialogContext.sentenceText->setText(sentance);
+    }
 }
 
 void ShowingSentence::onEnter(const OptionSelected& event)
@@ -231,7 +229,6 @@ void ShowingSentence::onEnter(const OptionSelected& event)
 
 void ShowingSentence::update(const StartSentence& event)
 {
-    dialogContext.sentenceWindow.layout->removeAll();
     onEnter(event);
 };
 void ShowingSentence::subscribeForInput()
