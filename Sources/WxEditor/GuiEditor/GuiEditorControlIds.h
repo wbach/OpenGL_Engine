@@ -6,6 +6,7 @@ enum GuiEditorControlIds
     ID_RECENT_LAST = 3010,
     ID_UNDO = 3011,
     ID_REDO,
+    ID_REOPEN,
     ID_ADD_WINDOW,
     ID_ADD_TEXT,
     ID_ADD_MULTI_LINE_TEXT,

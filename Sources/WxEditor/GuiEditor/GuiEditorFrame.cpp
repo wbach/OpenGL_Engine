@@ -226,6 +226,7 @@ void GuiEditorFrame::CreateMainMenu()
     UpdateRecentFilesMenu();
     fileMenu->AppendSubMenu(recentMenu, "Open &Recent");
 
+    fileMenu->Append(ID_REOPEN, "Reopen");
     fileMenu->Append(wxID_SAVE, "&Save\tCtrl+S");
     fileMenu->Append(wxID_SAVEAS, "Save &As...");
     fileMenu->AppendSeparator();
@@ -253,6 +254,7 @@ void GuiEditorFrame::CreateMainMenu()
     SetMenuBar(menuBar);
 
     Bind(wxEVT_MENU, &GuiEditorFrame::OnOpen, this, wxID_OPEN);
+    Bind(wxEVT_MENU, &GuiEditorFrame::OnReOpen, this, ID_REOPEN);
     Bind(wxEVT_MENU, &GuiEditorFrame::OnSave, this, wxID_SAVE);
     Bind(wxEVT_MENU, &GuiEditorFrame::OnSaveAs, this, wxID_SAVEAS);
     Bind(wxEVT_MENU, &GuiEditorFrame::OnExit, this, wxID_EXIT);
@@ -392,8 +394,10 @@ void GuiEditorFrame::multiLineTextProperties(wxPropertyGrid& propGrid, GameEngin
 
         AppendProperty(propGrid, selectedElement, new wxPropertyCategory("Text Settings"));
         AppendProperty(propGrid, selectedElement, new wxStringProperty("Label text", "LabelText", txt->getText()));
-        AppendProperty(propGrid, selectedElement, new wxFloatProperty("Local Line height", "MTextLineHeight", txt->lineHeight.get()));
-        AppendProperty(propGrid, selectedElement, new wxFloatProperty("Screen Line height", "MTextSLineHeight", txt->getScreenScaleLineHeight()));
+        AppendProperty(propGrid, selectedElement,
+                       new wxFloatProperty("Local Line height", "MTextLineHeight", txt->lineHeight.get()));
+        AppendProperty(propGrid, selectedElement,
+                       new wxFloatProperty("Screen Line height", "MTextSLineHeight", txt->getScreenScaleLineHeight()));
 
         AppendProperty(propGrid, selectedElement,
                        new wxIntProperty("Wrap width", "TextWrapWith", txt->text.wrapWidth.get().value_or(0)));
@@ -811,8 +815,6 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
 
 void GuiEditorFrame::OnOpen(wxCommandEvent&)
 {
-    propGrid->Clear();
-
     wxFileDialog openFileDialog(this, "Choose file", lastDirPath.string(), "", "Gui file (*.gui)|*.gui|All files (*.*)|*.*",
                                 wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
@@ -825,10 +827,15 @@ void GuiEditorFrame::OnOpen(wxCommandEvent&)
         AddToRecentFile(path.ToStdString());
     }
 }
+void GuiEditorFrame::OnReOpen(wxCommandEvent&)
+{
+    if (currentFile)
+    {
+        OpenFile(*currentFile);
+    }
+}
 void GuiEditorFrame::OnOpenRecent(wxCommandEvent& event)
 {
-    propGrid->Clear();
-
     int index = event.GetId() - ID_RECENT_FIRST;
 
     if (index >= 0 && index < (int)recentFiles.size())
@@ -1195,6 +1202,7 @@ bool GuiEditorFrame::OpenFile(const GameEngine::File& file)
     if (not file.exist())
         return false;
 
+    propGrid->Clear();
     canvas->GetScene().GetGuiManager().removeAllFromLayer(GameEngine::GUI::DEFAULT_LAYER);
     GameEngine::GUI::ElementReader reader(canvas->GetScene().GetGuiManager(), canvas->GetScene().GetGuiElementFactory());
     if (reader.read(file))

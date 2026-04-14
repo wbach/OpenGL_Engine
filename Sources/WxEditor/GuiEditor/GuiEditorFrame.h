@@ -25,6 +25,7 @@ private:
 
     void OnOpen(wxCommandEvent&);
     void OnOpenRecent(wxCommandEvent&);
+    void OnReOpen(wxCommandEvent&);
     void OnSave(wxCommandEvent&);
     void OnSaveAs(wxCommandEvent&);
     void OnExit(wxCommandEvent&);
