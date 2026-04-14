@@ -734,6 +734,14 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
                     text->render.align = *v;
                 }
             }
+            else if (auto text = dynamic_cast<GameEngine::GUI::MultiLineText*>(target))
+            {
+                auto intVal = p->GetValue().GetInteger();
+                if (auto v = magic_enum::enum_cast<GameEngine::GUI::HorizontalAlign>(intVal))
+                {
+                    text->render.align = *v;
+                }
+            }
         }
         else if (name == "TextOutline")
         {

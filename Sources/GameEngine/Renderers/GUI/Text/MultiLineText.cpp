@@ -11,6 +11,7 @@
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "Text.h"
 #include "Types.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -62,7 +63,8 @@ void MultiLineText::setText(const std::string& input)
 
 void MultiLineText::rebuildLines()
 {
-    if (currentlyText == text.text and not font.isDirty() and not text.isDirty() and not lineHeight.isDirty())
+    if (currentlyText == text.text and not font.isDirty() and not text.isDirty() and not lineHeight.isDirty() and
+        not render.isDirty())
     {
         return;
     }
@@ -92,6 +94,7 @@ void MultiLineText::rebuildLines()
     text.clearDirty();
     font.clearDirty();
     lineHeight.clearDirty();
+    render.clearDirty();
 }
 
 void MultiLineText::append(const std::string& input)
@@ -183,11 +186,11 @@ void MultiLineText::refreshSelf()
 }
 void MultiLineText::update()
 {
-    if ((not text.text->empty() and not currentlyText) or text.isDirty() or font.isDirty() or render.isDirty())
+    if ((not text.text->empty() and not currentlyText) or text.isDirty() or font.isDirty() or render.isDirty() or
+        lineHeight.isDirty())
     {
+        invalidate();
         refresh();
-
-        render.clearDirty();
     }
 
     layout.update();
