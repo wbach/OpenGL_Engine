@@ -7,6 +7,7 @@
 #include "RenderTextParameters.h"
 #include "Surface.h"
 #include "TextParameters.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -19,6 +20,7 @@ class ENGINE_API Text : public RenderAble
 public:
 public:
     Text(IFontManager&, IResourceManager&, Renderer&, const std::string&);
+    Text(const Text&);
     ~Text() override;
 
 public:
@@ -49,6 +51,7 @@ private:
     std::optional<IdType> fontId_;
     bool openFontFailed_;
     vec2 rendererdTextScale_;
+    IdType subId_;
 };
 }  // namespace GUI
 }  // namespace GameEngine

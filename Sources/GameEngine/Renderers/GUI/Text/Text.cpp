@@ -20,7 +20,25 @@ Text::Text(IFontManager& fontManager, IResourceManager& resourceManager, GUI::Re
     , rendererdTextScale_(0)
 {
     text.text = inputText;
-    EngineConf.renderer.resolution.subscribeForChange(
+    subId_    = EngineConf.renderer.resolution.subscribeForChange(
+        [this]()
+        {
+            LOG_DEBUG << "Resolution change";
+            text.markAsDirty();
+            invalidate();
+        });
+}
+
+Text::Text(const Text& other)
+    : RenderAble(other.resourceManager_, other.renderer_)
+    , fontManager_(other.fontManager_)
+    , openFontFailed_(false)
+    , rendererdTextScale_(0)
+{
+    text.text      = other.text.text;
+    text.wrapWidth = other.text.wrapWidth;
+
+    subId_ = EngineConf.renderer.resolution.subscribeForChange(
         [this]()
         {
             LOG_DEBUG << "Resolution change";
@@ -36,6 +54,8 @@ Text::~Text()
         fontManager_.closeFont(*fontId_);
         fontId_.reset();
     }
+
+    EngineConf.renderer.resolution.unsubscribe(subId_);
 }
 
 const std::string& Text::getText() const
@@ -203,5 +223,6 @@ std::unique_ptr<Element> Text::clone() const
 {
     return std::make_unique<Text>(*this);
 }
+
 }  // namespace GUI
 }  // namespace GameEngine
