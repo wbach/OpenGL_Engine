@@ -749,10 +749,27 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
             {
                 text->font.outline = p->GetValue().GetInteger();
             }
+            else if (auto text = dynamic_cast<GameEngine::GUI::MultiLineText*>(target))
+            {
+                text->font.outline = p->GetValue().GetInteger();
+            }
         }
         else if (name == "TextAutoFontSize")
         {
             if (auto text = dynamic_cast<GameEngine::GUI::Text*>(target))
+            {
+                if (p->GetValue().GetBool())
+                {
+                    text->font.size = 64;
+                }
+                else
+                {
+                    text->font.size = std::nullopt;
+                }
+
+                rebuildPropertiesView();
+            }
+            else if (auto text = dynamic_cast<GameEngine::GUI::MultiLineText*>(target))
             {
                 if (p->GetValue().GetBool())
                 {
@@ -772,10 +789,18 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
             {
                 text->font.size = p->GetValue().GetInteger();
             }
+            else if (auto text = dynamic_cast<GameEngine::GUI::MultiLineText*>(target))
+            {
+                text->font.size = p->GetValue().GetInteger();
+            }
         }
         else if (name == "TextFontFile")
         {
             if (auto text = dynamic_cast<GameEngine::GUI::Text*>(target))
+            {
+                text->font.file = p->GetValue().GetString().ToStdString();
+            }
+            else if (auto text = dynamic_cast<GameEngine::GUI::MultiLineText*>(target))
             {
                 text->font.file = p->GetValue().GetString().ToStdString();
             }
