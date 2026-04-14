@@ -32,7 +32,6 @@ RenderAble::RenderAble(const RenderAble& other)
     , transformMatrix_(other.transformMatrix_)
     , inactivityReleaseTime(other.inactivityReleaseTime)
     , releaseTimerStart_(std::nullopt)
-    , changeSubId(std::nullopt)
 {
     updateTransformMatrix();
     renderer_.Subscribe(*this);

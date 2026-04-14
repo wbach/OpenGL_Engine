@@ -47,7 +47,6 @@ protected:
     mat4 transformMatrix_;
     int inactivityReleaseTime{5000};
     std::optional<Timepoint> releaseTimerStart_;
-    std::optional<IdType> changeSubId;
 };
 }  // namespace GUI
 }  // namespace GameEngine

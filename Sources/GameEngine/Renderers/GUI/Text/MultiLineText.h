@@ -20,6 +20,7 @@ class ENGINE_API MultiLineText : public Element
 {
 public:
     MultiLineText(IFontManager&, IResourceManager&, Renderer&, const std::string&);
+    MultiLineText(const MultiLineText&);
     ~MultiLineText() override;
 
 public:

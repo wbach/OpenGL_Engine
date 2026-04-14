@@ -4,6 +4,8 @@
 #include <Utils/GLM/GLMUtils.h>
 
 #include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Renderers/GUI/Element.h"
+#include "GameEngine/Renderers/GUI/Text/TextParameters.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
@@ -22,6 +24,19 @@ MultiLineText::MultiLineText(IFontManager& fontManager, IResourceManager& resour
 {
     text.text      = inputText;
     text.wrapWidth = 30;
+    layout.setParent(this);
+    layout.setAlign(VerticalAlign::TOP);
+}
+
+MultiLineText::MultiLineText(const MultiLineText& other)
+    : Element(other)
+    , text(other.text)
+    , font(other.font)
+    , render(other.render)
+    , fontManager_(other.fontManager_)
+    , resourceManager(other.resourceManager)
+    , renderer(other.renderer)
+{
     layout.setParent(this);
     layout.setAlign(VerticalAlign::TOP);
 }
