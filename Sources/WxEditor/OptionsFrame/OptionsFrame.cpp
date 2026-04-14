@@ -228,197 +228,120 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
 {
     wxPanel* panel        = new wxPanel(notebook);
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
-
-    // ===== Sekcja katalogow =====
-    wxStaticBox* folderBox        = new wxStaticBox(panel, wxID_ANY, "Project Paths");
-    wxStaticBoxSizer* folderSizer = new wxStaticBoxSizer(folderBox, wxVERTICAL);
-
-    struct PathOption
-    {
-        std::string label;
-        std::filesystem::path value;
-        std::function<void(const std::filesystem::path&)> setValue;
-        std::function<void()> saveConfig;
-    };
-
-    auto saveConfig       = []() { ProjectManager::GetInstance().SaveLocalConfigFile(); };
-    auto saveEditorConfig = []() { ProjectManager::GetInstance().SaveEditorConfig(); };
-
-    std::vector<PathOption> paths = {
-        {"Data path:", EngineLocalConf.files.getDataPath(), [&](const auto& path) { EngineLocalConf.files.setDataPath(path); },
-         saveConfig},
-        {"Shader path:", EngineLocalConf.files.getShaderPath(),
-         [&](const auto& path) { EngineLocalConf.files.setShaderPath(path); }, saveConfig},
-        {"Engine includes path:", ProjectManager::GetInstance().GetEngineIncludesDir(),
-         [](const auto& path) { ProjectManager::GetInstance().SetEngineIncludesDir(path); }, saveEditorConfig}};
-
-    for (auto& pathOpt : paths)
-    {
-        folderSizer->Add(new wxStaticText(panel, wxID_ANY, pathOpt.label), 0, wxALL, 5);
-
-        wxDirPickerCtrl* dirPicker = new wxDirPickerCtrl(panel, wxID_ANY, pathOpt.value.string(), "Select a folder");
-        folderSizer->Add(dirPicker, 0, wxEXPAND | wxALL, 5);
-
-        wxStaticText* pathDisplay = new wxStaticText(panel, wxID_ANY, pathOpt.value.string());
-        folderSizer->Add(pathDisplay, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
-
-        dirPicker->Bind(wxEVT_DIRPICKER_CHANGED,
-                        [&, option = pathOpt, dirPicker, pathDisplay](wxFileDirPickerEvent& event)
-                        {
-                            auto newValue = dirPicker->GetPath().ToStdString();
-                            option.setValue(newValue);
-                            pathDisplay->SetLabel(newValue);
-                            saveConfig();
-                        });
-    }
-
-    mainSizer->Add(folderSizer, 0, wxEXPAND | wxALL, 10);  // margines miedzy sekcjami
-
     wxLogNull logNo;
-    // ===== Sekcja tekstur =====
-    wxStaticBox* textureBox        = new wxStaticBox(panel, wxID_ANY, "Textures");
-    wxStaticBoxSizer* textureSizer = new wxStaticBoxSizer(textureBox, wxVERTICAL);
 
-    struct TextureOption
+    auto saveLocal  = []() { ProjectManager::GetInstance().SaveLocalConfigFile(); };
+    auto saveEditor = []() { ProjectManager::GetInstance().SaveEditorConfig(); };
+
+    struct ProjectOption
     {
         std::string label;
         std::filesystem::path path;
-        std::function<void(const std::filesystem::path&)> setValue;
+        std::function<void(const std::string&)> setter;
+        std::function<void()> onSave;
+        std::string filter = "";  // Jeśli pusty -> wybieramy katalog
+        bool isTexture     = false;
     };
 
-    std::vector<TextureOption> textures = {{"Loading screen background:", EngineLocalConf.files.getLoadingBackgroundPath(),
-                                            [&](const auto& path) { EngineLocalConf.files.setLoadingBackgroundPath(path); }},
-                                           {"Loading circle texture:", EngineLocalConf.files.getLoadingCirclePath(),
-                                            [&](const auto& path) { EngineLocalConf.files.setLoadingCirclePath(path); }}};
-
-    for (auto& texOpt : textures)
+    auto AddOptionRow = [=](wxSizer* targetSizer, ProjectOption& opt)
     {
         wxBoxSizer* rowSizer = new wxBoxSizer(wxHORIZONTAL);
 
-        wxImage img;
-        if (!texOpt.path.empty())
-            img.LoadFile((EngineLocalConf.files.getProjectPath() / texOpt.path).string(), wxBITMAP_TYPE_ANY);
-        wxStaticBitmap* thumbnail = new wxStaticBitmap(panel, wxID_ANY, img.IsOk() ? wxBitmap(img.Scale(50, 50)) : wxNullBitmap);
+        rowSizer->Add(new wxStaticText(panel, wxID_ANY, opt.label), 1, wxALIGN_CENTER_VERTICAL | wxALL, 5);
 
-        rowSizer->Add(thumbnail, 0, wxALL, 5);
+        wxStaticBitmap* thumbnail = nullptr;
+        if (opt.isTexture)
+        {
+            wxImage img;
+            auto fullPath = EngineLocalConf.files.getProjectPath() / opt.path;
+            if (!opt.path.empty() && img.LoadFile(fullPath.string(), wxBITMAP_TYPE_ANY))
+                thumbnail = new wxStaticBitmap(panel, wxID_ANY, wxBitmap(img.Scale(32, 32)));
+            else
+                thumbnail = new wxStaticBitmap(panel, wxID_ANY, wxNullBitmap, wxDefaultPosition, wxSize(32, 32));
+            rowSizer->Add(thumbnail, 0, wxRIGHT | wxALIGN_CENTER_VERTICAL, 5);
+        }
 
         wxTextCtrl* pathCtrl =
-            new wxTextCtrl(panel, wxID_ANY, texOpt.path.string(), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
-        rowSizer->Add(pathCtrl, 1, wxEXPAND | wxALL, 5);
+            new wxTextCtrl(panel, wxID_ANY, opt.path.string(), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+        rowSizer->Add(pathCtrl, 2, wxEXPAND | wxALL, 5);
 
-        wxButton* browseBtn = new wxButton(panel, wxID_ANY, "Browse");
-        rowSizer->Add(browseBtn, 0, wxALL, 5);
+        wxButton* browseBtn = new wxButton(panel, wxID_ANY, "...", wxDefaultPosition, wxSize(30, -1));
+        rowSizer->Add(browseBtn, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
 
-        textureSizer->Add(rowSizer, 0, wxEXPAND | wxALL, 5);
+        targetSizer->Add(rowSizer, 0, wxEXPAND);
 
         browseBtn->Bind(
             wxEVT_BUTTON,
-            [=, text = texOpt](wxCommandEvent&) mutable
+            [=](wxCommandEvent&)
             {
-                wxString startDir = EngineLocalConf.files.getDataPath().string();
-                wxFileDialog dlg(panel, "Select texture", startDir, "", "*.png;*.jpg;*.bmp", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+                std::string resultPath = "";
+                bool success           = false;
 
-                if (dlg.ShowModal() == wxID_OK)
+                if (opt.filter.empty())
                 {
-                    text.setValue(dlg.GetPath().ToStdString());
-                    text.path = dlg.GetPath().ToStdString();
-                    pathCtrl->SetValue(dlg.GetPath());
-                    wxImage newImg;
-                    if (newImg.LoadFile((EngineLocalConf.files.getProjectPath() / text.path).string(), wxBITMAP_TYPE_ANY))
+                    wxDirDialog dlg(panel, "Select Folder", opt.path.string(), wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+                    if (dlg.ShowModal() == wxID_OK)
                     {
-                        thumbnail->SetBitmap(wxBitmap(newImg.Scale(50, 50)));
-                        thumbnail->Refresh();
+                        resultPath = dlg.GetPath().ToStdString();
+                        success    = true;
                     }
-                    ProjectManager::GetInstance().SaveLocalConfigFile();
+                }
+                else
+                {
+                    wxString startDir = EngineLocalConf.files.getDataPath().string();
+                    wxFileDialog dlg(panel, "Select " + opt.label, startDir, "", opt.filter, wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+                    if (dlg.ShowModal() == wxID_OK)
+                    {
+                        resultPath = dlg.GetPath().ToStdString();
+                        success    = true;
+                    }
+                }
+
+                if (success)
+                {
+                    opt.setter(resultPath);
+                    pathCtrl->SetValue(resultPath);
+                    if (opt.isTexture && thumbnail)
+                    {
+                        wxImage newImg;
+                        if (newImg.LoadFile(resultPath, wxBITMAP_TYPE_ANY))
+                        {
+                            thumbnail->SetBitmap(wxBitmap(newImg.Scale(32, 32)));
+                            thumbnail->Refresh();
+                        }
+                    }
+                    if (opt.onSave)
+                        opt.onSave();
                 }
             });
-    }
+    };
 
-    {
-        wxBoxSizer* rowSizer = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticBoxSizer* folderSizer = new wxStaticBoxSizer(new wxStaticBox(panel, wxID_ANY, "Project Paths"), wxVERTICAL);
+    std::vector<ProjectOption> folderOptions = {
+        {"Data Path:", EngineLocalConf.files.getDataPath(), [&](auto p) { EngineLocalConf.files.setDataPath(p); }, saveLocal},
+        {"Shader Path:", EngineLocalConf.files.getShaderPath(), [&](auto p) { EngineLocalConf.files.setShaderPath(p); },
+         saveLocal},
+        {"Includes Path:", ProjectManager::GetInstance().GetEngineIncludesDir(),
+         [&](auto p) { ProjectManager::GetInstance().SetEngineIncludesDir(p); }, saveEditor}};
+    for (auto& opt : folderOptions)
+        AddOptionRow(folderSizer, opt);
+    mainSizer->Add(folderSizer, 0, wxEXPAND | wxALL, 10);
 
-        wxTextCtrl* pathCtrl = new wxTextCtrl(panel, wxID_ANY, EngineLocalConf.files.getLoadingBackgroundAudioPath().string(),
-                                              wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
-        rowSizer->Add(pathCtrl, 1, wxEXPAND | wxALL, 5);
-
-        wxButton* browseBtn = new wxButton(panel, wxID_ANY, "Browse");
-        rowSizer->Add(browseBtn, 0, wxALL, 5);
-
-        textureSizer->Add(rowSizer, 0, wxEXPAND | wxALL, 5);
-
-        browseBtn->Bind(wxEVT_BUTTON,
-                        [=](wxCommandEvent&) mutable
-                        {
-                            wxString startDir = EngineLocalConf.files.getDataPath().string();
-                            wxFileDialog dlg(panel, "Select audio file", startDir, "", "*.mp3;*.wav;*.ogg",
-                                             wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-
-                            if (dlg.ShowModal() == wxID_OK)
-                            {
-                                EngineLocalConf.files.setLoadingBackgroundAudioPath(dlg.GetPath().ToStdString());
-                                pathCtrl->SetValue(dlg.GetPath());
-                                ProjectManager::GetInstance().SaveLocalConfigFile();
-                            }
-                        });
-    }
-
-    {
-        wxBoxSizer* rowSizer = new wxBoxSizer(wxHORIZONTAL);
-
-        wxTextCtrl* pathCtrl = new wxTextCtrl(panel, wxID_ANY, EngineLocalConf.files.getQuestsFilePath().string(),
-                                              wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
-        rowSizer->Add(pathCtrl, 1, wxEXPAND | wxALL, 5);
-
-        wxButton* browseBtn = new wxButton(panel, wxID_ANY, "Browse");
-        rowSizer->Add(browseBtn, 0, wxALL, 5);
-
-        textureSizer->Add(rowSizer, 0, wxEXPAND | wxALL, 5);
-
-        browseBtn->Bind(wxEVT_BUTTON,
-                        [=](wxCommandEvent&) mutable
-                        {
-                            wxString startDir = EngineLocalConf.files.getDataPath().string();
-                            wxFileDialog dlg(panel, "Select quests file", startDir, "", "*.json;*.*",
-                                             wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-
-                            if (dlg.ShowModal() == wxID_OK)
-                            {
-                                EngineLocalConf.files.setQuestsFile(dlg.GetPath().ToStdString());
-                                pathCtrl->SetValue(dlg.GetPath());
-                                ProjectManager::GetInstance().SaveLocalConfigFile();
-                            }
-                        });
-    }
-
-    {
-        wxBoxSizer* rowSizer = new wxBoxSizer(wxHORIZONTAL);
-
-        wxTextCtrl* pathCtrl = new wxTextCtrl(panel, wxID_ANY, EngineLocalConf.files.getDialogGuiPath().string(),
-                                              wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
-        rowSizer->Add(pathCtrl, 1, wxEXPAND | wxALL, 5);
-
-        wxButton* browseBtn = new wxButton(panel, wxID_ANY, "Browse");
-        rowSizer->Add(browseBtn, 0, wxALL, 5);
-
-        textureSizer->Add(rowSizer, 0, wxEXPAND | wxALL, 5);
-
-        browseBtn->Bind(wxEVT_BUTTON,
-                        [=](wxCommandEvent&) mutable
-                        {
-                            wxString startDir = EngineLocalConf.files.getDataPath().string();
-                            wxFileDialog dlg(panel, "Select dialog file", startDir, "", "*.gui;*.*",
-                                             wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-
-                            if (dlg.ShowModal() == wxID_OK)
-                            {
-                                EngineLocalConf.files.setDialogGuiPath(dlg.GetPath().ToStdString());
-                                pathCtrl->SetValue(dlg.GetPath());
-                                ProjectManager::GetInstance().SaveLocalConfigFile();
-                            }
-                        });
-    }
-
-    mainSizer->Add(textureSizer, 0, wxEXPAND | wxALL, 10);  // margines na dole sekcji
+    wxStaticBoxSizer* assetSizer = new wxStaticBoxSizer(new wxStaticBox(panel, wxID_ANY, "Assets & Config Files"), wxVERTICAL);
+    std::vector<ProjectOption> assetOptions = {
+        {"Loading BG:", EngineLocalConf.files.getLoadingBackgroundPath(),
+         [&](auto p) { EngineLocalConf.files.setLoadingBackgroundPath(p); }, saveLocal, "Images|*.png;*.jpg", true},
+        {"Loading Circle:", EngineLocalConf.files.getLoadingCirclePath(),
+         [&](auto p) { EngineLocalConf.files.setLoadingCirclePath(p); }, saveLocal, "Images|*.png;*.jpg", true},
+        {"Audio File:", EngineLocalConf.files.getLoadingBackgroundAudioPath(),
+         [&](auto p) { EngineLocalConf.files.setLoadingBackgroundAudioPath(p); }, saveLocal, "Audio|*.mp3;*.wav;*.ogg"},
+        {"Quests File:", EngineLocalConf.files.getQuestsFilePath(), [&](auto p) { EngineLocalConf.files.setQuestsFile(p); },
+         saveLocal, "JSON|*.json"},
+        {"Dialog GUI:", EngineLocalConf.files.getDialogGuiPath(), [&](auto p) { EngineLocalConf.files.setDialogGuiPath(p); },
+         saveLocal, "GUI|*.gui;*.json"}};
+    for (auto& opt : assetOptions)
+        AddOptionRow(assetSizer, opt);
+    mainSizer->Add(assetSizer, 0, wxEXPAND | wxALL, 10);
 
     panel->SetSizer(mainSizer);
     panel->Layout();
