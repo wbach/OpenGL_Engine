@@ -23,24 +23,6 @@ namespace GameEngine
 {
 namespace
 {
-template <typename T>
-T* getTypedElement(GUI::Layer* layer, const std::string& name)
-{
-    auto element = layer->get(name);
-    if (not element)
-    {
-        LOG_WARN << "Element not found: " << name;
-        return nullptr;
-    }
-    auto typed = dynamic_cast<T*>(element);
-    if (not typed)
-    {
-        LOG_WARN << "Wrong element type for: " << name;
-        return nullptr;
-    }
-    return typed;
-}
-
 void sendEventToCharactercontroller(GameObject& gameObject, CharacterControllerEvent event)
 {
     if (auto characterController = gameObject.GetComponent<Components::CharacterController>())
@@ -64,11 +46,11 @@ void IdleState::initGui()
     {
         auto layer = dialogContext.guiManager.getLayer(layerName);
 
-        dialogContext.sentenceWindow = getTypedElement<GUI::Window>(layer, "SentenceWindow");
-        dialogContext.npcNameText    = getTypedElement<GUI::Text>(layer, "SentenceName");
-        dialogContext.sentenceText   = getTypedElement<GUI::MultiLineText>(layer, "Sentence");
-        dialogContext.optionsWindow  = getTypedElement<GUI::Window>(layer, "OptionsWindow");
-        dialogContext.optionsLayout  = getTypedElement<GUI::VerticalLayout>(layer, "OptionsLayout");
+        dialogContext.sentenceWindow = GUI::getTypedElement<GUI::Window>(layer, "SentenceWindow");
+        dialogContext.npcNameText    = GUI::getTypedElement<GUI::Text>(layer, "SentenceName");
+        dialogContext.sentenceText   = GUI::getTypedElement<GUI::MultiLineText>(layer, "Sentence");
+        dialogContext.optionsWindow  = GUI::getTypedElement<GUI::Window>(layer, "OptionsWindow");
+        dialogContext.optionsLayout  = GUI::getTypedElement<GUI::VerticalLayout>(layer, "OptionsLayout");
 
         if (dialogContext.sentenceWindow)
         {

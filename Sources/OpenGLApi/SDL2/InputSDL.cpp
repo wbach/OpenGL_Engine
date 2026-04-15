@@ -100,6 +100,7 @@ void InputSDL::GetPressedKeys()
 }
 void InputSDL::ShowCursor(bool is)
 {
+    LOG_DEBUG << is;
     isCursorVisible = is;
     SDL_ShowCursor(is ? SDL_ENABLE : SDL_DISABLE);
 }

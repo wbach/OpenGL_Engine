@@ -27,7 +27,13 @@ struct QuestStep
 struct Quest
 {
     std::string name;
-    std::vector<std::string> descriptionNotes{"test description"};
+    std::vector<std::string> descriptionNotes{
+        "Please, hero. I'm glad you're here.They came in the night and took the life of some of the villagers. Friends, family, "
+        "husbands and wives, gone in a flash. We know who did it, but we lack the power to avenge our fallen. Please, hero, be "
+        "our vengeance and unleash our fury upon those nasty dwarves. I cannot join you, for I have other tasks to attend to, "
+        "but I know you don't need me anyway.Hero, act swiftly when dealing with the dwarves. Try to kill all those who stand in "
+        "your way, we don't need their filth in our lands.There's no big reward at the end of the line, but I think my reward "
+        "will be more than fair. For justice and honor!"};
     std::vector<QuestStep> steps;
     size_t currentStepIndex = 0;
     bool isActive           = false;
