@@ -1,7 +1,10 @@
 #include "MultiLineText.h"
 
 #include <Logger/Log.h>
+#include <Types.h>
 #include <Utils/GLM/GLMUtils.h>
+
+#include <magic_enum/magic_enum.hpp>
 
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/GUI/Element.h"
@@ -10,8 +13,6 @@
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "Text.h"
-#include "Types.h"
-#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -77,7 +78,6 @@ void MultiLineText::rebuildLines()
         return;
 
     auto lines = splitText(fullText, text.wrapWidth->value_or(0));
-
     for (const auto& lineStr : lines)
     {
         auto lineElement = std::make_unique<GUI::Text>(fontManager_, resourceManager, renderer, lineStr);

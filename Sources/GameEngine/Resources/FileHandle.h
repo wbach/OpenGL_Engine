@@ -4,41 +4,32 @@
 
 namespace GameEngine
 {
-using FileHandle = std::variant<MemoryFile, File>;
-std::string getPath(const FileHandle&);
-std::string getBaseName(const FileHandle&);
-
-inline bool operator==(const File& lhs, const FileHandle& rhs)
+class FileHandle : public std::variant<MemoryFile, File>
 {
-    if (const auto* rhsFile = std::get_if<File>(&rhs))
-    {
-        return lhs == *rhsFile;
-    }
-    return false;
-}
+public:
+    using variant::variant;
 
-inline bool operator==(const MemoryFile& lhs, const FileHandle& rhs)
-{
-    if (const auto* rhsMem = std::get_if<MemoryFile>(&rhs))
-    {
-        return lhs == *rhsMem;
-    }
-    return false;
-}
+    FileHandle() = default;
+    FileHandle(const std::string&);
+    FileHandle(const File&);
+    FileHandle(const MemoryFile&);
 
-inline bool operator==(const FileHandle& lhs, const File& rhs)
-{
-    return rhs == lhs;
-}
-inline bool operator==(const FileHandle& lhs, const MemoryFile& rhs)
-{
-    return rhs == lhs;
-}
+    FileHandle& operator=(const std::string&);
+    FileHandle& operator=(const std::filesystem::path&);
+    FileHandle& operator=(const File&);
+    FileHandle& operator=(const MemoryFile&);
 
+    bool operator==(const File&) const;
+    bool operator==(const MemoryFile&) const;
+    bool operator==(const FileHandle&) const;
+
+    std::string getPath() const;
+    std::string getBaseName() const;
+
+    friend std::ostream& operator<<(std::ostream&, const GameEngine::FileHandle&);
+};
 }  // namespace GameEngine
 
 class TreeNode;
 ENGINE_API void Read(const TreeNode&, GameEngine::FileHandle&);
 ENGINE_API void write(TreeNode&, const GameEngine::FileHandle&);
-
-std::ostream& operator<<(std::ostream&, const GameEngine::FileHandle&);

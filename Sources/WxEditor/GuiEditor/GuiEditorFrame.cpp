@@ -93,7 +93,7 @@ private:
         else if (sel == 1)
         {
             newValue = wxGetTextFromUser("Enter resource name (without mem:// prefix):", "Memory Resource",
-                                         currentValue.StartsWith("mem://") ? currentValue.Mid(6) : "");
+                                         currentValue.StartsWith("mem://") ? currentValue.Mid(6) : "segoe-ui.ttf");
 
             if (newValue.IsEmpty())
                 return false;
@@ -101,6 +101,12 @@ private:
         }
         else
             return false;
+
+        if (not newValue.IsEmpty() && newValue != GetValueAsString())
+        {
+            propgrid->ChangePropertyValue(this, newValue);
+            return true;
+        }
 
         SetValueFromString(newValue, wxPG_FULL_VALUE);
 
@@ -376,7 +382,7 @@ void GuiEditorFrame::textProperties(wxPropertyGrid& propGrid, GameEngine::GUI::E
         const auto& maybeFileHanle = txt->font.file.get();
         if (maybeFileHanle.has_value())
         {
-            filepath = GameEngine::getPath(*maybeFileHanle);
+            filepath = maybeFileHanle->getPath();
         }
 
         AppendProperty(propGrid, selectedElement, new FileHandleProperty("Font", "TextFontFile", filepath));
@@ -419,7 +425,7 @@ void GuiEditorFrame::multiLineTextProperties(wxPropertyGrid& propGrid, GameEngin
         const auto& maybeFileHanle = txt->font.file.get();
         if (maybeFileHanle.has_value())
         {
-            filepath = GameEngine::getPath(*maybeFileHanle);
+            filepath = maybeFileHanle->getPath();
         }
 
         AppendProperty(propGrid, selectedElement, new FileHandleProperty("Font", "TextFontFile", filepath));
@@ -436,7 +442,7 @@ void GuiEditorFrame::spriteProperties(wxPropertyGrid& propGrid, GameEngine::GUI:
         std::string filePath{};
         if (texture and texture->GetFile())
         {
-            filePath = GameEngine::getPath(*texture->GetFile());
+            filePath = texture->GetFile()->getPath();
         }
         AppendProperty(propGrid, selectedElement, new wxFileProperty("Image path", "ImagePath", filePath));
     }
@@ -523,6 +529,7 @@ void GuiEditorFrame::OnTreeSelectionChanged(wxTreeEvent& event)
 
 void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
 {
+    LOG_DEBUG << "";
     auto* p   = event.GetProperty();
     auto name = p->GetName();
 
@@ -796,13 +803,20 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
         }
         else if (name == "TextFontFile")
         {
+            LOG_DEBUG << p->GetValue().GetString().ToStdString();
             if (auto text = dynamic_cast<GameEngine::GUI::Text*>(target))
             {
+                LOG_DEBUG << p->GetValue().GetString().ToStdString();
                 text->font.file = p->GetValue().GetString().ToStdString();
             }
             else if (auto text = dynamic_cast<GameEngine::GUI::MultiLineText*>(target))
             {
+                LOG_DEBUG << p->GetValue().GetString().ToStdString();
                 text->font.file = p->GetValue().GetString().ToStdString();
+            }
+            else
+            {
+                LOG_DEBUG << p->GetValue().GetString().ToStdString();
             }
         }
         else if (name == "ImagePath")

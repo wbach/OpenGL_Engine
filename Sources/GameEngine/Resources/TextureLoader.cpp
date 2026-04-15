@@ -189,7 +189,7 @@ GeneralTexture* TextureLoader::LoadTexture(const std::string& name, const unsign
     if (not image)
         return GetTextureNotFound();
 
-    auto texture    = std::make_unique<GeneralTexture>(graphicsApi_, std::move(*image), params, MemoryFile{.name = name});
+    auto texture    = std::make_unique<GeneralTexture>(graphicsApi_, std::move(*image), params, MemoryFile{name});
     auto texturePtr = texture.get();
     AddTexture(name, std::move(texture), params.loadType);
     return texturePtr;

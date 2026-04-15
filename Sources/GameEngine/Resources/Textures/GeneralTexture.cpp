@@ -31,7 +31,7 @@ void GeneralTexture::GpuLoadingPass()
     std::string debugFileNamePrint{"{genertated}"};
     if (file_)
     {
-        debugFileNamePrint = getBaseName(*file_);
+        debugFileNamePrint = file_->getBaseName();
     }
     if (image_.empty() or graphicsObjectId_)
     {

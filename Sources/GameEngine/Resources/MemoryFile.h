@@ -6,6 +6,11 @@ namespace GameEngine
 {
 struct MemoryFile
 {
+    MemoryFile() = default;
+    MemoryFile(const std::string& name)
+        : name{name}
+    {
+    }
     std::string name;
 
     auto operator<=>(const MemoryFile&) const = default;

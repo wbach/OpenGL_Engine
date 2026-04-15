@@ -318,9 +318,7 @@ void File::ClearSpecialCharacters()
     }
 }
 
-}  // namespace GameEngine
-
-std::ostream &operator<<(std::ostream &os, const GameEngine::File &file)
+std::ostream &operator<<(std::ostream &os, const File &file)
 {
     os << "File";
     os << "{";
@@ -329,6 +327,7 @@ std::ostream &operator<<(std::ostream &os, const GameEngine::File &file)
     os << "}";
     return os;
 }
+}  // namespace GameEngine
 
 void Read(const TreeNode &input, GameEngine::File &file)
 {

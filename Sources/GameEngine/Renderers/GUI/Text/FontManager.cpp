@@ -110,35 +110,35 @@ std::optional<IdType> FontManager::openFont(FontStyle style, FontSize size, Font
         return iter->second;
     }
 
-    auto percentFontSize = size;//static_cast<int>(EngineConf.window.size->y * size / 768);
+    auto percentFontSize = size;  // static_cast<int>(EngineConf.window.size->y * size / 768);
     // auto percentFontSize = windowSize.y / size;
 
-    LOG_DEBUG << "Font size : " << percentFontSize << " (actual skaled) /" << size << " (requested)";
+    LOG_DEBUG << "Font name: " << fname << ", Font size : " << percentFontSize << " (actual skaled) /" << size << " (requested)";
 
     TTF_Font *font{nullptr};
     if (fileHandle)
     {
-        std::visit(visitor{[&](const MemoryFile &m)
-                           {
-                               auto iter = memoryFonts.find(m.name);
-                               if (iter != memoryFonts.end())
-                               {
-                                   auto data = iter->second;
-                                   font      = loadFontFromMemory(data.data, data.length, percentFontSize);
+        std::visit(
+            visitor{[&](const MemoryFile &m)
+                    {
+                        auto iter = memoryFonts.find(m.name);
+                        if (iter != memoryFonts.end())
+                        {
+                            auto data = iter->second;
+                            font      = loadFontFromMemory(data.data, data.length, percentFontSize);
 
-                                   if (not font)
-                                   {
-                                       LOG_ERROR << "Create font error: " << TTF_GetError();
-                                   }
-                               }
-                               else
-                               {
-                                   LOG_ERROR << "Font not found in memory : " << m;
-                               }
-                           },
-                           [&](const File &file)
-                           { font = TTF_OpenFont(file.GetAbsolutePath().string().c_str(), percentFontSize); }},
-                   *fileHandle);
+                            if (not font)
+                            {
+                                LOG_ERROR << "Create font error: " << TTF_GetError();
+                            }
+                        }
+                        else
+                        {
+                            LOG_ERROR << "Font not found in memory : " << m;
+                        }
+                    },
+                    [&](const File &file) { font = TTF_OpenFont(file.GetAbsolutePath().string().c_str(), percentFontSize); }},
+            *fileHandle);
     }
     else
     {
@@ -192,13 +192,14 @@ std::optional<TextureData> FontManager::renderText(const std::string &text, IdTy
     if (wrapWidth and wrapWidth > 0)
     {
         uint32 scaledWrapWidth = (EngineConf.window.size->y * *wrapWidth) / 768;
-        LOG_DEBUG << "text:" << text << ", Wrapped width : " << wrapWidth << ", scaledWrapWidth = " << scaledWrapWidth;
+        LOG_DEBUG << font.name << ", text:" << text << ", Wrapped width : " << wrapWidth
+                  << ", scaledWrapWidth = " << scaledWrapWidth;
 
         sdlSurface = TTF_RenderText_Blended_Wrapped(font.ptr, text.c_str(), sdlColor, scaledWrapWidth);
     }
     else
     {
-        LOG_DEBUG << "Render text: " << text;
+        LOG_DEBUG << font.name << ", render text: " << text;
         sdlSurface = TTF_RenderText_Blended(font.ptr, text.c_str(), sdlColor);
     }
 
@@ -284,7 +285,7 @@ std::string FontManager::getFontName(const std::optional<FileHandle> &fileHandle
             *fileHandle);
     }
 
-    return +"_" + std::string(magic_enum::enum_name(style)) + "_" + std::to_string(size) + "_" + std::to_string(outline);
+    return path + "_" + std::string(magic_enum::enum_name(style)) + "_" + std::to_string(size) + "_" + std::to_string(outline);
 }
 }  // namespace GUI
 }  // namespace GameEngine
