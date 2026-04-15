@@ -7,17 +7,13 @@ namespace GameEngine
 struct MemoryFile
 {
     MemoryFile() = default;
-    MemoryFile(const std::string& name)
-        : name{name}
-    {
-    }
+    MemoryFile(const std::string&);
+
     std::string name;
 
+    bool empty() const;
     auto operator<=>(const MemoryFile&) const = default;
-};
 
-inline std::ostream& operator<<(std::ostream& os, const MemoryFile& f)
-{
-    return os << "MemoryFile{" << f.name << "}";
-}
+    friend std::ostream& operator<<(std::ostream&, const MemoryFile&);
+};
 }  // namespace GameEngine

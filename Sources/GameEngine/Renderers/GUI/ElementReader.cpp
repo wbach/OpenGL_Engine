@@ -288,35 +288,46 @@ std::unique_ptr<Sprite> ElementReader::readSprite(const TreeNode &node)
 std::unique_ptr<Button> ElementReader::readButton(const TreeNode &node)
 {
     auto button = factory_.createButton();
+    button->setBackground(nullptr);
+    button->setOnHover(nullptr);
+    button->setOnActive(nullptr);
 
     if (auto paramnode = node.getChild(BACKGROUND_TEXTURE))
     {
-        auto texture = readSprite(*paramnode);
-        if (texture)
+        auto fileNode = paramnode->getChild(FILE);
+        if (fileNode and not fileNode->value_.empty())
         {
-            button->setBackground(std::move(texture));
+            if (auto texture = readSprite(*paramnode))
+            {
+                button->setBackground(std::move(texture));
+            }
         }
     }
     if (auto paramnode = node.getChild(HOVER_TEXTURE))
     {
-        auto texture = readSprite(*paramnode);
-        if (texture)
+        auto fileNode = paramnode->getChild(FILE);
+        if (fileNode and not fileNode->value_.empty())
         {
-            button->setOnHover(std::move(texture));
+            if (auto texture = readSprite(*paramnode))
+            {
+                button->setOnHover(std::move(texture));
+            }
         }
     }
     if (auto paramnode = node.getChild(ACTIVE_TEXTURE))
     {
-        auto texture = readSprite(*paramnode);
-        if (texture)
+        auto fileNode = paramnode->getChild(FILE);
+        if (fileNode and not fileNode->value_.empty())
         {
-            button->setOnActive(std::move(texture));
+            if (auto texture = readSprite(*paramnode))
+            {
+                button->setOnActive(std::move(texture));
+            }
         }
     }
     if (auto textNode = node.getChild(TEXT))
     {
-        auto text = readText(*textNode);
-        if (text)
+        if (auto text = readText(*textNode))
         {
             button->setText(std::move(text));
         }

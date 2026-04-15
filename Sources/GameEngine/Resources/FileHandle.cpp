@@ -31,6 +31,10 @@ std::string FileHandle::getBaseName() const
         visitor{[](const File &file) { return file.GetBaseName(); }, [](const MemoryFile &mem) { return "mem://" + mem.name; }},
         *this);
 }
+bool FileHandle::empty() const
+{
+    return std::visit([](const auto &file) { return file.empty(); }, *this);
+}
 std::ostream &operator<<(std::ostream &os, const GameEngine::FileHandle &fileHandle)
 {
     std::visit([&os](auto &&arg) { os << arg; }, fileHandle);

@@ -126,8 +126,10 @@ void write(TreeNode& node, const Sprite& element)
     write(node.addChild(TYPE), SPRITE);
     writeBasicParams(node, element);
 
-    auto texture = element.getTexture();
-    write(node.addChild(FILE), texture ? texture->GetFile() : File());
+    if (auto texture = element.getTexture())
+    {
+        write(node.addChild(FILE), texture->GetFile());
+    }
     write(node.addChild(COLOR), element.getColor());
 }
 

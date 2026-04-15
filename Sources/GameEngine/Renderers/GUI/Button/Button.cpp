@@ -85,10 +85,10 @@ void Button::setText(std::unique_ptr<Text> text)
 void Button::setBackground(std::unique_ptr<Sprite> sprite)
 {
     backgroundSprite = std::move(sprite);
-    backgroundSprite->setColor(theme.normal.sprite.color);
 
     if (backgroundSprite)
     {
+        backgroundSprite->setColor(theme.normal.sprite.color);
         backgroundSprite->setLocalScale(vec2{1.f});
         backgroundSprite->setZPosition(-0.1f);
         backgroundSprite->setParent(this);
@@ -98,10 +98,10 @@ void Button::setBackground(std::unique_ptr<Sprite> sprite)
 void Button::setOnHover(std::unique_ptr<Sprite> sprite)
 {
     onHoverSprite = std::move(sprite);
-    onHoverSprite->setColor(theme.hover.sprite.color);
 
     if (onHoverSprite)
     {
+        onHoverSprite->setColor(theme.hover.sprite.color);
         onHoverSprite->activate(false);
         onHoverSprite->setZPosition(-0.1f);
         onHoverSprite->setLocalScale(vec2{1.f});
@@ -112,10 +112,10 @@ void Button::setOnHover(std::unique_ptr<Sprite> sprite)
 void Button::setOnActive(std::unique_ptr<Sprite> sprite)
 {
     onActiveSprite = std::move(sprite);
-    onActiveSprite->setColor(theme.active.sprite.color);
 
     if (onActiveSprite)
     {
+        onActiveSprite->setColor(theme.active.sprite.color);
         onActiveSprite->activate(false);
         onActiveSprite->setZPosition(-0.1f);
         onActiveSprite->setLocalScale(vec2{1.f});

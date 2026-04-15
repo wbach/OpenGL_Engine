@@ -25,6 +25,7 @@ public:
 
     std::string getPath() const;
     std::string getBaseName() const;
+    bool empty() const;
 
     friend std::ostream& operator<<(std::ostream&, const GameEngine::FileHandle&);
 };

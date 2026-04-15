@@ -39,12 +39,16 @@
 
 namespace
 {
+const wxString DEFAULT_MEMORY_FONT{"segoe-ui.ttf"};
+const wxString DEFAULT_TEXTURE{"darkGrayButton.png"};
+
 class FileHandleProperty : public wxStringProperty
 {
 public:
     FileHandleProperty(const wxString& label = wxPG_LABEL, const wxString& name = wxPG_LABEL,
-                       const wxString& value = wxEmptyString)
+                       const wxString& value = wxEmptyString, const wxString& defaultMemoryValue = wxEmptyString)
         : wxStringProperty(label, name, value)
+        , defaultMemoryValue(defaultMemoryValue)
     {
         SetEditor(static_cast<wxPGEditor*>(wxPGEditor_TextCtrlAndButton));
     }
@@ -93,7 +97,7 @@ private:
         else if (sel == 1)
         {
             newValue = wxGetTextFromUser("Enter resource name (without mem:// prefix):", "Memory Resource",
-                                         currentValue.StartsWith("mem://") ? currentValue.Mid(6) : "segoe-ui.ttf");
+                                         currentValue.StartsWith("mem://") ? currentValue.Mid(6) : defaultMemoryValue);
 
             if (newValue.IsEmpty())
                 return false;
@@ -112,6 +116,8 @@ private:
 
         return true;
     }
+
+    wxString defaultMemoryValue;
 };
 
 template <typename T>
@@ -154,8 +160,20 @@ Color ConvertVariantToColor(const wxVariant& value)
     return Color(col.Red(), col.Green(), col.Blue(), col.Alpha());
 }
 
-wxPGProperty* AppendProperty(wxPropertyGrid& propGrid, GameEngine::GUI::Element& selectedElement, wxPGProperty* property)
+wxPGProperty* AppendProperty(wxPropertyGrid& propGrid, GameEngine::GUI::Element& selectedElement, wxPGProperty* property,
+                             wxPGProperty* parent = nullptr)
 {
+    if (parent)
+    {
+        wxString parentName = parent->GetName();
+        wxString name       = property->GetName();
+        property->SetName(parentName + "." + name);
+
+        auto p = propGrid.AppendIn(parent, property);
+        p->SetClientData(&selectedElement);
+        return p;
+    }
+
     auto p = propGrid.Append(property);
     p->SetClientData(&selectedElement);
     return p;
@@ -168,6 +186,18 @@ const std::string LONG_DUMMY_TEXT{
     "typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset "
     "sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker "
     "including versions of Lorem Ipsum."};
+
+wxString GetCustomBaseName(const wxString& fullName)
+{
+    int lastDot = fullName.Find('.', true);
+
+    if (lastDot == wxNOT_FOUND)
+    {
+        return fullName;
+    }
+
+    return fullName.Mid(lastDot + 1);
+}
 }  // namespace
 
 GuiEditorFrame::GuiEditorFrame(const std::optional<GameEngine::File>& maybeFile, const wxString& title, const wxPoint& pos,
@@ -385,7 +415,7 @@ void GuiEditorFrame::textProperties(wxPropertyGrid& propGrid, GameEngine::GUI::E
             filepath = maybeFileHanle->getPath();
         }
 
-        AppendProperty(propGrid, selectedElement, new FileHandleProperty("Font", "TextFontFile", filepath));
+        AppendProperty(propGrid, selectedElement, new FileHandleProperty("Font", "TextFontFile", filepath, DEFAULT_MEMORY_FONT));
     }
 }
 
@@ -428,15 +458,18 @@ void GuiEditorFrame::multiLineTextProperties(wxPropertyGrid& propGrid, GameEngin
             filepath = maybeFileHanle->getPath();
         }
 
-        AppendProperty(propGrid, selectedElement, new FileHandleProperty("Font", "TextFontFile", filepath));
+        AppendProperty(propGrid, selectedElement, new FileHandleProperty("Font", "TextFontFile", filepath, DEFAULT_MEMORY_FONT));
     }
 }
 
-void GuiEditorFrame::spriteProperties(wxPropertyGrid& propGrid, GameEngine::GUI::Element& selectedElement)
+void GuiEditorFrame::spriteProperties(wxPropertyGrid& propGrid, GameEngine::GUI::Element& selectedElement, wxPGProperty* parent)
 {
     if (auto* txt = dynamic_cast<GameEngine::GUI::Sprite*>(&selectedElement))
     {
-        AppendProperty(propGrid, selectedElement, new wxPropertyCategory("Texture Settings"));
+        if (not parent)
+        {
+            AppendProperty(propGrid, selectedElement, new wxPropertyCategory("Texture Settings"));
+        }
 
         auto texture = txt->getTexture();
         std::string filePath{};
@@ -444,7 +477,7 @@ void GuiEditorFrame::spriteProperties(wxPropertyGrid& propGrid, GameEngine::GUI:
         {
             filePath = texture->GetFile()->getPath();
         }
-        AppendProperty(propGrid, selectedElement, new wxFileProperty("Image path", "ImagePath", filePath));
+        AppendProperty(propGrid, selectedElement, new wxFileProperty("Image path", "ImagePath", filePath), parent);
     }
 }
 
@@ -464,6 +497,48 @@ void GuiEditorFrame::buttonProperties(wxPropertyGrid& propGrid, GameEngine::GUI:
         if (auto text = button->getTextElement())
         {
             textProperties(propGrid, *text);
+        }
+
+        {
+            auto parent = AppendProperty(propGrid, selectedElement,
+                                         new wxPropertyCategory("Background Settings", "ButtonBackgroundTexture"));
+            if (auto sprite = button->getBackgroundSprite())
+            {
+                spriteProperties(propGrid, *sprite, parent);
+            }
+            else
+            {
+                AppendProperty(propGrid, selectedElement,
+                               new FileHandleProperty("New sprite", "AddSpriteButtonBackground", "", DEFAULT_TEXTURE), parent);
+            }
+        }
+
+        {
+            auto parent =
+                AppendProperty(propGrid, selectedElement, new wxPropertyCategory("Hover Settings", "ButtonHoverTexture"));
+            if (auto sprite = button->getOnHoverSprite())
+            {
+                spriteProperties(propGrid, *sprite, parent);
+            }
+            else
+            {
+                AppendProperty(propGrid, selectedElement,
+                               new FileHandleProperty("New sprite", "AddSpriteButonHover", "", DEFAULT_TEXTURE), parent);
+            }
+        }
+
+        {
+            auto parent =
+                AppendProperty(propGrid, selectedElement, new wxPropertyCategory("Active Settings", "ButtonActiveTexture"));
+            if (auto sprite = button->getOnActiveSpirte())
+            {
+                spriteProperties(propGrid, *sprite, parent);
+            }
+            else
+            {
+                AppendProperty(propGrid, selectedElement,
+                               new FileHandleProperty("New sprite", "AddSpriteButtonActive", "", DEFAULT_TEXTURE), parent);
+            }
         }
     }
 }
@@ -530,8 +605,10 @@ void GuiEditorFrame::OnTreeSelectionChanged(wxTreeEvent& event)
 void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
 {
     LOG_DEBUG << "";
-    auto* p   = event.GetProperty();
-    auto name = p->GetName();
+    auto* p       = event.GetProperty();
+    auto fullName = p->GetName();
+    auto name     = GetCustomBaseName(fullName);
+    LOG_DEBUG << "name " << name;
 
     auto* target = static_cast<GameEngine::GUI::Element*>(p->GetClientData());
     if (target)
@@ -678,6 +755,45 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
             if (auto el = dynamic_cast<GameEngine::GUI::Button*>(target))
             {
                 el->setTextScale(p->GetValue().GetDouble());
+            }
+        }
+        else if (name == "AddSpriteButtonBackground")
+        {
+            auto str = p->GetValue().GetString().ToStdString();
+            if (not str.empty())
+            {
+                if (auto el = dynamic_cast<GameEngine::GUI::Button*>(target))
+                {
+                    auto& factory = canvas->GetScene().GetGuiElementFactory();
+                    auto newElem  = factory.createSprite(str);
+                    el->setBackground(std::move(newElem));
+                }
+            }
+        }
+        else if (name == "AddSpriteButonHover")
+        {
+            auto str = p->GetValue().GetString().ToStdString();
+            if (not str.empty())
+            {
+                if (auto el = dynamic_cast<GameEngine::GUI::Button*>(target))
+                {
+                    auto& factory = canvas->GetScene().GetGuiElementFactory();
+                    auto newElem  = factory.createSprite(str);
+                    el->setOnHover(std::move(newElem));
+                }
+            }
+        }
+        else if (name == "AddSpriteButtonActive")
+        {
+            auto str = p->GetValue().GetString().ToStdString();
+            if (not str.empty())
+            {
+                if (auto el = dynamic_cast<GameEngine::GUI::Button*>(target))
+                {
+                    auto& factory = canvas->GetScene().GetGuiElementFactory();
+                    auto newElem  = factory.createSprite(str);
+                    el->setOnActive(std::move(newElem));
+                }
             }
         }
         else if (name == "LabelText")

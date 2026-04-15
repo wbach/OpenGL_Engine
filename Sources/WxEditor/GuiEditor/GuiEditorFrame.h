@@ -55,7 +55,7 @@ private:
     void buttonProperties(wxPropertyGrid&, GameEngine::GUI::Element&);
     void textProperties(wxPropertyGrid&, GameEngine::GUI::Element&);
     void multiLineTextProperties(wxPropertyGrid&, GameEngine::GUI::Element&);
-    void spriteProperties(wxPropertyGrid&, GameEngine::GUI::Element&);
+    void spriteProperties(wxPropertyGrid&, GameEngine::GUI::Element&, wxPGProperty* = nullptr);
     void layoutProperties(wxPropertyGrid&, GameEngine::GUI::Element&);
     void verticalProperties(wxPropertyGrid&, GameEngine::GUI::Element&);
     void rebuildPropertiesView();

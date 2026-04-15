@@ -372,6 +372,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/TextureLoader.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/GpuObject.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/ProgressiveMesh.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/FileHandle.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/MemoryFile.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Objects/Prefab.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Objects/GameObject.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/GameState.cpp

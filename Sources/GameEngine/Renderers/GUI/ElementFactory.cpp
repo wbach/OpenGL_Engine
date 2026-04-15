@@ -134,12 +134,12 @@ std::unique_ptr<Button> ElementFactory::createButton(const std::optional<std::st
     }
 
     {
-        const auto &activateState = theme_.button.hover;
+        const auto &activateState = theme_.button.active;
         if (activateState.sprite.baseTexture)
         {
             if (auto sprite = createSprite(*activateState.sprite.baseTexture, activateState.sprite))
             {
-                button->setOnHover(std::move(sprite));
+                button->setOnActive(std::move(sprite));
             }
         }
     }

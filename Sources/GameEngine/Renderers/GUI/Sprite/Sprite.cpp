@@ -44,7 +44,11 @@ void Sprite::SetTexture(const FileHandle& file)
     if (texture_)
     {
         resourceManager_.GetTextureLoader().DeleteTexture(*texture_);
+        texture_ = nullptr;
     }
+
+    if (file.empty())
+        return;
 
     TextureParameters params;
     params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
