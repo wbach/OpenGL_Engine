@@ -293,6 +293,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Particl
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentsReadFunctions.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentFactory.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/UnknownExternalComponent.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Gameplay/Inventory/InventoryComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Gameplay/QuestViewer/QuestViewerComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/NewComponentTemplate.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/BaseComponent.cpp

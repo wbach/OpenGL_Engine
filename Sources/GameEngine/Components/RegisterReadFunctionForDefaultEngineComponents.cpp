@@ -13,6 +13,7 @@
 #include "Controllers/EnemyController.h"
 #include "Dialogue/DialogueComponent.h"
 #include "Gameplay/QuestViewer/QuestViewerComponent.h"
+#include "Gameplay/Inventory/InventoryComponent.h"
 #include "Input/PlayerInputController.h"
 #include "Lights/DirectionalLightComponent.h"
 #include "Lights/PointLightComponent.h"
@@ -76,6 +77,7 @@ void RegisterReadFunctionForDefaultEngineComponents()
     registerReadFunction<SpotLightComponent>();
     registerReadFunction<DialogueComponent>();
     registerReadFunction<QuestViewerComponent>();
+    registerReadFunction<InventoryComponent>();
 }
 }  // namespace Components
 }  // namespace GameEngine

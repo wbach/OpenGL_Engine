@@ -137,6 +137,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/RendererFactory.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/IRenderer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/TransformDataEvent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/GUI/ElementReader.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/GUI/Spacing.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/GUI/RenderAble.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/GUI/Window/WindowStyle.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/GUI/Window/Window.h
@@ -387,6 +388,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Entity/
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Particles/ParticleEffectComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentType.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/RegisterReadFunctionForDefaultEngineComponents.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Gameplay/Inventory/InventoryComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Gameplay/QuestViewer/QuestViewerComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/UnknownExternalComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentContext.h
