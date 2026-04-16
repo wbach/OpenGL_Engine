@@ -150,6 +150,10 @@ void QuestViewerComponent::updateGui()
     int i = 0;
     for (const auto& quest : quests)
     {
+        if (not quest.isActive)
+        {
+            continue;
+        }
         GUI::ElementReader reader(componentContext_.guiManager_, componentContext_.guiElementFactory_);
         auto button = reader.readButton(questButtonTemplate);
         if (auto text = button->getTextElement())
@@ -164,16 +168,17 @@ void QuestViewerComponent::updateGui()
             updateContent(quest);
         }
 
-        button->setOnClick([this, &quest, ptr = button.get()]() {
-            if (activeQuestButton)
+        button->setOnClick(
+            [this, &quest, ptr = button.get()]()
             {
-                activeQuestButton->resetActiveState();
+                if (activeQuestButton)
+                {
+                    activeQuestButton->resetActiveState();
+                }
                 activeQuestButton = ptr;
-            }
-            ptr->setAsActive();
-            updateContent(quest);
-
-        });
+                ptr->setAsActive();
+                updateContent(quest);
+            });
         questLayout->addChild(std::move(button));
 
         ++i;

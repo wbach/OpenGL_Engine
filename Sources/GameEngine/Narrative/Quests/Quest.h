@@ -38,6 +38,7 @@ struct Quest
     size_t currentStepIndex = 0;
     bool isActive           = false;
     std::optional<IdType> activeObserverId;
+    std::string activationFlag;
 
     QuestStep* getCurrentStep()
     {

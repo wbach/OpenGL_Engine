@@ -28,6 +28,7 @@ public:
     void registerAction(const std::string&, ActionFunc);
     void readMainFile(const GameEngine::File&);
     void readQuest(const GameEngine::File&);
+    void onSetFlag(const std::string&, int);
 
     void onSceneStarted();
     void update(Quest&);

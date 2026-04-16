@@ -11,6 +11,7 @@
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Narrative/Dialogs/DialogueManager.h"
 #include "GameEngine/Narrative/GameState.h"
+#include "GameEngine/Narrative/Quests/Quest.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Scene/ISceneManager.h"
 #include "GameEngine/Scene/Navigation/NavigationManager.h"
@@ -290,6 +291,8 @@ void QuestManager::readQuest(const GameEngine::File& file)
     Quest quest;
     if (auto nameNode = reader.Get("name"))
         quest.name = nameNode->value_;
+    if (auto node = reader.Get("activationFlag"))
+        quest.activationFlag = node->value_;
     if (auto activeNode = reader.Get("isActive"))
         quest.isActive = Utils::StringToBool(activeNode->value_);
     if (auto descriptionNotesNode = reader.Get("descriptionNotes"))
@@ -375,5 +378,17 @@ void QuestManager::registerAction(const std::string& type, ActionFunc action)
 const QuestManager::Quests& QuestManager::getQuests() const
 {
     return quests;
+}
+void QuestManager::onSetFlag(const std::string& flagName, int value)
+{
+    auto iter =
+        std::find_if(quests.begin(), quests.end(),
+                     [&flagName](const Quest& quest) { return (not quest.isActive and quest.activationFlag == flagName); });
+
+    if (iter != quests.end())
+    {
+        iter->isActive = true;
+        update(*iter);
+    }
 }
 }  // namespace GameEngine

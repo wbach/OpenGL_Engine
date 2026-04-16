@@ -291,7 +291,11 @@ void Engine::ProcessEngineEvents()
 
     for (auto& event : events)
     {
-        std::visit(visitor{[&](const SetGameStateFlag& e) { engineContext_.GetGameState().setFlag(e.flag, e.value); },
+        std::visit(visitor{[&](const SetGameStateFlag& e)
+                           {
+                               engineContext_.GetGameState().setFlag(e.flag, e.value);
+                               engineContext_.GetQuestManager().onSetFlag(e.flag, e.value);
+                           },
                            [&](const SceneStartedEvent&) { engineContext_.GetQuestManager().onSceneStarted(); },
                            [&](const QuitEvent& e) { Quit(e); },
                            [&](const ChangeSceneEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); },
