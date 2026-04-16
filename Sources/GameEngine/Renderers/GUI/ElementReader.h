@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "ElementsDef.h"
+#include "GameEngine/Renderers/GUI/Spacing.h"
 
 class TreeNode;
 
@@ -43,6 +44,9 @@ public:
     std::unique_ptr<VerticalLayout> readVerticalLayout(const TreeNode&);
     std::unique_ptr<HorizontalLayout> readHorizontalLayout(const TreeNode&);
     std::unique_ptr<Window> readWindow(const TreeNode&);
+
+private:
+    Spacing readSpacing(const TreeNode&);
 
 private:
     Manager& manager_;

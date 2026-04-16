@@ -221,6 +221,10 @@ void ElementReader::readGuiElementBasic(Element &element, const TreeNode &node)
     {
         element.setLabel(paramNode->value_);
     }
+    if (auto paramNode = node.getChild(MARGIN))
+    {
+        element.setMargin(readSpacing(paramNode->value_));
+    }
 }
 
 std::unique_ptr<Text> ElementReader::readText(const TreeNode &node)
@@ -476,6 +480,11 @@ std::unique_ptr<VerticalLayout> ElementReader::readVerticalLayout(const TreeNode
         layout->autoHideElements(Utils::StringToBool(n->value_));
     }
 
+    if (auto paramNode = node.getChild(PADDING))
+    {
+        layout->setPadding(readSpacing(*paramNode));
+    }
+
     return layout;
 }
 
@@ -486,6 +495,10 @@ std::unique_ptr<HorizontalLayout> ElementReader::readHorizontalLayout(const Tree
     layout->setAlign(readHorizonalAlign(node));
     layout->setAlign(readVerticalAlign(node));
 
+    if (auto paramNode = node.getChild(PADDING))
+    {
+        layout->setPadding(readSpacing(*paramNode));
+    }
     return layout;
 }
 
@@ -509,6 +522,15 @@ std::unique_ptr<Window> ElementReader::readWindow(const TreeNode &node)
     auto window      = factory_.createWindow(windowStyle);
     readGuiElementBasic(*window, node);
     return window;
+}
+Spacing ElementReader::readSpacing(const TreeNode &node)
+{
+    Spacing result;
+    ::Read(node.getChild(TOP), result.top);
+    ::Read(node.getChild(BOTTOM), result.bottom);
+    ::Read(node.getChild(LEFT), result.left);
+    ::Read(node.getChild(RIGHT), result.right);
+    return result;
 }
 }  // namespace GUI
 }  // namespace GameEngine

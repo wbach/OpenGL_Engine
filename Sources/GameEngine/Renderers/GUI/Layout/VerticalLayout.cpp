@@ -42,11 +42,12 @@ void VerticalLayout::refreshSelf()
         const auto &parent = *children[i - 1];
         auto &child        = *children[i];
 
-        const auto &parentPositionY = parent.getLocalPosition().y;
-        const auto &parentScaleY    = parent.getLocalScale().y;
+        auto gap = (parent.getLocalScale().y / 2.f) + parent.getMargin().bottom + child.getMargin().top +
+                   (child.getLocalScale().y / 2.f);
 
         newPosition.x = calculateXPosition(child);
-        newPosition.y = parentPositionY - (parentScaleY / 2.f) - ((child.getLocalScale().y / 2.f));
+        newPosition.y = parent.getLocalPosition().y - gap;
+
         child.setInternalPosition(newPosition);
     }
 
@@ -54,15 +55,20 @@ void VerticalLayout::refreshSelf()
 }
 float VerticalLayout::calculateXPosition(const Element &element)
 {
-    float result = 0.5f;
+    float result{0.5f};
+    const auto &margin = element.getMargin();
 
     if (hAlign_ == HorizontalAlign::LEFT)
     {
-        result -= (1.f - element.getLocalScale().x) / 2.f;
+        result = 0.f + padding_.left + margin.left + (element.getLocalScale().x / 2.f);
     }
     else if (hAlign_ == HorizontalAlign::RIGHT)
     {
-        result += (1.f - element.getLocalScale().x) / 2.f;
+        result = 1.f - padding_.right - margin.right - (element.getLocalScale().x / 2.f);
+    }
+    else
+    {
+        result += ((padding_.left + margin.left) - (padding_.right + margin.right)) / 2.f;
     }
 
     return result;
@@ -119,32 +125,36 @@ void VerticalLayout::accept(IElementVisitor &visitor)
 }
 float VerticalLayout::calculateFirstChildYPosition() const
 {
-    float totalHeight = calculateTotalChildrenHeight();
+    auto totalHeight    = calculateTotalChildrenHeight();
+    const auto &first   = *children.front();
+    auto firstHalfScale = first.getLocalScale().y / 2.f;
+    auto firstTopMargin = first.getMargin().top;
 
     if (not adjustSize_)
     {
         if (vAlign_ == VerticalAlign::TOP)
         {
-            return 1.f - (children.front()->getLocalScale().y / 2.f) - viewPosition_;
+            return 1.f - padding_.top - firstTopMargin - firstHalfScale - viewPosition_;
         }
-        if (vAlign_ == VerticalAlign::BOTTOM)
+        else if (vAlign_ == VerticalAlign::BOTTOM)
         {
-            return totalHeight - (children.front()->getLocalScale().y / 2.f) - viewPosition_;
+            return (0.f + padding_.bottom) + (totalHeight - padding_.top - firstTopMargin - firstHalfScale) - viewPosition_;
         }
-        if (vAlign_ == VerticalAlign::CENTER)
+        else if (vAlign_ == VerticalAlign::CENTER)
         {
-            return 0.5f + (totalHeight / 2.f) - (children.front()->getLocalScale().y / 2.f) - viewPosition_;
+            return 0.5f + (totalHeight / 2.f) - padding_.top - firstTopMargin - firstHalfScale - viewPosition_;
         }
     }
 
-    return 1.f - (children.front()->getLocalScale().y / 2.f) - viewPosition_;
+    return 1.f - padding_.top - firstTopMargin - firstHalfScale - viewPosition_;
 }
 float VerticalLayout::calculateTotalChildrenHeight() const
 {
-    float totalHeight = 0.f;
+    float totalHeight = padding_.top + padding_.bottom;
     for (const auto &child : children)
     {
-        totalHeight += child->getLocalScale().y;
+        const auto &margin = child->getMargin();
+        totalHeight += child->getLocalScale().y + margin.top + margin.bottom;
     }
     return totalHeight;
 }

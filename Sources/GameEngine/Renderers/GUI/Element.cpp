@@ -318,5 +318,14 @@ void Element::reorderChildDown(const Element& child)
         invalidate();
     }
 }
+void Element::setMargin(const Spacing& s)
+{
+    margin_ = s;
+    invalidate();
+}
+const Spacing& Element::getMargin() const
+{
+    return margin_;
+}
 }  // namespace GUI
 }  // namespace GameEngine

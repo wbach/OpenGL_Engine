@@ -35,5 +35,14 @@ VerticalAlign Layout::getVerticalAlign() const
 {
     return vAlign_;
 }
+void Layout::setPadding(const Spacing& s)
+{
+    padding_ = s;
+    invalidate();
+}
+const Spacing& Layout::getPadding() const
+{
+    return padding_;
+}
 }  // namespace GUI
 }  // namespace GameEngine

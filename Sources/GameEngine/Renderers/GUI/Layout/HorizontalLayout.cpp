@@ -28,19 +28,24 @@ void HorizontalLayout::autoResize()
 
 float HorizontalLayout::calculateFirstChildXPosition() const
 {
+    auto &first          = *children.front();
+    auto firstHalfWidth  = first.getLocalScale().x / 2.f;
+    auto firstMarginLeft = first.getMargin().left;
+
     if (not resizeAble_)
     {
         if (hAlign_ == HorizontalAlign::LEFT)
         {
-            return children.front()->getLocalScale().x / 2.f;
+            return 0.f + padding_.left + firstMarginLeft + firstHalfWidth;
         }
 
         if (hAlign_ == HorizontalAlign::RIGHT)
         {
-            return 1.f - totalChildrenScaleX_ + children.front()->getLocalScale().x / 2.f;
+            return 1.f - totalChildrenScaleX_ + padding_.left + firstMarginLeft + firstHalfWidth;
         }
     }
-    return 0.5f - (totalChildrenScaleX_ / 2.f) + children.front()->getLocalScale().x / 2.f;
+
+    return (0.5f - (totalChildrenScaleX_ / 2.f)) + padding_.left + firstMarginLeft + firstHalfWidth;
 }
 
 void HorizontalLayout::refreshSelf()
@@ -58,26 +63,33 @@ void HorizontalLayout::refreshSelf()
         const auto &parent = *children[i - 1];
         auto &current      = *children[i];
 
-        auto posX = parent.getLocalPosition().x + (parent.getLocalScale().x / 2.f) + (current.getLocalScale().x / 2.f);
+        auto gap = (parent.getLocalScale().x / 2.f) + parent.getMargin().right + current.getMargin().left +
+                   (current.getLocalScale().x / 2.f);
+
+        auto posX = parent.getLocalPosition().x + gap;
         current.setInternalPosition({posX, calculateYPosition(current)});
     }
 }
 
 void HorizontalLayout::calculateTotalChildrenScale()
 {
-    float newTotalX = 0.f;
+    float newTotalX = padding_.left + padding_.right;
     float maxHeight = 0.f;
 
     for (auto &child : children)
     {
-        newTotalX += child->getLocalScale().x;
-        if (child->getLocalScale().y > maxHeight)
+        const auto &margin = child->getMargin();
+        newTotalX += child->getLocalScale().x + margin.left + margin.right;
+
+        auto childReservedHeight = child->getLocalScale().y + margin.top + margin.bottom;
+        if (childReservedHeight > maxHeight)
         {
             maxHeight = child->getLocalScale().y;
         }
     }
 
     totalChildrenScaleX_ = newTotalX;
+    maxHeight += padding_.top + padding_.bottom;
 
     if (resizeAble_)
     {
@@ -95,18 +107,19 @@ void HorizontalLayout::accept(IElementVisitor &visitor)
 }
 float HorizontalLayout::calculateYPosition(const Element &element)
 {
-    float childHeight = element.getLocalScale().y;
+    auto childHeight   = element.getLocalScale().y;
+    const auto &margin = element.getMargin();
 
     if (vAlign_ == VerticalAlign::TOP)
     {
-        return 1.0f - (childHeight / 2.0f);
+        return 1.0f - padding_.top - margin.top - (childHeight / 2.0f);
     }
     else if (vAlign_ == VerticalAlign::BOTTOM)
     {
-        return 0.0f + (childHeight / 2.0f);
+        return 0.0f + padding_.bottom + margin.bottom + (childHeight / 2.0f);
     }
 
-    return 0.5f;
+    return 0.5f + ((padding_.bottom + margin.bottom) - (padding_.top + margin.top)) / 2.f;
 }
 std::unique_ptr<Element> HorizontalLayout::clone() const
 {

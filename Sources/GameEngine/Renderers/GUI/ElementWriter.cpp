@@ -17,6 +17,7 @@
 #include "ElementsDef.h"
 #include "GameEngine/Renderers/GUI/IElementVisitor.h"
 #include "GameEngine/Renderers/GUI/Layer/Layer.h"
+#include "GameEngine/Renderers/GUI/Spacing.h"
 
 namespace GameEngine
 {
@@ -79,12 +80,21 @@ private:
     }
 };
 
+void write(TreeNode& node, const Spacing& spacing)
+{
+    ::write(node.addChild(TOP), spacing.top);
+    ::write(node.addChild(BOTTOM), spacing.bottom);
+    ::write(node.addChild(LEFT), spacing.left);
+    ::write(node.addChild(RIGHT), spacing.right);
+}
+
 void writeBasicParams(TreeNode& node, const Element& element)
 {
     ::write(node.addChild(POSITION), element.getLocalPosition());
     ::write(node.addChild(ACTION), element.isActive());
     ::write(node.addChild(SCALE), element.getLocalScale());
     ::write(node.addChild(LABEL), element.getLabel());
+    write(node.addChild(MARGIN), element.getMargin());
 }
 
 void write(TreeNode& node, const Element& element)
@@ -193,6 +203,7 @@ void write(TreeNode& node, const VerticalLayout& verticalLayout)
     write(node.addChild(HORIZONAL_ALIGN), verticalLayout.getHorizontalAlign());
     write(node.addChild(AUTO_HIDE_ELEMENTS), verticalLayout.autoHideElements());
     write(node, verticalLayout.autoHideElements());
+    write(node.addChild(PADDING), verticalLayout.getPadding());
 }
 
 void write(TreeNode& node, const HorizontalLayout& horizontalLayout)
@@ -201,6 +212,7 @@ void write(TreeNode& node, const HorizontalLayout& horizontalLayout)
     writeBasicParams(node, horizontalLayout);
     write(node.addChild(VERTICAL_ALIGN), horizontalLayout.getVerticalAlign());
     write(node.addChild(HORIZONAL_ALIGN), horizontalLayout.getHorizontalAlign());
+    write(node.addChild(PADDING), horizontalLayout.getPadding());
 }
 
 class ElementWriterVisitor : public IElementVisitor

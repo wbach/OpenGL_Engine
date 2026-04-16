@@ -8,8 +8,8 @@
 #include <vector>
 
 #include "IElementVisitor.h"
+#include "Spacing.h"
 #include "Transform.h"
-
 namespace GameEngine
 {
 namespace GUI
@@ -57,6 +57,9 @@ public:
     void invalidate();
     void refresh();
 
+    void setMargin(const Spacing&);
+    const Spacing& getMargin() const;
+
     void activate(bool);
     void activateInternal(bool);
     bool isActive() const;
@@ -102,6 +105,7 @@ public:
     const Transform& getTransform() const;
 
 protected:
+    Spacing margin_;
     Element* parent;
     Children children;
     Transform transform;

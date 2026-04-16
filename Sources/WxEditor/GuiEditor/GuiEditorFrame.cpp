@@ -368,6 +368,12 @@ void GuiEditorFrame::commonProperties(wxPropertyGrid& propGrid, GameEngine::GUI:
                    new wxFloatProperty("Screen scale X", "SScaleX", selectedElement.getScreenScale().x));
     AppendProperty(propGrid, selectedElement,
                    new wxFloatProperty("Screen scale Y", "SScaleY", selectedElement.getScreenScale().y));
+
+    const auto& margin = selectedElement.getMargin();
+    AppendProperty(propGrid, selectedElement, new wxFloatProperty("Margin top", "MarginTop", margin.top));
+    AppendProperty(propGrid, selectedElement, new wxFloatProperty("Margin bottom", "MarginBottom", margin.bottom));
+    AppendProperty(propGrid, selectedElement, new wxFloatProperty("Margin left", "MarginLeft", margin.left));
+    AppendProperty(propGrid, selectedElement, new wxFloatProperty("Margin right", "MarginRight", margin.right));
 };
 
 void GuiEditorFrame::renderAbleProperties(wxPropertyGrid& propGrid, GameEngine::GUI::Element& selectedElement)
@@ -551,20 +557,26 @@ void GuiEditorFrame::buttonProperties(wxPropertyGrid& propGrid, GameEngine::GUI:
 
 void GuiEditorFrame::layoutProperties(wxPropertyGrid& propGrid, GameEngine::GUI::Element& selectedElement)
 {
-    if (auto* txt = dynamic_cast<GameEngine::GUI::Layout*>(&selectedElement))
+    if (auto* layout = dynamic_cast<GameEngine::GUI::Layout*>(&selectedElement))
     {
         AppendProperty(propGrid, selectedElement, new wxPropertyCategory("Layout"));
 
         auto hAlignes = CreateChoicesFromEnum<GameEngine::GUI::HorizontalAlign>();
-        auto hAlign   = magic_enum::enum_index(txt->getHorizontalAlign());
+        auto hAlign   = magic_enum::enum_index(layout->getHorizontalAlign());
 
         auto vAlignes = CreateChoicesFromEnum<GameEngine::GUI::VerticalAlign>();
-        auto vAlign   = magic_enum::enum_index(txt->getVerticalAlign());
+        auto vAlign   = magic_enum::enum_index(layout->getVerticalAlign());
 
         AppendProperty(propGrid, selectedElement,
                        new wxEnumProperty("Horizontal align", "LayoutHorizontalAlign", hAlignes, hAlign.value_or(0)));
         AppendProperty(propGrid, selectedElement,
                        new wxEnumProperty("Vertical align", "LayoutVerticalAlign", vAlignes, vAlign.value_or(0)));
+
+        const auto& padding = layout->getPadding();
+        AppendProperty(propGrid, selectedElement, new wxFloatProperty("Padding top", "PaddingTop", padding.top));
+        AppendProperty(propGrid, selectedElement, new wxFloatProperty("Padding bottom", "PaddingBottom", padding.bottom));
+        AppendProperty(propGrid, selectedElement, new wxFloatProperty("Padding left", "PaddingLeft", padding.left));
+        AppendProperty(propGrid, selectedElement, new wxFloatProperty("Padding right", "PaddingRight", padding.right));
     }
 }
 
@@ -633,6 +645,30 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
         else if (name == "Active")
         {
             target->activate(p->GetValue().GetBool());
+        }
+        else if (name == "MarginTop")
+        {
+            auto margin = target->getMargin();
+            margin.top  = p->GetValue().GetDouble();
+            target->setMargin(margin);
+        }
+        else if (name == "MarginBottom")
+        {
+            auto margin   = target->getMargin();
+            margin.bottom = p->GetValue().GetDouble();
+            target->setMargin(margin);
+        }
+        else if (name == "MarginLeft")
+        {
+            auto margin = target->getMargin();
+            margin.left = p->GetValue().GetDouble();
+            target->setMargin(margin);
+        }
+        else if (name == "MarginRight")
+        {
+            auto margin  = target->getMargin();
+            margin.right = p->GetValue().GetDouble();
+            target->setMargin(margin);
         }
         else if (name == "ElementLabelText")
         {
@@ -990,6 +1026,42 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
                 {
                     text->setAlign(*v);
                 }
+            }
+        }
+        else if (name == "PaddingTop")
+        {
+            if (auto layout = dynamic_cast<GameEngine::GUI::Layout*>(target))
+            {
+                auto padding = layout->getPadding();
+                padding.top  = p->GetValue().GetDouble();
+                layout->setPadding(padding);
+            }
+        }
+        else if (name == "PaddingBottom")
+        {
+            if (auto layout = dynamic_cast<GameEngine::GUI::Layout*>(target))
+            {
+                auto padding   = layout->getPadding();
+                padding.bottom = p->GetValue().GetDouble();
+                layout->setPadding(padding);
+            }
+        }
+        else if (name == "PaddingLeft")
+        {
+            if (auto layout = dynamic_cast<GameEngine::GUI::Layout*>(target))
+            {
+                auto padding = layout->getPadding();
+                padding.left = p->GetValue().GetDouble();
+                layout->setPadding(padding);
+            }
+        }
+        else if (name == "PaddingRight")
+        {
+            if (auto layout = dynamic_cast<GameEngine::GUI::Layout*>(target))
+            {
+                auto padding  = layout->getPadding();
+                padding.right = p->GetValue().GetDouble();
+                layout->setPadding(padding);
             }
         }
     }

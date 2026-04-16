@@ -61,5 +61,11 @@ extern const std::string CHILDREN;
 extern const std::string LINE_HEIGHT;
 extern const std::string BUTTON_STICKY;
 extern const std::string TOOGLE_MODE;
+extern const std::string PADDING;
+extern const std::string MARGIN;
+extern const std::string TOP;
+extern const std::string BOTTOM;
+extern const std::string LEFT;
+extern const std::string RIGHT;
 }  // namespace GUI
 }  // namespace GameEngine

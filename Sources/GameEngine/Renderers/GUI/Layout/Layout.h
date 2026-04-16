@@ -20,9 +20,13 @@ public:
     HorizontalAlign getHorizontalAlign() const;
     VerticalAlign getVerticalAlign() const;
 
+    void setPadding(const Spacing&);
+    const Spacing& getPadding() const;
+
 protected:
     HorizontalAlign hAlign_;
     VerticalAlign vAlign_;
+    Spacing padding_;
 };
 }  // namespace GUI
 }  // namespace GameEngine

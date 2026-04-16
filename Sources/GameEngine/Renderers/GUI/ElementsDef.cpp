@@ -60,5 +60,11 @@ const std::string DEFAULT_LAYER      = "DefaultLayer";
 const std::string LINE_HEIGHT        = "lineHeight";
 const std::string BUTTON_STICKY      = "stickyActiveState";
 const std::string TOOGLE_MODE        = "toogleMode";
+const std::string PADDING            = "padding";
+const std::string MARGIN             = "margin";
+const std::string TOP                = "top";
+const std::string BOTTOM             = "bottom";
+const std::string LEFT               = "left";
+const std::string RIGHT              = "right";
 }  // namespace GUI
 }  // namespace GameEngine
