@@ -322,7 +322,7 @@ void GuiEditorFrame::OnAddElement(wxCommandEvent& event)
             newElem = factory.createMultiLineText(LONG_DUMMY_TEXT);
             break;
         case ID_ADD_TEXTURE:
-            newElem = factory.createSprite("DefaultTexture.png");
+            newElem = factory.createSprite("mem://" + DEFAULT_TEXTURE.ToStdString());
             break;
         case ID_ADD_BUTTON:
             newElem = factory.createButton();
@@ -477,7 +477,9 @@ void GuiEditorFrame::spriteProperties(wxPropertyGrid& propGrid, GameEngine::GUI:
         {
             filePath = texture->GetFile()->getPath();
         }
-        AppendProperty(propGrid, selectedElement, new wxFileProperty("Image path", "ImagePath", filePath), parent);
+        //  AppendProperty(propGrid, selectedElement, new wxFileProperty("Image path", "ImagePath", filePath), parent);
+        AppendProperty(propGrid, selectedElement, new FileHandleProperty("Image path", "ImagePath", filePath, DEFAULT_TEXTURE),
+                       parent);
     }
 }
 
@@ -1199,6 +1201,8 @@ void GuiEditorFrame::OnTreeContextMenu(wxTreeEvent& event)
     int idMultiText   = wxWindow::NewControlId();
     int idClone       = wxWindow::NewControlId();
     int idBtn         = wxWindow::NewControlId();
+    int idMoveUp      = wxWindow::NewControlId();
+    int idMoveDown    = wxWindow::NewControlId();
     int idTex         = wxWindow::NewControlId();
     int idVLayout     = wxWindow::NewControlId();
     int idHLayout     = wxWindow::NewControlId();
@@ -1217,6 +1221,10 @@ void GuiEditorFrame::OnTreeContextMenu(wxTreeEvent& event)
     addSubMenu->Append(idHLayout, "Horizontal Layout");
 
     menu.AppendSubMenu(addSubMenu, "Add Child");
+    menu.AppendSeparator();
+    menu.Append(idMoveUp, "Move up");
+    menu.Append(idMoveDown, "Move down");
+    menu.AppendSeparator();
     menu.Append(idClone, "Clone");
 
     if (data)
@@ -1231,6 +1239,34 @@ void GuiEditorFrame::OnTreeContextMenu(wxTreeEvent& event)
 
     if (selection == wxID_NONE)
         return;
+
+    if (data and selection == idMoveUp)
+    {
+        if (data->element)
+        {
+            if (auto parent = data->element->getParent())
+            {
+                parent->reorderChildUp(*data->element);
+                RefreshTree();
+                FocusElementInTree(data->element);
+            }
+        }
+        return;
+    }
+
+    if (data and selection == idMoveDown)
+    {
+        if (data->element)
+        {
+            if (auto parent = data->element->getParent())
+            {
+                parent->reorderChildDown(*data->element);
+                RefreshTree();
+                FocusElementInTree(data->element);
+            }
+        }
+        return;
+    }
 
     if (data and selection == idClone)
     {
@@ -1279,7 +1315,7 @@ void GuiEditorFrame::OnTreeContextMenu(wxTreeEvent& event)
     else if (selection == idMultiText)
         newElem = factory.createMultiLineText(LONG_DUMMY_TEXT);
     else if (selection == idTex)
-        newElem = factory.createSprite("DefaultTexture.png");
+        newElem = factory.createSprite("mem://" + DEFAULT_TEXTURE.ToStdString());
     else if (selection == idBtn)
         newElem = factory.createButton();
     else if (selection == idVLayout)

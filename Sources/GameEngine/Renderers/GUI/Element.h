@@ -42,6 +42,9 @@ public:
     void addChild(std::unique_ptr<Element>);
     const Children& getChildren() const;
 
+    void reorderChildUp(const Element&);
+    void reorderChildDown(const Element&);
+
     bool removeChild(IdType);
     void removeAll();
 
@@ -101,7 +104,6 @@ public:
 protected:
     Element* parent;
     Children children;
-    Children internalChildren;
     Transform transform;
     Label label;
     bool mouseFocused{false};

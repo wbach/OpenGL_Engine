@@ -300,5 +300,23 @@ Element* Element::getParent()
 {
     return parent;
 };
+void Element::reorderChildUp(const Element& child)
+{
+    auto it = std::find_if(children.begin(), children.end(), [&child](const auto& ptr) { return ptr->getId() == child.getId(); });
+    if (it != children.begin() and it != children.end())
+    {
+        std::iter_swap(it, std::prev(it));
+        invalidate();
+    }
+}
+void Element::reorderChildDown(const Element& child)
+{
+    auto it = std::find_if(children.begin(), children.end(), [&child](const auto& ptr) { return ptr->getId() == child.getId(); });
+    if (it != children.end() and std::next(it) != children.end())
+    {
+        std::iter_swap(it, std::next(it));
+        invalidate();
+    }
+}
 }  // namespace GUI
 }  // namespace GameEngine
