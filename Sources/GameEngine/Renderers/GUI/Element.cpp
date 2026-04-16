@@ -31,6 +31,10 @@ Element::Element(const Element& other)
     , active(other.active)
     , id{idPool.getId()}
 {
+    for (const auto& child : other.children)
+    {
+        this->addChild(child->clone());
+    }
 }
 Element::~Element()
 {

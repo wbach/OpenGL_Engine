@@ -29,6 +29,7 @@ enum class GameAction
     CAM_PITCH_DOWN,
     DIALOG_START,
     QUEST_VIEW,
+    CHARACTER_VIEW,
     INVENTORY_VIEW,
     MAP_VIEW
 };

@@ -60,6 +60,7 @@ void InputManager::SetDefaultKeys()
     RegisterGameAction(GameAction::DIALOG_START, KeyCodes::G);
     RegisterGameAction(GameAction::QUEST_VIEW, KeyCodes::J);
     RegisterGameAction(GameAction::INVENTORY_VIEW, KeyCodes::I);
+    RegisterGameAction(GameAction::CHARACTER_VIEW, KeyCodes::B);
 }
 
 bool InputManager::GetKey(GameAction action)

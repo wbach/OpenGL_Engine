@@ -34,11 +34,6 @@ Window::Window(const Window& other)
     {
         setBar(other.bar_->clone());
     }
-
-    for (const auto& child : other.children)
-    {
-        this->addChild(child->clone());
-    }
 }
 
 void Window::update()
