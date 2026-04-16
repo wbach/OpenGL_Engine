@@ -62,9 +62,22 @@ void QuestViewerComponent::ReqisterFunctions()
                                  componentContext_.inputManager_.SetReleativeMouseMode(not mainWindow->isActive());
                                  componentContext_.inputManager_.ShowCursor(mainWindow->isActive());
 
+                                 auto mainCamera = componentContext_.scene_.GetCameraManager().GetMainCamera();
                                  if (mainWindow->isActive())
                                  {
+                                     if (mainCamera)
+                                     {
+                                         mainCamera->Lock();
+                                     }
+
                                      updateGui();
+                                 }
+                                 else
+                                 {
+                                     if (mainCamera)
+                                     {
+                                         mainCamera->Unlock();
+                                     }
                                  }
                              });
                      });
