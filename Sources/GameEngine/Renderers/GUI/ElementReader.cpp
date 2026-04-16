@@ -223,7 +223,7 @@ void ElementReader::readGuiElementBasic(Element &element, const TreeNode &node)
     }
     if (auto paramNode = node.getChild(MARGIN))
     {
-        element.setMargin(readSpacing(paramNode->value_));
+        element.setMargin(readSpacing(*paramNode));
     }
 }
 

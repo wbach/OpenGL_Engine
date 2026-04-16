@@ -22,7 +22,8 @@ Element::Element()
 {
 }
 Element::Element(const Element& other)
-    : parent(nullptr)
+    : margin_(other.margin_)
+    , parent(nullptr)
     , transform(other.transform)
     , label(other.label)
     , mouseFocused(false)
