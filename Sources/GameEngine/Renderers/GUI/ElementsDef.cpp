@@ -58,5 +58,7 @@ const std::string STYLE              = "style";
 const std::string DEFAULT_ACTION     = "DefaultAction";
 const std::string DEFAULT_LAYER      = "DefaultLayer";
 const std::string LINE_HEIGHT        = "lineHeight";
+const std::string BUTTON_STICKY      = "stickyActiveState";
+const std::string TOOGLE_MODE        = "toogleMode";
 }  // namespace GUI
 }  // namespace GameEngine

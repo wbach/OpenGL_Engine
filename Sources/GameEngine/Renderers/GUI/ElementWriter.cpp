@@ -155,9 +155,9 @@ void write(TreeNode& node, const Button& button)
     {
         write(node.addChild(BACKGROUND_TEXTURE), *button.getBackgroundSprite());
     }
-    if (button.getOnActiveSpirte())
+    if (button.getOnActiveSprite())
     {
-        write(node.addChild(ACTIVE_TEXTURE), *button.getOnActiveSpirte());
+        write(node.addChild(ACTIVE_TEXTURE), *button.getOnActiveSprite());
     }
     if (button.getOnHoverSprite())
     {
@@ -167,6 +167,8 @@ void write(TreeNode& node, const Button& button)
     write(node.addChild(BUTTON_TEXT_COLOR), button.getBackgroundColor());
     write(node.addChild(HOVER_TEXT_COLOR), button.getOnHoverColor());
     write(node.addChild(ACTIVE_TEXT_COLOR), button.getActiveColor());
+    write(node.addChild(BUTTON_STICKY), button.isStickyActive());
+    write(node.addChild(TOOGLE_MODE), button.isToogleMode());
 }
 
 void write(TreeNode& node, const Window& window)

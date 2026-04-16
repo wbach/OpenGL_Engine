@@ -55,7 +55,7 @@ public:
     Text* getTextElement() const;
     Sprite* getBackgroundSprite() const;
     Sprite* getOnHoverSprite() const;
-    Sprite* getOnActiveSpirte() const;
+    Sprite* getOnActiveSprite() const;
 
     const Color& getBackgroundColor() const;
     const Color& getActiveColor() const;
@@ -66,8 +66,17 @@ public:
     void highlight();
     void toneDown();
     void executeAction();
+    void resetActiveState();
 
     void setTheme(const Theme::Button&);
+
+    bool isStickyActive() const;
+    void setStickyActiveState(bool);
+
+    bool isToogleMode() const;
+    void setToogleMode(bool);
+
+    void setAsActive();
 
 private:
     void applyState(State);
@@ -90,6 +99,8 @@ private:
 
     Utils::Stopwatch activeTimer_;
     State currentState_;
+    bool stickyActiveState_{false};
+    bool toggleMode_{false};
 };
 }  // namespace GUI
 }  // namespace GameEngine

@@ -33,6 +33,8 @@ Button::Button(const Button &other)
     , textScale(other.textScale)
     , theme(other.theme)
     , currentState_(State::Normal)
+    , stickyActiveState_(other.stickyActiveState_)
+    , toggleMode_(other.toggleMode_)
 {
     if (other.text_)
     {
@@ -61,7 +63,7 @@ void Button::update()
         return;
     }
 
-    if (currentState_ == State::Active)
+    if (not stickyActiveState_ and currentState_ == State::Active)
     {
         if (activeTimer_.GetTimeMilliseconds() > SHOW_ACTIVE_TIME)
         {
@@ -199,7 +201,7 @@ Sprite *Button::getOnHoverSprite() const
     return onHoverSprite.get();
 }
 
-Sprite *Button::getOnActiveSpirte() const
+Sprite *Button::getOnActiveSprite() const
 {
     return onActiveSprite.get();
 }
@@ -275,10 +277,21 @@ void Button::setOnClick(OnClick func)
 }
 void Button::onMouseClick(const vec2 &, KeyCodes::Type key)
 {
+    if (not isActive())
+    {
+        return;
+    }
     if (key == KeyCodes::LMOUSE)
     {
-        applyState(State::Active);
-        activeTimer_.Reset();
+        if (not toggleMode_ and currentState_ != State::Active)
+        {
+            applyState(State::Active);
+            activeTimer_.Reset();
+        }
+        else
+        {
+            applyState(State::Hover);
+        }
 
         if (onClick_)
         {
@@ -288,10 +301,16 @@ void Button::onMouseClick(const vec2 &, KeyCodes::Type key)
 }
 void Button::onMouseEnter()
 {
+    if (stickyActiveState_ and currentState_ == State::Active)
+        return;
+
     applyState(State::Hover);
 }
 void Button::onMouseLeave()
 {
+    if (stickyActiveState_ and currentState_ == State::Active)
+        return;
+
     applyState(State::Normal);
 }
 void Button::accept(IElementVisitor &visitor)
@@ -316,10 +335,16 @@ float Button::getTextScale() const
 }
 void Button::highlight()
 {
+    if (stickyActiveState_ and currentState_ == State::Active)
+        return;
+
     applyHoverState();
 }
 void Button::toneDown()
 {
+    if (stickyActiveState_ and currentState_ == State::Active)
+        return;
+
     applyState(currentState_);
 }
 void Button::executeAction()
@@ -334,6 +359,30 @@ void Button::setTheme(const Theme::Button &t)
 std::unique_ptr<Element> Button::clone() const
 {
     return std::make_unique<Button>(*this);
+}
+void Button::resetActiveState()
+{
+    applyState(State::Normal);
+}
+bool Button::isToogleMode() const
+{
+    return toggleMode_;
+}
+void Button::setToogleMode(bool v)
+{
+    toggleMode_ = v;
+}
+bool Button::isStickyActive() const
+{
+    return stickyActiveState_;
+}
+void Button::setStickyActiveState(bool v)
+{
+    stickyActiveState_ = v;
+}
+void Button::setAsActive()
+{
+    applyState(State::Active);
 }
 }  // namespace GUI
 }  // namespace GameEngine

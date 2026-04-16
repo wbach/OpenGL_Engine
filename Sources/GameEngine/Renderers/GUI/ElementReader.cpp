@@ -352,6 +352,16 @@ std::unique_ptr<Button> ElementReader::readButton(const TreeNode &node)
     }
 
     readGuiElementBasic(*button, node);
+
+    bool toogleMode{false};
+    bool stickyActiveState{false};
+
+    ::Read(node.getChild(BUTTON_STICKY), stickyActiveState);
+    ::Read(node.getChild(TOOGLE_MODE), toogleMode);
+
+    button->setToogleMode(toogleMode);
+    button->setStickyActiveState(stickyActiveState);
+
     return button;
 }
 std::unique_ptr<EditText> ElementReader::readEditText(const TreeNode &node)

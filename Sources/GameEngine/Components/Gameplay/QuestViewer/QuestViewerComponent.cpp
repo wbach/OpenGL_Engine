@@ -51,35 +51,21 @@ void QuestViewerComponent::ReqisterFunctions()
     RegisterFunction(FunctionType::OnStart,
                      [this]()
                      {
-                         componentContext_.inputManager_.SubscribeOnKeyDown(
-                             Input::GameAction::QUEST_VIEW,
-                             [this]()
-                             {
-                                 if (not mainWindow)
-                                     return;
+                         componentContext_.inputManager_.SubscribeOnKeyDown(Input::GameAction::QUEST_VIEW,
+                                                                            [this]()
+                                                                            {
+                                                                                if (not mainWindow)
+                                                                                    return;
 
-                                 mainWindow->activate(not mainWindow->isActive());
-                                 componentContext_.inputManager_.SetReleativeMouseMode(not mainWindow->isActive());
-                                 componentContext_.inputManager_.ShowCursor(mainWindow->isActive());
-
-                                 auto mainCamera = componentContext_.scene_.GetCameraManager().GetMainCamera();
-                                 if (mainWindow->isActive())
-                                 {
-                                     if (mainCamera)
-                                     {
-                                         mainCamera->Lock();
-                                     }
-
-                                     updateGui();
-                                 }
-                                 else
-                                 {
-                                     if (mainCamera)
-                                     {
-                                         mainCamera->Unlock();
-                                     }
-                                 }
-                             });
+                                                                                if (mainWindow->isActive())
+                                                                                {
+                                                                                    hide();
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    show();
+                                                                                }
+                                                                            });
                      });
 }
 void QuestViewerComponent::registerReadFunctions()
@@ -120,6 +106,11 @@ void QuestViewerComponent::initGui()
 
         mainWindow = GUI::getTypedElement<GUI::Window>(layer, "MainWindow");
 
+        if (auto exitButton = GUI::getTypedElement<GUI::Button>(layer, "Exit"))
+        {
+            exitButton->setOnClick([this]() { hide(); });
+        }
+
         contentLayout = GUI::getTypedElement<GUI::VerticalLayout>(layer, "ContentLayout");
         questLayout   = GUI::getTypedElement<GUI::VerticalLayout>(layer, "QuestsLayout");
 
@@ -152,8 +143,11 @@ void QuestViewerComponent::updateGui()
 
     questLayout->removeAll();
     contentLayout->removeAll();
+    activeQuestButton = nullptr;
 
     const auto& quests = componentContext_.scene_.getEngineContext()->GetQuestManager().getQuests();
+
+    int i = 0;
     for (const auto& quest : quests)
     {
         GUI::ElementReader reader(componentContext_.guiManager_, componentContext_.guiElementFactory_);
@@ -163,8 +157,26 @@ void QuestViewerComponent::updateGui()
             text->text.text = quest.name;
         }
 
-        button->setOnClick([this, &quest]() { updateContent(quest); });
+        if (i == 0)
+        {
+            button->setAsActive();
+            activeQuestButton = button.get();
+            updateContent(quest);
+        }
+
+        button->setOnClick([this, &quest, ptr = button.get()]() {
+            if (activeQuestButton)
+            {
+                activeQuestButton->resetActiveState();
+                activeQuestButton = ptr;
+            }
+            ptr->setAsActive();
+            updateContent(quest);
+
+        });
         questLayout->addChild(std::move(button));
+
+        ++i;
     }
 }
 void QuestViewerComponent::updateContent(const Quest& quest)
@@ -182,6 +194,31 @@ void QuestViewerComponent::updateContent(const Quest& quest)
                 contentLayout->addChild(std::move(text));
             }
         }
+    }
+}
+void QuestViewerComponent::show()
+{
+    mainWindow->activate(true);
+
+    componentContext_.inputManager_.SetReleativeMouseMode(false);
+    componentContext_.inputManager_.ShowCursor(true);
+
+    if (auto mainCamera = componentContext_.scene_.GetCameraManager().GetMainCamera())
+    {
+        mainCamera->Lock();
+        updateGui();
+    }
+}
+void QuestViewerComponent::hide()
+{
+    mainWindow->activate(false);
+
+    componentContext_.inputManager_.SetReleativeMouseMode(true);
+    componentContext_.inputManager_.ShowCursor(false);
+
+    if (auto mainCamera = componentContext_.scene_.GetCameraManager().GetMainCamera())
+    {
+        mainCamera->Unlock();
     }
 }
 }  // namespace Components

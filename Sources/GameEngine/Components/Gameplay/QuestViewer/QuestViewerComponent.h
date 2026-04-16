@@ -9,6 +9,7 @@ namespace GUI
 {
 class Window;
 class VerticalLayout;
+class Button;
 }  // namespace GUI
 
 class GameState;
@@ -39,6 +40,8 @@ private:
     void initGui();
     void updateGui();
     void updateContent(const Quest&);
+    void show();
+    void hide();
 
 private:
     GUI::Window* mainWindow{nullptr};
@@ -46,6 +49,7 @@ private:
     GUI::VerticalLayout* contentLayout{nullptr};
     TreeNode questButtonTemplate;
     TreeNode questDescriptionText;
+    GUI::Button* activeQuestButton{nullptr};
 
     const Quest* currentQuest{nullptr};
 

@@ -496,6 +496,10 @@ void GuiEditorFrame::buttonProperties(wxPropertyGrid& propGrid, GameEngine::GUI:
         AppendColorProperty(propGrid, button->getOnHoverColor(), "On Hover Color", "ButtonHoverColor");
         AppendColorProperty(propGrid, button->getActiveColor(), "Active Color", "ButtonActiveColor");
 
+        AppendProperty(propGrid, selectedElement,
+                       new wxBoolProperty("Sticky active mode", "ButtonStickyActive", button->isStickyActive()));
+        AppendProperty(propGrid, selectedElement, new wxBoolProperty("Toogle mode", "ButtonToogleMode", button->isToogleMode()));
+
         if (auto text = button->getTextElement())
         {
             textProperties(propGrid, *text);
@@ -532,7 +536,7 @@ void GuiEditorFrame::buttonProperties(wxPropertyGrid& propGrid, GameEngine::GUI:
         {
             auto parent =
                 AppendProperty(propGrid, selectedElement, new wxPropertyCategory("Active Settings", "ButtonActiveTexture"));
-            if (auto sprite = button->getOnActiveSpirte())
+            if (auto sprite = button->getOnActiveSprite())
             {
                 spriteProperties(propGrid, *sprite, parent);
             }
@@ -757,6 +761,21 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
             if (auto el = dynamic_cast<GameEngine::GUI::Button*>(target))
             {
                 el->setTextScale(p->GetValue().GetDouble());
+            }
+        }
+
+        else if (name == "ButtonStickyActive")
+        {
+            if (auto el = dynamic_cast<GameEngine::GUI::Button*>(target))
+            {
+                el->setStickyActiveState(p->GetValue().GetBool());
+            }
+        }
+        else if (name == "ButtonToogleMode")
+        {
+            if (auto el = dynamic_cast<GameEngine::GUI::Button*>(target))
+            {
+                el->setToogleMode(p->GetValue().GetBool());
             }
         }
         else if (name == "AddSpriteButtonBackground")

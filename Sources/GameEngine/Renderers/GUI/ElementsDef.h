@@ -59,5 +59,7 @@ extern const std::string DEFAULT_LAYER;
 extern const std::string AUTO_HIDE_ELEMENTS;
 extern const std::string CHILDREN;
 extern const std::string LINE_HEIGHT;
+extern const std::string BUTTON_STICKY;
+extern const std::string TOOGLE_MODE;
 }  // namespace GUI
 }  // namespace GameEngine
