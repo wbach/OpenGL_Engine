@@ -292,6 +292,16 @@ void QuestManager::readQuest(const GameEngine::File& file)
         quest.name = nameNode->value_;
     if (auto activeNode = reader.Get("isActive"))
         quest.isActive = Utils::StringToBool(activeNode->value_);
+    if (auto descriptionNotesNode = reader.Get("descriptionNotes"))
+    {
+        quest.descriptionNotes.clear();
+        for (const auto& childNode : descriptionNotesNode->getChildren())
+        {
+            LOG_DEBUG << childNode->name();
+            LOG_DEBUG << childNode->value_;
+            quest.descriptionNotes.push_back(childNode->value_);
+        }
+    }
 
     if (auto stepsNode = reader.Get("steps"))
     {
