@@ -36,6 +36,31 @@ Element::Element(const Element& other)
         this->addChild(child->clone());
     }
 }
+Element& Element::operator=(const Element& other)
+{
+    if (this == &other)
+    {
+        return *this;
+    }
+    this->removeAll();
+    this->margin_      = other.margin_;
+    this->transform    = other.transform;
+    this->label        = other.label;
+    this->active       = other.active;
+    this->parent       = nullptr;
+    this->mouseFocused = false;
+    this->isDirty      = true;
+
+    for (const auto& child : other.children)
+    {
+        if (child)
+        {
+            this->addChild(child->clone());
+        }
+    }
+
+    return *this;
+}
 Element::~Element()
 {
     idPool.releaseId(id);
@@ -50,7 +75,7 @@ const std::vector<std::unique_ptr<Element>>& Element::getChildren() const
 {
     return children;
 }
-bool Element::removeChild(uint32 id)
+bool Element::removeChild(IdType id)
 {
     auto iter = std::remove_if(children.begin(), children.end(), [id](const auto& child) { return child->getId() == id; });
 

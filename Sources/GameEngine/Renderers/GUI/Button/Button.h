@@ -5,15 +5,14 @@
 
 #include "GameEngine/Renderers/GUI/Element.h"
 #include "GameEngine/Renderers/GUI/Theme.h"
+#include "GameEngine/Renderers/GUI/Sprite/Sprite.h"
+#include "GameEngine/Renderers/GUI/Text/Text.h"
 #include "Types.h"
 
 namespace GameEngine
 {
 namespace GUI
 {
-class Text;
-class Sprite;
-
 using OnClick = std::function<void()>;
 
 class ENGINE_API Button : public Element

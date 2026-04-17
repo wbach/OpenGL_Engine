@@ -10,6 +10,7 @@
 #include "IElementVisitor.h"
 #include "Spacing.h"
 #include "Transform.h"
+
 namespace GameEngine
 {
 namespace GUI
@@ -25,6 +26,7 @@ public:
     virtual ~Element();
 
     Element(const Element&);
+    Element& operator=(const Element&);
 
 public:
     virtual void update();
