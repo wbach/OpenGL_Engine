@@ -1,7 +1,7 @@
 #include "CharacterController.h"
 
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include "AnimationClipNames.h"
 #include "CharacterControllerFsm.h"
@@ -23,6 +23,7 @@
 #include "Serializers/Variables.h"
 #include "Serializers/WriteFunctions.h"
 #include "States/AimCrouchRotateState.h"
+#include "Utils.h"
 
 using namespace GameEngine::Components;
 using namespace GameEngine::Components::Character;
@@ -444,8 +445,7 @@ void CharacterController::pushEventToQueue(const CharacterControllerEvent& event
 }
 std::string CharacterController::getCurrentStateName() const
 {
-    auto passEventToState = [](auto* statePtr) { return typeName<std::decay_t<decltype(*statePtr)>>(); };
-    return std::visit(passEventToState, impl->stateMachine_->currentState);
+    return impl->stateMachine_->getCurrentStateName();
 }
 }  // namespace Components
 }  // namespace GameEngine

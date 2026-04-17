@@ -42,10 +42,10 @@ void IdleState::initGui()
     GUI::ElementReader reader(dialogContext.guiManager, dialogContext.guiFactory);
 
     const auto& dialogFilePath = EngineLocalConf.files.getDialogGuiPath();
-    if (reader.read(dialogFilePath, layerName))
-    {
-        auto layer = dialogContext.guiManager.getLayer(layerName);
+    reader.read(dialogFilePath, layerName);
 
+    if (auto layer = dialogContext.guiManager.getLayer(layerName))
+    {
         dialogContext.sentenceWindow = GUI::getTypedElement<GUI::Window>(layer, "SentenceWindow");
         dialogContext.npcNameText    = GUI::getTypedElement<GUI::Text>(layer, "SentenceName");
         dialogContext.sentenceText   = GUI::getTypedElement<GUI::MultiLineText>(layer, "Sentence");

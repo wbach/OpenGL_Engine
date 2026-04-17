@@ -27,8 +27,10 @@ WaitingForInput::WaitingForInput(DialogContext& dialogContext)
 }
 void WaitingForInput::onEnter()
 {
-    dialogContext.optionsWindow->activate(true);
-    dialogContext.optionsLayout->removeAll();
+    if (dialogContext.optionsWindow)
+        dialogContext.optionsWindow->activate(true);
+    if (dialogContext.optionsLayout)
+        dialogContext.optionsLayout->removeAll();
     subscribeForInput();
 }
 void WaitingForInput::onEnter(const StartInputWaiting& event)
@@ -53,7 +55,8 @@ void WaitingForInput::onEnter(const StartInputWaiting& event)
             i++;
         }
 
-        dialogContext.optionsLayout->addChild(std::move(optionGuiText));
+        if (dialogContext.optionsLayout)
+            dialogContext.optionsLayout->addChild(std::move(optionGuiText));
     }
 }
 void WaitingForInput::onEnter(const BackToSentence& event)
@@ -106,10 +109,14 @@ void WaitingForInput::onLeave()
     component   = nullptr;
     highlighted = 0;
 
-    dialogContext.optionsWindow->activate(false);
+    if (dialogContext.optionsWindow)
+        dialogContext.optionsWindow->activate(false);
 }
 void WaitingForInput::updateHighLightedColor(size_t oldItem, size_t newItem)
 {
+    if (not dialogContext.optionsWindow)
+        return;
+
     auto& children = dialogContext.optionsLayout->getChildren();
     if (children.empty())
         return;

@@ -4,6 +4,8 @@
 
 #include "../FsmContext.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Objects/GameObject.h"
 
@@ -117,6 +119,12 @@ void RotateStateBase::update(float deltaTime)
             auto newRotation = glm::slerp(context_.startRotation, context_.targetRotation, context_.rotateToTargetProgress);
 
             context_.rigidbody.SetRotation(newRotation);
+
+            auto dotProduct = glm::dot(context_.rigidbody.GetRotation(), context_.targetRotation);
+            if (std::abs(dotProduct) > 0.9999f)
+            {
+                context_.characterController.pushEventToQueue(EndRotationEvent{});
+            }
         }
     }
 }

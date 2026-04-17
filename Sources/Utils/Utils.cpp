@@ -323,4 +323,21 @@ std::string RemovePolishSigns(const std::string& input)
     }
     return result;
 }
+std::string Demangle(const char* name)
+{
+#if defined(__GNUG__)
+    int status         = 0;
+    auto demangled_ptr = abi::__cxa_demangle(name, nullptr, nullptr, &status);
+
+    if (status == 0 and demangled_ptr)
+    {
+        std::string result(demangled_ptr);
+        std::free(demangled_ptr);
+        return result;
+    }
+    return name;
+#else
+    return name;
+#endif
+}
 }  // namespace Utils

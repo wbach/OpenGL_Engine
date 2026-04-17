@@ -3,12 +3,13 @@
 https://sii.pl/blog/implementing-a-state-machine-in-c17/
 https://github.com/AdamsPL/state-machine
 */
-#include <Logger/Log.h>
-#include <Utils/Logger/TypeName.h>
-
 #include <deque>
+#include <string>
 #include <tuple>
 #include <variant>
+
+#include "Logger/Log.h"
+#include "Utils/Logger/TypeName.h"
 
 namespace Utils
 {
@@ -82,6 +83,12 @@ public:
     bool isPreviousStateOfType() const
     {
         return (std::holds_alternative<T*>(previousState) or ...);
+    }
+
+    std::string getCurrentStateName() const
+    {
+        auto passEventToState = [](auto* statePtr) { return typeName<std::decay_t<decltype(*statePtr)>>(); };
+        return std::visit(passEventToState, currentState);
     }
 
     std::tuple<States...> states;

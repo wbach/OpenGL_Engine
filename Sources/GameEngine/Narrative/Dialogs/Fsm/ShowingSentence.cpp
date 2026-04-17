@@ -123,7 +123,8 @@ ShowingSentence::ShowingSentence(DialogContext& dialogContext)
 }
 void ShowingSentence::onEnter()
 {
-    dialogContext.sentenceWindow->activate(true);
+    if (dialogContext.sentenceWindow)
+        dialogContext.sentenceWindow->activate(true);
     subscribeForInput();
 }
 void ShowingSentence::onEnter(const StartSentence& event)

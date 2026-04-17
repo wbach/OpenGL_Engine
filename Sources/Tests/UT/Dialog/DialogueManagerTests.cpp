@@ -27,6 +27,7 @@
 #include <memory>
 #include <string>
 
+#include "Renderers/GUI/Text/MultiLineText.h"
 #include "Tests/Mocks/Api/InputManagerMock.h"
 #include "Tests/Mocks/Gui/FontManagerMock.h"
 #include "Tests/Mocks/Gui/GuiElementFactoryMock.h"
@@ -45,6 +46,8 @@ protected:
         : texture(graphicsApiMock_, Utils::Image{}, {}, {})
         , guiRenderer(graphicsApiMock_)
     {
+        initGui();
+
         npcGameObject =
             std::make_unique<GameEngine::GameObject>("Npc", componentController_, componentFactory_, gameObjectIdPool);
 
@@ -54,8 +57,7 @@ protected:
         EXPECT_CALL(textureLoaderMock, CreateTexture(_, _, Matcher<Utils::Image&&>(_))).WillRepeatedly(Return(&texture));
 
         auto createVerticalLayout = [&]() { return std::make_unique<GUI::VerticalLayout>(); };
-        auto createWindow      = [&](GUI::WindowStyle style)
-        { return std::make_unique<GUI::Window>(style); };
+        auto createWindow         = [&](GUI::WindowStyle style) { return std::make_unique<GUI::Window>(style); };
 
         EXPECT_CALL(guiElementFactory_, createWindow(_)).WillRepeatedly(Invoke(createWindow));
         EXPECT_CALL(guiElementFactory_, createVerticalLayout()).WillRepeatedly(Invoke(createVerticalLayout));
@@ -73,6 +75,48 @@ protected:
     {
         LOG_DEBUG << "TearDown";
         guiRenderer.UnSubscribeAll();
+    }
+
+    void initGui()
+    {
+        const std::string layerName{"Dialog"};
+        auto& layer = guiManager_->createLayer(layerName);
+
+        auto sentenceWindow = std::make_unique<GUI::Window>(GUI::WindowStyle::EMPTY);
+        sentenceWindow->setLabel("SentenceWindow");
+        layer.add(std::move(sentenceWindow));
+
+        auto optionsWindow = std::make_unique<GUI::Window>(GUI::WindowStyle::EMPTY);
+        optionsWindow->setLabel("OptionsWindow");
+        layer.add(std::move(optionsWindow));
+
+        auto optionText = std::make_unique<GUI::Text>(fontManagerMock, resourcesManager_, guiRenderer, "");
+        optionText->setLabel("OptionText");
+
+        auto optionsLayoutPtr = std::make_unique<GUI::VerticalLayout>();
+        optionsLayoutPtr->setLabel("OptionsLayout");
+        optionsLayoutPtr->addChild(std::move(optionText));
+        optionsLayout = optionsLayoutPtr.get();
+        layer.add(std::move(optionsLayoutPtr));
+
+        auto sentenceName = std::make_unique<GUI::Text>(fontManagerMock, resourcesManager_, guiRenderer, "");
+        sentenceName->setLabel("SentenceName");
+        npcText = sentenceName.get();
+        layer.add(std::move(sentenceName));
+
+        auto sentence = std::make_unique<GUI::MultiLineText>(fontManagerMock, resourcesManager_, guiRenderer, "");
+        sentence->setLabel("Sentence");
+        sentenceText = sentence.get();
+        layer.add(std::move(sentence));
+    }
+
+    void expectNpcName(const std::string& name)
+    {
+        EXPECT_EQ(npcText->getText(), name);
+    }
+    void expectSentence(const std::string& name)
+    {
+        EXPECT_EQ(sentenceText->getText(), name);
     }
 
     void expectGuiTextCreation(const std::string& text)
@@ -193,6 +237,9 @@ protected:
     Components::DialogueComponent* dialogueComponent;
     GUI::Renderer guiRenderer;
     std::string font{"arial.ttf"};
+    GUI::VerticalLayout* optionsLayout{nullptr};
+    GUI::Text* npcText{nullptr};
+    GUI::MultiLineText* sentenceText{nullptr};
 
     std::unique_ptr<GameObject> playerGameObject;
     std::unique_ptr<GameObject> npcGameObject;
@@ -232,12 +279,12 @@ TEST_F(DialogueManagerTests, NpcAndPlayerInTheSamePosThenTweenShouldBeNotStarted
     std::function<void()> firstTimer;
     EXPECT_CALL(timerService_, timer(_, _)).WillOnce(DoAll(SaveArg<1>(&firstTimer), Return(1)));
 
-    expectGuiTextCreation(npcGameObject->GetName());
-    expectGuiTextCreation(node.text);
-
     LOG_DEBUG << "Start dialog";
     dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
     dialogueManager_.processEvents();  // StartSentence event
+
+    expectNpcName(npcGameObject->GetName());
+    expectSentence(node.text);
 
     firstTimer();
 
@@ -275,12 +322,12 @@ TEST_F(DialogueManagerTests, NpcShouldStartRotationToPlayerAndCameraShouldStartM
 
     EXPECT_EQ(npcRotationTween, nullptr);
 
-    expectGuiTextCreation(npcGameObject->GetName());
-    expectGuiTextCreation(node.text);
-
     LOG_DEBUG << "Camera movment ends";
     cameraMovementTween();
     dialogueManager_.processEvents();  // StartSentence event after camera move
+
+    expectNpcName(npcGameObject->GetName());
+    expectSentence(node.text);
 
     LOG_DEBUG << "Show dialog timers end";
     firstTimer();
