@@ -50,6 +50,7 @@ Element& Element::operator=(const Element& other)
     this->parent       = nullptr;
     this->mouseFocused = false;
     this->isDirty      = true;
+    this->id           = idPool.getId();
 
     for (const auto& child : other.children)
     {

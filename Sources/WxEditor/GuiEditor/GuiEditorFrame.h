@@ -41,6 +41,8 @@ private:
     void OnTreeContextMenu(wxTreeEvent&);
     void OnDeleteElement(GuiTreeItemData&);
 
+    void MoveTreeItem(wxTreeItemId, wxTreeItemId);
+
 private:
     void FocusElementInTree(GameEngine::GUI::Element*);
     wxTreeItemId FindItemByElement(wxTreeItemId, GameEngine::GUI::Element*);

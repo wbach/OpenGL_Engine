@@ -859,13 +859,10 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
             if (auto text = dynamic_cast<GameEngine::GUI::Text*>(target))
             {
                 text->setText(str);
-                RefreshTree();
             }
             else if (auto text = dynamic_cast<GameEngine::GUI::MultiLineText*>(target))
             {
-                LOG_DEBUG << "set " << str;
                 text->setText(str);
-                RefreshTree();
             }
         }
         else if (name == "MTextLineHeight")
@@ -1200,16 +1197,10 @@ void GuiEditorFrame::AddTreeItem(wxTreeItemId parentId, GameEngine::GUI::Element
     }
     else if (auto text = dynamic_cast<GameEngine::GUI::Text*>(element))
     {
-        std::string content = text->getText();
-        if (content.length() > 15)
-            content = content.substr(0, 12) + "...";
         itemText = "[Text] ";
     }
     else if (auto text = dynamic_cast<GameEngine::GUI::MultiLineText*>(element))
     {
-        std::string content = text->getText();
-        if (content.length() > 15)
-            content = content.substr(0, 12) + "...";
         itemText = "[MultiLineText] ";
     }
     else if (auto tex = dynamic_cast<GameEngine::GUI::Sprite*>(element))
@@ -1439,7 +1430,7 @@ void GuiEditorFrame::OnDeleteElement(GuiTreeItemData& data)
         {
             selectedElement = nullptr;
             propGrid->Clear();
-            RefreshTree();
+            sceneTree->Delete(data.GetId());
             canvas->Refresh();
         }
         else
@@ -1558,4 +1549,28 @@ void GuiEditorFrame::rebuildPropertiesView()
         layoutProperties(*propGrid, *selectedElement);
         verticalProperties(*propGrid, *selectedElement);
     }
+}
+void GuiEditorFrame::MoveTreeItem(wxTreeItemId itemToMove, wxTreeItemId newParent)
+{
+    if (!itemToMove.IsOk() || !newParent.IsOk())
+        return;
+
+    sceneTree->Freeze();
+
+    wxString text = sceneTree->GetItemText(itemToMove);
+    // wxTreeItemData* data = sceneTree->GetItemData(itemToMove);
+
+    wxTreeItemId newItem = sceneTree->AppendItem(newParent, text);
+
+    wxTreeItemIdValue cookie;
+    wxTreeItemId child = sceneTree->GetFirstChild(itemToMove, cookie);
+    while (child.IsOk())
+    {
+        MoveTreeItem(child, newItem);
+        child = sceneTree->GetNextChild(itemToMove, cookie);
+    }
+
+    sceneTree->Delete(itemToMove);
+
+    sceneTree->Thaw();
 }

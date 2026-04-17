@@ -9,7 +9,7 @@ public:
         : value(initValue)
         , dirtyFlag(dirty)
     {
-        if (!dirty)
+        if (not dirty)
         {
             dirtyFlag = &ownDirtyFlag;
         }
@@ -132,7 +132,7 @@ public:
 
     bool isDirty() const
     {
-        return dirtyFlag && *dirtyFlag;
+        return dirtyFlag and *dirtyFlag;
     }
     void clearDirty()
     {
