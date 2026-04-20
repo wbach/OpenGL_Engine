@@ -3,6 +3,8 @@
 #include <Logger/Log.h>
 #include <gtest/gtest.h>
 
+#include "Renderers/GUI/VerticalAlign.h"
+
 namespace GameEngine
 {
 namespace UT
@@ -27,9 +29,12 @@ struct GuiVerticalLayoutTests : public ::testing::Test
 TEST_F(GuiVerticalLayoutTests, VerticalAlignCenter)
 {
     sut_.setAlign(GameEngine::GUI::HorizontalAlign::CENTER);
+    sut_.setAlign(GameEngine::GUI::VerticalAlign::TOP);
     sut_.setScreenScale({1.f, 1.f});
     createElement({0.2f, 0.05f});
     createElement({0.2f, 0.2f});
+
+    sut_.refresh();
 
     const auto& children = sut_.getChildren();
     EXPECT_TRUE(children[0]->isActive());
@@ -45,10 +50,13 @@ TEST_F(GuiVerticalLayoutTests, VerticalAlignCenterWithParent)
 
     sut_.setParent(&parent);
     sut_.setAlign(GameEngine::GUI::HorizontalAlign::CENTER);
+    sut_.setAlign(GameEngine::GUI::VerticalAlign::TOP);
     sut_.setLocalScale({1.f, 1.f});
 
     createElement({0.2f, 0.05f});
     createElement({0.2f, 0.2f});
+
+    sut_.refresh();
 
     const auto& children = sut_.getChildren();
     EXPECT_TRUE(children[0]->isActive());
@@ -75,6 +83,7 @@ TEST_F(GuiVerticalLayoutTests, VerticalAlignCenterWithParentPauseMenuIssue)
 
     sut_.setParent(&parent);
     sut_.setAlign(GameEngine::GUI::HorizontalAlign::CENTER);
+    sut_.setAlign(GameEngine::GUI::VerticalAlign::TOP);
     sut_.setLocalScale({1.f, 0.5f});
     sut_.setLocalPosition({0.f, 0.25f});
 
