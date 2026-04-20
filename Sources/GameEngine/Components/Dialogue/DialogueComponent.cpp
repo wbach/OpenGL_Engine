@@ -1,8 +1,9 @@
 #include "DialogueComponent.h"
 
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
+#include <algorithm>
 #include <optional>
 
 #include "Common/Transform.h"
@@ -15,12 +16,12 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "Json/JsonReader.h"
 #include "Logger/Log.h"
+#include "TreeNode.h"
 namespace GameEngine
 {
 namespace
 {
 constexpr char CSTR_DIALOG_FILE[]   = "dialogueFile";
-constexpr char CSTR_START_NODE_ID[] = "startNodeID";
 }  // namespace
 
 namespace Components
@@ -52,12 +53,8 @@ void DialogueComponent::registerReadFunctions()
         std::filesystem::path filePath;
         ::Read(node.getChild(CSTR_DIALOG_FILE), filePath);
         component->dialogueFile = filePath;
+        component->readFile();
 
-        ::Read(node.getChild(CSTR_START_NODE_ID), component->startNodeID);
-        // if (component->dialogueFile.exist())
-        {
-            component->readFile();
-        }
         return component;
     };
 
@@ -70,7 +67,6 @@ void DialogueComponent::write(TreeNode& node) const
     BaseComponent::write(node);
 
     ::write(node.addChild(CSTR_DIALOG_FILE), dialogueFile.GetDataRelativePath());
-    ::write(node.addChild(CSTR_START_NODE_ID), startNodeID);
 }
 void DialogueComponent::readFile()
 {
@@ -92,6 +88,16 @@ void DialogueComponent::readFile()
         dialogName = nameNode->value_;
     }
 
+    if (auto entry = reader.Get("entry_nodes"))
+    {
+        for (const auto& child : entry->getChildren())
+        {
+            int id{0};
+            ::Read(*child, id);
+            entryPoints.push_back(id);
+        }
+    }
+
     if (auto nodesNode = reader.Get("nodes"))
     {
         for (const auto& nodeNode : nodesNode->getChildren())
@@ -106,6 +112,28 @@ void DialogueComponent::readFile()
                 continue;
             }
 
+            auto readConditions = [](const TreeNode& node)
+            {
+                std::vector<DialogueCondition> conditions;
+                if (auto condition = node.getChild("condition"))
+                {
+                    for (const auto& child : condition->getChildren())
+                    {
+                        DialogueCondition condition;
+                        ::Read(child->getChild("flag"), condition.flag);
+
+                        std::string typeStr;
+                        ::Read(child->getChild("type"), typeStr);
+                        auto type = magic_enum::enum_cast<ConditionType>(typeStr);
+
+                        LOG_DEBUG << "typeStr " << typeStr << " has enum: " << type.has_value();
+                        condition.type = type.value_or(ConditionType::REQUIRED);
+                        conditions.push_back(condition);
+                    }
+                }
+                return conditions;
+            };
+
             ::Read(nodeNode->getChild("text"), node.text);
             ::Read(nodeNode->getChild("audio"), node.audioPath);
             ::Read(nodeNode->getChild("setGameStateflag"), node.setGameStateflag);
@@ -113,7 +141,8 @@ void DialogueComponent::readFile()
             ::Read(nodeNode->getChild("next"), node.nextNodeID);
             ::Read(nodeNode->getChild("backTo"), node.backToNodeID);
 
-            node.text = Utils::RemovePolishSigns(node.text);
+            node.conditions = readConditions(*nodeNode);
+            node.text       = Utils::RemovePolishSigns(node.text);
 
             if (auto optionsNode = nodeNode->getChild("options"))
             {
@@ -128,24 +157,8 @@ void DialogueComponent::readFile()
                     ::Read(optionNode->getChild("removeGameStateFlag"), option.removeGameStateFlag);
                     ::Read(optionNode->getChild("audio"), option.audioPath);
 
-                    if (auto condition = optionNode->getChild("condition"))
-                    {
-                        for (const auto& child : condition->getChildren())
-                        {
-                            DialogueCondition condition;
-                            ::Read(child->getChild("flag"), condition.flag);
-
-                            std::string typeStr;
-                            ::Read(child->getChild("type"), typeStr);
-                            auto type = magic_enum::enum_cast<ConditionType>(typeStr);
-
-                            LOG_DEBUG << "typeStr " << typeStr << " has enum: " << type.has_value();
-                            condition.type = type.value_or(ConditionType::REQUIRED);
-                            option.conditions.push_back(condition);
-                        }
-                    }
-
-                    option.text = Utils::RemovePolishSigns(option.text);
+                    option.conditions = readConditions(*optionNode);
+                    option.text       = Utils::RemovePolishSigns(option.text);
 
                     node.options.push_back(option);
                 }
@@ -154,6 +167,8 @@ void DialogueComponent::readFile()
             nodes[node.id] = std::move(node);
         }
     }
+
+    resetCurrent();
 }
 const DialogueOption* DialogueComponent::selectOption(size_t optionIndex)
 {
@@ -249,7 +264,7 @@ const DialogueNode* DialogueComponent::goToNode(int nextNodeID)
     if (nextNodeID < 0)
     {
         LOG_DEBUG << "End dialog";
-        currentNodeID = startNodeID;
+        resetCurrent();
     }
     else
     {
@@ -273,11 +288,41 @@ void DialogueComponent::setNodes(Nodes&& n)
 }
 void DialogueComponent::resetCurrent()
 {
-    currentNodeID = startNodeID;
+    currentNodeID = getStartingNode();
 }
 const std::string& DialogueComponent::GetName() const
 {
     return dialogName;
+}
+int DialogueComponent::getStartingNode() const
+{
+    for (const auto& entry : entryPoints)
+    {
+        auto iter = nodes.find(entry);
+        if (iter != nodes.end())
+        {
+            const auto& conditions = iter->second.conditions;
+
+            auto isAllowedToStart = std::all_of(conditions.begin(), conditions.end(),
+                                                [&](const DialogueCondition& condition)
+                                                {
+                                                    if (condition.type == ConditionType::REQUIRED)
+                                                    {
+                                                        return componentContext_.gamestate.hasFlag(condition.flag);
+                                                    }
+                                                    else
+                                                    {
+                                                        return not componentContext_.gamestate.hasFlag(condition.flag);
+                                                    }
+                                                });
+
+            if (isAllowedToStart)
+            {
+                return entry;
+            }
+        }
+    }
+    return 0;
 }
 }  // namespace Components
 }  // namespace GameEngine

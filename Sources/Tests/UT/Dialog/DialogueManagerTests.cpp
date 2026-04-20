@@ -270,7 +270,7 @@ TEST_F(DialogueManagerTests, ShouldNotStartDialogueWhenComponentIsEmpty)
     createPlayerGameObjectWitoutCamera();
 
     dialogueComponent->setNodes({});
-    dialogueComponent->startNodeID = 0;
+
     dialogueComponent->resetCurrent();
 
     dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
@@ -291,7 +291,7 @@ TEST_F(DialogueManagerTests, NpcAndPlayerInTheSamePosThenTweenShouldBeNotStarted
     node.options    = {};
 
     dialogueComponent->setNodes({{node.id, node}});
-    dialogueComponent->startNodeID = 0;
+
     dialogueComponent->resetCurrent();
 
     EXPECT_CALL(tweenManager, Add(_, _, _, _, _)).Times(0);
@@ -322,7 +322,7 @@ TEST_F(DialogueManagerTests, NpcShouldStartRotationToPlayerAndCameraShouldStartM
     node.options    = {};
 
     dialogueComponent->setNodes({{node.id, node}});
-    dialogueComponent->startNodeID = 0;
+
     dialogueComponent->resetCurrent();
     std::function<void()> npcRotationTween;
     std::function<void()> cameraMovementTween;
@@ -380,7 +380,7 @@ TEST_F(DialogueManagerTests, ShouldAutomaticallyGoToNextNodeWhenNoOptionsAvailab
 
     Components::DialogueComponent::Nodes nodes{{node.id, node}, {node2.id, node2}, {node3.id, node3}};
     dialogueComponent->setNodes(std::move(nodes));
-    dialogueComponent->startNodeID = 0;
+
     dialogueComponent->resetCurrent();
 
     std::function<void()> firstTimer;
@@ -455,7 +455,6 @@ TEST_F(DialogueManagerTests, ShouldTransitionToCorrectNodeWhenOptionIsSelected)
 
     const auto& nodes = dialogueComponent->GetDialog();
 
-    dialogueComponent->startNodeID = 0;
     dialogueComponent->resetCurrent();
 
     std::function<void()> firstTimer;
@@ -520,7 +519,7 @@ TEST_F(DialogueManagerTests, ShouldShowOptionOnlyWhenAllConditionsAreMet)
 
     node.options = {secretOption, normalOption};
     dialogueComponent->setNodes({{node.id, node}});
-    dialogueComponent->startNodeID = 0;
+
     dialogueComponent->resetCurrent();
 
     gameState_.setFlag("has_letter", false);
@@ -598,7 +597,7 @@ TEST_F(DialogueManagerTests, ShouldBackToNodeWithOptions)
 
     Components::DialogueComponent::Nodes nodes{{node.id, node}, {node2.id, node2}};
     dialogueComponent->setNodes(std::move(nodes));
-    dialogueComponent->startNodeID = 0;
+
     dialogueComponent->resetCurrent();
 
     std::function<void()> firstSentance;
@@ -668,7 +667,6 @@ TEST_F(DialogueManagerTests, ShouldBackToNodeAfterPlayerOptionSentance)
 
     Components::DialogueComponent::Nodes nodes{{node0.id, node0}};
     dialogueComponent->setNodes(std::move(nodes));
-    dialogueComponent->startNodeID = 0;
     dialogueComponent->resetCurrent();
 
     std::function<void()> npcStartTimer;

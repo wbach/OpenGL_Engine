@@ -18,5 +18,6 @@ struct ENGINE_API DialogueNode
     std::string removeGameStateFlag;
     std::vector<DialogueOption> options;
     std::filesystem::path audioPath;
+    std::vector<DialogueCondition> conditions;
 };
 }  // namespace GameEngine

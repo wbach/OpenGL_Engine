@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <optional>
+#include <vector>
 
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Components/BaseComponent.h"
@@ -22,13 +23,11 @@ class ENGINE_API DialogueComponent : public BaseComponent
 public:
     using Nodes = std::unordered_map<int, DialogueNode>;
     File dialogueFile;
-    int startNodeID{0};
 
 public:
     // clang-format off
     BEGIN_FIELDS()
         FIELD_FILE(dialogueFile)
-        FIELD_INT(startNodeID)
     END_FIELDS()
     // clang-format on
 
@@ -60,12 +59,14 @@ public:
     void setNodes(Nodes&&);
     void resetCurrent();
     const std::string& GetName() const;
+    int getStartingNode() const;
 
 private:
     Nodes nodes;
     int currentNodeID = 0;
     std::optional<Rotation> tmpRotation;
     std::string dialogName;
+    std::vector<int> entryPoints;
 
 public:
     static void registerReadFunctions();
