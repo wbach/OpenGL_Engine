@@ -14,6 +14,7 @@
 #include "Dialogue/DialogueComponent.h"
 #include "Gameplay/CharacterStats/CharacterStatsComponent.h"
 #include "Gameplay/Inventory/CombatStatsComponent.h"
+#include "Gameplay/Inventory/ConsumableComponent.h"
 #include "Gameplay/Inventory/EquippableComponent.h"
 #include "Gameplay/Inventory/InventoryComponent.h"
 #include "Gameplay/Inventory/ItemIdentityComponent.h"
@@ -85,6 +86,7 @@ void RegisterReadFunctionForDefaultEngineComponents()
     registerReadFunction<ItemIdentityComponent>();
     registerReadFunction<EquippableComponent>();
     registerReadFunction<CombatStatsComponent>();
+    registerReadFunction<ConsumableComponent>();
     registerReadFunction<CharacterStatsComponent>();
 }
 }  // namespace Components
