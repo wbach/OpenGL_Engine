@@ -15,6 +15,7 @@ struct GuiHorizontalLayoutTests : public ::testing::Test
         auto element = std::make_unique<GUI::Element>();
         element->setLocalScale(scale);
         sut_.addChild(std::move(element));
+        sut_.refresh();
     }
 
     Input::InputManagerMock inputManager_;
@@ -26,6 +27,8 @@ TEST_F(GuiHorizontalLayoutTests, HorizontalLayoutPositioningLocalScaleAlignCente
     sut_.setAlign(GameEngine::GUI::HorizontalAlign::CENTER);
     sut_.setScreenScale({1.f, 1.f});
     createElement({0.2f, 0.05f});
+
+    sut_.refresh();
 
     const auto& children = sut_.getChildren();
     auto& localPosition  = children[0]->getLocalPosition();
