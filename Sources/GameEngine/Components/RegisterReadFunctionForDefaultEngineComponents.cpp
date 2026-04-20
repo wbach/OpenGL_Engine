@@ -18,6 +18,7 @@
 #include "Gameplay/Inventory/EquippableComponent.h"
 #include "Gameplay/Inventory/InventoryComponent.h"
 #include "Gameplay/Inventory/ItemIdentityComponent.h"
+#include "Gameplay/Inventory/ItemVisualComponent.h"
 #include "Gameplay/QuestViewer/QuestViewerComponent.h"
 #include "Input/PlayerInputController.h"
 #include "Lights/DirectionalLightComponent.h"
@@ -87,6 +88,7 @@ void RegisterReadFunctionForDefaultEngineComponents()
     registerReadFunction<EquippableComponent>();
     registerReadFunction<CombatStatsComponent>();
     registerReadFunction<ConsumableComponent>();
+    registerReadFunction<ItemVisualComponent>();
     registerReadFunction<CharacterStatsComponent>();
 }
 }  // namespace Components
