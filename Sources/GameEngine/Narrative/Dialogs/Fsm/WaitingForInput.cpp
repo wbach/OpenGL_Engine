@@ -70,11 +70,16 @@ void WaitingForInput::subscribeForInput()
                                                                    [this]()
                                                                    {
                                                                        auto oldItem = highlighted;
-                                                                       highlighted--;
-                                                                       if (highlighted < 0)
+
+                                                                       if (highlighted == 0)
                                                                        {
                                                                            highlighted = visibleOptions.size() - 1;
                                                                        }
+                                                                       else
+                                                                       {
+                                                                           highlighted--;
+                                                                       }
+
                                                                        auto newItem = highlighted;
                                                                        updateHighLightedColor(oldItem, newItem);
                                                                    });
