@@ -38,6 +38,9 @@ IdleState::IdleState(DialogContext& context)
 }
 void IdleState::initGui()
 {
+    if (isInit)
+        return;
+
     const std::string layerName{"Dialog"};
     GUI::ElementReader reader(dialogContext.guiManager, dialogContext.guiFactory);
 
@@ -83,6 +86,8 @@ void IdleState::initGui()
             dialogContext.optionsLayout->removeAll();
         }
     }
+
+    isInit = true;
 }
 void IdleState::onEnter()
 {
