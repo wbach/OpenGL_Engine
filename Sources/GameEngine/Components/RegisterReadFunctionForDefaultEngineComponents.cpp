@@ -13,6 +13,7 @@
 #include "Controllers/EnemyController.h"
 #include "Dialogue/DialogueComponent.h"
 #include "Gameplay/CharacterStats/CharacterStatsComponent.h"
+#include "Gameplay/Inventory/CombatStatsComponent.h"
 #include "Gameplay/Inventory/EquippableComponent.h"
 #include "Gameplay/Inventory/InventoryComponent.h"
 #include "Gameplay/Inventory/ItemIdentityComponent.h"
@@ -83,6 +84,7 @@ void RegisterReadFunctionForDefaultEngineComponents()
     registerReadFunction<InventoryComponent>();
     registerReadFunction<ItemIdentityComponent>();
     registerReadFunction<EquippableComponent>();
+    registerReadFunction<CombatStatsComponent>();
     registerReadFunction<CharacterStatsComponent>();
 }
 }  // namespace Components
