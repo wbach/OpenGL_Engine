@@ -65,6 +65,11 @@ protected:
         ON_CALL(fontManagerMock, openFont(_, _, _, _)).WillByDefault(Return(1));
         ON_CALL(fontManagerMock, renderText(_, _, _)).WillByDefault(Return(GUI::TextureData{}));
         ON_CALL(fontManagerMock, closeFont(_)).WillByDefault(Return());
+
+        auto createGuiText = [&](const std::string& t)
+        { return std::make_unique<GUI::Text>(fontManagerMock, resourcesManager_, guiRenderer, t); };
+
+        ON_CALL(guiElementFactory_, createText(_)).WillByDefault(Invoke(createGuiText));
     }
 
     void SetUp() override
@@ -117,6 +122,21 @@ protected:
     void expectSentence(const std::string& name)
     {
         EXPECT_EQ(sentenceText->getText(), name);
+    }
+    GUI::Text* expectOption(const std::string& optionText)
+    {
+        const auto& children = optionsLayout->getChildren();
+        auto iter            = std::find_if(children.begin(), children.end(),
+                                            [&optionText](const auto& child)
+                                            {
+                                     if (auto txt = dynamic_cast<GUI::Text*>(child.get()))
+                                     {
+                                         return txt->getText() == optionText;
+                                     }
+                                 });
+
+        EXPECT_NE(iter, children.end());
+        return dynamic_cast<GUI::Text*>(iter->get());
     }
 
     void expectGuiTextCreation(const std::string& text)
@@ -373,25 +393,22 @@ TEST_F(DialogueManagerTests, ShouldAutomaticallyGoToNextNodeWhenNoOptionsAvailab
         .WillOnce(DoAll(SaveArg<1>(&thridTimer), Return(3)))
         .WillOnce(DoAll(SaveArg<1>(&playerResponseTimer), Return(4)));
 
-    expectGuiTextCreation(npcGameObject->GetName());
-    expectGuiTextCreation(node.text);
-
     LOG_DEBUG << "Start dialog";
     dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
     dialogueManager_.processEvents();  // StartSentence event camera not exist
 
-    expectGuiTextCreation(npcGameObject->GetName());
-    expectGuiTextCreation(node2.text);
+    expectNpcName(npcGameObject->GetName());
+    expectSentence(node.text);
 
     LOG_DEBUG << "First timer expiry";
     firstTimer();
 
     dialogueManager_.processEvents();  // StartSentence event - update
 
-    EXPECT_EQ(dialogueComponent->getCurrent()->id, 1);
+    expectNpcName(npcGameObject->GetName());
+    expectSentence(node2.text);
 
-    expectGuiTextCreation(npcGameObject->GetName());
-    expectGuiTextCreation(node3.text);
+    EXPECT_EQ(dialogueComponent->getCurrent()->id, 1);
 
     LOG_DEBUG << "Seconds timer expiry";
     secondTimer();
@@ -399,16 +416,17 @@ TEST_F(DialogueManagerTests, ShouldAutomaticallyGoToNextNodeWhenNoOptionsAvailab
     LOG_DEBUG << "processEvents";
     dialogueManager_.processEvents();  // StartSentence event - update
 
+    expectNpcName(npcGameObject->GetName());
+    expectSentence(node3.text);
+
     LOG_DEBUG << "getCurrent";
     EXPECT_EQ(dialogueComponent->getCurrent()->id, 2);
-
-    LOG_DEBUG << "optionguiText";
-    GUI::Text* optionguiText{nullptr};
-    expectGuiTextCreation(node3.options[0].text, optionguiText);
 
     LOG_DEBUG << "thridTimer";
     thridTimer();
     dialogueManager_.processEvents();  // StartSentence event - update
+
+    auto optionguiText = expectOption(node3.options[0].text);
 
     LOG_DEBUG << "expectedighlighetColor";
     const vec4 expectedighlighetColor(1, 1, 0, 1);
@@ -417,15 +435,14 @@ TEST_F(DialogueManagerTests, ShouldAutomaticallyGoToNextNodeWhenNoOptionsAvailab
     LOG_DEBUG << optionguiText->getColor();
     EXPECT_TRUE(optionguiText->isActive());
 
-    expectGuiTextCreation(playerGameObject->GetName());
-    expectGuiTextCreation(node3.options[0].text);
-
-    // dialogueManager_.selectOption(0);
     dialogueManager_.handleEvent(OptionSelected{.option           = dialogueComponent->getCurrent()->options[0],
                                                 .playerGameObject = *playerGameObject,
                                                 .component        = *dialogueComponent});
 
     playerResponseTimer();
+
+    expectNpcName(playerGameObject->GetName());
+    expectSentence(node3.options[0].text);
 
     expectGotToIdle();
 }
@@ -450,30 +467,33 @@ TEST_F(DialogueManagerTests, ShouldTransitionToCorrectNodeWhenOptionIsSelected)
         .WillOnce(DoAll(SaveArg<1>(&playerResposeTimer), Return(2)))
         .WillOnce(DoAll(SaveArg<1>(&secondNpcText), Return(3)));
 
-    expectGuiTextCreation(npcGameObject->GetName());
-    expectGuiTextCreation(nodes.at(0).text);
-
     dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
     dialogueManager_.processEvents();  // StartSentence event camera not exist
 
-    expectGuiTextCreation(nodes.at(0).options[0].text);
-    expectGuiTextCreation(nodes.at(0).options[1].text);
+    expectNpcName(npcGameObject->GetName());
+    expectSentence(nodes.at(0).text);
+
     firstTimer();
 
     dialogueManager_.processEvents();  // Wait for input
 
+    expectOption(nodes.at(0).options[0].text);
+    expectOption(nodes.at(0).options[1].text);
+
     auto selectedOpiton = dialogueComponent->getCurrent()->options[0];
-    expectGuiTextCreation(playerGameObject->GetName());
-    expectGuiTextCreation(selectedOpiton.text);
 
     dialogueManager_.handleEvent(
         OptionSelected{.option = selectedOpiton, .playerGameObject = *playerGameObject, .component = *dialogueComponent});
 
-    expectGuiTextCreation(npcGameObject->GetName());
-    expectGuiTextCreation(nodes.at(2).text);
-
     playerResposeTimer();
+
+    expectNpcName(playerGameObject->GetName());
+    expectSentence(selectedOpiton.text);
+
     dialogueManager_.processEvents();  // StartSentence update to npc text
+
+    expectNpcName(npcGameObject->GetName());
+    expectSentence(nodes.at(2).text);
 
     EXPECT_EQ(dialogueComponent->getCurrent()->id, 2);
     EXPECT_EQ(dialogueComponent->getCurrent()->text, nodes.at(2).text);
@@ -512,25 +532,24 @@ TEST_F(DialogueManagerTests, ShouldShowOptionOnlyWhenAllConditionsAreMet)
         .WillOnce(DoAll(SaveArg<1>(&firstTimer), Return(1)))
         .WillOnce(DoAll(SaveArg<1>(&playerResposeTimer), Return(2)));
 
-    expectGuiTextCreation(npcGameObject->GetName());
-    expectGuiTextCreation(node.text);
-
     dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
     dialogueManager_.processEvents();  // StartSentence event camera not exist
 
-    expectGuiTextCreation(normalOption.text);
+    expectNpcName(npcGameObject->GetName());
+    expectSentence(node.text);
 
     LOG_DEBUG << "Odpalamy timer - sprawdzamy czy tylko jedna opcja się pojawi";
     firstTimer();
     dialogueManager_.processEvents();  // Wait for input
-
-    expectGuiTextCreation(playerGameObject->GetName());
-    expectGuiTextCreation(normalOption.text);
+    expectOption(normalOption.text);
 
     dialogueManager_.handleEvent(
         OptionSelected{.option = normalOption, .playerGameObject = *playerGameObject, .component = *dialogueComponent});
 
     dialogueManager_.processEvents();  // Player StartSentence
+
+    expectNpcName(playerGameObject->GetName());
+    expectSentence(normalOption.text);
 
     playerResposeTimer();
 
@@ -542,19 +561,19 @@ TEST_F(DialogueManagerTests, ShouldShowOptionOnlyWhenAllConditionsAreMet)
 
     EXPECT_CALL(timerService_, timer(_, _)).WillOnce(DoAll(SaveArg<1>(&firstTimer), Return(2)));
 
-    expectGuiTextCreation(npcGameObject->GetName());
-    expectGuiTextCreation(node.text);
-
     LOG_DEBUG << "Odpalamy timer - sprawdzamy 2 opcje";
     dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
     dialogueManager_.processEvents();  // StartSentence event camera not exist
 
-    expectGuiTextCreation(secretOption.text);
-    expectGuiTextCreation(normalOption.text);
+    expectNpcName(npcGameObject->GetName());
+    expectSentence(node.text);
 
     firstTimer();
 
     dialogueManager_.processEvents();
+
+    expectOption(secretOption.text);
+    expectOption(normalOption.text);
 }
 
 TEST_F(DialogueManagerTests, ShouldBackToNodeWithOptions)
@@ -590,46 +609,44 @@ TEST_F(DialogueManagerTests, ShouldBackToNodeWithOptions)
         .WillOnce(DoAll(SaveArg<1>(&firstSentance), Return(1)))
         .WillOnce(DoAll(SaveArg<1>(&playerResponseTimer), Return(2)))
         .WillOnce(DoAll(SaveArg<1>(&secondNodeSentanceTimer), Return(3)));
-    // .WillOnce(DoAll(SaveArg<1>(&playerResponseTimer), Return(4)));
-
-    expectGuiTextCreation(npcGameObject->GetName());
-    expectGuiTextCreation(node.text);
 
     LOG_DEBUG << "Start dialog";
     dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
     dialogueManager_.processEvents();  // StartSentence event camera not exist
 
-    // expectGuiTextCreation(npcGameObject->GetName());0--
-    for (auto& node : node.options)
-    {
-        expectGuiTextCreation(node.text);
-    }
+    expectNpcName(npcGameObject->GetName());
+    expectSentence(node.text);
 
     LOG_DEBUG << "First timer expiry";
     firstSentance();                   // Npc end sentance 1, and show options after end
     dialogueManager_.processEvents();  // Move to waiting input
 
-    auto selectedOption = dialogueComponent->getCurrent()->options[0];
+    for (auto& node : node.options)
+    {
+        expectOption(node.text);
+    }
 
-    expectGuiTextCreation(playerGameObject->GetName());
-    expectGuiTextCreation(selectedOption.text);
+    auto selectedOption = dialogueComponent->getCurrent()->options[0];
 
     dialogueManager_.handleEvent(
         OptionSelected{.option = selectedOption, .playerGameObject = *playerGameObject, .component = *dialogueComponent});
 
-    expectGuiTextCreation(npcGameObject->GetName());
-    expectGuiTextCreation(node2.text);
+    expectNpcName(playerGameObject->GetName());
+    expectSentence(selectedOption.text);
 
     playerResponseTimer();
     dialogueManager_.processEvents();
 
-    // after back to node 0 , only 1 options left, because of flags ask_for_more
-    expectGuiTextCreation(node.options[1].text);
+    expectNpcName(npcGameObject->GetName());
+    expectSentence(node2.text);
 
+    // after back to node 0 , only 1 options left, because of flags ask_for_more
     secondNodeSentanceTimer();
 
     // optionsSelet > move to showing
     dialogueManager_.processEvents();  // Back event move to waiting input
+
+    expectOption(node.options[1].text);
 
     // Player sentence finish
     dialogueManager_.processEvents();
@@ -663,37 +680,38 @@ TEST_F(DialogueManagerTests, ShouldBackToNodeAfterPlayerOptionSentance)
         .WillOnce(DoAll(SaveArg<1>(&playerSpeechTimer), Return(2)));
 
     // 1. Start dialogu - NPC mówi tekst startowy
-    expectGuiTextCreation(npcGameObject->GetName());
-    expectGuiTextCreation(node0.text);
-
     dialogueManager_.startDialogue(*playerGameObject, *dialogueComponent);
     dialogueManager_.processEvents();  // Wejście w ShowingSentence (NPC)
 
-    // Po zakończeniu kwestii NPC, pojawiają się 2 opcje
-    expectGuiTextCreation(node0.options[0].text);
-    expectGuiTextCreation(node0.options[1].text);
+    expectNpcName(npcGameObject->GetName());
+    expectSentence(node0.text);
 
+    // Po zakończeniu kwestii NPC, pojawiają się 2 opcje
     npcStartTimer();
     dialogueManager_.processEvents();  // Przejście do WaitingForInput
+
+    expectOption(node0.options[0].text);
+    expectOption(node0.options[1].text);
 
     // 2. Gracz wybiera opcję "Opowiedz o okolicy"
     auto selectedOption = node0.options[0];
 
     // Teraz Gracz mówi swoją kwestię (ShowingSentence dla gracza)
-    expectGuiTextCreation(playerGameObject->GetName());
-    expectGuiTextCreation(selectedOption.text);
-
     dialogueManager_.handleEvent(
         OptionSelected{.option = selectedOption, .playerGameObject = *playerGameObject, .component = *dialogueComponent});
+
+    expectNpcName(playerGameObject->GetName());
+    expectSentence(selectedOption.text);
+
     dialogueManager_.processEvents();
 
     // 3. Koniec kwestii gracza -> Powrót do węzła 0
     // Oczekujemy, że tekst NPC się NIE pojawi, a od razu pojawi się TYLKO druga opcja
     // (bo pierwsza ma flagę FORBIDDEN, która właśnie została ustawiona)
-    expectGuiTextCreation(node0.options[1].text);
-
     playerSpeechTimer();               // Kończymy gadanie gracza
     dialogueManager_.processEvents();  // FSM powinno wysłać BackToSentence i wejść w WaitingForInput
+
+    expectOption(node0.options[1].text);
 
     EXPECT_TRUE(dialogueManager_.isActive());
 }
