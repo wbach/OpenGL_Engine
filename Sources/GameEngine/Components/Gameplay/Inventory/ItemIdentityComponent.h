@@ -1,10 +1,13 @@
 #pragma once
-#include "GameEngine/Components/BaseComponent.h"
 #include <string>
+
+#include "GameEngine/Components/BaseComponent.h"
+#include "Types.h"
 
 namespace GameEngine
 {
-enum class Rarity : uint8_t {
+enum class Rarity : uint8_t
+{
     Common,
     Uncommon,
     Rare,
@@ -17,11 +20,11 @@ namespace Components
 class ENGINE_API ItemIdentityComponent : public BaseComponent
 {
 public:
-    std::string itemName = "Unknown Item";
+    std::string itemName    = "Unknown Item";
     std::string description = "";
-    Rarity rarity = Rarity::Common;
-    int goldValue = 0;
-    float weight = 0.0f;
+    Rarity rarity           = Rarity::Common;
+    int goldValue           = 0;
+    float weight            = 0.0f;
 
     // clang-format off
     BEGIN_FIELDS()
@@ -35,12 +38,19 @@ public:
 
 public:
     ItemIdentityComponent(ComponentContext&, GameObject&);
+    ItemIdentityComponent(const ItemIdentityComponent&);
     ~ItemIdentityComponent() override;
 
     void CleanUp() override;
     void ReqisterFunctions() override;
     void Reload() override;
 
+    IdType getId() const;
+
+private:
+    IdType id;
+
+public:
     static void registerReadFunctions();
     void write(TreeNode&) const override;
 };

@@ -1,7 +1,7 @@
 #include "SceneReader.h"
 
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -23,12 +23,16 @@ SceneReader::SceneReader(Scene& scene)
     : scene(scene)
 {
 }
-
-GameObject* SceneReader::loadPrefab(const File& file, const std::string& gameObjectName)
+std::unique_ptr<Prefab> SceneReader::readPrefab(const File& file, const std::string& gameObjectName)
 {
     auto gameObject = scene.CreatePrefabGameObject(gameObjectName);
     ReadPrefab(file, *gameObject);
     LOG_DEBUG << "Prefab components size=" << gameObject->GetComponents().size();
+    return gameObject;
+}
+GameObject* SceneReader::loadPrefab(const File& file, const std::string& gameObjectName)
+{
+    auto gameObject = readPrefab(file, gameObjectName);
     auto result = gameObject.get();
     scene.AddGameObject(std::move(gameObject));
     return result;

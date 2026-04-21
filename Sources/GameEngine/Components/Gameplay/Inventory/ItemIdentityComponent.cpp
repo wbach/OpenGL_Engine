@@ -4,6 +4,7 @@
 #include <Utils/TreeNodeWriteFunctions.h>
 
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "IdPool.h"
 
 namespace GameEngine
 {
@@ -16,14 +17,27 @@ const char CSTR_DESCRIPTION[] = "description";
 const char CSTR_RARITY[]      = "rarity";
 const char CSTR_GOLD_VALUE[]  = "goldValue";
 const char CSTR_WEIGHT[]      = "weight";
+
+static Utils::IdPool idPool;
 }  // namespace
 ItemIdentityComponent::ItemIdentityComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(GetComponentType<ItemIdentityComponent>(), componentContext, gameObject)
+    , id{idPool.getId()}
 {
 }
-
+ItemIdentityComponent::ItemIdentityComponent(const ItemIdentityComponent& other)
+    : BaseComponent(other)
+    , itemName(other.itemName)
+    , description(other.description)
+    , rarity(other.rarity)
+    , goldValue(other.goldValue)
+    , weight(other.weight)
+    , id{idPool.getId()}
+{
+}
 ItemIdentityComponent::~ItemIdentityComponent()
 {
+    idPool.releaseId(id);
 }
 
 void ItemIdentityComponent::CleanUp()
@@ -65,6 +79,9 @@ void ItemIdentityComponent::write(TreeNode& node) const
     ::write(node.addChild(CSTR_GOLD_VALUE), goldValue);
     ::write(node.addChild(CSTR_WEIGHT), weight);
 }
-
+IdType ItemIdentityComponent::getId() const
+{
+    return id;
+}
 }  // namespace Components
 }  // namespace GameEngine
