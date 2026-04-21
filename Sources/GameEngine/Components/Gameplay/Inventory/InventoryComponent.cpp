@@ -42,6 +42,7 @@ namespace Components
 namespace
 {
 constexpr char GUI_FILE[]{"guiLayoutFile"};
+constexpr char INVENTORY_FILE[]{"inventoryFile"};
 
 std::string getCategoryForItem(GameObject& item)
 {
@@ -52,7 +53,7 @@ std::string getCategoryForItem(GameObject& item)
             return "Weapons";
         return "Armors";
     }
-    if (item.GetComponent<ConsumableComponent>())
+    if (item.HasComponent<ConsumableComponent>())
         return "Potions";
     return "Other";
 }
@@ -108,6 +109,7 @@ void InventoryComponent::registerReadFunctions()
         component->read(input);
 
         ::Read(input.getChild(GUI_FILE), component->guiFile);
+        ::Read(input.getChild(INVENTORY_FILE), component->itemsFile);
 
         return component;
     };
@@ -120,6 +122,7 @@ void InventoryComponent::write(TreeNode& node) const
     BaseComponent::write(node);
 
     ::write(node.addChild(GUI_FILE), guiFile);
+    ::write(node.addChild(INVENTORY_FILE), itemsFile);
 }
 void InventoryComponent::initGui()
 {
@@ -140,9 +143,11 @@ void InventoryComponent::initGui()
         itemsLayout = GUI::getTypedElement<GUI::VerticalLayout>(layer, "ItemsLayout");
 
         std::vector<std::string> catNames = {"Weapons", "Armors", "Potions", "Magic", "Other"};
+
+        int i = 0;
         for (const auto& name : catNames)
         {
-            if (auto btn = GUI::getTypedElement<GUI::Button>(layer, name + "Tab"))
+            if (auto btn = GUI::getTypedElement<GUI::Button>(layer, name))
             {
                 btn->setOnClick(
                     [this, name]()
@@ -150,7 +155,14 @@ void InventoryComponent::initGui()
                         currentCategory = name;
                         updateGui();
                     });
+
+                if (i == 0)
+                {
+                    if (auto btn = GUI::getTypedElement<GUI::Button>(layer, name))
+                        btn->setAsActive();
+                }
             }
+            ++i;
         }
 
         uiSlots.clear();
@@ -200,9 +212,18 @@ void InventoryComponent::updateGui()
     std::vector<GameObject*> filteredItems;
     for (auto& item : items)
     {
-        if (getCategoryForItem(*item) == currentCategory)
+        auto object = item->getObject();
+        if (not object)
         {
-            filteredItems.push_back(item.get());
+            continue;
+        }
+
+        const auto& category = getCategoryForItem(*object);
+        LOG_DEBUG << "Check item=" << object->GetName() << ", category=" << category << ", currentCategory = " << currentCategory;
+        if (category == currentCategory)
+        {
+            LOG_DEBUG << "item is visible " << object->GetName();
+            filteredItems.push_back(object);
         }
     }
 
@@ -226,10 +247,15 @@ void InventoryComponent::updateGui()
 
                 if (auto visualComponent = item->GetComponent<ItemVisualComponent>())
                 {
+                    LOG_DEBUG << "Create item icon : " << visualComponent->iconPath;
                     if (auto sprite = componentContext_.guiElementFactory_.createSprite(visualComponent->iconPath))
                     {
                         slot.button->setBackground(std::move(sprite));
                     }
+                }
+                else
+                {
+                    LOG_WARN << "Item dosent have a ItemVisualComponent";
                 }
 
                 slot.button->setOnClick(
@@ -238,6 +264,10 @@ void InventoryComponent::updateGui()
                         LOG_DEBUG << "Item gameObject name: " << item->GetName() << ", Item name: " << identity->itemName << " "
                                   << identity->description;
                     });
+            }
+            else
+            {
+                LOG_WARN << "Item dosent have a ItemIdentityComponent. Gamobject name: " << item->GetName();
             }
         }
         else
@@ -284,6 +314,7 @@ void InventoryComponent::addItem(std::unique_ptr<Prefab>&& item)
 {
     if (item)
     {
+        LOG_DEBUG << "Add prefab item";
         items.push_back(std::move(item));
         updateGui();
     }
@@ -311,24 +342,35 @@ void InventoryComponent::readInventory()
 {
     if (not itemsFile.exist())
     {
+        LOG_DEBUG << "File not exist: " << itemsFile;
         return;
     }
 
     Utils::JsonReader reader;
-    reader.ReadJson(itemsFile.GetAbsolutePath());
+    reader.Read(itemsFile.GetAbsolutePath());
 
     if (auto itemsNodes = reader.Get("Items"))
     {
+        LOG_DEBUG << "itemsNodes " << *itemsNodes;
+
         for (auto& child : itemsNodes->getChildren())
         {
-            auto name       = child->name();
-            auto gameObject = GameEngine::SceneReader(componentContext_.scene_).readPrefab(child->value_, name);
-            if (gameObject)
+            auto name = child->getChild("name");
+            auto file = child->getChild("file");
+
+            if (name and file)
             {
-                items.push_back(std::move(gameObject));
+                LOG_DEBUG << "Read item: " << name->value_ << ", file = " << file->value_;
+
+                if (auto gameObject = GameEngine::SceneReader(componentContext_.scene_).readPrefab(file->value_, name->value_))
+                {
+                    addItem(std::move(gameObject));
+                }
             }
         }
     }
+
+    updateGui();
 }
 
 void InventoryComponent::writeInventory()
@@ -338,10 +380,10 @@ void InventoryComponent::writeInventory()
 
     for (auto& item : items)
     {
-        TreeNode prefabNode;
-        CreatePrefabNode(itemsNode.addChild(item->GetName()), *item);
+        auto& itemEntry = itemsNode.addChild("");
+        itemEntry.addChild("name", item->GetName());
+        itemEntry.addChild("file", item->getFile().GetDataRelativePath());
     }
-
     if (itemsFile.empty())
     {
         itemsFile = EngineLocalConf.files.getGeneratedDirPath() / ("Inventory_" + Utils::CreateUniqueFilename() + ".json");

@@ -5,6 +5,7 @@
 
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "IdPool.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -61,7 +62,7 @@ void ItemIdentityComponent::registerReadFunctions()
         ::Read(input.getChild(CSTR_RARITY), component->rarity);
         ::Read(input.getChild(CSTR_GOLD_VALUE), component->goldValue);
         ::Read(input.getChild(CSTR_WEIGHT), component->weight);
-
+        LOG_DEBUG << "ItemIdentityComponent read";
         return component;
     };
 

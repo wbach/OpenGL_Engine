@@ -1,6 +1,6 @@
 #pragma once
-#include "GameObject.h"
 #include "GameEngine/Resources/File.h"
+#include "GameObject.h"
 
 namespace GameEngine
 {
@@ -10,7 +10,8 @@ public:
     using GameObject::GameObject;
 
     void setFile(const File& f);
-    const File & getFile() const;
+    const File& getFile() const;
+    GameObject* getObject();
 
 private:
     File file;

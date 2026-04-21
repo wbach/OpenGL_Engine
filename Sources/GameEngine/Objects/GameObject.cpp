@@ -2,6 +2,7 @@
 
 #include <GLM/GLMUtils.h>
 #include <Logger/Log.h>
+#include <TreeNode.h>
 #include <Utils/IdPool.h>
 
 #include <algorithm>
@@ -11,7 +12,6 @@
 #include "GameEngine/Components/ComponentFactory.h"
 #include "GameEngine/Components/IComponent.h"
 #include "GameEngine/Scene/SceneEvents.h"
-
 namespace GameEngine
 {
 GameObject::GameObject(const std::string& name, Components::ComponentController& componentController,
@@ -79,6 +79,10 @@ Components::IComponent* GameObject::AddComponent(const TreeNode& node)
         components_[component->GetTypeId()].push_back(std::move(component));
         CallComponentFunctionsIfNeeded();
         return ptr;
+    }
+    else
+    {
+        LOG_WARN << "Component creation error. " << node;
     }
     return nullptr;
 }

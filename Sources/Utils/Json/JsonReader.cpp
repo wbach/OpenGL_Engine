@@ -150,6 +150,9 @@ TreeNode* JsonReader::Get()
 
 TreeNode* JsonReader::Get(const std::string& name, TreeNode* node)
 {
+    if (not root_)
+        return nullptr;
+
     if (node == nullptr)
         node = root_.get();
 

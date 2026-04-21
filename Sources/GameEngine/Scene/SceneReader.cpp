@@ -27,15 +27,27 @@ std::unique_ptr<Prefab> SceneReader::readPrefab(const File& file, const std::str
 {
     auto gameObject = scene.CreatePrefabGameObject(gameObjectName);
     ReadPrefab(file, *gameObject);
-    LOG_DEBUG << "Prefab components size=" << gameObject->GetComponents().size();
-    return gameObject;
+    if (auto object = gameObject->getObject())
+    {
+        LOG_DEBUG << "Prefab object components size=" << object->GetComponents().size();
+        return gameObject;
+    }
+    else
+    {
+        LOG_WARN << "Read prefab error";
+    }
+
+    return nullptr;
 }
 GameObject* SceneReader::loadPrefab(const File& file, const std::string& gameObjectName)
 {
-    auto gameObject = readPrefab(file, gameObjectName);
-    auto result = gameObject.get();
-    scene.AddGameObject(std::move(gameObject));
-    return result;
+    if (auto gameObject = readPrefab(file, gameObjectName))
+    {
+        auto result = gameObject.get();
+        scene.AddGameObject(std::move(gameObject));
+        return result;
+    }
+    return nullptr;
 }
 GameObject* SceneReader::createGameObjectFromPrefabNodeInRootNode(const TreeNode& node, const std::string& name)
 {
@@ -234,6 +246,7 @@ void SceneReader::ReadPrefab(const File& file, Prefab& prefabGameObject)
     auto maybePrefabNode = xmlReader.Get(CSTR_PREFAB);
     if (not maybePrefabNode)
     {
+        LOG_DEBUG << "not maybePrefabNode, file " << file;
         return;
     }
 
