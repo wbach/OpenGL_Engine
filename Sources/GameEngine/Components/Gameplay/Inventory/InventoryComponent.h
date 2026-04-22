@@ -36,6 +36,12 @@ public:
 
 public:
     InventoryComponent(ComponentContext&, GameObject&);
+
+    InventoryComponent(const InventoryComponent&)            = delete;
+    InventoryComponent& operator=(const InventoryComponent&) = delete;
+    InventoryComponent(InventoryComponent&&) noexcept            = default;
+    InventoryComponent& operator=(InventoryComponent&&) noexcept = default;
+
     ~InventoryComponent() override;
 
     void CleanUp() override;
