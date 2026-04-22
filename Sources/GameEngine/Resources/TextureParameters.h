@@ -4,6 +4,7 @@
 #include "DataStorePolicy.h"
 #include "Textures/TextureFlip.h"
 #include <GraphicsApi/TextureParamters.h>
+#include <optional>
 
 namespace GameEngine
 {
@@ -13,17 +14,13 @@ enum class TextureLoadType
     Immediately,
     None
 };
-enum class SizeLimitPolicy
-{
-    Limited,
-    NoLimited
-};
+
 
 struct TextureParameters
 {
     TextureFlip flipMode{TextureFlip::NONE};
     TextureLoadType loadType{TextureLoadType::AddToGpuPass};
-    SizeLimitPolicy sizeLimitPolicy{SizeLimitPolicy::Limited};
+    std::optional<vec2ui> sizeLimit{std::nullopt};
     DataStorePolicy dataStorePolicy{DataStorePolicy::ToRelease};
     GraphicsApi::TextureFilter filter{GraphicsApi::TextureFilter::NEAREST};
     GraphicsApi::TextureMipmap mimap{GraphicsApi::TextureMipmap::NONE};

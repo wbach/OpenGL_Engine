@@ -257,6 +257,8 @@ void Read(TreeNode& node, Params::Water& water)
 void Read(TreeNode& node, Params::Textures& textures)
 {
     SetParamIfExist(textures.maxSize, node.attributes_, CSTR_TEXTURE_MAX_RESOLUTION_WIDTH, CSTR_TEXTURE_MAX_RESOLUTION_HEIGHT);
+    SetParamIfExist(textures.maxClusterSize, node.attributes_, CSTR_TEXTURE_CLUSTER_MAX_RESOLUTION_WIDTH,
+                    CSTR_TEXTURE_CLUSTER_MAX_RESOLUTION_HEIGHT);
     SetParamIfExist(textures.limitTextureSize, node.attributes_, CSTR_TEXTURE_SIZE_LIMIT);
     SetParamIfExist(textures.useAmbient, node.attributes_, CSTR_TEXTURE_AMBIENT);
     SetParamIfExist(textures.useDisplacement, node.attributes_, CSTR_TEXTURE_DISPLACEMENT);

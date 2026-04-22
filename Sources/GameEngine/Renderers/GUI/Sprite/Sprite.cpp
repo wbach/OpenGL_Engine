@@ -51,7 +51,7 @@ void Sprite::SetTexture(const FileHandle& file)
         return;
 
     TextureParameters params;
-    params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+    params.sizeLimit = std::nullopt;;
     params.flipMode        = TextureFlip::VERTICAL;
     params.filter          = GraphicsApi::TextureFilter::LINEAR;
 

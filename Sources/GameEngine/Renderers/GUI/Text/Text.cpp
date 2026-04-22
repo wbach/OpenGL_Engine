@@ -152,7 +152,7 @@ void Text::updateTexture(TextureData data)
     }
 
     TextureParameters params;
-    params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+    params.sizeLimit = std::nullopt;;
     params.filter          = GraphicsApi::TextureFilter::LINEAR;
     texture_               = resourceManager_.GetTextureLoader().CreateTexture(textureName_, params, std::move(data.image));
 }

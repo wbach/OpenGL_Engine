@@ -516,6 +516,7 @@ GeneralTexture* CreateMaterialTexture(const std::optional<File>& currentProcessi
         TextureParameters parameters;
         parameters.filter = GraphicsApi::TextureFilter::LINEAR;
         parameters.mimap  = GraphicsApi::TextureMipmap::LINEAR;
+        parameters.sizeLimit = EngineConf.renderer.textures.maxSize;
 
         if (pathStr.size() > 1 and pathStr[0] == '*')
         {

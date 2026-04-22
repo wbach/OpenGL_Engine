@@ -305,7 +305,7 @@ void TerrainComponentBase::LoadTextureImpl(const TerrainTexture &terrainTexture)
     if (TerrainTextureType::blendMap == terrainTexture.type)
     {
         textureParams.dataStorePolicy = DataStorePolicy::Store;
-        textureParams.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+        textureParams.sizeLimit = std::nullopt;;
     }
     else
     {

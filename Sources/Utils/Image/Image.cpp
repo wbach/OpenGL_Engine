@@ -458,4 +458,63 @@ void Image::decompressData()
         },
         data_);
 }
+void Image::resizeImage(uint32 newWidth, uint32 newHeight)
+{
+    if (empty() or (width == newWidth and height == newHeight))
+    {
+        return;
+    }
+
+    if (not std::holds_alternative<std::vector<uint8>>(data_))
+    {
+        return;
+    }
+
+    LOG_DEBUG << "Resize image from:  " << width << "x" << height << " => " << newWidth << "x" << newHeight;
+
+    auto& oldData = std::get<std::vector<uint8>>(data_);
+    auto newData  = std::vector<uint8>(newWidth * newHeight * channels_);
+
+    auto scaleX = static_cast<float>(width) / newWidth;
+    auto scaleY = static_cast<float>(height) / newHeight;
+
+    for (auto y = 0u; y < newHeight; ++y)
+    {
+        for (auto x = 0u; x < newWidth; ++x)
+        {
+            auto oldX = x * scaleX;
+            auto oldY = y * scaleY;
+
+            auto x1 = static_cast<uint32>(std::floor(oldX));
+            auto y1 = static_cast<uint32>(std::floor(oldY));
+            auto x2 = std::min(x1 + 1, width - 1);
+            auto y2 = std::min(y1 + 1, height - 1);
+
+            auto dx = oldX - x1;
+            auto dy = oldY - y1;
+
+            for (auto c = 0u; c < channels_; ++c)
+            {
+                auto p11 = oldData[(y1 * width + x1) * channels_ + c];
+                auto p21 = oldData[(y1 * width + x2) * channels_ + c];
+                auto p12 = oldData[(y2 * width + x1) * channels_ + c];
+                auto p22 = oldData[(y2 * width + x2) * channels_ + c];
+
+                auto top    = p11 * (1.0f - dx) + p21 * dx;
+                auto bottom = p12 * (1.0f - dx) + p22 * dx;
+
+                auto finalVal                               = top * (1.0f - dy) + bottom * dy;
+                newData[(y * newWidth + x) * channels_ + c] = static_cast<uint8>(finalVal);
+            }
+        }
+    }
+
+    width  = newWidth;
+    height = newHeight;
+    data_  = std::move(newData);
+}
+void Image::resizeImage(const vec2ui& v)
+{
+    resizeImage(v.x, v.y);
+}
 }  // namespace Utils

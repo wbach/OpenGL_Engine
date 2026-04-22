@@ -37,6 +37,7 @@ ConfigurationExplorer::ConfigurationExplorer()
              //{"Lod2 distance", EngineConf.renderer.lodDistance2, ApplyPolicy::RestartNotNeeded},
              {"Textures size limit", EngineConf.renderer.textures.limitTextureSize, ApplyPolicy::RestartRequired},
              {"Textures max size", EngineConf.renderer.textures.maxSize, ApplyPolicy::RestartRequired},
+             {"Cluster textures max size", EngineConf.renderer.textures.maxClusterSize, ApplyPolicy::RestartRequired},
              //{"Use ambient texture", EngineConf.renderer.textures.useAmbient, true},
              {"Use normal texture", EngineConf.renderer.textures.useNormal, ApplyPolicy::RestartRequired},
              {"Use diffuse texture", EngineConf.renderer.textures.useDiffuse, ApplyPolicy::RestartNotNeeded},

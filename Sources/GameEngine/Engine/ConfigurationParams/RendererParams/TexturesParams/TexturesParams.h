@@ -11,6 +11,7 @@ struct ENGINE_API Textures
 {
     Textures();
     ConfigurationParam<vec2ui> maxSize;
+    ConfigurationParam<vec2ui> maxClusterSize;
     ConfigurationParam<bool> limitTextureSize;
     ConfigurationParam<bool> useDisplacement;
     ConfigurationParam<bool> useAmbient;

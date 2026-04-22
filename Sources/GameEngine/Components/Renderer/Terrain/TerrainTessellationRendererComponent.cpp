@@ -32,7 +32,7 @@ void TerrainTessellationRendererComponent::LoadHeightMap(const File& file)
 {
     heightMapParameters_.flipMode        = TextureFlip::NONE;
     heightMapParameters_.loadType        = TextureLoadType::AddToGpuPass;
-    heightMapParameters_.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+    heightMapParameters_.sizeLimit = std::nullopt;;
     TerrainComponentBase::LoadHeightMap(file);
 
     auto normalMap = componentContext_.resourceManager_.GetTextureLoader().CreateNormalMap(*heightMap_, config_.GetScale());

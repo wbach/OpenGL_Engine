@@ -37,18 +37,20 @@ using namespace Utils;
 
 void Create(TreeNode& node, const Params::Textures& param)
 {
-    node.attributes_[CSTR_TEXTURE_MAX_RESOLUTION_WIDTH]  = std::to_string(param.maxSize->x);
-    node.attributes_[CSTR_TEXTURE_MAX_RESOLUTION_HEIGHT] = std::to_string(param.maxSize->y);
-    node.attributes_[CSTR_TEXTURE_SIZE_LIMIT]            = Utils::BoolToString(param.limitTextureSize);
-    node.attributes_[CSTR_TEXTURE_AMBIENT]               = Utils::BoolToString(param.useAmbient);
-    node.attributes_[CSTR_TEXTURE_DISPLACEMENT]          = Utils::BoolToString(param.useDisplacement);
-    node.attributes_[CSTR_TEXTURE_DIFFUSE]               = Utils::BoolToString(param.useDiffuse);
-    node.attributes_[CSTR_TEXTURE_NORMAL]                = Utils::BoolToString(param.useNormal);
-    node.attributes_[CSTR_TEXTURE_SPECULAR]              = Utils::BoolToString(param.useSpecular);
-    node.attributes_[CSTR_TEXTURE_ROUGHNESS]             = Utils::BoolToString(param.useRoughness);
-    node.attributes_[CSTR_TEXTURE_METALLIC]              = Utils::BoolToString(param.useMetallic);
-    node.attributes_[CSTR_TEXTURE_AMBIENT_OCCLUSION]     = Utils::BoolToString(param.useAmientOcclusion);
-    node.attributes_[CSTR_TEXTURE_OPACITY]               = Utils::BoolToString(param.useOpacity);
+    node.attributes_[CSTR_TEXTURE_MAX_RESOLUTION_WIDTH]          = std::to_string(param.maxSize->x);
+    node.attributes_[CSTR_TEXTURE_MAX_RESOLUTION_HEIGHT]         = std::to_string(param.maxSize->y);
+    node.attributes_[CSTR_TEXTURE_CLUSTER_MAX_RESOLUTION_WIDTH]  = std::to_string(param.maxClusterSize->x);
+    node.attributes_[CSTR_TEXTURE_CLUSTER_MAX_RESOLUTION_HEIGHT] = std::to_string(param.maxClusterSize->y);
+    node.attributes_[CSTR_TEXTURE_SIZE_LIMIT]                    = Utils::BoolToString(param.limitTextureSize);
+    node.attributes_[CSTR_TEXTURE_AMBIENT]                       = Utils::BoolToString(param.useAmbient);
+    node.attributes_[CSTR_TEXTURE_DISPLACEMENT]                  = Utils::BoolToString(param.useDisplacement);
+    node.attributes_[CSTR_TEXTURE_DIFFUSE]                       = Utils::BoolToString(param.useDiffuse);
+    node.attributes_[CSTR_TEXTURE_NORMAL]                        = Utils::BoolToString(param.useNormal);
+    node.attributes_[CSTR_TEXTURE_SPECULAR]                      = Utils::BoolToString(param.useSpecular);
+    node.attributes_[CSTR_TEXTURE_ROUGHNESS]                     = Utils::BoolToString(param.useRoughness);
+    node.attributes_[CSTR_TEXTURE_METALLIC]                      = Utils::BoolToString(param.useMetallic);
+    node.attributes_[CSTR_TEXTURE_AMBIENT_OCCLUSION]             = Utils::BoolToString(param.useAmientOcclusion);
+    node.attributes_[CSTR_TEXTURE_OPACITY]                       = Utils::BoolToString(param.useOpacity);
 }
 void Create(TreeNode& node, const Params::Particles& param)
 {

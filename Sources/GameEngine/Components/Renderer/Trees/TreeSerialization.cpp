@@ -13,6 +13,7 @@
 #include "FileSystem/FileSystemUtils.hpp"
 #include "GameEngine/Components/Renderer/Trees/Leaf.h"
 #include "GameEngine/Components/Renderer/Trees/TreeSerializationData.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/Models/Loaders/Binary/BinaryExporter.h"
@@ -194,7 +195,8 @@ TreeSerilizeData convert(const Tree& tree)
 Tree::Clusters convert(TreeClustersSerializationData&& data, ITextureLoader& textureLoader)
 {
     Tree::Clusters result;
-    TextureParameters paramters{.dataStorePolicy = DataStorePolicy::Store,
+    TextureParameters paramters{.sizeLimit       = EngineConf.renderer.textures.maxClusterSize,
+                                .dataStorePolicy = DataStorePolicy::Store,
                                 .filter          = GraphicsApi::TextureFilter::LINEAR,
                                 .mimap           = GraphicsApi::TextureMipmap::LINEAR};
 

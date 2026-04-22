@@ -46,6 +46,13 @@ void serialize(S& s, glm::mat4& m)
     for (int i = 0; i < 16; ++i)
         s.value4b(ptr[i]);
 }
+
+template <typename S>
+void serialize(S& s, glm::uvec2& v)
+{
+    s.value4b(v.x);
+    s.value4b(v.y);
+}
 }  // namespace bitsery
 
 namespace Utils

@@ -217,7 +217,7 @@ const Theme &ElementFactory::getTheme() const
 std::unique_ptr<Sprite> ElementFactory::makeSprite(const FileHandle &file)
 {
     TextureParameters params;
-    params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+    params.sizeLimit = std::nullopt;;
     params.flipMode        = TextureFlip::VERTICAL;
     params.filter          = GraphicsApi::TextureFilter::LINEAR;
 

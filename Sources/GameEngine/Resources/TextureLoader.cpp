@@ -18,6 +18,7 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/MemoryFile.h"
+#include "GameEngine/Resources/TextureParameters.h"
 #include "GameEngine/Resources/Textures/ArrayTexture.h"
 #include "GpuResourceLoader.h"
 #include "HeightMapHeader.h"
@@ -67,6 +68,11 @@ GeneralTexture* TextureLoader::CreateTexture(const std::string& name, const Text
     if (auto texture = GetTextureIfLoaded(name, params))
         return static_cast<GeneralTexture*>(texture);
 
+    if (params.sizeLimit and EngineConf.renderer.textures.limitTextureSize)
+    {
+        image.resizeImage(*params.sizeLimit);
+    }
+
     auto texture    = std::make_unique<GeneralTexture>(graphicsApi_, std::move(image), params);
     auto texturePtr = texture.get();
     AddTexture(name, std::move(texture), params.loadType);
@@ -79,6 +85,14 @@ ArrayTexture* TextureLoader::CreateTexture(const std::string& name, const Textur
 
     if (auto texture = GetTextureIfLoaded(name, params))
         return static_cast<ArrayTexture*>(texture);
+
+    if (params.sizeLimit and EngineConf.renderer.textures.limitTextureSize)
+    {
+        for (auto& image : images)
+        {
+            image.resizeImage(*params.sizeLimit);
+        }
+    }
 
     auto texture    = std::make_unique<ArrayTexture>(graphicsApi_, std::move(images), params);
     auto texturePtr = texture.get();

@@ -42,7 +42,7 @@ void IntroRenderer::Init()
     TextureParameters params;
     params.loadType        = TextureLoadType::Immediately;
     params.flipMode        = TextureFlip::VERTICAL;
-    params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+    params.sizeLimit = std::nullopt;;
 
     auto image = ReadImage(BENGINE_png, BENGINE_png_len, params);
 

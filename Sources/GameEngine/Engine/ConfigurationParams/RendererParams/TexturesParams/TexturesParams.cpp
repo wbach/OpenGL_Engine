@@ -6,6 +6,7 @@ namespace Params
 {
 Textures::Textures()
     : maxSize{vec2ui{4096, 4096}, {{128, 128}, {256, 256}, {512, 512}, {1024, 1024}, {2048, 2048}, {4096, 4096}, {8192, 8192}}}
+    , maxClusterSize{vec2ui{128, 128}, {{16,16},{32, 32}, {64, 64}, {128, 128}, {256, 256}, {512, 512}, {1024, 1024}, {2048, 2048}, {4096, 4096}, {8192, 8192}}}
     , limitTextureSize{false, {false, true}}
     , useDisplacement{true, {false, true}}
     , useAmbient{true, {false, true}}

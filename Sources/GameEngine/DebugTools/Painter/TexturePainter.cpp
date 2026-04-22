@@ -223,7 +223,7 @@ void TexturePainter::CreateBlendMapIfNeeded(Components::TerrainRendererComponent
         auto textureName = "blendmap_" + Utils::CreateUniqueFilename();
         TextureParameters params;
         params.filter          = GraphicsApi::TextureFilter::LINEAR;
-        params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+        params.sizeLimit = std::nullopt;;
         auto blendmapTexture   = textureLoader.CreateTexture(textureName, params, std::move(image));
         File file{EngineLocalConf.files.getGeneratedDirPath() / (textureName + ".png")};
         blendmapTexture->SetFile(file);

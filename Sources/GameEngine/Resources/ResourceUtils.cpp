@@ -37,32 +37,31 @@ FIBITMAP* convertTo32bppIfDifferent(FIBITMAP* image)
     return image;
 }
 
-FIBITMAP* resizeImageIfisLimited(FIBITMAP* image, SizeLimitPolicy sizeLimitPolicy)
+FIBITMAP* resizeImageIfisLimited(FIBITMAP* image, const std::optional<vec2ui>& sizeLimit)
 {
-    if (sizeLimitPolicy == SizeLimitPolicy::Limited and EngineConf.renderer.textures.limitTextureSize)
+    if (sizeLimit and EngineConf.renderer.textures.limitTextureSize)
     {
-        auto& textureSize{EngineConf.renderer.textures.maxSize};
+        const auto& textureSize = sizeLimit.value();
         bool resize_texture{false};
 
         uint32 w = FreeImage_GetWidth(image);
         uint32 h = FreeImage_GetHeight(image);
         vec2ui newImageSize(w, h);
 
-        if (w > textureSize->x)
+        if (w > textureSize.x)
         {
-            newImageSize.x = textureSize->x;
+            newImageSize.x = textureSize.x;
             resize_texture = true;
         }
-        if (h > textureSize->y)
+        if (h > textureSize.y)
         {
-            newImageSize.y = textureSize->y;
+            newImageSize.y = textureSize.y;
             resize_texture = true;
         }
 
         if (resize_texture)
         {
-            /* LOG TO FIX*/ LOG_ERROR << ("Resize image from " + std::to_string(vec2ui(w, h)) + " to " +
-                                          std::to_string(newImageSize));
+            LOG_DEBUG << "Resize image from " << vec2ui(w, h) << " to " << newImageSize;
 
             auto resizedImage =
                 FreeImage_Rescale(image, static_cast<int>(newImageSize.x), static_cast<int>(newImageSize.y), FILTER_BSPLINE);
@@ -74,7 +73,7 @@ FIBITMAP* resizeImageIfisLimited(FIBITMAP* image, SizeLimitPolicy sizeLimitPolic
             }
             else
             {
-                /* LOG TO FIX*/ LOG_ERROR << ("Resize error.");
+                LOG_ERROR << "Resize error.";
             }
         }
     }
@@ -117,7 +116,7 @@ std::optional<Utils::Image> ReadFile(const File& file, const TextureParameters& 
         return {};
     }
 
-    image = resizeImageIfisLimited(image, params.sizeLimitPolicy);
+    image = resizeImageIfisLimited(image, params.sizeLimit);
     flipImageIfRequest(image, params.flipMode);
     image = convertTo32bppIfDifferent(image);
 
@@ -169,7 +168,7 @@ std::optional<Utils::Image> ReadImage(const unsigned char* data, unsigned int le
         return std::nullopt;
     }
 
-    image = resizeImageIfisLimited(image, params.sizeLimitPolicy);
+    image = resizeImageIfisLimited(image, params.sizeLimit);
     flipImageIfRequest(image, params.flipMode);
     image = convertTo32bppIfDifferent(image);
 
@@ -221,8 +220,9 @@ void CreateHeightMap(const File& in, const File& out, const vec3& scale)
     }
 
     TextureParameters textureParams;
-    textureParams.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
-    auto maybeImage               = ReadFile(in, textureParams);
+    textureParams.sizeLimit = std::nullopt;
+    ;
+    auto maybeImage = ReadFile(in, textureParams);
     if (not maybeImage)
     {
         return;

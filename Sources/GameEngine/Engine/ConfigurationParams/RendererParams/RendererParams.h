@@ -23,6 +23,7 @@ enum class PresetSettings
     Low,
     Medium,
     High,
+    VeryHigh,
     Ultra
 };
 

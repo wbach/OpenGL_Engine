@@ -106,7 +106,7 @@ void SceneLoader::Init()
     TextureParameters params;
     params.loadType        = TextureLoadType::Immediately;
     params.flipMode        = TextureFlip::VERTICAL;
-    params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+    params.sizeLimit = std::nullopt;;
     params.filter          = GraphicsApi::TextureFilter::LINEAR;
     params.mimap           = GraphicsApi::TextureMipmap::LINEAR;
 

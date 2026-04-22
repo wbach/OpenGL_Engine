@@ -63,7 +63,7 @@ void serialize(S& s, TextureParameters& parameters)
 
     serialize_enum(parameters.flipMode);
     serialize_enum(parameters.loadType);
-    serialize_enum(parameters.sizeLimitPolicy);
+    s.ext(parameters.sizeLimit, bitsery::ext::StdOptional{});
     serialize_enum(parameters.dataStorePolicy);
     serialize_enum(parameters.filter);
     serialize_enum(parameters.mimap);

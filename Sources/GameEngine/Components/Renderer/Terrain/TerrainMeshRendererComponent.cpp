@@ -1,6 +1,7 @@
 #include "TerrainMeshRendererComponent.h"
 
 #include <memory>
+#include <optional>
 #include <string>
 
 #include "GameEngine/Engine/Configuration.h"
@@ -77,14 +78,13 @@ HeightMap *TerrainMeshRendererComponent::createHeightMap(const vec2ui &size)
     return result;
 }
 
-
 void TerrainMeshRendererComponent::LoadHeightMap(const File &file)
 {
     heightMapFile_ = file;
 
     heightMapParameters_.loadType        = TextureLoadType::None;
     heightMapParameters_.flipMode        = TextureFlip::NONE;
-    heightMapParameters_.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+    heightMapParameters_.sizeLimit       = std::nullopt;
     heightMapParameters_.dataStorePolicy = DataStorePolicy::Store;
 
     TerrainComponentBase::LoadHeightMap(file);
@@ -181,7 +181,7 @@ void TerrainMeshRendererComponent::CreateShaderBuffers(const GameEngine::Model &
 {
     perObjectUpdateBuffer_.reserve(model.GetMeshes().size());
 
-    //LOG_DEBUG << "Creating TerrainMeshRendererComponent shader buffers for " << model.GetMeshes().size() << " meshes.";
+    // LOG_DEBUG << "Creating TerrainMeshRendererComponent shader buffers for " << model.GetMeshes().size() << " meshes.";
     for (size_t i = 0; i < model.GetMeshes().size(); ++i)
     {
         auto &graphicsApi = componentContext_.resourceManager_.GetGraphicsApi();
@@ -243,7 +243,7 @@ void TerrainMeshRendererComponent::ClearShaderBuffers()
     std::vector<std::unique_ptr<GpuObject>> objectsToRelease;
     objectsToRelease.reserve(perObjectUpdateBuffer_.size());
 
-    for (auto& buffer : perObjectUpdateBuffer_)
+    for (auto &buffer : perObjectUpdateBuffer_)
     {
         objectsToRelease.push_back(std::move(buffer));
     }

@@ -22,9 +22,6 @@ public:
     Image& operator=(Image&& other) noexcept;
     Image(const Image& other);
 
-    uint32 width{0};
-    uint32 height{0};
-
     vec2ui size() const;
     const void* getRawDataPtr() const;
     std::optional<Color> getPixel(const vec2ui&) const;
@@ -65,8 +62,14 @@ public:
     void compressData();
     void decompressData();
 
+    void resizeImage(uint32, uint32);
+    void resizeImage(const vec2ui&);
+
+    uint32 width{0};
+    uint32 height{0};
     uint8 channels_{4};
     ImageData data_;
+
     bool isCompressed{false};
     std::optional<size_t> pitch;
 };
