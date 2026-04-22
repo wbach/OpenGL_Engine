@@ -182,7 +182,11 @@ void InventoryComponent::initGui()
 
             if (not uiSlots.empty())
             {
-                GUI::ElementWriter::write(defaultItemSpriteNode, *uiSlots.front().button);
+                if (auto spirte = uiSlots.front().button->getBackgroundSprite())
+                {
+                    defaultItemSpriteNode.emplace();
+                    GUI::ElementWriter::write(*defaultItemSpriteNode, *spirte);
+                }
             }
         }
 
@@ -277,9 +281,13 @@ void InventoryComponent::updateGui()
                 continue;
             }
 
-            GUI::ElementReader reader(componentContext_.guiManager_, componentContext_.guiElementFactory_);
-            auto sprite = reader.readSprite(defaultItemSpriteNode);
-            slot.button->setBackground(std::move(sprite));
+            LOG_DEBUG << "defaultItemSpriteNode : " << defaultItemSpriteNode;
+            if (defaultItemSpriteNode)
+            {
+                GUI::ElementReader reader(componentContext_.guiManager_, componentContext_.guiElementFactory_);
+                auto sprite = reader.readSprite(*defaultItemSpriteNode);
+                slot.button->setBackground(std::move(sprite));
+            }
             slot.button->setOnClick(nullptr);
             slot.itemId.reset();
         }

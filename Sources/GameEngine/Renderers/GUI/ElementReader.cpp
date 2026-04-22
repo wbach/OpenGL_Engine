@@ -229,6 +229,13 @@ void ElementReader::readGuiElementBasic(Element &element, const TreeNode &node)
 
 std::unique_ptr<Text> ElementReader::readText(const TreeNode &node)
 {
+    auto typenode = node.getChild(TYPE);
+    if (not typenode or typenode->value_ != TEXT)
+    {
+        LOG_WARN << "Type mismatch or info not present";
+        return nullptr;
+    }
+
     auto text = factory_.createText("");
 
     Color color;
@@ -251,6 +258,13 @@ std::unique_ptr<Text> ElementReader::readText(const TreeNode &node)
 
 std::unique_ptr<MultiLineText> ElementReader::readMultiLineText(const TreeNode &node)
 {
+    auto typenode = node.getChild(TYPE);
+    if (not typenode or typenode->value_ != MULTI_LINE_TEXT)
+    {
+        LOG_WARN << "Type mismatch or info not present";
+        return nullptr;
+    }
+
     auto text = factory_.createMultiLineText("");
 
     Color color;
@@ -274,6 +288,13 @@ std::unique_ptr<MultiLineText> ElementReader::readMultiLineText(const TreeNode &
 
 std::unique_ptr<Sprite> ElementReader::readSprite(const TreeNode &node)
 {
+    auto typenode = node.getChild(TYPE);
+    if (not typenode or typenode->value_ != SPRITE)
+    {
+        LOG_WARN << "Type mismatch or info not present";
+        return nullptr;
+    }
+
     FileHandle file;
     ::Read(node.getChild(FILE), file);
 
@@ -291,6 +312,13 @@ std::unique_ptr<Sprite> ElementReader::readSprite(const TreeNode &node)
 }
 std::unique_ptr<Button> ElementReader::readButton(const TreeNode &node)
 {
+    auto typenode = node.getChild(TYPE);
+    if (not typenode or typenode->value_ != BUTTON)
+    {
+        LOG_WARN << "Type mismatch or info not present";
+        return nullptr;
+    }
+
     auto button = factory_.createButton();
     button->setBackground(nullptr);
     button->setOnHover(nullptr);
@@ -370,6 +398,13 @@ std::unique_ptr<Button> ElementReader::readButton(const TreeNode &node)
 }
 std::unique_ptr<EditText> ElementReader::readEditText(const TreeNode &node)
 {
+    auto typenode = node.getChild(TYPE);
+    if (not typenode or typenode->value_ != EDIT_TEXT)
+    {
+        LOG_WARN << "Type mismatch or info not present";
+        return nullptr;
+    }
+
     auto edit = factory_.createEditText();
 
     if (auto textNode = node.getChild(TEXT))
@@ -470,6 +505,13 @@ std::vector<std::unique_ptr<Element>> ElementReader::readElemets(const TreeNode 
 
 std::unique_ptr<VerticalLayout> ElementReader::readVerticalLayout(const TreeNode &node)
 {
+    auto typenode = node.getChild(TYPE);
+    if (not typenode or typenode->value_ != VERTICAL_LAYOUT)
+    {
+        LOG_WARN << "Type mismatch or info not present";
+        return nullptr;
+    }
+
     auto layout = factory_.createVerticalLayout();
     readGuiElementBasic(*layout, node);
     layout->setAlign(readHorizonalAlign(node));
@@ -490,6 +532,12 @@ std::unique_ptr<VerticalLayout> ElementReader::readVerticalLayout(const TreeNode
 
 std::unique_ptr<HorizontalLayout> ElementReader::readHorizontalLayout(const TreeNode &node)
 {
+    auto typenode = node.getChild(TYPE);
+    if (not typenode or typenode->value_ != HORIZONTAL_LAYOUT)
+    {
+        LOG_WARN << "Type mismatch or info not present";
+        return nullptr;
+    }
     auto layout = factory_.createHorizontalLayout();
     readGuiElementBasic(*layout, node);
     layout->setAlign(readHorizonalAlign(node));
@@ -504,6 +552,13 @@ std::unique_ptr<HorizontalLayout> ElementReader::readHorizontalLayout(const Tree
 
 std::unique_ptr<Window> ElementReader::readWindow(const TreeNode &node)
 {
+    auto typenode = node.getChild(TYPE);
+    if (not typenode or typenode->value_ != WINDOW)
+    {
+        LOG_WARN << "Type mismatch or info not present";
+        return nullptr;
+    }
+
     std::string background;
     auto paramNode = node.getChild(BACKGROUND);
     if (paramNode)

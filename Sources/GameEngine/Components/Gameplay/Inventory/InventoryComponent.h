@@ -68,7 +68,7 @@ private:
     std::vector<std::unique_ptr<Prefab>> items;
     GUI::VerticalLayout* itemsLayout;
 
-    TreeNode defaultItemSpriteNode;
+    std::optional<TreeNode> defaultItemSpriteNode;
 
 public:
     static void registerReadFunctions();
