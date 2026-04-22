@@ -53,9 +53,10 @@ private:
     void hide();
     void readInventory();
     void writeInventory();
+    void toneDownCategoryBtns();
 
 private:
-    std::string currentCategory = "Weapons";
+    std::string currentCategory;
 
     struct UiSlot
     {
@@ -63,6 +64,7 @@ private:
         std::optional<IdType> itemId;
     };
     std::vector<UiSlot> uiSlots;
+    std::vector<GUI::Button*> categoryButtons;
 
     GUI::Window* mainWindow{nullptr};
     std::vector<std::unique_ptr<Prefab>> items;

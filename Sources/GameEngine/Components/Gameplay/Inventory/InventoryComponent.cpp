@@ -8,6 +8,7 @@
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <optional>
 #include <utility>
+#include <vector>
 
 #include "CombatStatsComponent.h"
 #include "ConsumableComponent.h"
@@ -44,23 +45,35 @@ namespace
 constexpr char GUI_FILE[]{"guiLayoutFile"};
 constexpr char INVENTORY_FILE[]{"inventoryFile"};
 
+constexpr char CAT_ALL[]{"All"};
+constexpr char CAT_WEAPON[]{"Weapons"};
+constexpr char CAT_ARMORS[]{"Armors"};
+constexpr char CAT_POTIONS[]{"Potions"};
+constexpr char CAT_MAGIC[]{"Magic"};
+constexpr char CAT_OTHER[]{"Other"};
+
 std::string getCategoryForItem(GameObject& item)
 {
     if (item.GetComponent<CombatStatsComponent>() and item.GetComponent<EquippableComponent>())
     {
         auto slot = item.GetComponent<EquippableComponent>()->slot;
         if (slot == SlotType::MainHand or slot == SlotType::BothHands)
-            return "Weapons";
-        return "Armors";
+        {
+            return CAT_WEAPON;
+        }
+        return CAT_ARMORS;
     }
     if (item.HasComponent<ConsumableComponent>())
-        return "Potions";
-    return "Other";
+    {
+        return CAT_POTIONS;
+    }
+    return CAT_OTHER;
 }
 }  // namespace
 
 InventoryComponent::InventoryComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(GetComponentType<InventoryComponent>(), componentContext, gameObject)
+    , currentCategory(CAT_ALL)
 {
 }
 InventoryComponent::~InventoryComponent()
@@ -142,27 +155,30 @@ void InventoryComponent::initGui()
         mainWindow  = GUI::getTypedElement<GUI::Window>(layer, "MainWindow");
         itemsLayout = GUI::getTypedElement<GUI::VerticalLayout>(layer, "ItemsLayout");
 
-        std::vector<std::string> catNames = {"Weapons", "Armors", "Potions", "Magic", "Other"};
+        std::vector<std::string> catNames = {CAT_ALL, CAT_WEAPON, CAT_ARMORS, CAT_POTIONS, CAT_MAGIC, CAT_OTHER};
 
-        int i = 0;
         for (const auto& name : catNames)
         {
             if (auto btn = GUI::getTypedElement<GUI::Button>(layer, name))
             {
+                categoryButtons.push_back(btn);
+
                 btn->setOnClick(
-                    [this, name]()
+                    [this, btn, name]()
                     {
+                        toneDownCategoryBtns();
+                        btn->setAsActive();
                         currentCategory = name;
                         updateGui();
                     });
-
-                if (i == 0)
-                {
-                    if (auto btn = GUI::getTypedElement<GUI::Button>(layer, name))
-                        btn->setAsActive();
-                }
             }
-            ++i;
+        }
+
+        toneDownCategoryBtns();
+
+        if (not categoryButtons.empty())
+        {
+            categoryButtons.front()->setAsActive();
         }
 
         uiSlots.clear();
@@ -219,6 +235,12 @@ void InventoryComponent::updateGui()
         auto object = item->getObject();
         if (not object)
         {
+            continue;
+        }
+
+        if (currentCategory == CAT_ALL)
+        {
+            filteredItems.push_back(object);
             continue;
         }
 
@@ -397,6 +419,13 @@ void InventoryComponent::writeInventory()
         itemsFile = EngineLocalConf.files.getGeneratedDirPath() / ("Inventory_" + Utils::CreateUniqueFilename() + ".json");
     }
     Utils::Json::Write(itemsFile.GetAbsolutePath(), root);
+}
+void InventoryComponent::toneDownCategoryBtns()
+{
+    for (auto btn : categoryButtons)
+    {
+        btn->resetActiveState();
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine
