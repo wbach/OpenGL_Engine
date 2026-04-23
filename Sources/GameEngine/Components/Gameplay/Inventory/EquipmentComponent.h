@@ -38,6 +38,12 @@ public:
     std::optional<IdType> unequip(SlotType);
 
 private:
+    void equipChest(const GameObject&);
+    void unequipChest();
+    void activeDefaultBody(bool);
+    void reloadAnimator();
+
+private:
     std::unordered_map<SlotType, GameObject*> equippedItems;
 
 public:

@@ -80,6 +80,7 @@ void Animator::ReqisterFunctions()
 void Animator::Reload()
 {
     LOG_DEBUG << "Relaod";
+
     CleanUp();
     GetSkeletonAndAnimations();
 }
@@ -337,6 +338,7 @@ void Animator::GetSkeletonAndAnimations()
     initAnimationClips();
     jointsGrupping();
     initSlavesSkeletonsData(rendererComponents);
+    Update();
 }
 void Animator::updateShaderBuffers()
 {

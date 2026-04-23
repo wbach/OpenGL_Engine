@@ -238,6 +238,9 @@ void Button::applyNormalState()
 
 void Button::applyHoverState()
 {
+    if (not onHoverSprite)
+        return;
+
     if (backgroundSprite)
         backgroundSprite->activate(false);
     if (onActiveSprite)
@@ -250,6 +253,9 @@ void Button::applyHoverState()
 
 void Button::applyActiveState()
 {
+    if (not onActiveSprite)
+        return;
+
     if (backgroundSprite)
         backgroundSprite->activate(false);
     if (onHoverSprite)

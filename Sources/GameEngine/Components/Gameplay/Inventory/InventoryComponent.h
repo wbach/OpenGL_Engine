@@ -70,6 +70,8 @@ private:
     EquippableComponent* getItem(IdType);
     std::vector<GameObject*> applyFilterToItems();
 
+    Color getDefaultItemSpriteColor() const;
+
 private:
     std::string currentCategory;
 

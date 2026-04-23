@@ -2,7 +2,7 @@
 
 #include <Logger/Log.h>
 
-#include "AnimationTransition.h"
+#include "PlayAnimation.h"
 #include "StateMachine.h"
 
 namespace GameEngine
@@ -19,11 +19,11 @@ bool EmptyState::update(float)
 }
 void EmptyState::handle(const ChangeAnimationEvent &event)
 {
-    context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime, event.onTransitionEnd);
+    context_.machine.transitionTo<PlayAnimation>(context_, event.info, event.startTime);
 }
 void EmptyState::handle(const StopAnimationEvent &)
 {
-    LOG_DEBUG <<"EmptyState StopAnimationEvent?";
+    LOG_DEBUG << "EmptyState StopAnimationEvent?";
 }
 
 std::vector<std::string> EmptyState::getCurrentAnimation() const

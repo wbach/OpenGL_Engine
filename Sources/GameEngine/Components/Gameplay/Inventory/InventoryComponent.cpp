@@ -235,6 +235,8 @@ void InventoryComponent::updateGui()
 
     auto filteredItems = applyFilterToItems();
 
+    const auto defaultButtonColor = getDefaultItemSpriteColor();
+
     for (size_t i = 0; i < uiSlots.size(); ++i)
     {
         auto& slot = uiSlots[i];
@@ -246,6 +248,18 @@ void InventoryComponent::updateGui()
 
             if (identity)
             {
+                if (auto equippableComponent = item->GetComponent<EquippableComponent>())
+                {
+                    if (equippableComponent->isEquipped)
+                    {
+                        slot.button->setBackground(Color(167, 199, 231));
+                    }
+                    else
+                    {
+                        slot.button->setBackground(defaultButtonColor);
+                    }
+                }
+
                 if (slot.itemId == identity->getId())
                 {
                     continue;
@@ -258,13 +272,6 @@ void InventoryComponent::updateGui()
                     LOG_DEBUG << "Create item icon : " << visualComponent->iconPath;
                     if (auto sprite = componentContext_.guiElementFactory_.createSprite(visualComponent->iconPath))
                     {
-                        if (auto equippableComponent = item->GetComponent<EquippableComponent>())
-                        {
-                            if (equippableComponent->isEquipped)
-                            {
-                                sprite->setColor(Color(0, 0, 1, 1));
-                            }
-                        }
                         slot.button->setBackground(std::move(sprite));
                     }
                 }
@@ -299,6 +306,7 @@ void InventoryComponent::updateGui()
             {
                 GUI::ElementReader reader(componentContext_.guiManager_, componentContext_.guiElementFactory_);
                 auto sprite = reader.readSprite(*defaultItemSpriteNode);
+                slot.button->setBackground(sprite->getColor());
                 slot.button->setBackground(std::move(sprite));
             }
             slot.button->setOnClick(nullptr);
@@ -439,7 +447,6 @@ void InventoryComponent::useItem(GameObject& item)
         {
             equipment->unequip(equippable->slot);
             equippable->isEquipped = false;
-
             updateGui();
             return;
         }
@@ -509,7 +516,6 @@ void InventoryComponent::handleEquipping(GameObject& item, EquippableComponent& 
 
     equipment->equip(item);
     itemEquippableComponent->isEquipped = true;
-    updateGui();
 }
 EquippableComponent* InventoryComponent::getItem(IdType itemGoId)
 {
@@ -561,6 +567,17 @@ std::vector<GameObject*> InventoryComponent::applyFilterToItems()
               });
 
     return filteredItems;
+}
+Color InventoryComponent::getDefaultItemSpriteColor() const
+{
+    if (auto paramNode = defaultItemSpriteNode->getChild("color"))
+    {
+        Color color(0);
+        ::Read(*paramNode, color);
+        return color;
+    }
+
+    return Color(1.f);
 }
 }  // namespace Components
 }  // namespace GameEngine

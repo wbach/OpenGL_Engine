@@ -12,6 +12,7 @@
 #include "GameEngine/Components/Gameplay/Inventory/ItemVisualComponent.h"
 #include "GameEngine/Components/Gameplay/Inventory/SlotType.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
+#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Logger/Log.h"
 #include "Types.h"
@@ -68,56 +69,11 @@ bool EquipmentComponent::equip(GameObject& item)
         return false;
     }
 
-    auto itemVisualComponent = item.GetComponent<ItemVisualComponent>();
-    auto iter                = equippedItems.find(itemEquippableComponent->slot);
     switch (itemEquippableComponent->slot)
     {
         case SlotType::Chest:
-        {
-            if (iter != equippedItems.end() and iter->second)
-            {
-                // Takeof current model
-                if (auto renderComponent = thisObject_.GetComponent<RendererComponent>(CHEST_COMPONENT_TAG))
-                {
-                    if (itemVisualComponent->modelPath == renderComponent->fileName_LOD1)
-                    {
-                        LOG_DEBUG << "Model already equipped";
-                        break;
-                    }
-
-                    thisObject_.RemoveComponent(*renderComponent);
-                }
-
-                if (auto renderComponent = thisObject_.GetComponent<RendererComponent>(baseBodyRendererComponentTag))
-                {
-                    renderComponent->SetActive(true);
-                }
-
-                iter->second = nullptr;
-            }
-            else if (not baseBodyRendererComponentTag.empty())
-            {
-                if (auto renderComponent = thisObject_.GetComponent<RendererComponent>(baseBodyRendererComponentTag))
-                {
-                    renderComponent->SetActive(false);
-                }
-            }
-
-            if (itemVisualComponent)
-            {
-                LOG_DEBUG << "Add rendererComponent";
-                auto& newRendererComponent         = thisObject_.AddComponent<RendererComponent>();
-                newRendererComponent.fileName_LOD1 = itemVisualComponent->modelPath;
-                newRendererComponent.tag           = CHEST_COMPONENT_TAG;
-                newRendererComponent.Reload();
-
-                if (auto animator = thisObject_.GetComponent<Animator>())
-                {
-                    animator->Reload();
-                }
-            }
-        }
-        break;
+            equipChest(item);
+            break;
         default:
             LOG_DEBUG << "Unsupported slot type";
     }
@@ -141,18 +97,8 @@ std::optional<IdType> EquipmentComponent::unequip(SlotType slot)
 
     if (slot == SlotType::Chest)
     {
-        if (auto renderComponent = thisObject_.GetComponent<RendererComponent>(CHEST_COMPONENT_TAG))
-        {
-            thisObject_.RemoveComponent(*renderComponent);
-        }
-        if (auto renderComponent = thisObject_.GetComponent<RendererComponent>(baseBodyRendererComponentTag))
-        {
-            renderComponent->SetActive(true);
-        }
-        if (auto animator = thisObject_.GetComponent<Animator>())
-        {
-            animator->Reload();
-        }
+        unequipChest();
+        reloadAnimator();
     }
 
     auto iter = equippedItems.find(slot);
@@ -163,6 +109,60 @@ std::optional<IdType> EquipmentComponent::unequip(SlotType slot)
         return result;
     }
     return std::nullopt;
+}
+void EquipmentComponent::unequipChest()
+{
+    if (auto renderComponent = thisObject_.GetComponent<RendererComponent>(CHEST_COMPONENT_TAG))
+    {
+        thisObject_.RemoveComponent(*renderComponent);
+    }
+
+    activeDefaultBody(true);
+}
+void EquipmentComponent::reloadAnimator()
+{
+    if (auto animator = thisObject_.GetComponent<Animator>())
+    {
+        animator->Reload();
+    }
+}
+void EquipmentComponent::equipChest(const GameObject& item)
+{
+    auto itemVisualComponent = item.GetComponent<ItemVisualComponent>();
+    if (not itemVisualComponent)
+    {
+        LOG_WARN << "ItemVisualComponent not found";
+        return;
+    }
+
+    if (auto renderComponent = thisObject_.GetComponent<RendererComponent>(CHEST_COMPONENT_TAG))
+    {
+        if (itemVisualComponent->modelPath == renderComponent->fileName_LOD1)
+        {
+            LOG_DEBUG << "Model already equipped";
+            return;
+        }
+        thisObject_.RemoveComponent(*renderComponent);
+    }
+
+    if (not baseBodyRendererComponentTag.empty())
+    {
+        activeDefaultBody(false);
+    }
+
+    LOG_DEBUG << "Add rendererComponent";
+    auto& newRendererComponent         = thisObject_.AddComponent<RendererComponent>();
+    newRendererComponent.fileName_LOD1 = itemVisualComponent->modelPath;
+    newRendererComponent.tag           = CHEST_COMPONENT_TAG;
+    newRendererComponent.Reload();
+    reloadAnimator();
+}
+void EquipmentComponent::activeDefaultBody(bool isActive)
+{
+    if (auto renderComponent = thisObject_.GetComponent<RendererComponent>(baseBodyRendererComponentTag))
+    {
+        renderComponent->SetActive(isActive);
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine
