@@ -2,17 +2,20 @@
 
 #include <Utils/TreeNodeReadFunctions.h>
 #include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/XML/XmlReader.h>
 
 #include "GameEngine/Components/ComponentsReadFunctions.h"
-
+#include "GameEngine/Scene/SceneDef.h"
+#include "Logger/Log.h"
 namespace GameEngine
 {
 namespace
 {
 const char CSTR_ICON_PATH[]   = "iconPath";
-const char CSTR_MODEL_PATH[]  = "modelPath";
+const char CSTR_MODEL[]       = "model";
 const char CSTR_DROP_SOUND[]  = "dropSound";
 const char CSTR_MODEL_SCALE[] = "modelScale";
+const char CSTR_MODEL_PATH[]  = "modelPath";
 }  // namespace
 
 namespace Components
@@ -48,6 +51,26 @@ void ItemVisualComponent::registerReadFunctions()
         ::Read(input.getChild(CSTR_DROP_SOUND), component->dropSound);
         ::Read(input.getChild(CSTR_MODEL_SCALE), component->modelScale);
 
+        if (const auto& modelNode = input.getChild(CSTR_MODEL))
+        {
+            if (const auto& rendererComponentNode = modelNode->getChild(CSTR_COMPONENT))
+            {
+                component->rendererComponentNode = *rendererComponentNode;
+            }
+        }
+
+        if (not component->modelPath.empty())
+        {
+            LOG_DEBUG << "Read renderer component file: " << component->modelPath;
+            Utils::XmlReader reader;
+            reader.Read(component->modelPath.GetAbsolutePath());
+            if (auto root = reader.Get())
+            {
+                component->rendererComponentNode = *root;
+                LOG_DEBUG <<  component->rendererComponentNode;
+            }
+        }
+
         return component;
     };
 
@@ -60,10 +83,24 @@ void ItemVisualComponent::write(TreeNode& node) const
     BaseComponent::write(node);
 
     ::write(node.addChild(CSTR_ICON_PATH), iconPath);
-    ::write(node.addChild(CSTR_MODEL_PATH), modelPath);
+
+    if (rendererComponentNode and modelPath.empty())
+    {
+        auto& modelNode = node.addChild(CSTR_MODEL);
+        modelNode.addChild(*rendererComponentNode);
+    }
+    else
+    {
+        ::write(node.addChild(CSTR_MODEL_PATH), modelPath);
+    }
+
     ::write(node.addChild(CSTR_DROP_SOUND), dropSound);
     ::write(node.addChild(CSTR_MODEL_SCALE), modelScale);
 }
 
+const std::optional<TreeNode>& ItemVisualComponent::getRendererComponentNode() const
+{
+    return rendererComponentNode;
+}
 }  // namespace Components
 }  // namespace GameEngine

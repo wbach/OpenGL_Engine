@@ -150,12 +150,14 @@ void EquipmentComponent::equipChest(const GameObject& item)
         activeDefaultBody(false);
     }
 
-    LOG_DEBUG << "Add rendererComponent";
-    auto& newRendererComponent         = thisObject_.AddComponent<RendererComponent>();
-    newRendererComponent.fileName_LOD1 = itemVisualComponent->modelPath;
-    newRendererComponent.tag           = CHEST_COMPONENT_TAG;
-    newRendererComponent.Reload();
-    reloadAnimator();
+    if (const auto& node = itemVisualComponent->getRendererComponentNode())
+    {
+        if (auto newRendererComponent = thisObject_.AddComponent(*node))
+        {
+            newRendererComponent->SetTag(CHEST_COMPONENT_TAG);
+            reloadAnimator();
+        }
+    }
 }
 void EquipmentComponent::activeDefaultBody(bool isActive)
 {

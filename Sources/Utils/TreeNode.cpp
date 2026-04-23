@@ -74,6 +74,11 @@ TreeNode& TreeNode::addChild(std::unique_ptr<TreeNode> child)
     children_.push_back(std::move(child));
     return *children_.back();
 }
+TreeNode& TreeNode::addChild(const TreeNode& child)
+{
+    children_.push_back(std::make_unique<TreeNode>(child));
+    return *children_.back();
+}
 TreeNode* TreeNode::getChild(const std::string& name) const
 {
     auto childIter =

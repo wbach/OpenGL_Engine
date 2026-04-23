@@ -1,8 +1,10 @@
 #pragma once
+#include <optional>
 #include <string>
 
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Resources/File.h"
+#include "TreeNode.h"
 
 namespace GameEngine
 {
@@ -32,7 +34,12 @@ public:
     void CleanUp() override;
     void ReqisterFunctions() override;
     void Reload() override;
+    const std::optional<TreeNode>& getRendererComponentNode() const;
 
+private:
+    std::optional<TreeNode> rendererComponentNode;
+
+public:
     static void registerReadFunctions();
     void write(TreeNode&) const override;
 };

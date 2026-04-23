@@ -47,6 +47,7 @@ public:
     TreeNode& addChild(const std::string&, const std::filesystem::path&);
     TreeNode& addChild(const std::string&, const std::string_view&);
     TreeNode& addChild(std::unique_ptr<TreeNode>);
+    TreeNode& addChild(const TreeNode&);
     TreeNode* getChild(const std::string&) const;
     std::vector<const TreeNode*> getChildren(const std::string&) const;
     bool isAttributePresent(const std::string&) const;

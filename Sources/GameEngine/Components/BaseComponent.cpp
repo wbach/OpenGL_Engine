@@ -142,5 +142,9 @@ const std::string& BaseComponent::GetTag() const
 {
     return tag;
 }
+void BaseComponent::SetTag(const std::string& t)
+{
+    tag = t;
+}
 }  // namespace Components
 }  // namespace GameEngine

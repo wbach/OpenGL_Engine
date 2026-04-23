@@ -127,6 +127,7 @@ public:
     void read(const TreeNode&);
     void write(TreeNode&) const override;
 
+    void SetTag(const std::string&) override;
     const std::string& GetTag() const override;
 
     std::string tag;

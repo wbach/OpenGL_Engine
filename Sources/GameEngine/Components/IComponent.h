@@ -78,6 +78,7 @@ public:
     virtual std::vector<FieldInfo> GetFields()                                = 0;
     virtual ComponentTypeID GetTypeId() const                                 = 0;
     virtual const std::string& GetTypeName() const                            = 0;
+    virtual void SetTag(const std::string&)                                   = 0;
     virtual const std::string& GetTag() const                                 = 0;
 };
 }  // namespace Components
