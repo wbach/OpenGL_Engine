@@ -252,10 +252,12 @@ void InventoryComponent::updateGui()
                 {
                     if (equippableComponent->isEquipped)
                     {
+                        LOG_DEBUG << "Set color blue";
                         slot.button->setBackground(Color(167, 199, 231));
                     }
                     else
                     {
+                        LOG_DEBUG << "Set defult color";
                         slot.button->setBackground(defaultButtonColor);
                     }
                 }
@@ -443,14 +445,6 @@ void InventoryComponent::useItem(GameObject& item)
 
     if (auto equippable = item.GetComponent<EquippableComponent>())
     {
-        if (equippable->isEquipped)
-        {
-            equipment->unequip(equippable->slot);
-            equippable->isEquipped = false;
-            updateGui();
-            return;
-        }
-
         handleEquipping(item, *equippable);
         used = true;
     }
@@ -481,19 +475,12 @@ void InventoryComponent::applyConsumable(GameObject& item, ConsumableComponent& 
     //     removeItem(item);
     // }
 }
-void InventoryComponent::handleEquipping(GameObject& item, EquippableComponent& equippable)
+void InventoryComponent::handleEquipping(GameObject& item, EquippableComponent& itemEquippableComponent)
 {
     auto equipment = thisObject_.GetComponent<EquipmentComponent>();
     if (not equipment)
     {
         LOG_WARN << "EquipmentComponent not found";
-        return;
-    }
-
-    auto itemEquippableComponent = item.GetComponent<EquippableComponent>();
-    if (not itemEquippableComponent)
-    {
-        LOG_WARN << "Try equip iteam without component";
         return;
     }
 
@@ -503,25 +490,35 @@ void InventoryComponent::handleEquipping(GameObject& item, EquippableComponent& 
         return;
     }
 
-    if (not equipment->isSlotFree(itemEquippableComponent->slot))
+    if (not equipment->isSlotFree(itemEquippableComponent.slot))
     {
-        if (auto oldItemId = equipment->unequip(itemEquippableComponent->slot))
+        if (auto oldItemId = equipment->unequip(itemEquippableComponent.slot))
         {
+            LOG_DEBUG << "oldItemId : " << oldItemId;
             if (auto component = getItem(*oldItemId))
             {
+                LOG_DEBUG << "component->isEquipped = false;" ;
                 component->isEquipped = false;
+            }
+
+            if (oldItemId.value() == item.GetId())
+            {
+                LOG_DEBUG << "oldItemId.value() == item.GetId()";
+                itemEquippableComponent.isEquipped = false;
+                return;
             }
         }
     }
 
     equipment->equip(item);
-    itemEquippableComponent->isEquipped = true;
+    itemEquippableComponent.isEquipped = true;
 }
 EquippableComponent* InventoryComponent::getItem(IdType itemGoId)
 {
-    auto iter = std::find_if(items.begin(), items.end(), [id = itemGoId](const auto& i) { return i->GetId() == id; });
+    auto iter = std::find_if(items.begin(), items.end(), [&itemGoId](const auto& i) { return i->GetId() == itemGoId; });
     if (iter != items.end())
     {
+        LOG_DEBUG << "Found itemGoId: " << itemGoId;
         if (auto component = (**iter).GetComponent<EquippableComponent>())
         {
             return component;
