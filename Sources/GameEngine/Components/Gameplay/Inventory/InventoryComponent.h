@@ -17,9 +17,10 @@ class Button;
 }  // namespace GUI
 
 class GameState;
-
 namespace Components
 {
+class ConsumableComponent;
+class EquippableComponent;
 class ENGINE_API InventoryComponent : public BaseComponent
 {
 public:
@@ -35,10 +36,11 @@ public:
     // clang-format on
 
 public:
+    using Items = std::vector<std::unique_ptr<Prefab>>;
     InventoryComponent(ComponentContext&, GameObject&);
 
-    InventoryComponent(const InventoryComponent&)            = delete;
-    InventoryComponent& operator=(const InventoryComponent&) = delete;
+    InventoryComponent(const InventoryComponent&)                = delete;
+    InventoryComponent& operator=(const InventoryComponent&)     = delete;
     InventoryComponent(InventoryComponent&&) noexcept            = default;
     InventoryComponent& operator=(InventoryComponent&&) noexcept = default;
 
@@ -52,6 +54,8 @@ public:
     void addItem(std::unique_ptr<GameObject>&&);
     void addItem(const GameObject&);
 
+    void useItem(GameObject&);
+
 private:
     void initGui();
     void updateGui();
@@ -60,6 +64,11 @@ private:
     void readInventory();
     void writeInventory();
     void toneDownCategoryBtns();
+    void applyConsumable(GameObject&, ConsumableComponent&);
+    void handleEquipping(GameObject&, EquippableComponent&);
+
+    EquippableComponent* getItem(IdType);
+    std::vector<GameObject*> applyFilterToItems();
 
 private:
     std::string currentCategory;
@@ -73,7 +82,8 @@ private:
     std::vector<GUI::Button*> categoryButtons;
 
     GUI::Window* mainWindow{nullptr};
-    std::vector<std::unique_ptr<Prefab>> items;
+    Items items;
+
     GUI::VerticalLayout* itemsLayout;
 
     std::optional<TreeNode> defaultItemSpriteNode;

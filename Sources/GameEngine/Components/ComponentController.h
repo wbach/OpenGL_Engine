@@ -47,81 +47,31 @@ public:
     ~ComponentController();
 
     template <class T>
-    std::vector<T*> GetAllComponentsOfType() const
-    {
-        const ComponentTypeID componentTypeId = GetComponentType<T>().id;
-
-        auto registeredComponentsIterator = registredComponents_.find(componentTypeId);
-        if (registeredComponentsIterator == registredComponents_.end())
-        {
-            return {};
-        }
-
-        const RegistredComponentsMap& componentsMap = registeredComponentsIterator->second;
-
-        std::vector<T*> componentsOfType;
-        componentsOfType.reserve(componentsMap.size());
-
-        for (const auto& [componentId, componentPtr] : componentsMap)
-        {
-            componentsOfType.push_back(static_cast<T*>(componentPtr));
-        }
-
-        return componentsOfType;
-    }
-
+    std::vector<T*> GetAllComponentsOfType() const;
     template <class T>
-    std::vector<T*> GetAllActiveComponentsOfType() const
-    {
-        const ComponentTypeID componentTypeId = GetComponentType<T>().id;
-
-        auto registeredComponentsIterator = registredComponents_.find(componentTypeId);
-        if (registeredComponentsIterator == registredComponents_.end())
-        {
-            return {};
-        }
-
-        const RegistredComponentsMap& componentsMap = registeredComponentsIterator->second;
-
-        std::vector<T*> componentsOfType;
-        componentsOfType.reserve(componentsMap.size());
-
-        for (const auto& [componentId, componentPtr] : componentsMap)
-        {
-            if (componentPtr->IsActive())
-                componentsOfType.push_back(static_cast<T*>(componentPtr));
-        }
-
-        return componentsOfType;
-    }
+    std::vector<T*> GetAllActiveComponentsOfType() const;
 
     FunctionId RegisterFunction(GameObjectId, const ComponentType&, FunctionType, std::function<void()>,
                                 const Dependencies& = {});
     void UnRegisterFunction(GameObjectId, FunctionType, FunctionId);
     void setActivateStateOfComponentFunction(GameObjectId, FunctionType, FunctionId, bool);
+
     void callComponentFunction(GameObjectId, FunctionType, FunctionId);
+    void CallFunctions(FunctionType);
+    void CallGameObjectFunctions(FunctionType, IdType);
 
     ComponentId RegisterComponent(ComponentTypeID, IComponent*);
     void UnRegisterComponent(ComponentTypeID, ComponentId);
     void UnRegisterAll();
 
-    const ComponentFunctions& getComponentFunctions() const
-    {
-        return functions_;
-    }
-    const ComponentsContainer& getComponentsContainer() const
-    {
-        return registredComponents_;
-    }
+    const ComponentFunctions& getComponentFunctions() const;
+    const ComponentsContainer& getComponentsContainer() const;
 
-public:
     void OnObjectCreated(IdType);
     void OnStart();
     void Update();
     void PostUpdate();
     void AlwaysUpdate();
-    void CallFunctions(FunctionType);
-    void CallGameObjectFunctions(FunctionType, IdType);
 
 private:
     void MergeTmpFunctionListToMain();
@@ -144,5 +94,55 @@ private:
 private:
     const RegistredComponentsMap DEFAULT_COMPONETNS_MAP;
 };
+
+template <class T>
+std::vector<T*> ComponentController::GetAllActiveComponentsOfType() const
+{
+    const ComponentTypeID componentTypeId = GetComponentType<T>().id;
+
+    auto registeredComponentsIterator = registredComponents_.find(componentTypeId);
+    if (registeredComponentsIterator == registredComponents_.end())
+    {
+        return {};
+    }
+
+    const RegistredComponentsMap& componentsMap = registeredComponentsIterator->second;
+
+    std::vector<T*> componentsOfType;
+    componentsOfType.reserve(componentsMap.size());
+
+    for (const auto& [componentId, componentPtr] : componentsMap)
+    {
+        if (componentPtr->IsActive())
+            componentsOfType.push_back(static_cast<T*>(componentPtr));
+    }
+
+    return componentsOfType;
+}
+
+template <class T>
+std::vector<T*> ComponentController::GetAllComponentsOfType() const
+{
+    const ComponentTypeID componentTypeId = GetComponentType<T>().id;
+
+    auto registeredComponentsIterator = registredComponents_.find(componentTypeId);
+    if (registeredComponentsIterator == registredComponents_.end())
+    {
+        return {};
+    }
+
+    const RegistredComponentsMap& componentsMap = registeredComponentsIterator->second;
+
+    std::vector<T*> componentsOfType;
+    componentsOfType.reserve(componentsMap.size());
+
+    for (const auto& [componentId, componentPtr] : componentsMap)
+    {
+        componentsOfType.push_back(static_cast<T*>(componentPtr));
+    }
+
+    return componentsOfType;
+}
+
 }  // namespace Components
 }  // namespace GameEngine

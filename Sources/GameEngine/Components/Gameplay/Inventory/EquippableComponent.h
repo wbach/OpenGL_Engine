@@ -1,22 +1,9 @@
 #pragma once
 #include "GameEngine/Components/BaseComponent.h"
+#include "SlotType.h"
 
 namespace GameEngine
 {
-enum class SlotType : uint8_t
-{
-    None,
-    MainHand,
-    OffHand,
-    BothHands,
-    Head,
-    Chest,
-    Legs,
-    Feet,
-    Finger,
-    Neck
-};
-
 namespace Components
 {
 class ENGINE_API EquippableComponent : public BaseComponent
@@ -40,6 +27,9 @@ public:
 public:
     EquippableComponent(ComponentContext&, GameObject&);
     ~EquippableComponent() override;
+
+public:
+    bool isEquipped{false};
 
     void CleanUp() override;
     void ReqisterFunctions() override;

@@ -12,7 +12,9 @@
 
 #include "CombatStatsComponent.h"
 #include "ConsumableComponent.h"
+#include "EquipmentComponent.h"
 #include "EquippableComponent.h"
+#include "GameEngine/Components/Characters/Player.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -36,6 +38,8 @@
 #include "Json/JsonReader.h"
 #include "Json/JsonWriter.h"
 #include "TreeNode.h"
+#include "Types.h"
+
 namespace GameEngine
 {
 namespace Components
@@ -229,29 +233,7 @@ void InventoryComponent::updateGui()
     if (not mainWindow or not mainWindow->isActive() or uiSlots.empty())
         return;
 
-    std::vector<GameObject*> filteredItems;
-    for (auto& item : items)
-    {
-        auto object = item->getObject();
-        if (not object)
-        {
-            continue;
-        }
-
-        if (currentCategory == CAT_ALL)
-        {
-            filteredItems.push_back(object);
-            continue;
-        }
-
-        const auto& category = getCategoryForItem(*object);
-        LOG_DEBUG << "Check item=" << object->GetName() << ", category=" << category << ", currentCategory = " << currentCategory;
-        if (category == currentCategory)
-        {
-            LOG_DEBUG << "item is visible " << object->GetName();
-            filteredItems.push_back(object);
-        }
-    }
+    auto filteredItems = applyFilterToItems();
 
     for (size_t i = 0; i < uiSlots.size(); ++i)
     {
@@ -276,6 +258,13 @@ void InventoryComponent::updateGui()
                     LOG_DEBUG << "Create item icon : " << visualComponent->iconPath;
                     if (auto sprite = componentContext_.guiElementFactory_.createSprite(visualComponent->iconPath))
                     {
+                        if (auto equippableComponent = item->GetComponent<EquippableComponent>())
+                        {
+                            if (equippableComponent->isEquipped)
+                            {
+                                sprite->setColor(Color(0, 0, 1, 1));
+                            }
+                        }
                         slot.button->setBackground(std::move(sprite));
                     }
                 }
@@ -285,10 +274,12 @@ void InventoryComponent::updateGui()
                 }
 
                 slot.button->setOnClick(
-                    [item, identity]()
+                    [this, item, identity]()
                     {
                         LOG_DEBUG << "Item gameObject name: " << item->GetName() << ", Item name: " << identity->itemName << " "
                                   << identity->description;
+
+                        useItem(*item);
                     });
             }
             else
@@ -376,6 +367,10 @@ void InventoryComponent::readInventory()
         return;
     }
 
+    LOG_DEBUG << itemsFile;
+
+    items.clear();
+
     Utils::JsonReader reader;
     reader.Read(itemsFile.GetAbsolutePath());
 
@@ -426,6 +421,146 @@ void InventoryComponent::toneDownCategoryBtns()
     {
         btn->resetActiveState();
     }
+}
+void InventoryComponent::useItem(GameObject& item)
+{
+    auto equipment = thisObject_.GetComponent<EquipmentComponent>();
+    if (not equipment)
+    {
+        LOG_WARN << "EquipmentComponent not found";
+        return;
+    }
+
+    bool used = false;
+
+    if (auto equippable = item.GetComponent<EquippableComponent>())
+    {
+        if (equippable->isEquipped)
+        {
+            equipment->unequip(equippable->slot);
+            equippable->isEquipped = false;
+
+            updateGui();
+            return;
+        }
+
+        handleEquipping(item, *equippable);
+        used = true;
+    }
+
+    if (auto consumable = item.GetComponent<ConsumableComponent>())
+    {
+        applyConsumable(item, *consumable);
+        used = true;
+    }
+
+    if (used)
+    {
+        updateGui();
+        // writeInventory();
+    }
+}
+void InventoryComponent::applyConsumable(GameObject& item, ConsumableComponent& consumable)
+{
+    auto playerStats = thisObject_.GetComponent<Player>();
+    if (not playerStats)
+        return;
+
+    // playerStats->hp += consumable->hpRestore;
+
+    // consumable->charges--;
+    // if (consumable->charges <= 0)
+    // {
+    //     removeItem(item);
+    // }
+}
+void InventoryComponent::handleEquipping(GameObject& item, EquippableComponent& equippable)
+{
+    auto equipment = thisObject_.GetComponent<EquipmentComponent>();
+    if (not equipment)
+    {
+        LOG_WARN << "EquipmentComponent not found";
+        return;
+    }
+
+    auto itemEquippableComponent = item.GetComponent<EquippableComponent>();
+    if (not itemEquippableComponent)
+    {
+        LOG_WARN << "Try equip iteam without component";
+        return;
+    }
+
+    if (not equipment->canEquip(item))
+    {
+        LOG_DEBUG << "Item can not be equipped";
+        return;
+    }
+
+    if (not equipment->isSlotFree(itemEquippableComponent->slot))
+    {
+        if (auto oldItemId = equipment->unequip(itemEquippableComponent->slot))
+        {
+            if (auto component = getItem(*oldItemId))
+            {
+                component->isEquipped = false;
+            }
+        }
+    }
+
+    equipment->equip(item);
+    itemEquippableComponent->isEquipped = true;
+    updateGui();
+}
+EquippableComponent* InventoryComponent::getItem(IdType itemGoId)
+{
+    auto iter = std::find_if(items.begin(), items.end(), [id = itemGoId](const auto& i) { return i->GetId() == id; });
+    if (iter != items.end())
+    {
+        if (auto component = (**iter).GetComponent<EquippableComponent>())
+        {
+            return component;
+        }
+    }
+
+    return nullptr;
+}
+std::vector<GameObject*> InventoryComponent::applyFilterToItems()
+{
+    std::vector<GameObject*> filteredItems;
+    for (auto& item : items)
+    {
+        auto object = item->getObject();
+        if (not object)
+        {
+            continue;
+        }
+
+        if (currentCategory == CAT_ALL)
+        {
+            filteredItems.push_back(object);
+            continue;
+        }
+
+        const auto& category = getCategoryForItem(*object);
+        LOG_DEBUG << "Check item=" << object->GetName() << ", category=" << category << ", currentCategory = " << currentCategory;
+        if (category == currentCategory)
+        {
+            LOG_DEBUG << "item is visible " << object->GetName();
+            filteredItems.push_back(object);
+        }
+    }
+
+    std::sort(filteredItems.begin(), filteredItems.end(),
+              [](const GameObject* a, const GameObject* b)
+              {
+                  auto eqA   = a->GetComponent<EquippableComponent>();
+                  auto eqB   = b->GetComponent<EquippableComponent>();
+                  bool isEqA = eqA ? eqA->isEquipped : false;
+                  bool isEqB = eqB ? eqB->isEquipped : false;
+                  return isEqA > isEqB;
+              });
+
+    return filteredItems;
 }
 }  // namespace Components
 }  // namespace GameEngine

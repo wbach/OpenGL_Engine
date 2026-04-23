@@ -83,6 +83,9 @@ void RendererComponent::CleanUp()
 
 void RendererComponent::CleanUpWithRestrictions(const std::set<Model*>& restrictedModels)
 {
+    if (not isInit_)
+        return;
+
     LOG_DEBUG << "";
     UnSubscribe();
 

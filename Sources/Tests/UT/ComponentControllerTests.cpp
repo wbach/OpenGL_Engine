@@ -85,6 +85,11 @@ struct Component : public IComponent
         return type.name;
     }
 
+    const std::string& GetTag() const override
+    {
+        return type.name;
+    }
+
 private:
     std::unique_ptr<GameEngine::GameObject> empty;
     ComponentType type;

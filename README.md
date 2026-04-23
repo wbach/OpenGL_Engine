@@ -18,9 +18,8 @@
 
     Linux:
         Examples:
-            - cmake -G Ninja ../Solutions/CMake -DBUILD_AVATAR_GAME=ON -DBUILD_EDITOR=ON -DBUILD_TESTS=ON 
-            - cmake -G Ninja ../Solutions/CMake -DBUILD_AVATAR_GAME=ON -DBUILD_EDITOR=ON -DBUILD_TESTS=ON -DCMAKE_C_COMPILER_LAUNCHER="distcc" -DCMAKE_CXX_COMPILER_LAUNCHER="distcc"
-            - cmake -G Ninja ../Solutions/CMake -DBUILD_AVATAR_GAME=ON -DBUILD_EDITOR=ON -DBUILD_TESTS=ON -DCMAKE_TOOLCHAIN_FILE=../Solutions/CMake/mingw-w64-x86_64.cmake
+            - cmake -G Ninja ../Solutions/CMake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_GAME=ON -DBUILD_WX_EDITOR=ON -DBUILD_TESTS=ON -DCMAKE_C_COMPILER_LAUNCHER="distcc" -DCMAKE_CXX_COMPILER_LAUNCHER="distcc"
+            - cmake -G Ninja ../Solutions/CMake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_GAME=ON -DBUILD_WX_EDITOR=ON -DBUILD_TESTS=ON -DCMAKE_C_COMPILER_LAUNCHER="distcc" -DCMAKE_TOOLCHAIN_FILE=../Solutions/CMake/mingw-w64-x86_64.cmake
         
         Mingw example dll location:
         /usr/lib/gcc/x86_64-w64-mingw32/10-posix/*.dll  or -static-libgcc -static-libstdc++
@@ -36,7 +35,7 @@
                 - C:\Program Files\CMake\bin
                 - C:\MinGW\bin
             - Examples :
-            - cmake -G"MinGW Makefiles" -DBUILD_AVATAR_GAME=ON -DBUILD_EDITOR=ON -DBUILD_TESTS=ON && cmake --build . -j16
+            - cmake -G"MinGW Makefiles" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_GAME=ON -DBUILD_WX_EDITOR=ON -DBUILD_TESTS=ON -DCMAKE_C_COMPILER_LAUNCHER="distcc" && cmake --build . -j16
         - Visual Studio 2017
             - run ./ProjectUtils/prepareAllProjects.sh  script using for example git bash to generate VisualStudio Solution.
             - build in vs selected projects.

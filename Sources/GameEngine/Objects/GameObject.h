@@ -70,6 +70,11 @@ public:
     const T* GetComponent() const;
 
     template <class T>
+    T* GetComponent(const std::string&);
+    template <class T>
+    const T* GetComponent(const std::string&) const;
+
+    template <class T>
     bool HasComponent() const;
 
     template <class T>
@@ -126,7 +131,7 @@ private:
     vec3 ConvertWorldToLocalScale(const vec3&);
     mat4 ConvertWorldToLocalMatrix(const mat4&);
     Quaternion ConvertWorldToLocalRotation(const Quaternion&);
-    void CallComponentFunctionsIfNeeded();
+    void CallComponentFunctionsIfNeeded(Components::IComponent&);
 
 protected:
     Utils::IdPool& idPool_;
@@ -195,6 +200,59 @@ inline T* GameObject::GetComponent()
 }
 
 template <class T>
+inline const T* GameObject::GetComponent() const
+{
+    const auto& type = Components::GetComponentType<T>();
+    auto it          = components_.find(type.id);
+
+    if (it == components_.end() or it->second.empty())
+        return nullptr;
+
+    return static_cast<T*>(it->second[0].get());
+}
+
+template <class T>
+inline T* GameObject::GetComponent(const std::string& tag)
+{
+    const auto& type = Components::GetComponentType<T>();
+    auto it          = components_.find(type.id);
+
+    if (it == components_.end() or it->second.empty())
+        return nullptr;
+
+    auto& typedComponents = it->second;
+
+    auto typedComponentIter = std::find_if(typedComponents.begin(), typedComponents.end(),
+                                           [&tag](const auto& component) { return component->GetTag() == tag; });
+    if (typedComponentIter != typedComponents.end())
+    {
+        return static_cast<T*>(typedComponentIter->get());
+    }
+
+    return nullptr;
+}
+
+template <class T>
+inline const T* GameObject::GetComponent(const std::string& tag) const
+{
+    const auto& type = Components::GetComponentType<T>();
+    auto it          = components_.find(type.id);
+
+    if (it == components_.end() or it->second.empty())
+        return nullptr;
+
+    const auto& typedComponents = it->second;
+    auto typedComponentIter = std::find_if(typedComponents.begin(), typedComponents.end(),
+                                           [&tag](const auto& component) { return component->GetTag() == tag; });
+    if (typedComponentIter != typedComponents.end())
+    {
+        return static_cast<T*>(typedComponentIter->get());
+    }
+
+    return nullptr;
+}
+
+template <class T>
 std::vector<T*> GameObject::GetComponents()
 {
     const auto& type = Components::GetComponentType<T>();
@@ -231,18 +289,6 @@ std::vector<T*> GameObject::GetComponents() const
 }
 
 template <class T>
-inline const T* GameObject::GetComponent() const
-{
-    const auto& type = Components::GetComponentType<T>();
-    auto it          = components_.find(type.id);
-
-    if (it == components_.end() or it->second.empty())
-        return nullptr;
-
-    return static_cast<T*>(it->second[0].get());
-}
-
-template <class T>
 inline bool GameObject::HasComponent() const
 {
     const auto& type = Components::GetComponentType<T>();
@@ -275,7 +321,7 @@ inline T& GameObject::AddComponent(Args&&... args)
     const auto& type = Components::GetComponentType<T>();
     components_[type.id].push_back(std::move(component));
 
-    CallComponentFunctionsIfNeeded();
+    CallComponentFunctionsIfNeeded(*ptr);
     return *static_cast<T*>(ptr);
 }
 

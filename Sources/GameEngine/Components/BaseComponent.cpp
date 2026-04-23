@@ -1,8 +1,8 @@
 #include "BaseComponent.h"
 
 #include <Logger/Log.h>
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
@@ -22,7 +22,6 @@ BaseComponent::BaseComponent(const ComponentType& type, ComponentContext& compon
     , componentRegistredId_(0)
 {
     LOG_DEBUG << "type = " << type_;
-    // componentRegistredId_ = componentContext_.componentController_.RegisterComponent(type_.id, this);
 }
 
 BaseComponent::BaseComponent(uint32 id, const char* name, ComponentContext& componentContext, GameObject& gameObject)
@@ -32,12 +31,10 @@ BaseComponent::BaseComponent(uint32 id, const char* name, ComponentContext& comp
     , isActive_(true)
     , componentRegistredId_(0)
 {
-    // componentRegistredId_ = componentContext_.componentController_.RegisterComponent(type_.id, this);
 }
 
 BaseComponent::~BaseComponent()
 {
-    // UnregisterFunctions();
 }
 void BaseComponent::Register()
 {
@@ -46,6 +43,11 @@ void BaseComponent::Register()
 void BaseComponent::Deregister()
 {
     UnregisterFunctions();
+}
+void BaseComponent::RegisterFunction(FunctionType type, std::function<void()> func, const Dependencies& dependencies)
+{
+    registeredFunctionsIds_.insert(
+        {componentContext_.componentController_.RegisterFunction(thisObject_.GetId(), type_, type, func, dependencies), type});
 }
 void BaseComponent::UnregisterFunctions()
 {
@@ -97,11 +99,13 @@ void BaseComponent::read(const TreeNode& node)
     {
         SetActive(Utils::StringToBool(activeStr));
     }
+    tag = node.getAttributeValue(CSTR_TAG);
 }
 void BaseComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
     node.attributes_.insert({CSTR_ACTIVE, Utils::BoolToString(IsActive())});
+    node.attributes_.insert({CSTR_TAG, tag});
 }
 std::optional<IdType> BaseComponent::getRegisteredFunctionId(FunctionType functionType) const
 {
@@ -126,11 +130,6 @@ bool BaseComponent::IsActive() const
 {
     return isActive_;
 }
-void BaseComponent::RegisterFunction(FunctionType type, std::function<void()> func, const Dependencies& dependencies)
-{
-    registeredFunctionsIds_.insert(
-        {componentContext_.componentController_.RegisterFunction(thisObject_.GetId(), type_, type, func, dependencies), type});
-}
 
 void BaseComponent::changeActivateStateRegisteredFunctions()
 {
@@ -138,6 +137,10 @@ void BaseComponent::changeActivateStateRegisteredFunctions()
     {
         componentContext_.componentController_.setActivateStateOfComponentFunction(thisObject_.GetId(), type, id, isActive_);
     }
+}
+const std::string& BaseComponent::GetTag() const
+{
+    return tag;
 }
 }  // namespace Components
 }  // namespace GameEngine

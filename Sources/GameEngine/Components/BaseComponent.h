@@ -62,7 +62,7 @@ FieldInfo MakeEnumField(const char* name, Enum* value)
 // clang-format off
 #define BEGIN_FIELDS() \
     std::vector<FieldInfo> GetFields() override { \
-        std::vector<FieldInfo> fields;
+        std::vector<FieldInfo> fields{FieldInfo{.name = "Tag", .type = FieldType::String, .ptr = &(this->tag)}};
 
 #define FIELD_UINT(member) fields.push_back({#member, FieldType::UInt, &(this->member)});
 #define FIELD_INT(member) fields.push_back({#member, FieldType::Int, &(this->member)});
@@ -90,6 +90,7 @@ FieldInfo MakeEnumField(const char* name, Enum* value)
 #define FIELD_VECTOR_OF_ANIMATION_CLIPS(member) fields.push_back({#member, FieldType::VectorOfAnimationClips, &(this->member)});
 #define FIELD_VECTOR_OF_TERRAIN_TEXTURES(member) fields.push_back({#member, FieldType::VectorOfTerrainTextures, &(this->member)});
 #define FIELD_ENUM(member) fields.push_back(MakeEnumField(#member, &(this->member)));
+
 #define END_FIELDS() return fields; }
 // clang-format on
 
@@ -125,6 +126,10 @@ public:
 
     void read(const TreeNode&);
     void write(TreeNode&) const override;
+
+    const std::string& GetTag() const override;
+
+    std::string tag;
 
 protected:
     void RegisterFunction(FunctionType, std::function<void()>, const Dependencies& = {});

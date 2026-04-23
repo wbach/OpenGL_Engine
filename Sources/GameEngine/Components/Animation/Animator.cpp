@@ -2,8 +2,8 @@
 
 #include <Common/Transform.h>
 #include <Logger/Log.h>
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include <algorithm>
 #include <optional>
@@ -58,8 +58,8 @@ Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
 
 void Animator::CleanUp()
 {
-    machine_.currentState_.reset();
-
+    pose = {};
+    machine_.Reset();
     masterSkeletonData.deleteBuffer();
     for (auto& slave : slaveSkeletonData)
     {
@@ -67,6 +67,7 @@ void Animator::CleanUp()
     }
     slaveSkeletonData.clear();
     skeletonDataView.clear();
+    animationClipInfo_.clear();
 }
 void Animator::ReqisterFunctions()
 {
@@ -78,6 +79,7 @@ void Animator::ReqisterFunctions()
 
 void Animator::Reload()
 {
+    LOG_DEBUG << "Relaod";
     CleanUp();
     GetSkeletonAndAnimations();
 }
@@ -113,7 +115,7 @@ void Animator::setPlayOnceForAnimationClip(const std::string& name)
     }
 }
 std::optional<IdType> Animator::SubscribeForAnimationFrame(const std::string& animName, std::function<void()> function,
-                                            Animation::FrameIndex index)
+                                                           Animation::FrameIndex index)
 {
     auto iter = animationClipInfo_.find(animName);
     if (iter != animationClipInfo_.end())
@@ -137,7 +139,8 @@ std::optional<IdType> Animator::SubscribeForAnimationFrame(const std::string& an
     LOG_WARN << "SubscribeForAnimationFrame, animation " << animName << " not found or frames are empty!";
     return std::nullopt;
 }
-std::optional<IdType> Animator::SubscribeForAnimationFrame(const std::string& animName, std::function<void()> function, float frameTimeStamp)
+std::optional<IdType> Animator::SubscribeForAnimationFrame(const std::string& animName, std::function<void()> function,
+                                                           float frameTimeStamp)
 {
     auto iter = animationClipInfo_.find(animName);
     if (iter != animationClipInfo_.end() and not iter->second.clip.GetFrames().empty())
@@ -656,6 +659,11 @@ RendererComponent* Animator::resolveMasterRendererComponent()
     auto rendererComponents = thisObject_.GetComponents<Components::RendererComponent>();
     for (auto& component : rendererComponents)
     {
+        if (not component->IsActive())
+        {
+            continue;
+        }
+
         if (auto model = component->GetModelWrapper().Get())
         {
             if (const auto& maybeSkeleton = model->getSkeleton())
@@ -669,6 +677,8 @@ RendererComponent* Animator::resolveMasterRendererComponent()
         }
     }
 
+    LOG_DEBUG << "resolveMasterRendererComponent with file : "
+              << (result ? result->fileName_LOD1.GetFilename() : std::string("-"));
     return result;
 }
 void Animator::initMasterSkeletonData()

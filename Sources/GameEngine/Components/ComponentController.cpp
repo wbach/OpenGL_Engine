@@ -432,5 +432,13 @@ void ComponentController::CallGameObjectFunctionsImpl(FunctionType funcType, IdT
         }
     }
 }
+const ComponentController::ComponentFunctions& ComponentController::getComponentFunctions() const
+{
+    return functions_;
+}
+const ComponentController::ComponentsContainer& ComponentController::getComponentsContainer() const
+{
+    return registredComponents_;
+}
 }  // namespace Components
 }  // namespace GameEngine

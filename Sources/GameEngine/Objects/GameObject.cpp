@@ -10,6 +10,7 @@
 
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentFactory.h"
+#include "GameEngine/Components/FunctionType.h"
 #include "GameEngine/Components/IComponent.h"
 #include "GameEngine/Scene/SceneEvents.h"
 namespace GameEngine
@@ -77,7 +78,7 @@ Components::IComponent* GameObject::AddComponent(const TreeNode& node)
         auto ptr = component.get();
         ptr->ReqisterFunctions();
         components_[component->GetTypeId()].push_back(std::move(component));
-        CallComponentFunctionsIfNeeded();
+        CallComponentFunctionsIfNeeded(*ptr);
         return ptr;
     }
     else
@@ -120,17 +121,24 @@ void GameObject::AddChild(std::unique_ptr<GameObject> object)
     children_.push_back(std::move(object));
 }
 
-void GameObject::CallComponentFunctionsIfNeeded()
+void GameObject::CallComponentFunctionsIfNeeded(Components::IComponent& component)
 {
+    auto callComponentFunction = [&](Components::FunctionType type)
+    {
+        if (auto functionId = component.getRegisteredFunctionId(type))
+        {
+            componentController_.callComponentFunction(id_, type, *functionId);
+        }
+    };
     if (isAwakened)
     {
-        componentController_.CallGameObjectFunctions(Components::FunctionType::Awake, id_);
-        componentController_.CallGameObjectFunctions(Components::FunctionType::LateAwake, id_);
+        callComponentFunction(Components::FunctionType::Awake);
+        callComponentFunction(Components::FunctionType::LateAwake);
     }
     if (isStarted)
     {
-        componentController_.CallGameObjectFunctions(Components::FunctionType::OnStart, id_);
-        componentController_.CallGameObjectFunctions(Components::FunctionType::PostStart, id_);
+        callComponentFunction(Components::FunctionType::OnStart);
+        callComponentFunction(Components::FunctionType::PostStart);
     }
 }
 
