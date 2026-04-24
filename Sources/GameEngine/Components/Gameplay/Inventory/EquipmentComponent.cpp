@@ -93,8 +93,6 @@ bool EquipmentComponent::isSlotFree(SlotType slot) const
 }
 std::optional<IdType> EquipmentComponent::unequip(SlotType slot)
 {
-    LOG_DEBUG << "";
-
     if (slot == SlotType::Chest)
     {
         unequipChest();

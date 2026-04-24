@@ -494,16 +494,13 @@ void InventoryComponent::handleEquipping(GameObject& item, EquippableComponent& 
     {
         if (auto oldItemId = equipment->unequip(itemEquippableComponent.slot))
         {
-            LOG_DEBUG << "oldItemId : " << oldItemId;
             if (auto component = getItem(*oldItemId))
             {
-                LOG_DEBUG << "component->isEquipped = false;" ;
                 component->isEquipped = false;
             }
 
             if (oldItemId.value() == item.GetId())
             {
-                LOG_DEBUG << "oldItemId.value() == item.GetId()";
                 itemEquippableComponent.isEquipped = false;
                 return;
             }
@@ -515,10 +512,29 @@ void InventoryComponent::handleEquipping(GameObject& item, EquippableComponent& 
 }
 EquippableComponent* InventoryComponent::getItem(IdType itemGoId)
 {
-    auto iter = std::find_if(items.begin(), items.end(), [&itemGoId](const auto& i) { return i->GetId() == itemGoId; });
+    auto iter = std::find_if(items.begin(), items.end(),
+                             [&itemGoId](const auto& i)
+                             {
+                                 if (auto object = i->getObject())
+                                 {
+                                     if (object->GetId() == itemGoId)
+                                     {
+                                         return true;
+                                     }
+                                 }
+                                 return i->GetId() == itemGoId;
+                             });
     if (iter != items.end())
     {
-        LOG_DEBUG << "Found itemGoId: " << itemGoId;
+        LOG_DEBUG << "Found itemGoId: " << itemGoId << ", object item: " << (*iter)->getObject()->GetId();
+        if ((*iter)->getObject())
+        {
+            if (auto component = (*iter)->getObject()->GetComponent<EquippableComponent>())
+            {
+                return component;
+            }
+        }
+
         if (auto component = (**iter).GetComponent<EquippableComponent>())
         {
             return component;
