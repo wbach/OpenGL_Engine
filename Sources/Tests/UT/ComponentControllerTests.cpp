@@ -19,7 +19,7 @@ namespace
 const ComponentType TRANSFORM{.id = 1, .name = "Transform"};
 const ComponentType RENDERER{.id = 2, .name = "Renderer"};
 const ComponentType ANIMATOR{.id = 3, .name = "Animator"};
-const ComponentType BOWPOSEUPDATER{.id = 4, .name = "BowPoseUpdater"};
+const ComponentType POSEUPDATER{.id = 4, .name = "PoseUpdater"};
 
 struct Component : public IComponent
 {
@@ -223,8 +223,8 @@ TEST(ComponentControllerTest, FunctionExecutionOrder_MultipleDependency)
     std::vector<std::string> callLog;
     IdType gameObjectId = 1;
 
-    controller.RegisterFunction(gameObjectId, BOWPOSEUPDATER, FunctionType::Update,
-                                [&callLog]() { callLog.push_back(BOWPOSEUPDATER.name); }, {ANIMATOR, TRANSFORM});
+    controller.RegisterFunction(gameObjectId, POSEUPDATER, FunctionType::Update,
+                                [&callLog]() { callLog.push_back(POSEUPDATER.name); }, {ANIMATOR, TRANSFORM});
 
     controller.RegisterFunction(gameObjectId, ANIMATOR, FunctionType::Update, [&callLog]() { callLog.push_back(ANIMATOR.name); },
                                 {RENDERER});
@@ -245,7 +245,7 @@ TEST(ComponentControllerTest, FunctionExecutionOrder_MultipleDependency)
     EXPECT_EQ(callLog[0], TRANSFORM.name);
     EXPECT_EQ(callLog[1], RENDERER.name);
     EXPECT_EQ(callLog[2], ANIMATOR.name);
-    EXPECT_EQ(callLog[3], BOWPOSEUPDATER.name);
+    EXPECT_EQ(callLog[3], POSEUPDATER.name);
     EXPECT_EQ(callLog[4], NULL_COMPONENT_TYPE.name);
 }
 

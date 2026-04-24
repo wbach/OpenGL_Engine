@@ -7,7 +7,7 @@
 
 #include "EquippableComponent.h"
 #include "GameEngine/Components/Animation/Animator.h"
-#include "GameEngine/Components/Animation/BowPoseUpdater.h"
+#include "GameEngine/Components/Animation/PoseUpdater.h"
 #include "GameEngine/Components/Animation/JointPoseUpdater.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
@@ -142,7 +142,7 @@ void EquipmentComponent::reloadAnimator()
 
         if (auto go = thisObject_.GetChild(CSTR_MAIN_HAND_ITEM))
         {
-            if (auto updater = go->GetComponent<BowPoseUpdater>())
+            if (auto updater = go->GetComponent<PoseUpdater>())
             {
                 updater->Reload();
             }
@@ -197,7 +197,7 @@ void EquipmentComponent::equipOneHand(const GameObject& item)
         newGameObject->AddComponent(*node);
     }
 
-    auto& pu            = newGameObject->AddComponent<BowPoseUpdater>();
+    auto& pu            = newGameObject->AddComponent<PoseUpdater>();
     pu.disarmJointName_ = "Slot_MeleeBackLeft";
     pu.equipJointName_  = "Slot_RightHand_Weapon";
 

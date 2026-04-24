@@ -1,7 +1,7 @@
 #include "RegisterReadFunctionForDefaultEngineComponents.h"
 
 #include "Animation/Animator.h"
-#include "Animation/BowPoseUpdater.h"
+#include "Animation/PoseUpdater.h"
 #include "Audio/AudioComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
@@ -56,7 +56,7 @@ void RegisterReadFunctionForDefaultEngineComponents()
     registerReadFunction<AudioComponent>();
     registerReadFunction<Animator>();
     registerReadFunction<AIController>();
-    registerReadFunction<BowPoseUpdater>();
+    registerReadFunction<PoseUpdater>();
     registerReadFunction<CameraComponent>();
     registerReadFunction<ThridPersonCameraComponent>();
     registerReadFunction<Enemy>();

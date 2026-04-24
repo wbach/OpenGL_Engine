@@ -6,7 +6,7 @@
 #include "../CharacterController.h"
 #include "../FsmContext.h"
 #include "GameEngine/Components/Animation/Animator.h"
-#include "GameEngine/Components/Animation/BowPoseUpdater.h"
+#include "GameEngine/Components/Animation/PoseUpdater.h"
 #include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
@@ -16,7 +16,7 @@ namespace Components
 ArmedChangeStateBase::ArmedChangeStateBase(FsmContext& context, const std::optional<std::string>& jointGroupName)
     : context_{context}
     , jointGroupName_{jointGroupName}
-    , bowPoseUpdater_{context.gameObject.GetComponentInChild<BowPoseUpdater>()}
+    , bowPoseUpdater_{context.gameObject.GetComponentInChild<PoseUpdater>()}
 {
 }
 void ArmedChangeStateBase::update(const WeaponStateEvent&)

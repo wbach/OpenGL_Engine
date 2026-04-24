@@ -10,7 +10,7 @@ namespace GameEngine
 {
 namespace Components
 {
-class BowPoseUpdater;
+class PoseUpdater;
 
 class ArmedChangeStateBase
 {
@@ -39,7 +39,7 @@ protected:
 
 private:
     bool armed_{false};
-    BowPoseUpdater* bowPoseUpdater_{nullptr};
+    PoseUpdater* bowPoseUpdater_{nullptr};
     std::function<void()> onAnimationEnd_;
 
     std::optional<uint32> subscribeForTransitionAnimationFrame_;

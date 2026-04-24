@@ -2,7 +2,7 @@
 
 #include <Common/Transform.h>
 
-#include "GameEngine/Components/Animation/BowPoseUpdater.h"
+#include "GameEngine/Components/Animation/PoseUpdater.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
 

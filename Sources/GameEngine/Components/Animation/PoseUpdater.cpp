@@ -1,4 +1,4 @@
-#include "BowPoseUpdater.h"
+#include "PoseUpdater.h"
 
 #include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
@@ -17,7 +17,6 @@ namespace Components
 {
 namespace
 {
-const std::string COMPONENT_STR{"BowPoseUpdater"};
 const std::string CSTR_WEAPON_EQUIP_JOINT_NAME  = "equipJointName";
 const std::string CSTR_WEAPON_DISARM_JOINT_NAME = "disarmJointName";
 
@@ -28,12 +27,12 @@ const std::string CSTR_OFFSET_DISARM_REFERENCE = "offsetDisarmReference";
 const std::string CSTR_OFFSET_EQUIP_REFERENCE  = "offsetEquipReference";
 
 }  // namespace
-BowPoseUpdater::BowPoseUpdater(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<BowPoseUpdater>(), componentContext, gameObject)
+PoseUpdater::PoseUpdater(ComponentContext& componentContext, GameObject& gameObject)
+    : BaseComponent(GetComponentType<PoseUpdater>(), componentContext, gameObject)
     , currentJointUpdater_{nullptr}
 {
 }
-void BowPoseUpdater::CleanUp()
+void PoseUpdater::CleanUp()
 {
     if (updateJointBufferSubId_)
     {
@@ -47,19 +46,19 @@ void BowPoseUpdater::CleanUp()
     equipJointUpdater_.reset();
     currentJointUpdater_ = nullptr;
 }
-void BowPoseUpdater::ReqisterFunctions()
+void PoseUpdater::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::OnStart, [this]() { Init(); });
 }
 
-void BowPoseUpdater::Reload()
+void PoseUpdater::Reload()
 {
     LOG_DEBUG << "Reload";
     CleanUp();
     Init();
 }
 
-void BowPoseUpdater::Init()
+void PoseUpdater::Init()
 {
     auto parent = thisObject_.GetParent();
 
@@ -122,21 +121,21 @@ void BowPoseUpdater::Init()
     setDisarmJointAsCurrent();
 }
 
-void BowPoseUpdater::setEquipJointAsCurrent()
+void PoseUpdater::setEquipJointAsCurrent()
 {
     currentJointUpdater_ = equipJointUpdater_.get();
 }
 
-void BowPoseUpdater::setDisarmJointAsCurrent()
+void PoseUpdater::setDisarmJointAsCurrent()
 {
     currentJointUpdater_ = disarmJointUpdater_.get();
 }
 
-void BowPoseUpdater::registerReadFunctions()
+void PoseUpdater::registerReadFunctions()
 {
     auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
     {
-        auto component = std::make_unique<BowPoseUpdater>(componentContext, gameObject);
+        auto component = std::make_unique<PoseUpdater>(componentContext, gameObject);
         ::Read(node.getChild(CSTR_WEAPON_EQUIP_JOINT_NAME), component->equipJointName_);
         ::Read(node.getChild(CSTR_WEAPON_DISARM_JOINT_NAME), component->disarmJointName_);
 
@@ -153,12 +152,12 @@ void BowPoseUpdater::registerReadFunctions()
         return component;
     };
 
-    regsiterComponentReadFunction(GetComponentType<BowPoseUpdater>(), readFunc);
+    regsiterComponentReadFunction(GetComponentType<PoseUpdater>(), readFunc);
 }
 
-void BowPoseUpdater::write(TreeNode& node) const
+void PoseUpdater::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
+    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
     node.addChild(CSTR_WEAPON_EQUIP_JOINT_NAME, equipJointName_);
     node.addChild(CSTR_WEAPON_DISARM_JOINT_NAME, disarmJointName_);
     auto& disarmNode = node.addChild(CSTR_OFFSET_DISARM_REFERENCE);

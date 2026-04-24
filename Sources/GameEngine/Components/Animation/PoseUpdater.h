@@ -8,7 +8,7 @@ namespace GameEngine
 namespace Components
 {
 class JointPoseUpdater;
-class BowPoseUpdater : public BaseComponent
+class PoseUpdater : public BaseComponent
 {
 public:
     vec3 dLocalPosition{0};
@@ -27,7 +27,7 @@ public:
     // clang-format on
 
 public:
-    BowPoseUpdater(ComponentContext&, GameObject&);
+    PoseUpdater(ComponentContext&, GameObject&);
     void CleanUp() override;
     void ReqisterFunctions() override;
     void Reload() override;

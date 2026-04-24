@@ -4,7 +4,7 @@
 #include <GameEngine/Physics/IPhysicsApi.h>
 #include <Logger/Log.h>
 
-#include "GameEngine/Components/Animation/BowPoseUpdater.h"
+#include "GameEngine/Components/Animation/PoseUpdater.h"
 #include "GameEngine/Components/Physics/SphereShape.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 
@@ -44,7 +44,7 @@ CharacterControllerTests::CharacterControllerTests()
 
     auto weaponPtr =
         std::make_unique<GameObject>("WeaponObjName", componentController_, componentFactory_, gameObjectIdPool, IdType(1));
-    weaponPtr->AddComponent<BowPoseUpdater>();
+    weaponPtr->AddComponent<PoseUpdater>();
     scene.AddGameObject(std::move(weaponPtr), obj_.get());
 
     sut_.ReqisterFunctions();
