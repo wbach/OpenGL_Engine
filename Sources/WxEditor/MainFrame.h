@@ -19,6 +19,7 @@
 
 #include "ComponentPanel/ReloadComponentLibEvent.h"
 #include "ComponentPanel/TransformPanel.h"
+#include "Objects/GameObject.h"
 #include "SceneTreeView/SceneTreeCtrl.h"
 
 class GLCanvas;
@@ -201,6 +202,10 @@ private:
     void UpdateRamUsage();
     void OnTimer(wxTimerEvent&);
 
+    void CreateIdentityPanel();
+    void ShowLayerMenu();
+    void UpdateLayerDisplay(GameEngine::GameObject&);
+
 private:
     std::mutex componentsViewMutex;
 
@@ -218,6 +223,9 @@ private:
     wxComboBox* addComponentChoice{nullptr};
     wxMenu* rendererMenu{nullptr};
     wxMenu* rendererTextureSubMenu{nullptr};
+
+    wxTextCtrl* layersDisplay{nullptr};
+    wxTextCtrl* tagEditBox{nullptr};
 
     wxSplitterWindow* rightSplitter = nullptr;
     bool terrainPanelVisible        = false;

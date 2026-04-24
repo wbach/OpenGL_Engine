@@ -10,7 +10,7 @@
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Components/ComponentFactory.h"
 #include "GameEngine/Scene/SceneEvents.h"
-
+#include "Layer.h"
 namespace Utils
 {
 class IdPool;
@@ -58,6 +58,15 @@ public:
     inline IdType GetId() const;
     inline void SetName(const std::string&);
     inline const std::string& GetName() const;
+
+    void SetTag(const std::string&);
+    const std::string& GetTag() const;
+
+    void SetLayer(uint32);
+    void AppendLayer(Layer);
+    const uint32_t GetLayers() const;
+    bool IsLayer(Layer) const;
+    void RemoveLayer(Layer);
 
     template <class T, typename... Args>
     T& AddComponent(Args&&...);
@@ -139,6 +148,8 @@ protected:
     common::Transform worldTransform_;
     GameObject* parent_;
     std::string name_;
+    std::string tag_;
+    uint32_t layers;
     ComponentsContainer components_;
     std::optional<uint32> parentIdTransfromSubscribtion_;
     std::optional<uint32> localTransfromSubscribtion_;

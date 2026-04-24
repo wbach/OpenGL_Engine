@@ -58,7 +58,7 @@ GameObject* SceneReader::createGameObjectFromPrefabNodeInRootNode(const TreeNode
 }
 std::unique_ptr<GameObject> SceneReader::createGameObjectFromPrefabNode(const TreeNode& node, const std::string& name)
 {
-    auto gameObject = scene.CreateGameObject(name);
+    auto gameObject = createGameObject(node);
     Read(node, *gameObject);
     return gameObject;
 }
@@ -126,6 +126,8 @@ std::optional<TreeNode> SceneReader::loadScene(const File& file)
 
 std::unique_ptr<GameObject> SceneReader::createGameObject(const TreeNode& node)
 {
+    std::unique_ptr<GameObject> result;
+
     std::string name;
     if (node.attributes_.count(CSTR_NAME))
     {
@@ -137,13 +139,36 @@ std::unique_ptr<GameObject> SceneReader::createGameObject(const TreeNode& node)
         name                = std::string{"NoName_" + std::to_string(nonameid++)};
     }
 
-    if (node.attributes_.count(CSTR_ID))
+    std::optional<IdType> maybeId;
+    const auto& idstr = node.getAttributeValue(CSTR_ID);
+
+    if (not idstr.empty())
     {
-        uint32 id = std::stoi(node.attributes_.at(CSTR_ID));
-        return scene.CreateGameObject(name, id);
+        try
+        {
+            maybeId = std::stoi(idstr);
+        }
+        catch (...)
+        {
+            LOG_WARN << "Id set but parse error.";
+        }
     }
 
-    return scene.CreateGameObject(name);
+    result = scene.CreateGameObject(name, maybeId);
+    result->SetTag(node.getAttributeValue(CSTR_TAG));
+    const auto& layers = node.getAttributeValue(CSTR_LAYER);
+    if (not layers.empty())
+    {
+        try
+        {
+            result->SetLayer(std::stoi(layers));
+        }
+        catch (...)
+        {
+            LOG_WARN << "Id set but parse error.";
+        }
+    }
+    return result;
 }
 
 std::unique_ptr<Prefab> SceneReader::createPrefabGameObject(const TreeNode& node)
@@ -217,8 +242,8 @@ void SceneReader::Read(const TreeNode& node, GameObject& gameObject)
         {
             if (gameObjectNode->name() == CSTR_GAMEOBJECT)
             {
-                auto name  = gameObjectNode->getAttributeValue(CSTR_NAME);
-                auto child = scene.CreateGameObject(name);
+                //auto name  = ->getAttributeValue(CSTR_NAME);
+                auto child = createGameObject(*gameObjectNode);
                 Read(*gameObjectNode, *child);
                 gameObject.AddChild(std::move(child));
             }
@@ -256,7 +281,7 @@ void SceneReader::ReadPrefab(const File& file, Prefab& prefabGameObject)
         prefabGameObject.SetName(name);
     }
 
-    auto gameObject = scene.CreateGameObject(name);
+    auto gameObject = createGameObject(*maybePrefabNode);
     Read(*maybePrefabNode, *gameObject);
     gameObject->SetLocalPosition(vec3(0));
     prefabGameObject.AddChild(std::move(gameObject));

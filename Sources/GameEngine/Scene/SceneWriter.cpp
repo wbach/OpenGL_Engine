@@ -51,6 +51,8 @@ void Create(TreeNode& node, const GameObject& gameObject)
 {
     node.attributes_.insert({CSTR_NAME, gameObject.GetName()});
     node.attributes_.insert({CSTR_ID, std::to_string(gameObject.GetId())});
+    node.attributes_.insert({CSTR_TAG, gameObject.GetTag()});
+    node.attributes_.insert({CSTR_LAYER, std::to_string(gameObject.GetLayers())});
     Create(node.addChild(CSTR_TRANSFORM), gameObject.GetLocalTransform());
     Create(node.addChild(CSTR_COMPONENTS), gameObject.GetComponents());
 

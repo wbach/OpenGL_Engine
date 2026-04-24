@@ -312,6 +312,51 @@ void MainFrame::Init()
     gameObjectPanelsSizer = new wxBoxSizer(wxVERTICAL);
     gameObjectPanels->SetSizer(gameObjectPanelsSizer);
 
+    CreateIdentityPanel();
+    // {
+    //     // 1. Kontener na Tag i Warstwy (Horyzontalny)
+    //     wxBoxSizer* rowSizer = new wxBoxSizer(wxHORIZONTAL);
+
+    //     // --- SEKCJA TAG ---
+    //     rowSizer->Add(new wxStaticText(gameObjectPanels, wxID_ANY, "Tag:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+    //     auto tagEditBox = new wxTextCtrl(gameObjectPanels, wxID_ANY, "Default");
+    //     rowSizer->Add(tagEditBox, 1, wxEXPAND | wxRIGHT, 10);
+
+    //     // --- SEKCJA LAYERS ---
+    //     rowSizer->Add(new wxStaticText(gameObjectPanels, wxID_ANY, "Layers:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+
+    //     // Nieedytowalny string z formatem LAYER1 | LAYER2
+    //     auto layersDisplay = new wxTextCtrl(gameObjectPanels, wxID_ANY, "Default", wxDefaultPosition, wxDefaultSize,
+    //     wxTE_READONLY); layersDisplay->SetBackgroundColour(*wxLIGHT_GREY);  // Wizualne odróżnienie, że to tylko odczyt
+    //     rowSizer->Add(layersDisplay, 2, wxEXPAND | wxRIGHT, 5);
+
+    //     // Przycisk zarządzania warstwami
+    //     wxButton* layerBtn = new wxButton(gameObjectPanels, wxID_ANY, "Manage...", wxDefaultPosition, wxSize(70, -1));
+    //     rowSizer->Add(layerBtn, 0, wxALIGN_CENTER_VERTICAL);
+
+    //     // Dodaj cały wiersz do głównego sizera paneli
+    //     gameObjectPanelsSizer->Add(rowSizer, 0, wxEXPAND | wxALL, 10);
+
+    //     // 2. Obsługa menu po kliknięciu "Manage..."
+    //     layerBtn->Bind(wxEVT_BUTTON,
+    //                    [this](wxCommandEvent&)
+    //                    {
+    //                        wxMenu menu;
+    //                        // Lista layerów z Twojego enum (można to zautomatyzować pętlą)
+    //                        menu.AppendCheckItem(0, "Default");
+    //                        menu.AppendCheckItem(0, "Terrain");
+    //                        menu.AppendCheckItem(0, "Obstacle");
+    //                        menu.AppendCheckItem(0, "Player");
+
+    //                        // Zaznacz te, które obiekt aktualnie posiada
+    //                        //menu.Check(ID_LAYER_DEFAULT, currentObject->IsLayer(GameEngine::Layer::Default));
+    //                        // ... reszta checków ...
+
+    //                        // Wyświetl menu pod przyciskiem
+    //                        PopupMenu(&menu);
+    //                    });
+    // }
+
     // Tworzymy collapsible, ktory bedzie "kontenerem" dla notebooka
     transformsCollapsible = new wxCollapsiblePane(gameObjectPanels, wxID_ANY, "Transform");
     UpdateGameObjectIdOnTransfromLabel();
@@ -1431,6 +1476,9 @@ void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
         LOG_DEBUG << "id =" << go->GetId();
         canvas->GetEngine().GetEngineContext().GetRenderersManager().GetDebugRenderer().ViewSelection(*go);
         UpdateGameObjectIdOnTransfromLabel(go->GetId());
+        tagEditBox->SetValue(go->GetTag());
+        UpdateLayerDisplay(*go);
+
         worldTransformPanel->set(go->GetWorldTransform());
         localTransformPanel->set(go->GetLocalTransform());
 
@@ -2491,4 +2539,99 @@ void MainFrame::AddComponentToChildren(wxCommandEvent&)
 
     wxPoint mousePos = wxGetMousePosition();
     popup->Popup(mousePos);
+}
+void MainFrame::CreateIdentityPanel()
+{
+    auto identitySizer = new wxBoxSizer(wxHORIZONTAL);
+
+    // --- SEKCJA TAG ---
+    identitySizer->Add(new wxStaticText(gameObjectPanels, wxID_ANY, "Tag:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+
+    tagEditBox = new wxTextCtrl(gameObjectPanels, wxID_ANY, "");
+    tagEditBox->Bind(wxEVT_TEXT,
+                     [this](wxCommandEvent& e)
+                     {
+                         if (auto obj = GetSelectedGameObject())
+                         {
+                             obj->SetTag(e.GetString().ToStdString());
+                         }
+                     });
+
+    identitySizer->Add(tagEditBox, 1, wxEXPAND | wxRIGHT, 10);
+
+    // --- SEKCJA LAYERS ---
+    identitySizer->Add(new wxStaticText(gameObjectPanels, wxID_ANY, "Layers:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+
+    layersDisplay = new wxTextCtrl(gameObjectPanels, wxID_ANY, "-", wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    layersDisplay->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE));
+    identitySizer->Add(layersDisplay, 2, wxEXPAND | wxRIGHT, 5);
+
+    auto layerBtn = new wxButton(gameObjectPanels, wxID_ANY, "Manage", wxDefaultPosition, wxSize(60, -1));
+    identitySizer->Add(layerBtn, 0, wxALIGN_CENTER_VERTICAL);
+
+    layerBtn->Bind(wxEVT_BUTTON, [this](wxCommandEvent&) { ShowLayerMenu(); });
+
+    gameObjectPanelsSizer->Add(identitySizer, 0, wxEXPAND | wxALL, 10);
+    gameObjectPanelsSizer->Layout();
+}
+void MainFrame::ShowLayerMenu()
+{
+    auto obj = GetSelectedGameObject();
+    if (not obj)
+    {
+        return;
+    }
+
+    wxMenu menu;
+
+    struct LayerInfo
+    {
+        GameEngine::Layer bit;
+        wxString name;
+        int id;
+    };
+
+    int baseID = 2000;
+    for (auto [value, name] : magic_enum::enum_entries<GameEngine::Layer>())
+    {
+        int id           = baseID + static_cast<int>(value);
+        wxMenuItem* item = menu.AppendCheckItem(id, wxString(name));
+        item->Check(obj->IsLayer(value));
+
+        menu.Bind(
+            wxEVT_MENU,
+            [this, obj, v = value](wxCommandEvent&)
+            {
+                if (obj->IsLayer(v))
+                {
+                    obj->RemoveLayer(v);
+                }
+                else
+                {
+                    obj->AppendLayer(v);
+                }
+                UpdateLayerDisplay(*obj);
+            },
+            id);
+    }
+
+    PopupMenu(&menu);
+}
+void MainFrame::UpdateLayerDisplay(GameEngine::GameObject& obj)
+{
+    if (not layersDisplay)
+        return;
+
+    std::vector<wxString> activeNames;
+    for (auto [value, name] : magic_enum::enum_entries<GameEngine::Layer>())
+    {
+        if (obj.IsLayer(value))
+        {
+            activeNames.push_back(wxString(name));
+        }
+    }
+
+    wxString label = wxJoin(activeNames, '|');
+    LOG_DEBUG << label;
+    layersDisplay->SetValue(label.IsEmpty() ? "None" : label);
 }

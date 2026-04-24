@@ -12,6 +12,7 @@
 #include "GameEngine/Components/ComponentFactory.h"
 #include "GameEngine/Components/FunctionType.h"
 #include "GameEngine/Components/IComponent.h"
+#include "GameEngine/Objects/Layer.h"
 #include "GameEngine/Scene/SceneEvents.h"
 namespace GameEngine
 {
@@ -21,6 +22,8 @@ GameObject::GameObject(const std::string& name, Components::ComponentController&
     : idPool_{idPool}
     , parent_(nullptr)
     , name_(name)
+    , tag_()
+    , layers(static_cast<uint32_t>(Layer::Default))
     , isStarted{false}
     , isAwakened{false}
     , id_(idPool.getId(maybeId))
@@ -37,6 +40,8 @@ GameObject::GameObject(const std::string& name, Components::ComponentController&
     : idPool_{idPool}
     , parent_(nullptr)
     , name_(name)
+    , tag_()
+    , layers(static_cast<uint32_t>(Layer::Default))
     , children_(std::move(children))
     , isStarted{false}
     , isAwakened{false}
@@ -548,5 +553,33 @@ void GameObject::Awake()
 
     isStartedSub = componentController_.RegisterFunction(id_, Components::NULL_COMPONENT_TYPE, Components::FunctionType::OnStart,
                                                          [this]() { isStarted = true; });
+}
+const std::string& GameObject::GetTag() const
+{
+    return tag_;
+}
+void GameObject::SetTag(const std::string& tag)
+{
+    tag_ = tag;
+}
+void GameObject::SetLayer(uint32 layerMask)
+{
+    layers = layerMask;
+}
+void GameObject::AppendLayer(Layer layer)
+{
+    layers |= static_cast<uint32_t>(layer);
+}
+const uint32_t GameObject::GetLayers() const
+{
+    return layers;
+}
+bool GameObject::IsLayer(Layer layer) const
+{
+    return (layers & static_cast<uint32_t>(layer)) != 0;
+}
+void GameObject::RemoveLayer(Layer layer)
+{
+    layers &= ~static_cast<uint32_t>(layer);
 }
 }  // namespace GameEngine

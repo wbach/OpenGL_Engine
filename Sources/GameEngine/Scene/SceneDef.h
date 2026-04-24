@@ -6,6 +6,8 @@ extern const std::string CSTR_PREFAB;
 extern const std::string CSTR_NAME;
 extern const std::string CSTR_TIME;
 extern const std::string CSTR_ID;
+extern const std::string CSTR_TAG;
+extern const std::string CSTR_LAYER;
 extern const std::string CSTR_GAMEOBJECTS;
 extern const std::string CSTR_COUNT;
 extern const std::string CSTR_GAMEOBJECT;
