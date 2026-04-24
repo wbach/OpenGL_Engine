@@ -67,7 +67,7 @@ void ItemVisualComponent::registerReadFunctions()
             if (auto root = reader.Get())
             {
                 component->rendererComponentNode = *root;
-                LOG_DEBUG <<  component->rendererComponentNode;
+                LOG_DEBUG << component->rendererComponentNode;
             }
         }
 

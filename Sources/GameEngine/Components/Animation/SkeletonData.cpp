@@ -16,6 +16,14 @@ SkeletonData::SkeletonData(GraphicsApi::IGraphicsApi& api, IGpuResourceLoader& l
     , gpuLoader_(loader)
 {
 }
+SkeletonData::~SkeletonData()
+{
+    if (buffer)
+    {
+        LOG_DEBUG << "Buffer not cleard before destroy object. Force to clear";
+        deleteBuffer();
+    }
+}
 GraphicsApi::ID SkeletonData::getPerPoseBufferId() const
 {
     return buffer ? buffer->GetGraphicsObjectId() : std::nullopt;
@@ -24,13 +32,15 @@ void SkeletonData::createBuffer()
 {
     if (buffer)
     {
-        LOG_DEBUG << "ShaderJointBuffer already exist!";
+        LOG_DEBUG << "ShaderJointBuffer already exist. Reset";
+        auto& bufferData = buffer->GetData();
+        bufferData.bonesTransforms.fill(mat4(1.f));
+        gpuLoader_.get().AddObjectToUpdateGpuPass(*buffer);
         return;
     }
-    buffer = std::make_unique<ShaderBufferObject<PerPoseUpdate>>(api_, PER_POSE_UPDATE_BIND_LOCATION);
 
+    buffer           = std::make_unique<ShaderBufferObject<PerPoseUpdate>>(api_, PER_POSE_UPDATE_BIND_LOCATION);
     auto& bufferData = buffer->GetData();
-
     bufferData.bonesTransforms.fill(mat4(1.f));
     gpuLoader_.get().AddObjectToGpuLoadingPass(*buffer);
 }

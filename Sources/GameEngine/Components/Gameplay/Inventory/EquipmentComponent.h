@@ -39,6 +39,7 @@ public:
 
 private:
     void equipChest(const GameObject&);
+    void equipOneHand(const GameObject&);
     void unequipChest();
     void activeDefaultBody(bool);
     void reloadAnimator();

@@ -40,7 +40,12 @@ void BowPoseUpdater::CleanUp()
         auto parent   = thisObject_.GetParent();
         auto animator = parent->GetComponent<Animator>();
         animator->unSubscribeForPoseUpdateBuffer(*updateJointBufferSubId_);
+        updateJointBufferSubId_.reset();
     }
+
+    disarmJointUpdater_.reset();
+    equipJointUpdater_.reset();
+    currentJointUpdater_ = nullptr;
 }
 void BowPoseUpdater::ReqisterFunctions()
 {
@@ -49,6 +54,9 @@ void BowPoseUpdater::ReqisterFunctions()
 
 void BowPoseUpdater::Reload()
 {
+    LOG_DEBUG << "Reload";
+    CleanUp();
+    Init();
 }
 
 void BowPoseUpdater::Init()
@@ -98,6 +106,10 @@ void BowPoseUpdater::Init()
         LOG_WARN << "Mesh not found";
         return;
     }
+
+    dLocalRotation = Rotation(DegreesVec3(dLocalRotationEuler));
+    eLocalRotation = Rotation(DegreesVec3(eLocalRotationEuler));
+
     auto meshTransform = model->GetMeshes().front().GetMeshTransform();
     updateJointBufferSubId_ =
         animator->subscribeForPoseBufferUpdate([this]() { currentJointUpdater_->updateGameObjectTransform(); });
@@ -106,7 +118,7 @@ void BowPoseUpdater::Init()
         std::make_unique<JointPoseUpdater>(thisObject_, disarmJoint, dLocalPosition, dLocalRotation, meshTransform);
     equipJointUpdater_ =
         std::make_unique<JointPoseUpdater>(thisObject_, equipJoint, eLocalPosition, eLocalRotation, meshTransform);
-    currentJointUpdater_ = disarmJointUpdater_.get();
+
     setDisarmJointAsCurrent();
 }
 
@@ -124,8 +136,6 @@ void BowPoseUpdater::registerReadFunctions()
 {
     auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
     {
-        vec3 eulersRotation;
-
         auto component = std::make_unique<BowPoseUpdater>(componentContext, gameObject);
         ::Read(node.getChild(CSTR_WEAPON_EQUIP_JOINT_NAME), component->equipJointName_);
         ::Read(node.getChild(CSTR_WEAPON_DISARM_JOINT_NAME), component->disarmJointName_);
@@ -133,14 +143,12 @@ void BowPoseUpdater::registerReadFunctions()
         if (auto disarmOffsetNode = node.getChild(CSTR_OFFSET_DISARM_REFERENCE))
         {
             ::Read(disarmOffsetNode->getChild(CSTR_POSITION), component->dLocalPosition);
-            ::Read(disarmOffsetNode->getChild(CSTR_ROTATION), eulersRotation);
-            component->dLocalRotation = Rotation(DegreesVec3(eulersRotation));
+            ::Read(disarmOffsetNode->getChild(CSTR_ROTATION), component->dLocalRotationEuler);
         }
         if (auto equpOffsetNode = node.getChild(CSTR_OFFSET_EQUIP_REFERENCE))
         {
             ::Read(equpOffsetNode->getChild(CSTR_POSITION), component->eLocalPosition);
-            ::Read(equpOffsetNode->getChild(CSTR_ROTATION), eulersRotation);
-            component->eLocalRotation = Rotation(DegreesVec3(eulersRotation));
+            ::Read(equpOffsetNode->getChild(CSTR_ROTATION), component->eLocalRotationEuler);
         }
         return component;
     };

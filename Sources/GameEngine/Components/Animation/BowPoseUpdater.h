@@ -1,6 +1,7 @@
 #pragma once
-#include "GameEngine/Components/BaseComponent.h"
 #include <Rotation.h>
+
+#include "GameEngine/Components/BaseComponent.h"
 
 namespace GameEngine
 {
@@ -9,6 +10,22 @@ namespace Components
 class JointPoseUpdater;
 class BowPoseUpdater : public BaseComponent
 {
+public:
+    vec3 dLocalPosition{0};
+    vec3 eLocalPosition{0};
+    vec3 dLocalRotationEuler{0};
+    vec3 eLocalRotationEuler{0};
+
+public:
+    // clang-format off
+    BEGIN_FIELDS()
+        FIELD_VECTOR3F(dLocalPosition)
+        FIELD_VECTOR3F(eLocalPosition)
+        FIELD_VECTOR3F(dLocalRotationEuler)
+        FIELD_VECTOR3F(eLocalRotationEuler)
+    END_FIELDS()
+    // clang-format on
+
 public:
     BowPoseUpdater(ComponentContext&, GameObject&);
     void CleanUp() override;
@@ -30,8 +47,6 @@ private:
     JointPoseUpdater* currentJointUpdater_;
 
     std::optional<uint32> updateJointBufferSubId_;
-
-    vec3 dLocalPosition, eLocalPosition;
     Rotation dLocalRotation, eLocalRotation;
 
 public:

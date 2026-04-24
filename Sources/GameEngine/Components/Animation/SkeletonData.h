@@ -14,7 +14,7 @@ struct SkeletonData
 {
 public:
     SkeletonData(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&);
-    virtual ~SkeletonData() = default;
+    virtual ~SkeletonData();
 
     GraphicsApi::ID getPerPoseBufferId() const;
     void createBuffer();

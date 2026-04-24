@@ -7,6 +7,8 @@
 
 #include "EquippableComponent.h"
 #include "GameEngine/Components/Animation/Animator.h"
+#include "GameEngine/Components/Animation/BowPoseUpdater.h"
+#include "GameEngine/Components/Animation/JointPoseUpdater.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Gameplay/Inventory/ItemVisualComponent.h"
@@ -16,6 +18,7 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "Logger/Log.h"
 #include "Types.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -24,7 +27,8 @@ namespace Components
 namespace
 {
 constexpr char CSTR_BASE_BODY_RENDERER_TAG[] = "baseBodyRendererComponentTag";
-const std::string CHEST_COMPONENT_TAG{"ChestEquippedItem"};
+constexpr char CHEST_COMPONENT_TAG[]{"ChestEquippedItem"};
+constexpr char CSTR_MAIN_HAND_ITEM[]{"MainHandItem"};
 }  // namespace
 EquipmentComponent::EquipmentComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(GetComponentType<EquipmentComponent>(), componentContext, gameObject)
@@ -71,6 +75,9 @@ bool EquipmentComponent::equip(GameObject& item)
 
     switch (itemEquippableComponent->slot)
     {
+        case SlotType::MainHand:
+            equipOneHand(item);
+            break;
         case SlotType::Chest:
             equipChest(item);
             break;
@@ -93,7 +100,17 @@ bool EquipmentComponent::isSlotFree(SlotType slot) const
 }
 std::optional<IdType> EquipmentComponent::unequip(SlotType slot)
 {
-    if (slot == SlotType::Chest)
+    LOG_DEBUG << magic_enum::enum_name(slot);
+
+    if (slot == SlotType::MainHand)
+    {
+        if (auto go = thisObject_.GetChild(CSTR_MAIN_HAND_ITEM))
+        {
+            LOG_DEBUG << "mainHand object found, remove";
+            componentContext_.scene_.RemoveGameObject(*go);
+        }
+    }
+    else if (slot == SlotType::Chest)
     {
         unequipChest();
         reloadAnimator();
@@ -122,6 +139,14 @@ void EquipmentComponent::reloadAnimator()
     if (auto animator = thisObject_.GetComponent<Animator>())
     {
         animator->Reload();
+
+        if (auto go = thisObject_.GetChild(CSTR_MAIN_HAND_ITEM))
+        {
+            if (auto updater = go->GetComponent<BowPoseUpdater>())
+            {
+                updater->Reload();
+            }
+        }
     }
 }
 void EquipmentComponent::equipChest(const GameObject& item)
@@ -156,6 +181,29 @@ void EquipmentComponent::equipChest(const GameObject& item)
             reloadAnimator();
         }
     }
+}
+void EquipmentComponent::equipOneHand(const GameObject& item)
+{
+    auto itemVisualComponent = item.GetComponent<ItemVisualComponent>();
+    if (not itemVisualComponent)
+    {
+        LOG_WARN << "ItemVisualComponent not found";
+        return;
+    }
+
+    auto newGameObject = componentContext_.scene_.CreateGameObject(CSTR_MAIN_HAND_ITEM);
+    if (const auto& node = itemVisualComponent->getRendererComponentNode())
+    {
+        newGameObject->AddComponent(*node);
+    }
+
+    auto& pu            = newGameObject->AddComponent<BowPoseUpdater>();
+    pu.disarmJointName_ = "Slot_MeleeBackLeft";
+    pu.equipJointName_  = "Slot_RightHand_Weapon";
+
+    pu.Reload();
+
+    componentContext_.scene_.AddGameObject(std::move(newGameObject), &thisObject_);
 }
 void EquipmentComponent::activeDefaultBody(bool isActive)
 {

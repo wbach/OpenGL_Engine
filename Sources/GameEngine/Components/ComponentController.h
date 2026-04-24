@@ -54,6 +54,7 @@ public:
     FunctionId RegisterFunction(GameObjectId, const ComponentType&, FunctionType, std::function<void()>,
                                 const Dependencies& = {});
     void UnRegisterFunction(GameObjectId, FunctionType, FunctionId);
+    // TO DO: FIX set active during component function
     void setActivateStateOfComponentFunction(GameObjectId, FunctionType, FunctionId, bool);
 
     void callComponentFunction(GameObjectId, FunctionType, FunctionId);
