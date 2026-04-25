@@ -10,6 +10,7 @@
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Objects/Layer.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Scene/Navigation/GridNavigation.h"
 #include "Logger/Log.h"
@@ -30,6 +31,9 @@ void NavigationManager::Update(const SceneNotifEvent& event)
     std::visit(visitor{[&](const AddGameObjectNotifEvent& e)
                        {
                            if (not e.gameObject)
+                               return;
+
+                           if (not e.gameObject->IsLayer(Layer::NoNavMesh))
                                return;
 
                            if (e.gameObject->HasComponent<Components::TerrainRendererComponent>() or
@@ -92,7 +96,7 @@ void NavigationManager::ReCreateProvider()
     vec3 terrainScale = terrainObj->GetWorldTransform().GetScale();
     vec3 terrainPos   = terrainObj->GetWorldTransform().GetPosition();
 
-    float cellSize = 0.5f;//1.f;  // 0.3f;
+    float cellSize = 0.5f;  // 1.f;  // 0.3f;
     int w          = static_cast<int>(terrainScale.x / cellSize);
     int h          = static_cast<int>(terrainScale.z / cellSize);
     vec3 origin    = terrainPos - (terrainScale * 0.5f);
