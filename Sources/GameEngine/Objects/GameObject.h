@@ -97,6 +97,9 @@ public:
     T* GetComponentInChild();
 
     template <class T>
+    bool HasComponentInChild() const;
+
+    template <class T>
     void RemoveComponent();
     void RemoveComponent(const Components::IComponent&);
     void RemoveComponent(Components::ComponentTypeID);
@@ -253,8 +256,8 @@ inline const T* GameObject::GetComponent(const std::string& tag) const
         return nullptr;
 
     const auto& typedComponents = it->second;
-    auto typedComponentIter = std::find_if(typedComponents.begin(), typedComponents.end(),
-                                           [&tag](const auto& component) { return component->GetTag() == tag; });
+    auto typedComponentIter     = std::find_if(typedComponents.begin(), typedComponents.end(),
+                                               [&tag](const auto& component) { return component->GetTag() == tag; });
     if (typedComponentIter != typedComponents.end())
     {
         return static_cast<T*>(typedComponentIter->get());
@@ -317,11 +320,28 @@ inline T* GameObject::GetComponentInChild()
         {
             return component;
         }
-        return child->GetComponentInChild<T>();
+
+        if (auto componentFromGrandchild = child->GetComponentInChild<T>())
+        {
+            return componentFromGrandchild;
+        }
     }
     return nullptr;
 }
 
+template <class T>
+bool GameObject::HasComponentInChild() const
+{
+    for (auto const& child : children_)
+    {
+        if (child->GetComponent<T>() or child->HasComponentInChild<T>())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
 template <class T, typename... Args>
 inline T& GameObject::AddComponent(Args&&... args)
 {
@@ -371,6 +391,7 @@ inline std::ostream& operator<<(std::ostream& os, const GameEngine::GameObject::
 inline std::ostream& operator<<(std::ostream& os, const GameEngine::GameObject& go)
 {
     os << "GameObject{name=" << go.GetName() << ", id= " << go.GetId() << "}";
+    os << go.GetComponents();
     return os;
 }
 

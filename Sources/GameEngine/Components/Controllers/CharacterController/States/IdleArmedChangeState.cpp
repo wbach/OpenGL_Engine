@@ -79,19 +79,19 @@ void IdleArmedChangeState::update(float)
 }
 bool IdleArmedChangeState::entryCondition(DisarmedIdleState &) const
 {
-    return not context_.animClipNames.equip.empty();
+    return not context_.animClipNames.equip.empty() and hasWeapon();
 }
 bool IdleArmedChangeState::entryCondition(DisarmedAttackState &) const
 {
-    return not context_.animClipNames.equip.empty();
+    return not context_.animClipNames.equip.empty() and hasWeapon();
 }
 bool IdleArmedChangeState::entryCondition(ArmedIdleState &) const
 {
-    return not context_.animClipNames.disarm.empty();
+    return not context_.animClipNames.disarm.empty() and hasWeapon();
 }
 bool IdleArmedChangeState::entryCondition(ArmedAttackState &) const
 {
-    return not context_.animClipNames.disarm.empty();
+    return not context_.animClipNames.disarm.empty() and hasWeapon();
 }
 }  // namespace Components
 }  // namespace GameEngine

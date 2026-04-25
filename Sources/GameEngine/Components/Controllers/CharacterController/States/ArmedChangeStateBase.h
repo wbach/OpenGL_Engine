@@ -1,8 +1,8 @@
 #pragma once
 #include <Types.h>
 
-#include <optional>
 #include <functional>
+#include <optional>
 
 #include "CharacterControllerCommonDefs.h"
 
@@ -27,6 +27,7 @@ protected:
     void disarmWeapon();
     void onLeave(const EquipEndStateEvent&);
     void onLeave(const DisarmEndStateEvent&);
+    bool hasWeapon() const;
 
 private:
     void triggerChange();
@@ -39,7 +40,7 @@ protected:
 
 private:
     bool armed_{false};
-    PoseUpdater* bowPoseUpdater_{nullptr};
+    PoseUpdater* poseUpdater_{nullptr};
     std::function<void()> onAnimationEnd_;
 
     std::optional<uint32> subscribeForTransitionAnimationFrame_;

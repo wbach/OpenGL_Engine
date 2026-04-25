@@ -16,7 +16,7 @@ namespace Components
 ArmedChangeStateBase::ArmedChangeStateBase(FsmContext& context, const std::optional<std::string>& jointGroupName)
     : context_{context}
     , jointGroupName_{jointGroupName}
-    , bowPoseUpdater_{context.gameObject.GetComponentInChild<PoseUpdater>()}
+    , poseUpdater_{context.gameObject.GetComponentInChild<PoseUpdater>()}
 {
 }
 void ArmedChangeStateBase::update(const WeaponStateEvent&)
@@ -46,8 +46,10 @@ void ArmedChangeStateBase::update(const SprintStateChangeEvent&)
 }
 void ArmedChangeStateBase::equipWeapon()
 {
-    if (not bowPoseUpdater_)
+    poseUpdater_ = context_.gameObject.GetComponentInChild<PoseUpdater>();
+    if (not poseUpdater_)
     {
+        LOG_DEBUG << "not poseUpdater_ return";
         return;
     }
 
@@ -58,7 +60,7 @@ void ArmedChangeStateBase::equipWeapon()
 
 void ArmedChangeStateBase::disarmWeapon()
 {
-    if (not bowPoseUpdater_)
+    if (not poseUpdater_)
     {
         return;
     }
@@ -100,11 +102,11 @@ void ArmedChangeStateBase::triggerChange()
             unsubscribe(subscribeForTransitionAnimationFrame_);
             if (isArmed)
             {
-                bowPoseUpdater_->setEquipJointAsCurrent();
+                poseUpdater_->setEquipJointAsCurrent();
             }
             else
             {
-                bowPoseUpdater_->setDisarmJointAsCurrent();
+                poseUpdater_->setDisarmJointAsCurrent();
             }
         },
         armed_ ? context_.armTimeStamps.arm : context_.armTimeStamps.disarm);
@@ -140,6 +142,10 @@ void ArmedChangeStateBase::unsubscribeAll()
 {
     unsubscribe(subscribeForTransitionAnimationEnd_);
     unsubscribe(subscribeForTransitionAnimationFrame_);
+}
+bool ArmedChangeStateBase::hasWeapon() const
+{
+    return poseUpdater_ != nullptr or context_.gameObject.HasComponentInChild<PoseUpdater>();
 }
 }  // namespace Components
 }  // namespace GameEngine
