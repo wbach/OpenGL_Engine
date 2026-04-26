@@ -19,7 +19,6 @@
 
 #include "ComponentPanel/ReloadComponentLibEvent.h"
 #include "ComponentPanel/TransformPanel.h"
-#include "Objects/GameObject.h"
 #include "SceneTreeView/SceneTreeCtrl.h"
 
 class GLCanvas;

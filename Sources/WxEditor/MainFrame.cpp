@@ -313,49 +313,6 @@ void MainFrame::Init()
     gameObjectPanels->SetSizer(gameObjectPanelsSizer);
 
     CreateIdentityPanel();
-    // {
-    //     // 1. Kontener na Tag i Warstwy (Horyzontalny)
-    //     wxBoxSizer* rowSizer = new wxBoxSizer(wxHORIZONTAL);
-
-    //     // --- SEKCJA TAG ---
-    //     rowSizer->Add(new wxStaticText(gameObjectPanels, wxID_ANY, "Tag:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
-    //     auto tagEditBox = new wxTextCtrl(gameObjectPanels, wxID_ANY, "Default");
-    //     rowSizer->Add(tagEditBox, 1, wxEXPAND | wxRIGHT, 10);
-
-    //     // --- SEKCJA LAYERS ---
-    //     rowSizer->Add(new wxStaticText(gameObjectPanels, wxID_ANY, "Layers:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
-
-    //     // Nieedytowalny string z formatem LAYER1 | LAYER2
-    //     auto layersDisplay = new wxTextCtrl(gameObjectPanels, wxID_ANY, "Default", wxDefaultPosition, wxDefaultSize,
-    //     wxTE_READONLY); layersDisplay->SetBackgroundColour(*wxLIGHT_GREY);  // Wizualne odróżnienie, że to tylko odczyt
-    //     rowSizer->Add(layersDisplay, 2, wxEXPAND | wxRIGHT, 5);
-
-    //     // Przycisk zarządzania warstwami
-    //     wxButton* layerBtn = new wxButton(gameObjectPanels, wxID_ANY, "Manage...", wxDefaultPosition, wxSize(70, -1));
-    //     rowSizer->Add(layerBtn, 0, wxALIGN_CENTER_VERTICAL);
-
-    //     // Dodaj cały wiersz do głównego sizera paneli
-    //     gameObjectPanelsSizer->Add(rowSizer, 0, wxEXPAND | wxALL, 10);
-
-    //     // 2. Obsługa menu po kliknięciu "Manage..."
-    //     layerBtn->Bind(wxEVT_BUTTON,
-    //                    [this](wxCommandEvent&)
-    //                    {
-    //                        wxMenu menu;
-    //                        // Lista layerów z Twojego enum (można to zautomatyzować pętlą)
-    //                        menu.AppendCheckItem(0, "Default");
-    //                        menu.AppendCheckItem(0, "Terrain");
-    //                        menu.AppendCheckItem(0, "Obstacle");
-    //                        menu.AppendCheckItem(0, "Player");
-
-    //                        // Zaznacz te, które obiekt aktualnie posiada
-    //                        //menu.Check(ID_LAYER_DEFAULT, currentObject->IsLayer(GameEngine::Layer::Default));
-    //                        // ... reszta checków ...
-
-    //                        // Wyświetl menu pod przyciskiem
-    //                        PopupMenu(&menu);
-    //                    });
-    // }
 
     // Tworzymy collapsible, ktory bedzie "kontenerem" dla notebooka
     transformsCollapsible = new wxCollapsiblePane(gameObjectPanels, wxID_ANY, "Transform");
@@ -2583,24 +2540,16 @@ void MainFrame::ShowLayerMenu()
     }
 
     wxMenu menu;
-
-    struct LayerInfo
-    {
-        GameEngine::Layer bit;
-        wxString name;
-        int id;
-    };
-
     int baseID = 2000;
-    for (auto [value, name] : magic_enum::enum_entries<GameEngine::Layer>())
+    for (const auto& [value, name] : magic_enum::enum_entries<GameEngine::Layer>())
     {
-        int id           = baseID + static_cast<int>(value);
-        wxMenuItem* item = menu.AppendCheckItem(id, wxString(name));
+        int id    = baseID + static_cast<int>(value);
+        auto item = menu.AppendCheckItem(id, std::string(name));
         item->Check(obj->IsLayer(value));
 
         menu.Bind(
             wxEVT_MENU,
-            [this, obj, v = value](wxCommandEvent&)
+            [this, obj, v = value](auto&)
             {
                 if (obj->IsLayer(v))
                 {
@@ -2614,7 +2563,6 @@ void MainFrame::ShowLayerMenu()
             },
             id);
     }
-
     PopupMenu(&menu);
 }
 void MainFrame::UpdateLayerDisplay(GameEngine::GameObject& obj)
@@ -2622,16 +2570,16 @@ void MainFrame::UpdateLayerDisplay(GameEngine::GameObject& obj)
     if (not layersDisplay)
         return;
 
-    std::vector<wxString> activeNames;
-    for (auto [value, name] : magic_enum::enum_entries<GameEngine::Layer>())
+    std::vector<std::string> activeNames;
+    for (const auto& [value, name] : magic_enum::enum_entries<GameEngine::Layer>())
     {
         if (obj.IsLayer(value))
         {
-            activeNames.push_back(wxString(name));
+            activeNames.push_back(std::string{name});
         }
     }
 
-    wxString label = wxJoin(activeNames, '|');
+    auto label = wxJoin(activeNames, '|');
     LOG_DEBUG << label;
     layersDisplay->SetValue(label.IsEmpty() ? "None" : label);
 }
