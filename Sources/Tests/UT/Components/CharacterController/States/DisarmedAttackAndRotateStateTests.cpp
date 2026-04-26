@@ -30,7 +30,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRotateState_DrawArrowEvent)
     Update(ADVANCED_TIME_CLIP_TIME);
     expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
-    expectAnimsToBeSet({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.posture.stand.rotate.left});
+    expectAnimsToBeSet({sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.armed.posture.stand.rotate.left});
 }
 TEST_F(CharacterControllerTests, DisarmedAttackAndRotateState_AimStop)
 {

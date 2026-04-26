@@ -5,7 +5,7 @@
 TEST_F(CharacterControllerTests, DisarmedIdleState_DrawArrowEvent)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
-    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip}, {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip.front()}, {ADVANCED_TIME_TRANSITION_TIME});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.aim.draw});
@@ -13,9 +13,9 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_DrawArrowEvent)
 TEST_F(CharacterControllerTests, DisarmedIdleState_AimStopDuringDrawArrowEvent)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
-    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip}, {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip.front()}, {ADVANCED_TIME_TRANSITION_TIME});
 
-    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.equip});
+    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.equip.front()});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.posture.stand.idle});
@@ -24,7 +24,7 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_AimStopDuringDrawArrowEvent)
 TEST_F(CharacterControllerTests, DisarmedIdleState_WeaponStateEvent)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
-    tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.equip}, {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.equip.front()}, {ADVANCED_TIME_TRANSITION_TIME});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 }

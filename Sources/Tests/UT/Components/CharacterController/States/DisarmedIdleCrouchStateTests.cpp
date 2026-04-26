@@ -12,7 +12,7 @@ void prepareState(CharacterControllerTests& test)
 TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_DrawArrowEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.disarmed.posture.crouched.idle},
+    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.disarmed.posture.crouched.idle},
                                     {ADVANCED_TIME_TRANSITION_TIME});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -22,10 +22,10 @@ TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_DrawArrowEvent)
 TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_AimStopDuringDrawArrowEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.disarmed.posture.crouched.idle},
+    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.disarmed.posture.crouched.idle},
                                     {ADVANCED_TIME_TRANSITION_TIME});
 
-    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.disarmed.posture.crouched.idle});
+    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.disarmed.posture.crouched.idle});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.posture.crouched.idle});
@@ -34,7 +34,7 @@ TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_AimStopDuringDrawArrowE
 TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_WeaponStateEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.posture.crouched.idle},
+    tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.armed.posture.crouched.idle},
                                       {ADVANCED_TIME_TRANSITION_TIME});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);

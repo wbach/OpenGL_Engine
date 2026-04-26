@@ -42,7 +42,7 @@ TEST_F(CharacterControllerTests, ArmedCrouchRotate_WeaponStateEvent)
 {
     prepareState(*this);
     tiggerAndExpect<WeaponStateEvent>(
-        {sut_.animationClipsNames_.disarmed.posture.crouched.rotate.right, sut_.animationClipsNames_.disarm});
+        {sut_.animationClipsNames_.disarmed.posture.crouched.rotate.right, sut_.animationClipsNames_.disarm.front()});
 }
 
 TEST_F(CharacterControllerTests, ArmedCrouchRotate_MoveForwardEvent)

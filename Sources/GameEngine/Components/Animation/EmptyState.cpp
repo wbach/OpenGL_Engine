@@ -4,7 +4,7 @@
 
 #include "PlayAnimation.h"
 #include "StateMachine.h"
-
+#include "AnimationClipInfo.h"
 namespace GameEngine
 {
 namespace Components
@@ -19,6 +19,7 @@ bool EmptyState::update(float)
 }
 void EmptyState::handle(const ChangeAnimationEvent &event)
 {
+    LOG_DEBUG << event.info;
     context_.machine.transitionTo<PlayAnimation>(context_, event.info, event.startTime);
 }
 void EmptyState::handle(const StopAnimationEvent &)

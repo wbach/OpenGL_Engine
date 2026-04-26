@@ -122,6 +122,8 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component,
 
     const auto& typeName = component.GetTypeName();
 
+    LOG_DEBUG << typeName;
+
     headerPanel             = new wxPanel(this);
     wxBoxSizer* headerSizer = new wxBoxSizer(wxHORIZONTAL);
 

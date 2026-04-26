@@ -40,17 +40,45 @@ void bt_sighandler(int nSig)
     LOG_ERROR << "print_trace: got signal " << nSig;
 
     void* array[32];
-    size_t size;
-    char** strings;
-    size_t nCnt;
+    auto size    = backtrace(array, 32);
+    auto strings = backtrace_symbols(array, size);
 
-    size = backtrace(array, 32);
+    if (strings == nullptr)
+    {
+        exit(-1);
+    }
 
-    strings = backtrace_symbols(array, size);
+    for (auto nCnt = 0; nCnt < size; nCnt++)
+    {
+        std::string entry = strings[nCnt];
 
-    for (nCnt = 0; nCnt < size; nCnt++)
-        LOG_ERROR << strings[nCnt];
+        auto begin_parentheses = entry.find_first_of('(');
+        auto end_parentheses   = entry.find_first_of('+', begin_parentheses);
 
+        if (begin_parentheses != std::string::npos and end_parentheses != std::string::npos)
+        {
+            auto mangled_name = entry.substr(begin_parentheses + 1, end_parentheses - begin_parentheses - 1);
+
+            int status          = 0;
+            auto demangled_name = abi::__cxa_demangle(mangled_name.c_str(), nullptr, nullptr, &status);
+
+            if (status == 0 and demangled_name != nullptr)
+            {
+                LOG_ERROR << entry.substr(0, begin_parentheses + 1) << demangled_name << entry.substr(end_parentheses);
+                free(demangled_name);
+            }
+            else
+            {
+                LOG_ERROR << entry;
+            }
+        }
+        else
+        {
+            LOG_ERROR << entry;
+        }
+    }
+
+    free(strings);
     exit(-1);
 }
 #else

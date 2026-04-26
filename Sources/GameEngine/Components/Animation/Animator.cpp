@@ -287,6 +287,7 @@ void Animator::ChangeAnimation(const std::string& name, AnimationChangeType chan
     }
 
     pose.rootMontion = clipIter->second.rootMontion;
+    LOG_DEBUG << "change " << name;
     machine_.handle(ChangeAnimationEvent{0.f, clipIter->second, groupName, onTransitionEnd});
 }
 void Animator::ChangeAnimation(const IdType& id, AnimationChangeType changeType, PlayDirection playDirection,

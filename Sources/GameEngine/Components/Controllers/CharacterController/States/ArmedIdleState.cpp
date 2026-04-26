@@ -16,7 +16,7 @@ bool ArmedIdleState::leaveCondition(const AttackEvent &)
 }
 bool ArmedIdleState::leaveCondition(const WeaponStateEvent &)
 {
-    return not context_.animClipNames.disarm.empty();
+    return not context_.animClipNames.disarm.clipNames.empty();
 }
 }  // namespace Components
 }  // namespace GameEngine

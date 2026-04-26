@@ -75,7 +75,7 @@ TEST_F(CharacterControllerTests, ArmedRun_WeaponStateEvent)
     prepareState(*this);
     expectForwardVelocity(DEFAULT_RUN_SPEED);
     tiggerAndExpect<WeaponStateEvent>(
-        {sut_.animationClipsNames_.disarmed.movement.run.forward, sut_.animationClipsNames_.disarm});
+        {sut_.animationClipsNames_.disarmed.movement.run.forward, sut_.animationClipsNames_.disarm.front()});
 }
 
 TEST_F(CharacterControllerTests, ArmedRun_EndForwardMoveEvent)

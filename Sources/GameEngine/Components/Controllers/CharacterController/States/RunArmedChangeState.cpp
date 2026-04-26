@@ -109,32 +109,32 @@ void RunArmedChangeState::onMoveInactivity()
 
 bool RunArmedChangeState::entryCondition(DisarmedRunState&) const
 {
-    return not context_.animClipNames.equip.empty();
+    return not context_.animClipNames.equip.clipNames.empty();
 }
 
 bool RunArmedChangeState::entryCondition(DisarmedAttackState&) const
 {
-    return not context_.animClipNames.equip.empty();
+    return not context_.animClipNames.equip.clipNames.empty();
 }
 
 bool RunArmedChangeState::entryCondition(DisarmedSprintState&) const
 {
-    return not context_.animClipNames.disarm.empty();
+    return not context_.animClipNames.disarm.clipNames.empty();
 }
 
 bool RunArmedChangeState::entryCondition(ArmedRunState&) const
 {
-    return not context_.animClipNames.disarm.empty();
+    return not context_.animClipNames.disarm.clipNames.empty();
 }
 
 bool RunArmedChangeState::entryCondition(ArmedAttackState&) const
 {
-    return not context_.animClipNames.disarm.empty();
+    return not context_.animClipNames.disarm.clipNames.empty();
 }
 
 bool RunArmedChangeState::entryCondition(ArmedSprintState&) const
 {
-    return not context_.animClipNames.disarm.empty();
+    return not context_.animClipNames.disarm.clipNames.empty();
 }
 
 }  // namespace Components

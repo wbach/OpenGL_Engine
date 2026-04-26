@@ -19,7 +19,7 @@ void prepareState(CharacterControllerTests& test)
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_DrawArrowEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.equip},
+    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.equip.front()},
                                     {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME / 2.f});
     Update(ADVANCED_TIME_CLIP_TIME / 2.f);
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -29,7 +29,7 @@ TEST_F(CharacterControllerTests, DisarmedCruchWalkState_DrawArrowEvent)
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_AimStopDuringDrawArrowEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.equip},
+    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.equip.front()},
                                     {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME / 2.f});
     tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward},
                                   {ADVANCED_TIME_CLIP_TIME / 2.f, ADVANCED_TIME_TRANSITION_TIME});
@@ -86,7 +86,7 @@ TEST_F(CharacterControllerTests, DisarmedCruchWalkState_WalkChangeStateEvent)
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_WeaponStateEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.equip});
+    tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.equip.front()});
 }
 
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_EndForwardMoveEvent)

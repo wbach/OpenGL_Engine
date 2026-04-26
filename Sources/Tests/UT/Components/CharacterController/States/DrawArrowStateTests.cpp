@@ -48,7 +48,7 @@ TEST_F(CharacterControllerTests, DrawArow_RotateTargetEvent)
 TEST_F(CharacterControllerTests, DrawArow_WeaponStateEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.disarm});
+    tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.disarm.front()});
 
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);

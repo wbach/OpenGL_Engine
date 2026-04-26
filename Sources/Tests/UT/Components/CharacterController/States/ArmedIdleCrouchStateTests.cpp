@@ -27,7 +27,7 @@ TEST_F(CharacterControllerTests, ArmedIdleCrouchState_WeaponStateEvent)
 {
     prepareState(*this);
     tiggerAndExpect<WeaponStateEvent>(
-        {sut_.animationClipsNames_.disarm, sut_.animationClipsNames_.disarmed.posture.crouched.idle});
+        {sut_.animationClipsNames_.disarm.front(), sut_.animationClipsNames_.disarmed.posture.crouched.idle});
 }
 
 TEST_F(CharacterControllerTests, ArmedIdleCrouchState_DeathEvent)

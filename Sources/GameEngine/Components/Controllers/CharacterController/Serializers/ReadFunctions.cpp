@@ -1,7 +1,7 @@
 #include "ReadFunctions.h"
 
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include "../AnimationClipNames.h"
 #include "GameEngine/Components/CommonReadDef.h"
@@ -112,6 +112,24 @@ void Read(const TreeNode& node, AimClips& result)
     Read(node.getChild(CSTR_DRAW_ARROW_ANIMATION), result.draw);
     Read(node.getChild(CSTR_RECOIL_ARROW_ANIMATION), result.recoil);
     Read(node.getChild(CSTR_AIM_IDLE_ANIMATION), result.idle);
+}
+
+void Read(const TreeNode& node, GameEngine::AnimSequence& result)
+{
+    if (not node.value_.empty())
+    {
+        result.clipNames.push_back(node.value_);
+    }
+    else
+    {
+        if (auto sequnece = node.getChild(CSTR_SEQUENCE))
+        {
+            for (const auto& child : sequnece->getChildren())
+            {
+                result.clipNames.push_back(child->value_);
+            }
+        }
+    }
 }
 
 void Read(const TreeNode& node, AnimationClipsNames& result)

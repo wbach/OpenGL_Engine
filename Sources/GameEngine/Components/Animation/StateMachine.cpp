@@ -1,13 +1,13 @@
 #include "StateMachine.h"
 
 #include <Logger/Log.h>
-#include <Variant.h>
 #include <Utils/Utils.h>
+#include <Variant.h>
 
-#include "EmptyState.h"
-#include "IAnimationState.h"
-#include "Event.h"
 #include "Context.h"
+#include "EmptyState.h"
+#include "Event.h"
+#include "IAnimationState.h"
 
 namespace GameEngine
 {
@@ -43,7 +43,12 @@ void StateMachine::handle(const IncomingEvent& event)
 {
     if (currentState_)
     {
-        std::visit(visitor{[&](const auto& event) { currentState_->handle(event); }}, event);
+        std::visit(visitor{[&](const auto& event)
+                           {
+                               LOG_DEBUG << Utils::GetTypeName(event);
+                               currentState_->handle(event);
+                           }},
+                   event);
     }
 }
 

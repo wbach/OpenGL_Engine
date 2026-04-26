@@ -53,7 +53,7 @@ TEST_F(CharacterControllerTests, DrawArowCrouchRotate_WeaponStateEvent)
 {
     prepareState(*this);
     tiggerAndExpect<WeaponStateEvent>(
-        {sut_.animationClipsNames_.disarm, sut_.animationClipsNames_.disarmed.posture.crouched.rotate.right});
+        {sut_.animationClipsNames_.disarm.front(), sut_.animationClipsNames_.disarmed.posture.crouched.rotate.right});
 
     expectRotationRight(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);

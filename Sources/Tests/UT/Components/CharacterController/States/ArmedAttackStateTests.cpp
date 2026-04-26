@@ -43,7 +43,7 @@ TEST_F(CharacterControllerTests, ArmedAttackStateTests_DrawArrowEvent)
 TEST_F(CharacterControllerTests, ArmedAttackStateTests_WeaponStateEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.disarm});
+    tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.disarm.front()});
 }
 
 TEST_F(CharacterControllerTests, ArmedAttackStateTests_DeathEvent)

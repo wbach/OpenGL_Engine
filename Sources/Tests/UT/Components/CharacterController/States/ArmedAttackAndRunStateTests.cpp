@@ -132,7 +132,7 @@ TEST_F(CharacterControllerTests, ArmedAttackAndRunState_WeaponStateEvent)
 
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.movement.run.forward, sut_.animationClipsNames_.disarm});
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.movement.run.forward, sut_.animationClipsNames_.disarm.front()});
 }
 
 TEST_F(CharacterControllerTests, ArmedAttackAndRunState_EndForwardMoveEvent)

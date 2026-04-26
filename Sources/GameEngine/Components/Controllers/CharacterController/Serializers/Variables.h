@@ -11,6 +11,8 @@ extern const std::string COMPONENT_STR;
 extern const std::string CSTR_EQUIP_TIMESTAMP;
 extern const std::string CSTR_DISARM_TIMESTAMP;
 extern const std::string CSTR_ATTACK_ANIMATIONS;
+extern const std::string CSTR_CLIP_NAME;
+extern const std::string CSTR_SEQUENCE;
 extern const std::string CSTR_ANIMATION;
 extern const std::string CSTR_ANIMATION_STATE_TYPE;
 extern const std::string CSTR_ANIMATION_ARMED;

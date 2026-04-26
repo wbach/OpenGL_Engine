@@ -23,6 +23,7 @@ public:
 
 private:
     PlayGroup playInfo_;
+    bool eventHandledDuringUpdate{false}; // TO DO fix this
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -228,8 +228,16 @@ void CharacterController::Init()
 
         rigidbody_->SetAngularFactor(0.f);
 
-        animator_->setPlayOnceForAnimationClip(animationClipsNames_.equip);
-        animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarm);
+        for (auto& clip : animationClipsNames_.equip.clipNames)
+        {
+            animator_->setPlayOnceForAnimationClip(clip);
+        }
+
+        for (auto& clip : animationClipsNames_.disarm.clipNames)
+        {
+            animator_->setPlayOnceForAnimationClip(clip);
+        }
+
         animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarmed.jump);
         animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarmed.posture.stand.hurt);
         animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarmed.posture.stand.death);

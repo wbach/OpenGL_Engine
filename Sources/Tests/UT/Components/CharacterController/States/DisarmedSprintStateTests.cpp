@@ -27,8 +27,9 @@ TEST_F(CharacterControllerTests, DisarmedSprintState_DrawArrowEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.armed.movement.run.forward, sut_.animationClipsNames_.equip},
-                                    {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME / 2.f});
+    tiggerAndExpect<DrawArrowEvent>(
+        {sut_.animationClipsNames_.armed.movement.run.forward, sut_.animationClipsNames_.equip.front()},
+        {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME / 2.f});
     Update(ADVANCED_TIME_CLIP_TIME / 2.f);
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectForwardVelocity(DEFAULT_WALK_SPEED);
@@ -110,8 +111,9 @@ TEST_F(CharacterControllerTests, DisarmedSprintState_WeaponStateEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.armed.movement.run.forward, sut_.animationClipsNames_.equip},
-                                      {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME / 2.f});
+    tiggerAndExpect<WeaponStateEvent>(
+        {sut_.animationClipsNames_.armed.movement.run.forward, sut_.animationClipsNames_.equip.front()},
+        {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME / 2.f});
 }
 TEST_F(CharacterControllerTests, DisarmedSprintState_EquipAnimNotSetWeaponStateEvent)
 {
@@ -148,8 +150,9 @@ TEST_F(CharacterControllerTests, DisarmedSprintState_AimStopEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.armed.movement.run.forward, sut_.animationClipsNames_.equip},
-                                    {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME / 2.f});
+    tiggerAndExpect<DrawArrowEvent>(
+        {sut_.animationClipsNames_.armed.movement.run.forward, sut_.animationClipsNames_.equip.front()},
+        {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME / 2.f});
     tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.armed.movement.run.forward},
                                   {ADVANCED_TIME_CLIP_TIME / 2.f, ADVANCED_TIME_TRANSITION_TIME});
 }
