@@ -2,12 +2,12 @@
 
 #include <Logger/Log.h>
 
+#include "AnimationClipInfo.h"
 #include "AnimationTransition.h"
 #include "AnimationTransitionToMixed.h"
+#include "CurrentGroupsPlayingInfo.h"
 #include "EmptyState.h"
 #include "StateMachine.h"
-#include "CurrentGroupsPlayingInfo.h"
-#include "AnimationClipInfo.h"
 
 namespace GameEngine
 {
@@ -18,6 +18,7 @@ PlayAnimation::PlayAnimation(Context& context, const AnimationClipInfo& info, fl
     , playInfo_{{.time = startTime, .clipInfo = info}, info.playDirection == PlayDirection::forward ? 1.f : -1.f}
 
 {
+    eventHandledDuringUpdate = false;
 }
 bool PlayAnimation::update(float deltaTime)
 {
@@ -27,7 +28,10 @@ bool PlayAnimation::update(float deltaTime)
     if (not increaseAnimationTime(playInfo_.time, playInfo_.previousFrameTimeStamp, playInfo_.clipInfo, currentPose.frames.first,
                                   deltaTime))
     {
-        context_.machine.transitionTo<EmptyState>(context_);
+        LOG_DEBUG << "transitionTo EmptyState";
+        if (not eventHandledDuringUpdate)
+            context_.machine.transitionTo<EmptyState>(context_);
+        return true;
     }
 
     if (playInfo_.clipInfo.rootMontion)
@@ -38,11 +42,14 @@ bool PlayAnimation::update(float deltaTime)
 }
 void PlayAnimation::handle(const ChangeAnimationEvent& event)
 {
+    LOG_DEBUG << event.info.clip.getName();
+
+    eventHandledDuringUpdate = true;
     if (event.jointGroupName)
     {
         std::vector<CurrentGroupsPlayingInfo> v{{playInfo_.clipInfo, playInfo_.time, {}}};
 
-        for (auto& [name, group] : context_.jointGroups)
+        for (const auto& [name, group] : context_.jointGroups)
         {
             if (name != event.jointGroupName)
             {
@@ -53,6 +60,7 @@ void PlayAnimation::handle(const ChangeAnimationEvent& event)
     }
     else
     {
+        LOG_DEBUG << "";
         context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime, event.onTransitionEnd);
     }
 }

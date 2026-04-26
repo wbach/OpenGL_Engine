@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include <ostream>
 #include <vector>
 
 #include "GameEngine/Animations/AnimationClip.h"
@@ -34,6 +35,8 @@ struct AnimationClipInfo
 
     std::vector<Subscription> subscribers;
 };
+
+std::ostream& operator<<(std::ostream&, const AnimationClipInfo&);
 }  // namespace Components
 }  // namespace GameEngine
 
