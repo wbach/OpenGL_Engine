@@ -74,7 +74,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_WeaponStateE
 
     expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.movement.run.forward, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.movement.run.forward, sut_.animationClipsNames_.equip.front()});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_DrawArrowEvent)
@@ -88,7 +88,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_DrawArrowEve
 
     expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.movement.run.forward, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.movement.run.forward, sut_.animationClipsNames_.equip.front()});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_AimStopEvent)

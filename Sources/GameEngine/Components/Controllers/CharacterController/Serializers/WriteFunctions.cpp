@@ -1,7 +1,7 @@
 #include "WriteFunctions.h"
 
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/XML/XmlWriter.h>
 
 #include "../AnimationClipNames.h"
@@ -100,11 +100,30 @@ void write(TreeNode& node, const AimClips& names)
     write(node.addChild(CSTR_AIM_IDLE_ANIMATION), names.idle);
 }
 
+void write(TreeNode& node, const AnimSequence& animSequence)
+{
+    if (animSequence.empty())
+    {
+        return;
+    }
+
+    if (animSequence.size() == 1)
+    {
+        node.value_ = animSequence.front();
+        return;
+    }
+
+    auto& sequence = node.addChild(CSTR_SEQUENCE);
+    for (auto& clip : animSequence.clipNames)
+    {
+        write(sequence.addChild(CSTR_CLIP_NAME), clip);
+    }
+}
+
 void write(TreeNode& node, const AnimationClipsNames& names)
 {
     write(node.addChild(CSTR_ANIMATION_ARMED), names.armed);
     write(node.addChild(CSTR_ANIMATION_DISARMED), names.disarmed);
-
     write(node.addChild(CSTR_ANIMATION_EQUIP), names.equip);
     write(node.addChild(CSTR_ANIMATION_DISARM), names.disarm);
     write(node.addChild(CSTR_AIM), names.aim);

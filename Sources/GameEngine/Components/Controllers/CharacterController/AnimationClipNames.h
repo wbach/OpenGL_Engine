@@ -5,6 +5,44 @@
 
 namespace GameEngine
 {
+struct AnimSequence
+{
+    std::vector<std::string> clipNames;
+
+    auto operator<=>(const AnimSequence&) const = default;
+
+    auto operator=(const AnimSequence&) -> AnimSequence& = default;
+    auto operator=(const std::vector<std::string>& names) -> AnimSequence&
+    {
+        clipNames = names;
+        return *this;
+    }
+
+    bool empty() const
+    {
+        return clipNames.empty();
+    }
+
+    void clear()
+    {
+        clipNames.clear();
+    }
+
+    size_t size() const
+    {
+        return clipNames.size();
+    }
+
+    const std::string& front() const
+    {
+        return clipNames.front();
+    }
+    const std::string& back() const
+    {
+        return clipNames.back();
+    }
+};
+
 namespace Components
 {
 struct AttackAnimation
@@ -75,14 +113,20 @@ struct AimClips
     std::string idle;
 };
 
+struct DualStepAnimaton
+{
+    std::string begin;
+    std::string end;
+};
+
 struct AnimationClipsNames
 {
     StateClipsNames armed;
     StateClipsNames disarmed;
     AimClips aim;
 
-    std::string equip;
-    std::string disarm;
+    AnimSequence equip;
+    AnimSequence disarm;
 };
 
 bool operator==(const MovmentClipNames&, const MovmentClipNames&);

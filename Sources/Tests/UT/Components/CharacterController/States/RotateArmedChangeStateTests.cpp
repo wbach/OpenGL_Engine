@@ -8,14 +8,14 @@ void prepareState(CharacterControllerTests& test)
     test.expectAnimsToBeSet({test.sut_.animationClipsNames_.disarmed.posture.stand.idle});
     test.tiggerAndExpect<RotateLeftEvent>({test.sut_.animationClipsNames_.disarmed.posture.stand.rotate.left});
     test.tiggerAndExpect<WeaponStateEvent>(
-        {test.sut_.animationClipsNames_.armed.posture.stand.rotate.left, test.sut_.animationClipsNames_.equip});
+        {test.sut_.animationClipsNames_.armed.posture.stand.rotate.left, test.sut_.animationClipsNames_.equip.front()});
 }
 }  // namespace
 
 // TEST_F(CharacterControllerTests, RotateArmedChangeState_WeaponStateEvent)
 //{
 //     prepareState(*this);
-//     tiggerAndExpect<WeaponStateEvent, IdleArmedChangeState>({sut_.animationClipsNames_.disarm},
+//     tiggerAndExpect<WeaponStateEvent, IdleArmedChangeState>({sut_.animationClipsNames_.disarm.front()},
 //                                                             {ADVANCED_TIME_TRANSITION_TIME});
 //     Update(ADVANCED_TIME_CLIP_TIME);
 //     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -25,7 +25,7 @@ TEST_F(CharacterControllerTests, RotateArmedChangeState_CrouchChangeStateEvent)
 {
     prepareState(*this);
     tiggerAndExpect<CrouchChangeStateEvent>(
-        {sut_.animationClipsNames_.armed.posture.crouched.rotate.left, sut_.animationClipsNames_.equip});
+        {sut_.animationClipsNames_.armed.posture.crouched.rotate.left, sut_.animationClipsNames_.equip.front()});
 }
 TEST_F(CharacterControllerTests, RotateArmedChangeState_DeathEvent)
 {
@@ -50,13 +50,13 @@ TEST_F(CharacterControllerTests, RotateArmedChangeState_MoveForwardEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.movement.run.forward});
+    tiggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.armed.movement.run.forward});
 }
 TEST_F(CharacterControllerTests, RotateArmedChangeState_MoveBackwardEvent)
 {
     prepareState(*this);
     expectForwardVelocity(-DEFAULT_RUN_SPEED);
-    tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.movement.run.forward});
+    tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.armed.movement.run.forward});
     expectRotationLeft(DEFAULT_MOVING_CHANGE_DIR_SPEED);
     expectRootboneRotation(VECTOR_BACKWARD);
 }
@@ -64,7 +64,7 @@ TEST_F(CharacterControllerTests, RotateArmedChangeState_MoveLeftEvent)
 {
     prepareState(*this);
     expectVelocity(VECTOR_LEFT, vec3(DEFAULT_RUN_SPEED, 0.0, 0.0));
-    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.movement.run.forward});
+    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.armed.movement.run.forward});
     expectRotationLeft(DEFAULT_MOVING_CHANGE_DIR_SPEED);
     expectRootboneRotation(VECTOR_LEFT);
 }
@@ -72,7 +72,7 @@ TEST_F(CharacterControllerTests, RotateArmedChangeState_MoveRightEvent)
 {
     prepareState(*this);
     expectVelocity(VECTOR_RIGHT, vec3(DEFAULT_RUN_SPEED, 0.0, 0.0));
-    tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.movement.run.forward});
+    tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.armed.movement.run.forward});
     expectRotationLeft(DEFAULT_MOVING_CHANGE_DIR_SPEED);
     expectRootboneRotation(VECTOR_RIGHT);
 }
@@ -81,14 +81,14 @@ TEST_F(CharacterControllerTests, RotateArmedChangeState_RotateLeftEvent)
     prepareState(*this);
     expectRotationLeft();
     tiggerAndExpect<RotateLeftEvent>(
-        {sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.posture.stand.rotate.left});
+        {sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.armed.posture.stand.rotate.left});
 }
 TEST_F(CharacterControllerTests, RotateArmedChangeState_RotateRightEvent)
 {
     prepareState(*this);
     expectRotationRight();
     tiggerAndExpect<RotateRightEvent>(
-        {sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.posture.stand.rotate.right});
+        {sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.armed.posture.stand.rotate.right});
 }
 TEST_F(CharacterControllerTests, RotateArmedChangeState_RotateTargetEvent)
 {
@@ -99,12 +99,12 @@ TEST_F(CharacterControllerTests, RotateArmedChangeState_RotateTargetEvent)
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
     tiggerAndExpect<RotateTargetEvent>(
         RotateTargetEvent{targetRotation.value_},
-        {sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.posture.stand.rotate.left});
+        {sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.armed.posture.stand.rotate.left});
 }
 TEST_F(CharacterControllerTests, RotateArmedChangeState_DrawArrowEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.posture.stand.rotate.left});
+    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.armed.posture.stand.rotate.left});
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
     expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
@@ -114,8 +114,8 @@ TEST_F(CharacterControllerTests, RotateArmedChangeState_DrawArrowEvent)
 TEST_F(CharacterControllerTests, RotateArmedChangeState_AimStopEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.posture.stand.rotate.left});
-    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.posture.stand.rotate.left});
+    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.armed.posture.stand.rotate.left});
+    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.armed.posture.stand.rotate.left});
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
     expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);

@@ -95,22 +95,22 @@ void RunAndRotateArmedChangeState::update(const WeaponStateEvent &e)
 
 bool RunAndRotateArmedChangeState::entryCondition(DisarmedSprintAndRotateState&) const
 {
-    return not context_.animClipNames.equip.empty();
+    return not context_.animClipNames.equip.clipNames.empty();
 }
 
 bool RunAndRotateArmedChangeState::entryCondition(DisarmedRunAndRotateState&) const
 {
-    return not context_.animClipNames.equip.empty();
+    return not context_.animClipNames.equip.clipNames.empty();
 }
 
 bool RunAndRotateArmedChangeState::entryCondition(ArmedSprintAndRotateState&) const
 {
-    return not context_.animClipNames.disarm.empty();
+    return not context_.animClipNames.disarm.clipNames.empty();
 }
 
 bool RunAndRotateArmedChangeState::entryCondition(ArmedRunAndRotateState&) const
 {
-    return not context_.animClipNames.disarm.empty();
+    return not context_.animClipNames.disarm.clipNames.empty();
 }
 
 }  // namespace Components

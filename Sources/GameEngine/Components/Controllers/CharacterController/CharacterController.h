@@ -113,8 +113,8 @@ public:
         FIELD_STRING(animationClipsNames_.aim.draw)
         FIELD_STRING(animationClipsNames_.aim.recoil)
         FIELD_STRING(animationClipsNames_.aim.idle)
-        FIELD_STRING(animationClipsNames_.equip)
-        FIELD_STRING(animationClipsNames_.disarm)
+        FIELD_VECTOR_OF_STRINGS(animationClipsNames_.equip.clipNames)
+        FIELD_VECTOR_OF_STRINGS(animationClipsNames_.disarm.clipNames)
 
         // WALK SPEED
         FIELD_FLOAT(moveSpeeds_.walkSpeed.forward)

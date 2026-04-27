@@ -77,8 +77,8 @@ void CharacterControllerTests::TearDown()
 void CharacterControllerTests::initAnimations()
 {
     auto& clips  = sut_.animationClipsNames_;
-    clips.equip  = "equip";
-    clips.disarm = "disarm";
+    clips.equip  = {"equip"};
+    clips.disarm = {"disarm"};
 
     clips.aim.idle   = "aimIdle";
     clips.aim.draw   = "drawArrow";
@@ -175,8 +175,15 @@ void CharacterControllerTests::initAnimations()
     armedAttackClip2 = &clips.armed.attack[1];
     armedAttackClip3 = &clips.armed.attack[2];
 
-    addDummyClip(clips.equip);
-    addDummyClip(clips.disarm);
+    for (auto& clip : clips.equip.clipNames)
+    {
+        addDummyClip(clip);
+    }
+    for (auto& clip : clips.disarm.clipNames)
+    {
+        addDummyClip(clip);
+    }
+
     addDummyClip(clips.aim.idle);
     addDummyClip(clips.aim.draw);
     addDummyClip(clips.aim.recoil);

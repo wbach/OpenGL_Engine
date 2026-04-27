@@ -79,7 +79,7 @@ TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_WeaponStateEve
 
     expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.movement.walk.forward, sut_.animationClipsNames_.disarm});
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.movement.walk.forward, sut_.animationClipsNames_.disarm.front()});
 }
 
 TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_DrawArrowEvent)

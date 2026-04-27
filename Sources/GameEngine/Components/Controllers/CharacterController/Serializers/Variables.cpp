@@ -11,6 +11,8 @@ const std::string COMPONENT_STR = "CharacterController";
 const std::string CSTR_EQUIP_TIMESTAMP  = "equipTimeStamp";
 const std::string CSTR_DISARM_TIMESTAMP = "disarmTimeStamp";
 
+const std::string CSTR_SEQUENCE                  = "sequence";
+const std::string CSTR_CLIP_NAME                 = "clipname";
 const std::string CSTR_ATTACK_ANIMATIONS         = "attackAnimations";
 const std::string CSTR_ANIMATION                 = "animation";
 const std::string CSTR_ANIMATION_STATE_TYPE      = "stateType";
