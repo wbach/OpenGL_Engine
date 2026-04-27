@@ -18,7 +18,6 @@ PlayAnimation::PlayAnimation(Context& context, const AnimationClipInfo& info, fl
     , playInfo_{{.time = startTime, .clipInfo = info}, info.playDirection == PlayDirection::forward ? 1.f : -1.f}
 
 {
-    eventHandledDuringUpdate = false;
 }
 bool PlayAnimation::update(float deltaTime)
 {
@@ -28,9 +27,7 @@ bool PlayAnimation::update(float deltaTime)
     if (not increaseAnimationTime(playInfo_.time, playInfo_.previousFrameTimeStamp, playInfo_.clipInfo, currentPose.frames.first,
                                   deltaTime))
     {
-        LOG_DEBUG << "transitionTo EmptyState";
-        if (not eventHandledDuringUpdate)
-            context_.machine.transitionTo<EmptyState>(context_);
+        context_.machine.transitionTo<EmptyState>(context_);
         return true;
     }
 
@@ -44,7 +41,6 @@ void PlayAnimation::handle(const ChangeAnimationEvent& event)
 {
     LOG_DEBUG << event.info.clip.getName();
 
-    eventHandledDuringUpdate = true;
     if (event.jointGroupName)
     {
         std::vector<CurrentGroupsPlayingInfo> v{{playInfo_.clipInfo, playInfo_.time, {}}};
@@ -60,7 +56,6 @@ void PlayAnimation::handle(const ChangeAnimationEvent& event)
     }
     else
     {
-        LOG_DEBUG << "";
         context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime, event.onTransitionEnd);
     }
 }

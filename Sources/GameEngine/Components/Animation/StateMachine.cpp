@@ -30,13 +30,18 @@ void StateMachine::Reset()
 
 PoseUpdateAction StateMachine::update(float deltaTime)
 {
+    PoseUpdateAction result{PoseUpdateAction::nothingToDo};
     if (currentState_)
     {
         if (currentState_->update(deltaTime))
-            return PoseUpdateAction::update;
+        {
+            result = PoseUpdateAction::update;
+        }
     }
 
-    return PoseUpdateAction::nothingToDo;
+    processNotifications();
+
+    return result;
 }
 
 void StateMachine::handle(const IncomingEvent& event)
@@ -58,6 +63,18 @@ void StateMachine::LogTransition(const std::string& stateName)
     auto nextAnims     = currentState_->getCurrentAnimation();
     LOG_DEBUG << "Animation state transition : " << stateName << ", Prev anims: " << Utils::MergeString(previousAnims, " ")
               << " New anims: " << Utils::MergeString(nextAnims, " ");
+}
+void StateMachine::postNotification(std::function<void()> callback)
+{
+    notificationQueue.push_back(std::move(callback));
+}
+void StateMachine::processNotifications()
+{
+    auto currentQueue = std::move(notificationQueue);
+    for (auto& notify : currentQueue)
+    {
+        notify();
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine

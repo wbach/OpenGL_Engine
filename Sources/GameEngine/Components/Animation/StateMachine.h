@@ -1,12 +1,13 @@
 #pragma once
+#include <Utils/Logger/TypeName.h>
+
 #include <memory>
 #include <variant>
-#include "ChangeAnimationEvent.h"
-#include "StopAnimationEvent.h"
 
+#include "ChangeAnimationEvent.h"
 #include "Common.h"
 #include "PoseUpdateAction.h"
-#include <Utils/Logger/TypeName.h>
+#include "StopAnimationEvent.h"
 
 namespace GameEngine
 {
@@ -38,11 +39,15 @@ struct StateMachine
         LogTransition(typeName<State>());
 #endif
     }
+
+    void postNotification(std::function<void()>);
+    void processNotifications();
     void LogTransition(const std::string&);
 
     std::unique_ptr<Context> context_;
     std::unique_ptr<IAnimationState> tmpTransitionState_;
     std::unique_ptr<IAnimationState> currentState_;
+    std::vector<std::function<void()>> notificationQueue;
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -4,7 +4,7 @@
 
 #include "AnimationClipInfo.h"
 #include "Context.h"
-
+#include "StateMachine.h"
 namespace GameEngine
 {
 namespace Components
@@ -28,14 +28,12 @@ void AnimationStateBase::notifyFrameSubsribers(const AnimationClipInfo& clipInfo
         currentFrame = &clipInfo.clip.GetFrames().back();
     }
 
-    // Unsubscribe during callbacks
-    auto tmpSubscirbers = clipInfo.subscribers;
-    for (const auto& sub : tmpSubscirbers)
+    for (const auto& sub : clipInfo.subscribers)
     {
         if (compare(sub.timeStamp, currentFrame->timeStamp.value) and
             not compare(currentFrame->timeStamp.value, previousFrameTimeStamp))
         {
-            sub.callback();
+            context_.machine.postNotification(sub.callback);
         }
     }
 
