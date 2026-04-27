@@ -100,94 +100,60 @@ void ArmedChangeStateBase::triggerChange()
     {
         return;
     }
-    else if (animationSequence.size() == 1)
+
+    if (animationSequence.size() > 2)
     {
-        const auto& animName = animationSequence.front();
-
-        subscribeForTransitionAnimationFrame_ = context_.animator.SubscribeForAnimationFrame(
-            animName,
-            [this, isArmed = armed_]()
-            {
-                unsubscribe(subscribeForTransitionAnimationFrame_);
-                if (isArmed)
-                {
-                    poseUpdater_->setEquipJointAsCurrent();
-                }
-                else
-                {
-                    poseUpdater_->setDisarmJointAsCurrent();
-                }
-            },
-            armed_ ? context_.armTimeStamps.arm : context_.armTimeStamps.disarm);
-
-        subscribeForTransitionAnimationEnd_ = context_.animator.SubscribeForAnimationFrame(
-            animName,
-            [this]()
-            {
-                unsubscribe(subscribeForTransitionAnimationEnd_);
-                if (armed_)
-                {
-                    context_.characterController.pushEventToQueue(EquipEndStateEvent{});
-                }
-                else
-                {
-                    context_.characterController.pushEventToQueue(DisarmEndStateEvent{});
-                }
-                context_.weaponArmedChangeState = FsmContext::WeaponArmedChangeState::None;
-            });
-
-        context_.animator.ChangeAnimation(animName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-                                          jointGroupName_);
+        LOG_WARN << "Sequence len > 2 is not implemented";
+        return;
     }
-    else if (animationSequence.size() == 2)
+
+    const auto& firstClip = animationSequence.front();
+    const auto& lastClip  = animationSequence.back();
+    bool isSequence       = animationSequence.size() == 2;
+
+    auto frameCallback = [this, isArmed = armed_, isSequence, next = lastClip]()
     {
-        const auto& beginPart = animationSequence.front();
-        const auto& endPart   = animationSequence.back();
-        LOG_DEBUG << beginPart;
-        LOG_DEBUG << endPart;
+        unsubscribe(subscribeForTransitionAnimationFrame_);
 
-        subscribeForTransitionAnimationFrame_ = context_.animator.SubscribeForAnimationFrame(
-            beginPart,
-            [this, isArmed = armed_, next = endPart]()
-            {
-                unsubscribe(subscribeForTransitionAnimationFrame_);
-                if (isArmed)
-                {
-                    poseUpdater_->setEquipJointAsCurrent();
-                }
-                else
-                {
-                    poseUpdater_->setDisarmJointAsCurrent();
-                }
+        if (isArmed)
+        {
+            poseUpdater_->setEquipJointAsCurrent();
+        }
+        else
+        {
+            poseUpdater_->setDisarmJointAsCurrent();
+        }
 
-                LOG_DEBUG << "beginPart finished. Change to next : " << next;
-                context_.animator.ChangeAnimation(next, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-                                                  jointGroupName_);
-            });
+        if (isSequence)
+        {
+            LOG_DEBUG << "First part finished. Change to next: " << next;
+            context_.animator.ChangeAnimation(next, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+                                              jointGroupName_);
+        }
+    };
 
-        subscribeForTransitionAnimationEnd_ = context_.animator.SubscribeForAnimationFrame(
-            endPart,
-            [this]()
-            {
-                unsubscribe(subscribeForTransitionAnimationEnd_);
-                if (armed_)
-                {
-                    context_.characterController.pushEventToQueue(EquipEndStateEvent{});
-                }
-                else
-                {
-                    context_.characterController.pushEventToQueue(DisarmEndStateEvent{});
-                }
-                context_.weaponArmedChangeState = FsmContext::WeaponArmedChangeState::None;
-            });
-
-        context_.animator.ChangeAnimation(beginPart, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-                                          jointGroupName_);
-    }
-    else
+    auto endCallback = [this]()
     {
-        LOG_WARN << "Sequence len > 2 is not implmented";
-    }
+        unsubscribe(subscribeForTransitionAnimationEnd_);
+
+        if (armed_)
+        {
+            context_.characterController.pushEventToQueue(EquipEndStateEvent{});
+        }
+        else
+        {
+            context_.characterController.pushEventToQueue(DisarmEndStateEvent{});
+        }
+        context_.weaponArmedChangeState = FsmContext::WeaponArmedChangeState::None;
+    };
+
+    const auto& timeStamp = isSequence ? -1.f : (armed_ ? context_.armTimeStamps.arm : context_.armTimeStamps.disarm);
+
+    subscribeForTransitionAnimationFrame_ =
+        context_.animator.SubscribeForAnimationFrame(firstClip, std::move(frameCallback), timeStamp);
+    subscribeForTransitionAnimationEnd_ = context_.animator.SubscribeForAnimationFrame(lastClip, std::move(endCallback));
+
+    context_.animator.ChangeAnimation(firstClip, Animator::AnimationChangeType::smooth, PlayDirection::forward, jointGroupName_);
 }
 void ArmedChangeStateBase::unsubscribe(std::optional<uint32>& maybeId)
 {
