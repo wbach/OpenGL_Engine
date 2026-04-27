@@ -113,12 +113,6 @@ struct AimClips
     std::string idle;
 };
 
-struct DualStepAnimaton
-{
-    std::string begin;
-    std::string end;
-};
-
 struct AnimationClipsNames
 {
     StateClipsNames armed;
