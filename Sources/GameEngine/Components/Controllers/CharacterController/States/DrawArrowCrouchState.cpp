@@ -10,7 +10,8 @@ namespace GameEngine
 namespace Components
 {
 DrawArrowCrouchState::DrawArrowCrouchState(FsmContext &context)
-    : DrawArrowStateBase{context, context.upperBodyGroupName}
+    : BaseState(context)
+    , DrawArrowStateBase{context, context.upperBodyGroupName}
     , IdleStateBase(context, context.animClipNames.armed.posture.crouched.idle, context.lowerBodyGroupName)
     , context_{context}
 {

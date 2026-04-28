@@ -10,7 +10,7 @@ class JointPoseUpdater;
 
 struct FsmContext;
 
-class IdleStateBase : public BaseState
+class IdleStateBase : virtual public BaseState
 {
 public:
     IdleStateBase(FsmContext&, const std::string&, std::optional<std::string> = std::nullopt);

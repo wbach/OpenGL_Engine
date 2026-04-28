@@ -28,7 +28,7 @@ struct CharacterControllerTests : public BaseComponentTestSchould
     virtual void SetUp() override;
     virtual void TearDown() override;
     void createDummySkeleton();
-    void addDummyClip(const std::string&);
+    void addDummyClip(const std::string&, AnimationClipInfo::PlayType = AnimationClipInfo::PlayType::loop, bool = false);
     void initAnimations();
 
     void Update(float time);

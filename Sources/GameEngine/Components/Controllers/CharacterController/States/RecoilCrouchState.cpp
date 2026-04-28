@@ -9,9 +9,9 @@ namespace GameEngine
 namespace Components
 {
 RecoilCrouchState::RecoilCrouchState(FsmContext &context)
-    : RecoilStateBase(context, context.upperBodyGroupName)
+    : BaseState(context)
+    , RecoilStateBase(context, context.upperBodyGroupName)
     , IdleStateBase(context, context.animClipNames.armed.posture.crouched.idle, context.lowerBodyGroupName)
-    , context_{context}
 {
 }
 void RecoilCrouchState::onEnter(const EndRotationEvent &)

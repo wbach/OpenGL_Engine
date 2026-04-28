@@ -10,7 +10,8 @@ namespace GameEngine
 namespace Components
 {
 IdleCrouchArmedChangeState::IdleCrouchArmedChangeState(FsmContext &context)
-    : ArmedChangeStateBase(context, context.upperBodyGroupName)
+    : BaseState(context)
+    , ArmedChangeStateBase(context, context.upperBodyGroupName)
     , IdleStateBase{context, context.animClipNames.armed.posture.crouched.idle}
     , context_{context}
 {

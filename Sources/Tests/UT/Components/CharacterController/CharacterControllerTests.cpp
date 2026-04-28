@@ -196,7 +196,7 @@ void CharacterControllerTests::initAnimations()
     addDummyClip(clips.disarmed.jump);
     addDummyClip(clips.disarmed.falling);
     addDummyClip(clips.disarmed.sprint);
-    addDummyClip(clips.disarmed.dodgeDive);
+    addDummyClip(clips.disarmed.dodgeDive, AnimationClipInfo::PlayType::once, true);
     addDummyClip(clips.disarmed.dodge.forward);
     addDummyClip(clips.disarmed.dodge.backward);
     addDummyClip(clips.disarmed.dodge.left);
@@ -264,7 +264,7 @@ void CharacterControllerTests::initAnimations()
     addDummyClip(clips.armed.jump);
     addDummyClip(clips.armed.sprint);
     addDummyClip(clips.armed.falling);
-    addDummyClip(clips.armed.dodgeDive);
+    addDummyClip(clips.armed.dodgeDive, AnimationClipInfo::PlayType::once, true);
     addDummyClip(clips.armed.dodge.forward);
     addDummyClip(clips.armed.dodge.backward);
     addDummyClip(clips.armed.dodge.left);
@@ -303,7 +303,7 @@ void CharacterControllerTests::createDummySkeleton()
     model_.setSkeletonRootJoint(std::move(rootJoint));
 }
 
-void CharacterControllerTests::addDummyClip(const std::string& name)
+void CharacterControllerTests::addDummyClip(const std::string& name, AnimationClipInfo::PlayType playType, bool rootMontion)
 {
     Animation::AnimationClip clip(name);
     for (int i = 0; i <= DUMMY_FRAMES; ++i)
@@ -311,7 +311,7 @@ void CharacterControllerTests::addDummyClip(const std::string& name)
         clip.AddFrame(Animation::KeyFrame{{DUMMY_FRAME_TIME_DELTA * (float)i}, {{0, Animation::JointTransform{}}}});
     }
     LOG_DEBUG << "addDummyClip : " << name << " Length : " << clip.GetLength();
-    animator_->AddAnimationClip(name, clip);
+    animator_->AddAnimationClip(name, clip, playType, rootMontion);
 }
 
 void CharacterControllerTests::Update(float time)

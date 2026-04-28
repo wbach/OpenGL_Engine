@@ -1,13 +1,15 @@
 #include "WalkArmedChangeState.h"
 
 #include "../FsmContext.h"
+#include "GameEngine/Components/Controllers/CharacterController/States/BaseState.h"
 
 namespace GameEngine
 {
 namespace Components
 {
 WalkArmedChangeState::WalkArmedChangeState(FsmContext& context)
-    : ArmedChangeStateBase(context, context.upperBodyGroupName)
+    : BaseState(context)
+    , ArmedChangeStateBase(context, context.upperBodyGroupName)
     , RotatingMoveState{context, context.lowerBodyGroupName, context.walkSpeed.forward,
                         context.animClipNames.disarmed.movement.walk.forward}
     , context_{context}

@@ -2,13 +2,13 @@
 
 #include "../FsmContext.h"
 
-
 namespace GameEngine
 {
 namespace Components
 {
 DisarmedIdleCrouchState::DisarmedIdleCrouchState(FsmContext &context)
-    : IdleStateBase(context, context.animClipNames.disarmed.posture.crouched.idle)
+    : BaseState(context)
+    , IdleStateBase(context, context.animClipNames.disarmed.posture.crouched.idle)
 {
 }
 }  // namespace Components

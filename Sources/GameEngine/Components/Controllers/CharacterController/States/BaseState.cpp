@@ -15,6 +15,7 @@ void BaseState::update(float)
 }
 void BaseState::flushEvents()
 {
+    LOG_DEBUG << queue_.size();
     for (const auto &e : queue_)
     {
         context_.characterController.pushEventToQueue(e);

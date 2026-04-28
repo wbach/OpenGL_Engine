@@ -5,14 +5,14 @@
 #include <optional>
 
 #include "CharacterControllerCommonDefs.h"
-
+#include "BaseState.h"
 namespace GameEngine
 {
 namespace Components
 {
 class PoseUpdater;
 
-class ArmedChangeStateBase
+class ArmedChangeStateBase : virtual public BaseState
 {
 public:
     ArmedChangeStateBase(FsmContext&, const std::optional<std::string>&);
@@ -25,6 +25,7 @@ public:
 protected:
     void equipWeapon();
     void disarmWeapon();
+    void onLeave();
     void onLeave(const EquipEndStateEvent&);
     void onLeave(const DisarmEndStateEvent&);
     bool hasWeapon() const;
@@ -35,7 +36,6 @@ private:
     void unsubscribeAll();
 
 protected:
-    FsmContext& context_;
     std::optional<std::string> jointGroupName_;
 
 private:

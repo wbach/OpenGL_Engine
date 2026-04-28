@@ -10,6 +10,7 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_DrawArrowEvent)
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.aim.draw});
 }
+
 TEST_F(CharacterControllerTests, DisarmedIdleState_AimStopDuringDrawArrowEvent)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});

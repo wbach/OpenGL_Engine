@@ -33,6 +33,7 @@ class IdleArmedChangeState
 public:
     IdleArmedChangeState(FsmContext&);
 
+    using ArmedChangeStateBase::onLeave;
     using ArmedChangeStateBase::update;
     using IdleStateBase::onEnter;
 
@@ -44,6 +45,7 @@ public:
     bool entryCondition(ArmedIdleState&) const;
     bool entryCondition(ArmedAttackState&) const;
 
+    void onEnter(ArmedIdleState&, const StartDialogEvent&);
     void onEnter(DisarmedIdleState&, const WeaponStateEvent&);
     void onEnter(DisarmedAttackState&, const WeaponStateEvent&);
     void onEnter(ArmedIdleState&, const WeaponStateEvent&);
@@ -60,8 +62,6 @@ public:
     void onEnter(const EndRotationEvent&);
 
     void update(float);
-
-    using ArmedChangeStateBase::onLeave;
 
 private:
     FsmContext& context_;

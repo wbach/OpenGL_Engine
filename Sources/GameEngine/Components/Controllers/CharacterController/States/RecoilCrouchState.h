@@ -42,9 +42,6 @@ public:
     void onLeave(const WeaponStateEvent &);
 
     void update(float);
-
-private:
-    FsmContext &context_;
 };
 }  // namespace Components
 }  // namespace GameEngine

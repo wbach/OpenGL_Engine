@@ -7,7 +7,8 @@ namespace GameEngine
 namespace Components
 {
 CrouchWalkArmedChangeState::CrouchWalkArmedChangeState(FsmContext& context)
-    : ArmedChangeStateBase(context, context.upperBodyGroupName)
+    : BaseState(context)
+    , ArmedChangeStateBase(context, context.upperBodyGroupName)
     , RotatingMoveState{context, context.lowerBodyGroupName, context.walkSpeed.forward,
                         context.animClipNames.disarmed.movement.crouch.forward}
     , context_{context}

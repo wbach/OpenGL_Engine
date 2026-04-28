@@ -34,6 +34,9 @@ class DisarmedIdleState
 {
 public:
     DisarmedIdleState(FsmContext &);
+
+    using IdleStateBase::onEnter;
+    void onEnter(const StartDialogEvent &);
 };
 }  // namespace Components
 }  // namespace GameEngine

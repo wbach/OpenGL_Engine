@@ -8,7 +8,8 @@ namespace GameEngine
 namespace Components
 {
 RotateArmedChangeState::RotateArmedChangeState(FsmContext &context)
-    : ArmedChangeStateBase(context, context.upperBodyGroupName)
+    : BaseState(context)
+    , ArmedChangeStateBase(context, context.upperBodyGroupName)
     , RotateStateBase{context, context.lowerBodyGroupName, context.runSpeed.rotate,
                       context.animClipNames.disarmed.posture.stand.rotate, RotateStateBase::CameraRotationPolicy::none}
     , context_{context}

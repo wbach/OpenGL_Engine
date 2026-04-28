@@ -7,7 +7,8 @@ namespace GameEngine
 namespace Components
 {
 WalkAndRotateArmedChangeState::WalkAndRotateArmedChangeState(FsmContext& context)
-    : ArmedChangeStateBase(context, context.upperBodyGroupName)
+    : BaseState(context)
+    , ArmedChangeStateBase(context, context.upperBodyGroupName)
     , RotatingMoveAndRotateStateBase{context, context.lowerBodyGroupName, context.walkSpeed,
                                      context.animClipNames.disarmed.movement.walk,
                                      context.animClipNames.disarmed.posture.stand.rotate}

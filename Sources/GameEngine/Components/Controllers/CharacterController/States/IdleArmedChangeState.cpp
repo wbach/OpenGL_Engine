@@ -4,13 +4,15 @@
 
 #include "../CharacterController.h"
 #include "../FsmContext.h"
+#include "GameEngine/Components/Controllers/CharacterController/States/BaseState.h"
 
 namespace GameEngine
 {
 namespace Components
 {
 IdleArmedChangeState::IdleArmedChangeState(FsmContext &context)
-    : ArmedChangeStateBase(context, std::nullopt)
+    : BaseState(context)
+    , ArmedChangeStateBase(context, std::nullopt)
     , IdleStateBase{context, context.animClipNames.disarmed.posture.stand.idle}
     , context_{context}
 {
@@ -40,6 +42,11 @@ void IdleArmedChangeState::onEnter(DisarmedAttackState &, const WeaponStateEvent
 void IdleArmedChangeState::onEnter(ArmedIdleState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
+}
+void IdleArmedChangeState::onEnter(ArmedIdleState &, const StartDialogEvent & e)
+{
+    ArmedChangeStateBase::disarmWeapon();
+    pushEventToQueue(e);
 }
 void IdleArmedChangeState::onEnter(ArmedAttackState &, const WeaponStateEvent &)
 {

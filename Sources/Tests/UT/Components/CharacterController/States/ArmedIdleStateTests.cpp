@@ -1,4 +1,5 @@
 #include "../CharacterControllerTests.h"
+#include "Components/Controllers/CharacterController/CharacterControllerEvents.h"
 
 namespace
 {
@@ -18,6 +19,18 @@ TEST_F(CharacterControllerTests, ArmedIdleStateTests_DrawArrowEvent)
 {
     prepareState(*this);
     tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.aim.draw});
+}
+
+TEST_F(CharacterControllerTests, ArmedIdleStateTests_StartDialogEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect({sut_.animationClipsNames_.disarm.front()}, {ADVANCED_TIME_TRANSITION_TIME},
+                    StartDialogEvent{.role = StartDialogEvent::Role::Listener});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.dialog.listen});
 }
 
 TEST_F(CharacterControllerTests, ArmedIdleStateTests_WeaponStateEvent)

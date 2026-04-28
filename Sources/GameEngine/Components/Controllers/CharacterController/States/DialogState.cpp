@@ -10,7 +10,8 @@ namespace GameEngine
 namespace Components
 {
 DialogState::DialogState(FsmContext &context)
-    : IdleStateBase(context, context.animClipNames.disarmed.dialog.say)
+    : BaseState(context)
+    , IdleStateBase(context, context.animClipNames.disarmed.dialog.say)
 {
     setIdleAnim();
 }

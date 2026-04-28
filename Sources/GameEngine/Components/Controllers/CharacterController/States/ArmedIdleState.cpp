@@ -1,13 +1,15 @@
 #include "ArmedIdleState.h"
 
 #include "../FsmContext.h"
+#include "GameEngine/Components/Controllers/CharacterController/States/BaseState.h"
 
 namespace GameEngine
 {
 namespace Components
 {
 ArmedIdleState::ArmedIdleState(FsmContext &context)
-    : IdleStateBase(context, context.animClipNames.armed.posture.stand.idle)
+    : BaseState(context)
+    , IdleStateBase(context, context.animClipNames.armed.posture.stand.idle)
 {
 }
 bool ArmedIdleState::leaveCondition(const AttackEvent &)

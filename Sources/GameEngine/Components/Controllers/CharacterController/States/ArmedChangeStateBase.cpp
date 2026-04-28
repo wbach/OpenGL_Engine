@@ -14,7 +14,7 @@ namespace GameEngine
 namespace Components
 {
 ArmedChangeStateBase::ArmedChangeStateBase(FsmContext& context, const std::optional<std::string>& jointGroupName)
-    : context_{context}
+    : BaseState{context}
     , jointGroupName_{jointGroupName}
     , poseUpdater_{context.gameObject.GetComponentInChild<PoseUpdater>()}
 {
@@ -68,6 +68,11 @@ void ArmedChangeStateBase::disarmWeapon()
     armed_ = false;
     triggerChange();
     context_.weaponArmedChangeState = FsmContext::WeaponArmedChangeState::Disarm;
+}
+
+void ArmedChangeStateBase::onLeave()
+{
+    flushEvents();
 }
 
 void ArmedChangeStateBase::onLeave(const EquipEndStateEvent&)

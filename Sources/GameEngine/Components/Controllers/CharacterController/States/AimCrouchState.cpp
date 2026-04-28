@@ -8,7 +8,8 @@ namespace GameEngine
 namespace Components
 {
 AimCrouchState::AimCrouchState(FsmContext& context)
-    : AimStateBase(context, context.upperBodyGroupName)
+    : BaseState(context)
+    , AimStateBase(context, context.upperBodyGroupName)
     , IdleStateBase(context, context.animClipNames.armed.posture.crouched.idle, context.lowerBodyGroupName)
     , context_{context}
 {

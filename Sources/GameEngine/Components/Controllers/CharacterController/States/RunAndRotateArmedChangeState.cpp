@@ -8,7 +8,8 @@ namespace GameEngine
 namespace Components
 {
 RunAndRotateArmedChangeState::RunAndRotateArmedChangeState(FsmContext &context)
-    : ArmedChangeStateBase(context, context.upperBodyGroupName)
+    : BaseState(context)
+    , ArmedChangeStateBase(context, context.upperBodyGroupName)
     , RotatingMoveAndRotateStateBase{context, context.lowerBodyGroupName, context.runSpeed,
                                      context.animClipNames.disarmed.movement.run,
                                      context.animClipNames.disarmed.posture.stand.rotate}
@@ -93,22 +94,22 @@ void RunAndRotateArmedChangeState::update(const WeaponStateEvent &e)
     onEnter();
 }
 
-bool RunAndRotateArmedChangeState::entryCondition(DisarmedSprintAndRotateState&) const
+bool RunAndRotateArmedChangeState::entryCondition(DisarmedSprintAndRotateState &) const
 {
     return not context_.animClipNames.equip.clipNames.empty();
 }
 
-bool RunAndRotateArmedChangeState::entryCondition(DisarmedRunAndRotateState&) const
+bool RunAndRotateArmedChangeState::entryCondition(DisarmedRunAndRotateState &) const
 {
     return not context_.animClipNames.equip.clipNames.empty();
 }
 
-bool RunAndRotateArmedChangeState::entryCondition(ArmedSprintAndRotateState&) const
+bool RunAndRotateArmedChangeState::entryCondition(ArmedSprintAndRotateState &) const
 {
     return not context_.animClipNames.disarm.clipNames.empty();
 }
 
-bool RunAndRotateArmedChangeState::entryCondition(ArmedRunAndRotateState&) const
+bool RunAndRotateArmedChangeState::entryCondition(ArmedRunAndRotateState &) const
 {
     return not context_.animClipNames.disarm.clipNames.empty();
 }

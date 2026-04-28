@@ -1,6 +1,7 @@
 #include "CrouchWalkAndRotateArmedChangeState.h"
 
 #include "../FsmContext.h"
+#include "GameEngine/Components/Controllers/CharacterController/States/BaseState.h"
 #include "RotateStateBase.h"
 
 namespace GameEngine
@@ -8,7 +9,8 @@ namespace GameEngine
 namespace Components
 {
 CrouchWalkAndRotateArmedChangeState::CrouchWalkAndRotateArmedChangeState(FsmContext &context)
-    : ArmedChangeStateBase(context, context.upperBodyGroupName)
+    : BaseState(context)
+    , ArmedChangeStateBase(context, context.upperBodyGroupName)
     , RotatingMoveAndRotateStateBase{context, context.lowerBodyGroupName, context.walkSpeed,
                                      context.animClipNames.disarmed.movement.crouch,
                                      context.animClipNames.disarmed.posture.crouched.rotate}
@@ -62,7 +64,7 @@ void CrouchWalkAndRotateArmedChangeState::onEnter(ArmedCrouchWalkAndRotateState 
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.movement.crouch);
 }
 
-void CrouchWalkAndRotateArmedChangeState::onEnter(DisarmedCrouchWalkAndRotateState &, const DrawArrowEvent & e)
+void CrouchWalkAndRotateArmedChangeState::onEnter(DisarmedCrouchWalkAndRotateState &, const DrawArrowEvent &e)
 {
     ArmedChangeStateBase::equipWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.armed.movement.crouch);
