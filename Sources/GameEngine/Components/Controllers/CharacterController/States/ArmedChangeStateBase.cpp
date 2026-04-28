@@ -31,14 +31,14 @@ void ArmedChangeStateBase::update(const WeaponStateEvent&)
         equipWeapon();
     }
 }
-void ArmedChangeStateBase::update(const DrawArrowEvent&)
+void ArmedChangeStateBase::update(const DrawArrowEvent& e)
 {
-    context_.drawArrowEventCalled_ = true;
+    pushEventToQueue(e);
 }
 
 void ArmedChangeStateBase::update(const AimStopEvent&)
 {
-    context_.drawArrowEventCalled_ = false;
+    removeEventFromQueue(DrawArrowEvent{});
 }
 void ArmedChangeStateBase::update(const SprintStateChangeEvent&)
 {
@@ -77,18 +77,14 @@ void ArmedChangeStateBase::onLeave()
 
 void ArmedChangeStateBase::onLeave(const EquipEndStateEvent&)
 {
-    if (context_.drawArrowEventCalled_)
-    {
-        context_.characterController.pushEventToQueue(DrawArrowEvent{});
-    }
-    else if (context_.sprintEventCalled_)
+    if (context_.sprintEventCalled_)
     {
         context_.characterController.pushEventToQueue(SprintStateChangeEvent{});
     }
 
     unsubscribeAll();
-    context_.drawArrowEventCalled_ = false;
-    context_.sprintEventCalled_    = false;
+
+    context_.sprintEventCalled_ = false;
 }
 
 void ArmedChangeStateBase::onLeave(const DisarmEndStateEvent&)

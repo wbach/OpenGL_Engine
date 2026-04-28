@@ -4,9 +4,9 @@ namespace GameEngine
 {
 struct Time
 {
-    float deltaTime;
-    float startTime;
-    float fps;
-    float deltaTimeNoModified;
+    float deltaTime{0.f};
+    float startTime{0.f};
+    float fps{0.f};
+    float deltaTimeNoModified{0.f};
 };
 }  // namespace GameEngine

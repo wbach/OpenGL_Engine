@@ -89,7 +89,6 @@ struct FsmContext
         Equip,
         Disarm
     };
-    bool drawArrowEventCalled_{false};
     bool sprintEventCalled_{false};
     WeaponArmedChangeState weaponArmedChangeState{WeaponArmedChangeState::None};
 

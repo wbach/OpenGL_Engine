@@ -350,9 +350,9 @@ void Animator::GetSkeletonAndAnimations()
         return;
 
     initMasterSkeletonData();
-    initAnimationClips();
     jointsGrupping();
     initSlavesSkeletonsData();
+    initAnimationClips();
     Update();
 }
 void Animator::updateShaderBuffers()
@@ -421,8 +421,13 @@ void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
     {
         currentTransform = parent * currentPoseIter->second.matrix;
     }
+    else
+    {
+        LOG_DEBUG << "Joint not found ! " << joint.id;
+    }
     joint.worldTransform    = currentTransform * joint.additionalUserMofiyTransform.getMatrix();
     joint.animatedTransform = joint.worldTransform * joint.offset;
+
 
     for (Joint& childJoint : joint.children)
     {
@@ -706,12 +711,15 @@ RendererComponent* Animator::resolveMasterRendererComponent()
 }
 void Animator::initMasterSkeletonData()
 {
+    pose = {};
     if (auto model = masterRendererComponent_->GetModelWrapper().Get(GameEngine::L1))
     {
         if (auto maybeSkeleton = model->getSkeleton())
         {
             masterSkeletonData.skeleton = std::move(*maybeSkeleton);
             montionJoint_               = masterSkeletonData.skeleton.getJoint(montionJointName);
+            pose.init(masterSkeletonData.skeleton);
+
             if (montionJoint_)
             {
                 machine_.context_->montionRootJointId = montionJoint_->id;

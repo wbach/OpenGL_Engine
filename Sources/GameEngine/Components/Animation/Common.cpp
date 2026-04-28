@@ -2,6 +2,7 @@
 
 #include "GameEngine/Animations/AnimationUtils.h"
 #include "GameEngine/Animations/JointTransform.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -103,12 +104,31 @@ Animation::KeyFrame convert(const Pose& pose, float timestamp)
 {
     Animation::KeyFrame result;
     result.timeStamp.value = timestamp;
-
-    for (const auto& pair : pose.data)
+    for (const auto& [jointId, poseData] : pose.data)
     {
-        result.transforms.insert({pair.first, pair.second.transform});
+        result.transforms.insert({jointId, poseData.transform});
     }
     return result;
+}
+void Pose::init(const Animation::Skeleton& skeleton)
+{
+    data.clear();
+    for (auto joint : skeleton.getJoints())
+    {
+        if (joint)
+        {
+            PoseData pd;
+            pd.matrix = joint->transform;
+            glm::vec3 skew;
+            glm::vec4 perspective;
+            glm::decompose(pd.matrix, pd.transform.scale, pd.transform.rotation, pd.transform.position, skew, perspective);
+            data[joint->id] = pd;
+        }
+        else
+        {
+            LOG_WARN << "Joint is nullptr";
+        }
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine

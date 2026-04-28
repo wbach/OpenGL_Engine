@@ -11,8 +11,9 @@ namespace GameEngine
 {
 namespace Animation
 {
+class Skeleton;
 class AnimationClip;
-}
+}  // namespace Animation
 
 namespace Components
 {
@@ -28,8 +29,10 @@ struct PoseData
 struct Pose
 {
     bool rootMontion{false};
-    CurrentFrames frames;
+    CurrentFrames frames{nullptr, nullptr};
     std::unordered_map<Animation::JointId, PoseData> data;
+
+    void init(const Animation::Skeleton&);
 };
 
 typedef std::unordered_map<std::string, std::vector<std::string>> JointGroups;

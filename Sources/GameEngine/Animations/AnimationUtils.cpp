@@ -2,8 +2,8 @@
 
 #include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
-#include <Utils/Utils.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/Utils.h>
 #include <Utils/XML/XMLUtils.h>
 #include <Utils/XML/XmlReader.h>
 #include <Utils/XML/XmlWriter.h>
@@ -51,6 +51,7 @@ JointTransform Interpolate(const JointTransform& frameA, const JointTransform& f
 {
     JointTransform out;
     out.position = glm::mix(frameA.position, frameB.position, progress);
+    // glm::slerp(frameA.rotation, frameB.rotation, progress);  moze byc jest dokladniejszy ale wolniejszy
     out.rotation = Utils::Interpolate(frameA.rotation, frameB.rotation, progress);
     out.scale    = glm::mix(frameA.scale, frameB.scale, progress);
     return out;

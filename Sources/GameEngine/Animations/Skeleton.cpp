@@ -134,5 +134,9 @@ void Skeleton::setRotation(const mat4& rot)
 {
     rotation = rot;
 }
+const std::vector<Joint*>& Skeleton::getJoints() const
+{
+    return jointsLookUp;
+}
 }  // namespace Animation
 }  // namespace GameEngine

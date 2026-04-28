@@ -29,6 +29,7 @@ public:
 
     const mat4& getRotation() const;
     void setRotation(const mat4&);
+    const std::vector<Joint*>& getJoints() const;
 
 private:
     void buildLookUpTable(Joint&);
