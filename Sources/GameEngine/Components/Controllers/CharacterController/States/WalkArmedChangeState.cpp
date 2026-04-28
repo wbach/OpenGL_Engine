@@ -77,17 +77,17 @@ void WalkArmedChangeState::onMoveInactivity()
 }
 bool WalkArmedChangeState::entryCondition(DisarmedWalkState&) const
 {
-    return not context_.animClipNames.equip.empty();
+    return not context_.animClipNames.equip.empty() and hasWeapon();
 }
 
 bool WalkArmedChangeState::entryCondition(ArmedWalkState&) const
 {
-    return not context_.animClipNames.disarm.empty();
+    return not context_.animClipNames.disarm.empty() and hasWeapon();
 }
 
 bool WalkArmedChangeState::entryCondition(CrouchWalkArmedChangeState&) const
 {
-    return not context_.animClipNames.equip.empty();
+    return not context_.animClipNames.equip.empty() and hasWeapon();
 }
 }  // namespace Components
 }  // namespace GameEngine

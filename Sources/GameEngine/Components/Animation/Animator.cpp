@@ -719,22 +719,27 @@ void Animator::initMasterSkeletonData()
 }
 void Animator::jointsGrupping()
 {
+    jointGroupsIds_.clear();
+
     if (jointGroups_.empty())
     {
         LOG_DEBUG << "create default joint group";
-        createDefaultJointGroup(jointGroups_["deafult"], masterSkeletonData.skeleton.getRootJoint());
+        auto& defaultGroup = jointGroups_["deafult"];
+        const auto& root   = masterSkeletonData.skeleton.getRootJoint();
+        defaultGroup.reserve(root.size);
+        createDefaultJointGroup(defaultGroup, masterSkeletonData.skeleton.getRootJoint());
     }
 
     for (auto& [groupName, jointNamesInGroup] : jointGroups_)
     {
-        jointGroupsIds_[groupName].reserve(jointNamesInGroup.size());
+        auto& jointGroupsId = jointGroupsIds_[groupName];
+        jointGroupsId.reserve(jointNamesInGroup.size());
 
         for (auto& name : jointNamesInGroup)
         {
-            auto joint = masterSkeletonData.skeleton.getJoint(name);
-            if (joint)
+            if (auto joint = masterSkeletonData.skeleton.getJoint(name))
             {
-                jointGroupsIds_.at(groupName).push_back(joint->id);
+                jointGroupsId.push_back(joint->id);
             }
         }
     }
