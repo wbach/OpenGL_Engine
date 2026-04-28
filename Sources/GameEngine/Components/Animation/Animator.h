@@ -1,13 +1,16 @@
 #pragma once
 #include <GameEngine/Components/Animation/AnimationClipInfo.h>
 
+#include <atomic>
 #include <deque>
+#include <mutex>
 #include <unordered_map>
 #include <variant>
 #include <vector>
 
 #include "Common.h"
 #include "GameEngine/Animations/AnimationClip.h"
+#include "GameEngine/Components/Animation/ChangeAnimationEvent.h"
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Components/ReadAnimationInfo.h"
 #include "MasterSkeletonData.h"
@@ -48,8 +51,7 @@ public:
     END_FIELDS()
     // clang-format on
 public:
-    using AnimationInfoClips      = std::unordered_map<std::string, AnimationClipInfo>;
-    using AnimationInfoClipsIdMap = std::unordered_map<IdType, AnimationClipInfo*>;
+    using AnimationInfoClips = std::unordered_map<std::string, AnimationClipInfo>;
 
     enum class AnimationChangeType
     {
@@ -74,8 +76,6 @@ public:
     void ChangeAnimation(const std::string&, AnimationChangeType = AnimationChangeType::smooth,
                          PlayDirection = PlayDirection::forward, std::optional<std::string> = std::nullopt,
                          std::function<void()> = nullptr);
-    void ChangeAnimation(const IdType&, AnimationChangeType = AnimationChangeType::smooth, PlayDirection = PlayDirection::forward,
-                         std::optional<std::string> = std::nullopt, std::function<void()> = nullptr);
 
     void StopAnimation(std::optional<std::string> = std::nullopt);
     GraphicsApi::ID getPerPoseBufferId(const RendererComponent&) const;
@@ -116,19 +116,19 @@ protected:
     void GetSkeletonAndAnimations();
     RendererComponent* resolveMasterRendererComponent();
     void initMasterSkeletonData();
-    void initSlavesSkeletonsData(const std::vector<RendererComponent*>&);
+    void initSlavesSkeletonsData();
     void jointsGrupping();
 
     void applyPoseToJoints(Animation::Joint&, const mat4&);
     void applyPoseToJoints();
     void initAnimationClips(const Model&);
     void printSkeleton(const Animation::Joint&, const std::string& = "");
+    void handleEvent(const ChangeAnimationEvent&);
 
 protected:
     StateMachine machine_;
 
     AnimationInfoClips animationClipInfo_;
-    AnimationInfoClipsIdMap animationClipInfoById_;
 
     std::unordered_map<IdType, std::vector<AnimationClipInfo::Subscription>*> animationClipInfoSubscriptions_;
 
@@ -139,6 +139,15 @@ protected:
     JointGroupsIds jointGroupsIds_;
 
     Animation::Joint* montionJoint_;
+
+    std::vector<RendererComponent*> rendererComponents_;
+
+    struct ActiveAnimation
+    {
+        std::string clipName;
+    };
+
+    std::unordered_map<std::string, ActiveAnimation> activeAnimations_;
 
 public:
     static void registerReadFunctions();

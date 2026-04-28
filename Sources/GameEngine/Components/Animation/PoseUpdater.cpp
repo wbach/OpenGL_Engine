@@ -54,8 +54,16 @@ void PoseUpdater::ReqisterFunctions()
 void PoseUpdater::Reload()
 {
     LOG_DEBUG << "Reload";
+
+    bool isEquipState = (currentJointUpdater_ == equipJointUpdater_.get());
+
     CleanUp();
     Init();
+
+    if (isEquipState)
+    {
+        setEquipJointAsCurrent();
+    }
 }
 
 void PoseUpdater::Init()

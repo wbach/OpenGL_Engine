@@ -6,6 +6,7 @@
 #include <Utils/TreeNodeWriteFunctions.h>
 
 #include <algorithm>
+#include <mutex>
 #include <optional>
 #include <string>
 #include <variant>
@@ -45,6 +46,7 @@ constexpr char CSTR_ANIMATION_USE_ROOT_MONTION[] = "rootMontion";
 constexpr char CSTR_MODEL_BASED_CLIP[]           = "modelBased";
 constexpr char CSTR_MONTION_JOINT_NAME[]         = "montionJointName";
 constexpr char CSTR_ANIMATION_PLAY_SPEED[]       = "playSpeed";
+constexpr char CSTR_DEFAULT_JOINT_GROUP[]        = "deafult";
 }  // namespace
 
 Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
@@ -72,8 +74,8 @@ void Animator::CleanUp()
 void Animator::ReqisterFunctions()
 {
     LOG_DEBUG << "ReqisterFunctions";
-    RegisterFunction(FunctionType::Awake, std::bind(&Animator::GetSkeletonAndAnimations, this),
-                     MakeDependencies<RendererComponent>());
+    RegisterFunction(
+        FunctionType::Awake, [this]() { Animator::GetSkeletonAndAnimations(); }, MakeDependencies<RendererComponent>());
     RegisterFunction(FunctionType::Update, std::bind(&Animator::Update, this));
 }
 
@@ -81,22 +83,64 @@ void Animator::Reload()
 {
     LOG_DEBUG << "Relaod";
 
+    auto oldAnimationClipInfo = std::move(animationClipInfo_);
+    auto oldActiveAnimations  = std::move(activeAnimations_);
+
     CleanUp();
     GetSkeletonAndAnimations();
+
+    for (auto& [name, info] : oldAnimationClipInfo)
+    {
+        auto iter = animationClipInfo_.find(name);
+        if (iter != animationClipInfo_.end())
+        {
+            iter->second.subscribers = std::move(info.subscribers);
+        }
+    }
+
+    for (auto& [group, animation] : oldActiveAnimations)
+    {
+        LOG_DEBUG << "Restore animation : " << animation.clipName;
+
+        auto clipIter = animationClipInfo_.find(animation.clipName);
+
+        if (clipIter == animationClipInfo_.end())
+        {
+            LOG_WARN << "Restore animation not found!  : " << animation.clipName;
+            return;
+        }
+
+        std::optional<std::string> groupName;
+        if (group != CSTR_DEFAULT_JOINT_GROUP)
+        {
+            groupName = group;
+        }
+
+        handleEvent(ChangeAnimationEvent{
+            .startTime = 0.f, .info = clipIter->second, .jointGroupName = groupName, .onTransitionEnd = nullptr});
+    }
 }
 Animator& Animator::SetAnimation(const std::string& name)
 {
     auto clipIter = animationClipInfo_.find(name);
     if (clipIter != animationClipInfo_.end())
     {
-        pose.rootMontion = clipIter->second.rootMontion;
-        machine_.handle(ChangeAnimationEvent{0.f, clipIter->second, std::nullopt});
+        handleEvent(ChangeAnimationEvent{0.f, clipIter->second, std::nullopt});
     }
     return *this;
 }
 void Animator::StopAnimation(std::optional<std::string> maybeJoingGroupName)
 {
     machine_.handle(StopAnimationEvent{maybeJoingGroupName});
+
+    if (maybeJoingGroupName)
+    {
+        activeAnimations_.erase(*maybeJoingGroupName);
+    }
+    else
+    {
+        activeAnimations_.clear();
+    }
 }
 GraphicsApi::ID Animator::getPerPoseBufferId(const RendererComponent& component) const
 {
@@ -121,14 +165,15 @@ std::optional<IdType> Animator::SubscribeForAnimationFrame(const std::string& an
     auto iter = animationClipInfo_.find(animName);
     if (iter != animationClipInfo_.end())
     {
-        const auto& frames = iter->second.clip.GetFrames();
+        auto& [_, clipInfo] = *iter;
 
+        const auto& frames = clipInfo.clip.GetFrames();
         if (not frames.empty() and index.value < frames.size())
         {
             auto id              = animationEndIdPool_.getId();
             float frameTimeStamp = frames[static_cast<size_t>(index.value)].timeStamp.value;
 
-            auto& subscribers = iter->second.subscribers;
+            auto& subscribers = clipInfo.subscribers;
             subscribers.push_back({id, function, frameTimeStamp});
             animationClipInfoSubscriptions_.insert({id, &subscribers});
 
@@ -146,14 +191,15 @@ std::optional<IdType> Animator::SubscribeForAnimationFrame(const std::string& an
     auto iter = animationClipInfo_.find(animName);
     if (iter != animationClipInfo_.end() and not iter->second.clip.GetFrames().empty())
     {
-        auto id = animationEndIdPool_.getId();
+        auto& [_, clipInfo] = *iter;
+        auto id             = animationEndIdPool_.getId();
 
         if (frameTimeStamp < 0.0f)
         {
-            frameTimeStamp = iter->second.clip.GetFrames().back().timeStamp.value;
+            frameTimeStamp = clipInfo.clip.GetFrames().back().timeStamp.value;
         }
 
-        auto& subscribers = iter->second.subscribers;
+        auto& subscribers = clipInfo.subscribers;
         subscribers.push_back({id, function, frameTimeStamp});
         animationClipInfoSubscriptions_.insert({id, &subscribers});
 
@@ -259,17 +305,6 @@ bool Animator::isAnimationPlaying(const std::string& name) const
     return machine_.currentState_->isAnimationPlaying(name);
 }
 
-std::optional<IdType> Animator::allocateIdForClip(const std::string& name)
-{
-    auto clipIter = animationClipInfo_.find(name);
-    if (clipIter == animationClipInfo_.end())
-        return std::nullopt;
-
-    auto id = animationClipInfoByIdPool_.getId();
-    animationClipInfoById_.insert({id, &clipIter->second});
-    return id;
-}
-
 void Animator::ChangeAnimation(const std::string& name, AnimationChangeType changeType, PlayDirection playDirection,
                                std::optional<std::string> groupName, std::function<void()> onTransitionEnd)
 {
@@ -286,28 +321,8 @@ void Animator::ChangeAnimation(const std::string& name, AnimationChangeType chan
         LOG_DEBUG << " AnimationChangeType::direct not implemnted go to smooth";
     }
 
-    pose.rootMontion = clipIter->second.rootMontion;
     LOG_DEBUG << "change " << name;
-    machine_.handle(ChangeAnimationEvent{0.f, clipIter->second, groupName, onTransitionEnd});
-}
-void Animator::ChangeAnimation(const IdType& id, AnimationChangeType changeType, PlayDirection playDirection,
-                               std::optional<std::string> groupName, std::function<void()> onTransitionEnd)
-{
-    auto clipIter = animationClipInfoById_.find(id);
-
-    if (clipIter == animationClipInfoById_.end())
-    {
-        LOG_DEBUG << "ChangeAnimation not found animation with id  : " << id;
-        return;
-    }
-
-    if (changeType == AnimationChangeType::direct)
-    {
-        LOG_DEBUG << " AnimationChangeType::direct not implemnted go to smooth";
-    }
-
-    pose.rootMontion = clipIter->second->rootMontion;
-    machine_.handle(ChangeAnimationEvent{0.f, *clipIter->second, groupName, onTransitionEnd});
+    handleEvent(ChangeAnimationEvent{0.f, clipIter->second, groupName, onTransitionEnd});
 }
 void createDefaultJointGroup(std::vector<std::string>& group, const Animation::Joint& joint)
 {
@@ -322,9 +337,8 @@ void Animator::GetSkeletonAndAnimations()
 {
     LOG_DEBUG << "";
 
-    auto rendererComponents = thisObject_.GetComponents<RendererComponent>();
-
-    if (rendererComponents.empty())
+    rendererComponents_ = thisObject_.GetComponents<RendererComponent>();
+    if (rendererComponents_.empty())
     {
         LOG_ERROR << "At least one rendererComponent is required for Animator";
         return;
@@ -338,7 +352,7 @@ void Animator::GetSkeletonAndAnimations()
     initMasterSkeletonData();
     initAnimationClips();
     jointsGrupping();
-    initSlavesSkeletonsData(rendererComponents);
+    initSlavesSkeletonsData();
     Update();
 }
 void Animator::updateShaderBuffers()
@@ -394,7 +408,6 @@ void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
 
     if (joint.ignoreParentRotation)
     {
-        // auto invertedParentWithoutTranslation = glm::mat4(glm::mat3(glm::inverse(parentTransform)));
         auto invertedParentWithoutTranslation = glm::inverse(parentTransform);
         // remove translation
         invertedParentWithoutTranslation[3][0] = 0;
@@ -460,6 +473,14 @@ void Animator::initAnimationClips(const Model& model)
 
 void Animator::initAnimationClips()
 {
+    for (auto& rendererComponent : rendererComponents_)
+    {
+        if (auto model = rendererComponent->GetModelWrapper().Get(GameEngine::L1))
+        {
+            initAnimationClips(*model);
+        }
+    }
+
     for (auto& clipToRead : animationClips)
     {
         auto playType = clipToRead.playInLoop ? AnimationClipInfo::PlayType::loop : AnimationClipInfo::PlayType::once;
@@ -659,8 +680,7 @@ RendererComponent* Animator::resolveMasterRendererComponent()
     RendererComponent* result{nullptr};
     size_t maxJointCount = 0;
 
-    auto rendererComponents = thisObject_.GetComponents<Components::RendererComponent>();
-    for (auto& component : rendererComponents)
+    for (auto& component : rendererComponents_)
     {
         if (not component->IsActive())
         {
@@ -691,10 +711,7 @@ void Animator::initMasterSkeletonData()
         if (auto maybeSkeleton = model->getSkeleton())
         {
             masterSkeletonData.skeleton = std::move(*maybeSkeleton);
-
-            initAnimationClips(*model);
-
-            montionJoint_ = masterSkeletonData.skeleton.getJoint(montionJointName);
+            montionJoint_               = masterSkeletonData.skeleton.getJoint(montionJointName);
             if (montionJoint_)
             {
                 machine_.context_->montionRootJointId = montionJoint_->id;
@@ -720,11 +737,10 @@ void Animator::initMasterSkeletonData()
 void Animator::jointsGrupping()
 {
     jointGroupsIds_.clear();
-
     if (jointGroups_.empty())
     {
         LOG_DEBUG << "create default joint group";
-        auto& defaultGroup = jointGroups_["deafult"];
+        auto& defaultGroup = jointGroups_[CSTR_DEFAULT_JOINT_GROUP];
         const auto& root   = masterSkeletonData.skeleton.getRootJoint();
         defaultGroup.reserve(root.size);
         createDefaultJointGroup(defaultGroup, masterSkeletonData.skeleton.getRootJoint());
@@ -744,9 +760,9 @@ void Animator::jointsGrupping()
         }
     }
 }
-void Animator::initSlavesSkeletonsData(const std::vector<RendererComponent*>& rendererComponents)
+void Animator::initSlavesSkeletonsData()
 {
-    for (const auto& rendererComponent : rendererComponents)
+    for (const auto& rendererComponent : rendererComponents_)
     {
         if (rendererComponent == masterRendererComponent_)
             continue;
@@ -757,8 +773,6 @@ void Animator::initSlavesSkeletonsData(const std::vector<RendererComponent*>& re
         {
             if (auto maybeSkeleton = model->getSkeleton())
             {
-                initAnimationClips(*model);
-
                 slaveSkeletonData.emplace_back(componentContext_.graphicsApi_, componentContext_.gpuResourceLoader_);
                 auto& data    = slaveSkeletonData.back();
                 data.skeleton = *maybeSkeleton;
@@ -767,6 +781,17 @@ void Animator::initSlavesSkeletonsData(const std::vector<RendererComponent*>& re
             }
         }
     }
+}
+void Animator::handleEvent(const ChangeAnimationEvent& e)
+{
+    pose.rootMontion = e.info.rootMontion;
+    machine_.handle(e);
+
+    if (not e.jointGroupName)
+    {
+        activeAnimations_.clear();
+    }
+    activeAnimations_[e.jointGroupName.value_or(CSTR_DEFAULT_JOINT_GROUP)] = ActiveAnimation{.clipName = e.info.clip.getName()};
 }
 }  // namespace Components
 }  // namespace GameEngine
