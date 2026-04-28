@@ -793,5 +793,15 @@ void Animator::handleEvent(const ChangeAnimationEvent& e)
     }
     activeAnimations_[e.jointGroupName.value_or(CSTR_DEFAULT_JOINT_GROUP)] = ActiveAnimation{.clipName = e.info.clip.getName()};
 }
+AnimationClipInfo* Animator::getAnimationClipInfo(const std::string& name)
+{
+    auto iter = animationClipInfo_.find(name);
+    if (iter != animationClipInfo_.end())
+    {
+        return &iter->second;
+    }
+
+    return nullptr;
+}
 }  // namespace Components
 }  // namespace GameEngine

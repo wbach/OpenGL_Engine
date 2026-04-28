@@ -32,6 +32,8 @@ public:
     void onEnter(DisarmedFallingState&);
     void onLeave(const DodgeEndEvent&);
 
+    void update(float);
+
 private:
     void setAnimAndSubscribeForEnd(const std::string&);
     void setAnim(const std::string&);
@@ -39,6 +41,7 @@ private:
 private:
     std::optional<float> jumpAttemptTimer;
     std::optional<IdType> dodgeAnimSubId;
+    bool useRootMontion{false};
 };
 }  // namespace Components
 }  // namespace GameEngine

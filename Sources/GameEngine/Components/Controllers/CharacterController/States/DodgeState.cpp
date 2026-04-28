@@ -4,8 +4,10 @@
 #include "../FsmContext.h"
 #include "CharacterControllerCommonDefs.h"
 #include "GameEngine/Components/Physics/CapsuleShape.h"
+#include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Physics/CollisionContactInfo.h"
-
+#include "Logger/Log.h"
+#include "Types.h"
 namespace GameEngine
 {
 namespace Components
@@ -17,6 +19,10 @@ DodgeState::DodgeState(FsmContext &context)
 
 void DodgeState::onEnter(const DodgeDiveEvent &event)
 {
+    if (auto info = context_.animator.getAnimationClipInfo(context_.animClipNames.disarmed.dodgeDive))
+    {
+        useRootMontion = info->rootMontion;
+    }
     setAnimAndSubscribeForEnd(context_.animClipNames.disarmed.dodgeDive);
 }
 
@@ -80,6 +86,18 @@ void DodgeState::setAnim(const std::string &animName)
             context_.animator.ChangeAnimation(animName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
                                               std::nullopt);
         }
+    }
+}
+void DodgeState::update(float deltaTime)
+{
+    if (not useRootMontion)
+    {
+        auto &rigidbody = context_.rigidbody;
+        auto currentVel = rigidbody.GetVelocity();
+        auto direction  = rigidbody.GetRotation() * VECTOR_FORWARD;
+
+        auto acceleration = direction * 15.f * deltaTime;
+        rigidbody.SetVelocity(currentVel + acceleration);
     }
 }
 }  // namespace Components

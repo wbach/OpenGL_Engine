@@ -4,6 +4,7 @@
 #include <atomic>
 #include <deque>
 #include <mutex>
+#include <string>
 #include <unordered_map>
 #include <variant>
 #include <vector>
@@ -92,6 +93,7 @@ public:
     std::optional<uint32> subscribeForPoseBufferUpdate(std::function<void()>);
     void unSubscribeForPoseUpdateBuffer(uint32);
 
+    AnimationClipInfo* getAnimationClipInfo(const std::string&);
     const AnimationInfoClips& getAnimationClips() const;
     std::vector<std::string> getCurrentAnimationName() const;
 
