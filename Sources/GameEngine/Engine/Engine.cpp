@@ -8,6 +8,7 @@
 #include <Utils/Variant.h>
 
 #include <memory>
+#include <sstream>
 #include <utility>
 
 #include "Configuration.h"
@@ -37,7 +38,8 @@
 
 void bt_sighandler(int nSig)
 {
-    LOG_ERROR << "print_trace: got signal " << nSig;
+    std::stringstream out;
+    out << "print_trace: got signal " << nSig << '\n';
 
     void* array[32];
     auto size    = backtrace(array, 32);
@@ -64,19 +66,21 @@ void bt_sighandler(int nSig)
 
             if (status == 0 and demangled_name != nullptr)
             {
-                LOG_ERROR << entry.substr(0, begin_parentheses + 1) << demangled_name << entry.substr(end_parentheses);
+                out << entry.substr(0, begin_parentheses + 1) << demangled_name << entry.substr(end_parentheses) << '\n';
                 free(demangled_name);
             }
             else
             {
-                LOG_ERROR << entry;
+                out << entry << '\n';
             }
         }
         else
         {
-            LOG_ERROR << entry;
+            out << entry << '\n';
         }
     }
+
+    LOG_ERROR_RAW << out.str();
 
     free(strings);
     exit(-1);

@@ -97,3 +97,4 @@ private:
 #define LOG_ERROR CLogStream(LoggingLvl::Error, __FILE__, __LINE__, __FUNCTION__)
 #define LOG_DEBUG CLogStream(LoggingLvl::ErrorWarningInfoDebug, __FILE__, __LINE__, __FUNCTION__)
 #define LOG_DEBUG_RAW CLogStream(LoggingLvl::ErrorWarningInfoDebug)
+#define LOG_ERROR_RAW CLogStream(LoggingLvl::Error)

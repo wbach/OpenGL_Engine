@@ -7,10 +7,11 @@
 
 #include "EquippableComponent.h"
 #include "GameEngine/Components/Animation/Animator.h"
-#include "GameEngine/Components/Animation/PoseUpdater.h"
 #include "GameEngine/Components/Animation/JointPoseUpdater.h"
+#include "GameEngine/Components/Animation/PoseUpdater.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "GameEngine/Components/Gameplay/Inventory/ItemVisualComponent.h"
 #include "GameEngine/Components/Gameplay/Inventory/SlotType.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
@@ -104,11 +105,7 @@ std::optional<IdType> EquipmentComponent::unequip(SlotType slot)
 
     if (slot == SlotType::MainHand)
     {
-        if (auto go = thisObject_.GetChild(CSTR_MAIN_HAND_ITEM))
-        {
-            LOG_DEBUG << "mainHand object found, remove";
-            componentContext_.scene_.RemoveGameObject(*go);
-        }
+        unequipWeapon();
     }
     else if (slot == SlotType::Chest)
     {
@@ -212,5 +209,19 @@ void EquipmentComponent::activeDefaultBody(bool isActive)
         renderComponent->SetActive(isActive);
     }
 }
+void EquipmentComponent::unequipWeapon()
+{
+    if (auto go = thisObject_.GetChild(CSTR_MAIN_HAND_ITEM))
+    {
+        LOG_DEBUG << "mainHand object found, remove";
+        componentContext_.scene_.RemoveGameObject(*go);
+
+        if (auto cc = thisObject_.GetComponent<CharacterController>())
+        {
+            cc->pushEventToQueue(WeaponStateEvent{});
+        }
+    }
+}
+
 }  // namespace Components
 }  // namespace GameEngine
