@@ -16,6 +16,7 @@
 #include "GameEngine/Animations/AnimationUtils.h"
 #include "GameEngine/Animations/Skeleton.h"
 #include "GameEngine/Components/Animation/SlaveSkeletonData.h"
+#include "GameEngine/Components/Animation/StateMachine.h"
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentType.h"
@@ -75,7 +76,22 @@ void Animator::ReqisterFunctions()
 {
     LOG_DEBUG << "ReqisterFunctions";
     RegisterFunction(
-        FunctionType::Awake, [this]() { Animator::GetSkeletonAndAnimations(); }, MakeDependencies<RendererComponent>());
+        FunctionType::Awake,
+        [this]()
+        {
+            Animator::GetSkeletonAndAnimations();
+            auto clipIter = animationClipInfo_.find(startupAnimationClipName);
+            if (clipIter != animationClipInfo_.end())
+            {
+                LOG_DEBUG << "Startup animation found : " << clipIter->first;
+                ChangeAnimation(clipIter->first);
+            }
+            else
+            {
+                LOG_WARN << "Startup animation not found : " << startupAnimationClipName;
+            }
+        },
+        MakeDependencies<RendererComponent>());
     RegisterFunction(FunctionType::Update, std::bind(&Animator::Update, this));
 }
 
@@ -98,26 +114,43 @@ void Animator::Reload()
         }
     }
 
-    for (auto& [group, animation] : oldActiveAnimations)
+    if (oldActiveAnimations.size() == 1)
     {
-        LOG_DEBUG << "Restore animation : " << animation.clipName;
-
-        auto clipIter = animationClipInfo_.find(animation.clipName);
-
-        if (clipIter == animationClipInfo_.end())
+        const auto& name = oldActiveAnimations.begin()->second.clipName;
+        LOG_DEBUG << "Restore single animation : " << name;
+        SetAnimation(name);
+    }
+    else if (oldActiveAnimations.size() > 1)
+    {
+        std::vector<AnimationGroup> animationsToSet;
+        for (auto& [group, animation] : oldActiveAnimations)
         {
-            LOG_WARN << "Restore animation not found!  : " << animation.clipName;
-            return;
-        }
+            LOG_DEBUG << "Restore animations : " << animation.clipName;
 
-        std::optional<std::string> groupName;
-        if (group != CSTR_DEFAULT_JOINT_GROUP)
+            auto clipIter = animationClipInfo_.find(animation.clipName);
+
+            if (clipIter == animationClipInfo_.end())
+            {
+                LOG_WARN << "Restore animation not found!  : " << animation.clipName;
+                return;
+            }
+
+            animationsToSet.push_back(AnimationGroup{.groupName = group, .clipInfo = clipIter->second, .time = 0.f});
+        }
+        machine_.setAnimation(animationsToSet);
+    }
+    else
+    {
+        auto clipIter = animationClipInfo_.find(startupAnimationClipName);
+        if (clipIter != animationClipInfo_.end())
         {
-            groupName = group;
+            LOG_DEBUG << "Startup animation found : " << clipIter->first;
+            SetAnimation(clipIter->first);
         }
-
-        handleEvent(ChangeAnimationEvent{
-            .startTime = 0.f, .info = clipIter->second, .jointGroupName = groupName, .onTransitionEnd = nullptr});
+        else
+        {
+            LOG_WARN << "Startup animation not found : " << startupAnimationClipName;
+        }
     }
 }
 Animator& Animator::SetAnimation(const std::string& name)
@@ -125,7 +158,10 @@ Animator& Animator::SetAnimation(const std::string& name)
     auto clipIter = animationClipInfo_.find(name);
     if (clipIter != animationClipInfo_.end())
     {
-        handleEvent(ChangeAnimationEvent{0.f, clipIter->second, std::nullopt});
+        pose.rootMontion = clipIter->second.rootMontion;
+        machine_.setAnimation(clipIter->second, 0.f);
+        activeAnimations_.clear();
+        activeAnimations_[CSTR_DEFAULT_JOINT_GROUP] = ActiveAnimation{.clipName = name};
     }
     return *this;
 }
@@ -428,7 +464,6 @@ void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
     joint.worldTransform    = currentTransform * joint.additionalUserMofiyTransform.getMatrix();
     joint.animatedTransform = joint.worldTransform * joint.offset;
 
-
     for (Joint& childJoint : joint.children)
     {
         applyPoseToJoints(childJoint, joint.worldTransform);
@@ -517,17 +552,6 @@ void Animator::initAnimationClips()
             info.playType    = playType;
             info.rootMontion = clipToRead.useRootMontion;
         }
-    }
-
-    auto clipIter = animationClipInfo_.find(startupAnimationClipName);
-    if (clipIter != animationClipInfo_.end())
-    {
-        LOG_DEBUG << "Startup animation found : " << clipIter->first;
-        SetAnimation(clipIter->first);
-    }
-    else
-    {
-        LOG_WARN << "Startup animation not found : " << startupAnimationClipName;
     }
 
     if (animationClipInfo_.size() > 0)

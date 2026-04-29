@@ -3,9 +3,11 @@
 
 #include <memory>
 #include <variant>
+#include <vector>
 
 #include "ChangeAnimationEvent.h"
 #include "Common.h"
+#include "GameEngine/Components/Animation/AnimationClipInfo.h"
 #include "PoseUpdateAction.h"
 #include "StopAnimationEvent.h"
 
@@ -17,6 +19,13 @@ struct Event;
 class IAnimationState;
 struct Context;
 
+struct AnimationGroup
+{
+    std::string groupName;
+    const AnimationClipInfo& clipInfo;
+    float time{0.f};
+};
+
 struct StateMachine
 {
     using IncomingEvent = std::variant<ChangeAnimationEvent, StopAnimationEvent>;
@@ -27,6 +36,8 @@ struct StateMachine
     void Reset();
 
     PoseUpdateAction update(float);
+    void setAnimation(const AnimationClipInfo&, float);
+    void setAnimation(const std::vector<AnimationGroup>&);
     void handle(const IncomingEvent&);
 
     template <typename State, typename... Args>

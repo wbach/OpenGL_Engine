@@ -8,6 +8,8 @@
 #include "EmptyState.h"
 #include "Event.h"
 #include "IAnimationState.h"
+#include "PlayAnimation.h"
+#include "PlayMixedAnimation.h"
 
 namespace GameEngine
 {
@@ -75,6 +77,20 @@ void StateMachine::processNotifications()
     {
         notify();
     }
+}
+void StateMachine::setAnimation(const AnimationClipInfo& clipInfo, float startupTime)
+{
+    transitionTo<PlayAnimation>(*context_, clipInfo, startupTime);
+}
+void StateMachine::setAnimation(const std::vector<AnimationGroup>& groups)
+{
+    AnimationClipInfoPerGroup infoPerGroup;
+    for (const auto& group : groups)
+    {
+        infoPerGroup.insert({group.groupName, {group.clipInfo, group.time}});
+    }
+
+    transitionTo<PlayMixedAnimation>(*context_, infoPerGroup);
 }
 }  // namespace Components
 }  // namespace GameEngine
