@@ -70,11 +70,6 @@ void ArmedChangeStateBase::disarmWeapon()
     context_.weaponArmedChangeState = FsmContext::WeaponArmedChangeState::Disarm;
 }
 
-void ArmedChangeStateBase::onLeave()
-{
-    flushEvents();
-}
-
 void ArmedChangeStateBase::onLeave(const EquipEndStateEvent&)
 {
     if (context_.sprintEventCalled_)
@@ -85,11 +80,14 @@ void ArmedChangeStateBase::onLeave(const EquipEndStateEvent&)
     unsubscribeAll();
 
     context_.sprintEventCalled_ = false;
+
+    flushEvents();
 }
 
 void ArmedChangeStateBase::onLeave(const DisarmEndStateEvent&)
 {
     unsubscribeAll();
+    flushEvents();
 }
 
 void ArmedChangeStateBase::triggerChange()

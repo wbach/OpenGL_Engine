@@ -25,7 +25,6 @@ public:
 protected:
     void equipWeapon();
     void disarmWeapon();
-    void onLeave();
     void onLeave(const EquipEndStateEvent&);
     void onLeave(const DisarmEndStateEvent&);
     bool hasWeapon() const;
