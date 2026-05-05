@@ -10,6 +10,8 @@
 #include <optional>
 #include <string>
 
+#include "Animations/AnimationClip.h"
+#include "Animations/Skeleton.h"
 #include "IdPool.h"
 
 class GLCanvas;
@@ -45,6 +47,9 @@ private:
     void ImportCurrentObject();
     void CreateRootMontion(wxCommandEvent&);
     void ShowSkeleton(wxCommandEvent&);
+
+    const std::optional<GameEngine::Animation::Skeleton>& GetCurrentSkeleton() const;
+    const GameEngine::Animation::AnimationClip* GetSelectedClip() const;
 
 private:
     struct CurrentGameObject

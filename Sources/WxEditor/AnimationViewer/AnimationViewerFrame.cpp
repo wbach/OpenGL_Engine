@@ -25,6 +25,7 @@
 #include <cmath>
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <string>
 
@@ -41,52 +42,45 @@ GameEngine::Animation::AnimationClip CreateRootMotionClip(const GameEngine::Anim
                                                           GameEngine::Animation::JointId rootId,
                                                           GameEngine::Animation::JointId pelvisId)
 {
-    GameEngine::Animation::AnimationClip rmClip;
+    auto newClipName = sourceClip.getName() + "_rootMontion";
+    GameEngine::Animation::AnimationClip rmClip(newClipName, sourceClip.getFile().value_or(newClipName + ".xml"));
     rmClip.SetLength(sourceClip.GetLength());
 
-    const std::vector<GameEngine::Animation::KeyFrame>& sourceFrames = sourceClip.GetFrames();
+    const auto& sourceFrames = sourceClip.GetFrames();
 
     if (sourceFrames.empty())
     {
         return rmClip;
     }
 
-    // Kopiujemy klatki, aby mieć bazę do modyfikacji
-    for (const GameEngine::Animation::KeyFrame& frame : sourceFrames)
+    for (const auto& frame : sourceFrames)
     {
         rmClip.AddFrame(frame);
     }
 
-    // Pobieramy referencję do nowych klatek, aby je zmodyfikować
-    // Zakładamy, że masz metodę dającą dostęp do zapisu (np. GetFrames() bez const)
-    std::vector<GameEngine::Animation::KeyFrame>& newFrames =
-        const_cast<std::vector<GameEngine::Animation::KeyFrame>&>(rmClip.GetFrames());
+    auto& newFrames = rmClip.GetFrames();
 
     for (size_t i = 1; i < newFrames.size(); ++i)
     {
-        GameEngine::Animation::KeyFrame& currentFrame = newFrames[i];
-        GameEngine::Animation::KeyFrame& prevFrame    = newFrames[i - 1];
+        auto& currentFrame = newFrames[i];
+        auto& prevFrame    = newFrames[i - 1];
 
         bool hasBones = currentFrame.transforms.contains(pelvisId) and currentFrame.transforms.contains(rootId) and
                         prevFrame.transforms.contains(pelvisId);
 
         if (hasBones)
         {
-            GameEngine::Animation::JointTransform& currentPelvis = currentFrame.transforms[pelvisId];
-            GameEngine::Animation::JointTransform& prevPelvis    = prevFrame.transforms[pelvisId];
-            GameEngine::Animation::JointTransform& currentRoot   = currentFrame.transforms[rootId];
-            GameEngine::Animation::JointTransform& prevRoot      = prevFrame.transforms[rootId];
+            auto& currentPelvis = currentFrame.transforms[pelvisId];
+            auto& prevPelvis    = prevFrame.transforms[pelvisId];
+            auto& currentRoot   = currentFrame.transforms[rootId];
+            auto& prevRoot      = prevFrame.transforms[rootId];
 
-            // 1. Obliczamy deltę ruchu miednicy
-            // Tutaj możesz zdecydować, czy bierzesz tylko X i Z, czy też Y (wysokość)
-            float deltaX = currentPelvis.position.x - prevPelvis.position.x;
-            float deltaZ = currentPelvis.position.z - prevPelvis.position.z;
+            auto deltaX = currentPelvis.position.x - prevPelvis.position.x;
+            auto deltaZ = currentPelvis.position.z - prevPelvis.position.z;
 
-            // 2. Akumulujemy ruch na kości Root w nowym klipie
             currentRoot.position.x = prevRoot.position.x + deltaX;
             currentRoot.position.z = prevRoot.position.z + deltaZ;
 
-            // 3. Niwelujemy ruch na miednicy (zamiana na in-place względem nowego Roota)
             currentPelvis.position.x -= currentRoot.position.x;
             currentPelvis.position.z -= currentRoot.position.z;
         }
@@ -280,7 +274,8 @@ void AnimationViewerFrame::ShowSkeleton(wxCommandEvent& event)
     {
         if (auto maybeSkeleton = model->getSkeleton())
         {
-            SkeletonPreviewDialog dialog(this, *maybeSkeleton);
+            SkeletonPreviewDialog dialog(this, *maybeSkeleton, "Skeleton Hierarchy Preview",
+                                         SkeletonPreviewDialog::Mode::SHOW_ONLY);
             dialog.ShowModal();
         }
         else
@@ -449,6 +444,56 @@ void AnimationViewerFrame::CreateRootMontion(wxCommandEvent& event)
         wxMessageBox("Model not set", "Warning", wxOK | wxICON_WARNING);
         return;
     }
+
+    auto model = currentGameObject->rendererComponent.GetModelWrapper().Get();
+    if (model)
+    {
+        if (auto maybeSkeleton = model->getSkeleton())
+        {
+            std::optional<GameEngine::Animation::JointId> rootId;
+            std::optional<GameEngine::Animation::JointId> pelvisId;
+
+            {
+                SkeletonPreviewDialog dialog(this, *maybeSkeleton, "Select root bone",
+                                             SkeletonPreviewDialog::Mode::SINGLE_SELECTION);
+                if (dialog.ShowModal() == wxID_OK)
+                {
+                    rootId = dialog.GetSelectedId();
+                }
+            }
+            {
+                SkeletonPreviewDialog dialog(this, *maybeSkeleton, "Select reference bone",
+                                             SkeletonPreviewDialog::Mode::SINGLE_SELECTION);
+                if (dialog.ShowModal() == wxID_OK)
+                {
+                    pelvisId = dialog.GetSelectedId();
+                }
+            }
+
+            if (rootId and pelvisId)
+            {
+                auto selected = GetSelectedClip();
+                if (not selected)
+                {
+                    wxMessageBox("No animation selected!", "Export", wxOK | wxICON_WARNING);
+                    return;
+                }
+
+                auto newClip = CreateRootMotionClip(*selected, *rootId, *pelvisId);
+                currentGameObject->animator.AddAnimationClip(newClip.getName(), newClip,
+                                                             GameEngine::Components::AnimationClipInfo::PlayType::loop, true);
+                animList->Append(newClip.getName());
+            }
+        }
+        else
+        {
+            LOG_WARN << "Skeleton not set";
+        }
+    }
+    else
+    {
+        LOG_WARN << "Model not set";
+    }
 }
 
 void AnimationViewerFrame::OnExportToFile(wxCommandEvent& event)
@@ -459,7 +504,7 @@ void AnimationViewerFrame::OnExportToFile(wxCommandEvent& event)
         return;
     }
 
-    wxString selected = animList->GetStringSelection();
+    auto selected = animList->GetStringSelection();
     if (selected.IsEmpty())
     {
         wxMessageBox("No animation selected!", "Export", wxOK | wxICON_WARNING);
@@ -473,31 +518,15 @@ void AnimationViewerFrame::OnExportToFile(wxCommandEvent& event)
     if (saveFileDialog.ShowModal() == wxID_CANCEL)
         return;
 
-    wxString path = saveFileDialog.GetPath();
-
-    LOG_DEBUG << "Exporting animation " << selected << " to file: " << path;
-
-    auto model = currentGameObject->rendererComponent.GetModelWrapper().Get();
-    if (model)
+    auto path = saveFileDialog.GetPath();
+    if (auto maybeSkeleton = GetCurrentSkeleton())
     {
-        auto maybeSkeleton = model->getSkeleton();
-        const auto& clips  = currentGameObject->animator.getAnimationClips();
-        auto iter          = clips.find(selected.ToStdString());
-
-        if (not maybeSkeleton)
+        if (auto selectedClip = GetSelectedClip())
         {
-            wxMessageBox("Model: rootJoint not exist", "Warning", wxOK | wxICON_WARNING);
-            return;
+            LOG_DEBUG << "Exporting animation " << selected << " to file: " << path;
+            GameEngine::Animation::ExportAnimationClipToFile(path.ToStdString(), *selectedClip, maybeSkeleton->getRootJoint(),
+                                                             wxFileName(saveFileDialog.GetFilename()).GetName().ToStdString());
         }
-
-        if (iter == clips.end())
-        {
-            wxMessageBox("Clip not found", "Warning", wxOK | wxICON_WARNING);
-            return;
-        }
-
-        GameEngine::Animation::ExportAnimationClipToFile(path.ToStdString(), iter->second.clip, maybeSkeleton->getRootJoint(),
-                                                         wxFileName(saveFileDialog.GetFilename()).GetName().ToStdString());
     }
 
     wxMessageBox("Exported " + selected + " to " + path, "Export", wxOK | wxICON_INFORMATION);
@@ -768,4 +797,38 @@ std::string AnimationViewerFrame::GetStartupDialogPathBasedOnCurrent() const
     return currentGameObject->currentModelFile.has_value()
                ? currentGameObject->currentModelFile->GetAbsolutePath().parent_path().string()
                : ProjectManager::GetInstance().GetProjectPath().string();
+}
+
+const GameEngine::Animation::AnimationClip* AnimationViewerFrame::GetSelectedClip() const
+{
+    auto selected = animList->GetStringSelection();
+    if (selected.IsEmpty())
+    {
+        wxMessageBox("No animation selected!", "Export", wxOK | wxICON_WARNING);
+        return nullptr;
+    }
+
+    const auto& clips = currentGameObject->animator.getAnimationClips();
+    auto iter         = clips.find(selected.ToStdString());
+
+    if (iter == clips.end())
+    {
+        wxMessageBox("Clip not found", "Warning", wxOK | wxICON_WARNING);
+        return nullptr;
+    }
+
+    return &iter->second.clip;
+
+    return nullptr;
+}
+const std::optional<GameEngine::Animation::Skeleton>& AnimationViewerFrame::GetCurrentSkeleton() const
+{
+    auto model = currentGameObject->rendererComponent.GetModelWrapper().Get();
+    if (model)
+    {
+        return model->getSkeleton();
+    }
+
+    static std::optional<GameEngine::Animation::Skeleton> skeleton;
+    return skeleton;
 }

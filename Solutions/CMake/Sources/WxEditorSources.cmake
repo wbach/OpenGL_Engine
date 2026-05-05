@@ -37,4 +37,5 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/TransformPanel
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/ComponentPanel.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/AnimationFileDropTarget.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/AnimationViewerFrame.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/SkeletonPreviewDialog.cpp
 )

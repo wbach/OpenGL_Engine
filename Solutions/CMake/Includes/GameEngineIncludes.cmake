@@ -531,6 +531,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/ShaderStorageVect
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Objects/GameObject.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Objects/Particle.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Objects/Prefab.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Objects/Layer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/GameState.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/Quests/Quest.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/Quests/QuestManager.h

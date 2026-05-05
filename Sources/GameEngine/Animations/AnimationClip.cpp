@@ -1,10 +1,10 @@
 #include "AnimationClip.h"
 
 #include <Utils/Container.h>
+#include <Utils/StreamOperators.h>
 
 #include <algorithm>
 #include <sstream>
-#include <Utils/StreamOperators.h>
 
 namespace GameEngine
 {
@@ -15,7 +15,7 @@ AnimationClip::AnimationClip()
 {
 }
 
-AnimationClip::AnimationClip(const std::string& name, const std::optional<File> & file)
+AnimationClip::AnimationClip(const std::string& name, const std::optional<File>& file)
     : length(-std::numeric_limits<float>::max())
     , name(name)
     , file(file)
@@ -41,6 +41,11 @@ KeyFrame& AnimationClip::AddFrame(const KeyFrame& frame)
 }
 
 const std::vector<KeyFrame>& AnimationClip::GetFrames() const
+{
+    return frames;
+}
+
+std::vector<KeyFrame>& AnimationClip::GetFrames()
 {
     return frames;
 }
@@ -90,7 +95,7 @@ string to_string(const GameEngine::Animation::AnimationClip& clip)
     ss << "Animation clip : " << clip.getName() << '\n';
     for (const auto& frame : clip.GetFrames())
     {
-        ss << "frame time : " <<  frame.timeStamp.value << '\n';
+        ss << "frame time : " << frame.timeStamp.value << '\n';
         for (auto& transform : frame.transforms)
         {
             ss << "name : " << transform.first << " position : " << transform.second.position

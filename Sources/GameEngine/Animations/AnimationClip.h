@@ -47,6 +47,7 @@ public:
     float GetLength() const;
     KeyFrame& AddFrame(const KeyFrame&);
     const std::vector<KeyFrame>& GetFrames() const;
+    std::vector<KeyFrame>& GetFrames();
     void SetLength(float l);
     KeyFrame* getFrame(TimeStamp);
     KeyFrame* getFrame(FrameIndex);
