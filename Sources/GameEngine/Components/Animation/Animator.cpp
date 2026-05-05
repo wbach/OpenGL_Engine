@@ -41,7 +41,6 @@ namespace Components
 {
 namespace
 {
-constexpr char COMPONENT_STR[]                   = "Animator";
 constexpr char CSTR_STARTUP_ANIMATION[]          = "startupAnimationClip";
 constexpr char CSTR_JOINT_GROUPS[]               = "jointGroups";
 constexpr char CSTR_ANIMATION_PLAY_TYPE[]        = "playType";
@@ -678,7 +677,7 @@ void write(TreeNode& node, const ReadAnimationInfo& info)
 
 void Animator::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
+    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
     node.addChild(CSTR_STARTUP_ANIMATION, startupAnimationClipName);
     node.addChild(CSTR_MONTION_JOINT_NAME, montionJointName);
     auto& animationClipsNode = node.addChild(CSTR_ANIMATION_CLIPS);

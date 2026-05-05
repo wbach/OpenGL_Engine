@@ -39,6 +39,7 @@ enum class FieldType
     VectorOfFloat,
     VectorOfFiles,
     VectorOfTextures,
+    VectorOfVector3f,
     VectorOfTerrainTextures,
     VectorOfAnimationClips,
     ConstVectorOfTextures,
