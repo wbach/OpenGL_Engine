@@ -17,9 +17,13 @@ class ENGINE_API EquipmentComponent : public BaseComponent
 public:
 public:
     std::string baseBodyRendererComponentTag;
+    std::string disarmJointName{"Slot_MeleeBackRight"};
+    std::string equipJointName{"Slot_RightHand_Weapon"};
     // clang-format off
     BEGIN_FIELDS()
         FIELD_STRING(baseBodyRendererComponentTag)
+        FIELD_STRING(disarmJointName)
+        FIELD_STRING(equipJointName)
     END_FIELDS()
     // clang-format on
 

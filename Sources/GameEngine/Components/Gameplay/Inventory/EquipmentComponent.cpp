@@ -30,6 +30,8 @@ namespace
 constexpr char CSTR_BASE_BODY_RENDERER_TAG[] = "baseBodyRendererComponentTag";
 constexpr char CHEST_COMPONENT_TAG[]{"ChestEquippedItem"};
 constexpr char CSTR_MAIN_HAND_ITEM[]{"MainHandItem"};
+constexpr char CSTR_EQUIP_JOINT_NAME[]{"equipJointName"};
+constexpr char CSTR_DISARM_JOINT_NAME[]{"disarmJointName"};
 }  // namespace
 EquipmentComponent::EquipmentComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(GetComponentType<EquipmentComponent>(), componentContext, gameObject)
@@ -54,6 +56,8 @@ void EquipmentComponent::registerReadFunctions()
         auto component = std::make_unique<EquipmentComponent>(componentContext, gameObject);
         component->read(input);
         ::Read(input.getChild(CSTR_BASE_BODY_RENDERER_TAG), component->baseBodyRendererComponentTag);
+        ::Read(input.getChild(CSTR_EQUIP_JOINT_NAME), component->equipJointName);
+        ::Read(input.getChild(CSTR_DISARM_JOINT_NAME), component->disarmJointName);
         return component;
     };
 
@@ -64,6 +68,8 @@ void EquipmentComponent::write(TreeNode& node) const
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
     BaseComponent::write(node);
     node.addChild(CSTR_BASE_BODY_RENDERER_TAG, baseBodyRendererComponentTag);
+    node.addChild(CSTR_EQUIP_JOINT_NAME, equipJointName);
+    node.addChild(CSTR_DISARM_JOINT_NAME, disarmJointName);
 }
 bool EquipmentComponent::equip(GameObject& item)
 {
@@ -195,8 +201,8 @@ void EquipmentComponent::equipOneHand(const GameObject& item)
     }
 
     auto& pu            = newGameObject->AddComponent<PoseUpdater>();
-    pu.disarmJointName_ = "Slot_MeleeBackLeft";
-    pu.equipJointName_  = "Slot_RightHand_Weapon";
+    pu.disarmJointName_ = disarmJointName;
+    pu.equipJointName_  = equipJointName;
 
     pu.Reload();
 
