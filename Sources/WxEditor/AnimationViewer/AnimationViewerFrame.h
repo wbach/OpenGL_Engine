@@ -43,6 +43,8 @@ private:
     void Clear();
     std::string GetStartupDialogPathBasedOnCurrent() const;
     void ImportCurrentObject();
+    void CreateRootMontion(wxCommandEvent&);
+    void ShowSkeleton(wxCommandEvent&);
 
 private:
     struct CurrentGameObject

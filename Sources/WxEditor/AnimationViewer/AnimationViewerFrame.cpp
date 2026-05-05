@@ -10,10 +10,10 @@
 #include <GameEngine/Physics/Bullet/BulletAdapter.h>
 #include <GameEngine/Scene/SceneFactoryBase.h>
 #include <GameEngine/Scene/SceneReader.h>
-#include <Variant.h>
 #include <Input/KeyCodes.h>
 #include <Logger/Log.h>
 #include <Utils.h>
+#include <Variant.h>
 #include <wx/defs.h>
 #include <wx/dnd.h>
 #include <wx/filedlg.h>
@@ -29,10 +29,72 @@
 #include <string>
 
 #include "AnimationFileDropTarget.h"
+#include "SkeletonPreviewDialog.h"
 #include "WxEditor/EngineRelated/GLCanvas.h"
 #include "WxEditor/EngineRelated/WxScenesDef.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
+
+namespace
+{
+GameEngine::Animation::AnimationClip CreateRootMotionClip(const GameEngine::Animation::AnimationClip& sourceClip,
+                                                          GameEngine::Animation::JointId rootId,
+                                                          GameEngine::Animation::JointId pelvisId)
+{
+    GameEngine::Animation::AnimationClip rmClip;
+    rmClip.SetLength(sourceClip.GetLength());
+
+    const std::vector<GameEngine::Animation::KeyFrame>& sourceFrames = sourceClip.GetFrames();
+
+    if (sourceFrames.empty())
+    {
+        return rmClip;
+    }
+
+    // Kopiujemy klatki, aby mieć bazę do modyfikacji
+    for (const GameEngine::Animation::KeyFrame& frame : sourceFrames)
+    {
+        rmClip.AddFrame(frame);
+    }
+
+    // Pobieramy referencję do nowych klatek, aby je zmodyfikować
+    // Zakładamy, że masz metodę dającą dostęp do zapisu (np. GetFrames() bez const)
+    std::vector<GameEngine::Animation::KeyFrame>& newFrames =
+        const_cast<std::vector<GameEngine::Animation::KeyFrame>&>(rmClip.GetFrames());
+
+    for (size_t i = 1; i < newFrames.size(); ++i)
+    {
+        GameEngine::Animation::KeyFrame& currentFrame = newFrames[i];
+        GameEngine::Animation::KeyFrame& prevFrame    = newFrames[i - 1];
+
+        bool hasBones = currentFrame.transforms.contains(pelvisId) and currentFrame.transforms.contains(rootId) and
+                        prevFrame.transforms.contains(pelvisId);
+
+        if (hasBones)
+        {
+            GameEngine::Animation::JointTransform& currentPelvis = currentFrame.transforms[pelvisId];
+            GameEngine::Animation::JointTransform& prevPelvis    = prevFrame.transforms[pelvisId];
+            GameEngine::Animation::JointTransform& currentRoot   = currentFrame.transforms[rootId];
+            GameEngine::Animation::JointTransform& prevRoot      = prevFrame.transforms[rootId];
+
+            // 1. Obliczamy deltę ruchu miednicy
+            // Tutaj możesz zdecydować, czy bierzesz tylko X i Z, czy też Y (wysokość)
+            float deltaX = currentPelvis.position.x - prevPelvis.position.x;
+            float deltaZ = currentPelvis.position.z - prevPelvis.position.z;
+
+            // 2. Akumulujemy ruch na kości Root w nowym klipie
+            currentRoot.position.x = prevRoot.position.x + deltaX;
+            currentRoot.position.z = prevRoot.position.z + deltaZ;
+
+            // 3. Niwelujemy ruch na miednicy (zamiana na in-place względem nowego Roota)
+            currentPelvis.position.x -= currentRoot.position.x;
+            currentPelvis.position.z -= currentRoot.position.z;
+        }
+    }
+
+    return rmClip;
+}
+}  // namespace
 
 AnimationViewerFrame::AnimationViewerFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(nullptr, wxID_ANY, title, pos, size)
@@ -120,6 +182,7 @@ void AnimationViewerFrame::CreateMainMenu()
     int ID_EXPORT_ALL_CLIPS       = wxWindow::NewControlId();
     int ID_CREATE_PREFAB          = wxWindow::NewControlId();
     int ID_REFRESH_CLIPS          = wxWindow::NewControlId();
+    int ID_SHOW_SKELETON          = wxWindow::NewControlId();
 
     wxMenu* fileMenu = new wxMenu();
     fileMenu->Append(ID_OPEN_FILE, "Open model");
@@ -128,6 +191,7 @@ void AnimationViewerFrame::CreateMainMenu()
     fileMenu->Append(ID_EXPORT_SELECTED_CLIP, "Export slected clip");
     fileMenu->Append(ID_EXPORT_ALL_CLIPS, "Export all animation clips");
     fileMenu->Append(ID_CREATE_PREFAB, "Create prefab from current object");
+    fileMenu->Append(ID_SHOW_SKELETON, "Show skeleton");
 
     Bind(
         wxEVT_MENU,
@@ -197,7 +261,37 @@ void AnimationViewerFrame::CreateMainMenu()
     Bind(
         wxEVT_MENU, [this](wxCommandEvent&) { Close(true); }, wxID_EXIT);
 
+    Bind(
+        wxEVT_MENU, [this](wxCommandEvent& e) { ShowSkeleton(e); }, ID_SHOW_SKELETON);
+
     SetMenuBar(menuBar);
+}
+
+void AnimationViewerFrame::ShowSkeleton(wxCommandEvent& event)
+{
+    if (not currentGameObject)
+    {
+        wxMessageBox("Model not set", "Warning", wxOK | wxICON_WARNING);
+        return;
+    }
+
+    auto model = currentGameObject->rendererComponent.GetModelWrapper().Get();
+    if (model)
+    {
+        if (auto maybeSkeleton = model->getSkeleton())
+        {
+            SkeletonPreviewDialog dialog(this, *maybeSkeleton);
+            dialog.ShowModal();
+        }
+        else
+        {
+            LOG_WARN << "Skeleton not set";
+        }
+    }
+    else
+    {
+        LOG_WARN << "Model not set";
+    }
 }
 
 void AnimationViewerFrame::ShowModel(const GameEngine::File& file)
@@ -340,10 +434,21 @@ void AnimationViewerFrame::OnAnimListContextMenu(wxContextMenuEvent& event)
 {
     wxMenu menu;
     menu.Append(10001, "Export to file");
+    menu.Append(10002, "Create rootMontion version of this clip");
 
     Bind(wxEVT_MENU, &AnimationViewerFrame::OnExportToFile, this, 10001);
+    Bind(wxEVT_MENU, &AnimationViewerFrame::CreateRootMontion, this, 10002);
 
     PopupMenu(&menu);
+}
+
+void AnimationViewerFrame::CreateRootMontion(wxCommandEvent& event)
+{
+    if (not currentGameObject)
+    {
+        wxMessageBox("Model not set", "Warning", wxOK | wxICON_WARNING);
+        return;
+    }
 }
 
 void AnimationViewerFrame::OnExportToFile(wxCommandEvent& event)
@@ -543,9 +648,8 @@ void AnimationViewerFrame::ImportCurrentObject()
                 std::visit(
                     visitor{[&](GameEngine::File& file)
                             {
-                                auto textureFile =
-                                    Utils::FindFile(file.GetFilename(),
-                                                    currentGameObject->currentModelFile->GetAbsolutePath().parent_path());
+                                auto textureFile = Utils::FindFile(
+                                    file.GetFilename(), currentGameObject->currentModelFile->GetAbsolutePath().parent_path());
 
                                 const auto fsTargetPath = std::filesystem::path(wxFileName(targetPath).GetPath().ToStdString());
 
