@@ -1,10 +1,14 @@
 #pragma once
 #include <GameEngine/Components/Animation/AnimationClipInfo.h>
+#include <Types.h>
 
 #include <atomic>
+#include <cstddef>
 #include <deque>
+#include <functional>
 #include <mutex>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <variant>
 #include <vector>
@@ -52,7 +56,7 @@ public:
     END_FIELDS()
     // clang-format on
 public:
-    using AnimationInfoClips = std::unordered_map<std::string, AnimationClipInfo>;
+    using AnimationInfoClips = std::unordered_map<std::string, AnimationClipInfo, StringViewHash, std::equal_to<>>;
 
     enum class AnimationChangeType
     {
@@ -74,16 +78,16 @@ public:
                           AnimationClipInfo::PlayType       = AnimationClipInfo::PlayType::loop,
                           AnimationClipInfo::UseRootMontion = false);
     Animator& SetAnimation(const std::string&);
-    void ChangeAnimation(const std::string&, AnimationChangeType = AnimationChangeType::smooth,
+    void ChangeAnimation(std::string_view, AnimationChangeType = AnimationChangeType::smooth,
                          PlayDirection = PlayDirection::forward, std::optional<std::string> = std::nullopt,
                          std::function<void()> = nullptr);
 
     void StopAnimation(std::optional<std::string> = std::nullopt);
     GraphicsApi::ID getPerPoseBufferId(const RendererComponent&) const;
     void setPlayOnceForAnimationClip(const std::string&);
+    MaybeId SubscribeForAnimationFrame(std::string_view, std::function<void()>, Animation::FrameIndex);
+    MaybeId SubscribeForAnimationFrame(std::string_view, std::function<void()>, float = -1);
 
-    std::optional<IdType> SubscribeForAnimationFrame(const std::string&, std::function<void()>, Animation::FrameIndex);
-    std::optional<IdType> SubscribeForAnimationFrame(const std::string&, std::function<void()>, float = -1);
     void UnSubscribeForAnimationFrame(IdType);
 
     Animation::Joint* GetRootJoint();

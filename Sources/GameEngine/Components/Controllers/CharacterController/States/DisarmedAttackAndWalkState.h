@@ -13,6 +13,7 @@ class DisarmedAttackAndWalkState
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<AnimationPlayEndEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::Update>,

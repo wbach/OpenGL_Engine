@@ -11,6 +11,7 @@ class DisarmedAttackState
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<AnimationPlayEndEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::Queue>,

@@ -5,77 +5,64 @@
 #include "../FsmContext.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
+#include "GameEngine/Components/Controllers/CharacterController/PlayStateType.h"
+#include "Types.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
 namespace Components
 {
-namespace
-{
-const AttackAnimation dummyAttackAnimation{};
-}
 AttackStateBase::AttackStateBase(FsmContext &context, const std::vector<AttackAnimation> &clipnames,
                                  const std::optional<std::string> jointGroupName)
     : BaseState{context}
+    , attackStatesContext(context.attackStatesContext)
     , attackClipNames{clipnames}
     , jointGroupName{jointGroupName}
 {
 }
 void AttackStateBase::onEnter(DisarmedRunState &)
 {
-    context_.attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::run;
+    attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::run;
 }
 void AttackStateBase::onEnter(DisarmedWalkState &)
 {
-    context_.attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::walk;
+    attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::walk;
 }
 void AttackStateBase::onEnter(ArmedRunState &)
 {
-    context_.attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::run;
+    attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::run;
 }
 void AttackStateBase::onEnter(ArmedWalkState &)
 {
-    context_.attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::walk;
+    attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::walk;
 }
 void AttackStateBase::onEnter(const AttackEvent &)
 {
-    if (not attackClipNames.empty())
-    {
-        const auto &clipName = attackClipNames[context_.attackStatesContext.currentAnimation].name;
-        context_.animator.ChangeAnimation(clipName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-                                          jointGroupName);
-    }
-}
-
-void AttackStateBase::onEnter()
-{
-    if (not attackClipNames.empty())
-    {
-        subscribe();
-    }
+    startPlayCurrentAnimation();
 }
 
 void AttackStateBase::onEnter(const EndForwardMoveEvent &)
 {
-    context_.attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::idle;
+    attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::idle;
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 
 void AttackStateBase::onEnter(const EndBackwardMoveEvent &)
 {
-    context_.attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::idle;
+    attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::idle;
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 
 void AttackStateBase::onEnter(const EndMoveLeftEvent &)
 {
-    context_.attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::idle;
+    attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::idle;
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 
 void AttackStateBase::onEnter(const EndMoveRightEvent &)
 {
-    context_.attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::idle;
+    attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::idle;
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 
@@ -91,18 +78,15 @@ void AttackStateBase::onEnter(const ChangeAnimEvent &event)
 
 void AttackStateBase::update(const AttackEvent &)
 {
-    if (context_.attackStatesContext.sequenceSize == context_.attackStatesContext.currentAnimation)
-    {
-        if (context_.attackStatesContext.sequenceSize < attackClipNames.size() - 1)
-            ++context_.attackStatesContext.sequenceSize;
-        else
-            context_.attackStatesContext.sequenceSize = 0;
-    }
+    attackStatesContext.pendingAttacksCount = std::min(attackStatesContext.pendingAttacksCount + 1, 1u);
 }
 
 void AttackStateBase::update(const ChangeAnimEvent &event)
 {
     context_.animator.ChangeAnimation(event.name, Animator::AnimationChangeType::smooth, PlayDirection::forward, jointGroupName);
+
+    attackStatesContext.animationSubId = context_.animator.SubscribeForAnimationFrame(
+        event.name, [&context = context_]() { context.characterController.pushEventToQueue(AnimationPlayEndEvent{}); });
 }
 
 void AttackStateBase::update(float)
@@ -111,71 +95,92 @@ void AttackStateBase::update(float)
 
 void AttackStateBase::onLeave(const EndAttackEvent &)
 {
-    if (context_.attackStatesContext.nextMoveState == AttackStatesContext::NextMoveState::run or
-        context_.attackStatesContext.nextMoveState == AttackStatesContext::NextMoveState::walk)
+    LOG_DEBUG << magic_enum::enum_name(attackStatesContext.nextMoveState);
+
+    if (attackStatesContext.nextMoveState == AttackStatesContext::NextMoveState::run or
+        attackStatesContext.nextMoveState == AttackStatesContext::NextMoveState::walk)
     {
         context_.characterController.pushEventToQueue(MoveEvent{});
     }
 
-    if (context_.attackStatesContext.nextMoveState == AttackStatesContext::NextMoveState::walk)
+    if (attackStatesContext.nextMoveState == AttackStatesContext::NextMoveState::walk)
     {
         context_.characterController.pushEventToQueue(WalkChangeStateEvent{});
     }
 
     flushEvents();
 
-    context_.attackStatesContext.nextMoveState    = AttackStatesContext::NextMoveState::idle;
-    context_.attackStatesContext.sequenceSize     = 0;
-    context_.attackStatesContext.currentAnimation = 0;
-}
-
-void AttackStateBase::onLeave()
-{
-    unsubscribe();
-}
-void AttackStateBase::onClipEnd()
-{
-    if (context_.attackStatesContext.sequenceSize == context_.attackStatesContext.currentAnimation)
-    {
-        context_.characterController.pushEventToQueue(EndAttackEvent{});
-        return;
-    }
-
-    context_.attackStatesContext.currentAnimation = context_.attackStatesContext.sequenceSize;
-    const auto &clip                              = attackClipNames[context_.attackStatesContext.currentAnimation];
-    context_.characterController.pushEventToQueue(ChangeAnimEvent{clip.name, clip.stateType});
-}
-
-void AttackStateBase::subscribe()
-{
-    for (const auto &clip : attackClipNames)
-    {
-        if (auto subId = context_.animator.SubscribeForAnimationFrame(clip.name, [&]() { onClipEnd(); }))
-        {
-            subIds.push_back(*subId);
-        }
-    }
-}
-
-void AttackStateBase::unsubscribe()
-{
-    if (not subIds.empty())
-    {
-        for (const auto &id : subIds)
-            context_.animator.UnSubscribeForAnimationFrame(id);
-        subIds.clear();
-    }
-}
-const AttackAnimation &AttackStateBase::getCurrentAttackAnimation() const
-{
-    if (context_.attackStatesContext.sequenceSize > 0 and context_.attackStatesContext.sequenceSize < attackClipNames.size())
-        return attackClipNames[context_.attackStatesContext.sequenceSize];
-    else
-        return dummyAttackAnimation;
+    attackStatesContext.nextMoveState       = AttackStatesContext::NextMoveState::idle;
+    attackStatesContext.pendingAttacksCount = 0;
+    attackStatesContext.currentAnimation    = 0;
+    attackStatesContext.currentSequenceClip = 0;
 }
 bool AttackStateBase::entryCondition() const
 {
     return not attackClipNames.empty();
+}
+const std::optional<std::pair<std::string_view, PlayStateType>> AttackStateBase::getCurrentAnimation() const
+{
+    if (attackClipNames.empty())
+    {
+        LOG_DEBUG << "no clips";
+        return {};
+    }
+
+    const auto &currentAnimation = attackClipNames[attackStatesContext.currentAnimation];
+    const auto &clipsSequence    = currentAnimation.clipsSequence;
+    if (clipsSequence.empty())
+    {
+        LOG_DEBUG << "clipsSequence empty";
+        return {};
+    }
+
+    return std::pair<std::string_view, PlayStateType>{clipsSequence[attackStatesContext.currentSequenceClip],
+                                                      currentAnimation.stateType};
+}
+void AttackStateBase::update(const AnimationPlayEndEvent &)
+{
+    if (attackStatesContext.animationSubId)
+    {
+        context_.animator.UnSubscribeForAnimationFrame(*attackStatesContext.animationSubId);
+        attackStatesContext.animationSubId.reset();
+    }
+
+    const auto &currentSequence = attackClipNames[attackStatesContext.currentAnimation].clipsSequence;
+    if (attackStatesContext.currentSequenceClip < currentSequence.size() - 1)
+    {
+        ++attackStatesContext.currentSequenceClip;
+    }
+    else
+    {
+        attackStatesContext.currentSequenceClip = 0;
+        if (attackStatesContext.pendingAttacksCount > 0)
+        {
+            --attackStatesContext.pendingAttacksCount;
+            attackStatesContext.currentAnimation = (attackStatesContext.currentAnimation + 1) % attackClipNames.size();
+        }
+        else
+        {
+            attackStatesContext.currentAnimation = 0;
+            context_.characterController.pushEventToQueue(EndAttackEvent{});
+            return;
+        }
+    }
+
+    startPlayCurrentAnimation();
+}
+void AttackStateBase::startPlayCurrentAnimation()
+{
+    if (auto clip = getCurrentAnimation())
+    {
+        const auto &[clipName, stateType]    = *clip;
+        attackStatesContext.currentPlayState = stateType;
+        context_.characterController.pushEventToQueue(ChangeAnimEvent{std::string(clipName), stateType});
+    }
+    else
+    {
+        LOG_WARN << "Co active clip";
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine

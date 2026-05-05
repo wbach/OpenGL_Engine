@@ -30,8 +30,8 @@ TEST_F(CharacterControllerTests, DisarmedRunState_DrawArrowEvent)
                                     {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME / 2.f});
     Update(ADVANCED_TIME_CLIP_TIME / 2.f);
 
-    Update(ADVANCED_TIME_TRANSITION_TIME);
     expectForwardVelocity(DEFAULT_WALK_SPEED);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.movement.walk.forward, sut_.animationClipsNames_.aim.draw});
@@ -182,10 +182,11 @@ TEST_F(CharacterControllerTests, DisarmedRunState_AttackEvent)
 {
     prepareState(*this);
     expectNoMove();
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()});
     expectForwardVelocity(DEFAULT_RUN_SPEED);
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_CLIP_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.movement.run.forward});
 }
 
@@ -207,9 +208,11 @@ TEST_F(CharacterControllerTests, DisarmedRunState_AttackEventWhenRunBackward)
     tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward});
 
     expectNoMove();
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()});
     expectForwardVelocity(-DEFAULT_RUN_SPEED);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.movement.run.forward});
 }
@@ -217,8 +220,8 @@ TEST_F(CharacterControllerTests, DisarmedRunState_EndMoveEventWhenAttackEventIsP
 {
     prepareState(*this);
     expectNoMove();
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name});
-    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.disarmed.attack.front().name});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()});
+    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});

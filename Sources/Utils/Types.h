@@ -12,6 +12,7 @@
 #include <optional>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -41,7 +42,8 @@ typedef std::vector<uint8> Uint8Vec;
 
 typedef std::string InputFileName;
 typedef std::string OutputFileName;
-typedef uint32_t IdType;
+using IdType  = uint32_t;
+using MaybeId = std::optional<IdType>;
 
 using DeltaTime = float;
 
@@ -920,6 +922,16 @@ enum class VertexBufferObjects
 };
 
 typedef std::unordered_map<VertexBufferObjects, uint32> VboMap;
+
+struct StringViewHash
+{
+    using is_transparent = void;
+
+    std::size_t operator()(std::string_view s) const
+    {
+        return std::hash<std::string_view>{}(s);
+    }
+};
 
 namespace std
 {

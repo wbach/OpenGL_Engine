@@ -36,13 +36,32 @@ void write(TreeNode& node, const PlayStateType& stateType)
     write(node, s);
 }
 
+void write(TreeNode& node, const AnimSequence& animSequence)
+{
+    if (animSequence.empty())
+    {
+        return;
+    }
+
+    if (animSequence.size() == 1)
+    {
+        node.value_ = animSequence.front();
+        return;
+    }
+
+    auto& sequence = node.addChild(CSTR_SEQUENCE);
+    for (auto& clip : animSequence.clipNames)
+    {
+        write(sequence.addChild(CSTR_CLIP_NAME), clip);
+    }
+}
+
 void write(TreeNode& node, const std::vector<AttackAnimation>& names)
 {
     for (const auto& anim : names)
     {
         auto& n = node.addChild(CSTR_ANIMATION);
-
-        write(n.addChild(CSTR_NAME), anim.name);
+        write(n.addChild(CSTR_CLIP_NAME), anim.clipsSequence);
         write(n.addChild(CSTR_ANIMATION_STATE_TYPE), anim.stateType);
     }
 }
@@ -98,26 +117,6 @@ void write(TreeNode& node, const AimClips& names)
     write(node.addChild(CSTR_DRAW_ARROW_ANIMATION), names.draw);
     write(node.addChild(CSTR_RECOIL_ARROW_ANIMATION), names.recoil);
     write(node.addChild(CSTR_AIM_IDLE_ANIMATION), names.idle);
-}
-
-void write(TreeNode& node, const AnimSequence& animSequence)
-{
-    if (animSequence.empty())
-    {
-        return;
-    }
-
-    if (animSequence.size() == 1)
-    {
-        node.value_ = animSequence.front();
-        return;
-    }
-
-    auto& sequence = node.addChild(CSTR_SEQUENCE);
-    for (auto& clip : animSequence.clipNames)
-    {
-        write(sequence.addChild(CSTR_CLIP_NAME), clip);
-    }
 }
 
 void write(TreeNode& node, const AnimationClipsNames& names)

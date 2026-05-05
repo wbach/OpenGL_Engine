@@ -15,7 +15,7 @@ void prepareState(CharacterControllerTests& test)
     test.tiggerAndExpect<MoveForwardEvent>({test.sut_.animationClipsNames_.disarmed.movement.run.forward});
     test.expectRotationLeft();
     test.tiggerAndExpect<RotateLeftEvent>({test.sut_.animationClipsNames_.disarmed.movement.run.forward});
-    test.tiggerAndExpect<AttackEvent>({test.sut_.animationClipsNames_.disarmed.attack.front().name,
+    test.tiggerAndExpect<AttackEvent>({test.sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front(),
                                        test.sut_.animationClipsNames_.disarmed.movement.run.forward});
 }
 }  // namespace
@@ -36,7 +36,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_EndMoveForwa
 {
     prepareState(*this);
     expectNoMove();
-    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
     tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.disarmed.posture.stand.rotate.left, clipName});
 }
 
@@ -44,18 +44,19 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_EndRotationE
 {
     prepareState(*this);
     expectNoRotation();
-    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
     tiggerAndExpect<EndRotationEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.run.forward});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_SprintStateChangeEvent)
 {
     prepareState(*this);
-    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
     tiggerAndExpect<SprintStateChangeEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.run.forward});
 
     expectForwardVelocity(DEFAULT_SPRINT_SPEED);
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
 
     expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
@@ -66,10 +67,11 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_SprintStateC
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_WeaponStateEvent)
 {
     prepareState(*this);
-    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
     tiggerAndExpect<GameEngine::WeaponStateEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.run.forward});
 
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
 
     expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
@@ -80,10 +82,11 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_WeaponStateE
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_DrawArrowEvent)
 {
     prepareState(*this);
-    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
     tiggerAndExpect<GameEngine::DrawArrowEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.run.forward});
 
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
 
     expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
@@ -94,7 +97,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_DrawArrowEve
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_AimStopEvent)
 {
     prepareState(*this);
-    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
     tiggerAndExpect<GameEngine::DrawArrowEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.run.forward});
     expectAnyRotation();
     tiggerAndExpect<GameEngine::AimStopEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.run.forward}, {0});

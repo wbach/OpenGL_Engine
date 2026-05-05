@@ -107,7 +107,7 @@ TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_RotateTargetEvent)
 TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_AttackEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name}, {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()}, {ADVANCED_TIME_TRANSITION_TIME});
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_CrouchChangeStateEvent)

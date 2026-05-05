@@ -9,6 +9,7 @@
 #include <mutex>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <variant>
 
 #include "ChangeAnimationEvent.h"
@@ -30,6 +31,7 @@
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "PlayAnimation.h"
 #include "StopAnimationEvent.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -195,8 +197,8 @@ void Animator::setPlayOnceForAnimationClip(const std::string& name)
         iter->second.playType = AnimationClipInfo::PlayType::once;
     }
 }
-std::optional<IdType> Animator::SubscribeForAnimationFrame(const std::string& animName, std::function<void()> function,
-                                                           Animation::FrameIndex index)
+MaybeId Animator::SubscribeForAnimationFrame(std::string_view animName, std::function<void()> function,
+                                             Animation::FrameIndex index)
 {
     auto iter = animationClipInfo_.find(animName);
     if (iter != animationClipInfo_.end())
@@ -221,8 +223,7 @@ std::optional<IdType> Animator::SubscribeForAnimationFrame(const std::string& an
     LOG_WARN << "SubscribeForAnimationFrame, animation " << animName << " not found or frames are empty!";
     return std::nullopt;
 }
-std::optional<IdType> Animator::SubscribeForAnimationFrame(const std::string& animName, std::function<void()> function,
-                                                           float frameTimeStamp)
+MaybeId Animator::SubscribeForAnimationFrame(std::string_view animName, std::function<void()> function, float frameTimeStamp)
 {
     auto iter = animationClipInfo_.find(animName);
     if (iter != animationClipInfo_.end() and not iter->second.clip.GetFrames().empty())
@@ -341,7 +342,7 @@ bool Animator::isAnimationPlaying(const std::string& name) const
     return machine_.currentState_->isAnimationPlaying(name);
 }
 
-void Animator::ChangeAnimation(const std::string& name, AnimationChangeType changeType, PlayDirection playDirection,
+void Animator::ChangeAnimation(std::string_view name, AnimationChangeType changeType, PlayDirection playDirection,
                                std::optional<std::string> groupName, std::function<void()> onTransitionEnd)
 {
     auto clipIter = animationClipInfo_.find(name);
@@ -459,8 +460,9 @@ void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
     }
     else
     {
-        LOG_DEBUG << "Joint not found ! " << joint.id;
+        LOG_DEBUG << "Joint not found ! " << joint;
     }
+
     joint.worldTransform    = currentTransform * joint.additionalUserMofiyTransform.getMatrix();
     joint.animatedTransform = joint.worldTransform * joint.offset;
 
@@ -742,7 +744,7 @@ void Animator::initMasterSkeletonData()
         {
             masterSkeletonData.skeleton = std::move(*maybeSkeleton);
             montionJoint_               = masterSkeletonData.skeleton.getJoint(montionJointName);
-            pose.init(masterSkeletonData.skeleton);
+            //pose.init(masterSkeletonData.skeleton);
 
             if (montionJoint_)
             {

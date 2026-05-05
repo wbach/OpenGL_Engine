@@ -23,6 +23,8 @@ class ArmedAttackAndRunAndRotateState
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<ChangeAnimEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<AnimationPlayEndEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Queue>,

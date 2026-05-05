@@ -103,20 +103,20 @@ void Player::Init()
                 }
             }
         };
-        for (const auto& attackAnim : characterController_->animationClipsNames_.armed.attack)
-        {
-            if (auto maybeId = animator_->SubscribeForAnimationFrame(attackAnim.name, attackAction))
-            {
-                animSubs_.push_back(*maybeId);
-            }
-        }
-        for (const auto& attackAnim : characterController_->animationClipsNames_.disarmed.attack)
-        {
-            if (auto maybeId = animator_->SubscribeForAnimationFrame(attackAnim.name, attackAction))
-            {
-                animSubs_.push_back(*maybeId);
-            }
-        }
+        // for (const auto& attackAnim : characterController_->animationClipsNames_.armed.attack)
+        // {
+        //     if (auto maybeId = animator_->SubscribeForAnimationFrame(attackAnim.name, attackAction))
+        //     {
+        //         animSubs_.push_back(*maybeId);
+        //     }
+        // }
+        // for (const auto& attackAnim : characterController_->animationClipsNames_.disarmed.attack)
+        // {
+        //     if (auto maybeId = animator_->SubscribeForAnimationFrame(attackAnim.name, attackAction))
+        //     {
+        //         animSubs_.push_back(*maybeId);
+        //     }
+        // }
     }
 
     const vec2 windowSize(0.2f, 0.1f);

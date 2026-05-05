@@ -145,10 +145,10 @@ TEST_F(CharacterControllerTests, ArmedRunState_AttackEvent)
 {
     prepareState(*this);
     expectNoMove();
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.armed.attack.front().name});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.armed.attack.front().clipsSequence.front()});
     expectForwardVelocity(DEFAULT_RUN_SPEED);
     Update(ADVANCED_TIME_CLIP_TIME);
-    Update(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_CLIP_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.movement.run.forward});
 }
 TEST_F(CharacterControllerTests, ArmedRunState_AttackEventWhenRunBackward)
@@ -163,18 +163,18 @@ TEST_F(CharacterControllerTests, ArmedRunState_AttackEventWhenRunBackward)
     tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.armed.movement.run.forward});
 
     expectNoMove();
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.armed.attack.front().name});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.armed.attack.front().clipsSequence.front()});
     expectForwardVelocity(-DEFAULT_RUN_SPEED);
     Update(ADVANCED_TIME_CLIP_TIME);
-    Update(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_CLIP_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.movement.run.forward});
 }
 TEST_F(CharacterControllerTests, ArmedRunState_EndMoveEventWhenAttackEventIsProcessing)
 {
     prepareState(*this);
     expectNoMove();
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.armed.attack.front().name});
-    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.armed.attack.front().name});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.armed.attack.front().clipsSequence.front()});
+    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.armed.attack.front().clipsSequence.front()});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.posture.stand.idle});

@@ -5,6 +5,7 @@
 
 #include "../AnimationClipNames.h"
 #include "GameEngine/Components/CommonReadDef.h"
+#include "Logger/Log.h"
 #include "Variables.h"
 
 using namespace GameEngine::Components;
@@ -28,22 +29,47 @@ void Read(const TreeNode& node, std::vector<std::string>& result)
     }
 }
 
+void Read(const TreeNode& node, GameEngine::AnimSequence& result)
+{
+    if (not node.value_.empty())
+    {
+        result.clipNames.push_back(node.value_);
+    }
+    else
+    {
+        if (auto sequnece = node.getChild(CSTR_SEQUENCE))
+        {
+            for (const auto& child : sequnece->getChildren())
+            {
+                result.clipNames.push_back(child->value_);
+            }
+        }
+    }
+}
+
 void Read(const TreeNode& node, std::vector<AttackAnimation>& result)
 {
     for (const auto& node : node.getChildren())
     {
-        if (!node->value_.empty())
+        if (not node->value_.empty())
         {
-            result.push_back({node->value_, PlayStateType::idle});
+            result.push_back(AttackAnimation{.clipsSequence = GameEngine::AnimSequence{.clipNames = {node->value_}},
+                                             .stateType     = PlayStateType::idle});
         }
         else
         {
-            AttackAnimation aa{"", PlayStateType::idle};
-            auto maybeNameNode = node->getChild(CSTR_NAME);
+            AttackAnimation aa{{}, PlayStateType::idle};
+            auto maybeNameNode = node->getChild(CSTR_CLIP_NAME);
             if (maybeNameNode)
             {
-                Read(*maybeNameNode, aa.name);
+                std::string name;
+                Read(*maybeNameNode, aa.clipsSequence);
             }
+            else
+            {
+                LOG_DEBUG << "clipname node not exist";
+            }
+
             auto maybePlayStateTypeNode = node->getChild(CSTR_ANIMATION_STATE_TYPE);
             if (maybePlayStateTypeNode)
             {
@@ -56,6 +82,7 @@ void Read(const TreeNode& node, std::vector<AttackAnimation>& result)
                     aa.stateType = PlayStateType::run;
                 }
             }
+
             result.push_back(aa);
         }
     }
@@ -112,24 +139,6 @@ void Read(const TreeNode& node, AimClips& result)
     Read(node.getChild(CSTR_DRAW_ARROW_ANIMATION), result.draw);
     Read(node.getChild(CSTR_RECOIL_ARROW_ANIMATION), result.recoil);
     Read(node.getChild(CSTR_AIM_IDLE_ANIMATION), result.idle);
-}
-
-void Read(const TreeNode& node, GameEngine::AnimSequence& result)
-{
-    if (not node.value_.empty())
-    {
-        result.clipNames.push_back(node.value_);
-    }
-    else
-    {
-        if (auto sequnece = node.getChild(CSTR_SEQUENCE))
-        {
-            for (const auto& child : sequnece->getChildren())
-            {
-                result.clipNames.push_back(child->value_);
-            }
-        }
-    }
 }
 
 void Read(const TreeNode& node, AnimationClipsNames& result)

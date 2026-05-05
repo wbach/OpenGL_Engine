@@ -228,12 +228,12 @@ void CharacterController::Init()
 
         rigidbody_->SetAngularFactor(0.f);
 
-        for (auto& clip : animationClipsNames_.equip.clipNames)
+        for (auto& clip : animationClipsNames_.equip)
         {
             animator_->setPlayOnceForAnimationClip(clip);
         }
 
-        for (auto& clip : animationClipsNames_.disarm.clipNames)
+        for (auto& clip : animationClipsNames_.disarm)
         {
             animator_->setPlayOnceForAnimationClip(clip);
         }
@@ -246,11 +246,17 @@ void CharacterController::Init()
 
         for (const auto& attack : animationClipsNames_.armed.attack)
         {
-            animator_->setPlayOnceForAnimationClip(attack.name);
+            for (auto& clip : attack.clipsSequence)
+            {
+                animator_->setPlayOnceForAnimationClip(clip);
+            }
         }
         for (const auto& attack : animationClipsNames_.disarmed.attack)
         {
-            animator_->setPlayOnceForAnimationClip(attack.name);
+            for (auto& clip : attack.clipsSequence)
+            {
+                animator_->setPlayOnceForAnimationClip(clip);
+            }
         }
 
         animator_->SetAnimation(animationClipsNames_.disarmed.posture.stand.idle);
@@ -392,14 +398,26 @@ void CharacterController::processEvent()
 {
     EventQueue tmpEventsQueue;
 
-    {
-        std::lock_guard<std::mutex> lk(eventQueueMutex);
-        tmpEventsQueue = std::move(eventQueue);
-    }
+    int safetyCounter    = 0;
+    const int maxBatches = 10;
 
-    for (auto& event : tmpEventsQueue)
+    while (safetyCounter < maxBatches)
     {
-        handleEvent(event);
+        {
+            std::lock_guard<std::mutex> lk(eventQueueMutex);
+            if (eventQueue.empty())
+            {
+                return;
+            }
+            tmpEventsQueue = std::move(eventQueue);
+        }
+
+        for (auto& event : tmpEventsQueue)
+        {
+            handleEvent(event);
+        }
+
+        ++safetyCounter;
     }
 }
 void CharacterController::Update()

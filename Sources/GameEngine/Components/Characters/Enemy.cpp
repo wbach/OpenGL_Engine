@@ -77,20 +77,20 @@ void Enemy::Init()
             }
         };
 
-        for (const auto& attackName : characterController_->animationClipsNames_.armed.attack)
-        {
-            if (auto id = animator_->SubscribeForAnimationFrame(attackName.name, attackAction))
-            {
-                animSubs_.push_back(*id);
-            }
-        }
-        for (const auto& attackName : characterController_->animationClipsNames_.disarmed.attack)
-        {
-            if (auto id = animator_->SubscribeForAnimationFrame(attackName.name, attackAction))
-            {
-                animSubs_.push_back(*id);
-            }
-        }
+        // for (const auto& attackName : characterController_->animationClipsNames_.armed.attack)
+        // {
+        //     if (auto id = animator_->SubscribeForAnimationFrame(attackName, attackAction))
+        //     {
+        //         animSubs_.push_back(*id);
+        //     }
+        // }
+        // for (const auto& attackName : characterController_->animationClipsNames_.disarmed.attack)
+        // {
+        //     if (auto id = animator_->SubscribeForAnimationFrame(attackName.name, attackAction))
+        //     {
+        //         animSubs_.push_back(*id);
+        //     }
+        // }
     }
 
     const vec2 windowSize(0.2f, 0.033f);

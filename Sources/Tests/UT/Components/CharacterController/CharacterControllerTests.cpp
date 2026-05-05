@@ -4,6 +4,7 @@
 #include <GameEngine/Physics/IPhysicsApi.h>
 #include <Logger/Log.h>
 
+#include "Components/Controllers/CharacterController/AnimationClipNames.h"
 #include "GameEngine/Components/Animation/PoseUpdater.h"
 #include "GameEngine/Components/Physics/SphereShape.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
@@ -122,9 +123,10 @@ void CharacterControllerTests::initAnimations()
     clips.disarmed.dodge.left     = "DDL";
     clips.disarmed.dodge.right    = "DDR";
 
-    clips.disarmed.attack.push_back({"DA1", PlayStateType::idle});
-    clips.disarmed.attack.push_back({"DA2", PlayStateType::idle});
-    clips.disarmed.attack.push_back({"DA3", PlayStateType::idle});
+    clips.disarmed.attack = {
+        AttackAnimation{.clipsSequence = {AnimSequence{.clipNames = {"D1"}}}, .stateType = PlayStateType::idle},
+        AttackAnimation{.clipsSequence = {AnimSequence{.clipNames = {"D2"}}}, .stateType = PlayStateType::idle},
+        AttackAnimation{.clipsSequence = {AnimSequence{.clipNames = {"D3"}}}, .stateType = PlayStateType::idle}};
 
     disarmedAttackClip1 = &clips.disarmed.attack[0];
     disarmedAttackClip2 = &clips.disarmed.attack[1];
@@ -167,9 +169,10 @@ void CharacterControllerTests::initAnimations()
     clips.armed.dodge.backward = "ADB";
     clips.armed.dodge.left     = "ADL";
     clips.armed.dodge.right    = "ADR";
-    clips.armed.attack.push_back({"A1", PlayStateType::idle});
-    clips.armed.attack.push_back({"A2", PlayStateType::idle});
-    clips.armed.attack.push_back({"A3", PlayStateType::idle});
+    clips.armed.attack         = {
+                AttackAnimation{.clipsSequence = {AnimSequence{.clipNames = {"A1"}}}, .stateType = PlayStateType::idle},
+                AttackAnimation{.clipsSequence = {AnimSequence{.clipNames = {"A2"}}}, .stateType = PlayStateType::idle},
+                AttackAnimation{.clipsSequence = {AnimSequence{.clipNames = {"A3"}}}, .stateType = PlayStateType::idle}};
 
     armedAttackClip1 = &clips.armed.attack[0];
     armedAttackClip2 = &clips.armed.attack[1];
@@ -190,7 +193,8 @@ void CharacterControllerTests::initAnimations()
 
     for (const auto& attackClip : clips.disarmed.attack)
     {
-        addDummyClip(attackClip.name);
+        for (auto& clipsSequene : attackClip.clipsSequence)
+            addDummyClip(clipsSequene);
     }
 
     addDummyClip(clips.disarmed.jump);
@@ -272,7 +276,8 @@ void CharacterControllerTests::initAnimations()
 
     for (const auto& attackClip : clips.armed.attack)
     {
-        addDummyClip(attackClip.name);
+        for (auto& clipsSequene : attackClip.clipsSequence)
+            addDummyClip(clipsSequene);
     }
 
     sut_.equipTimeStamp  = DUMMY_CLIP_LENGTH;
@@ -318,7 +323,9 @@ void CharacterControllerTests::Update(float time)
 {
     LOG_DEBUG << "Update deltaTime: " << time;
     context_.time_.deltaTime = time;
+    LOG_DEBUG << "CallFunctions state: " << sut_.getCurrentStateName();
     componentController_.CallFunctions(FunctionType::Update);
+    LOG_DEBUG << "Update end";
 }
 
 void CharacterControllerTests::expectAnyRotation()

@@ -17,25 +17,21 @@ ArmedAttackAndRotateState::ArmedAttackAndRotateState(FsmContext &context)
 void ArmedAttackAndRotateState::onEnter(const EndForwardMoveEvent &e)
 {
     RotateStateBase::onEnter(e);
-    subscribe();
 }
 
 void ArmedAttackAndRotateState::onEnter(const EndMoveRightEvent &e)
 {
     RotateStateBase::onEnter(e);
-    subscribe();
 }
 
 void ArmedAttackAndRotateState::onEnter(const EndMoveLeftEvent &e)
 {
     RotateStateBase::onEnter(e);
-    subscribe();
 }
 
 void ArmedAttackAndRotateState::onEnter(const EndBackwardMoveEvent &e)
 {
     RotateStateBase::onEnter(e);
-    subscribe();
 }
 void ArmedAttackAndRotateState::update(float v)
 {

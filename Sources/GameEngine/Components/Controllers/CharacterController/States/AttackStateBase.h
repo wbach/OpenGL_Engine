@@ -1,4 +1,7 @@
 #pragma once
+#include <optional>
+#include <string_view>
+
 #include "../AnimationClipNames.h"
 #include "BaseState.h"
 #include "IdleStateBase.h"
@@ -23,7 +26,6 @@ public:
     void onEnter(ArmedRunState&);
     void onEnter(ArmedWalkState&);
     void onEnter(const AttackEvent&);
-    void onEnter();
 
     void onEnter(const EndRotationEvent&);
     void onEnter(const EndForwardMoveEvent&);
@@ -32,24 +34,23 @@ public:
     void onEnter(const EndMoveRightEvent&);
     void onEnter(const ChangeAnimEvent&);
 
+    void update(const AnimationPlayEndEvent&);
     void update(const AttackEvent&);
     void update(const ChangeAnimEvent&);
     void update(float);
     void onLeave(const EndAttackEvent&);
-    void onLeave();
 
     bool entryCondition() const;
 
 protected:
-    void onClipEnd();
-    void subscribe();
-    void unsubscribe();
-    const AttackAnimation& getCurrentAttackAnimation() const;
+    void startPlayCurrentAnimation();
+    const std::optional<std::pair<std::string_view, PlayStateType>> getCurrentAnimation() const;
+
+protected:
+    AttackStatesContext& attackStatesContext;
 
 private:
-    std::vector<IdType> subIds;
     const std::vector<AttackAnimation>& attackClipNames;
-
     std::optional<std::string> jointGroupName;
 };
 }  // namespace Components

@@ -15,6 +15,7 @@ class ArmedAttackAndRotateState
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<AnimationPlayEndEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::Queue>,

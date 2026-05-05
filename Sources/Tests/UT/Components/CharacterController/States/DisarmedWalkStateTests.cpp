@@ -20,10 +20,10 @@ TEST_F(CharacterControllerTests, DisarmedWalkState_AttackEventWithoutMove)
 {
     prepareState(*this);
     expectNoMove();
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()});
     expectForwardVelocity(DEFAULT_WALK_SPEED);
-    Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_CLIP_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.movement.walk.forward});
 }
 

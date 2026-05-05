@@ -5,6 +5,7 @@
 
 #include "AnimationClipNames.h"
 #include "CharacterControllerFsm.h"
+#include "GameEngine/Components/Controllers/CharacterController/PlayStateType.h"
 #include "MoveController.h"
 
 namespace Physics
@@ -25,8 +26,13 @@ class AimController;
 
 struct AttackStatesContext
 {
-    uint32 sequenceSize     = 0;
-    uint32 currentAnimation = 0;
+    uint32 pendingAttacksCount = 0;
+    uint32 currentAnimation    = 0;
+
+    uint32 currentSequenceClip = 0;
+    MaybeId animationSubId;
+
+    PlayStateType currentPlayState;
 
     enum NextMoveState
     {

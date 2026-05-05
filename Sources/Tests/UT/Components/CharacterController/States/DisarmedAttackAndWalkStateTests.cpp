@@ -17,7 +17,7 @@ void prepareState(CharacterControllerTests& test)
     test.tiggerAndExpect<MoveForwardEvent>({test.sut_.animationClipsNames_.disarmed.movement.run.forward});
     test.expectForwardVelocity(DEFAULT_WALK_SPEED);
     test.tiggerAndExpect<WalkChangeStateEvent>({test.sut_.animationClipsNames_.disarmed.movement.walk.forward});
-    test.tiggerAndExpect<AttackEvent>({test.sut_.animationClipsNames_.disarmed.attack.front().name,
+    test.tiggerAndExpect<AttackEvent>({test.sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front(),
                                        test.sut_.animationClipsNames_.disarmed.movement.walk.forward});
 }
 }  // namespace
@@ -27,7 +27,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_CrouchChangeStateEve
     prepareState(*this);
     // queue DrawArrowEvent
     tiggerAndExpect<CrouchChangeStateEvent>(
-        {sut_.animationClipsNames_.disarmed.attack.front().name, sut_.animationClipsNames_.disarmed.movement.walk.forward});
+        {sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front(), sut_.animationClipsNames_.disarmed.movement.walk.forward});
 
     // wait until attack finish
     Update(ADVANCED_TIME_CLIP_TIME);
@@ -41,7 +41,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_DrawArrowEvent)
     prepareState(*this);
     // queue DrawArrowEvent
     tiggerAndExpect<DrawArrowEvent>(
-        {sut_.animationClipsNames_.disarmed.attack.front().name, sut_.animationClipsNames_.disarmed.movement.walk.forward});
+        {sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front(), sut_.animationClipsNames_.disarmed.movement.walk.forward});
 
     // wait until attack finish
     Update(ADVANCED_TIME_CLIP_TIME);
@@ -64,12 +64,12 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_AimStopDuringDrawArr
     prepareState(*this);
     // queue DrawArrowEvent
     tiggerAndExpect<DrawArrowEvent>(
-        {sut_.animationClipsNames_.disarmed.attack.front().name, sut_.animationClipsNames_.disarmed.movement.walk.forward});
+        {sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front(), sut_.animationClipsNames_.disarmed.movement.walk.forward});
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
     tiggerAndExpect<AimStopEvent>(
-        {sut_.animationClipsNames_.disarmed.attack.front().name, sut_.animationClipsNames_.disarmed.movement.walk.forward});
+        {sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front(), sut_.animationClipsNames_.disarmed.movement.walk.forward});
 
     // Extra check
     Update(ADVANCED_TIME_CLIP_TIME);
@@ -80,7 +80,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_AimStopDuringDrawArr
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_MoveForwardEvent)
 {
     prepareState(*this);
-    const auto& attackClipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    const auto& attackClipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();;
 
     tiggerAndExpect<EndForwardMoveEvent>({attackClipName});
 
@@ -97,7 +97,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_MoveForwardEvent)
 
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_MoveBackwardEvent)
 {
-    const auto& attackClipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    const auto& attackClipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();;
     prepareState(*this);
     expectNoMove();
     tiggerAndExpect<MoveBackwardEvent>({attackClipName});
@@ -106,7 +106,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_MoveBackwardEvent)
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_MoveLeftEvent_EndMoveLeftEvent)
 {
     prepareState(*this);
-    const auto& attackClipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    const auto& attackClipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();;
 
     expectVelocity(VECTOR_FORWARD + VECTOR_LEFT, vec3(DEFAULT_WALK_SPEED, 0.0, DEFAULT_WALK_SPEED));
     tiggerAndExpect<MoveLeftEvent>({attackClipName, sut_.animationClipsNames_.disarmed.movement.walk.forward}, {0});
@@ -120,7 +120,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_MoveLeftEvent_EndMov
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_MoveRightEvent_EndMoveRightEvent)
 {
     prepareState(*this);
-    const auto& attackClipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    const auto& attackClipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();;
 
     expectVelocity(VECTOR_FORWARD + VECTOR_RIGHT, vec3(DEFAULT_WALK_SPEED, 0.0, DEFAULT_WALK_SPEED));
     tiggerAndExpect<MoveRightEvent>({attackClipName, sut_.animationClipsNames_.disarmed.movement.walk.forward}, {0});
@@ -140,7 +140,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_DeathEvent)
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_WalkChangeStateEvent)
 {
     prepareState(*this);
-    const auto& attackClipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    const auto& attackClipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();;
     expectForwardVelocity(DEFAULT_RUN_SPEED);
     tiggerAndExpect<WalkChangeStateEvent>({attackClipName, sut_.animationClipsNames_.disarmed.movement.run.forward});
 }
@@ -148,7 +148,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_WalkChangeStateEvent
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_WeaponStateEvent)
 {
     prepareState(*this);
-    const auto& attackClipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    const auto& attackClipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();;
     tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.disarmed.movement.walk.forward, attackClipName});
 
     Update(ADVANCED_TIME_CLIP_TIME);
@@ -159,9 +159,9 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_WeaponStateEvent)
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_EndForwardMoveEvent)
 {
     prepareState(*this);
-    const auto& clip = sut_.animationClipsNames_.disarmed.attack.front();
+    const auto& clip = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();;
     expectNoMove();
-    tiggerAndExpect<EndForwardMoveEvent>({clip.name});
+    tiggerAndExpect<EndForwardMoveEvent>({clip});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
@@ -170,7 +170,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_EndForwardMoveEvent)
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_EndBackwardMoveEvent)
 {
     prepareState(*this);
-    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();;
     expectNoMove();
     tiggerAndExpect<MoveBackwardEvent>({clipName}, {0});
     expectForwardVelocity(DEFAULT_WALK_SPEED);
@@ -181,7 +181,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_EndBackwardMoveEvent
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_RotateLeftEvent)
 {
     prepareState(*this);
-    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();;
     expectRotationLeft();
     tiggerAndExpect<RotateLeftEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.walk.forward});
 }
@@ -189,7 +189,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_RotateLeftEvent)
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_RotateRightEvent)
 {
     prepareState(*this);
-    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();;
     expectRotationRight();
     tiggerAndExpect<RotateRightEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.walk.forward});
 }
@@ -197,7 +197,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_RotateRightEvent)
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_RotateTargetEvent)
 {
     prepareState(*this);
-    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();;
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
 
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
@@ -208,7 +208,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_RotateTargetEvent)
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_SprintStateChangeEvent)
 {
     prepareState(*this);
-    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();;
     tiggerAndExpect<SprintStateChangeEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.walk.forward});
 
     expectForwardVelocity(DEFAULT_SPRINT_SPEED);
@@ -221,14 +221,14 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_SprintStateChangeEve
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_AttackEvent)
 {
     prepareState(*this);
-    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();;
     tiggerAndExpect<AttackEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.walk.forward});
 
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
     expectAnimsToBeSet(
-        {sut_.animationClipsNames_.disarmed.attack[1].name, sut_.animationClipsNames_.disarmed.movement.walk.forward});
+        {sut_.animationClipsNames_.disarmed.attack[1].clipsSequence.front(), sut_.animationClipsNames_.disarmed.movement.walk.forward});
 }
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_AttackEventWhenRunBackward)
 {
@@ -242,19 +242,19 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_AttackEventWhenRunBa
     tiggerAndExpect<WalkChangeStateEvent>({sut_.animationClipsNames_.disarmed.movement.walk.forward});
 
     expectNoMove();
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()});
     expectForwardVelocity(-DEFAULT_WALK_SPEED);
     Update(ADVANCED_TIME_CLIP_TIME);
-    Update(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_CLIP_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.movement.walk.forward});
 }
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_MoveForwardAndLeftEvent)
 {
-    const auto& clip = sut_.animationClipsNames_.disarmed.attack.front();
+    const auto& clip = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();;
     prepareState(*this);
     expectVelocity(VECTOR_FORWARD + VECTOR_LEFT, vec3(DEFAULT_WALK_SPEED, 0.0, DEFAULT_WALK_SPEED));
-    tiggerAndExpect<MoveLeftEvent>({clip.name, sut_.animationClipsNames_.disarmed.movement.walk.forward});
+    tiggerAndExpect<MoveLeftEvent>({clip, sut_.animationClipsNames_.disarmed.movement.walk.forward});
     expectVelocity(VECTOR_LEFT, vec3(DEFAULT_WALK_SPEED, 0.0, 0.0));
-    tiggerAndExpect<EndForwardMoveEvent>({clip.name, sut_.animationClipsNames_.disarmed.movement.walk.forward}, {0});
-    tiggerAndExpect<EndMoveLeftEvent>({clip.name}, {0});
+    tiggerAndExpect<EndForwardMoveEvent>({clip, sut_.animationClipsNames_.disarmed.movement.walk.forward}, {0});
+    tiggerAndExpect<EndMoveLeftEvent>({clip}, {0});
 }

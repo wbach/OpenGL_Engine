@@ -41,13 +41,29 @@ struct AnimSequence
     {
         return clipNames.back();
     }
+
+    const std::string& operator[](size_t index) const
+    {
+        return clipNames[index];
+    }
+
+    std::string& operator[](size_t index)
+    {
+        return clipNames[index];
+    }
+
+    auto begin() { return clipNames.begin(); }
+    auto end()   { return clipNames.end(); }
+
+    auto begin() const { return clipNames.begin(); }
+    auto end()   const { return clipNames.end(); }
 };
 
 namespace Components
 {
 struct AttackAnimation
 {
-    std::string name;
+    AnimSequence clipsSequence;
     PlayStateType stateType;
 };
 

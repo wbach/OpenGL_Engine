@@ -8,7 +8,9 @@
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/CharacterController/MoveSpeed.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
+#include "Logger/Log.h"
 #include "Tests/UT/Components/BaseComponent.h"
+#include "Utils.h"
 
 using namespace GameEngine;
 using namespace GameEngine::Components;
@@ -37,7 +39,9 @@ struct CharacterControllerTests : public BaseComponentTestSchould
     template <typename Event>
     void handleEvent(const Event& event)
     {
+        LOG_DEBUG << "Current state: " << sut_.getCurrentStateName() << ", handleEvent : " << Utils::GetTypeName<Event>();
         sut_.handleEvent(event);
+        LOG_DEBUG << "After event state: " << sut_.getCurrentStateName();
     }
 
     template <typename Event>

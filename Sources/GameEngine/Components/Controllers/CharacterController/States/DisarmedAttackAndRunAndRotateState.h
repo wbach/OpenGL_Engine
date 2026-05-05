@@ -19,6 +19,8 @@ class DisarmedAttackAndRunAndRotateState
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<AnimationPlayEndEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<ChangeAnimEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,

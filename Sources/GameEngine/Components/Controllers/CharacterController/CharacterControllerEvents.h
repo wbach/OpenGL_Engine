@@ -87,11 +87,6 @@ struct DodgeEndEvent
 struct AttackEvent
 {
 };
-struct ChangeAnimEvent
-{
-    std::string name;
-    Components::PlayStateType stateType;
-};
 struct EndAttackEvent
 {
 };
@@ -128,6 +123,14 @@ struct StartFallingEvent
 struct GroundDetectionEvent
 {
 };
+struct AnimationPlayEndEvent
+{
+};
+struct ChangeAnimEvent
+{
+    std::string name;
+    Components::PlayStateType stateType;
+};
 
 struct StartDialogEvent
 {
@@ -151,5 +154,5 @@ using CharacterControllerEvent =
                  EndAttackEvent, DeathEvent, WeaponStateEvent, EquipEndStateEvent, DisarmEndStateEvent, DrawArrowEvent,
                  ReloadArrowEvent, AimStartEvent, AimStopEvent, EndMoveLeftEvent, EndMoveRightEvent, CrouchChangeStateEvent,
                  ChangeAnimEvent, StartFallingEvent, DodgeDiveEvent, DodgeForwardEvent, DodgeBackwardEvent, DodgeLeftEvent,
-                 DodgeRightEvent, DodgeEndEvent, StartDialogEvent, EndDialogEvent>;
+                 DodgeRightEvent, DodgeEndEvent, StartDialogEvent, EndDialogEvent, AnimationPlayEndEvent>;
 }  // namespace GameEngine
