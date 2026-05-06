@@ -11,6 +11,7 @@
 
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/Controllers/AIController.h"
+#include "GameEngine/Components/Gameplay/Attack/WeaponComponent.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
@@ -25,6 +26,7 @@
 #include "GameEngine/Scene/Navigation/GridNavigation.h"
 #include "GameEngine/Scene/Navigation/NavigationManager.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "Types.h"
 #include "Utils.h"
 #include "glm/geometric.hpp"
 
@@ -36,6 +38,60 @@ struct ColorBuffer
 {
     AlignWrapper<vec4> color;
 };
+GraphicsApi::LineMesh BuildWeaponDebugMesh(const Components::WeaponComponent& component, const vec3& color)
+{
+    GraphicsApi::LineMesh mesh;
+
+    auto worldSocketsPos = component.GetWorldSocketPositions();
+    if (worldSocketsPos.empty())
+    {
+        return mesh;
+    }
+
+    const int segments = 12;
+    const float pi     = std::numbers::pi_v<float>;
+
+    size_t verticesPerSphere = static_cast<size_t>(segments) * 3 * 2;
+    mesh.positions_.reserve(worldSocketsPos.size() * verticesPerSphere * 3);
+    mesh.colors_.reserve(worldSocketsPos.size() * verticesPerSphere * 3);
+
+    auto addLine = [&mesh, &color](const vec3& p1, const vec3& p2) -> void
+    {
+        mesh.positions_.push_back(p1.x);
+        mesh.positions_.push_back(p1.y);
+        mesh.positions_.push_back(p1.z);
+        mesh.positions_.push_back(p2.x);
+        mesh.positions_.push_back(p2.y);
+        mesh.positions_.push_back(p2.z);
+
+        for (int i = 0; i < 2; ++i)
+        {
+            mesh.colors_.push_back(color.x);
+            mesh.colors_.push_back(color.y);
+            mesh.colors_.push_back(color.z);
+        }
+    };
+
+    for (const vec3& offset : worldSocketsPos)
+    {
+        for (int i = 0; i < segments; ++i)
+        {
+            float a1 = (static_cast<float>(i) / static_cast<float>(segments)) * 2.0f * pi;
+            float a2 = (static_cast<float>(i + 1) / static_cast<float>(segments)) * 2.0f * pi;
+
+            float s1 = std::sin(a1) * component.radius;
+            float c1 = std::cos(a1) * component.radius;
+            float s2 = std::sin(a2) * component.radius;
+            float c2 = std::cos(a2) * component.radius;
+
+            addLine(offset + vec3{c1, 0.0f, s1}, offset + vec3{c2, 0.0f, s2});
+            addLine(offset + vec3{c1, s1, 0.0f}, offset + vec3{c2, s2, 0.0f});
+            addLine(offset + vec3{0.0f, c1, s1}, offset + vec3{0.0f, c2, s2});
+        }
+    }
+
+    return mesh;
+}
 GraphicsApi::LineMesh CreateLineMeshFromPath(const std::vector<vec3>& path, const vec3& color = vec3(0, 1, 0))
 {
     GraphicsApi::LineMesh mesh;
@@ -314,7 +370,8 @@ void DebugObject::BindBuffer() const
     }
 }
 
-DebugRenderer::DebugRenderer(Physics::IPhysicsApi& physicsApi, RendererContext& rendererContext, Utils::Thread::IThreadSync& threadSync)
+DebugRenderer::DebugRenderer(Physics::IPhysicsApi& physicsApi, RendererContext& rendererContext,
+                             Utils::Thread::IThreadSync& threadSync)
     : rendererContext_(rendererContext)
     , physicsApi_(physicsApi)
     , physicsVisualizator_(rendererContext.graphicsApi_, threadSync)
@@ -411,6 +468,12 @@ void DebugRenderer::init()
                 if (auto aic = objectSelection->GetComponent<Components::AIController>())
                 {
                     auto lineMesh = CreateLineMeshFromPath(aic->currentPath_);
+                    result        = appendLineMesh(result, lineMesh);
+                }
+
+                if (auto weapon = objectSelection->GetComponent<Components::WeaponComponent>())
+                {
+                    auto lineMesh = BuildWeaponDebugMesh(*weapon, Color(0.f, 1.f, 0.f, 1.f).xyz());
                     result        = appendLineMesh(result, lineMesh);
                 }
             }

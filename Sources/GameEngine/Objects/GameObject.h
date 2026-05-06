@@ -72,6 +72,7 @@ public:
     T& AddComponent(Args&&...);
 
     Components::IComponent* AddComponent(const TreeNode&);
+    Components::IComponent* AddClonedComponent(const Components::IComponent*);
 
     template <class T>
     T* GetComponent();

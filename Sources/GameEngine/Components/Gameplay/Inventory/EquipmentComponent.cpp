@@ -12,12 +12,16 @@
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
+#include "GameEngine/Components/Gameplay/Attack/MeleeAttackComponent.h"
+#include "GameEngine/Components/Gameplay/Attack/WeaponComponent.h"
+#include "GameEngine/Components/Gameplay/Inventory/CombatStatsComponent.h"
 #include "GameEngine/Components/Gameplay/Inventory/ItemVisualComponent.h"
 #include "GameEngine/Components/Gameplay/Inventory/SlotType.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Logger/Log.h"
+#include "TreeNode.h"
 #include "Types.h"
 #include "magic_enum/magic_enum.hpp"
 
@@ -108,6 +112,11 @@ bool EquipmentComponent::isSlotFree(SlotType slot) const
 std::optional<IdType> EquipmentComponent::unequip(SlotType slot)
 {
     LOG_DEBUG << magic_enum::enum_name(slot);
+
+    if (isSlotFree(slot))
+    {
+        return std::nullopt;
+    }
 
     if (slot == SlotType::MainHand)
     {
@@ -203,8 +212,17 @@ void EquipmentComponent::equipOneHand(const GameObject& item)
     auto& pu            = newGameObject->AddComponent<PoseUpdater>();
     pu.disarmJointName_ = disarmJointName;
     pu.equipJointName_  = equipJointName;
-
     pu.Reload();
+
+    if (not newGameObject->AddClonedComponent(item.GetComponent<WeaponComponent>()))
+    {
+        newGameObject->AddComponent<WeaponComponent>().socketOffsets.push_back(vec3(0));
+    }
+
+    if (not newGameObject->AddClonedComponent(item.GetComponent<CombatStatsComponent>()))
+    {
+        newGameObject->AddComponent<CombatStatsComponent>();
+    }
 
     componentContext_.scene_.AddGameObject(std::move(newGameObject), &thisObject_);
 }
@@ -227,7 +245,11 @@ void EquipmentComponent::unequipWeapon()
             cc->pushEventToQueue(WeaponStateEvent{});
         }
     }
-}
 
+    if (auto mac = thisObject_.GetComponent<MeleeAttackComponent>())
+    {
+        mac->clearWeapon();
+    }
+}
 }  // namespace Components
 }  // namespace GameEngine

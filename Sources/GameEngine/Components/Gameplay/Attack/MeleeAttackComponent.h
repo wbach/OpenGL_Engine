@@ -32,6 +32,7 @@ public:
     void StartAttack();
     void EndAttack();
     void Update();
+    void clearWeapon();
 
 private:
     bool CheckCapsuleCollision(const vec3& swordStart, const vec3& swordEnd, float swordRadius, const vec3& targetStart,

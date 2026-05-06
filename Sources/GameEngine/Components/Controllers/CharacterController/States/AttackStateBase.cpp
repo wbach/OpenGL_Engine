@@ -6,6 +6,7 @@
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/CharacterController/PlayStateType.h"
+#include "GameEngine/Components/Gameplay/Attack/MeleeAttackComponent.h"
 #include "Types.h"
 #include "magic_enum/magic_enum.hpp"
 
@@ -146,10 +147,27 @@ void AttackStateBase::update(const AnimationPlayEndEvent &)
         attackStatesContext.animationSubId.reset();
     }
 
+    auto meleAttackComponent = context_.gameObject.GetComponent<MeleeAttackComponent>();
+    if (not meleAttackComponent)
+    {
+        LOG_DEBUG << "meleAttackComponent not found";
+    }
+
     const auto &currentSequence = attackClipNames[attackStatesContext.currentAnimation].clipsSequence;
     if (attackStatesContext.currentSequenceClip < currentSequence.size() - 1)
     {
         ++attackStatesContext.currentSequenceClip;
+
+        if (attackStatesContext.currentSequenceClip == attackStatesContext.hitAnimIdxInSeq)
+        {
+            if (meleAttackComponent)
+                meleAttackComponent->StartAttack();
+        }
+        else
+        {
+            if (meleAttackComponent)
+                meleAttackComponent->EndAttack();
+        }
     }
     else
     {

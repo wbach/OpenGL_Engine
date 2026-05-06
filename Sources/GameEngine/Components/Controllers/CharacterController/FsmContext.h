@@ -26,6 +26,7 @@ class AimController;
 
 struct AttackStatesContext
 {
+    uint32 hitAnimIdxInSeq     = 1;
     uint32 pendingAttacksCount = 0;
     uint32 currentAnimation    = 0;
 

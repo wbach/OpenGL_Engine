@@ -48,6 +48,8 @@ private:
                               bool = true);
     wxBoxSizer* CreateFloatItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<float>*, size_t,
                                 std::function<void()>, bool = true);
+    wxBoxSizer* CreateVec3Item(GameEngine::Components::IComponent&, wxWindow*, std::vector<vec3>*, size_t, std::function<void()>,
+                               bool = true);
     wxBoxSizer* CreateFileItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<GameEngine::File>*, size_t,
                                std::function<void()>, bool = true);
     wxBoxSizer* CreateTextureItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<GameEngine::File>*, size_t,

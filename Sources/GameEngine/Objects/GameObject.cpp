@@ -582,4 +582,13 @@ void GameObject::RemoveLayer(Layer layer)
 {
     layers &= ~static_cast<uint32_t>(layer);
 }
+Components::IComponent* GameObject::AddClonedComponent(const Components::IComponent* component)
+{
+    if (not component)
+        return nullptr;
+
+    TreeNode tmpNode(component->GetTypeName());
+    component->write(tmpNode);
+    return AddComponent(tmpNode);
+}
 }  // namespace GameEngine

@@ -49,7 +49,7 @@ public:
 
         if (prop && filenames.GetCount() > 0)
         {
-            //prop->SetValueFromString(filenames[0]);
+            // prop->SetValueFromString(filenames[0]);
             prop->SetValue(wxVariant(filenames[0]));
             LOG_DEBUG << "SetValueFromString : " << filenames[0];
             wxPropertyGridEvent event(wxEVT_PG_CHANGED, m_grid->GetId());
@@ -641,6 +641,11 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                 { return this->CreateTextureItem(component, p, v, i, r, del); },
                 false);
             break;
+        case GameEngine::Components::FieldType::VectorOfVector3f:
+            CreateUIForVector<vec3>(component, pane, sizer, field,
+                                    [this, &component](auto p, auto v, auto i, auto r, auto del)
+                                    { return this->CreateVec3Item(component, p, v, i, r, del); });
+            break;
 
         case FieldType::ConstMapOfMaterials:
             auto* materials = static_cast<GameEngine::MaterialsMap*>(field.ptr);
@@ -943,6 +948,55 @@ wxBoxSizer* ComponentPanel::CreateFloatItem(GameEngine::Components::IComponent& 
         wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
         removeButton->SetToolTip("Remove element");
         elemRow->Add(removeButton, 0, wxALIGN_CENTER_VERTICAL);
+
+        removeButton->Bind(wxEVT_BUTTON,
+                           [this, &component, val, index, rebuildUI](wxCommandEvent&)
+                           {
+                               if (index < val->size())
+                               {
+                                   val->erase(val->begin() + index);
+                                   component.Reload();
+                                   this->CallAfter(rebuildUI);
+                               }
+                           });
+    }
+
+    return elemRow;
+}
+
+wxBoxSizer* ComponentPanel::CreateVec3Item(GameEngine::Components::IComponent& component, wxWindow* pane, std::vector<vec3>* val,
+                                           size_t index, std::function<void()> rebuildUI, bool canDelete)
+{
+    auto elemRow = new wxBoxSizer(wxHORIZONTAL);
+
+    // Wskaźnik na konkretny wektor w tablicy
+    vec3* vectorPtr = &((*val)[index]);
+
+    // Definicja etykiet dla składowych
+    const std::array<std::string, 3> labels = {"X", "Y", "Z"};
+
+    for (int i = 0; i < 3; ++i)
+    {
+        auto label = new wxStaticText(pane, wxID_ANY, labels[i] + ":");
+        auto ctrl  = CreateFloatSpinCtrl(pane, (*vectorPtr)[i], -10000.0, 10000.0, 0.1, 2);
+
+        elemRow->Add(label, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
+        elemRow->Add(ctrl, 1, wxEXPAND | wxLEFT, 2);
+
+        // Bindowanie zmiany konkretnej składowej (x, y lub z)
+        ctrl->Bind(wxEVT_SPINCTRLDOUBLE,
+                   [&component, vectorPtr, i](wxSpinDoubleEvent& evt)
+                   {
+                       (*vectorPtr)[i] = static_cast<float>(evt.GetValue());
+                       component.Reload();
+                   });
+    }
+
+    if (canDelete)
+    {
+        auto removeButton = new wxButton(pane, wxID_ANY, "Delete", wxDefaultPosition, wxSize(60, -1));
+        removeButton->SetToolTip("Remove element");
+        elemRow->Add(removeButton, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
 
         removeButton->Bind(wxEVT_BUTTON,
                            [this, &component, val, index, rebuildUI](wxCommandEvent&)

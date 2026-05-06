@@ -8,6 +8,7 @@
 #include "GameEngine/Components/Gameplay/Inventory/CombatStatsComponent.h"
 #include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "Logger/Log.h"
 #include "WeaponComponent.h"
 #include "glm/geometric.hpp"
 
@@ -30,9 +31,14 @@ void MeleeAttackComponent::Reload()
 }
 void MeleeAttackComponent::ReqisterFunctions()
 {
+    RegisterFunction(FunctionType::Update, std::bind(&MeleeAttackComponent::Update, this));
+    // Deactivate();
 }
 void MeleeAttackComponent::StartAttack()
 {
+    if (isAttacking)
+        return;
+
     isAttacking = true;
     hitTargets.clear();
 
@@ -45,6 +51,10 @@ void MeleeAttackComponent::StartAttack()
     {
         previousPoints = cachedWeapon->GetWorldSocketPositions();
     }
+    else
+    {
+        LOG_DEBUG << "Weapon component not found in children of " << thisObject_.GetName();
+    }
 }
 
 void MeleeAttackComponent::Update()
@@ -53,7 +63,6 @@ void MeleeAttackComponent::Update()
         return;
 
     auto currentPoints = cachedWeapon->GetWorldSocketPositions();
-
     auto potentialTargets = GetEnemiesInRange(5.0f);
 
     for (auto i = 0u; i < currentPoints.size(); ++i)
@@ -65,20 +74,28 @@ void MeleeAttackComponent::Update()
         {
             auto enemyId = enemy->GetParentGameObject().GetId();
             if (enemyId == thisObject_.GetId())
+            {
+                LOG_DEBUG << "Self attack prevention";
                 continue;
+            }
 
             if (hitTargets.contains(enemyId))
+            {
+                //LOG_DEBUG << "Target already hit";
                 continue;
+            }
 
             auto sphereShape = enemy->GetParentGameObject().GetComponent<CapsuleShape>();
             if (not sphereShape)
+            {
+                LOG_DEBUG << "Shape not found";
                 continue;
+            }
 
             const auto& enemyPos = enemy->GetParentGameObject().GetWorldTransform().GetPosition();
             const auto offsetPos = enemyPos + sphereShape->GetPositionOffset();
-            const auto halfH     = sphereShape->height / 2.f;
-            const auto enemyBottom = offsetPos - vec3(0, halfH, 0);
-            const auto enemyTop    = offsetPos + vec3(0, halfH, 0);
+            const auto enemyBottom = offsetPos;
+            const auto enemyTop    = offsetPos + vec3(0, sphereShape->height, 0);
 
             if (CheckCapsuleCollision(swordSegmentStart, swordSegmentEnd, cachedWeapon->radius, enemyBottom, enemyTop,
                                       sphereShape->radius))
@@ -86,8 +103,18 @@ void MeleeAttackComponent::Update()
                 hitTargets.insert(enemyId);
                 if (auto combatStatsComponent = cachedWeapon->GetParentGameObject().GetComponent<CombatStatsComponent>())
                 {
+                    LOG_DEBUG << "Take " << combatStatsComponent->damage
+                              << " dmg to : " << enemy->GetParentGameObject().GetName();
                     enemy->hurt(combatStatsComponent->damage);
                 }
+                else
+                {
+                    LOG_DEBUG << "CombatStatsComponent not exist in weapon";
+                }
+            }
+            else
+            {
+                LOG_DEBUG << "No collision detected";
             }
         }
     }
@@ -96,6 +123,9 @@ void MeleeAttackComponent::Update()
 
 void MeleeAttackComponent::EndAttack()
 {
+    if (not isAttacking)
+        return;
+
     isAttacking = false;
     previousPoints.clear();
 }
@@ -118,6 +148,13 @@ void MeleeAttackComponent::write(TreeNode& node) const
 bool MeleeAttackComponent::CheckCapsuleCollision(const vec3& swordStart, const vec3& swordEnd, float swordRadius,
                                                  const vec3& targetStart, const vec3& targetEnd, float targetRadius)
 {
+    LOG_DEBUG << "swordStart " << swordStart;
+    LOG_DEBUG << "swordEnd " << swordEnd;
+    LOG_DEBUG << "swordRadius " << swordRadius;
+    LOG_DEBUG << "targetStart " << targetStart;
+    LOG_DEBUG << "targetEnd " << targetEnd;
+    LOG_DEBUG << "targetRadius " << targetRadius;
+
     auto u = swordEnd - swordStart;
     auto v = targetEnd - targetStart;
     auto w = swordStart - targetStart;
@@ -162,6 +199,10 @@ std::vector<Enemy*> MeleeAttackComponent::GetEnemiesInRange(float radius)
             result.push_back(enemy);
     }
     return result;
+}
+void MeleeAttackComponent::clearWeapon()
+{
+    cachedWeapon = nullptr;
 }
 }  // namespace Components
 }  // namespace GameEngine
