@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "GameEngine/Components/BaseComponent.h"
-#include "GameEngine/Components/Characters/Enemy.h"
+#include "GameEngine/Components/Gameplay/HealthComponent.h"
 #include "Types.h"
 
 namespace GameEngine
@@ -11,7 +11,6 @@ namespace GameEngine
 namespace Components
 {
 class WeaponComponent;
-class Enemy;
 
 class ENGINE_API MeleeAttackComponent : public BaseComponent
 {
@@ -38,7 +37,7 @@ private:
     bool CheckCapsuleCollision(const vec3& swordStart, const vec3& swordEnd, float swordRadius, const vec3& targetStart,
                                const vec3& targetEnd, float targetRadius);
 
-    std::vector<Enemy*> GetEnemiesInRange(float);
+    std::vector<HealthComponent*> GetEnemiesInRange(float);
 
 private:
     bool isAttacking{false};

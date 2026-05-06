@@ -390,6 +390,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentType.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/RegisterReadFunctionForDefaultEngineComponents.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Gameplay/Attack/MeleeAttackComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Gameplay/Attack/WeaponComponent.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Gameplay/HealthComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Gameplay/Inventory/EquippableComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Gameplay/Inventory/InventoryComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Gameplay/Inventory/SlotType.h

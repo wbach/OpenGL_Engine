@@ -1,5 +1,5 @@
 #pragma once
-#include <cstdint>
+#include <Types.h>
 
 namespace GameEngine
 {
@@ -40,8 +40,8 @@ struct Attributes
 {
     uint8_t str{10};
     uint8_t dex{10};
-    uint8_t mana{5};
-    uint8_t life{40};
+    vec2 mana{5.f};
+    vec2 life{40.f};
 };
 
 struct Protection

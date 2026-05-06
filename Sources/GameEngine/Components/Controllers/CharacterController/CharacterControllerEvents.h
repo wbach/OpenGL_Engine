@@ -123,6 +123,10 @@ struct StartFallingEvent
 struct GroundDetectionEvent
 {
 };
+
+struct HurtEvent
+{
+};
 struct AnimationPlayEndEvent
 {
 };
@@ -154,5 +158,5 @@ using CharacterControllerEvent =
                  EndAttackEvent, DeathEvent, WeaponStateEvent, EquipEndStateEvent, DisarmEndStateEvent, DrawArrowEvent,
                  ReloadArrowEvent, AimStartEvent, AimStopEvent, EndMoveLeftEvent, EndMoveRightEvent, CrouchChangeStateEvent,
                  ChangeAnimEvent, StartFallingEvent, DodgeDiveEvent, DodgeForwardEvent, DodgeBackwardEvent, DodgeLeftEvent,
-                 DodgeRightEvent, DodgeEndEvent, StartDialogEvent, EndDialogEvent, AnimationPlayEndEvent>;
+                 DodgeRightEvent, DodgeEndEvent, StartDialogEvent, EndDialogEvent, AnimationPlayEndEvent, HurtEvent>;
 }  // namespace GameEngine

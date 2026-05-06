@@ -303,6 +303,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Gameplay/Invento
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Gameplay/Inventory/EquipmentComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Gameplay/Inventory/ItemVisualComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Gameplay/CharacterStats/CharacterStatsComponent.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Gameplay/HealthComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Gameplay/QuestViewer/QuestViewerComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/NewComponentTemplate.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/BaseComponent.cpp

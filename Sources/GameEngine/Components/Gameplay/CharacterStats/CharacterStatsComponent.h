@@ -1,11 +1,12 @@
 #pragma once
 #include <TreeNode.h>
+
 #include <unordered_map>
 
+#include "CharacterStats.h"
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Renderers/GUI/Text/Text.h"
 #include "GameEngine/Resources/File.h"
-#include "CharacterStats.h"
 namespace GameEngine
 {
 namespace GUI
@@ -46,9 +47,12 @@ private:
     void show();
     void hide();
 
+public:
+    Gothic::CharacterStats characterStats;
+
 private:
     GUI::Window* mainWindow{nullptr};
-    Gothic::CharacterStats characterStats;
+
     std::unordered_map<std::string, GUI::Text*> params;
 
 public:

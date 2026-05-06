@@ -5,6 +5,7 @@
 
 #include "GameEngine/Components/Characters/Enemy.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Gameplay/HealthComponent.h"
 #include "GameEngine/Components/Gameplay/Inventory/CombatStatsComponent.h"
 #include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -105,7 +106,7 @@ void MeleeAttackComponent::Update()
                 {
                     LOG_DEBUG << "Take " << combatStatsComponent->damage
                               << " dmg to : " << enemy->GetParentGameObject().GetName();
-                    enemy->hurt(combatStatsComponent->damage);
+                    enemy->takeDamage(combatStatsComponent->damage);
                 }
                 else
                 {
@@ -188,10 +189,10 @@ bool MeleeAttackComponent::CheckCapsuleCollision(const vec3& swordStart, const v
 
     return dot(distVector, distVector) <= std::pow(swordRadius + targetRadius, 2);
 }
-std::vector<Enemy*> MeleeAttackComponent::GetEnemiesInRange(float radius)
+std::vector<HealthComponent*> MeleeAttackComponent::GetEnemiesInRange(float radius)
 {
-    std::vector<Enemy*> result;
-    auto all = componentContext_.componentController_.GetAllActiveComponentsOfType<Enemy>();
+    std::vector<HealthComponent*> result;
+    auto all = componentContext_.componentController_.GetAllActiveComponentsOfType<HealthComponent>();
     for (auto& enemy : all)
     {
         if (glm::distance(enemy->GetParentGameObject().GetWorldTransform().GetPosition(),

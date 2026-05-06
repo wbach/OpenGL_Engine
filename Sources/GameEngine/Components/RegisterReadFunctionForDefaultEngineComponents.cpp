@@ -12,7 +12,10 @@
 #include "Controllers/CharacterController/CharacterController.h"
 #include "Controllers/EnemyController.h"
 #include "Dialogue/DialogueComponent.h"
+#include "Gameplay/Attack/MeleeAttackComponent.h"
+#include "Gameplay/Attack/WeaponComponent.h"
 #include "Gameplay/CharacterStats/CharacterStatsComponent.h"
+#include "Gameplay/HealthComponent.h"
 #include "Gameplay/Inventory/CombatStatsComponent.h"
 #include "Gameplay/Inventory/ConsumableComponent.h"
 #include "Gameplay/Inventory/EquipmentComponent.h"
@@ -20,8 +23,6 @@
 #include "Gameplay/Inventory/InventoryComponent.h"
 #include "Gameplay/Inventory/ItemIdentityComponent.h"
 #include "Gameplay/Inventory/ItemVisualComponent.h"
-#include "Gameplay/Attack/MeleeAttackComponent.h"
-#include "Gameplay/Attack/WeaponComponent.h"
 #include "Gameplay/QuestViewer/QuestViewerComponent.h"
 #include "Input/PlayerInputController.h"
 #include "Lights/DirectionalLightComponent.h"
@@ -95,6 +96,7 @@ void RegisterReadFunctionForDefaultEngineComponents()
     registerReadFunction<EquipmentComponent>();
     registerReadFunction<WeaponComponent>();
     registerReadFunction<MeleeAttackComponent>();
+    registerReadFunction<HealthComponent>();
     registerReadFunction<CharacterStatsComponent>();
 }
 }  // namespace Components

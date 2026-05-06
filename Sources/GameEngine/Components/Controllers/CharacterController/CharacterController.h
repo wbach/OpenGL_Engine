@@ -188,6 +188,8 @@ public:
     void handleEvent(const CharacterControllerEvent&);
     std::string getCurrentStateName() const;
 
+    bool isAlive() const;
+
 private:
     void processEvent();
 

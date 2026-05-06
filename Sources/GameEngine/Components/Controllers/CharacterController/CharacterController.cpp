@@ -11,6 +11,7 @@
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Controllers/CharacterController/AimController.h"
+#include "GameEngine/Components/Controllers/CharacterController/States/DeathState.h"
 #include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Physics/SphereShape.h"
@@ -472,6 +473,10 @@ void CharacterController::pushEventToQueue(const CharacterControllerEvent& event
 std::string CharacterController::getCurrentStateName() const
 {
     return impl->stateMachine_->getCurrentStateName();
+}
+bool CharacterController::isAlive() const
+{
+    return not impl->stateMachine_->isCurrentStateOfType<DeathState>();
 }
 }  // namespace Components
 }  // namespace GameEngine

@@ -227,6 +227,15 @@ void CharacterStatsComponent::updateGuiStats()
         }
     };
 
+    auto setValueMinMax = [&](const char* param, const vec2& value)
+    {
+        if (auto iter = params.find(param); iter != params.end())
+        {
+            iter->second->setText(std::to_string(static_cast<uint32>(value.x)) + "/" +
+                                  std::to_string(static_cast<uint32>(value.y)));
+        }
+    };
+
     // General
     setValue(CharacterParam::LvlValue, characterStats.general.level);
     setValue(CharacterParam::ExpValue, characterStats.general.exp);
@@ -236,8 +245,8 @@ void CharacterStatsComponent::updateGuiStats()
     // Attributes
     setValue(CharacterParam::StrValue, characterStats.attributes.str);
     setValue(CharacterParam::DexValue, characterStats.attributes.dex);
-    setValue(CharacterParam::ManaValue, characterStats.attributes.mana);
-    setValue(CharacterParam::HpValue, characterStats.attributes.life);
+    setValueMinMax(CharacterParam::ManaValue, characterStats.attributes.mana);
+    setValueMinMax(CharacterParam::HpValue, characterStats.attributes.life);
 
     // Protection
     setValue(CharacterParam::RWeapon, characterStats.protection.weapon);
