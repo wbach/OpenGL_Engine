@@ -25,7 +25,7 @@ public:
     std::optional<IsStatic> isStatic(IdType) const;
 
 private:
-    Utils::IdPool idPool;
+    std::shared_ptr<Utils::IdPool> idPool;
     std::unordered_map<IdType, IsStatic> rigidbodiesStatic;
 
 public:

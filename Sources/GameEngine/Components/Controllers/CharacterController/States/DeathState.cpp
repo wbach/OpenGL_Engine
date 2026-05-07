@@ -1,6 +1,7 @@
 #include "DeathState.h"
 
 #include "../FsmContext.h"
+#include "GameEngine/Components/Physics/Rigidbody.h"
 
 namespace GameEngine
 {
@@ -393,5 +394,12 @@ void DeathState::setAnim(const std::string &animName)
     }
 }
 
+void DeathState::onEnter()
+{
+    if (auto rb = context_.gameObject.GetComponent<Rigidbody>())
+    {
+        rb->Deactivate();
+    }
+}
 }  // namespace Components
 }  // namespace GameEngine

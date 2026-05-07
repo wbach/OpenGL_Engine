@@ -83,7 +83,7 @@ void CharacterController::CleanUp()
 void CharacterController::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&CharacterController::Awake, this), MakeDependencies<CapsuleShape>());
-    RegisterFunction(FunctionType::OnStart, std::bind(&CharacterController::Init, this));
+    RegisterFunction(FunctionType::OnStart, std::bind(&CharacterController::Init, this), MakeDependencies<Rigidbody, Animator>());
     RegisterFunction(FunctionType::PostStart, std::bind(&CharacterController::PostStart, this));
     RegisterFunction(FunctionType::Update, std::bind(&CharacterController::Update, this));
 }
@@ -304,6 +304,7 @@ void CharacterController::PostStart()
     const auto& scale  = thisObject_.GetWorldTransform().GetScale();
     auto capsuleRadius = shapeSize_ / glm::compMax(vec2(scale.x, scale.z));
 
+    // TO DO : this subcribtion will be invalide when rigibody is removed or deactivated. Use common system in controller for handle state of dependencies
     groundExitSubId = componentContext_.physicsApi_.setCollisionCallback(
         rigidbody_->GetId(),
         Physics::CollisionDetection{

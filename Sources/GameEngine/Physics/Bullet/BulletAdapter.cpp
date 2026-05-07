@@ -1,6 +1,9 @@
 #include "BulletAdapter.h"
 
+#include <IdPool.h>
 #include <Logger/Log.h>
+#include <SubscriptionManager.h>
+#include <Types.h>
 #include <Utils.h>
 #include <Utils/Variant.h>
 #include <btBulletDynamicsCommon.h>
@@ -8,11 +11,13 @@
 #include <algorithm>
 #include <atomic>
 #include <bitset>
+#include <functional>
 #include <magic_enum/magic_enum.hpp>
 #include <memory>
 #include <optional>
 #include <ranges>
 #include <unordered_map>
+#include <vector>
 
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
@@ -75,19 +80,12 @@ private:
 
 struct BulletAdapter::Pimpl
 {
-    Pimpl()
-        : shapes_{shapesIdPool}
-        , collisionContactInfoSub_{collisionContactInfoSubIdPool_}
-    //, monitoringContactInfoSub_{monitoringInfoSubIdPool_}
-    {
-    }
     Rigidbodies rigidbodies;
 
-    Utils::IdPool shapesIdPool;
     Container<std::unique_ptr<Shape>> shapes_;
 
-    Utils::IdPool collisionContactInfoSubIdPool_;
     Container<std::pair<Rigidbody*, CollisionDetection>> collisionContactInfoSub_;
+    Utils::SubscriptionManager<std::function<void()>> rigidbodiesRemoveSubs;
 
     bool visualizationForAllObjectEnabled{false};
 };
@@ -407,34 +405,37 @@ void BulletAdapter::RemoveRigidBodyImpl(const RigidbodyId& rigidBodyId)
         return;
     }
 
-    auto collisionContactInfoSub = impl_->collisionContactInfoSub_.get(
-        [rigidBodyId](const auto& p)
+    impl_->rigidbodiesRemoveSubs.notifyAndRemoveObject(*rigidBodyId);
+
+    auto rigidbody = impl_->rigidbodies.get(rigidBodyId);
+    if (rigidbody)
+    {
+        std::vector<IdType> subIdsToRemove;
+        impl_->collisionContactInfoSub_.foreach (
+            [&subIdsToRemove, rigidbody](auto subId, const auto& pair)
+            {
+                auto& [rigibodyPtr, _] = pair;
+                if (rigibodyPtr == rigidbody)
+                {
+                    subIdsToRemove.push_back(subId);
+                }
+            });
+
+        for (auto id : subIdsToRemove)
         {
-            const auto& [id, _] = p;
-            return rigidBodyId == id;
-        });
+            impl_->collisionContactInfoSub_.erase(id);
+            LOG_DEBUG << "erase subscription, collisionContactInfoSub_ " << id;
+        }
 
-    if (collisionContactInfoSub)
-    {
-        const auto& [id, _] = (*collisionContactInfoSub);
-        impl_->collisionContactInfoSub_.erase(id);
-    }
-
-    if (auto rigidBody = impl_->rigidbodies.get(*rigidBodyId))
-    {
         LOG_DEBUG << "removeRigidBody : " << rigidBodyId;
-        clearRigidbody(*rigidBody);
+        clearRigidbody(*rigidbody);
     }
+
     impl_->rigidbodies.erase(*rigidBodyId);
 }
 
 void BulletAdapter::RemoveRigidBody(const RigidbodyId& id)
 {
-    if (auto maybeRb = impl_->rigidbodies.get(id))
-    {
-        maybeRb->isMarkedToRelease = true;
-    }
-
     addTask([this, id]() { RemoveRigidBodyImpl(id); });
 }
 void BulletAdapter::RemoveShape(const ShapeId& shapeId)
@@ -844,6 +845,17 @@ const GraphicsApi::LineMesh& BulletAdapter::DebugDraw(const vec3& cameraPos)
         btDynamicWorld->debugDrawWorld();
     }
     return bulletDebugDrawer_->getMesh();
+}
+MaybeId BulletAdapter::subscribeForRigidbodyRemove(const RigidbodyId& id, std::function<void()> function)
+{
+    if (not id)
+        return std::nullopt;
+
+    return impl_->rigidbodiesRemoveSubs.subscribe(*id, function);
+}
+void BulletAdapter::unsubscribeForRigidbodyRemove(IdType id)
+{
+    impl_->rigidbodiesRemoveSubs.unsubscribe(id);
 }
 }  // namespace Bullet
 }  // namespace Physics

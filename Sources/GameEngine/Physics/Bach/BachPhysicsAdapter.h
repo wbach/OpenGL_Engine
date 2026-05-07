@@ -25,7 +25,8 @@ public:
     ShapeId CreateTerrainColider(const vec3& positionOffset, const Scale&, const HeightMap&) override;
     ShapeId CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data, const IndicesVector& indicies,
                                const vec3&, bool) override;
-    RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, CollisionGroup, const RigidbodyProperties&, float mass, std::atomic_bool&) override;
+    RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, CollisionGroup, const RigidbodyProperties&, float mass,
+                                std::atomic_bool&) override;
     void RemoveRigidBody(const RigidbodyId&) override;
     void RemoveShape(const ShapeId&) override;
     void SetVelocityRigidbody(const RigidbodyId&, const vec3& velocity) override;
@@ -50,6 +51,8 @@ public:
     void disableVisualizationForAllRigidbodys() override;
     CollisionSubId setCollisionCallback(const RigidbodyId&, const CollisionDetection&) override;
     void celarCollisionCallback(const CollisionSubId&) override;
+    MaybeId subscribeForRigidbodyRemove(const RigidbodyId&, std::function<void()>) override;
+    void unsubscribeForRigidbodyRemove(IdType) override;
 
 private:
     struct Pimpl;

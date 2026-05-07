@@ -9,7 +9,8 @@ namespace Physics
 namespace Bullet
 {
 Rigidbodies::Rigidbodies()
-    : dynamic_{idPool}
+    : idPool{std::make_shared<Utils::IdPool>()}
+    , dynamic_{idPool}
     , static_{idPool}
 {
 }
@@ -36,7 +37,7 @@ size_t Rigidbodies::erase(IdType rigidbodyId)
         }
         else
         {
-            result =  dynamic_.erase(rigidbodyId);
+            result = dynamic_.erase(rigidbodyId);
         }
 
         rigidbodiesStatic.erase(rigidbodyId);

@@ -1,12 +1,13 @@
 #include "Rigidbody.h"
 
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include "BoxShape.h"
 #include "CapsuleShape.h"
 #include "CollisionShape.h"
 #include "CylinderShape.h"
+#include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Components/ComponentType.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -87,6 +88,8 @@ void Rigidbody::RemoveRigidbody()
         componentContext_.physicsApi_.RemoveRigidBody(*rigidBodyId_);
         rigidBodyId_.reset();
     }
+
+    LOG_DEBUG << "Done";
 }
 
 void Rigidbody::ReqisterFunctions()
@@ -96,6 +99,12 @@ void Rigidbody::ReqisterFunctions()
 
 void Rigidbody::CreateRigidbody()
 {
+    if (rigidBodyId_)
+    {
+        LOG_DEBUG << "Already created";
+        return;
+    }
+
     if (not collisionShape_)
     {
         LOG_WARN << "Collision shape not set. Try find new one";
@@ -467,6 +476,14 @@ void Rigidbody::write(TreeNode& node) const
     ::write(node.addChild(CSTR_COLLISION_SHAPE), collisionShapeName);
     ::write(node.addChild(CSTR_ANGULAR_FACTOR), angularFactor);
     ::write(node.addChild(CSTR_VELOCITY), velocity);
+}
+void Rigidbody::Activate()
+{
+    CreateRigidbody();
+}
+void Rigidbody::Deactivate()
+{
+    RemoveRigidbody();
 }
 }  // namespace Components
 }  // namespace GameEngine

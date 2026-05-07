@@ -296,5 +296,12 @@ CollisionSubId BachPhysicsAdapter::setCollisionCallback(const RigidbodyId&, cons
 void BachPhysicsAdapter::celarCollisionCallback(const CollisionSubId&)
 {
 }
+MaybeId BachPhysicsAdapter::subscribeForRigidbodyRemove(const RigidbodyId&, std::function<void()>)
+{
+    return std::nullopt;
+}
+void BachPhysicsAdapter::unsubscribeForRigidbodyRemove(IdType)
+{
+}
 }  // namespace Physics
 }  // namespace GameEngine

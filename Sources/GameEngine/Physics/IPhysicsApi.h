@@ -4,6 +4,7 @@
 #include <Types.h>
 
 #include <atomic>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <set>
@@ -99,6 +100,8 @@ public:
     virtual void disableVisualizatedRigidbody(const RigidbodyId&)                                   = 0;
     virtual void enableVisualizationForAllRigidbodys()                                              = 0;
     virtual void disableVisualizationForAllRigidbodys()                                             = 0;
+    virtual MaybeId subscribeForRigidbodyRemove(const RigidbodyId&, std::function<void()>)          = 0;
+    virtual void unsubscribeForRigidbodyRemove(IdType)                                              = 0;
     virtual CollisionSubId setCollisionCallback(const RigidbodyId&, const CollisionDetection&)      = 0;
     virtual void celarCollisionCallback(const CollisionSubId&)                                      = 0;
     virtual std::optional<BoundingBox> getBoundingBox(const RigidbodyId&) const                     = 0;

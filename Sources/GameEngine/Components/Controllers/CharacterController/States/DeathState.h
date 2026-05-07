@@ -11,6 +11,7 @@ public:
     DeathState(FsmContext&);
     void update(float);
 
+    void onEnter();
     void onEnter(CrouchWalkArmedChangeState&, const DeathEvent&);
     void onEnter(CrouchRotateArmedChangeState&, const DeathEvent&);
     void onEnter(CrouchWalkAndRotateArmedChangeState&, const DeathEvent&);

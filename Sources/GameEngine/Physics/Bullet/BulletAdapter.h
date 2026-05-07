@@ -1,5 +1,7 @@
 #pragma once
 #include <Utils/IdPool.h>
+#include <optional>
+#include "Types.h"
 
 #ifdef __GNUC__
 #pragma GCC diagnostic push
@@ -52,7 +54,8 @@ public:
     ShapeId CreateTerrainColider(const PositionOffset&, const Scale&, const HeightMap& heightMap) override;
     ShapeId CreateMeshCollider(const PositionOffset&, const std::vector<float>& data, const IndicesVector& indicies, const vec3&,
                                bool) override;
-    RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, CollisionGroup, const RigidbodyProperties&, float, std::atomic_bool&) override;
+    RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, CollisionGroup, const RigidbodyProperties&, float,
+                                std::atomic_bool&) override;
     void RemoveRigidBody(const RigidbodyId&) override;
     void RemoveShape(const ShapeId&) override;
     void SetVelocityRigidbody(const RigidbodyId&, const vec3& velocity) override;
@@ -79,6 +82,8 @@ public:
     void celarCollisionCallback(const CollisionSubId&) override;
     std::optional<BoundingBox> getBoundingBox(const RigidbodyId&) const override;
     bool checkBoxOverlap(const vec3&, const vec3&) const override;
+    MaybeId subscribeForRigidbodyRemove(const RigidbodyId&, std::function<void()>) override;
+    void unsubscribeForRigidbodyRemove(IdType) override;
 
 private:
     void createWorld();

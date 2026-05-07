@@ -79,6 +79,9 @@ public:
 
     const std::optional<uint32>& GetId() const;
 
+    void Activate() override;
+    void Deactivate() override;
+
 private:
     void Init();
     CollisionShape* GetCollisionShape();
