@@ -23,7 +23,7 @@ const char CSTR_STAMINA_BONUS[] = "staminaBonus";
 namespace Components
 {
 CombatStatsComponent::CombatStatsComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<CombatStatsComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<CombatStatsComponent>(), componentContext, gameObject)
 {
 }
 
@@ -67,7 +67,7 @@ void CombatStatsComponent::registerReadFunctions()
 void CombatStatsComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    BaseComponent::write(node);
+    ComponentCore::write(node);
 
     ::write(node.addChild(CSTR_DAMAGE), damage);
     ::write(node.addChild(CSTR_ATTACK_SPEED), attackSpeed);

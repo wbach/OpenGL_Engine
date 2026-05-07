@@ -21,7 +21,7 @@ Quaternion calculateTargetRotation(const vec3& direction)
 }
 }  // namespace
 AIController::AIController(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<AIController>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<AIController>(), componentContext, gameObject)
     , characterController_{nullptr}
 {
 }
@@ -61,7 +61,7 @@ void AIController::registerReadFunctions()
 }
 void AIController::write(TreeNode& node) const
 {
-    BaseComponent::write(node);
+    ComponentCore::write(node);
 }
 
 void AIController::MoveTo(const vec3& targetPosition)

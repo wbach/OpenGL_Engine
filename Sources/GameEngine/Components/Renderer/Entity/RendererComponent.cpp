@@ -64,7 +64,7 @@ GraphicsApi::ID CustomMaterialData::GetBufferId() const
 }
 
 RendererComponent::RendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<RendererComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<RendererComponent>(), componentContext, gameObject)
     , textureIndex(0)
     , isSubscribed_(false)
     , isInit_{false}
@@ -579,7 +579,7 @@ void create(TreeNode& materialsNode, const MaterialsMap& customMaterials)
 
 void RendererComponent::write(TreeNode& node) const
 {
-    BaseComponent::write(node);
+    ComponentCore::write(node);
 
     node.addChild(CSTR_TEXTURE_INDEX, std::to_string(textureIndex));
     node.addChild(MODEL_NORMALIZATION, Utils::BoolToString(modelNormalization));
@@ -644,7 +644,7 @@ void RendererComponent::Deactivate()
     if (not IsActive())
         return;
 
-    BaseComponent::Deactivate();
+    ComponentCore::Deactivate();
 
     if (isInit_)
         UnSubscribe();
@@ -654,7 +654,7 @@ void RendererComponent::Activate()
     if (IsActive())
         return;
 
-    BaseComponent::Activate();
+    ComponentCore::Activate();
 
     if (isInit_)
         Subscribe();

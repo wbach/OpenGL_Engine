@@ -1,14 +1,14 @@
 #pragma once
 #include <Rotation.h>
 
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 
 namespace GameEngine
 {
 namespace Components
 {
 class JointPoseUpdater;
-class PoseUpdater : public BaseComponent
+class PoseUpdater : public ComponentCore
 {
 public:
     vec3 dLocalPosition{0};

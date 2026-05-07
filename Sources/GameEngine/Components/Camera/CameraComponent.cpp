@@ -10,7 +10,7 @@
 
 #include <memory>
 
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Engine/Configuration.h"
@@ -36,7 +36,7 @@ constexpr char CSTR_SETTINGS[]       = "settings";
 }  // namespace
 
 CameraComponent::CameraComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<CameraComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<CameraComponent>(), componentContext, gameObject)
     , settings{Settings::Manual}
     , type{Type::Perspective}
     , renderingSize{EngineConf.renderer.resolution}
@@ -368,14 +368,14 @@ void CameraComponent::Activate()
     }
 
     manager.ActivateCamera(this);
-    BaseComponent::Activate();
+    ComponentCore::Activate();
 }
 void CameraComponent::Deactivate()
 {
     LOG_DEBUG << "Try deactivate";
     auto& manager = componentContext_.scene_.GetCameraManager();
     manager.DeactivateCamera(this);
-    BaseComponent::Deactivate();
+    ComponentCore::Deactivate();
 }
 void CameraComponent::SetActive(bool v)
 {

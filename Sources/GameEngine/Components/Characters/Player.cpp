@@ -50,7 +50,7 @@ vec2 convertToScreenPosition(const mat4& viewProjectionMatrix, const vec3& point
 }  // namespace
 
 Player::Player(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<Player>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<Player>(), componentContext, gameObject)
     , guiManager_{componentContext.guiManager_}
     , animator_{nullptr}
     , characterController_{nullptr}

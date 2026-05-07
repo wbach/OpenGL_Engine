@@ -18,7 +18,7 @@ const char CSTR_CHARGES[]  = "charges";
 namespace Components
 {
 ConsumableComponent::ConsumableComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<ConsumableComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<ConsumableComponent>(), componentContext, gameObject)
 {
 }
 
@@ -57,7 +57,7 @@ void ConsumableComponent::registerReadFunctions()
 void ConsumableComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    BaseComponent::write(node);
+    ComponentCore::write(node);
 
     ::write(node.addChild(CSTR_EFFECT), effect);
     ::write(node.addChild(CSTR_POWER), power);

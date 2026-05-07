@@ -16,7 +16,7 @@
 #include "Common.h"
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Components/Animation/ChangeAnimationEvent.h"
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/Component.h"
 #include "GameEngine/Components/ReadAnimationInfo.h"
 #include "MasterSkeletonData.h"
 #include "PlayDirection.h"
@@ -38,7 +38,7 @@ namespace Components
 {
 class RendererComponent;
 
-class Animator : public BaseComponent
+DECLARE_COMPONENT(Animator)
 {
 public:
     std::string montionJointName;
@@ -156,8 +156,6 @@ protected:
     std::unordered_map<std::string, ActiveAnimation> activeAnimations_;
 
 public:
-    static void registerReadFunctions();
-
     void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };

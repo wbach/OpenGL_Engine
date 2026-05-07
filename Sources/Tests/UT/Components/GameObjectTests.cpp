@@ -28,11 +28,11 @@ constexpr char clip[]  = "testClip";
 class TestComponent;
 std::set<IdType> cleanupCalledMap;
 
-class TestComponent : public BaseComponent
+class TestComponent : public ComponentCore
 {
 public:
     TestComponent(ComponentContext& componentContext, GameObject& gameObject)
-        : BaseComponent(GetComponentType<TestComponent>(), componentContext, gameObject)
+        : ComponentCore(GetComponentType<TestComponent>(), componentContext, gameObject)
     {
         static IdType sid = 0;
 

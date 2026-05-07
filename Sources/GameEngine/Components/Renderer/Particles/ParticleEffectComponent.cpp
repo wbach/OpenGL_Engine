@@ -34,7 +34,7 @@ const std::string CSTR_SPEED            = "speed";
 }  // namespace
 
 ParticleEffectComponent::ParticleEffectComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<ParticleEffectComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<ParticleEffectComponent>(), componentContext, gameObject)
     , texture_(nullptr)
     , particlesSpeed_(10.f)
     , particlesPerSecond_(10)

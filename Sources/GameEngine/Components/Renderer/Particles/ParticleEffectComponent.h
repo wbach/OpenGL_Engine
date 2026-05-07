@@ -1,5 +1,5 @@
 #pragma once
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Objects/Particle.h"
 #include <GraphicsApi/BlendFunctionsTypes.h>
 
@@ -9,7 +9,7 @@ class Texture;
 
 namespace Components
 {
-class ParticleEffectComponent : public BaseComponent
+class ParticleEffectComponent : public ComponentCore
 {
 public:
     ParticleEffectComponent(ComponentContext& componentContext, GameObject& gameObject);

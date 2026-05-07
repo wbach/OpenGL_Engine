@@ -1,5 +1,5 @@
 #pragma once
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 
 namespace GameEngine
 {
@@ -7,7 +7,7 @@ namespace Components
 {
 class CharacterController;
 
-class AIController : public BaseComponent
+class AIController : public ComponentCore
 {
 public:
     AIController(ComponentContext&, GameObject&);

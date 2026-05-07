@@ -6,7 +6,7 @@
 #include <utility>
 #include <vector>
 
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Resources/ShaderBufferObject.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"

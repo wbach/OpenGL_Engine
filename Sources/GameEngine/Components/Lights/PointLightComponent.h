@@ -1,11 +1,11 @@
 #pragma once
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class PointLightComponent : public BaseComponent
+class PointLightComponent : public ComponentCore
 {
 public:
     Color color;

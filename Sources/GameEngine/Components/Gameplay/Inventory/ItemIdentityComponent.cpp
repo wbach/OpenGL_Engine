@@ -22,12 +22,12 @@ const char CSTR_WEIGHT[]      = "weight";
 static Utils::IdPool idPool;
 }  // namespace
 ItemIdentityComponent::ItemIdentityComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<ItemIdentityComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<ItemIdentityComponent>(), componentContext, gameObject)
     , id{idPool.getId()}
 {
 }
 ItemIdentityComponent::ItemIdentityComponent(const ItemIdentityComponent& other)
-    : BaseComponent(other)
+    : ComponentCore(other)
     , itemName(other.itemName)
     , description(other.description)
     , rarity(other.rarity)
@@ -72,7 +72,7 @@ void ItemIdentityComponent::registerReadFunctions()
 void ItemIdentityComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    BaseComponent::write(node);
+    ComponentCore::write(node);
 
     ::write(node.addChild(CSTR_ITEM_NAME), itemName);
     ::write(node.addChild(CSTR_DESCRIPTION), description);

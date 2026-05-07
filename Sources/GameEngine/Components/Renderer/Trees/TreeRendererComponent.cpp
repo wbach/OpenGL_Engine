@@ -62,7 +62,7 @@ std::vector<ClusterData> getClusterData(const TreeClusters& treeClusters)
 }  // namespace
 
 TreeRendererComponent::TreeRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<TreeRendererComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<TreeRendererComponent>(), componentContext, gameObject)
     , leafTextureAtlasSize{3}
     , isSubsribed_(false)
 {

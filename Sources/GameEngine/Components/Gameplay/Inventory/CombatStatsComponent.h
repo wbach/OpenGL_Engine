@@ -1,11 +1,11 @@
 #pragma once
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class ENGINE_API CombatStatsComponent : public BaseComponent
+class ENGINE_API CombatStatsComponent : public ComponentCore
 {
 public:
     int damage        = 0;

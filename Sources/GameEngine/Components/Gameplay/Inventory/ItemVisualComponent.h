@@ -2,7 +2,7 @@
 #include <optional>
 #include <string>
 
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Resources/File.h"
 #include "TreeNode.h"
 
@@ -10,7 +10,7 @@ namespace GameEngine
 {
 namespace Components
 {
-class ENGINE_API ItemVisualComponent : public BaseComponent
+class ENGINE_API ItemVisualComponent : public ComponentCore
 {
 public:
     File iconPath    = "";

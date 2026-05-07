@@ -6,7 +6,7 @@
 
 #include "AnimationClipNames.h"
 #include "CharacterControllerEvents.h"
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Physics/PhysicsApiTypes.h"
 #include "MoveSpeed.h"
 
@@ -17,7 +17,7 @@ namespace Components
 class Animator;
 class Rigidbody;
 
-class CharacterController : public BaseComponent
+class CharacterController : public ComponentCore
 {
 public:
     struct MoveSpeeds

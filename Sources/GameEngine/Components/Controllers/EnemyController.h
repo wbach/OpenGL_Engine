@@ -1,5 +1,5 @@
 #pragma once
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 
 namespace GameEngine
 {
@@ -9,7 +9,7 @@ class Enemy;
 class Animator;
 class CharacterController;
 
-class EnemyController : public BaseComponent
+class EnemyController : public ComponentCore
 {
     struct GeneratePathParams
     {

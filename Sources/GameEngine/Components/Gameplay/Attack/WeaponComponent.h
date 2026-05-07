@@ -1,13 +1,13 @@
 #pragma once
 #include <vector>
 
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class ENGINE_API WeaponComponent : public BaseComponent
+class ENGINE_API WeaponComponent : public ComponentCore
 {
 public:
     float radius{.1f};

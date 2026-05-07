@@ -4,7 +4,7 @@
 #include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
 
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Components/ComponentType.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -23,7 +23,7 @@ constexpr char CSTR_DAY_NIGHT_CYCLE_CONTROLLED[] = "isDayNightCycleControlled";
 }  // namespace
 
 DirectionalLightComponent::DirectionalLightComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<DirectionalLightComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<DirectionalLightComponent>(), componentContext, gameObject)
     , isDayNightCycleControlled(true)
     , color(vec4(1.f, 1.f, 1.f, 1.f))
     , intensity(1.f)

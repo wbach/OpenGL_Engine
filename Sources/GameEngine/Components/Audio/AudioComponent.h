@@ -4,14 +4,14 @@
 #include "GameEngine/Audio/AudioId.h"
 #include "GameEngine/Audio/PlayGroup.h"
 #include "GameEngine/Audio/PlayParameters.h"
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Resources/File.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class ENGINE_API AudioComponent : public BaseComponent
+class ENGINE_API AudioComponent : public ComponentCore
 {
 public:
     File file;

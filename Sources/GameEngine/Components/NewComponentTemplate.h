@@ -1,13 +1,12 @@
 #pragma once
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/Component.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class ENGINE_API NewComponentTemplate : public BaseComponent
+DECLARE_COMPONENT(NewComponentTemplate)
 {
-public:
 public:
     // clang-format off
     BEGIN_FIELDS()
@@ -22,7 +21,7 @@ public:
     void Reload() override;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

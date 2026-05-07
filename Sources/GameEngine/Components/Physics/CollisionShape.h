@@ -1,5 +1,5 @@
 #pragma once
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Physics/PhysicsApiTypes.h"
 
 namespace GameEngine
@@ -7,7 +7,7 @@ namespace GameEngine
 namespace Components
 {
 class Rigidbody;
-class CollisionShape : public BaseComponent
+class CollisionShape : public ComponentCore
 {
 public:
     CollisionShape(const ComponentType&, ComponentContext&, GameObject&);

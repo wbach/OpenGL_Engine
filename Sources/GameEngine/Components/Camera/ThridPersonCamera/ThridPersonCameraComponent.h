@@ -6,7 +6,7 @@
 #include "Fsm/Context.h"
 #include "Fsm/ThridPersonCameraEvents.h"
 #include "Fsm/ThridPersonCameraFsm.h"
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "Logger/Log.h"
 #include "Types.h"
 
@@ -17,7 +17,7 @@ class ThirdPersonCamera;
 
 namespace Components
 {
-class ThridPersonCameraComponent : public BaseComponent
+class ThridPersonCameraComponent : public ComponentCore
 {
 public:
     bool overrideCameraPos{false};

@@ -32,7 +32,7 @@ const std::string COMPONENT_STR{"Enemy"};
 }  // namespace
 
 Enemy::Enemy(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<Enemy>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<Enemy>(), componentContext, gameObject)
     , guiManager_{componentContext.guiManager_}
     , animator_{nullptr}
     , characterController_{nullptr}

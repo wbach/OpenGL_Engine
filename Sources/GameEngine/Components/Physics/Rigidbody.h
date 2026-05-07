@@ -3,7 +3,7 @@
 #include <unordered_map>
 
 #include "Common/Transform.h"
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Physics/RigidbodyProperty.h"
 
@@ -13,7 +13,7 @@ namespace Components
 {
 class CollisionShape;
 
-class Rigidbody : public BaseComponent
+class Rigidbody : public ComponentCore
 {
 public:
     float mass{1.f};

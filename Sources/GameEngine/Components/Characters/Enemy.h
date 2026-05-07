@@ -3,7 +3,7 @@
 
 #include "Bar.h"
 #include "CharacterStatistic.h"
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 
 namespace GameEngine
 {
@@ -18,7 +18,7 @@ namespace Components
 class Animator;
 class CharacterController;
 
-class Enemy : public BaseComponent
+class Enemy : public ComponentCore
 {
     struct HudElements
     {

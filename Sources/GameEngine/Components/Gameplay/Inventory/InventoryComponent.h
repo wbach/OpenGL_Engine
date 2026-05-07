@@ -1,7 +1,7 @@
 #pragma once
 #include <TreeNode.h>
 
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Objects/Prefab.h"
 #include "GameEngine/Resources/File.h"
@@ -21,7 +21,7 @@ namespace Components
 {
 class ConsumableComponent;
 class EquippableComponent;
-class ENGINE_API InventoryComponent : public BaseComponent
+class ENGINE_API InventoryComponent : public ComponentCore
 {
 public:
     File guiFile;

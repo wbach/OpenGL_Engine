@@ -6,7 +6,7 @@
 #include <optional>
 
 #include "GameEngine/Camera/ICamera.h"
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
@@ -24,7 +24,7 @@ class IProjection;
 
 namespace Components
 {
-class CameraComponent : public BaseComponent, public ICamera
+class CameraComponent : public ComponentCore, public ICamera
 {
 public:
     enum Type

@@ -103,12 +103,12 @@ namespace Components
 {
 struct ComponentContext;
 
-class ENGINE_API BaseComponent : public IComponent
+class ENGINE_API ComponentCore : public IComponent
 {
 public:
-    BaseComponent(const ComponentType&, ComponentContext&, GameObject&);
-    BaseComponent(uint32, const char*, ComponentContext&, GameObject&);
-    ~BaseComponent() override;
+    ComponentCore(const ComponentType&, ComponentContext&, GameObject&);
+    ComponentCore(uint32, const char*, ComponentContext&, GameObject&);
+    ~ComponentCore() override;
 
     void Register() override;
     void Deregister() override;

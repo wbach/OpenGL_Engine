@@ -36,7 +36,7 @@ const std::string CSTR_GENERATE_MOVING_PATH_ACTIVE = "active";
 }  // namespace
 
 EnemyController::EnemyController(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<EnemyController>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<EnemyController>(), componentContext, gameObject)
     , enemy_{nullptr}
     , animator_{nullptr}
     , characterController_{nullptr}

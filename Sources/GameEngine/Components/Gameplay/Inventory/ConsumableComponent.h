@@ -1,5 +1,5 @@
 #pragma once
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 
 namespace GameEngine
 {
@@ -15,7 +15,7 @@ enum class EffectType : uint8_t
 
 namespace Components
 {
-class ENGINE_API ConsumableComponent : public BaseComponent
+class ENGINE_API ConsumableComponent : public ComponentCore
 {
 public:
     EffectType effect = EffectType::None;

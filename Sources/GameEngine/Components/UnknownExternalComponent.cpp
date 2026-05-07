@@ -9,7 +9,7 @@ namespace GameEngine
 namespace Components
 {
 UnknownExternalComponent::UnknownExternalComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<UnknownExternalComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<UnknownExternalComponent>(), componentContext, gameObject)
 {
 }
 

@@ -1,14 +1,14 @@
 #pragma once
 #include <Input/KeysSubscriptionsManager.h>
 
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 
 namespace GameEngine
 {
 namespace Components
 {
 class CharacterController;
-class ENGINE_API PlayerInputController : public BaseComponent
+class ENGINE_API PlayerInputController : public ComponentCore
 {
 public:
     PlayerInputController(ComponentContext& componentContext, GameObject& gameObject);

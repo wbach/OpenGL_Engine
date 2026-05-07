@@ -1,7 +1,7 @@
 #pragma once
 #include <Types.h>
 
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "TerrainTexture.h"
 
 namespace GameEngine
@@ -15,7 +15,7 @@ class TerrainMeshRendererComponent;
 class TerrainTessellationRendererComponent;
 class TerrainComponentBase;
 
-class TerrainRendererComponent : public BaseComponent
+class TerrainRendererComponent : public ComponentCore
 {
 public:
     enum class RendererType

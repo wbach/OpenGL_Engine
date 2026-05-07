@@ -48,11 +48,29 @@ namespace GameEngine
 {
 namespace Components
 {
+template <typename T, typename = void>
+struct has_custom_registration : std::false_type
+{
+};
+
+template <typename T>
+struct has_custom_registration<T, std::void_t<decltype(T::registerReadFunctions())>> : std::true_type
+{
+};
+
 template <typename T>
 void registerReadFunction()
 {
-    T::registerReadFunctions();
+    if constexpr (has_custom_registration<T>::value)
+    {
+        T::registerReadFunctions();
+    }
+    else
+    {
+        Component<T>::registerReadFunctions();
+    }
 }
+
 void RegisterReadFunctionForDefaultEngineComponents()
 {
     registerReadFunction<UnknownExternalComponent>();

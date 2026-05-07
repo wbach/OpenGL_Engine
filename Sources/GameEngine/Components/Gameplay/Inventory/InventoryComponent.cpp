@@ -76,7 +76,7 @@ std::string getCategoryForItem(GameObject& item)
 }  // namespace
 
 InventoryComponent::InventoryComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<InventoryComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<InventoryComponent>(), componentContext, gameObject)
     , currentCategory(CAT_ALL)
 {
 }
@@ -136,7 +136,7 @@ void InventoryComponent::registerReadFunctions()
 void InventoryComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    BaseComponent::write(node);
+    ComponentCore::write(node);
 
     ::write(node.addChild(GUI_FILE), guiFile);
     ::write(node.addChild(INVENTORY_FILE), itemsFile);

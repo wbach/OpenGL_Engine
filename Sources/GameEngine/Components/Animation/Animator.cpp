@@ -18,11 +18,10 @@
 #include "GameEngine/Animations/Skeleton.h"
 #include "GameEngine/Components/Animation/SlaveSkeletonData.h"
 #include "GameEngine/Components/Animation/StateMachine.h"
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentType.h"
-#include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/IComponent.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
@@ -53,7 +52,7 @@ constexpr char CSTR_DEFAULT_JOINT_GROUP[]        = "deafult";
 }  // namespace
 
 Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<Animator>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , montionJointName("")
     , masterSkeletonData(componentContext_.graphicsApi_, componentContext_.gpuResourceLoader_)
     , machine_(pose, jointGroupsIds_)
@@ -619,51 +618,9 @@ ReadAnimationInfo Read(const TreeNode& node)
     return {name, GameEngine::File(filename), isPlayInLoop, rootMontion, playSpeed};
 }
 
-void Animator::registerReadFunctions()
-{
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
-        auto component          = std::make_unique<Animator>(componentContext, gameObject);
-        component->read(node);
-
-        // auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);
-        // auto montionJointName   = node.getChild(CSTR_MONTION_JOINT_NAME);
-        // if (montionJointName)
-        // {
-        //     component->montionJointName = montionJointName->value_;
-        // }
-
-        // if (animationClipsNode)
-        // {
-        //     for (const auto& childNode : animationClipsNode->getChildren())
-        //     {
-        //         const auto& readInfo = GameEngine::Components::Read(*childNode);
-        //         component->AddAnimationClip(readInfo);
-        //     }
-        // }
-
-        // auto startupAnimationNode = node.getChild(CSTR_STARTUP_ANIMATION);
-        // if (startupAnimationNode)
-        // {
-        //     component->startupAnimationClipName = startupAnimationNode->value_;
-        // }
-
-        // auto jointGroupNode = node.getChild(CSTR_JOINT_GROUPS);
-        // if (jointGroupNode)
-        // {
-        //     for (auto& node : jointGroupNode->getChildren())
-        //     {
-        //         component->jointGroups_[node->name()] = Utils::SplitString(node->value_, ' ');
-        //     }
-        // }
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<Animator>(), readFunc);
-}
 void Animator::read(const TreeNode& node)
 {
-    BaseComponent::read(node);
+    ComponentCore::read(node);
     auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);
     auto montionJointName   = node.getChild(CSTR_MONTION_JOINT_NAME);
     if (montionJointName)

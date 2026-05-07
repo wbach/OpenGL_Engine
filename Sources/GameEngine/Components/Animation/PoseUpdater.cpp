@@ -28,7 +28,7 @@ const std::string CSTR_OFFSET_EQUIP_REFERENCE  = "offsetEquipReference";
 
 }  // namespace
 PoseUpdater::PoseUpdater(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<PoseUpdater>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<PoseUpdater>(), componentContext, gameObject)
     , currentJointUpdater_{nullptr}
 {
 }

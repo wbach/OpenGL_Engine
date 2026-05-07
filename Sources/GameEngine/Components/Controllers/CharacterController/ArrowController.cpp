@@ -17,7 +17,7 @@ namespace GameEngine
 namespace Components
 {
 ArrowController::ArrowController(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<ArrowController>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<ArrowController>(), componentContext, gameObject)
     , thridPersonCameraComponent{nullptr}
     , rigidbody{nullptr}
     , physicArrowGameObject{nullptr}

@@ -1,5 +1,5 @@
 #pragma once
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Physics/PhysicsApiTypes.h"
 
 namespace GameEngine
@@ -15,7 +15,7 @@ class Rigidbody;
 class ThridPersonCameraComponent;
 struct ComponentContext;
 
-class ArrowController : public BaseComponent
+class ArrowController : public ComponentCore
 {
 public:
     ArrowController(ComponentContext&, GameObject&);

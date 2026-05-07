@@ -38,7 +38,7 @@ constexpr char CSTR_EQUIP_JOINT_NAME[]{"equipJointName"};
 constexpr char CSTR_DISARM_JOINT_NAME[]{"disarmJointName"};
 }  // namespace
 EquipmentComponent::EquipmentComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<EquipmentComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<EquipmentComponent>(), componentContext, gameObject)
 {
 }
 EquipmentComponent::~EquipmentComponent()
@@ -70,7 +70,7 @@ void EquipmentComponent::registerReadFunctions()
 void EquipmentComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    BaseComponent::write(node);
+    ComponentCore::write(node);
     node.addChild(CSTR_BASE_BODY_RENDERER_TAG, baseBodyRendererComponentTag);
     node.addChild(CSTR_EQUIP_JOINT_NAME, equipJointName);
     node.addChild(CSTR_DISARM_JOINT_NAME, disarmJointName);

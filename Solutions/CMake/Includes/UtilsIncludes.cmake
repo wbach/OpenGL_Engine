@@ -33,6 +33,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Json/JsonWriter.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Json/JsonUtils.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Json/JsonReader.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/EngineApi.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/SubscriptionManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Params.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Worker.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/EngineUitls.h

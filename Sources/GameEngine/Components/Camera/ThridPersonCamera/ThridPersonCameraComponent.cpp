@@ -31,7 +31,7 @@ constexpr char CSTR_AIM_CAMERA_LOCAL_POS[] = "aimLocalCameraPos";
 }  // namespace
 
 ThridPersonCameraComponent::ThridPersonCameraComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<ThridPersonCameraComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<ThridPersonCameraComponent>(), componentContext, gameObject)
 {
 }
 
@@ -186,7 +186,7 @@ void ThridPersonCameraComponent::write(TreeNode& node) const
 {
     const std::string CSTR_TYPE = "type";
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    BaseComponent::write(node);
+    ComponentCore::write(node);
 
     ::write(node.addChild(CSTR_RUN_CAMERA_LOCAL_POS), runLocalCameraPos);
     ::write(node.addChild(CSTR_AIM_CAMERA_LOCAL_POS), aimLocalCameraPos);

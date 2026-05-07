@@ -1,7 +1,7 @@
 #pragma once
 #include <TreeNode.h>
 
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Resources/File.h"
 namespace GameEngine
 {
@@ -17,7 +17,7 @@ class Quest;
 
 namespace Components
 {
-class ENGINE_API QuestViewerComponent : public BaseComponent
+class ENGINE_API QuestViewerComponent : public ComponentCore
 {
 public:
     File guiFile;

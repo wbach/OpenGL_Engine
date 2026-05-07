@@ -85,7 +85,7 @@ std::vector<GrassRendererComponent::Ssbo> ImportSSBO(const std::filesystem::path
 }  // namespace
 
 GrassRendererComponent::GrassRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<GrassRendererComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<GrassRendererComponent>(), componentContext, gameObject)
     , textureFile("")
     , isSubscribed_(false)
 {
@@ -179,7 +179,7 @@ void GrassRendererComponent::registerReadFunctions()
 }
 void GrassRendererComponent::write(TreeNode& node) const
 {
-    BaseComponent::write(node);
+    ComponentCore::write(node);
 
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
 
@@ -329,7 +329,7 @@ void GrassRendererComponent::Deactivate()
     if (not IsActive())
         return;
 
-    BaseComponent::Deactivate();
+    ComponentCore::Deactivate();
 
     if (isInit_)
         UnSubscribe();
@@ -339,7 +339,7 @@ void GrassRendererComponent::Activate()
     if (IsActive())
         return;
 
-    BaseComponent::Activate();
+    ComponentCore::Activate();
 
     if (isInit_)
         SubscribeToRenderer();

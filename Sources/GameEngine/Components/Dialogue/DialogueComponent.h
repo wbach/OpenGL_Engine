@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "GLM/GLMUtils.h"
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Resources/File.h"
 #include "Logger/Log.h"
@@ -18,7 +18,7 @@ namespace GameEngine
 class GameState;
 namespace Components
 {
-class ENGINE_API DialogueComponent : public BaseComponent
+class ENGINE_API DialogueComponent : public ComponentCore
 {
 public:
     using Nodes = std::unordered_map<int, DialogueNode>;

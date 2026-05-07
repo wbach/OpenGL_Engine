@@ -32,7 +32,7 @@ constexpr char GUI_FILE[]{"guiLayoutFile"};
 namespace Components
 {
 QuestViewerComponent::QuestViewerComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<QuestViewerComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<QuestViewerComponent>(), componentContext, gameObject)
 {
 }
 QuestViewerComponent::~QuestViewerComponent()
@@ -85,7 +85,7 @@ void QuestViewerComponent::registerReadFunctions()
 void QuestViewerComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    BaseComponent::write(node);
+    ComponentCore::write(node);
 
     ::write(node.addChild(GUI_FILE), guiFile);
 }

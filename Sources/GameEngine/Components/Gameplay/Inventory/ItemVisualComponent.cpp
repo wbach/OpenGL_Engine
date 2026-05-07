@@ -21,7 +21,7 @@ const char CSTR_MODEL_PATH[]  = "modelPath";
 namespace Components
 {
 ItemVisualComponent::ItemVisualComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<ItemVisualComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<ItemVisualComponent>(), componentContext, gameObject)
 {
 }
 
@@ -80,7 +80,7 @@ void ItemVisualComponent::registerReadFunctions()
 void ItemVisualComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    BaseComponent::write(node);
+    ComponentCore::write(node);
 
     ::write(node.addChild(CSTR_ICON_PATH), iconPath);
 

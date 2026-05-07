@@ -4,7 +4,7 @@
 #include <unordered_map>
 
 #include "CharacterStats.h"
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Renderers/GUI/Text/Text.h"
 #include "GameEngine/Resources/File.h"
 namespace GameEngine
@@ -20,7 +20,7 @@ class GameState;
 
 namespace Components
 {
-class ENGINE_API CharacterStatsComponent : public BaseComponent
+class ENGINE_API CharacterStatsComponent : public ComponentCore
 {
 public:
     File guiFile;

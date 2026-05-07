@@ -28,7 +28,7 @@ namespace Components
 {
 
 DialogueComponent::DialogueComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<DialogueComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<DialogueComponent>(), componentContext, gameObject)
 {
 }
 DialogueComponent::~DialogueComponent()
@@ -64,7 +64,7 @@ void DialogueComponent::write(TreeNode& node) const
 {
     const std::string CSTR_TYPE = "type";
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    BaseComponent::write(node);
+    ComponentCore::write(node);
 
     ::write(node.addChild(CSTR_DIALOG_FILE), dialogueFile.GetDataRelativePath());
 }

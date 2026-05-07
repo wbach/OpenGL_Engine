@@ -1,7 +1,7 @@
 #pragma once
 #include "Bar.h"
 #include "CharacterStatistic.h"
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 
 namespace common
 {
@@ -21,7 +21,7 @@ namespace Components
 class Animator;
 class CharacterController;
 
-class Player : public BaseComponent
+class Player : public ComponentCore
 {
     struct HudElements
     {

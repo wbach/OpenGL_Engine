@@ -33,6 +33,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxHelpers/WxClientData.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxHelpers/FileDropTarget.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxHelpers/ThumbnailCache.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ControlsIds.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/Clipboard.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectPanel/material_icon.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectPanel/model3d_icon.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectPanel/model_icon.h

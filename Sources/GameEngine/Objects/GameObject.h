@@ -7,7 +7,7 @@
 #include <memory>
 #include <string>
 
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Components/ComponentFactory.h"
 #include "GameEngine/Scene/SceneEvents.h"
 #include "Layer.h"

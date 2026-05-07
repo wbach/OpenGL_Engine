@@ -4,7 +4,7 @@
 #include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
 
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Components/ComponentType.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 
@@ -20,7 +20,7 @@ constexpr char CSTR_RANGE[]       = "range";
 constexpr char CSTR_FALLOFF_EXP[] = "falloffExponent";
 }  // namespace
 PointLightComponent::PointLightComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<PointLightComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<PointLightComponent>(), componentContext, gameObject)
     , color(Color(1.0f, 1.0f, 1.0f))
     , intensity(1.0f)
     , range(10.0f)

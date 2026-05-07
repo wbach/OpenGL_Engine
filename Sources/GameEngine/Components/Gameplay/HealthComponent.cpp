@@ -15,7 +15,7 @@ namespace GameEngine
 namespace Components
 {
 HealthComponent::HealthComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<HealthComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<HealthComponent>(), componentContext, gameObject)
 {
 }
 
@@ -98,7 +98,7 @@ void HealthComponent::registerReadFunctions()
 void HealthComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    BaseComponent::write(node);
+    ComponentCore::write(node);
 }
 
 bool HealthComponent::canProccess() const

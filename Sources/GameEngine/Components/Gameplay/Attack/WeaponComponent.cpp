@@ -16,7 +16,7 @@ namespace
 constexpr char CSTR_SOCKETS[] = "socketOffsets";
 }  // namespace
 WeaponComponent::WeaponComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<WeaponComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<WeaponComponent>(), componentContext, gameObject)
 {
 }
 WeaponComponent::~WeaponComponent()
@@ -60,7 +60,7 @@ void WeaponComponent::registerReadFunctions()
 void WeaponComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    BaseComponent::write(node);
+    ComponentCore::write(node);
     ::write(node.addChild(CSTR_SOCKETS), socketOffsets);
     ::write(node.addChild(CSTR_RADIUS), radius);
 }

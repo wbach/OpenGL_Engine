@@ -1,5 +1,5 @@
 #pragma once
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 
@@ -9,7 +9,7 @@ class Mesh;
 
 namespace Components
 {
-class PreviewComponent : public BaseComponent
+class PreviewComponent : public ComponentCore
 {
 public:
     PreviewComponent(ComponentContext&, GameObject&);

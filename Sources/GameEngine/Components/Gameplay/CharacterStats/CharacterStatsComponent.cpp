@@ -60,7 +60,7 @@ constexpr char GUI_FILE[]{"guiLayoutFile"};
 namespace Components
 {
 CharacterStatsComponent::CharacterStatsComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<CharacterStatsComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<CharacterStatsComponent>(), componentContext, gameObject)
 {
 }
 CharacterStatsComponent::~CharacterStatsComponent()
@@ -113,7 +113,7 @@ void CharacterStatsComponent::registerReadFunctions()
 void CharacterStatsComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    BaseComponent::write(node);
+    ComponentCore::write(node);
 
     ::write(node.addChild(GUI_FILE), guiFile);
 }

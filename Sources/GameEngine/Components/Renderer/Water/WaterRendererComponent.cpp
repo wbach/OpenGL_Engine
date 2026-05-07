@@ -39,7 +39,7 @@ constexpr char CSTR_MESH_RESOLUTION[]      = "meshResolution";
 }  // namespace
 
 WaterRendererComponent::WaterRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<WaterRendererComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<WaterRendererComponent>(), componentContext, gameObject)
     , onPlaneWaveSpeed(.1f)
     , waveSpeed(.1f)
     , waterColor(Utils::RGBtoFloat(0.f, 44.f, 82.f), 1.f)
@@ -285,7 +285,7 @@ void WaterRendererComponent::registerReadFunctions()
 }
 void WaterRendererComponent::write(TreeNode& node) const
 {
-    BaseComponent::write(node);
+    ComponentCore::write(node);
 
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
 
@@ -350,7 +350,7 @@ void WaterRendererComponent::Activate()
     if (IsActive())
         return;
 
-    BaseComponent::Activate();
+    ComponentCore::Activate();
 
     if (isInit_)
         Subscribe();
@@ -360,7 +360,7 @@ void WaterRendererComponent::Deactivate()
     if (not IsActive())
         return;
 
-    BaseComponent::Deactivate();
+    ComponentCore::Deactivate();
 
     if (isInit_)
         UnSubscribe();

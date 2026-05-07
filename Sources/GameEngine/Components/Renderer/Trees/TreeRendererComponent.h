@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "ClusterData.h"
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Components/IComponent.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
@@ -27,7 +27,7 @@ namespace GameEngine
 {
 namespace Components
 {
-class TreeRendererComponent : public BaseComponent
+class TreeRendererComponent : public ComponentCore
 {
 public:
     vec2 leafTextureAtlasSize;

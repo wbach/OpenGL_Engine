@@ -44,7 +44,7 @@ TerrainRendererComponent::RendererType Convert(Params::TerrainType type)
 }
 
 TerrainRendererComponent::TerrainRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<TerrainRendererComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<TerrainRendererComponent>(), componentContext, gameObject)
     , functionsRegistered_(false)
 {
     if (EngineConf.renderer.type == GraphicsApi::RendererType::SIMPLE)

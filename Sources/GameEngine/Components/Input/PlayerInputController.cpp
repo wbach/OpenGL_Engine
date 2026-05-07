@@ -29,7 +29,7 @@ namespace GameEngine
 namespace Components
 {
 PlayerInputController::PlayerInputController(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<PlayerInputController>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<PlayerInputController>(), componentContext, gameObject)
     , characterController_{nullptr}
     , subscriptions_{componentContext.inputManager_}
 {
@@ -347,7 +347,7 @@ void PlayerInputController::registerReadFunctions()
 
 void PlayerInputController::write(TreeNode& node) const
 {
-    BaseComponent::write(node);
+    ComponentCore::write(node);
 }
 
 bool PlayerInputController::IsInitated() const

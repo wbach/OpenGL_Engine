@@ -1,7 +1,7 @@
 #pragma once
 #include <array>
 
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Resources/File.h"
 
 namespace GameEngine
@@ -12,7 +12,7 @@ class Model;
 
 namespace Components
 {
-class SkyBoxComponent : public BaseComponent
+class SkyBoxComponent : public ComponentCore
 {
 public:
     std::vector<File> dayTextureFiles;

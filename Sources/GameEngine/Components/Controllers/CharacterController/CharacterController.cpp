@@ -52,7 +52,7 @@ struct CharacterController::Impl
 };
 
 CharacterController::CharacterController(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<CharacterController>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<CharacterController>(), componentContext, gameObject)
     , upperBodyGroupName{"upperBody"}
     , lowerBodyGroupName{"lowerBody"}
     , equipTimeStamp{-1.0}
@@ -83,7 +83,7 @@ void CharacterController::CleanUp()
 void CharacterController::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&CharacterController::Awake, this), MakeDependencies<CapsuleShape>());
-    RegisterFunction(FunctionType::OnStart, std::bind(&CharacterController::Init, this), MakeDependencies<Rigidbody, Animator>());
+    RegisterFunction(FunctionType::OnStart, std::bind(&CharacterController::Init, this));
     RegisterFunction(FunctionType::PostStart, std::bind(&CharacterController::PostStart, this));
     RegisterFunction(FunctionType::Update, std::bind(&CharacterController::Update, this));
 }

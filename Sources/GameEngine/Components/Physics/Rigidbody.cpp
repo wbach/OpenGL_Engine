@@ -7,7 +7,7 @@
 #include "CapsuleShape.h"
 #include "CollisionShape.h"
 #include "CylinderShape.h"
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Components/ComponentType.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -33,7 +33,7 @@ constexpr char CSTR_COLLISION_GROUP[]{"collisionGroup"};
 }  // namespace
 
 Rigidbody::Rigidbody(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<Rigidbody>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<Rigidbody>(), componentContext, gameObject)
     , mass(1.0f)
     , collisionShape_(nullptr)
     , isSynchronizingWitPhysicsApi_(false)
@@ -467,7 +467,7 @@ void Rigidbody::registerReadFunctions()
 }
 void Rigidbody::write(TreeNode& node) const
 {
-    BaseComponent::write(node);
+    ComponentCore::write(node);
 
     ::write(node.addChild(CSTR_COLLISION_GROUP), collisionGroup);
     ::write(node.addChild(CSTR_MASS), mass);

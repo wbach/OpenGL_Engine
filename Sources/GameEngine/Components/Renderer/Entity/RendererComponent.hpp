@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Models/LoadingParameters.h"
 #include "GameEngine/Resources/Models/Material.h"
@@ -45,7 +45,7 @@ private:
     IGpuResourceLoader& loader;
 };
 
-class RendererComponent : public BaseComponent
+class RendererComponent : public ComponentCore
 {
 public:
     File fileName_LOD1;

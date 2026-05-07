@@ -2,7 +2,7 @@
 #include <memory>
 #include <vector>
 
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Resources/Models/Material.h"
 #include "GameEngine/Resources/ShaderStorageVectorBufferObject.h"
 #include "Types.h"
@@ -11,7 +11,7 @@ namespace GameEngine
 {
 namespace Components
 {
-class GrassRendererComponent : public BaseComponent
+class GrassRendererComponent : public ComponentCore
 {
 public:
     File textureFile;

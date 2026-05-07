@@ -1,7 +1,7 @@
 #pragma once
 #include <unordered_map>
 
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
@@ -19,7 +19,7 @@ class Texture;
 
 namespace Components
 {
-class WaterRendererComponent : public BaseComponent
+class WaterRendererComponent : public ComponentCore
 {
 public:
     float onPlaneWaveSpeed{1.f};

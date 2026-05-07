@@ -18,7 +18,7 @@ namespace GameEngine
 namespace Components
 {
 MeleeAttackComponent::MeleeAttackComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<MeleeAttackComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<MeleeAttackComponent>(), componentContext, gameObject)
 {
 }
 MeleeAttackComponent::~MeleeAttackComponent()
@@ -144,7 +144,7 @@ void MeleeAttackComponent::registerReadFunctions()
 void MeleeAttackComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    BaseComponent::write(node);
+    ComponentCore::write(node);
 }
 bool MeleeAttackComponent::CheckCapsuleCollision(const vec3& swordStart, const vec3& swordEnd, float swordRadius,
                                                  const vec3& targetStart, const vec3& targetEnd, float targetRadius)

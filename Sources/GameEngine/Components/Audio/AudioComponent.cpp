@@ -42,7 +42,7 @@ constexpr char CSTR_OUTER_GAIN[]  = "outerGain";
 }  // namespace
 
 AudioComponent::AudioComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<AudioComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<AudioComponent>(), componentContext, gameObject)
 
 {
 }
@@ -167,7 +167,7 @@ void AudioComponent::registerReadFunctions()
 }
 void AudioComponent::write(TreeNode& node) const
 {
-    BaseComponent::write(node);
+    ComponentCore::write(node);
 
     ::write(node.addChild(CSTR_PLAY_TYPE), playType);
     ::write(node.addChild(CSTR_GROUP), playGroup);

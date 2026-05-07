@@ -13,7 +13,7 @@ namespace GameEngine
 namespace Components
 {
 CollisionShape::CollisionShape(const ComponentType& componentType, ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(componentType, componentContext, gameObject)
+    : ComponentCore(componentType, componentContext, gameObject)
     , collisionShapeId_(std::nullopt)
     , positionOffset(0.f)
     , connectedRigidbody{nullptr}

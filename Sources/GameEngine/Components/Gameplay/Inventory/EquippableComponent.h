@@ -1,12 +1,12 @@
 #pragma once
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "SlotType.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class ENGINE_API EquippableComponent : public BaseComponent
+class ENGINE_API EquippableComponent : public ComponentCore
 {
 public:
     SlotType slot = SlotType::None;

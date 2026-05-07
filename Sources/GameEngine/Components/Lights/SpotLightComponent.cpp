@@ -4,7 +4,7 @@
 #include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
 
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Components/ComponentType.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 
@@ -24,7 +24,7 @@ constexpr char CSTR_OUTER_CUTOFF[] = "outerCutoff";
 }  // namespace
 
 SpotLightComponent::SpotLightComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<SpotLightComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<SpotLightComponent>(), componentContext, gameObject)
     , color(Color(1.0f, 1.0f, 1.0f))
     , intensity(1.0f)
     , direction(vec3(0.0f, -1.0f, 0.0f))

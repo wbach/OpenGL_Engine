@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 
 class TreeNode;
 
@@ -10,7 +10,7 @@ namespace GameEngine
 {
 namespace Components
 {
-class UnknownExternalComponent : public BaseComponent
+class UnknownExternalComponent : public ComponentCore
 {
 public:
     UnknownExternalComponent(ComponentContext&, GameObject&);

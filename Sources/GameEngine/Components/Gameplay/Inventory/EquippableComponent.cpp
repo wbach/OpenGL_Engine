@@ -18,7 +18,7 @@ const char CSTR_INT_REQ[] = "intReq";
 namespace Components
 {
 EquippableComponent::EquippableComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<EquippableComponent>(), componentContext, gameObject)
+    : ComponentCore(GetComponentType<EquippableComponent>(), componentContext, gameObject)
 {
 }
 
@@ -57,7 +57,7 @@ void EquippableComponent::registerReadFunctions()
 void EquippableComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    BaseComponent::write(node);
+    ComponentCore::write(node);
 
     ::write(node.addChild(CSTR_SLOT), slot);
     ::write(node.addChild(CSTR_STR_REQ), strReq);

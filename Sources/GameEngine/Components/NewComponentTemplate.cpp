@@ -1,16 +1,14 @@
 #include "NewComponentTemplate.h"
 
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
-
-#include "GameEngine/Components/ComponentsReadFunctions.h"
+#include <Utils/TreeNodeWriteFunctions.h>
 
 namespace GameEngine
 {
 namespace Components
 {
 NewComponentTemplate::NewComponentTemplate(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(GetComponentType<NewComponentTemplate>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
 {
 }
 NewComponentTemplate::~NewComponentTemplate()
@@ -25,21 +23,13 @@ void NewComponentTemplate::Reload()
 void NewComponentTemplate::ReqisterFunctions()
 {
 }
-void NewComponentTemplate::registerReadFunctions()
+void NewComponentTemplate::read(const TreeNode&)
 {
-    auto func = [](ComponentContext& componentContext, const TreeNode& input, GameObject& gameObject)
-    {
-        auto component = std::make_unique<NewComponentTemplate>(componentContext, gameObject);
-        component->read(input);
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<NewComponentTemplate>(), func);
 }
 void NewComponentTemplate::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    BaseComponent::write(node);
+    ComponentCore::write(node);
 }
 }  // namespace Components
 }  // namespace GameEngine

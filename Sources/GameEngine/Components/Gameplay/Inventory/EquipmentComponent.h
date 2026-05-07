@@ -3,7 +3,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "SlotType.h"
 
@@ -12,7 +12,7 @@ namespace GameEngine
 class GameState;
 namespace Components
 {
-class ENGINE_API EquipmentComponent : public BaseComponent
+class ENGINE_API EquipmentComponent : public ComponentCore
 {
 public:
 public:
