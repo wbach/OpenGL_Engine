@@ -65,6 +65,10 @@ struct Component : public IComponent
         LOG_ERROR << "Should not be used here";
         return *empty;
     }
+    void read(const TreeNode&) override
+    {
+    }
+
     void write(TreeNode&) const override
     {
     }

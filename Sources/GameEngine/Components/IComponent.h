@@ -74,6 +74,7 @@ public:
     virtual void Deactivate()                                                 = 0;
     virtual GameObject& GetParentGameObject()                                 = 0;
     virtual const GameObject& getParentGameObject() const                     = 0;
+    virtual void read(const TreeNode&)                                        = 0;
     virtual void write(TreeNode&) const                                       = 0;
     virtual std::optional<IdType> getRegisteredFunctionId(FunctionType) const = 0;
     virtual std::vector<FieldInfo> GetFields()                                = 0;

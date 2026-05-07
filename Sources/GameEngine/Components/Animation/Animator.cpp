@@ -18,6 +18,7 @@
 #include "GameEngine/Animations/Skeleton.h"
 #include "GameEngine/Components/Animation/SlaveSkeletonData.h"
 #include "GameEngine/Components/Animation/StateMachine.h"
+#include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentType.h"
@@ -623,40 +624,76 @@ void Animator::registerReadFunctions()
     auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
     {
         auto component          = std::make_unique<Animator>(componentContext, gameObject);
-        auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);
-        auto montionJointName   = node.getChild(CSTR_MONTION_JOINT_NAME);
-        if (montionJointName)
-        {
-            component->montionJointName = montionJointName->value_;
-        }
+        component->read(node);
 
-        if (animationClipsNode)
-        {
-            for (const auto& childNode : animationClipsNode->getChildren())
-            {
-                const auto& readInfo = GameEngine::Components::Read(*childNode);
-                component->AddAnimationClip(readInfo);
-            }
-        }
+        // auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);
+        // auto montionJointName   = node.getChild(CSTR_MONTION_JOINT_NAME);
+        // if (montionJointName)
+        // {
+        //     component->montionJointName = montionJointName->value_;
+        // }
 
-        auto startupAnimationNode = node.getChild(CSTR_STARTUP_ANIMATION);
-        if (startupAnimationNode)
-        {
-            component->startupAnimationClipName = startupAnimationNode->value_;
-        }
+        // if (animationClipsNode)
+        // {
+        //     for (const auto& childNode : animationClipsNode->getChildren())
+        //     {
+        //         const auto& readInfo = GameEngine::Components::Read(*childNode);
+        //         component->AddAnimationClip(readInfo);
+        //     }
+        // }
 
-        auto jointGroupNode = node.getChild(CSTR_JOINT_GROUPS);
-        if (jointGroupNode)
-        {
-            for (auto& node : jointGroupNode->getChildren())
-            {
-                component->jointGroups_[node->name()] = Utils::SplitString(node->value_, ' ');
-            }
-        }
+        // auto startupAnimationNode = node.getChild(CSTR_STARTUP_ANIMATION);
+        // if (startupAnimationNode)
+        // {
+        //     component->startupAnimationClipName = startupAnimationNode->value_;
+        // }
+
+        // auto jointGroupNode = node.getChild(CSTR_JOINT_GROUPS);
+        // if (jointGroupNode)
+        // {
+        //     for (auto& node : jointGroupNode->getChildren())
+        //     {
+        //         component->jointGroups_[node->name()] = Utils::SplitString(node->value_, ' ');
+        //     }
+        // }
         return component;
     };
 
     regsiterComponentReadFunction(GetComponentType<Animator>(), readFunc);
+}
+void Animator::read(const TreeNode& node)
+{
+    BaseComponent::read(node);
+    auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);
+    auto montionJointName   = node.getChild(CSTR_MONTION_JOINT_NAME);
+    if (montionJointName)
+    {
+        this->montionJointName = montionJointName->value_;
+    }
+
+    if (animationClipsNode)
+    {
+        for (const auto& childNode : animationClipsNode->getChildren())
+        {
+            const auto& readInfo = GameEngine::Components::Read(*childNode);
+            this->AddAnimationClip(readInfo);
+        }
+    }
+
+    auto startupAnimationNode = node.getChild(CSTR_STARTUP_ANIMATION);
+    if (startupAnimationNode)
+    {
+        this->startupAnimationClipName = startupAnimationNode->value_;
+    }
+
+    auto jointGroupNode = node.getChild(CSTR_JOINT_GROUPS);
+    if (jointGroupNode)
+    {
+        for (auto& node : jointGroupNode->getChildren())
+        {
+            this->jointGroups_[node->name()] = Utils::SplitString(node->value_, ' ');
+        }
+    }
 }
 
 void write(TreeNode& node, const ReadAnimationInfo& info)
@@ -743,7 +780,7 @@ void Animator::initMasterSkeletonData()
         {
             masterSkeletonData.skeleton = std::move(*maybeSkeleton);
             montionJoint_               = masterSkeletonData.skeleton.getJoint(montionJointName);
-            //pose.init(masterSkeletonData.skeleton);
+            // pose.init(masterSkeletonData.skeleton);
 
             if (montionJoint_)
             {

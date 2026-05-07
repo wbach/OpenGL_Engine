@@ -18,6 +18,8 @@
 #include <utility>
 
 #include "ReloadComponentLibEvent.h"
+#include "TreeNode.h"
+#include "WxEditor/Clipboard.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/FileDropTarget.h"
 #include "WxEditor/WxHelpers/ThumbnailCache.h"
@@ -167,6 +169,27 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component,
             break;
         }
     }
+
+    wxButton* copyComponentButton = new wxButton(headerPanel, wxID_ANY, "Copy", wxDefaultPosition, wxSize(60, 20));
+    headerSizer->Add(copyComponentButton, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 2);
+    copyComponentButton->Bind(wxEVT_BUTTON,
+                              [&component, typeName](const auto&)
+                              {
+                                  TreeNode tmpNode;
+                                  component.write(tmpNode);
+                                  Clipboard.SetContent(ComponentData{.node = std::move(tmpNode)});
+                              });
+
+    wxButton* pasteComponentButton = new wxButton(headerPanel, wxID_ANY, "Paste", wxDefaultPosition, wxSize(60, 20));
+    headerSizer->Add(pasteComponentButton, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 2);
+    pasteComponentButton->Bind(wxEVT_BUTTON,
+                               [&component, typeName](const auto&)
+                               {
+                                   if (auto ptr = Clipboard.GetAs<ComponentData>(); ptr)
+                                   {
+                                       component.read(ptr->node);
+                                   }
+                               });
 
     wxButton* deleteComponentButton = new wxButton(headerPanel, wxID_ANY, "Delete", wxDefaultPosition, wxSize(60, 20));
     headerSizer->Add(deleteComponentButton, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 2);

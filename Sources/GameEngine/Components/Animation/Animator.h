@@ -157,6 +157,8 @@ protected:
 
 public:
     static void registerReadFunctions();
+
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components
