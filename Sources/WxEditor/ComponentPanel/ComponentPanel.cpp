@@ -34,6 +34,62 @@ extern const std::string CSTR_TYPE;
 
 namespace
 {
+class DetailedMessageDialog : public wxDialog
+{
+public:
+    // Dodajemy parametr 'long style' z domyślną wartością wxOK
+    DetailedMessageDialog(wxWindow* parent, const wxString& title, const wxString& mainMsg, const wxString& details,
+                          long style = wxOK | wxICON_INFORMATION)
+        : wxDialog(parent, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
+    {
+        SetMinSize(wxSize(450, -1));
+
+        auto* mainSizer   = new wxBoxSizer(wxVERTICAL);
+        auto* headerSizer = new wxBoxSizer(wxHORIZONTAL);
+
+        long const iconFlag = style & wxICON_MASK;
+        if (iconFlag)
+        {
+            wxIcon icon =
+                wxArtProvider::GetIcon((iconFlag == wxICON_QUESTION) ? wxART_QUESTION : wxART_INFORMATION, wxART_MESSAGE_BOX);
+            auto* staticIcon = new wxStaticBitmap(this, wxID_ANY, icon);
+            headerSizer->Add(staticIcon, 0, wxALL | wxALIGN_CENTER_VERTICAL, 10);
+        }
+
+        headerSizer->Add(new wxStaticText(this, wxID_ANY, mainMsg), 1, wxALL | wxALIGN_CENTER_VERTICAL, 10);
+        mainSizer->Add(headerSizer, 0, wxEXPAND);
+
+        auto* collPane = new wxCollapsiblePane(this, wxID_ANY, "Show details");
+        mainSizer->Add(collPane, 1, wxEXPAND | wxLEFT | wxRIGHT, 15);
+
+        wxWindow* paneWin = collPane->GetPane();
+        auto* paneSizer   = new wxBoxSizer(wxVERTICAL);
+
+        auto* textCtrl = new wxTextCtrl(paneWin, wxID_ANY, details, wxDefaultPosition, wxSize(450, 200),
+                                        wxTE_MULTILINE | wxTE_READONLY | wxHSCROLL);
+
+        paneSizer->Add(textCtrl, 1, wxEXPAND | wxTOP, 5);
+        paneWin->SetSizer(paneSizer);
+
+        collPane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED,
+                       [this](wxCollapsiblePaneEvent& event)
+                       {
+                           this->Layout();
+                           this->Fit();
+                       });
+
+        long const buttonFlags = style & (wxOK | wxCANCEL | wxYES_NO | wxNO_DEFAULT);
+        auto* buttonSizer      = CreateButtonSizer(buttonFlags);
+        if (buttonSizer)
+        {
+            mainSizer->Add(buttonSizer, 0, wxALIGN_CENTER | wxALL, 15);
+        }
+
+        SetSizerAndFit(mainSizer);
+        CenterOnParent();
+    }
+};
+
 class PropertyGridDropTarget : public wxFileDropTarget
 {
     wxPropertyGrid* m_grid;
@@ -154,7 +210,7 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component,
                                         {
                                             int answer = wxMessageBox("Reload component " + typeName + "?", "Confirmation",
                                                                       wxYES_NO | wxICON_QUESTION);
-                                            if (answer == wxYES)
+                                            if (answer == wxID_YES)
                                             {
                                                 CallAfter(
                                                     [this, libFile]()
@@ -172,24 +228,74 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component,
 
     wxButton* copyComponentButton = new wxButton(headerPanel, wxID_ANY, "Copy", wxDefaultPosition, wxSize(60, 20));
     headerSizer->Add(copyComponentButton, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 2);
-    copyComponentButton->Bind(wxEVT_BUTTON,
-                              [&component, typeName](const auto&)
-                              {
-                                  TreeNode tmpNode;
-                                  component.writeToNode(tmpNode);
-                                  Clipboard.SetContent(ComponentData{.node = std::move(tmpNode)});
-                              });
+    copyComponentButton->Bind(
+        wxEVT_BUTTON,
+        [&component, typeName](const auto&)
+        {
+            TreeNode tmpNode;
+            component.writeToNode(tmpNode);
+            Clipboard.SetContent(ComponentData{.node = std::move(tmpNode), .typeName = component.GetTypeName()});
+            // wxMessageBox("Component " + typeName + " coppied to clipboard", "Confirmation", wxOK | wxICON_INFORMATION);
+
+            auto mainMsg = wxString::Format("Component %s copied to clipboard", typeName);
+            std::stringstream details;
+            details << tmpNode;
+
+            DetailedMessageDialog dialog(nullptr, "Confirmation", mainMsg, details.str());
+            dialog.ShowModal();
+        });
+
+    // auto rebuildUI = [this, &component]()
+    // {
+    //     mainSizer->Clear(true);
+    //     AddComponent(component);
+    //     component.Reload();
+
+    //     if (wxWindow* p = this->GetParent())
+    //     {
+    //         p->Layout();
+    //         p->FitInside();
+    //     }
+    // };
 
     wxButton* pasteComponentButton = new wxButton(headerPanel, wxID_ANY, "Paste", wxDefaultPosition, wxSize(60, 20));
     headerSizer->Add(pasteComponentButton, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 2);
-    pasteComponentButton->Bind(wxEVT_BUTTON,
-                               [&component, typeName](const auto&)
-                               {
-                                   if (auto ptr = Clipboard.GetAs<ComponentData>(); ptr)
-                                   {
-                                       component.readFromNode(ptr->node);
-                                   }
-                               });
+    pasteComponentButton->Bind(
+        wxEVT_BUTTON,
+        [&component, typeName](const auto&)
+        {
+            if (auto ptr = Clipboard.GetAs<ComponentData>(); ptr)
+            {
+                if (ptr->typeName == component.GetTypeName())
+                {
+                    std::stringstream details;
+                    details << ptr->node;
+
+                    DetailedMessageDialog dialog(nullptr, "Confirmation", "Paste component" + ptr->typeName + "?", details.str(),
+                                                 wxYES_NO | wxICON_QUESTION);
+
+                    if (dialog.ShowModal() == wxID_YES)
+                    {
+                        component.readFromNode(ptr->node);
+                        // rebuildUI();
+                        wxMessageBox("Paste ok, please refresh object to see values", "Success", wxOK | wxICON_INFORMATION);
+                    }
+                    else
+                    {
+                        LOG_DEBUG << "Canceled";
+                    }
+                }
+                else
+                {
+                    wxMessageBox("Component type mismatch try paste " + ptr->typeName + " to " + typeName + "!", "Warning",
+                                 wxOK | wxICON_WARNING);
+                }
+            }
+            else
+            {
+                LOG_DEBUG << "Get component data faile.";
+            }
+        });
 
     wxButton* deleteComponentButton = new wxButton(headerPanel, wxID_ANY, "Delete", wxDefaultPosition, wxSize(60, 20));
     headerSizer->Add(deleteComponentButton, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 2);
@@ -198,7 +304,7 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component,
                                 {
                                     int answer = wxMessageBox("Delete component " + typeName + "?", "Confirmation",
                                                               wxYES_NO | wxICON_QUESTION);
-                                    if (answer == wxYES)
+                                    if (answer == wxID_YES)
                                     {
                                         CallAfter(
                                             [this, &component]()

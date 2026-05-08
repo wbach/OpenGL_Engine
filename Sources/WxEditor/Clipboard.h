@@ -2,11 +2,15 @@
 #include <SingleTon.h>
 #include <TreeNode.h>
 
+#include <sstream>
 #include <variant>
+
+#include "Utils.h"
 
 struct ComponentData
 {
     TreeNode node;
+    std::string typeName;
 };
 
 using ClipboardContent = std::variant<std::monostate, std::string, ComponentData>;
@@ -22,27 +26,27 @@ public:
 
     void SetContent(ClipboardContent content)
     {
-        m_buffer = std::move(content);
+        buffer_ = std::move(content);
     }
 
     template <typename T>
     const T* GetAs() const
     {
-        return std::get_if<T>(&m_buffer);
+        return std::get_if<T>(&buffer_);
     }
 
     bool IsEmpty() const
     {
-        return std::holds_alternative<std::monostate>(m_buffer);
+        return std::holds_alternative<std::monostate>(buffer_);
     }
 
     void Clear()
     {
-        m_buffer = std::monostate{};
+        buffer_ = std::monostate{};
     }
 
 private:
-    ClipboardContent m_buffer;
+    ClipboardContent buffer_;
 };
 
 #define Clipboard SingleTon<ClipboardImpl>::Get()
