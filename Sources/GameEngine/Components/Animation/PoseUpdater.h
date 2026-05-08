@@ -8,6 +8,7 @@ namespace GameEngine
 namespace Components
 {
 class JointPoseUpdater;
+
 DECLARE_COMPONENT(PoseUpdater)
 {
 public:
@@ -28,6 +29,8 @@ public:
 
 public:
     PoseUpdater(ComponentContext&, GameObject&);
+    ~PoseUpdater();
+
     void CleanUp() override;
     void ReqisterFunctions() override;
     void Reload() override;

@@ -35,6 +35,9 @@ PoseUpdater::PoseUpdater(ComponentContext& componentContext, GameObject& gameObj
     , currentJointUpdater_{nullptr}
 {
 }
+PoseUpdater::~PoseUpdater()
+{
+}
 void PoseUpdater::CleanUp()
 {
     if (updateJointBufferSubId_)

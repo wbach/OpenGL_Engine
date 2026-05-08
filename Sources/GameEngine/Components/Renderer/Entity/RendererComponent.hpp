@@ -29,7 +29,6 @@ class IGpuResourceLoader;
 
 namespace Components
 {
-// class RendererComponent : public ComponentCore
 DECLARE_COMPONENT(RendererComponent)
 {
 public:

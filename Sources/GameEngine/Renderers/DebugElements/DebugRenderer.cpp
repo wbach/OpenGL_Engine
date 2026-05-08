@@ -29,6 +29,7 @@
 #include "Types.h"
 #include "Utils.h"
 #include "glm/geometric.hpp"
+#include <numbers>
 
 namespace GameEngine
 {

@@ -30,6 +30,8 @@ public:
 
 public:
     TerrainShape(ComponentContext&, GameObject&);
+    ~TerrainShape();
+
     void setScale(const vec3&) override;
     void CleanUp() override;
     void ReqisterFunctions() override;

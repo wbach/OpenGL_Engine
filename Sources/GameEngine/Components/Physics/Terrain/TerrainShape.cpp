@@ -41,6 +41,9 @@ TerrainShape::TerrainShape(ComponentContext& componentContext, GameObject& gameO
     , heightMap_(nullptr)
 {
 }
+TerrainShape::~TerrainShape()
+{
+}
 void TerrainShape::setScale(const vec3& scale)
 {
     if (heightMap_)
@@ -75,6 +78,7 @@ void TerrainShape::InitShape()
     LoadHeightMapIfSet();
     create();
 }
+
 TerrainShape& TerrainShape::SetHeightMap(const File& filename)
 {
     heightMapFile = filename;
