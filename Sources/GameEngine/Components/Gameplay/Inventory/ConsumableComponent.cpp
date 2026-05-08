@@ -7,6 +7,8 @@
 
 namespace GameEngine
 {
+namespace Components
+{
 namespace
 {
 const char CSTR_EFFECT[]   = "effect";
@@ -15,10 +17,10 @@ const char CSTR_DURATION[] = "duration";
 const char CSTR_CHARGES[]  = "charges";
 }  // namespace
 
-namespace Components
-{
+REGISTER_COMPONENT(ConsumableComponent)
+
 ConsumableComponent::ConsumableComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<ConsumableComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
 {
 }
 
@@ -36,29 +38,16 @@ void ConsumableComponent::ReqisterFunctions()
 {
 }
 
-void ConsumableComponent::registerReadFunctions()
+void ConsumableComponent::read(const TreeNode& input)
 {
-    auto func = [](ComponentContext& componentContext, const TreeNode& input, GameObject& gameObject)
-    {
-        auto component = std::make_unique<ConsumableComponent>(componentContext, gameObject);
-        component->read(input);
-
-        ::Read(input.getChild(CSTR_EFFECT), component->effect);
-        ::Read(input.getChild(CSTR_POWER), component->power);
-        ::Read(input.getChild(CSTR_DURATION), component->duration);
-        ::Read(input.getChild(CSTR_CHARGES), component->charges);
-
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<ConsumableComponent>(), func);
+    ::Read(input.getChild(CSTR_EFFECT), effect);
+    ::Read(input.getChild(CSTR_POWER), power);
+    ::Read(input.getChild(CSTR_DURATION), duration);
+    ::Read(input.getChild(CSTR_CHARGES), charges);
 }
 
 void ConsumableComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    ComponentCore::write(node);
-
     ::write(node.addChild(CSTR_EFFECT), effect);
     ::write(node.addChild(CSTR_POWER), power);
     ::write(node.addChild(CSTR_DURATION), duration);

@@ -15,8 +15,11 @@ namespace
 {
 constexpr char CSTR_SOCKETS[] = "socketOffsets";
 }  // namespace
+
+REGISTER_COMPONENT(WeaponComponent)
+
 WeaponComponent::WeaponComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<WeaponComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
 {
 }
 WeaponComponent::~WeaponComponent()
@@ -44,23 +47,13 @@ std::vector<vec3> WeaponComponent::GetWorldSocketPositions() const
     }
     return worldPositions;
 }
-void WeaponComponent::registerReadFunctions()
+void WeaponComponent::read(const TreeNode& input)
 {
-    auto func = [](ComponentContext& componentContext, const TreeNode& input, GameObject& gameObject)
-    {
-        auto component = std::make_unique<WeaponComponent>(componentContext, gameObject);
-        component->read(input);
-        ::Read(input.getChild(CSTR_SOCKETS), component->socketOffsets);
-        ::Read(input.getChild(CSTR_RADIUS), component->radius);
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<WeaponComponent>(), func);
+    ::Read(input.getChild(CSTR_SOCKETS), socketOffsets);
+    ::Read(input.getChild(CSTR_RADIUS), radius);
 }
 void WeaponComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    ComponentCore::write(node);
     ::write(node.addChild(CSTR_SOCKETS), socketOffsets);
     ::write(node.addChild(CSTR_RADIUS), radius);
 }

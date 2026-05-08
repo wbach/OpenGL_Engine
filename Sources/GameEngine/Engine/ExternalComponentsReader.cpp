@@ -352,7 +352,7 @@ std::vector<ExternalComponentsReader::ComponentInstance> ExternalComponentsReade
             if (auto component = gameObject.GetComponent(type))
             {
                 TreeNode node("component");
-                component->write(node);
+                component->writeToNode(node);
                 result.push_back(ComponentInstance{.gameObject = gameObject, .nodeToRestore = std::move(node)});
                 LOG_DEBUG << "Remove component instance";
                 gameObject.RemoveComponent(type);

@@ -32,8 +32,10 @@ constexpr char CSTR_NO_CONCTACT_RESPONSE[]{"noConctactResponse"};
 constexpr char CSTR_COLLISION_GROUP[]{"collisionGroup"};
 }  // namespace
 
+REGISTER_COMPONENT(Rigidbody)
+
 Rigidbody::Rigidbody(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<Rigidbody>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , mass(1.0f)
     , collisionShape_(nullptr)
     , isSynchronizingWitPhysicsApi_(false)
@@ -433,42 +435,32 @@ CollisionShape* Rigidbody::GetCollisionShape()
     LOG_ERROR << thisObject_.GetName() << ". Shape type (" << collisionShapeName << ") is not found.";
     return nullptr;
 }
-void Rigidbody::registerReadFunctions()
+void Rigidbody::read(const TreeNode& node)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    ::Read(node.getChild(CSTR_COLLISION_GROUP), collisionGroup);
+    ::Read(node.getChild(CSTR_MASS), mass);
+    ::Read(node.getChild(CSTR_IS_STATIC), isStaticObject);
+    ::Read(node.getChild(CSTR_NO_CONCTACT_RESPONSE), isNoConctactResponse);
+    ::Read(node.getChild(CSTR_COLLISION_SHAPE), collisionShapeName);
+    ::Read(node.getChild(CSTR_VELOCITY), velocity);
+
+    vec3 angularFactor(1.f);
+    const auto& angularFactorNode = node.getChild(CSTR_ANGULAR_FACTOR);
+    if (angularFactorNode and not angularFactorNode->value_.empty())
     {
-        auto component = std::make_unique<Rigidbody>(componentContext, gameObject);
-        component->read(node);
+        float angularFactorFloat{1.f};
+        ::Read(angularFactorNode, angularFactorFloat);
+        angularFactor = vec3(angularFactorFloat);
+    }
+    else
+    {
+        ::Read(angularFactorNode, angularFactor);
+    }
 
-        ::Read(node.getChild(CSTR_COLLISION_GROUP), component->collisionGroup);
-        ::Read(node.getChild(CSTR_MASS), component->mass);
-        ::Read(node.getChild(CSTR_IS_STATIC), component->isStaticObject);
-        ::Read(node.getChild(CSTR_NO_CONCTACT_RESPONSE), component->isNoConctactResponse);
-        ::Read(node.getChild(CSTR_COLLISION_SHAPE), component->collisionShapeName);
-        ::Read(node.getChild(CSTR_VELOCITY), component->velocity);
-
-        vec3 angularFactor(1.f);
-        const auto& angularFactorNode = node.getChild(CSTR_ANGULAR_FACTOR);
-        if (angularFactorNode and not angularFactorNode->value_.empty())
-        {
-            float angularFactorFloat{1.f};
-            ::Read(angularFactorNode, angularFactorFloat);
-            angularFactor = vec3(angularFactorFloat);
-        }
-        else
-        {
-            ::Read(angularFactorNode, angularFactor);
-        }
-        component->SetAngularFactor(angularFactor);
-
-        return component;
-    };
-    regsiterComponentReadFunction(GetComponentType<Rigidbody>(), readFunc);
+    SetAngularFactor(angularFactor);
 }
 void Rigidbody::write(TreeNode& node) const
 {
-    ComponentCore::write(node);
-
     ::write(node.addChild(CSTR_COLLISION_GROUP), collisionGroup);
     ::write(node.addChild(CSTR_MASS), mass);
     ::write(node.addChild(CSTR_IS_STATIC), isStaticObject);

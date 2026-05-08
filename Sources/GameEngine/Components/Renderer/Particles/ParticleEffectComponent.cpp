@@ -1,7 +1,7 @@
 #include "ParticleEffectComponent.h"
 
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include <algorithm>
 
@@ -33,8 +33,10 @@ const std::string CSTR_SPEED            = "speed";
 
 }  // namespace
 
+REGISTER_COMPONENT(ParticleEffectComponent)
+
 ParticleEffectComponent::ParticleEffectComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<ParticleEffectComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , texture_(nullptr)
     , particlesSpeed_(10.f)
     , particlesPerSecond_(10)
@@ -222,64 +224,54 @@ Particle ReadParticle(const TreeNode& node)
 
     return particle;
 }
-
-void ParticleEffectComponent::registerReadFunctions()
+void ParticleEffectComponent::read(const TreeNode& node)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    if (auto particleNode = node.getChild(CSTR_PARTICLE))
     {
-        auto component = std::make_unique<ParticleEffectComponent>(componentContext, gameObject);
-        if (auto particleNode = node.getChild(CSTR_PARTICLE))
+        auto particle = ReadParticle(*particleNode);
+        SetParticle(particle);
+    }
+    if (auto maybeNode = node.getChild(CSTR_TEXTURE))
+    {
+        SetTexture(maybeNode->value_);
+    }
+    if (auto maybeNode = node.getChild(CSTR_PARTICLE_PER_SER))
+    {
+        SetParticlesPerSec(std::stoul(maybeNode->value_));
+    }
+    if (auto maybeNode = node.getChild(CSTR_BLEND_TYPE))
+    {
+        SetBlendFunction(static_cast<GraphicsApi::BlendFunctionType>(std::stoi(maybeNode->value_)));
+    }
+    if (auto maybeNode = node.getChild(CSTR_EMIT_FUNCTION))
+    {
+        auto emitFunctionName = maybeNode->value_;
+        auto emitFunction     = componentContext_.scene_.GetParticleEmitFunction(emitFunctionName);
+        if (emitFunction)
         {
-            auto particle = ReadParticle(*particleNode);
-            component->SetParticle(particle);
+            SetEmitFunction(emitFunctionName, *emitFunction);
         }
-        if (auto maybeNode = node.getChild(CSTR_TEXTURE))
-        {
-            component->SetTexture(maybeNode->value_);
-        }
-        if (auto maybeNode = node.getChild(CSTR_PARTICLE_PER_SER))
-        {
-            component->SetParticlesPerSec(std::stoul(maybeNode->value_));
-        }
-        if (auto maybeNode = node.getChild(CSTR_BLEND_TYPE))
-        {
-            component->SetBlendFunction(static_cast<GraphicsApi::BlendFunctionType>(std::stoi(maybeNode->value_)));
-        }
-        if (auto maybeNode = node.getChild(CSTR_EMIT_FUNCTION))
-        {
-            auto emitFunctionName = maybeNode->value_;
-            auto emitFunction     = componentContext.scene_.GetParticleEmitFunction(emitFunctionName);
-            if (emitFunction)
-            {
-                component->SetEmitFunction(emitFunctionName, *emitFunction);
-            }
-        }
-        if (auto maybeNode = node.getChild(CSTR_SPEED))
-        {
-            component->SetSpeed(std::stof(maybeNode->value_));
-        }
-        if (auto maybeNode = node.getChild(CSTR_IS_ANIMATED))
-        {
-            auto animated = Utils::StringToBool(maybeNode->value_);
+    }
+    if (auto maybeNode = node.getChild(CSTR_SPEED))
+    {
+        SetSpeed(std::stof(maybeNode->value_));
+    }
+    if (auto maybeNode = node.getChild(CSTR_IS_ANIMATED))
+    {
+        auto animated = Utils::StringToBool(maybeNode->value_);
 
-            if (animated)
-            {
-                component->EnableAnimation();
-            }
-        }
-        if (auto maybeNode = node.getChild(CSTR_PARTICLE_LIMT))
+        if (animated)
         {
-            component->SetParticlesLimit(std::stoul(maybeNode->value_));
+            EnableAnimation();
         }
-
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<ParticleEffectComponent>(), readFunc);
+    }
+    if (auto maybeNode = node.getChild(CSTR_PARTICLE_LIMT))
+    {
+        SetParticlesLimit(std::stoul(maybeNode->value_));
+    }
 }
 void ParticleEffectComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
 }
 }  // namespace Components
 }  // namespace GameEngine

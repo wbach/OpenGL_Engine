@@ -1,5 +1,5 @@
 #pragma once
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 #include "GameEngine/Physics/PhysicsApiTypes.h"
 
 namespace GameEngine
@@ -15,7 +15,7 @@ class Rigidbody;
 class ThridPersonCameraComponent;
 struct ComponentContext;
 
-class ArrowController : public ComponentCore
+DECLARE_COMPONENT(ArrowController)
 {
 public:
     ArrowController(ComponentContext&, GameObject&);
@@ -44,7 +44,7 @@ private:
     vec3 lastPosition;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

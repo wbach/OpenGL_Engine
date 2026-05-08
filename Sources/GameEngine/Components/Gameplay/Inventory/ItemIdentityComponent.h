@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 #include "Types.h"
 
 namespace GameEngine
@@ -17,7 +17,7 @@ enum class Rarity : uint8_t
 
 namespace Components
 {
-class ENGINE_API ItemIdentityComponent : public ComponentCore
+DECLARE_COMPONENT(ItemIdentityComponent)
 {
 public:
     std::string itemName    = "Unknown Item";
@@ -51,7 +51,7 @@ private:
     IdType id;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

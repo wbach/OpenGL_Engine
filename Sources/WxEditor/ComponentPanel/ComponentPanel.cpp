@@ -176,7 +176,7 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component,
                               [&component, typeName](const auto&)
                               {
                                   TreeNode tmpNode;
-                                  component.write(tmpNode);
+                                  component.writeToNode(tmpNode);
                                   Clipboard.SetContent(ComponentData{.node = std::move(tmpNode)});
                               });
 
@@ -187,7 +187,7 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component,
                                {
                                    if (auto ptr = Clipboard.GetAs<ComponentData>(); ptr)
                                    {
-                                       component.read(ptr->node);
+                                       component.readFromNode(ptr->node);
                                    }
                                });
 

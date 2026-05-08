@@ -348,12 +348,12 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/Char
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/FsmContext.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/AIController.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/ControllerUtlis.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/EnemyController.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/CommonReadDef.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentsReadFunctions.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/FunctionType.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentDependencies.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/IComponent.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Component.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/RegisterComponentWrapper.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Water/WaterRendererComponent.h
@@ -383,10 +383,10 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Terrain
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Terrain/TerrainQuadTree.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Terrain/TerrainComponentBase.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Terrain/TerrainTessellationRendererComponent.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Entity/CustomMaterialData.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Entity/PreviewComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Particles/ParticleEffectComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentType.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/RegisterReadFunctionForDefaultEngineComponents.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Gameplay/Attack/MeleeAttackComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Gameplay/Attack/WeaponComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Gameplay/HealthComponent.h
@@ -420,10 +420,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Lights/PointLigh
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Lights/SpotLightComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentCore.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ReadAnimationInfo.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Characters/Enemy.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Characters/Player.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Characters/CharacterStatistic.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Characters/Bar.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/FirstPersonCamera.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/CameraComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h

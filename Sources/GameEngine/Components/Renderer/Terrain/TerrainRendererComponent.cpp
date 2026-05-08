@@ -43,8 +43,10 @@ TerrainRendererComponent::RendererType Convert(Params::TerrainType type)
     return TerrainRendererComponent::RendererType::Mesh;
 }
 
+REGISTER_COMPONENT(TerrainRendererComponent)
+
 TerrainRendererComponent::TerrainRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<TerrainRendererComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , functionsRegistered_(false)
 {
     if (EngineConf.renderer.type == GraphicsApi::RendererType::SIMPLE)
@@ -257,26 +259,16 @@ std::vector<Components::TerrainTexture> ReadTerrainTextures(const TreeNode& node
               [](const auto& l, const auto& r) { return static_cast<int>(l.type) < static_cast<int>(r.type); });
     return result;
 }
-void TerrainRendererComponent::registerReadFunctions()
+void TerrainRendererComponent::read(const TreeNode& node)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    if (auto texturesNode = node.getChild(CSTR_TEXTURE_FILENAMES))
     {
-        auto component = std::make_unique<TerrainRendererComponent>(componentContext, gameObject);
+        auto textures = ReadTerrainTextures(*texturesNode);
+        LoadTextures(textures);
+    }
 
-        auto texturesNode = node.getChild(CSTR_TEXTURE_FILENAMES);
-        if (texturesNode)
-        {
-            auto textures = ReadTerrainTextures(*node.getChild(CSTR_TEXTURE_FILENAMES));
-            component->LoadTextures(textures);
-        }
-
-        if (not component->GetHeightMap())
-            component->createHeightMap({1024, 1024});
-
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<TerrainRendererComponent>(), readFunc);
+    if (not GetHeightMap())
+        createHeightMap({1024, 1024});
 }
 
 namespace
@@ -299,8 +291,6 @@ void create(TreeNode& node, const std::vector<Components::TerrainTexture>& textu
 
 void TerrainRendererComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-
     create(node.addChild(CSTR_TEXTURE_FILENAMES), GetInputDataTextures());
 
     auto heightMapTexture = GetTexture(TerrainTextureType::heightmap);

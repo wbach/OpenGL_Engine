@@ -21,13 +21,17 @@ const char CSTR_WEIGHT[]      = "weight";
 
 static Utils::IdPool idPool;
 }  // namespace
+
+REGISTER_COMPONENT(ItemIdentityComponent)
+
 ItemIdentityComponent::ItemIdentityComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<ItemIdentityComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , id{idPool.getId()}
 {
 }
+
 ItemIdentityComponent::ItemIdentityComponent(const ItemIdentityComponent& other)
-    : ComponentCore(other)
+    : Component(other)
     , itemName(other.itemName)
     , description(other.description)
     , rarity(other.rarity)
@@ -36,6 +40,7 @@ ItemIdentityComponent::ItemIdentityComponent(const ItemIdentityComponent& other)
     , id{idPool.getId()}
 {
 }
+
 ItemIdentityComponent::~ItemIdentityComponent()
 {
     idPool.releaseId(id);
@@ -44,36 +49,26 @@ ItemIdentityComponent::~ItemIdentityComponent()
 void ItemIdentityComponent::CleanUp()
 {
 }
+
 void ItemIdentityComponent::Reload()
 {
 }
+
 void ItemIdentityComponent::ReqisterFunctions()
 {
 }
 
-void ItemIdentityComponent::registerReadFunctions()
+void ItemIdentityComponent::read(const TreeNode& input)
 {
-    auto func = [](ComponentContext& componentContext, const TreeNode& input, GameObject& gameObject)
-    {
-        auto component = std::make_unique<ItemIdentityComponent>(componentContext, gameObject);
-        component->read(input);
-        ::Read(input.getChild(CSTR_ITEM_NAME), component->itemName);
-        ::Read(input.getChild(CSTR_DESCRIPTION), component->description);
-        ::Read(input.getChild(CSTR_RARITY), component->rarity);
-        ::Read(input.getChild(CSTR_GOLD_VALUE), component->goldValue);
-        ::Read(input.getChild(CSTR_WEIGHT), component->weight);
-        LOG_DEBUG << "ItemIdentityComponent read";
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<ItemIdentityComponent>(), func);
+    ::Read(input.getChild(CSTR_ITEM_NAME), itemName);
+    ::Read(input.getChild(CSTR_DESCRIPTION), description);
+    ::Read(input.getChild(CSTR_RARITY), rarity);
+    ::Read(input.getChild(CSTR_GOLD_VALUE), goldValue);
+    ::Read(input.getChild(CSTR_WEIGHT), weight);
 }
 
 void ItemIdentityComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    ComponentCore::write(node);
-
     ::write(node.addChild(CSTR_ITEM_NAME), itemName);
     ::write(node.addChild(CSTR_DESCRIPTION), description);
     ::write(node.addChild(CSTR_RARITY), rarity);

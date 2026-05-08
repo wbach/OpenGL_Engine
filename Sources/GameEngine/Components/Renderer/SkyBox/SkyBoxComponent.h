@@ -1,7 +1,7 @@
 #pragma once
 #include <array>
 
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 #include "GameEngine/Resources/File.h"
 
 namespace GameEngine
@@ -12,7 +12,7 @@ class Model;
 
 namespace Components
 {
-class SkyBoxComponent : public ComponentCore
+DECLARE_COMPONENT(SkyBoxComponent)
 {
 public:
     std::vector<File> dayTextureFiles;
@@ -58,7 +58,7 @@ private:
     bool isSubscribed_;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

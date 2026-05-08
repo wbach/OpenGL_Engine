@@ -27,8 +27,11 @@ const std::string CSTR_OFFSET_DISARM_REFERENCE = "offsetDisarmReference";
 const std::string CSTR_OFFSET_EQUIP_REFERENCE  = "offsetEquipReference";
 
 }  // namespace
+
+REGISTER_COMPONENT(PoseUpdater)
+
 PoseUpdater::PoseUpdater(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<PoseUpdater>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , currentJointUpdater_{nullptr}
 {
 }
@@ -139,33 +142,24 @@ void PoseUpdater::setDisarmJointAsCurrent()
     currentJointUpdater_ = disarmJointUpdater_.get();
 }
 
-void PoseUpdater::registerReadFunctions()
+void PoseUpdater::read(const TreeNode& node)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    ::Read(node.getChild(CSTR_WEAPON_EQUIP_JOINT_NAME), equipJointName_);
+    ::Read(node.getChild(CSTR_WEAPON_DISARM_JOINT_NAME), disarmJointName_);
+
+    if (auto disarmOffsetNode = node.getChild(CSTR_OFFSET_DISARM_REFERENCE))
     {
-        auto component = std::make_unique<PoseUpdater>(componentContext, gameObject);
-        ::Read(node.getChild(CSTR_WEAPON_EQUIP_JOINT_NAME), component->equipJointName_);
-        ::Read(node.getChild(CSTR_WEAPON_DISARM_JOINT_NAME), component->disarmJointName_);
-
-        if (auto disarmOffsetNode = node.getChild(CSTR_OFFSET_DISARM_REFERENCE))
-        {
-            ::Read(disarmOffsetNode->getChild(CSTR_POSITION), component->dLocalPosition);
-            ::Read(disarmOffsetNode->getChild(CSTR_ROTATION), component->dLocalRotationEuler);
-        }
-        if (auto equpOffsetNode = node.getChild(CSTR_OFFSET_EQUIP_REFERENCE))
-        {
-            ::Read(equpOffsetNode->getChild(CSTR_POSITION), component->eLocalPosition);
-            ::Read(equpOffsetNode->getChild(CSTR_ROTATION), component->eLocalRotationEuler);
-        }
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<PoseUpdater>(), readFunc);
+        ::Read(disarmOffsetNode->getChild(CSTR_POSITION), dLocalPosition);
+        ::Read(disarmOffsetNode->getChild(CSTR_ROTATION), dLocalRotationEuler);
+    }
+    if (auto equpOffsetNode = node.getChild(CSTR_OFFSET_EQUIP_REFERENCE))
+    {
+        ::Read(equpOffsetNode->getChild(CSTR_POSITION), eLocalPosition);
+        ::Read(equpOffsetNode->getChild(CSTR_ROTATION), eLocalRotationEuler);
+    }
 }
-
 void PoseUpdater::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
     node.addChild(CSTR_WEAPON_EQUIP_JOINT_NAME, equipJointName_);
     node.addChild(CSTR_WEAPON_DISARM_JOINT_NAME, disarmJointName_);
     auto& disarmNode = node.addChild(CSTR_OFFSET_DISARM_REFERENCE);

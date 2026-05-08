@@ -2,8 +2,8 @@
 
 #include <Logger/Log.h>
 #include <Types.h>
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include <magic_enum/magic_enum.hpp>
 
@@ -41,8 +41,10 @@ constexpr char CSTR_OUTER_ANGLE[] = "outerAngle";
 constexpr char CSTR_OUTER_GAIN[]  = "outerGain";
 }  // namespace
 
+REGISTER_COMPONENT(AudioComponent)
+
 AudioComponent::AudioComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<AudioComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
 
 {
 }
@@ -138,37 +140,25 @@ void AudioComponent::Update()
         componentContext_.audioManager.setSourceDirection(*activeAudioId, forward);
     }
 }
-void AudioComponent::registerReadFunctions()
+void AudioComponent::read(const TreeNode& input)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& input, GameObject& gameObject)
-    {
-        auto component = std::make_unique<AudioComponent>(componentContext, gameObject);
-        component->read(input);
-
-        ::Read(input.getChild(CSTR_FILE), component->file);
-        ::Read(input.getChild(CSTR_PLAY_TYPE), component->playType);
-        ::Read(input.getChild(CSTR_GROUP), component->playGroup);
-        ::Read(input.getChild(CSTR_ATTENUATION), component->attenuation);
-        ::Read(input.getChild(CSTR_MIN_DISTANCE), component->minDistance);
-        ::Read(input.getChild(CSTR_MAX_DISTANCE), component->maxDistance);
-        ::Read(input.getChild(CSTR_VOLUME), component->volume);
-        ::Read(input.getChild(CSTR_PITCH), component->pitch);
-        ::Read(input.getChild(CSTR_PLAY_ON_START), component->playOnStart);
-        ::Read(input.getChild(CSTR_IS_SPATIAL), component->isSpatial);
-        ::Read(input.getChild(CSTR_IS_DIRECTIONAL), component->isDirectional);
-        ::Read(input.getChild(CSTR_INNER_ANGLE), component->innerAngle);
-        ::Read(input.getChild(CSTR_OUTER_ANGLE), component->outerAngle);
-        ::Read(input.getChild(CSTR_OUTER_GAIN), component->outerGain);
-
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<AudioComponent>(), readFunc);
+    ::Read(input.getChild(CSTR_FILE), file);
+    ::Read(input.getChild(CSTR_PLAY_TYPE), playType);
+    ::Read(input.getChild(CSTR_GROUP), playGroup);
+    ::Read(input.getChild(CSTR_ATTENUATION), attenuation);
+    ::Read(input.getChild(CSTR_MIN_DISTANCE), minDistance);
+    ::Read(input.getChild(CSTR_MAX_DISTANCE), maxDistance);
+    ::Read(input.getChild(CSTR_VOLUME), volume);
+    ::Read(input.getChild(CSTR_PITCH), pitch);
+    ::Read(input.getChild(CSTR_PLAY_ON_START), playOnStart);
+    ::Read(input.getChild(CSTR_IS_SPATIAL), isSpatial);
+    ::Read(input.getChild(CSTR_IS_DIRECTIONAL), isDirectional);
+    ::Read(input.getChild(CSTR_INNER_ANGLE), innerAngle);
+    ::Read(input.getChild(CSTR_OUTER_ANGLE), outerAngle);
+    ::Read(input.getChild(CSTR_OUTER_GAIN), outerGain);
 }
 void AudioComponent::write(TreeNode& node) const
 {
-    ComponentCore::write(node);
-
     ::write(node.addChild(CSTR_PLAY_TYPE), playType);
     ::write(node.addChild(CSTR_GROUP), playGroup);
     ::write(node.addChild(CSTR_ATTENUATION), attenuation);

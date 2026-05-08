@@ -1,17 +1,17 @@
 #pragma once
 #include <Input/KeysSubscriptionsManager.h>
 
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 
 namespace GameEngine
 {
 namespace Components
 {
 class CharacterController;
-class ENGINE_API PlayerInputController : public ComponentCore
+DECLARE_COMPONENT(PlayerInputController)
 {
 public:
-    PlayerInputController(ComponentContext& componentContext, GameObject& gameObject);
+    PlayerInputController(ComponentContext&, GameObject&);
 
     void Init();
     void CleanUp() override;
@@ -25,7 +25,7 @@ private:
     void UpdateAudioPosition();
 
 private:
-    CharacterController* characterController_;
+    CharacterController *characterController_;
     Input::KeysSubscriptionsManager subscriptions_;
 
     bool isRotateLeftPressed_{false};
@@ -33,8 +33,8 @@ private:
     bool init{false};
 
 public:
-    static void registerReadFunctions();
-    void write(TreeNode&) const override;
+    void read(const TreeNode &) override;
+    void write(TreeNode &) const override;
 };
 }  // namespace Components
 }  // namespace GameEngine

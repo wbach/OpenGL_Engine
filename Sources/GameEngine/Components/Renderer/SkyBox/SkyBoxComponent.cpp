@@ -1,17 +1,17 @@
 ﻿#include "SkyBoxComponent.h"
 
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include <array>
 
 #include "GameEngine/Components/CommonReadDef.h"
+#include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/Textures/CubeMapTexture.h"
-#include "GameEngine/Components/ComponentContext.h"
 
 namespace GameEngine
 {
@@ -90,8 +90,10 @@ void read(const TreeNode& node, Components::SkyBoxComponent& component)
         component.SetModel(modelNode->value_);
 }
 
+REGISTER_COMPONENT(SkyBoxComponent)
+
 SkyBoxComponent::SkyBoxComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<SkyBoxComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , modelFile("Meshes/SkyBox/cube.obj")
     , dayTexture_{nullptr}
     , nightTexture_{nullptr}
@@ -212,21 +214,12 @@ void SkyBoxComponent::LoadTextures()
         nightTexture_ = loader.LoadCubeMap(*textures, params);
     }
 }
-
-void SkyBoxComponent::registerReadFunctions()
+void SkyBoxComponent::read(const TreeNode& node)
 {
-    auto func = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
-        auto component = std::make_unique<SkyBoxComponent>(componentContext, gameObject);
-        component->read(node);
-        GameEngine::Components::read(node, *component);
-        return component;
-    };
-    regsiterComponentReadFunction(GetComponentType<SkyBoxComponent>(), func);
+    GameEngine::Components::read(node, *this);
 }
 void SkyBoxComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, CSTR_COMPONENT_SKYBOX});
     Create(node.addChild(CSTR_DAY_TEXTURES), dayTextureFiles);
     Create(node.addChild(CSTR_NIGHT_TEXTURES), nightTextureFiles);
     node.addChild(CSTR_MODEL_FILE_NAME, GetModelFileName());

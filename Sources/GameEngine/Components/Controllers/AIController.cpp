@@ -20,8 +20,11 @@ Quaternion calculateTargetRotation(const vec3& direction)
     return glm::angleAxis(angle, vec3(0.0f, 1.0f, 0.0f));
 }
 }  // namespace
+
+REGISTER_COMPONENT(AIController)
+
 AIController::AIController(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<AIController>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , characterController_{nullptr}
 {
 }
@@ -48,20 +51,13 @@ void AIController::Update()
 
     UpdateNavigation();
 }
-void AIController::registerReadFunctions()
+
+void AIController::read(const TreeNode&)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
-        auto component = std::make_unique<AIController>(componentContext, gameObject);
-
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<AIController>(), readFunc);
 }
+
 void AIController::write(TreeNode& node) const
 {
-    ComponentCore::write(node);
 }
 
 void AIController::MoveTo(const vec3& targetPosition)

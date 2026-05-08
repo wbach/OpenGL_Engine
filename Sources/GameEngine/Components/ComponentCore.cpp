@@ -36,6 +36,19 @@ ComponentCore::ComponentCore(uint32 id, const char* name, ComponentContext& comp
 ComponentCore::~ComponentCore()
 {
 }
+
+void ComponentCore::CleanUp()
+{
+}
+
+void ComponentCore::ReqisterFunctions()
+{
+}
+
+void ComponentCore::Reload()
+{
+}
+
 void ComponentCore::Register()
 {
     componentRegistredId_ = componentContext_.componentController_.RegisterComponent(type_.id, this);
@@ -92,21 +105,6 @@ const GameObject& ComponentCore::getParentGameObject() const
 {
     return thisObject_;
 }
-void ComponentCore::read(const TreeNode& node)
-{
-    auto activeStr = node.getAttributeValue(CSTR_ACTIVE);
-    if (not activeStr.empty())
-    {
-        SetActive(Utils::StringToBool(activeStr));
-    }
-    tag = node.getAttributeValue(CSTR_TAG);
-}
-void ComponentCore::write(TreeNode& node) const
-{
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    node.attributes_.insert({CSTR_ACTIVE, Utils::BoolToString(IsActive())});
-    node.attributes_.insert({CSTR_TAG, tag});
-}
 std::optional<IdType> ComponentCore::getRegisteredFunctionId(FunctionType functionType) const
 {
     for (const auto& [id, type] : registeredFunctionsIds_)
@@ -145,6 +143,30 @@ const std::string& ComponentCore::GetTag() const
 void ComponentCore::SetTag(const std::string& t)
 {
     tag = t;
+}
+void ComponentCore::readFromNode(const TreeNode& node)
+{
+    auto activeStr = node.getAttributeValue(CSTR_ACTIVE);
+    if (not activeStr.empty())
+    {
+        SetActive(Utils::StringToBool(activeStr));
+    }
+
+    tag = node.getAttributeValue(CSTR_TAG);
+    this->read(node);
+}
+void ComponentCore::writeToNode(TreeNode& node) const
+{
+    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
+    node.attributes_.insert({CSTR_ACTIVE, Utils::BoolToString(IsActive())});
+    node.attributes_.insert({CSTR_TAG, tag});
+    this->write(node);
+}
+void ComponentCore::read(const TreeNode& node)
+{
+}
+void ComponentCore::write(TreeNode& node) const
+{
 }
 }  // namespace Components
 }  // namespace GameEngine

@@ -588,7 +588,7 @@ Components::IComponent* GameObject::AddClonedComponent(const Components::ICompon
         return nullptr;
 
     TreeNode tmpNode(component->GetTypeName());
-    component->write(tmpNode);
+    component->writeToNode(tmpNode);
     return AddComponent(tmpNode);
 }
 }  // namespace GameEngine

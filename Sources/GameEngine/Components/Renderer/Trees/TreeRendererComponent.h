@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "ClusterData.h"
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 #include "GameEngine/Components/IComponent.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
@@ -27,7 +27,7 @@ namespace GameEngine
 {
 namespace Components
 {
-class TreeRendererComponent : public ComponentCore
+DECLARE_COMPONENT(TreeRendererComponent)
 {
 public:
     vec2 leafTextureAtlasSize;
@@ -48,7 +48,7 @@ public:
     TreeRendererComponent& SetInstancesPositions(const std::vector<vec3>&);
     TreeRendererComponent& SetLeafMaterial(const Material&);
 
-    void UpdateLeafsSsbo(std::vector<LeafSSBO>&&);
+    void UpdateLeafsSsbo(std::vector<LeafSSBO> &&);
 
     void CleanUp() override;
     void ReqisterFunctions() override;
@@ -110,7 +110,7 @@ private:
     std::unordered_map<LevelOfDetail, Model*> generatedModels;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

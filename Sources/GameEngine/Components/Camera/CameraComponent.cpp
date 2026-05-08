@@ -4,14 +4,14 @@
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
 #include <Utils/Fsm/Fsm.h>
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/Variant.h>
 
 #include <memory>
 
-#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Components/ComponentContext.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -35,8 +35,10 @@ constexpr char CSTR_RENDERING_SIZE[] = "renderingSize";
 constexpr char CSTR_SETTINGS[]       = "settings";
 }  // namespace
 
+REGISTER_COMPONENT(CameraComponent)
+
 CameraComponent::CameraComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<CameraComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , settings{Settings::Manual}
     , type{Type::Perspective}
     , renderingSize{EngineConf.renderer.resolution}
@@ -124,49 +126,25 @@ void CameraComponent::init()
     UpdateMatrix();
 }
 
-void CameraComponent::registerReadFunctions()
+void CameraComponent::read(const TreeNode& cameraNode)
 {
-    auto func = [](ComponentContext& componentContext, const TreeNode& cameraNode, GameObject& gameObject)
-    {
-        auto component = std::make_unique<CameraComponent>(componentContext, gameObject);
-
-        ::Read(cameraNode.getChild(CSTR_MAIN_CAMERA), component->mainCamera);
-        ::Read(cameraNode.getChild(CSTR_RENDERING_SIZE), component->renderingSize);
-        ::Read(cameraNode.getChild(CSTR_NEAR), component->near);
-        ::Read(cameraNode.getChild(CSTR_FAR), component->far);
-        ::Read(cameraNode.getChild(CSTR_FOV), component->fov);
-
-        if (auto node = cameraNode.getChild(CSTR_TYPE))
-        {
-            if (auto type = magic_enum::enum_cast<Type>(node->value_))
-            {
-                component->type = *type;
-            }
-        }
-        if (auto node = cameraNode.getChild(CSTR_SETTINGS))
-        {
-            if (auto settings = magic_enum::enum_cast<Settings>(node->value_))
-            {
-                component->settings = *settings;
-            }
-        }
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<CameraComponent>(), func);
+    ::Read(cameraNode.getChild(CSTR_MAIN_CAMERA), mainCamera);
+    ::Read(cameraNode.getChild(CSTR_RENDERING_SIZE), renderingSize);
+    ::Read(cameraNode.getChild(CSTR_NEAR), near);
+    ::Read(cameraNode.getChild(CSTR_FAR), far);
+    ::Read(cameraNode.getChild(CSTR_FOV), fov);
+    ::Read(cameraNode.getChild(CSTR_TYPE), type);
+    ::Read(cameraNode.getChild(CSTR_SETTINGS), settings);
 }
-
 void CameraComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-
     ::write(node.addChild(CSTR_MAIN_CAMERA), mainCamera);
     ::write(node.addChild(CSTR_RENDERING_SIZE), renderingSize);
     ::write(node.addChild(CSTR_NEAR), near);
     ::write(node.addChild(CSTR_FAR), far);
     ::write(node.addChild(CSTR_FOV), fov);
-    ::write(node.addChild(CSTR_TYPE), magic_enum::enum_name(type));
-    ::write(node.addChild(CSTR_SETTINGS), magic_enum::enum_name(settings));
+    ::write(node.addChild(CSTR_TYPE), type);
+    ::write(node.addChild(CSTR_SETTINGS), settings);
 }
 const mat4& CameraComponent::GetProjectionViewMatrix() const
 {

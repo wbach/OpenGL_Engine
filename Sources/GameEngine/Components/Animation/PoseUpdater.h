@@ -1,14 +1,14 @@
 #pragma once
 #include <Rotation.h>
 
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 
 namespace GameEngine
 {
 namespace Components
 {
 class JointPoseUpdater;
-class PoseUpdater : public ComponentCore
+DECLARE_COMPONENT(PoseUpdater)
 {
 public:
     vec3 dLocalPosition{0};
@@ -50,7 +50,7 @@ private:
     Rotation dLocalRotation, eLocalRotation;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

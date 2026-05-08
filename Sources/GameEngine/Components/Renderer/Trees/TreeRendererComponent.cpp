@@ -2,8 +2,8 @@
 
 #include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
@@ -61,8 +61,10 @@ std::vector<ClusterData> getClusterData(const TreeClusters& treeClusters)
 }
 }  // namespace
 
+REGISTER_COMPONENT(TreeRendererComponent)
+
 TreeRendererComponent::TreeRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<TreeRendererComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , leafTextureAtlasSize{3}
     , isSubsribed_(false)
 {
@@ -221,54 +223,43 @@ void TreeRendererComponent::DeleteShaderBuffers()
     if (clustersSsbo_)
         componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToRelease(std::move(clustersSsbo_));
 }
-void TreeRendererComponent::registerReadFunctions()
+void TreeRendererComponent::read(const TreeNode& node)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    if (auto filenameNode = node.getChild(CSTR_FILE_NAME))
     {
-        auto component = std::make_unique<TreeRendererComponent>(componentContext, gameObject);
-
-        if (auto filenameNode = node.getChild(CSTR_FILE_NAME))
+        if (not filenameNode->value_.empty())
         {
-            if (not filenameNode->value_.empty())
+            treeModel = filenameNode->value_;
+            try
             {
-                component->treeModel = filenameNode->value_;
-                try
-                {
-                    component->tree = Import(componentContext.graphicsApi_, componentContext.resourceManager_,
-                                             component->treeModel.GetAbsolutePath());
-                }
-                catch (...)
-                {
-                    LOG_ERROR << "Import tree error." << component->thisObject_.GetName();
-                }
+                tree = Import(componentContext_.graphicsApi_, componentContext_.resourceManager_, treeModel.GetAbsolutePath());
+            }
+            catch (...)
+            {
+                LOG_ERROR << "Import tree error." << thisObject_.GetName();
             }
         }
+    }
 
-        ::Read(node.getChild(CSTR_ATLAS_SIZE), component->leafTextureAtlasSize);
+    ::Read(node.getChild(CSTR_ATLAS_SIZE), leafTextureAtlasSize);
 
-        if (auto instancesNode = node.getChild(CSTR_INSTANCES_POSITIONS))
+    if (auto instancesNode = node.getChild(CSTR_INSTANCES_POSITIONS))
+    {
+        instancesPositions_.clear();
+        instancesPositions_.reserve(instancesNode->getChildren().size());
+
+        for (auto& child : instancesNode->getChildren())
         {
-            component->instancesPositions_.clear();
-            component->instancesPositions_.reserve(instancesNode->getChildren().size());
-
-            for (auto& child : instancesNode->getChildren())
-            {
-                vec3 position(0);
-                ::Read(child.get(), position);
-                component->instancesPositions_.push_back(position);
-            }
+            vec3 position(0);
+            ::Read(child.get(), position);
+            instancesPositions_.push_back(position);
         }
-        LOG_DEBUG << "Read done";
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<TreeRendererComponent>(), readFunc);
+    }
+    LOG_DEBUG << "Read done";
 }
 
 void TreeRendererComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-
     node.addChild(CSTR_FILE_NAME, treeModel.GetDataRelativePath());
     if (not treeModel.empty())
     {

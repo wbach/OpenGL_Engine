@@ -1,13 +1,13 @@
 #pragma once
 #include <vector>
 
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class ENGINE_API WeaponComponent : public ComponentCore
+DECLARE_COMPONENT(WeaponComponent)
 {
 public:
     float radius{.1f};
@@ -31,7 +31,7 @@ public:
     std::vector<vec3> GetWorldSocketPositions() const;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

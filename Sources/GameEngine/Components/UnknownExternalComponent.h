@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 
 class TreeNode;
 
@@ -10,23 +10,18 @@ namespace GameEngine
 {
 namespace Components
 {
-class UnknownExternalComponent : public ComponentCore
+DECLARE_COMPONENT(UnknownExternalComponent)
 {
 public:
     UnknownExternalComponent(ComponentContext&, GameObject&);
-
-    void CleanUp() override;
-    void ReqisterFunctions() override;
-    void Reload() override;
-
     std::string GetOrginalComponentName() const ;
 
 private:
     std::unique_ptr<TreeNode> orginalNode;
 
 public:
-    static void registerReadFunctions();
-    void write(TreeNode&) const override;
+    void read(const TreeNode&) override;
+    void writeToNode(TreeNode&) const override;
 };
 }  // namespace Components
 }  // namespace GameEngine

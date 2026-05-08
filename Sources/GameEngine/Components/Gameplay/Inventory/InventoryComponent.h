@@ -1,7 +1,7 @@
 #pragma once
 #include <TreeNode.h>
 
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Objects/Prefab.h"
 #include "GameEngine/Resources/File.h"
@@ -21,7 +21,7 @@ namespace Components
 {
 class ConsumableComponent;
 class EquippableComponent;
-class ENGINE_API InventoryComponent : public ComponentCore
+DECLARE_COMPONENT(InventoryComponent)
 {
 public:
     File guiFile;
@@ -41,7 +41,7 @@ public:
 
     InventoryComponent(const InventoryComponent&)                = delete;
     InventoryComponent& operator=(const InventoryComponent&)     = delete;
-    InventoryComponent(InventoryComponent&&) noexcept            = default;
+    InventoryComponent(InventoryComponent &&) noexcept           = default;
     InventoryComponent& operator=(InventoryComponent&&) noexcept = default;
 
     ~InventoryComponent() override;
@@ -50,8 +50,8 @@ public:
     void ReqisterFunctions() override;
     void Reload() override;
 
-    void addItem(std::unique_ptr<Prefab>&&);
-    void addItem(std::unique_ptr<GameObject>&&);
+    void addItem(std::unique_ptr<Prefab> &&);
+    void addItem(std::unique_ptr<GameObject> &&);
     void addItem(const GameObject&);
 
     void useItem(GameObject&);
@@ -91,7 +91,7 @@ private:
     std::optional<TreeNode> defaultItemSpriteNode;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

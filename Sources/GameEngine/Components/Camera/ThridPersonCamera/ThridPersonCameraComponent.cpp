@@ -2,8 +2,8 @@
 
 #include <Input/InputManager.h>
 #include <Utils/Fsm/Fsm.h>
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/Variant.h>
 
 #include "GameEngine/Camera/CustomCamera.h"
@@ -30,8 +30,10 @@ constexpr char CSTR_OVERRIDE_CAMERA_POS[]  = "overrideCameraPos";
 constexpr char CSTR_AIM_CAMERA_LOCAL_POS[] = "aimLocalCameraPos";
 }  // namespace
 
+REGISTER_COMPONENT(ThridPersonCameraComponent)
+
 ThridPersonCameraComponent::ThridPersonCameraComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<ThridPersonCameraComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
 {
 }
 
@@ -166,28 +168,14 @@ void ThridPersonCameraComponent::processEvent()
         }
     }
 }
-
-void ThridPersonCameraComponent::registerReadFunctions()
+void ThridPersonCameraComponent::read(const TreeNode& node)
 {
-    auto func = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
-        auto component = std::make_unique<ThridPersonCameraComponent>(componentContext, gameObject);
-        component->read(node);
-        ::Read(node.getChild(CSTR_RUN_CAMERA_LOCAL_POS), component->runLocalCameraPos);
-        ::Read(node.getChild(CSTR_AIM_CAMERA_LOCAL_POS), component->aimLocalCameraPos);
-        ::Read(node.getChild(CSTR_OVERRIDE_CAMERA_POS), component->overrideCameraPos);
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<ThridPersonCameraComponent>(), func);
+    ::Read(node.getChild(CSTR_RUN_CAMERA_LOCAL_POS), runLocalCameraPos);
+    ::Read(node.getChild(CSTR_AIM_CAMERA_LOCAL_POS), aimLocalCameraPos);
+    ::Read(node.getChild(CSTR_OVERRIDE_CAMERA_POS), overrideCameraPos);
 }
-
 void ThridPersonCameraComponent::write(TreeNode& node) const
 {
-    const std::string CSTR_TYPE = "type";
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    ComponentCore::write(node);
-
     ::write(node.addChild(CSTR_RUN_CAMERA_LOCAL_POS), runLocalCameraPos);
     ::write(node.addChild(CSTR_AIM_CAMERA_LOCAL_POS), aimLocalCameraPos);
     ::write(node.addChild(CSTR_OVERRIDE_CAMERA_POS), overrideCameraPos);

@@ -1,11 +1,10 @@
 #include "SphereShape.h"
 
 #include <Logger/Log.h>
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include "GameEngine/Components/CommonReadDef.h"
-#include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
@@ -16,8 +15,10 @@ namespace Components
 {
 std::string SphereShape::name = {"SphereShape"};
 
+REGISTER_COMPONENT(SphereShape)
+
 SphereShape::SphereShape(ComponentContext& componentContext, GameObject& gameObject)
-    : CollisionShape(GetComponentType<SphereShape>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , radius(1.f)
 {
 }
@@ -43,27 +44,13 @@ SphereShape& SphereShape::SetRadius(float r)
     radius = r;
     return *this;
 }
-void SphereShape::registerReadFunctions()
+void SphereShape::read(const TreeNode& node)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
-        auto component = std::make_unique<SphereShape>(componentContext, gameObject);
-
-        vec3 positionOffset(0.f);
-        ::Read(node.getChild(CSTR_POSITION_OFFSET), positionOffset);
-        component->SetPostionOffset(positionOffset);
-
-        float radius(1.f);
-        ::Read(node.getChild(CSTR_RADIUS), radius);
-        component->SetRadius(radius);
-        return component;
-    };
-    regsiterComponentReadFunction(GetComponentType<SphereShape>(), readFunc);
+    ::Read(node.getChild(CSTR_POSITION_OFFSET), positionOffset);
+    ::Read(node.getChild(CSTR_RADIUS), radius);
 }
 void SphereShape::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, SphereShape::name});
-
     ::write(node.addChild(CSTR_POSITION_OFFSET), GetPositionOffset());
     ::write(node.addChild(CSTR_RADIUS), radius);
 }

@@ -1,8 +1,8 @@
 #include "PointLightComponent.h"
 
 #include <Logger/Log.h>
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Components/ComponentType.h"
@@ -19,8 +19,11 @@ constexpr char CSTR_INTENSITY[]   = "intensity";
 constexpr char CSTR_RANGE[]       = "range";
 constexpr char CSTR_FALLOFF_EXP[] = "falloffExponent";
 }  // namespace
+
+REGISTER_COMPONENT(PointLightComponent)
+
 PointLightComponent::PointLightComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<PointLightComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , color(Color(1.0f, 1.0f, 1.0f))
     , intensity(1.0f)
     , range(10.0f)
@@ -40,26 +43,15 @@ void PointLightComponent::Reload()
 {
 }
 
-void PointLightComponent::registerReadFunctions()
+void PointLightComponent::read(const TreeNode& node)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
-        auto component = std::make_unique<PointLightComponent>(componentContext, gameObject);
-
-        ::Read(node.getChild(CSTR_COLOR), component->color);
-        ::Read(node.getChild(CSTR_INTENSITY), component->intensity);
-        ::Read(node.getChild(CSTR_RANGE), component->range);
-        ::Read(node.getChild(CSTR_FALLOFF_EXP), component->falloffExponent);
-
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<PointLightComponent>(), readFunc);
+    ::Read(node.getChild(CSTR_COLOR), color);
+    ::Read(node.getChild(CSTR_INTENSITY), intensity);
+    ::Read(node.getChild(CSTR_RANGE), range);
+    ::Read(node.getChild(CSTR_FALLOFF_EXP), falloffExponent);
 }
 void PointLightComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-
     ::write(node.addChild(CSTR_COLOR), color.value);
     ::write(node.addChild(CSTR_INTENSITY), intensity);
     ::write(node.addChild(CSTR_RANGE), range);

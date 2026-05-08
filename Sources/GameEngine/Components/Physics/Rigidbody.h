@@ -3,7 +3,7 @@
 #include <unordered_map>
 
 #include "Common/Transform.h"
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Physics/RigidbodyProperty.h"
 
@@ -12,8 +12,7 @@ namespace GameEngine
 namespace Components
 {
 class CollisionShape;
-
-class Rigidbody : public ComponentCore
+DECLARE_COMPONENT(Rigidbody)
 {
 public:
     float mass{1.f};
@@ -103,7 +102,7 @@ private:
     std::vector<std::function<void()>> callWhenReady_;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

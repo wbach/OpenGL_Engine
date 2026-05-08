@@ -1,11 +1,11 @@
 #pragma once
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class SpotLightComponent : public ComponentCore
+DECLARE_COMPONENT(SpotLightComponent)
 {
 public:
     Color color;
@@ -36,7 +36,7 @@ public:
     void Reload() override;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

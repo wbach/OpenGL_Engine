@@ -51,6 +51,8 @@ constexpr char CSTR_ANIMATION_PLAY_SPEED[]       = "playSpeed";
 constexpr char CSTR_DEFAULT_JOINT_GROUP[]        = "deafult";
 }  // namespace
 
+REGISTER_COMPONENT(Animator)
+
 Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
     : Component(componentContext, gameObject)
     , montionJointName("")
@@ -671,7 +673,6 @@ void write(TreeNode& node, const ReadAnimationInfo& info)
 
 void Animator::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
     node.addChild(CSTR_STARTUP_ANIMATION, startupAnimationClipName);
     node.addChild(CSTR_MONTION_JOINT_NAME, montionJointName);
     auto& animationClipsNode = node.addChild(CSTR_ANIMATION_CLIPS);

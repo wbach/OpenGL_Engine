@@ -3,7 +3,6 @@
 #include <Utils/TreeNodeReadFunctions.h>
 #include <Utils/TreeNodeWriteFunctions.h>
 
-#include "GameEngine/Components/Characters/Enemy.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Gameplay/HealthComponent.h"
 #include "GameEngine/Components/Gameplay/Inventory/CombatStatsComponent.h"
@@ -17,8 +16,10 @@ namespace GameEngine
 {
 namespace Components
 {
+REGISTER_COMPONENT(MeleeAttackComponent)
+
 MeleeAttackComponent::MeleeAttackComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<MeleeAttackComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
 {
 }
 MeleeAttackComponent::~MeleeAttackComponent()
@@ -63,7 +64,7 @@ void MeleeAttackComponent::Update()
     if (not isAttacking or not cachedWeapon)
         return;
 
-    auto currentPoints = cachedWeapon->GetWorldSocketPositions();
+    auto currentPoints    = cachedWeapon->GetWorldSocketPositions();
     auto potentialTargets = GetEnemiesInRange(5.0f);
 
     for (auto i = 0u; i < currentPoints.size(); ++i)
@@ -82,7 +83,7 @@ void MeleeAttackComponent::Update()
 
             if (hitTargets.contains(enemyId))
             {
-                //LOG_DEBUG << "Target already hit";
+                // LOG_DEBUG << "Target already hit";
                 continue;
             }
 
@@ -93,8 +94,8 @@ void MeleeAttackComponent::Update()
                 continue;
             }
 
-            const auto& enemyPos = enemy->GetParentGameObject().GetWorldTransform().GetPosition();
-            const auto offsetPos = enemyPos + sphereShape->GetPositionOffset();
+            const auto& enemyPos   = enemy->GetParentGameObject().GetWorldTransform().GetPosition();
+            const auto offsetPos   = enemyPos + sphereShape->GetPositionOffset();
             const auto enemyBottom = offsetPos;
             const auto enemyTop    = offsetPos + vec3(0, sphereShape->height, 0);
 
@@ -130,21 +131,11 @@ void MeleeAttackComponent::EndAttack()
     isAttacking = false;
     previousPoints.clear();
 }
-void MeleeAttackComponent::registerReadFunctions()
+void MeleeAttackComponent::read(const TreeNode&)
 {
-    auto func = [](ComponentContext& componentContext, const TreeNode& input, GameObject& gameObject)
-    {
-        auto component = std::make_unique<MeleeAttackComponent>(componentContext, gameObject);
-        component->read(input);
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<MeleeAttackComponent>(), func);
 }
 void MeleeAttackComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    ComponentCore::write(node);
 }
 bool MeleeAttackComponent::CheckCapsuleCollision(const vec3& swordStart, const vec3& swordEnd, float swordRadius,
                                                  const vec3& targetStart, const vec3& targetEnd, float targetRadius)

@@ -3,10 +3,10 @@
 #include <Logger/Log.h>
 
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
+#include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/IComponent.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Physics/SphereShape.h"
-#include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/CollisionContactInfo.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
@@ -16,8 +16,10 @@ namespace GameEngine
 {
 namespace Components
 {
+REGISTER_COMPONENT(ArrowController)
+
 ArrowController::ArrowController(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<ArrowController>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , thridPersonCameraComponent{nullptr}
     , rigidbody{nullptr}
     , physicArrowGameObject{nullptr}
@@ -175,14 +177,11 @@ Rigidbody* ArrowController::findCollidedRigidbody(uint32 rigidbodyId)
 
     return (iter != rigidbodies.end()) ? *iter : nullptr;
 }
-
-void ArrowController::registerReadFunctions()
+void ArrowController::read(const TreeNode&)
 {
 }
-
 void ArrowController::write(TreeNode&) const
 {
 }
-
 }  // namespace Components
 }  // namespace GameEngine

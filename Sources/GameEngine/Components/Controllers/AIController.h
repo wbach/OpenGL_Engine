@@ -1,5 +1,5 @@
 #pragma once
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 
 namespace GameEngine
 {
@@ -7,7 +7,7 @@ namespace Components
 {
 class CharacterController;
 
-class AIController : public ComponentCore
+DECLARE_COMPONENT(AIController)
 {
 public:
     AIController(ComponentContext&, GameObject&);
@@ -32,7 +32,7 @@ private:
     bool isMovingForward_{false};
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

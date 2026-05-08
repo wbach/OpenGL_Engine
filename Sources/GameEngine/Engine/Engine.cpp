@@ -14,7 +14,6 @@
 #include "Configuration.h"
 #include "EngineContext.h"
 #include "GameEngine/Audio/AudioManager.h"
-#include "GameEngine/Components/RegisterReadFunctionForDefaultEngineComponents.h"
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
@@ -187,7 +186,6 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
 
     signal(SIGSEGV, bt_sighandler);
     srand((unsigned)time(NULL));
-    Components::RegisterReadFunctionForDefaultEngineComponents();
 
     loggingLvlParamSub_ = EngineConf.debugParams.logLvl.subscribeForChange(
         []()

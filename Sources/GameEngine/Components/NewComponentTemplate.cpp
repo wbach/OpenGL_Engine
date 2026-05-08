@@ -7,6 +7,8 @@ namespace GameEngine
 {
 namespace Components
 {
+// REGISTER_COMPONENT(NewComponentTemplate) // Uncoment when implementing
+
 NewComponentTemplate::NewComponentTemplate(ComponentContext& componentContext, GameObject& gameObject)
     : Component(componentContext, gameObject)
 {

@@ -266,7 +266,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/Char
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/DeathState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/AimController.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/MoveController.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/EnemyController.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentCore.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentType.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.cpp
@@ -288,6 +287,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Terrain
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Terrain/TerrainMeshUpdater.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Terrain/TerrainComponentBase.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Terrain/TerrainTexturesTypes.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Entity/CustomMaterialData.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Entity/PreviewComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Entity/RendererComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Particles/ParticleEffectComponent.cpp
@@ -321,9 +321,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/CommonReadDef.cp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Lights/DirectionalLightComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Lights/PointLightComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Lights/SpotLightComponent.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Characters/Enemy.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Characters/Player.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Characters/Bar.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/CameraComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/ThridPersonCamera/Fsm/States/TransitionState.cpp
@@ -348,7 +345,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/Animat
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/EmptyState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/PoseUpdater.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/SlaveSkeletonData.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/RegisterReadFunctionForDefaultEngineComponents.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/GpuResourceLoader.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Textures/Texture.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Textures/HeightMap.cpp

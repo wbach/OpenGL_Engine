@@ -1,11 +1,11 @@
 #pragma once
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class DirectionalLightComponent : public ComponentCore
+DECLARE_COMPONENT(DirectionalLightComponent)
 {
 public:
     bool isDayNightCycleControlled;
@@ -34,7 +34,7 @@ private:
     bool isSetInDayNightCycle;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

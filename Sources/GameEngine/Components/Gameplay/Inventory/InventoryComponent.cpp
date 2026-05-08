@@ -14,9 +14,9 @@
 #include "ConsumableComponent.h"
 #include "EquipmentComponent.h"
 #include "EquippableComponent.h"
-#include "GameEngine/Components/Characters/Player.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Gameplay/CharacterStats/CharacterStatsComponent.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/GUI/Button/Button.h"
 #include "GameEngine/Renderers/GUI/ElementReader.h"
@@ -75,8 +75,10 @@ std::string getCategoryForItem(GameObject& item)
 }
 }  // namespace
 
+REGISTER_COMPONENT(InventoryComponent)
+
 InventoryComponent::InventoryComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<InventoryComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , currentCategory(CAT_ALL)
 {
 }
@@ -118,26 +120,13 @@ void InventoryComponent::ReqisterFunctions()
                                                                             });
                      });
 }
-void InventoryComponent::registerReadFunctions()
+void InventoryComponent::read(const TreeNode& input)
 {
-    auto func = [](ComponentContext& componentContext, const TreeNode& input, GameObject& gameObject)
-    {
-        auto component = std::make_unique<InventoryComponent>(componentContext, gameObject);
-        component->read(input);
-
-        ::Read(input.getChild(GUI_FILE), component->guiFile);
-        ::Read(input.getChild(INVENTORY_FILE), component->itemsFile);
-
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<InventoryComponent>(), func);
+    ::Read(input.getChild(GUI_FILE), guiFile);
+    ::Read(input.getChild(INVENTORY_FILE), itemsFile);
 }
 void InventoryComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    ComponentCore::write(node);
-
     ::write(node.addChild(GUI_FILE), guiFile);
     ::write(node.addChild(INVENTORY_FILE), itemsFile);
 }
@@ -463,7 +452,7 @@ void InventoryComponent::useItem(GameObject& item)
 }
 void InventoryComponent::applyConsumable(GameObject& item, ConsumableComponent& consumable)
 {
-    auto playerStats = thisObject_.GetComponent<Player>();
+    auto playerStats = thisObject_.GetComponent<CharacterStatsComponent>();
     if (not playerStats)
         return;
 

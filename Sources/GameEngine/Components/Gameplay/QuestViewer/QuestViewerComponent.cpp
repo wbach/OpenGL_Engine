@@ -31,8 +31,10 @@ constexpr char GUI_FILE[]{"guiLayoutFile"};
 }
 namespace Components
 {
+REGISTER_COMPONENT(QuestViewerComponent)
+
 QuestViewerComponent::QuestViewerComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<QuestViewerComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
 {
 }
 QuestViewerComponent::~QuestViewerComponent()
@@ -47,7 +49,6 @@ void QuestViewerComponent::Reload()
 void QuestViewerComponent::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, [this]() { initGui(); });
-
     RegisterFunction(FunctionType::OnStart,
                      [this]()
                      {
@@ -68,25 +69,12 @@ void QuestViewerComponent::ReqisterFunctions()
                                                                             });
                      });
 }
-void QuestViewerComponent::registerReadFunctions()
+void QuestViewerComponent::read(const TreeNode& input)
 {
-    auto func = [](ComponentContext& componentContext, const TreeNode& input, GameObject& gameObject)
-    {
-        auto component = std::make_unique<QuestViewerComponent>(componentContext, gameObject);
-        component->read(input);
-
-        ::Read(input.getChild(GUI_FILE), component->guiFile);
-
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<QuestViewerComponent>(), func);
+    ::Read(input.getChild(GUI_FILE), guiFile);
 }
 void QuestViewerComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    ComponentCore::write(node);
-
     ::write(node.addChild(GUI_FILE), guiFile);
 }
 void QuestViewerComponent::initGui()

@@ -35,7 +35,7 @@ void Create(TreeNode& node, const GameObject::ComponentsContainer& components)
     {
         for (auto& component : vectorOfComponents)
         {
-            component->write(node.addChild(CSTR_COMPONENT));
+            component->writeToNode(node.addChild(CSTR_COMPONENT));
         }
     }
 }

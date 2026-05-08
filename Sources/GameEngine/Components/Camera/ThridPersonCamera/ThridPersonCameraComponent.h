@@ -6,8 +6,7 @@
 #include "Fsm/Context.h"
 #include "Fsm/ThridPersonCameraEvents.h"
 #include "Fsm/ThridPersonCameraFsm.h"
-#include "GameEngine/Components/ComponentCore.h"
-#include "Logger/Log.h"
+#include "GameEngine/Components/Component.h"
 #include "Types.h"
 
 namespace GameEngine
@@ -17,7 +16,7 @@ class ThirdPersonCamera;
 
 namespace Components
 {
-class ThridPersonCameraComponent : public ComponentCore
+DECLARE_COMPONENT(ThridPersonCameraComponent)
 {
 public:
     bool overrideCameraPos{false};
@@ -75,7 +74,7 @@ private:
     CameraComponent* maybeCameraComponent{nullptr};
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

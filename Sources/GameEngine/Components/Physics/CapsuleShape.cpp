@@ -1,8 +1,8 @@
 #include "CapsuleShape.h"
 
 #include <Logger/Log.h>
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
@@ -21,8 +21,10 @@ const std::string CSTR_HEIGHT = "height";
 
 const std::string CapsuleShape::name = "CapsuleShape";
 
+REGISTER_COMPONENT(CapsuleShape)
+
 CapsuleShape::CapsuleShape(ComponentContext& componentContext, GameObject& gameObject)
-    : CollisionShape(GetComponentType<CapsuleShape>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , height{1.f}
     , radius{0.5f}
 {
@@ -51,30 +53,14 @@ CapsuleShape& CapsuleShape::SetRadius(float r)
     radius = r;
     return *this;
 }
-void CapsuleShape::registerReadFunctions()
+void CapsuleShape::read(const TreeNode& node)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
-        auto component = std::make_unique<CapsuleShape>(componentContext, gameObject);
-
-        vec3 positionOffset(0.f);
-        ::Read(node.getChild(CSTR_POSITION_OFFSET), positionOffset);
-        component->SetPostionOffset(positionOffset);
-
-        float height(1.f), radius(0.5f);
-        ::Read(node.getChild(CSTR_HEIGHT), height);
-        ::Read(node.getChild(CSTR_RADIUS), radius);
-        component->SetHeight(height);
-        component->SetRadius(radius);
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<CapsuleShape>(), readFunc);
+    ::Read(node.getChild(CSTR_POSITION_OFFSET), positionOffset);
+    ::Read(node.getChild(CSTR_HEIGHT), height);
+    ::Read(node.getChild(CSTR_RADIUS), radius);
 }
 void CapsuleShape::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, CapsuleShape::name});
-
     ::write(node.addChild(CSTR_POSITION_OFFSET), GetPositionOffset());
     ::write(node.addChild(CSTR_HEIGHT), GetHeight());
     ::write(node.addChild(CSTR_RADIUS), GetRadius());

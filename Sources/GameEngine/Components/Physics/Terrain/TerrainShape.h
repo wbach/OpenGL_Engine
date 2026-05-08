@@ -1,6 +1,6 @@
 #pragma once
 #include "GameEngine/Components/Physics/CollisionShape.h"
-
+#include "GameEngine/Components/Component.h"
 #include "GameEngine/Resources/File.h"
 
 namespace GameEngine
@@ -15,7 +15,7 @@ class TerrainRendererComponent;
 
 namespace Components
 {
-class TerrainShape : public CollisionShape
+DECLARE_COMPONENT(TerrainShape, CollisionShape)
 {
 public:
     File heightMapFile;
@@ -51,7 +51,7 @@ private:
     HeightMap* heightMap_;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
     static const std::string name;
 };

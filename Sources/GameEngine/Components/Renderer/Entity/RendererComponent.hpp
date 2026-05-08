@@ -1,10 +1,13 @@
 #pragma once
+#include <Types.h>
+
 #include <memory>
 #include <optional>
 #include <unordered_map>
 #include <vector>
 
-#include "GameEngine/Components/ComponentCore.h"
+#include "CustomMaterialData.h"
+#include "GameEngine/Components/Component.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Models/LoadingParameters.h"
 #include "GameEngine/Resources/Models/Material.h"
@@ -12,7 +15,6 @@
 #include "GameEngine/Resources/ShaderBufferObject.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectConstants.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
-#include "Types.h"
 
 namespace GraphicsApi
 {
@@ -27,25 +29,8 @@ class IGpuResourceLoader;
 
 namespace Components
 {
-class CustomMaterialData
-{
-public:
-    CustomMaterialData(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, const Material&);
-    ~CustomMaterialData();
-
-    GraphicsApi::ID GetBufferId() const;
-
-public:
-    Material material;
-
-private:
-    void CreateBufferObject(GraphicsApi::IGraphicsApi&);
-    std::unique_ptr<ShaderBufferObject<PerMeshObject>> perMeshBuffer;
-
-    IGpuResourceLoader& loader;
-};
-
-class RendererComponent : public ComponentCore
+// class RendererComponent : public ComponentCore
+DECLARE_COMPONENT(RendererComponent)
 {
 public:
     File fileName_LOD1;
@@ -128,7 +113,7 @@ private:
     BoundingBox boundingBox;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 

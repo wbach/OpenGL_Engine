@@ -1,10 +1,11 @@
 #include "BoxShape.h"
 
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Physics/CollisionShape.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
@@ -15,8 +16,10 @@ namespace Components
 {
 const std::string BoxShape::name = {"BoxShape"};
 
+REGISTER_COMPONENT(BoxShape)
+
 BoxShape::BoxShape(ComponentContext& componentContext, GameObject& gameObject)
-    : CollisionShape(GetComponentType<BoxShape>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , size(1.f)
 {
 }
@@ -29,22 +32,13 @@ void BoxShape::InitShape()
     collisionShapeId_ =
         componentContext_.physicsApi_.CreateBoxColider(positionOffset, thisObject_.GetWorldTransform().GetScale(), size / 2.f);
 }
-void BoxShape::registerReadFunctions()
+void BoxShape::read(const TreeNode& node)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
-        auto component = std::make_unique<BoxShape>(componentContext, gameObject);
-        ::Read(node.getChild(CSTR_POSITION_OFFSET), component->positionOffset);
-        ::Read(node.getChild(CSTR_SIZE), component->size);
-
-        return component;
-    };
-    regsiterComponentReadFunction(GetComponentType<BoxShape>(), readFunc);
+    ::Read(node.getChild(CSTR_POSITION_OFFSET), positionOffset);
+    ::Read(node.getChild(CSTR_SIZE), size);
 }
 void BoxShape::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, BoxShape::name});
-
     ::write(node.addChild(CSTR_POSITION_OFFSET), positionOffset);
     ::write(node.addChild(CSTR_SIZE), size);
 }

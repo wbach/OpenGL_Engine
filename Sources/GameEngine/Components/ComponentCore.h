@@ -110,6 +110,10 @@ public:
     ComponentCore(uint32, const char*, ComponentContext&, GameObject&);
     ~ComponentCore() override;
 
+    void CleanUp() override;
+    void ReqisterFunctions() override;
+    void Reload() override;
+
     void Register() override;
     void Deregister() override;
     bool IsActive() const override;
@@ -125,8 +129,11 @@ public:
     const std::string& GetTypeName() const override;
     ComponentTypeID GetTypeId() const override;
 
-    void read(const TreeNode&) override;
-    void write(TreeNode&) const override;
+    virtual void read(const TreeNode&);
+    virtual void write(TreeNode&) const;
+
+    void readFromNode(const TreeNode&) override;
+    void writeToNode(TreeNode&) const override;
 
     void SetTag(const std::string&) override;
     const std::string& GetTag() const override;

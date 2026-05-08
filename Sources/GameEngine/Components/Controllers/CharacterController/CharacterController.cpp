@@ -51,8 +51,10 @@ struct CharacterController::Impl
     }
 };
 
+REGISTER_COMPONENT(CharacterController)
+
 CharacterController::CharacterController(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<CharacterController>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , upperBodyGroupName{"upperBody"}
     , lowerBodyGroupName{"lowerBody"}
     , equipTimeStamp{-1.0}
@@ -304,7 +306,8 @@ void CharacterController::PostStart()
     const auto& scale  = thisObject_.GetWorldTransform().GetScale();
     auto capsuleRadius = shapeSize_ / glm::compMax(vec2(scale.x, scale.z));
 
-    // TO DO : this subcribtion will be invalide when rigibody is removed or deactivated. Use common system in controller for handle state of dependencies
+    // TO DO : this subcribtion will be invalide when rigibody is removed or deactivated. Use common system in controller for
+    // handle state of dependencies
     groundExitSubId = componentContext_.physicsApi_.setCollisionCallback(
         rigidbody_->GetId(),
         Physics::CollisionDetection{
@@ -441,26 +444,15 @@ float CharacterController::getShapeSize() const
 {
     return shapeSize_;
 }
-void CharacterController::registerReadFunctions()
+void CharacterController::read(const TreeNode& node)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
-        auto component = std::make_unique<CharacterController>(componentContext, gameObject);
-        Character::Read(node.getChild(CSTR_ANIMATION_CLIPS), component->animationClipsNames_);
-        ::Read(node.getChild(CSTR_EQUIP_TIMESTAMP), component->equipTimeStamp);
-        ::Read(node.getChild(CSTR_DISARM_TIMESTAMP), component->disarmTimeStamp);
-        ::Read(node.getChild(CSTR_AIM_JOINT_NAME), component->aimJointName_);
-
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<CharacterController>(), readFunc);
+    Character::Read(node.getChild(CSTR_ANIMATION_CLIPS), animationClipsNames_);
+    ::Read(node.getChild(CSTR_EQUIP_TIMESTAMP), equipTimeStamp);
+    ::Read(node.getChild(CSTR_DISARM_TIMESTAMP), disarmTimeStamp);
+    ::Read(node.getChild(CSTR_AIM_JOINT_NAME), aimJointName_);
 }
-
 void CharacterController::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
-
     Character::write(node.addChild(CSTR_ANIMATION_CLIPS), animationClipsNames_);
     ::write(node.addChild(CSTR_EQUIP_TIMESTAMP), equipTimeStamp);
     ::write(node.addChild(CSTR_DISARM_TIMESTAMP), disarmTimeStamp);

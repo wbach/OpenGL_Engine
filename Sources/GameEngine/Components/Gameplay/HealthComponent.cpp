@@ -14,8 +14,10 @@ namespace GameEngine
 {
 namespace Components
 {
+REGISTER_COMPONENT(HealthComponent)
+
 HealthComponent::HealthComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<HealthComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
 {
 }
 
@@ -83,22 +85,12 @@ void HealthComponent::heal(float amount)
         attributes.life.x = attributes.life.y;
 }
 
-void HealthComponent::registerReadFunctions()
+void HealthComponent::read(const TreeNode&)
 {
-    auto func = [](ComponentContext& componentContext, const TreeNode& input, GameObject& gameObject)
-    {
-        auto component = std::make_unique<HealthComponent>(componentContext, gameObject);
-        component->read(input);
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<HealthComponent>(), func);
 }
 
 void HealthComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    ComponentCore::write(node);
 }
 
 bool HealthComponent::canProccess() const

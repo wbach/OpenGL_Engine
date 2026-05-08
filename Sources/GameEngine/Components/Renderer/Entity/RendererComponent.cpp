@@ -38,33 +38,10 @@ const GraphicsApi::ID defaultId;
 
 }  // namespace
 
-CustomMaterialData::CustomMaterialData(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& loader,
-                                       const Material& material)
-    : material{material}
-    , loader{loader}
-{
-    CreateBufferObject(graphicsApi);
-}
-
-CustomMaterialData::~CustomMaterialData()
-{
-    loader.AddObjectToRelease(std::move(perMeshBuffer));
-}
-
-void CustomMaterialData::CreateBufferObject(GraphicsApi::IGraphicsApi& graphicsApi)
-{
-    perMeshBuffer = std::make_unique<ShaderBufferObject<PerMeshObject>>(createPerMeshObject(material), graphicsApi,
-                                                                        PER_MESH_OBJECT_BIND_LOCATION);
-    loader.AddObjectToGpuLoadingPass(*perMeshBuffer);
-}
-
-GraphicsApi::ID CustomMaterialData::GetBufferId() const
-{
-    return perMeshBuffer->GetGraphicsObjectId();
-}
+REGISTER_COMPONENT(RendererComponent)
 
 RendererComponent::RendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<RendererComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , textureIndex(0)
     , isSubscribed_(false)
     , isInit_{false}
@@ -433,126 +410,117 @@ std::unordered_map<LevelOfDetail, File> RendererComponent::GetFiles() const
     return {{LevelOfDetail::L1, fileName_LOD1}, {LevelOfDetail::L2, fileName_LOD2}, {LevelOfDetail::L3, fileName_LOD3}};
 }
 
-void RendererComponent::registerReadFunctions()
+void RendererComponent::read(const TreeNode& node)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    auto textureIndexNode = node.getChild(CSTR_TEXTURE_INDEX);
+    if (textureIndexNode)
     {
-        auto component = std::make_unique<RendererComponent>(componentContext, gameObject);
-        component->read(node);
-
-        auto textureIndexNode = node.getChild(CSTR_TEXTURE_INDEX);
-        if (textureIndexNode)
+        try
         {
-            try
-            {
-                component->textureIndex = std::stoul(textureIndexNode->value_);
-            }
-            catch (...)
-            {
-                LOG_ERROR << "SetTextureIndex index error";
-            }
+            this->textureIndex = std::stoul(textureIndexNode->value_);
         }
-
-        auto modelNormalization = node.getChild(MODEL_NORMALIZATION);
-        if (modelNormalization)
+        catch (...)
         {
-            component->modelNormalization = Utils::StringToBool(modelNormalization->value_);
+            LOG_ERROR << "SetTextureIndex index error";
         }
-        auto meshOptimize = node.getChild(MESH_OPTIMIZE);
-        if (meshOptimize)
-        {
-            component->meshOptimize = Utils::StringToBool(meshOptimize->value_);
-        }
+    }
 
-        auto modelFileNamesNode = node.getChild(CSTR_MODEL_FILE_NAMES);
-        if (modelFileNamesNode)
+    auto modelNormalization = node.getChild(MODEL_NORMALIZATION);
+    if (modelNormalization)
+    {
+        this->modelNormalization = Utils::StringToBool(modelNormalization->value_);
+    }
+    auto meshOptimize = node.getChild(MESH_OPTIMIZE);
+    if (meshOptimize)
+    {
+        this->meshOptimize = Utils::StringToBool(meshOptimize->value_);
+    }
+
+    auto modelFileNamesNode = node.getChild(CSTR_MODEL_FILE_NAMES);
+    if (modelFileNamesNode)
+    {
+        for (const auto& fileNode : modelFileNamesNode->getChildren())
         {
-            for (const auto& fileNode : modelFileNamesNode->getChildren())
+            auto filenameNode = fileNode->getChild(CSTR_FILE_NAME);
+            auto lodNode      = fileNode->getChild(CSTR_MODEL_LVL_OF_DETAIL);
+            if (filenameNode and lodNode)
             {
-                auto filenameNode = fileNode->getChild(CSTR_FILE_NAME);
-                auto lodNode      = fileNode->getChild(CSTR_MODEL_LVL_OF_DETAIL);
-                if (filenameNode and lodNode)
+                try
                 {
-                    try
+                    const auto& filename = filenameNode->value_;
+                    auto lodInt          = std::stoi(lodNode->value_);
+                    if (lodInt == 0)
                     {
-                        const auto& filename = filenameNode->value_;
-                        auto lodInt          = std::stoi(lodNode->value_);
-                        if (lodInt == 0)
-                        {
-                            component->fileName_LOD1 = filename;
-                        }
-                        else if (lodInt == 1)
-                        {
-                            component->fileName_LOD2 = filename;
-                        }
-                        else if (lodInt == 2)
-                        {
-                            component->fileName_LOD3 = filename;
-                        }
-                        else
-                        {
-                            LOG_ERROR << "LOD \"" + std::to_string(lodInt) + "\" is out of range. Correct range is 0-2";
-                        }
+                        this->fileName_LOD1 = filename;
                     }
-                    catch (...)
+                    else if (lodInt == 1)
                     {
-                        LOG_ERROR << "Set model filenames error";
+                        this->fileName_LOD2 = filename;
                     }
+                    else if (lodInt == 2)
+                    {
+                        this->fileName_LOD3 = filename;
+                    }
+                    else
+                    {
+                        LOG_ERROR << "LOD \"" + std::to_string(lodInt) + "\" is out of range. Correct range is 0-2";
+                    }
+                }
+                catch (...)
+                {
+                    LOG_ERROR << "Set model filenames error";
                 }
             }
         }
+    }
 
-        auto primitivesNode = node.getChild(CSTR_PRIMITIVES);
-        if (primitivesNode)
+    auto primitivesNode = node.getChild(CSTR_PRIMITIVES);
+    if (primitivesNode)
+    {
+        for (auto& primitiveNode : primitivesNode->getChildren())
         {
-            for (auto& primitiveNode : primitivesNode->getChildren())
+            if (primitiveNode)
             {
-                if (primitiveNode)
+                try
                 {
-                    try
+                    auto type = magic_enum::enum_cast<PrimitiveType>(primitiveNode->value_);
+                    if (type)
                     {
-                        auto type = magic_enum::enum_cast<PrimitiveType>(primitiveNode->value_);
-                        if (type)
+                        auto primitive = componentContext_.resourceManager_.GetPrimitives(*type);
+                        if (primitive)
                         {
-                            auto primitive = componentContext.resourceManager_.GetPrimitives(*type);
-                            if (primitive)
-                            {
-                                component->AddModel(primitive);
-                            }
-                        }
-                        else
-                        {
-                            LOG_ERROR << "Primitive type \"" + primitiveNode->value_ + "\" not recognized.";
+                            this->AddModel(primitive);
                         }
                     }
-                    catch (...)
+                    else
                     {
-                        LOG_ERROR << "Set primitive error";
+                        LOG_ERROR << "Primitive type \"" + primitiveNode->value_ + "\" not recognized.";
                     }
+                }
+                catch (...)
+                {
+                    LOG_ERROR << "Set primitive error";
                 }
             }
         }
+    }
 
-        auto materialsNode = node.getChild(MATERIALS);
-        if (materialsNode)
+    auto materialsNode = node.getChild(MATERIALS);
+    if (materialsNode)
+    {
+        for (const auto& materialNode : materialsNode->getChildren())
         {
-            for (const auto& materialNode : materialsNode->getChildren())
+            auto nameNode = materialNode->getChild(CSTR_NAME);
+            auto fileNode = materialNode->getChild(CSTR_FILE_NAME);
+            if (nameNode and fileNode)
             {
-                auto nameNode = materialNode->getChild(CSTR_NAME);
-                auto fileNode = materialNode->getChild(CSTR_FILE_NAME);
-                if (nameNode and fileNode)
-                {
-                    GameEngine::File file{fileNode->value_};
-                    component->materials.insert({nameNode->value_, file});
-                }
+                GameEngine::File file{fileNode->value_};
+                this->materials.insert({nameNode->value_, file});
             }
         }
-
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<RendererComponent>(), readFunc);
+    }
 }
+
 void create(TreeNode& node, const std::filesystem::path& file, LevelOfDetail lvl)
 {
     node.addChild(CSTR_FILE_NAME, file);
@@ -579,8 +547,6 @@ void create(TreeNode& materialsNode, const MaterialsMap& customMaterials)
 
 void RendererComponent::write(TreeNode& node) const
 {
-    ComponentCore::write(node);
-
     node.addChild(CSTR_TEXTURE_INDEX, std::to_string(textureIndex));
     node.addChild(MODEL_NORMALIZATION, Utils::BoolToString(modelNormalization));
     node.addChild(MESH_OPTIMIZE, Utils::BoolToString(meshOptimize));

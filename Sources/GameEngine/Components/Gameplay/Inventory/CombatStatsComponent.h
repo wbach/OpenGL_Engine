@@ -1,11 +1,11 @@
 #pragma once
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class ENGINE_API CombatStatsComponent : public ComponentCore
+DECLARE_COMPONENT(CombatStatsComponent)
 {
 public:
     int damage        = 0;
@@ -42,7 +42,8 @@ public:
     void ReqisterFunctions() override;
     void Reload() override;
 
-    static void registerReadFunctions();
+public:
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

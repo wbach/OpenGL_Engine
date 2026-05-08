@@ -6,7 +6,7 @@
 #include <optional>
 
 #include "GameEngine/Camera/ICamera.h"
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
@@ -24,7 +24,7 @@ class IProjection;
 
 namespace Components
 {
-class CameraComponent : public ComponentCore, public ICamera
+DECLARE_COMPONENT(CameraComponent), public ICamera
 {
 public:
     enum Type
@@ -141,7 +141,7 @@ private:
     std::mutex onUpdateMutex;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

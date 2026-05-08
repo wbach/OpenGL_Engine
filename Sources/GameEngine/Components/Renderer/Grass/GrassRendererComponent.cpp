@@ -1,8 +1,8 @@
 #include "GrassRendererComponent.h"
 
 #include <Logger/Log.h>
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <fstream>
@@ -84,8 +84,10 @@ std::vector<GrassRendererComponent::Ssbo> ImportSSBO(const std::filesystem::path
 }
 }  // namespace
 
+REGISTER_COMPONENT(GrassRendererComponent)
+
 GrassRendererComponent::GrassRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<GrassRendererComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , textureFile("")
     , isSubscribed_(false)
 {
@@ -157,32 +159,20 @@ Material GrassRendererComponent::CreateMaterial() const
     material.baseColorTexture = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(textureFile, tp);
     return material;
 }
-void GrassRendererComponent::registerReadFunctions()
+void GrassRendererComponent::read(const TreeNode& node)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    if (auto textureFileNameNode = node.getChild(CSTR_TEXTURE_FILENAME))
     {
-        auto component = std::make_unique<GrassRendererComponent>(componentContext, gameObject);
-        component->read(node);
+        setTexture(textureFileNameNode->value_);
+    }
 
-        if (auto textureFileNameNode = node.getChild(CSTR_TEXTURE_FILENAME))
-        {
-            component->setTexture(textureFileNameNode->value_);
-        }
-
-        if (auto filenameNode = node.getChild(CSTR_FILE_NAME))
-        {
-            component->setDataFile(filenameNode->value_);
-        }
-        return component;
-    };
-    regsiterComponentReadFunction(GetComponentType<GrassRendererComponent>(), readFunc);
+    if (auto filenameNode = node.getChild(CSTR_FILE_NAME))
+    {
+        setDataFile(filenameNode->value_);
+    }
 }
 void GrassRendererComponent::write(TreeNode& node) const
 {
-    ComponentCore::write(node);
-
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-
     ::write(node.addChild(CSTR_FILE_NAME), dataFile.GetDataRelativePath());
     if (not dataFile.empty() and ssbo)
     {

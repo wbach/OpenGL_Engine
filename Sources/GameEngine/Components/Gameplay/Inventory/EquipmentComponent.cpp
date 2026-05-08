@@ -37,8 +37,11 @@ constexpr char CSTR_MAIN_HAND_ITEM[]{"MainHandItem"};
 constexpr char CSTR_EQUIP_JOINT_NAME[]{"equipJointName"};
 constexpr char CSTR_DISARM_JOINT_NAME[]{"disarmJointName"};
 }  // namespace
+
+REGISTER_COMPONENT(EquipmentComponent)
+
 EquipmentComponent::EquipmentComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<EquipmentComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
 {
 }
 EquipmentComponent::~EquipmentComponent()
@@ -53,27 +56,17 @@ void EquipmentComponent::Reload()
 void EquipmentComponent::ReqisterFunctions()
 {
 }
-void EquipmentComponent::registerReadFunctions()
+void EquipmentComponent::read(const TreeNode& input)
 {
-    auto func = [](ComponentContext& componentContext, const TreeNode& input, GameObject& gameObject)
-    {
-        auto component = std::make_unique<EquipmentComponent>(componentContext, gameObject);
-        component->read(input);
-        ::Read(input.getChild(CSTR_BASE_BODY_RENDERER_TAG), component->baseBodyRendererComponentTag);
-        ::Read(input.getChild(CSTR_EQUIP_JOINT_NAME), component->equipJointName);
-        ::Read(input.getChild(CSTR_DISARM_JOINT_NAME), component->disarmJointName);
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<EquipmentComponent>(), func);
+    ::Read(input.getChild(CSTR_BASE_BODY_RENDERER_TAG), baseBodyRendererComponentTag);
+    ::Read(input.getChild(CSTR_EQUIP_JOINT_NAME), equipJointName);
+    ::Read(input.getChild(CSTR_DISARM_JOINT_NAME), disarmJointName);
 }
 void EquipmentComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    ComponentCore::write(node);
-    node.addChild(CSTR_BASE_BODY_RENDERER_TAG, baseBodyRendererComponentTag);
-    node.addChild(CSTR_EQUIP_JOINT_NAME, equipJointName);
-    node.addChild(CSTR_DISARM_JOINT_NAME, disarmJointName);
+    ::write(node.addChild(CSTR_BASE_BODY_RENDERER_TAG), baseBodyRendererComponentTag);
+    ::write(node.addChild(CSTR_EQUIP_JOINT_NAME), equipJointName);
+    ::write(node.addChild(CSTR_DISARM_JOINT_NAME), disarmJointName);
 }
 bool EquipmentComponent::equip(GameObject& item)
 {

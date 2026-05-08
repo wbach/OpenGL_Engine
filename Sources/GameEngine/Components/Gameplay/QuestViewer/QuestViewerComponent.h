@@ -1,7 +1,7 @@
 #pragma once
 #include <TreeNode.h>
 
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 #include "GameEngine/Resources/File.h"
 namespace GameEngine
 {
@@ -17,7 +17,7 @@ class Quest;
 
 namespace Components
 {
-class ENGINE_API QuestViewerComponent : public ComponentCore
+DECLARE_COMPONENT(QuestViewerComponent)
 {
 public:
     File guiFile;
@@ -54,7 +54,7 @@ private:
     const Quest* currentQuest{nullptr};
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

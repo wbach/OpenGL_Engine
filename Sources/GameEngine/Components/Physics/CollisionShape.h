@@ -32,9 +32,6 @@ protected:
 
     Rigidbody* connectedRigidbody;
 
-public:
-    static void registerReadFunctions();
-    void write(TreeNode&) const override;
 };
 }  // namespace Components
 }  // namespace GameEngine

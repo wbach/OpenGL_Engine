@@ -1,8 +1,8 @@
 #include "TerrainShape.h"
 
 #include <Logger/Log.h>
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include <algorithm>
 
@@ -31,8 +31,10 @@ const std::string CSTR_HEIGHTMAP_FILENAME = "heightMapFileName";
 
 const std::string TerrainShape::name = {"TerrainShape"};
 
+REGISTER_COMPONENT(TerrainShape)
+
 TerrainShape::TerrainShape(ComponentContext& componentContext, GameObject& gameObject)
-    : CollisionShape(GetComponentType<TerrainShape>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , terrainHeightGetter_(nullptr)
     , terrainRendererComponent_(nullptr)
     , size_(1)
@@ -86,7 +88,8 @@ void TerrainShape::LoadHeightMapIfSet()
     }
 
     TextureParameters params;
-    params.sizeLimit = std::nullopt;;
+    params.sizeLimit = std::nullopt;
+    ;
 
     auto heightMapTexture = componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(heightMapFile, params);
 
@@ -133,32 +136,13 @@ void TerrainShape::create()
         LOG_ERROR << "Collision shape create error, heightMap not set ";
     }
 }
-void TerrainShape::registerReadFunctions()
+void TerrainShape::read(const TreeNode& node)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
-        auto component = std::make_unique<TerrainShape>(componentContext, gameObject);
-
-        vec3 positionOffset(0.f);
-        ::Read(node.getChild(CSTR_POSITION_OFFSET), positionOffset);
-        component->SetPostionOffset(positionOffset);
-
-        std::string heightmap;
-        ::Read(node.getChild(CSTR_HEIGHTMAP_FILENAME), heightmap);
-
-        if (not heightmap.empty())
-        {
-            component->SetHeightMap(heightmap);
-        }
-
-        return component;
-    };
-    regsiterComponentReadFunction(GetComponentType<TerrainShape>(), readFunc);
+    ::Read(node.getChild(CSTR_POSITION_OFFSET), positionOffset);
+    ::Read(node.getChild(CSTR_HEIGHTMAP_FILENAME), heightMapFile);
 }
 void TerrainShape::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, TerrainShape::name});
-
     ::write(node.addChild(CSTR_POSITION_OFFSET), GetPositionOffset());
     if (not heightMapFile.empty())
     {

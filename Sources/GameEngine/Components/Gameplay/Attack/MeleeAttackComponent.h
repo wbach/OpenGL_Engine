@@ -2,7 +2,7 @@
 #include <set>
 #include <vector>
 
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 #include "GameEngine/Components/Gameplay/HealthComponent.h"
 #include "Types.h"
 
@@ -12,7 +12,7 @@ namespace Components
 {
 class WeaponComponent;
 
-class ENGINE_API MeleeAttackComponent : public ComponentCore
+DECLARE_COMPONENT(MeleeAttackComponent)
 {
 public:
 public:
@@ -46,7 +46,7 @@ private:
     WeaponComponent* cachedWeapon{nullptr};
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

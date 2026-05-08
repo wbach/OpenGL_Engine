@@ -2,7 +2,7 @@
 #include <optional>
 #include <string>
 
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 #include "GameEngine/Resources/File.h"
 #include "TreeNode.h"
 
@@ -10,7 +10,7 @@ namespace GameEngine
 {
 namespace Components
 {
-class ENGINE_API ItemVisualComponent : public ComponentCore
+DECLARE_COMPONENT(ItemVisualComponent)
 {
 public:
     File iconPath    = "";
@@ -40,7 +40,7 @@ private:
     std::optional<TreeNode> rendererComponentNode;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

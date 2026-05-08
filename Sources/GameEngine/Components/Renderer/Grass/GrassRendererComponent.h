@@ -2,7 +2,7 @@
 #include <memory>
 #include <vector>
 
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 #include "GameEngine/Resources/Models/Material.h"
 #include "GameEngine/Resources/ShaderStorageVectorBufferObject.h"
 #include "Types.h"
@@ -11,7 +11,7 @@ namespace GameEngine
 {
 namespace Components
 {
-class GrassRendererComponent : public ComponentCore
+DECLARE_COMPONENT(GrassRendererComponent)
 {
 public:
     File textureFile;
@@ -47,8 +47,8 @@ public:
     inline const File& getDataFile() const;
 
     void AddInstance(const Ssbo&);
-    void AddInstances(std::vector<Ssbo>&&);
-    void UpdateSsbo(std::vector<Ssbo>&&);
+    void AddInstances(std::vector<Ssbo> &&);
+    void UpdateSsbo(std::vector<Ssbo> &&);
     void RemoveInstances(const std::vector<vec3>&);
 
     GrassRendererComponent& setTexture(const File&);
@@ -76,7 +76,7 @@ private:
     SsboType ssbo;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 

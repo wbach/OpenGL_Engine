@@ -3,7 +3,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "SlotType.h"
 
@@ -12,9 +12,8 @@ namespace GameEngine
 class GameState;
 namespace Components
 {
-class ENGINE_API EquipmentComponent : public ComponentCore
+DECLARE_COMPONENT(EquipmentComponent)
 {
-public:
 public:
     std::string baseBodyRendererComponentTag;
     std::string disarmJointName{"Slot_MeleeBackRight"};
@@ -53,7 +52,7 @@ private:
     std::unordered_map<SlotType, GameObject*> equippedItems;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

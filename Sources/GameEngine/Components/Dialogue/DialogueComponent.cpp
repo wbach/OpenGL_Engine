@@ -21,14 +21,16 @@ namespace GameEngine
 {
 namespace
 {
-constexpr char CSTR_DIALOG_FILE[]   = "dialogueFile";
+constexpr char CSTR_DIALOG_FILE[] = "dialogueFile";
 }  // namespace
 
 namespace Components
 {
 
+REGISTER_COMPONENT(DialogueComponent)
+
 DialogueComponent::DialogueComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<DialogueComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
 {
 }
 DialogueComponent::~DialogueComponent()
@@ -44,28 +46,13 @@ void DialogueComponent::Reload()
 void DialogueComponent::ReqisterFunctions()
 {
 }
-void DialogueComponent::registerReadFunctions()
+void DialogueComponent::read(const TreeNode& node)
 {
-    auto func = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
-        auto component = std::make_unique<DialogueComponent>(componentContext, gameObject);
-        component->read(node);
-        std::filesystem::path filePath;
-        ::Read(node.getChild(CSTR_DIALOG_FILE), filePath);
-        component->dialogueFile = filePath;
-        component->readFile();
-
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<DialogueComponent>(), func);
+    ::Read(node.getChild(CSTR_DIALOG_FILE), dialogueFile);
+    readFile();
 }
 void DialogueComponent::write(TreeNode& node) const
 {
-    const std::string CSTR_TYPE = "type";
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    ComponentCore::write(node);
-
     ::write(node.addChild(CSTR_DIALOG_FILE), dialogueFile.GetDataRelativePath());
 }
 void DialogueComponent::readFile()

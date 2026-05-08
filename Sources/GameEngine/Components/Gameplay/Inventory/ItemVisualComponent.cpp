@@ -20,15 +20,16 @@ const char CSTR_MODEL_PATH[]  = "modelPath";
 
 namespace Components
 {
+REGISTER_COMPONENT(ItemVisualComponent)
+
 ItemVisualComponent::ItemVisualComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<ItemVisualComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
 {
 }
 
 ItemVisualComponent::~ItemVisualComponent()
 {
 }
-
 void ItemVisualComponent::CleanUp()
 {
 }
@@ -38,50 +39,35 @@ void ItemVisualComponent::Reload()
 void ItemVisualComponent::ReqisterFunctions()
 {
 }
-
-void ItemVisualComponent::registerReadFunctions()
+void ItemVisualComponent::read(const TreeNode& input)
 {
-    auto func = [](ComponentContext& componentContext, const TreeNode& input, GameObject& gameObject)
+    ::Read(input.getChild(CSTR_ICON_PATH), iconPath);
+    ::Read(input.getChild(CSTR_MODEL_PATH), modelPath);
+    ::Read(input.getChild(CSTR_DROP_SOUND), dropSound);
+    ::Read(input.getChild(CSTR_MODEL_SCALE), modelScale);
+
+    if (const auto& modelNode = input.getChild(CSTR_MODEL))
     {
-        auto component = std::make_unique<ItemVisualComponent>(componentContext, gameObject);
-        component->read(input);
-
-        ::Read(input.getChild(CSTR_ICON_PATH), component->iconPath);
-        ::Read(input.getChild(CSTR_MODEL_PATH), component->modelPath);
-        ::Read(input.getChild(CSTR_DROP_SOUND), component->dropSound);
-        ::Read(input.getChild(CSTR_MODEL_SCALE), component->modelScale);
-
-        if (const auto& modelNode = input.getChild(CSTR_MODEL))
+        if (const auto& rendererComponentNode = modelNode->getChild(CSTR_COMPONENT))
         {
-            if (const auto& rendererComponentNode = modelNode->getChild(CSTR_COMPONENT))
-            {
-                component->rendererComponentNode = *rendererComponentNode;
-            }
+            this->rendererComponentNode = *rendererComponentNode;
         }
+    }
 
-        if (not component->modelPath.empty())
+    if (not modelPath.empty())
+    {
+        LOG_DEBUG << "Read renderer component file: " << modelPath;
+        Utils::XmlReader reader;
+        reader.Read(modelPath.GetAbsolutePath());
+        if (auto root = reader.Get())
         {
-            LOG_DEBUG << "Read renderer component file: " << component->modelPath;
-            Utils::XmlReader reader;
-            reader.Read(component->modelPath.GetAbsolutePath());
-            if (auto root = reader.Get())
-            {
-                component->rendererComponentNode = *root;
-                LOG_DEBUG << component->rendererComponentNode;
-            }
+            rendererComponentNode = *root;
+            LOG_DEBUG << rendererComponentNode;
         }
-
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<ItemVisualComponent>(), func);
+    }
 }
-
 void ItemVisualComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    ComponentCore::write(node);
-
     ::write(node.addChild(CSTR_ICON_PATH), iconPath);
 
     if (rendererComponentNode and modelPath.empty())

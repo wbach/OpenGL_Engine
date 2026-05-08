@@ -1,8 +1,8 @@
 #include "SpotLightComponent.h"
 
 #include <Logger/Log.h>
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Components/ComponentType.h"
@@ -23,8 +23,10 @@ constexpr char CSTR_INNER_CUTOFF[] = "innerCutoff";
 constexpr char CSTR_OUTER_CUTOFF[] = "outerCutoff";
 }  // namespace
 
+REGISTER_COMPONENT(SpotLightComponent)
+
 SpotLightComponent::SpotLightComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<SpotLightComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , color(Color(1.0f, 1.0f, 1.0f))
     , intensity(1.0f)
     , direction(vec3(0.0f, -1.0f, 0.0f))
@@ -47,30 +49,19 @@ void SpotLightComponent::Reload()
 {
 }
 
-void SpotLightComponent::registerReadFunctions()
+void SpotLightComponent::read(const TreeNode& node)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
-        auto component = std::make_unique<SpotLightComponent>(componentContext, gameObject);
-
-        ::Read(node.getChild(CSTR_COLOR), component->color);
-        ::Read(node.getChild(CSTR_INTENSITY), component->intensity);
-        ::Read(node.getChild(CSTR_DIRECTION), component->direction);
-        ::Read(node.getChild(CSTR_RANGE), component->range);
-        ::Read(node.getChild(CSTR_FALLOFF_EXP), component->falloffExponent);
-        ::Read(node.getChild(CSTR_INNER_CUTOFF), component->innerCutoff);
-        ::Read(node.getChild(CSTR_OUTER_CUTOFF), component->outerCutoff);
-
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<SpotLightComponent>(), readFunc);
+    ::Read(node.getChild(CSTR_COLOR), color);
+    ::Read(node.getChild(CSTR_INTENSITY), intensity);
+    ::Read(node.getChild(CSTR_DIRECTION), direction);
+    ::Read(node.getChild(CSTR_RANGE), range);
+    ::Read(node.getChild(CSTR_FALLOFF_EXP), falloffExponent);
+    ::Read(node.getChild(CSTR_INNER_CUTOFF), innerCutoff);
+    ::Read(node.getChild(CSTR_OUTER_CUTOFF), outerCutoff);
 }
 
 void SpotLightComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-
     ::write(node.addChild(CSTR_COLOR), color.value);
     ::write(node.addChild(CSTR_INTENSITY), intensity);
     ::write(node.addChild(CSTR_DIRECTION), direction);

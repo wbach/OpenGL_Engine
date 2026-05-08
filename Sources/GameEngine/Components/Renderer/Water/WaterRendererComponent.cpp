@@ -3,8 +3,8 @@
 #include <Common/Transform.h>
 #include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -38,8 +38,10 @@ constexpr char CSTR_NORMAL_MAP[]           = "normalMap";
 constexpr char CSTR_MESH_RESOLUTION[]      = "meshResolution";
 }  // namespace
 
+REGISTER_COMPONENT(WaterRendererComponent)
+
 WaterRendererComponent::WaterRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<WaterRendererComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , onPlaneWaveSpeed(.1f)
     , waveSpeed(.1f)
     , waterColor(Utils::RGBtoFloat(0.f, 44.f, 82.f), 1.f)
@@ -252,43 +254,25 @@ void WaterRendererComponent::DeleteTextures()
         dudvMap_ = nullptr;
     }
 }
-void WaterRendererComponent::registerReadFunctions()
+void WaterRendererComponent::read(const TreeNode& node)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
-        auto component = std::make_unique<WaterRendererComponent>(componentContext, gameObject);
-        component->read(node);
-
-        std::string dudvMap, normalMap;
-        ::Read(node.getChild(CSTR_COLOR), component->waterColor);
-        ::Read(node.getChild(CSTR_NORMAL_STRENGHT), component->normalStrength);
-        ::Read(node.getChild(CSTR_SOFT_EDGE_DISTANCE), component->softEdgeDistance);
-        ::Read(node.getChild(CSTR_COLOR_BLEND_FACTOR), component->waterColorBlendFactor);
-        ::Read(node.getChild(CSTR_DUDV_MAP), dudvMap);
-        ::Read(node.getChild(CSTR_NORMAL_MAP), normalMap);
-        ::Read(node.getChild(CSTR_TILED_VALUE), component->tiledValue);
-        ::Read(node.getChild(CSTR_MESH_RESOLUTION), component->meshResolution);
-        ::Read(node.getChild(CSTR_WAVE_SPEED), component->waveSpeed);
-        ::Read(node.getChild(CSTR_WAVE_FREQUENCY), component->waveFrequency);
-        ::Read(node.getChild(CSTR_WAVE_AMPLITUDE), component->waveAmplitude);
-        ::Read(node.getChild(CSTR_PLANE_WAVE_SPEED), component->onPlaneWaveSpeed);
-        ::Read(node.getChild(CSTR_DEPTH_BLEND_SCALE), component->depthBlendScale);
-        ::Read(node.getChild(CSTR_MAX_DEPTH_VISIBILITY), component->maxDepthVisibility);
-
-        component->dudvMap   = dudvMap;
-        component->normalMap = normalMap;
-
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<WaterRendererComponent>(), readFunc);
+    ::Read(node.getChild(CSTR_COLOR), waterColor);
+    ::Read(node.getChild(CSTR_NORMAL_STRENGHT), normalStrength);
+    ::Read(node.getChild(CSTR_SOFT_EDGE_DISTANCE), softEdgeDistance);
+    ::Read(node.getChild(CSTR_COLOR_BLEND_FACTOR), waterColorBlendFactor);
+    ::Read(node.getChild(CSTR_DUDV_MAP), dudvMap);
+    ::Read(node.getChild(CSTR_NORMAL_MAP), normalMap);
+    ::Read(node.getChild(CSTR_TILED_VALUE), tiledValue);
+    ::Read(node.getChild(CSTR_MESH_RESOLUTION), meshResolution);
+    ::Read(node.getChild(CSTR_WAVE_SPEED), waveSpeed);
+    ::Read(node.getChild(CSTR_WAVE_FREQUENCY), waveFrequency);
+    ::Read(node.getChild(CSTR_WAVE_AMPLITUDE), waveAmplitude);
+    ::Read(node.getChild(CSTR_PLANE_WAVE_SPEED), onPlaneWaveSpeed);
+    ::Read(node.getChild(CSTR_DEPTH_BLEND_SCALE), depthBlendScale);
+    ::Read(node.getChild(CSTR_MAX_DEPTH_VISIBILITY), maxDepthVisibility);
 }
 void WaterRendererComponent::write(TreeNode& node) const
 {
-    ComponentCore::write(node);
-
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-
     ::write(node.addChild(CSTR_COLOR), GetWaterColor());
     ::write(node.addChild(CSTR_NORMAL_STRENGHT), normalStrength);
     ::write(node.addChild(CSTR_SOFT_EDGE_DISTANCE), softEdgeDistance);

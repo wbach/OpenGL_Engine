@@ -5,8 +5,8 @@
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
 #include <Types.h>
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Audio/IAudioManager.h"
@@ -28,8 +28,10 @@ namespace GameEngine
 {
 namespace Components
 {
+REGISTER_COMPONENT(PlayerInputController)
+
 PlayerInputController::PlayerInputController(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<PlayerInputController>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , characterController_{nullptr}
     , subscriptions_{componentContext.inputManager_}
 {
@@ -79,8 +81,8 @@ void PlayerInputController::SubscribeForPushActions()
             auto ai = componentContext_.componentController_.GetAllComponentsOfType<AIController>();
             for (auto& c : ai)
             {
-               // c->MoveTo(vec3(0));
-               c->MoveTo(vec3(52.407, 68.898, -315.405));//Wiata
+                // c->MoveTo(vec3(0));
+                c->MoveTo(vec3(52.407, 68.898, -315.405));  // Wiata
             }
         });
 
@@ -332,24 +334,12 @@ void PlayerInputController::SubscribeForPopActions()
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
         Input::GameAction::AIM, [&]() { characterController_->pushEventToQueue(AimStopEvent{}); });
 }
-
-void PlayerInputController::registerReadFunctions()
+void PlayerInputController::read(const TreeNode&)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
-        auto component = std::make_unique<PlayerInputController>(componentContext, gameObject);
-        component->read(node);
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<PlayerInputController>(), readFunc);
 }
-
-void PlayerInputController::write(TreeNode& node) const
+void PlayerInputController::write(TreeNode&) const
 {
-    ComponentCore::write(node);
 }
-
 bool PlayerInputController::IsInitated() const
 {
     return init;

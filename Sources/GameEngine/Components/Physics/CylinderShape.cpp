@@ -1,7 +1,7 @@
 #include "CylinderShape.h"
 
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
@@ -15,8 +15,10 @@ namespace Components
 {
 std::string CylinderShape::name = {"CylinderShape"};
 
+REGISTER_COMPONENT(CylinderShape)
+
 CylinderShape::CylinderShape(ComponentContext& componentContext, GameObject& gameObject)
-    : CollisionShape(GetComponentType<CylinderShape>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , size(1.f)
 {
 }
@@ -34,29 +36,19 @@ CylinderShape& CylinderShape::SetSize(const vec3& v)
     size = v;
     return *this;
 }
-void CylinderShape::registerReadFunctions()
+void CylinderShape::read(const TreeNode& node)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
-        auto component = std::make_unique<CylinderShape>(componentContext, gameObject);
-
-        vec3 positionOffset(0.f);
-        ::Read(node.getChild(CSTR_POSITION_OFFSET), positionOffset);
-        component->SetPostionOffset(positionOffset);
-
-        vec3 size(1.f);
-        ::Read(node.getChild(CSTR_SIZE), size);
-        component->SetSize(size);
-        return component;
-    };
-    regsiterComponentReadFunction(GetComponentType<CylinderShape>(), readFunc);
+    ::Read(node.getChild(CSTR_POSITION_OFFSET), positionOffset);
+    ::Read(node.getChild(CSTR_SIZE), size);
 }
 void CylinderShape::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, CylinderShape::name});
-
     ::write(node.addChild(CSTR_POSITION_OFFSET), GetPositionOffset());
     ::write(node.addChild(CSTR_SIZE), size);
+}
+const vec3& CylinderShape::GetSize() const
+{
+    return size;
 }
 }  // namespace Components
 }  // namespace GameEngine

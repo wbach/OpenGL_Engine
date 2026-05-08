@@ -1,7 +1,8 @@
 #pragma once
-#include "GameEngine/Components/ComponentCore.h"
-#include "GameEngine/Objects/Particle.h"
 #include <GraphicsApi/BlendFunctionsTypes.h>
+
+#include "GameEngine/Components/Component.h"
+#include "GameEngine/Objects/Particle.h"
 
 namespace GameEngine
 {
@@ -9,10 +10,10 @@ class Texture;
 
 namespace Components
 {
-class ParticleEffectComponent : public ComponentCore
+DECLARE_COMPONENT(ParticleEffectComponent)
 {
 public:
-    ParticleEffectComponent(ComponentContext& componentContext, GameObject& gameObject);
+    ParticleEffectComponent(ComponentContext & componentContext, GameObject & gameObject);
 
     void CleanUp() override;
     void ReqisterFunctions() override;
@@ -69,7 +70,7 @@ private:
     bool isSubscribed_;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 

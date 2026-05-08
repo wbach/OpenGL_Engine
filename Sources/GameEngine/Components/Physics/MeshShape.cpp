@@ -2,8 +2,8 @@
 
 #include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentController.h"
@@ -25,8 +25,10 @@ const std::string CSTR_AUTO_OPTIMIZE_MESH  = "autoOptimize";
 const std::string CSTR_MODEL_NORMALIZATION = "modelNormalization";
 const std::string CSTR_MESH_OPTIMIZE       = "meshOptimize";
 
+REGISTER_COMPONENT(MeshShape)
+
 MeshShape::MeshShape(ComponentContext& componentContext, GameObject& gameObject)
-    : CollisionShape(GetComponentType<MeshShape>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , size(1.f)
     , autoOptimization{false}
     , model_(nullptr)
@@ -103,58 +105,43 @@ vec3 MeshShape::calculateScale(const vec3& scale) const
 {
     return size * scale * model_->getNormalizedFactor();
 }
-void MeshShape::registerReadFunctions()
+void MeshShape::read(const TreeNode& node)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    ::Read(node.getChild(CSTR_POSITION_OFFSET), positionOffset);
+    ::Read(node.getChild(CSTR_SIZE), size);
+
+    auto filenameNode = node.getChild(CSTR_MODEL_FILE_NAME);
+    if (filenameNode)
     {
-        auto component = std::make_unique<MeshShape>(componentContext, gameObject);
-
-        vec3 positionOffset(0.f);
-        ::Read(node.getChild(CSTR_POSITION_OFFSET), positionOffset);
-        component->SetPostionOffset(positionOffset);
-
-        float size(1.f);
-        ::Read(node.getChild(CSTR_SIZE), size);
-        component->SetSize(size);
-
-        auto filenameNode = node.getChild(CSTR_MODEL_FILE_NAME);
-        if (filenameNode)
+        std::string modelFileName;
+        ::Read(filenameNode->getChild(CSTR_FILE_NAME), modelFileName);
+        if (not modelFileName.empty())
         {
-            std::string modelFileName;
-            ::Read(filenameNode->getChild(CSTR_FILE_NAME), modelFileName);
-            if (not modelFileName.empty())
-            {
-                component->modelFile = modelFileName;
-                LOG_DEBUG << "Set collider model :" << component->modelFile.GetFilename();
-                component->SetModel(component->modelFile);
-            }
-
-            auto modelNormalization = filenameNode->getChild(CSTR_MODEL_NORMALIZATION);
-            if (modelNormalization)
-            {
-                component->modelNormalization = Utils::StringToBool(modelNormalization->value_);
-            }
-            auto meshOptimize = filenameNode->getChild(CSTR_MESH_OPTIMIZE);
-            if (meshOptimize)
-            {
-                component->meshOptimize = Utils::StringToBool(meshOptimize->value_);
-            }
+            this->modelFile = modelFileName;
+            LOG_DEBUG << "Set collider model :" << this->modelFile.GetFilename();
+            this->SetModel(this->modelFile);
         }
 
-        ::Read(node.getChild(CSTR_AUTO_OPTIMIZE_MESH), component->autoOptimization);
-        if (component->autoOptimization)
+        auto modelNormalization = filenameNode->getChild(CSTR_MODEL_NORMALIZATION);
+        if (modelNormalization)
         {
-            component->autoOptimize();
+            this->modelNormalization = Utils::StringToBool(modelNormalization->value_);
         }
+        auto meshOptimize = filenameNode->getChild(CSTR_MESH_OPTIMIZE);
+        if (meshOptimize)
+        {
+            this->meshOptimize = Utils::StringToBool(meshOptimize->value_);
+        }
+    }
 
-        return component;
-    };
-    regsiterComponentReadFunction(GetComponentType<MeshShape>(), readFunc);
+    ::Read(node.getChild(CSTR_AUTO_OPTIMIZE_MESH), this->autoOptimization);
+    if (this->autoOptimization)
+    {
+        this->autoOptimize();
+    }
 }
 void MeshShape::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, MeshShape::name});
-
     ::write(node.addChild(CSTR_POSITION_OFFSET), GetPositionOffset());
     ::write(node.addChild(CSTR_SIZE), GetSize());
     ::write(node.addChild(CSTR_AUTO_OPTIMIZE_MESH), Utils::BoolToString(autoOptimization));

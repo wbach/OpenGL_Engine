@@ -22,8 +22,10 @@ const char CSTR_STAMINA_BONUS[] = "staminaBonus";
 
 namespace Components
 {
+REGISTER_COMPONENT(CombatStatsComponent)
+
 CombatStatsComponent::CombatStatsComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<CombatStatsComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
 {
 }
 
@@ -34,41 +36,30 @@ CombatStatsComponent::~CombatStatsComponent()
 void CombatStatsComponent::CleanUp()
 {
 }
+
 void CombatStatsComponent::Reload()
 {
 }
+
 void CombatStatsComponent::ReqisterFunctions()
 {
 }
 
-void CombatStatsComponent::registerReadFunctions()
+void CombatStatsComponent::read(const TreeNode& input)
 {
-    auto func = [](ComponentContext& componentContext, const TreeNode& input, GameObject& gameObject)
-    {
-        auto component = std::make_unique<CombatStatsComponent>(componentContext, gameObject);
-        component->read(input);
-
-        ::Read(input.getChild(CSTR_DAMAGE), component->damage);
-        ::Read(input.getChild(CSTR_ATTACK_SPEED), component->attackSpeed);
-        ::Read(input.getChild(CSTR_RANGE), component->range);
-        ::Read(input.getChild(CSTR_PHYS_DEF), component->physicalDefense);
-        ::Read(input.getChild(CSTR_MAG_DEF), component->magicDefense);
-        ::Read(input.getChild(CSTR_FIRE_RES), component->fireResistance);
-        ::Read(input.getChild(CSTR_HP_BONUS), component->hpBonus);
-        ::Read(input.getChild(CSTR_MANA_BONUS), component->manaBonus);
-        ::Read(input.getChild(CSTR_STAMINA_BONUS), component->staminaBonus);
-
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<CombatStatsComponent>(), func);
+    ::Read(input.getChild(CSTR_DAMAGE), damage);
+    ::Read(input.getChild(CSTR_ATTACK_SPEED), attackSpeed);
+    ::Read(input.getChild(CSTR_RANGE), range);
+    ::Read(input.getChild(CSTR_PHYS_DEF), physicalDefense);
+    ::Read(input.getChild(CSTR_MAG_DEF), magicDefense);
+    ::Read(input.getChild(CSTR_FIRE_RES), fireResistance);
+    ::Read(input.getChild(CSTR_HP_BONUS), hpBonus);
+    ::Read(input.getChild(CSTR_MANA_BONUS), manaBonus);
+    ::Read(input.getChild(CSTR_STAMINA_BONUS), staminaBonus);
 }
 
 void CombatStatsComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    ComponentCore::write(node);
-
     ::write(node.addChild(CSTR_DAMAGE), damage);
     ::write(node.addChild(CSTR_ATTACK_SPEED), attackSpeed);
     ::write(node.addChild(CSTR_RANGE), range);

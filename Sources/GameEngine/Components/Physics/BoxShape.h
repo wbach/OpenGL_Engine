@@ -1,11 +1,11 @@
 #pragma once
 #include "CollisionShape.h"
-
+#include "GameEngine/Components/Component.h"
 namespace GameEngine
 {
 namespace Components
 {
-class BoxShape : public CollisionShape
+DECLARE_COMPONENT(BoxShape, CollisionShape)
 {
 private:
     vec3 size;
@@ -34,7 +34,7 @@ private:
     void InitShape() override;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
     static const std::string name;
 };

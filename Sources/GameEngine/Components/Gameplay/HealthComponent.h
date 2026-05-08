@@ -1,7 +1,7 @@
 #pragma once
 #include <optional>
 
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 
 namespace GameEngine
 {
@@ -10,7 +10,7 @@ namespace Components
 class CharacterStatsComponent;
 class CharacterController;
 
-class ENGINE_API HealthComponent : public ComponentCore
+DECLARE_COMPONENT(HealthComponent)
 {
 public:
     // clang-format off
@@ -37,7 +37,7 @@ private:
     CharacterController* controller{nullptr};
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

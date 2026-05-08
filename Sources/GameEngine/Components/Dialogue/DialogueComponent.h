@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "GLM/GLMUtils.h"
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Resources/File.h"
 #include "Logger/Log.h"
@@ -18,7 +18,7 @@ namespace GameEngine
 class GameState;
 namespace Components
 {
-class ENGINE_API DialogueComponent : public ComponentCore
+DECLARE_COMPONENT(DialogueComponent)
 {
 public:
     using Nodes = std::unordered_map<int, DialogueNode>;
@@ -69,7 +69,7 @@ private:
     std::vector<int> entryPoints;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

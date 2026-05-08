@@ -1,5 +1,6 @@
 #pragma once
 #include "CollisionShape.h"
+#include "GameEngine/Components/Component.h"
 #include "GameEngine/Resources/File.h"
 
 namespace GameEngine
@@ -8,7 +9,7 @@ class Model;
 
 namespace Components
 {
-class MeshShape : public CollisionShape
+DECLARE_COMPONENT(MeshShape, CollisionShape)
 {
 public:
     File modelFile;
@@ -30,7 +31,7 @@ public:
     // clang-format on
 
 public:
-    MeshShape(ComponentContext& componentContext, GameObject& gameObject);
+    MeshShape(ComponentContext & componentContext, GameObject & gameObject);
     void CleanUp() override;
     void ReqisterFunctions() override;
     void InitShape() override;
@@ -38,7 +39,7 @@ public:
 
 public:
     MeshShape& SetSize(float size);
-    MeshShape& SetModel(Model* model);
+    MeshShape& SetModel(Model * model);
     MeshShape& SetModel(const File&);
 
     void autoOptimize();
@@ -52,7 +53,7 @@ private:
     Model* model_;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
     static const std::string name;
 };

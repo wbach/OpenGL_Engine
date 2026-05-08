@@ -1,5 +1,5 @@
 #pragma once
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 
 namespace GameEngine
 {
@@ -15,7 +15,7 @@ enum class EffectType : uint8_t
 
 namespace Components
 {
-class ENGINE_API ConsumableComponent : public ComponentCore
+DECLARE_COMPONENT(ConsumableComponent)
 {
 public:
     EffectType effect = EffectType::None;
@@ -40,7 +40,8 @@ public:
     void ReqisterFunctions() override;
     void Reload() override;
 
-    static void registerReadFunctions();
+public:
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

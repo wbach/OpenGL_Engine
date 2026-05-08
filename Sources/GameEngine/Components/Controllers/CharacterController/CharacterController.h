@@ -6,7 +6,7 @@
 
 #include "AnimationClipNames.h"
 #include "CharacterControllerEvents.h"
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 #include "GameEngine/Physics/PhysicsApiTypes.h"
 #include "MoveSpeed.h"
 
@@ -17,7 +17,7 @@ namespace Components
 class Animator;
 class Rigidbody;
 
-class CharacterController : public ComponentCore
+DECLARE_COMPONENT(CharacterController)
 {
 public:
     struct MoveSpeeds
@@ -212,7 +212,7 @@ private:
     std::unique_ptr<Impl> impl;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

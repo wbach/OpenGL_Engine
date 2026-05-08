@@ -9,19 +9,7 @@ namespace GameEngine
 namespace Components
 {
 UnknownExternalComponent::UnknownExternalComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<UnknownExternalComponent>(), componentContext, gameObject)
-{
-}
-
-void UnknownExternalComponent::CleanUp()
-{
-}
-
-void UnknownExternalComponent::ReqisterFunctions()
-{
-}
-
-void UnknownExternalComponent::Reload()
+    : Component(componentContext, gameObject)
 {
 }
 
@@ -34,24 +22,14 @@ std::string UnknownExternalComponent::GetOrginalComponentName() const
     }
     return {};
 }
-
-void UnknownExternalComponent::registerReadFunctions()
+void UnknownExternalComponent::read(const TreeNode& node)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
-        auto component         = std::make_unique<UnknownExternalComponent>(componentContext, gameObject);
-        component->orginalNode = std::make_unique<TreeNode>(node);
-        if (auto iter = node.attributes_.find(CSTR_TYPE); iter != node.attributes_.end())
-            component->type_.name += " (" + iter->second + ")";
-        component->SetActive(false);
-
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<UnknownExternalComponent>(), readFunc);
+    orginalNode = std::make_unique<TreeNode>(node);
+    if (auto iter = node.attributes_.find(CSTR_TYPE); iter != node.attributes_.end())
+        type_.name += " (" + iter->second + ")";
+    SetActive(false);
 }
-
-void UnknownExternalComponent::write(TreeNode& node) const
+void UnknownExternalComponent::writeToNode(TreeNode& node) const
 {
     node = *orginalNode;
 }

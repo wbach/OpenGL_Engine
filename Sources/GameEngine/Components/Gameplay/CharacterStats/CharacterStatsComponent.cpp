@@ -59,8 +59,10 @@ constexpr char GUI_FILE[]{"guiLayoutFile"};
 }  // namespace
 namespace Components
 {
+REGISTER_COMPONENT(CharacterStatsComponent)
+
 CharacterStatsComponent::CharacterStatsComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<CharacterStatsComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
 {
 }
 CharacterStatsComponent::~CharacterStatsComponent()
@@ -96,25 +98,12 @@ void CharacterStatsComponent::ReqisterFunctions()
                                                                             });
                      });
 }
-void CharacterStatsComponent::registerReadFunctions()
+void CharacterStatsComponent::read(const TreeNode& input)
 {
-    auto func = [](ComponentContext& componentContext, const TreeNode& input, GameObject& gameObject)
-    {
-        auto component = std::make_unique<CharacterStatsComponent>(componentContext, gameObject);
-        component->read(input);
-
-        ::Read(input.getChild(GUI_FILE), component->guiFile);
-
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<CharacterStatsComponent>(), func);
+    ::Read(input.getChild(GUI_FILE), guiFile);
 }
 void CharacterStatsComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    ComponentCore::write(node);
-
     ::write(node.addChild(GUI_FILE), guiFile);
 }
 void CharacterStatsComponent::initGui()

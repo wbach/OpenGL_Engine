@@ -1,11 +1,12 @@
 #pragma once
 #include "CollisionShape.h"
+#include "GameEngine/Components/Component.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class CapsuleShape : public CollisionShape
+DECLARE_COMPONENT(CapsuleShape, CollisionShape)
 {
 public:
     float height;
@@ -21,7 +22,7 @@ public:
     // clang-format on
 
 public:
-    CapsuleShape(ComponentContext& componentContext, GameObject& gameObject);
+    CapsuleShape(ComponentContext & componentContext, GameObject & gameObject);
     void ReqisterFunctions() override;
     void InitShape() override;
 
@@ -32,7 +33,7 @@ public:
     inline float GetRadius() const;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
     static const std::string name;
 };

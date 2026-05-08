@@ -1,12 +1,12 @@
 #pragma once
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 #include "SlotType.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class ENGINE_API EquippableComponent : public ComponentCore
+DECLARE_COMPONENT(EquippableComponent)
 {
 public:
     SlotType slot = SlotType::None;
@@ -35,7 +35,8 @@ public:
     void ReqisterFunctions() override;
     void Reload() override;
 
-    static void registerReadFunctions();
+public:
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

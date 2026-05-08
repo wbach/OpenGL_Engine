@@ -1,7 +1,7 @@
 #pragma once
 #include <unordered_map>
 
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
@@ -19,7 +19,7 @@ class Texture;
 
 namespace Components
 {
-class WaterRendererComponent : public ComponentCore
+DECLARE_COMPONENT(WaterRendererComponent)
 {
 public:
     float onPlaneWaveSpeed{1.f};
@@ -113,7 +113,7 @@ private:
     std::unordered_map<const Mesh*, BoundingBox> meshBoundingBoxes_;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

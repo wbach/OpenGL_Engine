@@ -80,11 +80,5 @@ const vec3& CollisionShape::GetPositionOffset() const
 {
     return positionOffset;
 }
-void CollisionShape::registerReadFunctions()
-{
-}
-void CollisionShape::write(TreeNode&) const
-{
-}
 }  // namespace Components
 }  // namespace GameEngine

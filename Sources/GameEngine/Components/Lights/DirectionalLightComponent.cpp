@@ -1,8 +1,8 @@
 #include "DirectionalLightComponent.h"
 
 #include <Logger/Log.h>
-#include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/TreeNodeReadFunctions.h>
+#include <Utils/TreeNodeWriteFunctions.h>
 
 #include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Components/ComponentType.h"
@@ -22,8 +22,10 @@ constexpr char CSTR_INTENSITY[]                  = "intensity";
 constexpr char CSTR_DAY_NIGHT_CYCLE_CONTROLLED[] = "isDayNightCycleControlled";
 }  // namespace
 
+REGISTER_COMPONENT(DirectionalLightComponent)
+
 DirectionalLightComponent::DirectionalLightComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : ComponentCore(GetComponentType<DirectionalLightComponent>(), componentContext, gameObject)
+    : Component(componentContext, gameObject)
     , isDayNightCycleControlled(true)
     , color(vec4(1.f, 1.f, 1.f, 1.f))
     , intensity(1.f)
@@ -54,25 +56,15 @@ void DirectionalLightComponent::Init()
         isSetInDayNightCycle = false;
     }
 }
-void DirectionalLightComponent::registerReadFunctions()
+
+void DirectionalLightComponent::read(const TreeNode& node)
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
-        auto component = std::make_unique<DirectionalLightComponent>(componentContext, gameObject);
-
-        ::Read(node.getChild(CSTR_DAY_NIGHT_CYCLE_CONTROLLED), component->isDayNightCycleControlled);
-        ::Read(node.getChild(CSTR_COLOR), component->color);
-        ::Read(node.getChild(CSTR_INTENSITY), component->intensity);
-
-        return component;
-    };
-
-    regsiterComponentReadFunction(GetComponentType<DirectionalLightComponent>(), readFunc);
+    ::Read(node.getChild(CSTR_DAY_NIGHT_CYCLE_CONTROLLED), isDayNightCycleControlled);
+    ::Read(node.getChild(CSTR_COLOR), color);
+    ::Read(node.getChild(CSTR_INTENSITY), intensity);
 }
 void DirectionalLightComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-
     ::write(node.addChild(CSTR_DAY_NIGHT_CYCLE_CONTROLLED), isDayNightCycleControlled);
     ::write(node.addChild(CSTR_COLOR), color);
     ::write(node.addChild(CSTR_COLOR), intensity);

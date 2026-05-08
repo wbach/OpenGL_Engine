@@ -4,7 +4,7 @@
 #include <unordered_map>
 
 #include "CharacterStats.h"
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 #include "GameEngine/Renderers/GUI/Text/Text.h"
 #include "GameEngine/Resources/File.h"
 namespace GameEngine
@@ -20,7 +20,7 @@ class GameState;
 
 namespace Components
 {
-class ENGINE_API CharacterStatsComponent : public ComponentCore
+DECLARE_COMPONENT(CharacterStatsComponent)
 {
 public:
     File guiFile;
@@ -56,7 +56,7 @@ private:
     std::unordered_map<std::string, GUI::Text*> params;
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components

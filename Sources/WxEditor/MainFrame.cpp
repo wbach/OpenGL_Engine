@@ -2482,7 +2482,7 @@ void MainFrame::AddComponentToChildren(wxCommandEvent&)
                                               LOG_DEBUG << "Start processing children of: " << parentObject->GetName();
 
                                               TreeNode node;
-                                              component.write(node);
+                                              component.writeToNode(node);
 
                                               for (auto& child : parentObject->GetChildren())
                                               {

@@ -1,7 +1,7 @@
 #pragma once
 #include <Types.h>
 
-#include "GameEngine/Components/ComponentCore.h"
+#include "GameEngine/Components/Component.h"
 #include "TerrainTexture.h"
 
 namespace GameEngine
@@ -15,7 +15,7 @@ class TerrainMeshRendererComponent;
 class TerrainTessellationRendererComponent;
 class TerrainComponentBase;
 
-class TerrainRendererComponent : public ComponentCore
+DECLARE_COMPONENT(TerrainRendererComponent)
 {
 public:
     enum class RendererType
@@ -77,7 +77,7 @@ private:
     bool mutable heightmapFileUpdateNeeded{false};
 
 public:
-    static void registerReadFunctions();
+    void read(const TreeNode&) override;
     void write(TreeNode&) const override;
 };
 }  // namespace Components
