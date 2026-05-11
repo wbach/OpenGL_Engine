@@ -5,8 +5,10 @@
 #include "CharacterController/CharacterController.h"
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Navigation/NavigationManager.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -60,10 +62,11 @@ void AIController::write(TreeNode& node) const
 {
 }
 
-void AIController::MoveTo(const vec3& targetPosition)
+void AIController::MoveTo(const vec3& targetPosition, MoveType type)
 {
-    LOG_DEBUG << "Moving " << thisObject_.GetName() << " to " << targetPosition;
+    LOG_DEBUG << "Moving(" << magic_enum::enum_name(type) << ") " << thisObject_.GetName() << " to " << targetPosition;
 
+    moveType_        = type;
     auto& navManager = componentContext_.navigationManager;
     vec3 startPos    = thisObject_.GetWorldTransform().GetPosition();
 
@@ -105,6 +108,14 @@ void AIController::UpdateNavigation()
     if (not isMovingForward_)
     {
         characterController_->pushEventToQueue(MoveForwardEvent{});
+        if (moveType_ == MoveType::WALK)
+        {
+            characterController_->pushEventToQueue(WalkChangeStateEvent{});
+        }
+        else if (moveType_ == MoveType::SPRINT)
+        {
+            characterController_->pushEventToQueue(SprintStateChangeEvent{});
+        }
         isMovingForward_ = true;
     }
 }

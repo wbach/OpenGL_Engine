@@ -29,6 +29,11 @@ MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::strin
 {
 }
 
+void MoveStateBase::onEnter(const AnimationPlayEndEvent &)
+{
+    setCurrentAnimIfNeeded();
+}
+
 void MoveStateBase::onEnter(const CrouchChangeStateEvent &)
 {
     setCurrentAnimIfNeeded();

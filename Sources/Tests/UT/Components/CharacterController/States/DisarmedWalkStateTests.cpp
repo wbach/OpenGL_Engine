@@ -1,4 +1,6 @@
 #include "../CharacterControllerTests.h"
+#include "Components/Controllers/CharacterController/CharacterControllerEvents.h"
+#include "Components/Controllers/CharacterController/States/HurtState.h"
 
 namespace
 {
@@ -153,4 +155,14 @@ TEST_F(CharacterControllerTests, DisarmedWalkState_SprintStateChangeEvent)
     prepareState(*this);
     expectForwardVelocity(DEFAULT_SPRINT_SPEED);
     tiggerAndExpect<SprintStateChangeEvent>({sut_.animationClipsNames_.disarmed.sprint});
+}
+
+TEST_F(CharacterControllerTests, DisarmedWalkState_HurtEvent)
+{
+    prepareState(*this);
+
+    tiggerAndExpect<HurtEvent>({sut_.animationClipsNames_.disarmed.posture.stand.hurt});
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.movement.walk.forward});
 }

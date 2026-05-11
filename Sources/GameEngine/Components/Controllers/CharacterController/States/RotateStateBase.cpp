@@ -24,6 +24,11 @@ RotateStateBase::RotateStateBase(FsmContext &context, const std::optional<std::s
 {
 }
 
+void RotateStateBase::onEnter(const AnimationPlayEndEvent &)
+{
+    setCurrentAnim();
+}
+
 void RotateStateBase::onEnter(const CrouchChangeStateEvent &)
 {
     setCurrentAnim();

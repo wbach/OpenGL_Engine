@@ -19,6 +19,7 @@
 #include "Logger/Log.h"
 #include "Types.h"
 #include "Utils.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -94,13 +95,23 @@ void QuestManager::registerDefaultActions()
                            return;
                        }
 
+                       Components::AIController::MoveType moveType{Components::AIController::MoveType::RUN};
+                       if (params.size() > 2)
+                       {
+                           if (auto mabeMoveType = magic_enum::enum_cast<Components::AIController::MoveType>(
+                                   params[2], magic_enum::case_insensitive))
+                           {
+                               moveType = *mabeMoveType;
+                           }
+                       }
+
                        if (auto scene = sceneManager.GetActiveScene())
                        {
                            if (auto go = scene->GetGameObject(gameObjectName))
                            {
                                if (auto ai = go->GetComponent<Components::AIController>())
                                {
-                                   ai->MoveTo(target);
+                                   ai->MoveTo(target, moveType);
                                }
                                else
                                {
@@ -123,6 +134,16 @@ void QuestManager::registerDefaultActions()
                            return;
                        }
 
+                       Components::AIController::MoveType moveType{Components::AIController::MoveType::RUN};
+                       if (params.size() > 2)
+                       {
+                           if (auto mabeMoveType = magic_enum::enum_cast<Components::AIController::MoveType>(
+                                   params[2], magic_enum::case_insensitive))
+                           {
+                               moveType = *mabeMoveType;
+                           }
+                       }
+
                        const std::string& targetObjectName = params[1];
                        const std::string& gameObjectName   = params[0];
 
@@ -139,7 +160,7 @@ void QuestManager::registerDefaultActions()
                                    LOG_DEBUG << "GetGameObject " << targetObjectName;
                                    if (auto trargetGo = scene->GetGameObject(targetObjectName))
                                    {
-                                       ai->MoveTo(trargetGo->GetWorldTransform().GetPosition());
+                                       ai->MoveTo(trargetGo->GetWorldTransform().GetPosition(), moveType);
                                    }
                                    else
                                    {

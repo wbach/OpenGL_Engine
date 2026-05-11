@@ -10,6 +10,12 @@ class CharacterController;
 DECLARE_COMPONENT(AIController)
 {
 public:
+    enum MoveType
+    {
+        WALK,
+        RUN,
+        SPRINT
+    };
     AIController(ComponentContext&, GameObject&);
 
     void CleanUp() override;
@@ -19,7 +25,7 @@ public:
     void Init();
     void Update();
 
-    void MoveTo(const vec3&);
+    void MoveTo(const vec3&, MoveType = MoveType::RUN);
 
     std::vector<vec3> currentPath_;
 
@@ -30,6 +36,7 @@ private:
 private:
     CharacterController* characterController_;
     bool isMovingForward_{false};
+    MoveType moveType_;
 
 public:
     void read(const TreeNode&) override;

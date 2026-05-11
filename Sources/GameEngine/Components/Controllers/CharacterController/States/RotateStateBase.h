@@ -24,6 +24,7 @@ public:
     RotateStateBase(FsmContext&, const std::optional<std::string>&, float, const RotateAnimationClips&,
                     CameraRotationPolicy = CameraRotationPolicy::rotateOnlyCameraIfAvaiable);
 
+    void onEnter(const AnimationPlayEndEvent&);
     void onEnter(const CrouchChangeStateEvent&);
     void onEnter(const EndAttackEvent&);
     void onEnter(const EquipEndStateEvent&);

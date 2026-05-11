@@ -11,6 +11,7 @@ namespace Components
 class DialogState : public IdleStateBase,
                     public Utils::StateMachine::Will<Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
                                                      Utils::StateMachine::On<StartDialogEvent, Utils::StateMachine::Update>,
+                                                     Utils::StateMachine::On<HurtEvent, Utils::StateMachine::TransitionTo<HurtState>>,
                                                      Utils::StateMachine::On<EndDialogEvent, Utils::StateMachine::BackToPreviousState>>
 {
 public:

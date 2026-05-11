@@ -18,6 +18,7 @@ class DisarmedSprintAndRotateState
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<HurtEvent, Utils::StateMachine::TransitionTo<HurtState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<DisarmedWalkAndRotateState>>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<RunAndRotateArmedChangeState>>,
@@ -33,8 +34,8 @@ class DisarmedSprintAndRotateState
 public:
     DisarmedSprintAndRotateState(FsmContext &context);
 
-    using RotatingMoveAndRotateStateBase::onEnter;
     using RotatingMoveAndRotateStateBase::leaveCondition;
+    using RotatingMoveAndRotateStateBase::onEnter;
     using RotatingMoveAndRotateStateBase::update;
 };
 }  // namespace Components
