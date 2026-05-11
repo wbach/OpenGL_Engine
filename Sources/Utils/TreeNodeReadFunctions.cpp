@@ -1,15 +1,21 @@
 #include "TreeNodeReadFunctions.h"
 
+#include <charconv>
+#include <string>
+
 #include "Logger/Log.h"
 #include "Utils.h"
 
+template <typename T>
+bool FastRead(const std::string& str, T& value)
+{
+    auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
+    return ec == std::errc();
+}
+
 void Read(const TreeNode& node, float& v)
 {
-    try
-    {
-        v = std::stof(node.value_);
-    }
-    catch (...)
+    if (not FastRead(node.value_, v))
     {
         LOG_ERROR << "read error " << node.value_;
     }
@@ -28,13 +34,9 @@ void Read(const TreeNode& node, int32& v)
         return;
     }
 
-    try
+    if (not FastRead(node.value_, v))
     {
-        v = std::stoi(node.value_);
-    }
-    catch (...)
-    {
-        LOG_ERROR << "Read error: " << node;
+        LOG_ERROR << "read error " << node.value_;
     }
 }
 
@@ -43,15 +45,14 @@ bool setIfExist(const TreeNode& node, const std::string& attributeName, float& v
     auto attributeValueStr = node.getAttributeValue(attributeName);
     if (not attributeValueStr.empty())
     {
-        try
+        if (FastRead(attributeValueStr, v))
         {
-            v = std::stof(attributeValueStr);
+            return true;
         }
-        catch (...)
+        else
         {
-            LOG_ERROR << "Read error: " << node;
+            LOG_ERROR << "read error " << node.value_;
         }
-        return true;
     }
     else
     {
@@ -61,25 +62,26 @@ bool setIfExist(const TreeNode& node, const std::string& attributeName, float& v
     return false;
 }
 
-void setIfExist(const TreeNode& node, const std::string& attributeName, uint32& v)
+bool setIfExist(const TreeNode& node, const std::string& attributeName, uint32& v)
 {
     auto attributeValueStr = node.getAttributeValue(attributeName);
     if (not attributeValueStr.empty())
     {
-        try
+        if (FastRead(node.value_, v))
         {
-            v = std::stoi(attributeValueStr);
+            return true;
         }
-        catch (...)
+        else
         {
-            LOG_ERROR << "Stoi error";
+            LOG_ERROR << "read error " << node.value_;
         }
     }
     else
     {
         LOG_WARN << "Value not set";
-        return;
     }
+
+    return false;
 }
 
 void Read(const TreeNode& node, vec3& v)
@@ -177,6 +179,14 @@ void Read(const TreeNode& node, vec2ui& v)
     setIfExist(node, CSTR_Y, v.y);
 }
 
+void Read(const TreeNode& node, uint8& v)
+{
+    if (node.value_.empty() or not FastRead(node.value_, v))
+    {
+        LOG_ERROR << "Read error uint8: " << node.value_;
+    }
+}
+
 void Read(const TreeNode& node, uint32& v)
 {
     if (node.value_.empty())
@@ -185,13 +195,23 @@ void Read(const TreeNode& node, uint32& v)
         return;
     }
 
-    try
+    if (not FastRead(node.value_, v))
     {
-        v = std::stoi(node.value_);
+        LOG_ERROR << "read error " << node.value_;
     }
-    catch (...)
+}
+
+void Read(const TreeNode& node, uint64& v)
+{
+    if (node.value_.empty())
     {
-        LOG_ERROR << "Read error: " << node;
+        LOG_WARN << "Value not set";
+        return;
+    }
+
+    if (not FastRead(node.value_, v))
+    {
+        LOG_ERROR << "read error " << node.value_;
     }
 }
 

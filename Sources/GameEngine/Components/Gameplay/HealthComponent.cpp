@@ -50,7 +50,7 @@ void HealthComponent::takeDamage(float rawDamage)
         return;
     }
 
-    auto& attributes = stats->characterStats.attributes;
+    auto& attributes = stats->attributes;
 
     auto defense     = static_cast<float>(attributes.str);
     auto finalDamage = std::max(1.0f, rawDamage - defense);
@@ -79,7 +79,7 @@ void HealthComponent::heal(float amount)
         return;
     }
 
-    auto& attributes = stats->characterStats.attributes;
+    auto& attributes = stats->attributes;
     attributes.life.x += amount;
 
     if (attributes.life.x > attributes.life.y)

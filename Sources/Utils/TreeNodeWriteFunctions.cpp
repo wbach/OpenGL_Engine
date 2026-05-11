@@ -10,7 +10,15 @@ void write(TreeNode& node, int v)
 {
     node.value_ = std::to_string(v);
 }
+void write(TreeNode& node, uint8 v)
+{
+    node.value_ = std::to_string(v);
+}
 void write(TreeNode& node, uint32 v)
+{
+    node.value_ = std::to_string(v);
+}
+void write(TreeNode& node, uint64 v)
 {
     node.value_ = std::to_string(v);
 }

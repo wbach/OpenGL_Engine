@@ -4,7 +4,9 @@
 ENGINE_API void Read(const TreeNode&, float&);
 ENGINE_API void Read(const TreeNode&, bool&);
 ENGINE_API void Read(const TreeNode&, int32&);
+ENGINE_API void Read(const TreeNode&, uint8&);
 ENGINE_API void Read(const TreeNode&, uint32&);
+ENGINE_API void Read(const TreeNode&, uint64&);
 ENGINE_API void Read(const TreeNode&, vec2&);
 ENGINE_API void Read(const TreeNode&, vec2ui&);
 ENGINE_API void Read(const TreeNode&, vec3&);

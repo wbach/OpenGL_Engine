@@ -9,7 +9,9 @@
 
 ENGINE_API void write(TreeNode&, float);
 ENGINE_API void write(TreeNode&, int);
+ENGINE_API void write(TreeNode&, uint8);
 ENGINE_API void write(TreeNode&, uint32);
+ENGINE_API void write(TreeNode&, uint64);
 ENGINE_API void write(TreeNode&, bool);
 ENGINE_API void write(TreeNode&, const std::string&);
 ENGINE_API void write(TreeNode&, const std::string_view&);

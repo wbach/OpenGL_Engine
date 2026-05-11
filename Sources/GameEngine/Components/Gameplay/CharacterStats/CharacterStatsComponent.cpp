@@ -27,31 +27,42 @@
 
 namespace GameEngine
 {
-namespace CharacterParam
+namespace
 {
-constexpr char GuildName[]        = "GUILD_NAME";
-constexpr char LvlValue[]         = "LVL_VALUE";
-constexpr char ExpValue[]         = "EXP_VALUE";
-constexpr char NextLvlValue[]     = "NEXT_LVL_VALUE";
-constexpr char SkillPointsValue[] = "SKILL_POINTS_VALUE";
-constexpr char StrValue[]         = "STR_VALUE";
-constexpr char DexValue[]         = "DEX_VALUE";
-constexpr char ManaValue[]        = "MANA_VALUE";
-constexpr char HpValue[]          = "HP_VALUE";
-constexpr char RWeapon[]          = "R_WEAPON";
-constexpr char RArrow[]           = "R_ARROW";
-constexpr char RFire[]            = "R_FIRE";
-constexpr char RMagic[]           = "R_MAGIC";
-constexpr char OneHandValue[]     = "ONE_HAND_VALUE";
-constexpr char TwoHandValue[]     = "TWO_HAND_VALUE";
-constexpr char BowValue[]         = "BOW_VALUE";
-constexpr char CrossbowValue[]    = "CROSSBOW_VALUE";
-constexpr char MagicValue[]       = "MAGIC_VALUE";
-constexpr char OpenLocks[]        = "OPEN_LOCKS";
-constexpr char PickPocketing[]    = "PICK_POCKETING";
-constexpr char SneakingValue[]    = "SNEAKING_VALUE";
-constexpr char AcrobaticsValue[]  = "ACROBATICS_VALUE";
-}  // namespace CharacterParam
+// General
+constexpr char CSTR_GENERAL_GUILD[]        = "general.guild";
+constexpr char CSTR_GENERAL_LEVEL[]        = "general.level";
+constexpr char CSTR_GENERAL_EXP[]          = "general.exp";
+constexpr char CSTR_GENERAL_NEXTLVL[]      = "general.nextlvl";
+constexpr char CSTR_GENERAL_SKILL_POINTS[] = "general.skillPoints";
+
+// Attributes
+constexpr char CSTR_ATTR_STR[]  = "attributes.str";
+constexpr char CSTR_ATTR_DEX[]  = "attributes.dex";
+constexpr char CSTR_ATTR_MANA[] = "attributes.mana";
+constexpr char CSTR_ATTR_LIFE[] = "attributes.life";
+
+// Protection
+constexpr char CSTR_PROT_WEAPON[] = "protection.weapon";
+constexpr char CSTR_PROT_ARROW[]  = "protection.arrow";
+constexpr char CSTR_PROT_FIRE[]   = "protection.fire";
+constexpr char CSTR_PROT_MAGIC[]  = "protection.magic";
+
+// Fighting Skills
+constexpr char CSTR_FIGHT_1H[]   = "fighting.oneHand";
+constexpr char CSTR_FIGHT_2H[]   = "fighting.twoHand";
+constexpr char CSTR_FIGHT_BOW[]  = "fighting.bow";
+constexpr char CSTR_FIGHT_CBOW[] = "fighting.crossbow";
+constexpr char CSTR_FIGHT_MAG[]  = "fighting.magic";
+
+// Thieving Skills
+constexpr char CSTR_THIEF_LOCKS[]      = "thieving.openLocks";
+constexpr char CSTR_THIEF_PICKPOCKET[] = "thieving.pickpocketing";
+constexpr char CSTR_THIEF_SNEAK[]      = "thieving.sneaking";
+
+// Special
+constexpr char CSTR_SPEC_ACROBATICS[] = "special.acrobatics";
+}  // namespace
 namespace
 {
 constexpr char GUI_FILE[]{"guiLayoutFile"};
@@ -76,187 +87,79 @@ void CharacterStatsComponent::Reload()
 }
 void CharacterStatsComponent::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::Awake, [this]() { initGui(); });
-
-    RegisterFunction(FunctionType::OnStart,
-                     [this]()
-                     {
-                         componentContext_.inputManager_.SubscribeOnKeyDown(Input::GameAction::CHARACTER_VIEW,
-                                                                            [this]()
-                                                                            {
-                                                                                if (not mainWindow)
-                                                                                    return;
-
-                                                                                if (mainWindow->isActive())
-                                                                                {
-                                                                                    hide();
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    show();
-                                                                                }
-                                                                            });
-                     });
 }
 void CharacterStatsComponent::read(const TreeNode& input)
 {
-    ::Read(input.getChild(GUI_FILE), guiFile);
-}
-void CharacterStatsComponent::write(TreeNode& node) const
-{
-    ::write(node.addChild(GUI_FILE), guiFile);
-}
-void CharacterStatsComponent::initGui()
-{
-    if (mainWindow)
-    {
-        LOG_DEBUG << "Already initialized";
-        return;
-    }
-
-    const std::string layerName{"CharacterViewer"};
-    GUI::ElementReader reader(componentContext_.guiManager_, componentContext_.guiElementFactory_);
-
-    if (reader.read(guiFile, layerName))
-    {
-        auto layer = componentContext_.guiManager_.getLayer(layerName);
-
-        mainWindow = GUI::getTypedElement<GUI::Window>(layer, "MainWindow");
-
-        if (auto exitButton = GUI::getTypedElement<GUI::Button>(layer, "Exit"))
-        {
-            exitButton->setOnClick([this]() { hide(); });
-        }
-
-        if (mainWindow)
-        {
-            mainWindow->activate(false);
-        }
-
-        auto getParamTxt = [&](const std::string& label)
-        {
-            if (auto txt = GUI::getTypedElement<GUI::Text>(layer, label))
-            {
-                params.insert({label, txt});
-            }
-        };
-
-        getParamTxt(CharacterParam::GuildName);
-        getParamTxt(CharacterParam::LvlValue);
-        getParamTxt(CharacterParam::ExpValue);
-        getParamTxt(CharacterParam::NextLvlValue);
-        getParamTxt(CharacterParam::SkillPointsValue);
-        getParamTxt(CharacterParam::StrValue);
-        getParamTxt(CharacterParam::DexValue);
-        getParamTxt(CharacterParam::ManaValue);
-        getParamTxt(CharacterParam::HpValue);
-        getParamTxt(CharacterParam::RWeapon);
-        getParamTxt(CharacterParam::RArrow);
-        getParamTxt(CharacterParam::RFire);
-        getParamTxt(CharacterParam::RMagic);
-        getParamTxt(CharacterParam::OneHandValue);
-        getParamTxt(CharacterParam::TwoHandValue);
-        getParamTxt(CharacterParam::BowValue);
-        getParamTxt(CharacterParam::CrossbowValue);
-        getParamTxt(CharacterParam::MagicValue);
-        getParamTxt(CharacterParam::OpenLocks);
-        getParamTxt(CharacterParam::PickPocketing);
-        getParamTxt(CharacterParam::SneakingValue);
-        getParamTxt(CharacterParam::AcrobaticsValue);
-
-        updateGui();
-        updateGuiStats();
-    }
-    else
-    {
-        LOG_WARN << "Character viewer init gui error";
-    }
-}
-void CharacterStatsComponent::updateGui()
-{
-}
-void CharacterStatsComponent::show()
-{
-    mainWindow->activate(true);
-
-    componentContext_.inputManager_.SetReleativeMouseMode(false);
-    componentContext_.inputManager_.ShowCursor(true);
-
-    if (auto mainCamera = componentContext_.scene_.GetCameraManager().GetMainCamera())
-    {
-        mainCamera->Lock();
-        updateGui();
-    }
-}
-void CharacterStatsComponent::hide()
-{
-    mainWindow->activate(false);
-
-    componentContext_.inputManager_.SetReleativeMouseMode(true);
-    componentContext_.inputManager_.ShowCursor(false);
-
-    if (auto mainCamera = componentContext_.scene_.GetCameraManager().GetMainCamera())
-    {
-        mainCamera->Unlock();
-    }
-}
-void CharacterStatsComponent::updateGuiStats()
-{
-    if (auto iter = params.find(CharacterParam::GuildName); iter != params.end())
-    {
-        auto str = magic_enum::enum_name(characterStats.general.guild);
-        iter->second->setText(std::string(str));
-    }
-
-    auto setValue = [&]<typename T>(const char* param, T& value)
-    {
-        if (auto iter = params.find(param); iter != params.end())
-        {
-            iter->second->setText(std::to_string(value));
-        }
-    };
-
-    auto setValueMinMax = [&](const char* param, const vec2& value)
-    {
-        if (auto iter = params.find(param); iter != params.end())
-        {
-            iter->second->setText(std::to_string(static_cast<uint32>(value.x)) + "/" +
-                                  std::to_string(static_cast<uint32>(value.y)));
-        }
-    };
-
     // General
-    setValue(CharacterParam::LvlValue, characterStats.general.level);
-    setValue(CharacterParam::ExpValue, characterStats.general.exp);
-    setValue(CharacterParam::NextLvlValue, characterStats.general.nextlvl);
-    setValue(CharacterParam::SkillPointsValue, characterStats.general.skillPoints);
+    ::Read(input.getChild(CSTR_GENERAL_GUILD), general.guild);
+    ::Read(input.getChild(CSTR_GENERAL_LEVEL), general.level);
+    ::Read(input.getChild(CSTR_GENERAL_EXP), general.exp);
+    ::Read(input.getChild(CSTR_GENERAL_NEXTLVL), general.nextlvl);
+    ::Read(input.getChild(CSTR_GENERAL_SKILL_POINTS), general.skillPoints);
 
     // Attributes
-    setValue(CharacterParam::StrValue, characterStats.attributes.str);
-    setValue(CharacterParam::DexValue, characterStats.attributes.dex);
-    setValueMinMax(CharacterParam::ManaValue, characterStats.attributes.mana);
-    setValueMinMax(CharacterParam::HpValue, characterStats.attributes.life);
+    ::Read(input.getChild(CSTR_ATTR_STR), attributes.str);
+    ::Read(input.getChild(CSTR_ATTR_DEX), attributes.dex);
+    ::Read(input.getChild(CSTR_ATTR_MANA), attributes.mana);
+    ::Read(input.getChild(CSTR_ATTR_LIFE), attributes.life);
 
     // Protection
-    setValue(CharacterParam::RWeapon, characterStats.protection.weapon);
-    setValue(CharacterParam::RArrow, characterStats.protection.arrow);
-    setValue(CharacterParam::RFire, characterStats.protection.fire);
-    setValue(CharacterParam::RMagic, characterStats.protection.magic);
+    ::Read(input.getChild(CSTR_PROT_WEAPON), protection.weapon);
+    ::Read(input.getChild(CSTR_PROT_ARROW), protection.arrow);
+    ::Read(input.getChild(CSTR_PROT_FIRE), protection.fire);
+    ::Read(input.getChild(CSTR_PROT_MAGIC), protection.magic);
 
     // Fighting Skills
-    setValue(CharacterParam::OneHandValue, characterStats.fightingSkills.oneHand);
-    setValue(CharacterParam::TwoHandValue, characterStats.fightingSkills.twoHand);
-    setValue(CharacterParam::BowValue, characterStats.fightingSkills.bow);
-    setValue(CharacterParam::CrossbowValue, characterStats.fightingSkills.crossbow);
-    setValue(CharacterParam::MagicValue, characterStats.fightingSkills.magic);
+    ::Read(input.getChild(CSTR_FIGHT_1H), fightingSkills.oneHand);
+    ::Read(input.getChild(CSTR_FIGHT_2H), fightingSkills.twoHand);
+    ::Read(input.getChild(CSTR_FIGHT_BOW), fightingSkills.bow);
+    ::Read(input.getChild(CSTR_FIGHT_CBOW), fightingSkills.crossbow);
+    ::Read(input.getChild(CSTR_FIGHT_MAG), fightingSkills.magic);
 
     // Thieving Skills
-    setValue(CharacterParam::OpenLocks, characterStats.thievingSkills.openLocks);
-    setValue(CharacterParam::PickPocketing, characterStats.thievingSkills.pickpocketing);
-    setValue(CharacterParam::SneakingValue, characterStats.thievingSkills.sneaking);
+    ::Read(input.getChild(CSTR_THIEF_LOCKS), thievingSkills.openLocks);
+    ::Read(input.getChild(CSTR_THIEF_PICKPOCKET), thievingSkills.pickpocketing);
+    ::Read(input.getChild(CSTR_THIEF_SNEAK), thievingSkills.sneaking);
 
-    // Special Skills
-    setValue(CharacterParam::AcrobaticsValue, characterStats.specialSkills.acrobatics);
+    // Special
+    ::Read(input.getChild(CSTR_SPEC_ACROBATICS), specialSkills.acrobatics);
+}
+
+void CharacterStatsComponent::write(TreeNode& node) const
+{
+    // General
+    ::write(node.addChild(CSTR_GENERAL_GUILD), general.guild);
+    ::write(node.addChild(CSTR_GENERAL_LEVEL), general.level);
+    ::write(node.addChild(CSTR_GENERAL_EXP), general.exp);
+    ::write(node.addChild(CSTR_GENERAL_NEXTLVL), general.nextlvl);
+    ::write(node.addChild(CSTR_GENERAL_SKILL_POINTS), general.skillPoints);
+
+    // Attributes
+    ::write(node.addChild(CSTR_ATTR_STR), attributes.str);
+    ::write(node.addChild(CSTR_ATTR_DEX), attributes.dex);
+    ::write(node.addChild(CSTR_ATTR_MANA), attributes.mana);
+    ::write(node.addChild(CSTR_ATTR_LIFE), attributes.life);
+
+    // Protection
+    ::write(node.addChild(CSTR_PROT_WEAPON), protection.weapon);
+    ::write(node.addChild(CSTR_PROT_ARROW), protection.arrow);
+    ::write(node.addChild(CSTR_PROT_FIRE), protection.fire);
+    ::write(node.addChild(CSTR_PROT_MAGIC), protection.magic);
+
+    // Fighting Skills
+    ::write(node.addChild(CSTR_FIGHT_1H), fightingSkills.oneHand);
+    ::write(node.addChild(CSTR_FIGHT_2H), fightingSkills.twoHand);
+    ::write(node.addChild(CSTR_FIGHT_BOW), fightingSkills.bow);
+    ::write(node.addChild(CSTR_FIGHT_CBOW), fightingSkills.crossbow);
+    ::write(node.addChild(CSTR_FIGHT_MAG), fightingSkills.magic);
+
+    // Thieving Skills
+    ::write(node.addChild(CSTR_THIEF_LOCKS), thievingSkills.openLocks);
+    ::write(node.addChild(CSTR_THIEF_PICKPOCKET), thievingSkills.pickpocketing);
+    ::write(node.addChild(CSTR_THIEF_SNEAK), thievingSkills.sneaking);
+
+    // Special
+    ::write(node.addChild(CSTR_SPEC_ACROBATICS), specialSkills.acrobatics);
 }
 }  // namespace Components
 }  // namespace GameEngine
