@@ -12,6 +12,7 @@ public:
     void update(float);
 
     void onEnter();
+    void onEnter(HurtState&, const DeathEvent&);
     void onEnter(CrouchWalkArmedChangeState&, const DeathEvent&);
     void onEnter(CrouchRotateArmedChangeState&, const DeathEvent&);
     void onEnter(CrouchWalkAndRotateArmedChangeState&, const DeathEvent&);

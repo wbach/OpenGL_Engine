@@ -21,7 +21,7 @@ void RotateableRunState::update()
     if (timer.GetTimeMilliseconds() > 2000)
     {
         timer.Reset();
-        pushEventToQueue(MouseInactivityEvent{});
+        //pushEventToQueue(MouseInactivityEvent{});
         return;
     }
 

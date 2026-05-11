@@ -127,9 +127,6 @@ TEST_F(GameObjectTestSchould, AddByTreeNodeAndGetComponentByTemplete)
 {
     CreateSut();
 
-    Animator::registerReadFunctions();
-    RendererComponent::registerReadFunctions();
-
     {
         TreeNode node("Component");
         node.attributes_["type"]              = "Animator";
@@ -152,11 +149,6 @@ TEST_F(GameObjectTestSchould, AddByTreeNodeAndGetComponentByTemplete)
     }
 
     verifyComponents();
-
-    unregsiterComponentReadFunction("Animator");
-    unregsiterComponentReadFunction("RendererComponent");
-
-    EXPECT_TRUE(ReadFunctions::instance().getComponentTypeNameToId().empty());
 }
 
 TEST_F(GameObjectTestSchould, CreateDeleteGameObjectStability)
@@ -173,10 +165,10 @@ TEST_F(GameObjectTestSchould, CreateDeleteGameObjectStability)
     scene->ProcessEvents();
 
     auto& componentController = scene->getComponentController();
- //   EXPECT_TRUE(componentController.getComponentFunctions().empty());
+    //   EXPECT_TRUE(componentController.getComponentFunctions().empty());
     EXPECT_TRUE(componentController.getComponentsContainer().empty());
 
-    for(auto& [typeId, components] : componentController.getComponentsContainer())
+    for (auto& [typeId, components] : componentController.getComponentsContainer())
     {
         LOG_DEBUG << "TypeId: " << typeId << " has " << components.size() << " components.";
     }

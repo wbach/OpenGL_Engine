@@ -15,6 +15,7 @@ class IdleStateBase : virtual public BaseState
 public:
     IdleStateBase(FsmContext&, const std::string&, std::optional<std::string> = std::nullopt);
 
+    void onEnter(const AnimationPlayEndEvent&);
     void onEnter(const StartDialogEvent&);
     void onEnter(const EndDialogEvent&);
     void onEnter(const GroundDetectionEvent&);

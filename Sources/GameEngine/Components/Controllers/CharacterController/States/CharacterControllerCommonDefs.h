@@ -10,6 +10,7 @@ namespace Components
 {
 struct FsmContext;
 
+class HurtState;
 class DialogState;
 class DisarmedIdleState;
 class DisarmedAttackState;

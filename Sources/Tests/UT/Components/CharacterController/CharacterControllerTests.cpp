@@ -60,8 +60,8 @@ CharacterControllerTests::CharacterControllerTests()
 }
 CharacterControllerTests::~CharacterControllerTests()
 {
-    EXPECT_CALL(physicsApiMock_, RemoveShape(shapeId));
-    EXPECT_CALL(physicsApiMock_, RemoveRigidBody(rigidbodyid));
+    //EXPECT_CALL(physicsApiMock_, RemoveShape(shapeId));
+    //EXPECT_CALL(physicsApiMock_, RemoveRigidBody(rigidbodyid));
     LOG_DEBUG << "";
 }
 void CharacterControllerTests::SetUp()

@@ -33,6 +33,7 @@
 #include "States/CrouchWalkArmedChangeState.h"
 #include "States/DeathState.h"
 #include "States/DialogState.h"
+#include "States/HurtState.h"
 #include "States/DisarmedAttackAndRotateState.h"
 #include "States/DisarmedAttackAndRunAndRotateState.h"
 #include "States/DisarmedAttackAndRunState.h"
@@ -160,6 +161,7 @@ using CharacterControllerFsm =
                             DisarmedFallingState,
                             ArmedFallingState,
                             DialogState,
+                            HurtState,
                             DeathState
                             >;
 }

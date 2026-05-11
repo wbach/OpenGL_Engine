@@ -1,6 +1,7 @@
 #include "DeathState.h"
 
 #include "../FsmContext.h"
+#include "GameEngine/Components/Controllers/CharacterController/States/HurtState.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 
 namespace GameEngine
@@ -29,6 +30,11 @@ void DeathState::onEnter(AimCrouchRotateState &, const DeathEvent &)
 void DeathState::onEnter(AimCrouchWalkAndRotateState &, const DeathEvent &)
 {
     setAnim(context_.animClipNames.armed.posture.crouched.death);
+}
+
+void DeathState::onEnter(HurtState &, const DeathEvent &)
+{
+    setAnim(context_.animClipNames.disarmed.posture.stand.death);
 }
 
 void DeathState::onEnter(CrouchWalkArmedChangeState &, const DeathEvent &)

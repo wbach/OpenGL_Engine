@@ -11,6 +11,7 @@
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Controllers/CharacterController/AimController.h"
+#include "GameEngine/Components/Controllers/CharacterController/States/CharacterControllerCommonDefs.h"
 #include "GameEngine/Components/Controllers/CharacterController/States/DeathState.h"
 #include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
@@ -226,6 +227,7 @@ void CharacterController::Init()
             DisarmedFallingState(context),
             ArmedFallingState(context),
             DialogState(context),
+            HurtState(context),
             DeathState(context));
         // clang-format on
 

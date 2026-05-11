@@ -1,4 +1,5 @@
 #include "../CharacterControllerTests.h"
+#include "Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "Components/Controllers/CharacterController/States/DisarmedIdleState.h"
 #include "GameEngine/Physics/CollisionContactInfo.h"
 
@@ -105,7 +106,8 @@ TEST_F(CharacterControllerTests, DISABLED_DisarmedIdleState_RotateTargetEvent)
 TEST_F(CharacterControllerTests, DisarmedIdleState_AttackEvent)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()}, {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()},
+                                 {ADVANCED_TIME_TRANSITION_TIME});
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_BlockTranistionAfterAttackEvent)

@@ -97,5 +97,9 @@ void IdleStateBase::onEnter(const EndMoveRightEvent &)
 {
     setIdleAnim();
 }
+void IdleStateBase::onEnter(const AnimationPlayEndEvent &)
+{
+    setIdleAnim();
+}
 }  // namespace Components
 }  // namespace GameEngine
