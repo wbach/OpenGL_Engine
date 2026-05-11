@@ -197,6 +197,9 @@ vec3 ConvertToVec3(TreeNode& node)
 
 void TreeNode::CopyTreeNode(const TreeNode& source, TreeNode& target)
 {
+    target.children_.clear();
+    target.attributes_.clear();
+
     target.parent      = source.parent;
     target.value_      = source.value_;
     target.type_       = source.type_;

@@ -58,6 +58,7 @@ void HealthComponent::takeDamage(float rawDamage)
     if (attributes.life.x > finalDamage)
     {
         attributes.life.x -= finalDamage;
+        LOG_DEBUG << "HP: " << attributes.life;
         controller->pushEventToQueue(HurtEvent{});
     }
     else

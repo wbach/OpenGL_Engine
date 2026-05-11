@@ -184,11 +184,16 @@ std::vector<HealthComponent*> MeleeAttackComponent::GetEnemiesInRange(float radi
 {
     std::vector<HealthComponent*> result;
     auto all = componentContext_.componentController_.GetAllActiveComponentsOfType<HealthComponent>();
-    for (auto& enemy : all)
+    for (auto& hpComponent : all)
     {
-        if (glm::distance(enemy->GetParentGameObject().GetWorldTransform().GetPosition(),
+        if (hpComponent->GetParentGameObject().GetId() == thisObject_.GetId())
+        {
+            continue;
+        }
+
+        if (glm::distance(hpComponent->GetParentGameObject().GetWorldTransform().GetPosition(),
                           thisObject_.GetWorldTransform().GetPosition()) < radius)
-            result.push_back(enemy);
+            result.push_back(hpComponent);
     }
     return result;
 }
