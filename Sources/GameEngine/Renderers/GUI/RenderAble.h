@@ -23,8 +23,10 @@ public:
 
     virtual std::optional<uint32> getTextureId() const;
 
-    void setColor(const Color&);
-    const Color& getColor() const;
+    void setTextureColor(const Color&);
+    void setBackgroundColor(const Color&);
+    const Color& getTextureColor() const;
+    const Color& getBackgroundColor() const;
     const GeneralTexture* getTexture() const;
 
     const mat4& getTransformMatrix() const;
@@ -43,7 +45,8 @@ protected:
     IResourceManager& resourceManager_;
     Renderer& renderer_;
     GeneralTexture* texture_;
-    Color color_;
+    Color textureColor_;
+    Color backgroundColor_;
     mat4 transformMatrix_;
     int inactivityReleaseTime{5000};
     std::optional<Timepoint> releaseTimerStart_;

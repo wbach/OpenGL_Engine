@@ -68,7 +68,7 @@ void DebugOverlay::Update()
 
             text->font.size    = 40;
             text->render.align = GUI::HorizontalAlign::LEFT;
-            text->setColor(vec3(.1f));
+            text->setTextureColor(vec3(.1f));
             text->setLabel(measurment.first);
             verticalLayout_->addChild(std::move(text));
             AdjustSize(0.025);

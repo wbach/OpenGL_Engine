@@ -119,8 +119,8 @@ void EditText::setText(const std::string &text)
 
 void EditText::setTextColor(const vec3 &color)
 {
-    text_->setColor(color);
-    cursor_->setColor(color);
+    text_->setTextureColor(color);
+    cursor_->setTextureColor(color);
 }
 void EditText::onMouseClick(const vec2 &position, KeyCodes::Type key)
 {

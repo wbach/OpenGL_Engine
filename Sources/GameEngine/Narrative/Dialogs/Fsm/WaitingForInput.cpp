@@ -51,7 +51,7 @@ void WaitingForInput::onEnter(const StartInputWaiting& event)
 
         if (i == 0)
         {
-            optionGuiText->setColor(HIGHLIGHT_COLOR);
+            optionGuiText->setTextureColor(HIGHLIGHT_COLOR);
             i++;
         }
 
@@ -133,7 +133,7 @@ void WaitingForInput::updateHighLightedColor(size_t oldItem, size_t newItem)
         {
             if (auto* text = dynamic_cast<GUI::Text*>(children[index].get()))
             {
-                text->setColor(color);
+                text->setTextureColor(color);
             }
         }
     };

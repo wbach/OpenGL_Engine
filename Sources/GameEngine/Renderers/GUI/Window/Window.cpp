@@ -98,7 +98,7 @@ void Window::setBackground(const Color& color)
 {
     if (background_)
     {
-        background_->setColor(color);
+        background_->setTextureColor(color);
     }
 }
 void Window::accept(IElementVisitor& visitor)

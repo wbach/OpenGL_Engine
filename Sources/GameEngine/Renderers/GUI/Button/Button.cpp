@@ -90,7 +90,7 @@ void Button::setBackground(std::unique_ptr<Sprite> sprite)
 
     if (backgroundSprite)
     {
-        backgroundSprite->setColor(theme.normal.sprite.color);
+        backgroundSprite->setTextureColor(theme.normal.sprite.color);
         backgroundSprite->setLocalScale(vec2{1.f});
         backgroundSprite->setZPosition(-0.1f);
         backgroundSprite->setParent(this);
@@ -103,7 +103,7 @@ void Button::setOnHover(std::unique_ptr<Sprite> sprite)
 
     if (onHoverSprite)
     {
-        onHoverSprite->setColor(theme.hover.sprite.color);
+        onHoverSprite->setTextureColor(theme.hover.sprite.color);
         onHoverSprite->activate(false);
         onHoverSprite->setZPosition(-0.1f);
         onHoverSprite->setLocalScale(vec2{1.f});
@@ -117,7 +117,7 @@ void Button::setOnActive(std::unique_ptr<Sprite> sprite)
 
     if (onActiveSprite)
     {
-        onActiveSprite->setColor(theme.active.sprite.color);
+        onActiveSprite->setTextureColor(theme.active.sprite.color);
         onActiveSprite->activate(false);
         onActiveSprite->setZPosition(-0.1f);
         onActiveSprite->setLocalScale(vec2{1.f});
@@ -131,7 +131,7 @@ void Button::setOnHover(const Color &color)
 
     if (onHoverSprite)
     {
-        onHoverSprite->setColor(color);
+        onHoverSprite->setTextureColor(color);
     }
 }
 
@@ -141,7 +141,7 @@ void Button::setBackground(const Color &color)
 
     if (backgroundSprite)
     {
-        backgroundSprite->setColor(color);
+        backgroundSprite->setTextureColor(color);
     }
 }
 
@@ -151,7 +151,7 @@ void Button::setOnActive(const Color &color)
 
     if (onActiveSprite)
     {
-        onActiveSprite->setColor(color);
+        onActiveSprite->setTextureColor(color);
     }
 }
 
@@ -166,7 +166,7 @@ void Button::setBackgroundText(const Color &color)
 
     if (text_)
     {
-        text_->setColor(color);
+        text_->setTextureColor(color);
     }
 }
 
@@ -233,7 +233,7 @@ void Button::applyNormalState()
     if (backgroundSprite)
         backgroundSprite->activate(true);
     if (text_)
-        text_->setColor(theme.normal.text.color);
+        text_->setTextureColor(theme.normal.text.color);
 }
 
 void Button::applyHoverState()
@@ -248,7 +248,7 @@ void Button::applyHoverState()
     if (onHoverSprite)
         onHoverSprite->activate(true);
     if (text_)
-        text_->setColor(theme.hover.text.color);
+        text_->setTextureColor(theme.hover.text.color);
 }
 
 void Button::applyActiveState()
@@ -263,7 +263,7 @@ void Button::applyActiveState()
     if (onActiveSprite)
         onActiveSprite->activate(true);
     if (text_)
-        text_->setColor(theme.active.text.color);
+        text_->setTextureColor(theme.active.text.color);
 }
 const Color &Button::getBackgroundColor() const
 {

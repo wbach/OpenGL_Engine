@@ -125,7 +125,8 @@ void write(TreeNode& node, const Text& text)
     write(node, FONT_SIZE, text.font.size);
     write(node, FONT_OUTLINE, text.font.outline);
     write(node, VALUE, text.getText());
-    write(node, COLOR, text.getColor());
+    write(node, TEXTURE_COLOR, text.getTextureColor());
+    write(node, BACKGROUND_COLOR, text.getBackgroundColor());
     write(node, WRAP_WIDTH, text.text.wrapWidth);
     write(node, RENDER_MODE, text.render.mode);
     write(node, HORIZONAL_ALIGN, text.render.align);
@@ -140,7 +141,8 @@ void write(TreeNode& node, const Sprite& element)
     {
         write(node.addChild(FILE), texture->GetFile());
     }
-    write(node.addChild(COLOR), element.getColor());
+    write(node, TEXTURE_COLOR, element.getTextureColor());
+    write(node, BACKGROUND_COLOR, element.getBackgroundColor());
 }
 
 TreeNode& writeNoneTexture(TreeNode& node, const std::string& label)

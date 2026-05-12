@@ -16,6 +16,7 @@
 #include <GameEngine/Renderers/GUI/Window/WindowStyle.h>
 #include <Logger/Log.h>
 #include <Types.h>
+#include <math.h>
 #include <wx/filedlg.h>
 #include <wx/log.h>
 #include <wx/msgdlg.h>
@@ -130,23 +131,29 @@ wxPGChoices CreateChoicesFromEnum()
     }
     return choices;
 }
-void AppendColorProperty(wxPropertyGrid& pg, const Color& color, const wxString& label = "Color",
-                         const wxString& propName = "ElementColor")
+void AppendColorProperty(wxPropertyGrid& pg, GameEngine::GUI::Element& selectedElement, const Color& color,
+                         const wxString& label = "Color", const wxString& propName = "ElementTextureColor")
 {
     wxColour wxC(color.r(), color.g(), color.b(), color.a());
     wxPGProperty* p = pg.Append(new wxColourProperty(label, propName, wxC));
     p->SetAttribute(wxPG_COLOUR_HAS_ALPHA, true);
+    p->SetClientData(&selectedElement);
 }
 Color ConvertVariantToColor(const wxVariant& value)
 {
     wxColour col;
+
     if (value.IsType("wxColourPropertyValue"))
     {
-        auto* cpv = static_cast<wxColourPropertyValue*>(value.GetVoidPtr());
-        if (cpv)
+        wxColourPropertyValue* cpv = wxGetVariantCast(value, wxColourPropertyValue);
+        if (cpv != nullptr)
         {
             col = cpv->m_colour;
         }
+    }
+    else if (value.IsType("wxColour"))
+    {
+        col << value;
     }
     else
     {
@@ -157,6 +164,7 @@ Color ConvertVariantToColor(const wxVariant& value)
     {
         return Color(0);
     }
+
     return Color(col.Red(), col.Green(), col.Blue(), col.Alpha());
 }
 
@@ -381,7 +389,8 @@ void GuiEditorFrame::renderAbleProperties(wxPropertyGrid& propGrid, GameEngine::
     if (auto* el = dynamic_cast<GameEngine::GUI::RenderAble*>(&selectedElement))
     {
         AppendProperty(propGrid, selectedElement, new wxPropertyCategory("Renderer Base Settings"));
-        AppendColorProperty(propGrid, el->getColor(), "Color", "ElementColor");
+        AppendColorProperty(propGrid, selectedElement, el->getTextureColor(), "Texture color", "ElementTextureColor");
+        AppendColorProperty(propGrid, selectedElement, el->getBackgroundColor(), "Background color", "ElementBackgroundColor");
         AppendProperty(propGrid, selectedElement,
                        new wxIntProperty("Inactivity release", "InactivityRelease", el->inactivityRelease()));
     }
@@ -498,9 +507,9 @@ void GuiEditorFrame::buttonProperties(wxPropertyGrid& propGrid, GameEngine::GUI:
         AppendProperty(propGrid, selectedElement, new wxStringProperty("Label text", "ButtonLabelText", button->getText()));
         AppendProperty(propGrid, selectedElement,
                        new wxFloatProperty("Text scale", "ButtonLabelTextScale", button->getTextScale()));
-        AppendColorProperty(propGrid, button->getBackgroundColor(), "Normal Color", "ButtonBackgorundColor");
-        AppendColorProperty(propGrid, button->getOnHoverColor(), "On Hover Color", "ButtonHoverColor");
-        AppendColorProperty(propGrid, button->getActiveColor(), "Active Color", "ButtonActiveColor");
+        AppendColorProperty(propGrid, selectedElement, button->getBackgroundColor(), "Normal Color", "ButtonBackgorundColor");
+        AppendColorProperty(propGrid, selectedElement, button->getOnHoverColor(), "On Hover Color", "ButtonHoverColor");
+        AppendColorProperty(propGrid, selectedElement, button->getActiveColor(), "Active Color", "ButtonActiveColor");
 
         AppendProperty(propGrid, selectedElement,
                        new wxBoolProperty("Sticky active mode", "ButtonStickyActive", button->isStickyActive()));
@@ -733,11 +742,22 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
             scale.y    = p->GetValue().GetDouble();
             target->setScreenScale(scale);
         }
-        else if (name == "ElementColor")
+        else if (name == "ElementTextureColor")
         {
             if (auto el = dynamic_cast<GameEngine::GUI::RenderAble*>(target))
             {
-                el->setColor(ConvertVariantToColor(p->GetValue()));
+                el->setTextureColor(ConvertVariantToColor(p->GetValue()));
+            }
+        }
+        else if (name == "ElementBackgroundColor")
+        {
+            if (auto el = dynamic_cast<GameEngine::GUI::RenderAble*>(target))
+            {
+                el->setBackgroundColor(ConvertVariantToColor(p->GetValue()));
+            }
+            else
+            {
+                LOG_DEBUG << "eleet is not render able";
             }
         }
         else if (name == "InactivityRelease")
@@ -1061,6 +1081,10 @@ void GuiEditorFrame::OnPropertyChange(wxPropertyGridEvent& event)
                 layout->setPadding(padding);
             }
         }
+    }
+    else
+    {
+        LOG_DEBUG << "No target !";
     }
 
     rebuildPropertiesView();

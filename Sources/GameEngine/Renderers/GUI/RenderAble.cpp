@@ -16,7 +16,8 @@ RenderAble::RenderAble(IResourceManager& resourceManager, Renderer& renderer)
     : resourceManager_(resourceManager)
     , renderer_(renderer)
     , texture_{nullptr}
-    , color_(vec4(1.f))
+    , textureColor_(vec4(1.f))
+    , backgroundColor_(vec4(0.f))
     , transformMatrix_(mat4(1.f))
 {
     updateTransformMatrix();
@@ -28,7 +29,8 @@ RenderAble::RenderAble(const RenderAble& other)
     , resourceManager_(other.resourceManager_)
     , renderer_(other.renderer_)
     , texture_(nullptr)
-    , color_(other.color_)
+    , textureColor_(other.textureColor_)
+    , backgroundColor_(other.backgroundColor_)
     , transformMatrix_(other.transformMatrix_)
     , inactivityReleaseTime(other.inactivityReleaseTime)
     , releaseTimerStart_(std::nullopt)
@@ -43,9 +45,15 @@ RenderAble::~RenderAble()
     deleteTexture();
 }
 
-void RenderAble::setColor(const Color& color)
+void RenderAble::setTextureColor(const Color& color)
 {
-    color_ = color;
+    LOG_DEBUG << color;
+    textureColor_ = color;
+}
+void RenderAble::setBackgroundColor(const Color& color)
+{
+    LOG_DEBUG << color;
+    backgroundColor_ = color;
 }
 const mat4& RenderAble::getTransformMatrix() const
 {
@@ -55,9 +63,13 @@ std::optional<uint32> RenderAble::getTextureId() const
 {
     return texture_ ? texture_->GetGraphicsObjectId() : std::optional<uint32>();
 }
-const Color& RenderAble::getColor() const
+const Color& RenderAble::getTextureColor() const
 {
-    return color_;
+    return textureColor_;
+}
+const Color& RenderAble::getBackgroundColor() const
+{
+    return backgroundColor_;
 }
 const GeneralTexture* RenderAble::getTexture() const
 {

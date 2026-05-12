@@ -51,7 +51,7 @@ std::unique_ptr<Text> ElementFactory::createText(const std::string &text, const 
     guiText->font.file    = theme.font;
     guiText->font.outline = theme.fontOutline;
     guiText->font.size    = theme.fontSize_;
-    guiText->setColor(theme.color);
+    guiText->setTextureColor(theme.color);
     return guiText;
 }
 
@@ -76,7 +76,8 @@ std::unique_ptr<Sprite> ElementFactory::createSprite(const FileHandle &file)
 std::unique_ptr<Sprite> ElementFactory::createSprite(const FileHandle &file, const Theme::Sprite &theme)
 {
     auto sprite = makeSprite(file);
-    sprite->setColor(theme.color);
+    if (sprite)
+        sprite->setTextureColor(theme.color);
     return sprite;
 }
 
@@ -91,7 +92,7 @@ std::unique_ptr<Window> ElementFactory::createWindow(WindowStyle style)
             if (auto bgSprite = makeSprite(*bgTexture))
             {
                 bgSprite->setLocalScale({1.f, 1.f});
-                bgSprite->setColor(theme_.window.background.color);
+                bgSprite->setTextureColor(theme_.window.background.color);
                 guiWindow->setBackground(std::move(bgSprite));
             }
         }
@@ -217,18 +218,21 @@ const Theme &ElementFactory::getTheme() const
 std::unique_ptr<Sprite> ElementFactory::makeSprite(const FileHandle &file)
 {
     TextureParameters params;
-    params.sizeLimit = std::nullopt;;
-    params.flipMode        = TextureFlip::VERTICAL;
-    params.filter          = GraphicsApi::TextureFilter::LINEAR;
+    params.sizeLimit = std::nullopt;
+    params.flipMode  = TextureFlip::VERTICAL;
+    params.filter    = GraphicsApi::TextureFilter::LINEAR;
 
-    auto texture = parameters_.resourceManager_.GetTextureLoader().LoadTexture(file, params);
-    if (not texture)
+    if (not file.empty())
     {
-        LOG_DEBUG << "Texture not loaded : " << file;
-        return std::make_unique<Sprite>(parameters_.resourceManager_, parameters_.renderer);
+        auto texture = parameters_.resourceManager_.GetTextureLoader().LoadTexture(file, params);
+        if (texture)
+        {
+            return std::make_unique<Sprite>(parameters_.resourceManager_, parameters_.renderer, *texture);
+        }
     }
 
-    return std::make_unique<Sprite>(parameters_.resourceManager_, parameters_.renderer, *texture);
+    LOG_DEBUG << "Texture not loaded : " << file;
+    return std::make_unique<Sprite>(parameters_.resourceManager_, parameters_.renderer);
 }
 
 void ElementFactory::createWindowBar(WindowStyle style, Window &window)

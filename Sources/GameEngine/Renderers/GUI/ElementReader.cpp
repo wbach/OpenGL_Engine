@@ -238,18 +238,29 @@ std::unique_ptr<Text> ElementReader::readText(const TreeNode &node)
 
     auto text = factory_.createText("");
 
-    Color color;
+    std::optional<Color> textureColor;
+    std::optional<Color> backgroundColor;
+
     ::Read(node.getChild(FONT), text->font.file);
     ::Read(node.getChild(VALUE), text->text.text);
     ::Read(node.getChild(FONT_SIZE), text->font.size);
     ::Read(node.getChild(FONT_OUTLINE), text->font.outline);
-    ::Read(node.getChild(COLOR), color);
+    ::Read(node.getChild(COLOR), textureColor);  // tmp to keep existing files working, to remove
+    ::Read(node.getChild(TEXTURE_COLOR), textureColor);
+    ::Read(node.getChild(BACKGROUND_TEXTURE), backgroundColor);
     ::Read(node.getChild(RENDER_MODE), text->render.mode);
     ::Read(node.getChild(HORIZONAL_ALIGN), text->render.align);
     ::Read(node.getChild(WRAP_WIDTH), text->text.wrapWidth);
 
     readGuiElementBasic(*text, node);
-    text->setColor(color);
+    if (textureColor)
+    {
+        text->setTextureColor(*textureColor);
+    }
+    if (backgroundColor)
+    {
+        text->setBackgroundColor(*backgroundColor);
+    }
 
     LOG_DEBUG << " readText done";
 
@@ -306,7 +317,19 @@ std::unique_ptr<Sprite> ElementReader::readSprite(const TreeNode &node)
     {
         Color color(0);
         ::Read(*paramNode, color);
-        texture->setColor(color);
+        texture->setTextureColor(color);
+    }
+    if (auto paramNode = node.getChild(TEXTURE_COLOR))
+    {
+        Color color(0);
+        ::Read(*paramNode, color);
+        texture->setTextureColor(color);
+    }
+    if (auto paramNode = node.getChild(BACKGROUND_COLOR))
+    {
+        Color color(0);
+        ::Read(*paramNode, color);
+        texture->setBackgroundColor(color);
     }
     return texture;
 }

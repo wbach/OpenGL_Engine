@@ -23,6 +23,8 @@ std::mutex subscriberMutex;
 struct ColorBuffer
 {
     AlignWrapper<vec4> color;
+    AlignWrapper<vec4> backgroundColor;
+    AlignWrapper<vec4> params;
 };
 }  // namespace
 
@@ -92,7 +94,8 @@ void Renderer::render()
 
         subscriber->onRender();
 
-        if (not subscriber->getTextureId())
+        bool hasTexture = subscriber->getTextureId().has_value();
+        if (not hasTexture and subscriber->getBackgroundColor().value.w < 0.001f)
             continue;
 
         PerObjectUpdate buffer;
@@ -101,11 +104,17 @@ void Renderer::render()
         graphicsApi_.BindShaderBuffer(transformBuffer_);
 
         ColorBuffer colorBuffer;
-        colorBuffer.color = subscriber->getColor().value;
+        colorBuffer.color           = subscriber->getTextureColor().value;
+        colorBuffer.backgroundColor = subscriber->getBackgroundColor().value;
+        colorBuffer.params.value.x  = hasTexture ? 1.f : 0.f;
+
         graphicsApi_.UpdateShaderBuffer(colorBuffer_, &colorBuffer);
         graphicsApi_.BindShaderBuffer(colorBuffer_);
 
-        graphicsApi_.ActiveTexture(0, *subscriber->getTextureId());
+        if (hasTexture)
+        {
+            graphicsApi_.ActiveTexture(0, *subscriber->getTextureId());
+        }
         graphicsApi_.RenderQuad();
 
         if (subscriber->getZValue() > min)

@@ -138,7 +138,7 @@ GeneralTexture* TextureLoader::LoadTexture(const FileHandle& fileHandle, const T
                               [this, &params](const File& file)
                               {
                                   std::lock_guard<std::mutex> lk(textureMutex_);
-
+                                  LOG_DEBUG << file;
                                   File inputFile = file;
                                   if (not file)
                                   {

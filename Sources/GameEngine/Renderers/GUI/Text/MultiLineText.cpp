@@ -84,7 +84,7 @@ void MultiLineText::rebuildLines()
         lineElement->setLocalScale(vec2(1.f, lineHeight.get()));
         lineElement->font   = font;
         lineElement->render = render;
-        lineElement->setColor(textColor);
+        lineElement->setTextureColor(textColor);
         layout.addChild(std::move(lineElement));
     }
 
@@ -172,7 +172,7 @@ void MultiLineText::setColor(const Color& color)
     {
         if (auto text = dynamic_cast<Text*>(child.get()))
         {
-            text->setColor(color);
+            text->setTextureColor(color);
         }
     }
 }

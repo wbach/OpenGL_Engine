@@ -546,7 +546,7 @@ void PauseMenu::fillSettingsParamWindow(View::Child& view, const std::string& ca
 
         if (param.restartRequierd == ConfigurationExplorer::ApplyPolicy::RestartRequired)
         {
-            apllyButton->getTextElement()->setColor(Color(1.f, 1.f, 0.f, 1.f).value);
+            apllyButton->getTextElement()->setTextureColor(Color(1.f, 1.f, 0.f, 1.f).value);
         }
 
         apllyButton->setLocalScale({0.1f, 1.f});

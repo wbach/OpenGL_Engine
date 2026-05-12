@@ -67,5 +67,7 @@ extern const std::string TOP;
 extern const std::string BOTTOM;
 extern const std::string LEFT;
 extern const std::string RIGHT;
+extern const std::string TEXTURE_COLOR;
+extern const std::string BACKGROUND_COLOR;
 }  // namespace GUI
 }  // namespace GameEngine

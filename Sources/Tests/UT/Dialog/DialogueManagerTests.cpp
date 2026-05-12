@@ -430,9 +430,9 @@ TEST_F(DialogueManagerTests, ShouldAutomaticallyGoToNextNodeWhenNoOptionsAvailab
 
     LOG_DEBUG << "expectedighlighetColor";
     const vec4 expectedighlighetColor(1, 1, 0, 1);
-    EXPECT_TRUE(glm::all(glm::epsilonEqual(optionguiText->getColor().value, expectedighlighetColor, 0.001f)));
+    EXPECT_TRUE(glm::all(glm::epsilonEqual(optionguiText->getTextureColor().value, expectedighlighetColor, 0.001f)));
 
-    LOG_DEBUG << optionguiText->getColor();
+    LOG_DEBUG << optionguiText->getTextureColor();
     EXPECT_TRUE(optionguiText->isActive());
 
     dialogueManager_.handleEvent(OptionSelected{.option           = dialogueComponent->getCurrent()->options[0],

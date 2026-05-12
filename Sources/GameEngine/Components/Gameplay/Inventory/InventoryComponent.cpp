@@ -297,7 +297,7 @@ void InventoryComponent::updateGui()
             {
                 GUI::ElementReader reader(componentContext_.guiManager_, componentContext_.guiElementFactory_);
                 auto sprite = reader.readSprite(*defaultItemSpriteNode);
-                slot.button->setBackground(sprite->getColor());
+                slot.button->setBackground(sprite->getTextureColor());
                 slot.button->setBackground(std::move(sprite));
             }
             slot.button->setOnClick(nullptr);
