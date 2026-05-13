@@ -18,12 +18,14 @@
 #include "GameEngine/Renderers/GUI/Layout/HorizontalLayout.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
 #include "GameEngine/Renderers/GUI/Manager.h"
+#include "GameEngine/Renderers/GUI/Sprite/Sprite.h"
 #include "GameEngine/Renderers/GUI/Text/MultiLineText.h"
 #include "GameEngine/Renderers/GUI/Text/Text.h"
 #include "GameEngine/Renderers/GUI/Transform.h"
 #include "GameEngine/Renderers/GUI/Window/Window.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Logger/Log.h"
+#include "Types.h"
 #include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
@@ -56,7 +58,8 @@ constexpr char AcrobaticsValue[]  = "ACROBATICS_VALUE";
 namespace
 {
 constexpr char GUI_FILE[]{"guiLayoutFile"};
-
+constexpr char HUD_FILE[]{"hudFile"};
+constexpr char LAYER_NAME[]{"CharacterViewer"};
 }  // namespace
 namespace Components
 {
@@ -103,14 +106,28 @@ void CharacterStatsViewerComponent::ReqisterFunctions()
                                                                                 }
                                                                             });
                      });
+
+    RegisterFunction(FunctionType::Update,
+                     [this]()
+                     {
+                         if (characterStats and hpValue)
+                         {
+                             auto life        = characterStats->attributes.life;
+                             auto currentLife = life.x / life.y;
+                             const auto scale = hpValue->getLocalScale();
+                             hpValue->setLocalScale(vec2{currentLife, scale.y});
+                         }
+                     });
 }
 void CharacterStatsViewerComponent::read(const TreeNode& input)
 {
     ::Read(input.getChild(GUI_FILE), guiFile);
+    ::Read(input.getChild(HUD_FILE), hudFile);
 }
 void CharacterStatsViewerComponent::write(TreeNode& node) const
 {
     ::write(node.addChild(GUI_FILE), guiFile);
+    ::write(node.addChild(HUD_FILE), hudFile);
 }
 void CharacterStatsViewerComponent::initGui()
 {
@@ -120,69 +137,8 @@ void CharacterStatsViewerComponent::initGui()
         return;
     }
 
-    if (mainWindow)
-    {
-        LOG_DEBUG << "Already initialized";
-        return;
-    }
-
-    const std::string layerName{"CharacterViewer"};
-    GUI::ElementReader reader(componentContext_.guiManager_, componentContext_.guiElementFactory_);
-
-    if (reader.read(guiFile, layerName))
-    {
-        auto layer = componentContext_.guiManager_.getLayer(layerName);
-
-        mainWindow = GUI::getTypedElement<GUI::Window>(layer, "MainWindow");
-
-        if (auto exitButton = GUI::getTypedElement<GUI::Button>(layer, "Exit"))
-        {
-            exitButton->setOnClick([this]() { hide(); });
-        }
-
-        if (mainWindow)
-        {
-            mainWindow->activate(false);
-        }
-
-        auto getParamTxt = [&](const std::string& label)
-        {
-            if (auto txt = GUI::getTypedElement<GUI::Text>(layer, label))
-            {
-                params.insert({label, txt});
-            }
-        };
-
-        getParamTxt(CharacterParam::GuildName);
-        getParamTxt(CharacterParam::LvlValue);
-        getParamTxt(CharacterParam::ExpValue);
-        getParamTxt(CharacterParam::NextLvlValue);
-        getParamTxt(CharacterParam::SkillPointsValue);
-        getParamTxt(CharacterParam::StrValue);
-        getParamTxt(CharacterParam::DexValue);
-        getParamTxt(CharacterParam::ManaValue);
-        getParamTxt(CharacterParam::HpValue);
-        getParamTxt(CharacterParam::RWeapon);
-        getParamTxt(CharacterParam::RArrow);
-        getParamTxt(CharacterParam::RFire);
-        getParamTxt(CharacterParam::RMagic);
-        getParamTxt(CharacterParam::OneHandValue);
-        getParamTxt(CharacterParam::TwoHandValue);
-        getParamTxt(CharacterParam::BowValue);
-        getParamTxt(CharacterParam::CrossbowValue);
-        getParamTxt(CharacterParam::MagicValue);
-        getParamTxt(CharacterParam::OpenLocks);
-        getParamTxt(CharacterParam::PickPocketing);
-        getParamTxt(CharacterParam::SneakingValue);
-        getParamTxt(CharacterParam::AcrobaticsValue);
-
-        updateGui();
-        updateGuiStats();
-    }
-    else
-    {
-        LOG_WARN << "Character viewer init gui error";
-    }
+    initStatsPanel();
+    initHud();
 }
 void CharacterStatsViewerComponent::updateGui()
 {
@@ -269,6 +225,81 @@ void CharacterStatsViewerComponent::updateGuiStats()
 
     // Special Skills
     setValue(CharacterParam::AcrobaticsValue, characterStats->specialSkills.acrobatics);
+}
+void CharacterStatsViewerComponent::initStatsPanel()
+{
+    if (mainWindow)
+    {
+        LOG_DEBUG << "Already initialized";
+        return;
+    }
+
+    GUI::ElementReader reader(componentContext_.guiManager_, componentContext_.guiElementFactory_);
+
+    if (reader.read(guiFile, LAYER_NAME))
+    {
+        auto layer = componentContext_.guiManager_.getLayer(LAYER_NAME);
+
+        mainWindow = GUI::getTypedElement<GUI::Window>(layer, "MainWindow");
+
+        if (auto exitButton = GUI::getTypedElement<GUI::Button>(layer, "Exit"))
+        {
+            exitButton->setOnClick([this]() { hide(); });
+        }
+
+        if (mainWindow)
+        {
+            mainWindow->activate(false);
+        }
+
+        auto getParamTxt = [&](const std::string& label)
+        {
+            if (auto txt = GUI::getTypedElement<GUI::Text>(layer, label))
+            {
+                params.insert({label, txt});
+            }
+        };
+
+        getParamTxt(CharacterParam::GuildName);
+        getParamTxt(CharacterParam::LvlValue);
+        getParamTxt(CharacterParam::ExpValue);
+        getParamTxt(CharacterParam::NextLvlValue);
+        getParamTxt(CharacterParam::SkillPointsValue);
+        getParamTxt(CharacterParam::StrValue);
+        getParamTxt(CharacterParam::DexValue);
+        getParamTxt(CharacterParam::ManaValue);
+        getParamTxt(CharacterParam::HpValue);
+        getParamTxt(CharacterParam::RWeapon);
+        getParamTxt(CharacterParam::RArrow);
+        getParamTxt(CharacterParam::RFire);
+        getParamTxt(CharacterParam::RMagic);
+        getParamTxt(CharacterParam::OneHandValue);
+        getParamTxt(CharacterParam::TwoHandValue);
+        getParamTxt(CharacterParam::BowValue);
+        getParamTxt(CharacterParam::CrossbowValue);
+        getParamTxt(CharacterParam::MagicValue);
+        getParamTxt(CharacterParam::OpenLocks);
+        getParamTxt(CharacterParam::PickPocketing);
+        getParamTxt(CharacterParam::SneakingValue);
+        getParamTxt(CharacterParam::AcrobaticsValue);
+
+        updateGui();
+        updateGuiStats();
+    }
+    else
+    {
+        LOG_WARN << "Character viewer init gui error";
+    }
+}
+void CharacterStatsViewerComponent::initHud()
+{
+    GUI::ElementReader reader(componentContext_.guiManager_, componentContext_.guiElementFactory_);
+
+    if (reader.read(hudFile, LAYER_NAME))
+    {
+        auto layer = componentContext_.guiManager_.getLayer(LAYER_NAME);
+        hpValue    = GUI::getTypedElement<GUI::Sprite>(layer, "HpValue");
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine

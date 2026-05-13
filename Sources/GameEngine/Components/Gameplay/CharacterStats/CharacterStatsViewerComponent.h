@@ -5,6 +5,7 @@
 
 #include "CharacterStats.h"
 #include "GameEngine/Components/Component.h"
+#include "GameEngine/Renderers/GUI/Sprite/Sprite.h"
 #include "GameEngine/Renderers/GUI/Text/Text.h"
 #include "GameEngine/Resources/File.h"
 namespace GameEngine
@@ -14,6 +15,7 @@ namespace GUI
 class Window;
 class VerticalLayout;
 class Button;
+class Sprite;
 }  // namespace GUI
 
 class GameState;
@@ -26,11 +28,13 @@ DECLARE_COMPONENT(CharacterStatsViewerComponent)
 {
 public:
     File guiFile;
+    File hudFile;
 
 public:
     // clang-format off
     BEGIN_FIELDS()
         FIELD_FILE(guiFile)
+        FIELD_FILE(hudFile)
     END_FIELDS()
     // clang-format on
 
@@ -44,6 +48,8 @@ public:
 
 private:
     void initGui();
+    void initStatsPanel();
+    void initHud();
     void updateGui();
     void updateGuiStats();
     void show();
@@ -52,6 +58,7 @@ private:
 private:
     CharacterStatsComponent* characterStats{nullptr};
     GUI::Window* mainWindow{nullptr};
+    GUI::Sprite* hpValue{nullptr};
 
     std::unordered_map<std::string, GUI::Text*> params;
 
