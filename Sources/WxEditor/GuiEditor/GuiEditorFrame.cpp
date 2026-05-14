@@ -1211,27 +1211,27 @@ void GuiEditorFrame::AddTreeItem(wxTreeItemId parentId, GameEngine::GUI::Element
 
     std::string itemText = "Element";
 
-    if (auto window = dynamic_cast<GameEngine::GUI::Window*>(element))
+    if (dynamic_cast<GameEngine::GUI::Window*>(element))
     {
         itemText = "[Window]  ";
     }
-    else if (auto button = dynamic_cast<GameEngine::GUI::Button*>(element))
+    else if (dynamic_cast<GameEngine::GUI::Button*>(element))
     {
         itemText = "[Button] ";
     }
-    else if (auto text = dynamic_cast<GameEngine::GUI::Text*>(element))
+    else if (dynamic_cast<GameEngine::GUI::Text*>(element))
     {
         itemText = "[Text] ";
     }
-    else if (auto text = dynamic_cast<GameEngine::GUI::MultiLineText*>(element))
+    else if (dynamic_cast<GameEngine::GUI::MultiLineText*>(element))
     {
         itemText = "[MultiLineText] ";
     }
-    else if (auto tex = dynamic_cast<GameEngine::GUI::Sprite*>(element))
+    else if (dynamic_cast<GameEngine::GUI::Sprite*>(element))
     {
         itemText = "[Image]  ";
     }
-    else if (auto edit = dynamic_cast<GameEngine::GUI::EditText*>(element))
+    else if (dynamic_cast<GameEngine::GUI::EditText*>(element))
     {
         itemText = "[EditBox] ";
     }
@@ -1547,7 +1547,7 @@ bool GuiEditorFrame::OpenFile(const GameEngine::File& file)
     propGrid->Clear();
     canvas->GetScene().GetGuiManager().removeAllFromLayer(GameEngine::GUI::DEFAULT_LAYER);
     GameEngine::GUI::ElementReader reader(canvas->GetScene().GetGuiManager(), canvas->GetScene().GetGuiElementFactory());
-    if (reader.read(file))
+    if (reader.read(file, GameEngine::GUI::DEFAULT_LAYER, {}))
     {
         currentFile = file;
         lastDirPath = currentFile->GetAbsolutePath().parent_path();

@@ -15,6 +15,7 @@
 #include <filesystem>
 #include <magic_enum/magic_enum.hpp>
 #include <memory>
+#include <string_view>
 
 #include "Button/Button.h"
 #include "EditText/EditText.h"
@@ -151,7 +152,7 @@ ElementReader::ElementReader(Manager &manager, IElementFactory &factory)
 {
 }
 
-bool ElementReader::read(const File &file, const std::string &layerName)
+bool ElementReader::read(const File &file, LayerName layerName, LayerGroup group)
 {
     LOG_DEBUG << file;
 
@@ -182,12 +183,24 @@ bool ElementReader::read(const File &file, const std::string &layerName)
         factory_.setTheme(ReadTheme(*theme));
     }
 
+    auto layer = manager_.getLayer(layerName);
+    if (not layer)
+    {
+        layer = &manager_.createLayer(layerName);
+    }
+
     auto children = readElemets(*guiNode);
 
-    auto &layer = manager_.createLayer(layerName);
     for (auto &child : children)
     {
-        layer.add(std::move(child));
+        if (group.empty())
+        {
+            layer->add(std::move(child));
+        }
+        else
+        {
+            layer->add(group, std::move(child));
+        }
     }
 
     if (theme)

@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <fstream>
 #include <magic_enum/magic_enum.hpp>
+#include <string_view>
 
 #include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Components/Controllers/AIController.h"
@@ -30,7 +31,7 @@ namespace Debug
 namespace
 {
 constexpr char COMMAND_CURRSOR[]    = "> ";
-constexpr char CONSOLE_LAYER_NAME[] = "consoleLayer";
+constexpr std::string_view CONSOLE_LAYER_NAME = "consoleLayer";
 Input::SingleCharType inputType{Input::SingleCharType::SMALL};
 const float WINDOW_Z_POSITION{-100.f};
 }  // namespace

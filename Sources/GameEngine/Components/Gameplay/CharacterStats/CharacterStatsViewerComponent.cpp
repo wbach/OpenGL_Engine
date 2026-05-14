@@ -10,6 +10,7 @@
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Gameplay/CharacterStats/CharacterStatsComponent.h"
+#include "GameEngine/Components/Gameplay/Layers.h"
 #include "GameEngine/Renderers/GUI/Button/Button.h"
 #include "GameEngine/Renderers/GUI/ElementReader.h"
 #include "GameEngine/Renderers/GUI/ElementWriter.h"
@@ -59,7 +60,6 @@ namespace
 {
 constexpr char GUI_FILE[]{"guiLayoutFile"};
 constexpr char HUD_FILE[]{"hudFile"};
-constexpr char LAYER_NAME[]{"CharacterViewer"};
 }  // namespace
 namespace Components
 {
@@ -236,13 +236,14 @@ void CharacterStatsViewerComponent::initStatsPanel()
 
     GUI::ElementReader reader(componentContext_.guiManager_, componentContext_.guiElementFactory_);
 
-    if (reader.read(guiFile, LAYER_NAME))
+    const auto& layerGroup = GetTypeName();
+    if (reader.read(guiFile, Layers::Panels, layerGroup))
     {
-        auto layer = componentContext_.guiManager_.getLayer(LAYER_NAME);
+        auto layer = componentContext_.guiManager_.getLayer(Layers::Panels);
 
-        mainWindow = GUI::getTypedElement<GUI::Window>(layer, "MainWindow");
+        mainWindow = layer->getTypedElement<GUI::Window>(layerGroup, "MainWindow");
 
-        if (auto exitButton = GUI::getTypedElement<GUI::Button>(layer, "Exit"))
+        if (auto exitButton = layer->getTypedElement<GUI::Button>(layerGroup, "Exit"))
         {
             exitButton->setOnClick([this]() { hide(); });
         }
@@ -254,7 +255,7 @@ void CharacterStatsViewerComponent::initStatsPanel()
 
         auto getParamTxt = [&](const std::string& label)
         {
-            if (auto txt = GUI::getTypedElement<GUI::Text>(layer, label))
+            if (auto txt = layer->getTypedElement<GUI::Text>(layerGroup, label))
             {
                 params.insert({label, txt});
             }
@@ -295,10 +296,11 @@ void CharacterStatsViewerComponent::initHud()
 {
     GUI::ElementReader reader(componentContext_.guiManager_, componentContext_.guiElementFactory_);
 
-    if (reader.read(hudFile, LAYER_NAME))
+    const auto& layerGroup = GetTypeName();
+    if (reader.read(hudFile, Layers::Panels, layerGroup))
     {
-        auto layer = componentContext_.guiManager_.getLayer(LAYER_NAME);
-        hpValue    = GUI::getTypedElement<GUI::Sprite>(layer, "HpValue");
+        auto layer = componentContext_.guiManager_.getLayer(Layers::Panels);
+        hpValue    = layer->getTypedElement<GUI::Sprite>(layerGroup, "HpValue");
     }
 }
 }  // namespace Components

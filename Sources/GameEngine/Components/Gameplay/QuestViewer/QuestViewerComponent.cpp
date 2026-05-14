@@ -8,6 +8,7 @@
 
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Gameplay/Layers.h"
 #include "GameEngine/Renderers/GUI/Button/Button.h"
 #include "GameEngine/Renderers/GUI/ElementReader.h"
 #include "GameEngine/Renderers/GUI/ElementWriter.h"
@@ -85,29 +86,30 @@ void QuestViewerComponent::initGui()
         return;
     }
 
-    const std::string layerName{"QuestViewer"};
     GUI::ElementReader reader(componentContext_.guiManager_, componentContext_.guiElementFactory_);
 
-    if (reader.read(guiFile, layerName))
+    const auto& layerGroup = GetTypeName();
+
+    if (reader.read(guiFile, Layers::Panels, layerGroup))
     {
-        auto layer = componentContext_.guiManager_.getLayer(layerName);
+        auto layer = componentContext_.guiManager_.getLayer(Layers::Panels);
 
-        mainWindow = GUI::getTypedElement<GUI::Window>(layer, "MainWindow");
+        mainWindow = layer->getTypedElement<GUI::Window>(layerGroup, "MainWindow");
 
-        if (auto exitButton = GUI::getTypedElement<GUI::Button>(layer, "Exit"))
+        if (auto exitButton = layer->getTypedElement<GUI::Button>(layerGroup, "Exit"))
         {
             exitButton->setOnClick([this]() { hide(); });
         }
 
-        contentLayout = GUI::getTypedElement<GUI::VerticalLayout>(layer, "ContentLayout");
-        questLayout   = GUI::getTypedElement<GUI::VerticalLayout>(layer, "QuestsLayout");
+        contentLayout = layer->getTypedElement<GUI::VerticalLayout>(layerGroup, "ContentLayout");
+        questLayout   = layer->getTypedElement<GUI::VerticalLayout>(layerGroup, "QuestsLayout");
 
-        if (auto contentText = GUI::getTypedElement<GUI::MultiLineText>(layer, "ContentItem"))
+        if (auto contentText = layer->getTypedElement<GUI::MultiLineText>(layerGroup, "ContentItem"))
         {
             GUI::ElementWriter::write(questDescriptionText, *contentText);
         }
 
-        if (auto questItem = GUI::getTypedElement<GUI::Button>(layer, "QuestItem"))
+        if (auto questItem = layer->getTypedElement<GUI::Button>(layerGroup, "QuestItem"))
         {
             GUI::ElementWriter::write(questButtonTemplate, *questItem);
         }

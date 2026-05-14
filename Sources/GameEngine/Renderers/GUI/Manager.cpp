@@ -5,6 +5,7 @@
 #include <Types.h>
 
 #include <algorithm>
+#include <string>
 #include <utility>
 
 #include "ElementWriter.h"
@@ -73,10 +74,9 @@ Manager::~Manager()
     LOG_DEBUG << "destructor";
     keySubManager.UnsubscribeKeys();
 }
-
-Layer& Manager::createLayer(const std::string& name)
+Layer& Manager::createLayer(std::string_view name)
 {
-    auto [it, inserted] = layers_.try_emplace(name, name);
+    auto [it, inserted] = layers_.try_emplace(std::string{name}, name);
 
     if (not inserted)
     {
@@ -84,7 +84,7 @@ Layer& Manager::createLayer(const std::string& name)
     }
     else
     {
-        layerOrder_.push_back(name);
+        layerOrder_.push_back(it->first);
     }
 
     return it->second;
@@ -216,7 +216,7 @@ void Manager::removeAll()
     }
 }
 
-Layer* Manager::getLayer(const std::string& name)
+Layer* Manager::getLayer(std::string_view name)
 {
     std::lock_guard<std::mutex> lk(elementMutex_);
     auto iter = layers_.find(name);
@@ -224,15 +224,17 @@ Layer* Manager::getLayer(const std::string& name)
     {
         return &iter->second;
     }
-
-    LOG_ERROR << "Layer with name : " << name << " not found";
     return nullptr;
 }
 
-void Manager::removeLayer(const std::string& layerName)
+void Manager::removeLayer(std::string_view layerName)
 {
     std::lock_guard<std::mutex> lk(elementMutex_);
-    layers_.erase(layerName);
+    auto iter = layers_.find(layerName);
+    if (iter != layers_.end())
+    {
+        layers_.erase(iter);
+    }
     layerOrder_.erase(std::remove(layerOrder_.begin(), layerOrder_.end(), layerName), layerOrder_.end());
 }
 

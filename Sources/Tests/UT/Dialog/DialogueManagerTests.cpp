@@ -133,6 +133,8 @@ protected:
                                      {
                                          return txt->getText() == optionText;
                                      }
+
+                                     return false;
                                  });
 
         EXPECT_NE(iter, children.end());

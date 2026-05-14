@@ -5,6 +5,7 @@
 
 #include <filesystem>
 #include <string>
+#include <string_view>
 #include <variant>
 
 namespace GameEngine
@@ -15,6 +16,7 @@ public:
     File();
     File(const char*);
     File(const std::string&);
+    File(const std::string_view&);
     File(const std::filesystem::path&);
     File(const File&) = default;
 

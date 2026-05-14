@@ -8,6 +8,7 @@
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
 #include <filesystem>
+#include <string_view>
 
 #include "GameEngine/Engine/Configuration.h"
 
@@ -22,6 +23,11 @@ File::File()
 }
 
 File::File(const std::string &input)
+    : File(std::filesystem::path(input))
+{
+}
+
+File::File(const std::string_view &input)
     : File(std::filesystem::path(input))
 {
 }

@@ -16,7 +16,7 @@ namespace GameEngine
 {
 namespace
 {
-constexpr char LAYER_NAME[] = "DebugOverlay";
+constexpr std::string_view LAYER_NAME{"DebugOverlay"};
 }
 DebugOverlay::DebugOverlay(Utils::MeasurementHandler& measurementHandler, GUI::Manager& manager, GUI::IElementFactory& guiFactory)
     : measurementHandler_(measurementHandler)

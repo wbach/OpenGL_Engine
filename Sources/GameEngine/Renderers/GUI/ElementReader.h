@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "ElementsDef.h"
@@ -30,8 +31,11 @@ class IElementFactory;
 class ENGINE_API ElementReader
 {
 public:
+    using LayerName      = std::string_view;
+    using LayerGroup = std::string_view;
+
     ElementReader(Manager&, IElementFactory&);
-    bool read(const File&, const std::string& = GUI::DEFAULT_LAYER);
+    bool read(const File&, LayerName, LayerGroup);
 
     void readGuiElementBasic(Element&, const TreeNode&);
     std::unique_ptr<Element> read(const TreeNode&);

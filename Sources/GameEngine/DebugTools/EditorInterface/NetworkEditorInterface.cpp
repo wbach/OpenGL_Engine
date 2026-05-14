@@ -1034,6 +1034,8 @@ void NetworkEditorInterface::GetComponentParams(const EntryParameters &params)
                 break;
             case GameEngine::Components::FieldType::ConstMapOfMaterials:
                 break;
+            default:
+                break;
         }
         DebugNetworkInterface::Param param(std::string(field.name), value, std::string(magic_enum::enum_name(field.type)));
         componentParams.push_back(param);
@@ -1531,39 +1533,7 @@ void NetworkEditorInterface::ModifyComponentReq(const EntryParameters &params)
                     break;
                     case GameEngine::Components::FieldType::Material:
                         break;
-                    case GameEngine::Components::FieldType::Enum:
-                        break;
-                    case GameEngine::Components::FieldType::AnimationClip:
-                        break;
-                    case GameEngine::Components::FieldType::Vector2i:
-                        break;
-                    case GameEngine::Components::FieldType::Vector2f:
-                        break;
-                    case GameEngine::Components::FieldType::Vector3f:
-                        break;
-                    case GameEngine::Components::FieldType::Vector4f:
-                        break;
-                    case GameEngine::Components::FieldType::ColorRGB:
-                        break;
-                    case GameEngine::Components::FieldType::ColorRGBA:
-                        break;
-                    case GameEngine::Components::FieldType::VectorOfTerrainTextures:
-                        break;
-                    case GameEngine::Components::FieldType::VectorOfStrings:
-                        break;
-                    case GameEngine::Components::FieldType::VectorOfInt:
-                        break;
-                    case GameEngine::Components::FieldType::VectorOfFloat:
-                        break;
-                    case GameEngine::Components::FieldType::VectorOfFiles:
-                        break;
-                    case GameEngine::Components::FieldType::VectorOfTextures:
-                        break;
-                    case GameEngine::Components::FieldType::VectorOfAnimationClips:
-                        break;
-                    case GameEngine::Components::FieldType::ConstVectorOfTextures:
-                        break;
-                    case GameEngine::Components::FieldType::ConstMapOfMaterials:
+                    default:
                         break;
                 }
             }

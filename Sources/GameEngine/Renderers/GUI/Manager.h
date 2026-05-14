@@ -6,6 +6,7 @@
 #include <magic_enum/magic_enum.hpp>
 #include <mutex>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 
 #include "Animation.h"
@@ -24,7 +25,7 @@ namespace GameEngine
 {
 namespace GUI
 {
-using Layers         = std::unordered_map<std::string, Layer>;
+using Layers         = std::unordered_map<std::string, Layer, StringViewHash, std::equal_to<>>;
 using GuiElementsMap = std::unordered_map<std::string, Element*>;
 
 class ENGINE_API Manager
@@ -32,18 +33,19 @@ class ENGINE_API Manager
 public:
     Manager(Input::InputManager&);
     ~Manager();
-    Layer& createLayer(const std::string&);
+
+    Layer& createLayer(std::string_view);
     void add(std::unique_ptr<Element>);
     void add(Animation);
     void update(float);
-    void removeLayer(const std::string&);
+    void removeLayer(std::string_view);
     void removeAllFromLayer(const std::string&);
     void removeLayersExpect(const std::set<std::string>& = {});
     void remove(IdType);
     bool remove(const Element&);
     void removeAll();
     void bringToFront(const std::string&);
-    Layer* getLayer(const std::string&);
+    Layer* getLayer(std::string_view);
     const Layers& getLayers() const;
     Layers& getLayers();
     void addTask(std::function<void()>);
