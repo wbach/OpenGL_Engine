@@ -45,6 +45,13 @@ void ThridPersonCameraComponent::CleanUp()
     if (subscribtionOnTransformSnapshot)
     {
         thisObject_.UnsubscribeOnWorldTransfromSnapsot(*subscribtionOnTransformSnapshot);
+        subscribtionOnTransformSnapshot.reset();
+    }
+
+    if (mouseMovementSubId)
+    {
+        componentContext_.inputManager_.UnsubscribeSubscribeOnMouseMove(*mouseMovementSubId);
+        mouseMovementSubId.reset();
     }
 }
 
@@ -65,9 +72,6 @@ void ThridPersonCameraComponent::ReqisterFunctions()
                              return;
                          }
 
-                         auto mouseMove = componentContext_.inputManager_.CalcualteMouseMove();
-                         if (mouseMove.x != 0 or mouseMove.y != 0)
-                             fsm->handle(MouseMoveEvent{.move = mouseMove});
                          processEvent();
                      });
 }
@@ -154,6 +158,13 @@ void ThridPersonCameraComponent::init()
                 fsmContext->camera.Update();
                 // std::apply([](auto&&... state) { ((state.update()), ...); }, fsm->states);
             }
+        });
+
+    mouseMovementSubId = componentContext_.inputManager_.SubscribeOnMouseMove(
+        [this](const auto& delta)
+        {
+            if (fsm and not fsmContext->camera.IsLocked())
+                fsm->handle(MouseMoveEvent{.move = delta});
         });
 }
 

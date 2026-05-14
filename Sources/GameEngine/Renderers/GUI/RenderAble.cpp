@@ -47,12 +47,10 @@ RenderAble::~RenderAble()
 
 void RenderAble::setTextureColor(const Color& color)
 {
-    LOG_DEBUG << color;
     textureColor_ = color;
 }
 void RenderAble::setBackgroundColor(const Color& color)
 {
-    LOG_DEBUG << color;
     backgroundColor_ = color;
 }
 const mat4& RenderAble::getTransformMatrix() const

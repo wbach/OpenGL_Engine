@@ -18,6 +18,8 @@
 namespace Input
 {
 typedef std::function<void()> KeyPressedFunc;
+typedef std::function<void(const vec2i&)> MouseMoveFunc;
+typedef std::unordered_map<IdType, MouseMoveFunc> MouseMoveSubscribers;
 typedef std::unordered_map<uint32, KeyPressedFunc> KeySubscribers;
 typedef std::unordered_map<KeyCodes::Type, KeySubscribers> KeyPressedSubscribers;
 typedef std::function<void(KeyCodes::Type key)> KeysPressedFunc;
@@ -36,6 +38,7 @@ class ENGINE_API InputManager
         KeyPressedSubscribers keyDownSubscribers_;
         KeyPressedSubscribers keyUpSubscribers_;
         KeysSubscribers keysSubscribers_;
+        MouseMoveSubscribers mouseMoveSubscribers_;
     };
 
 public:
@@ -50,7 +53,7 @@ public:
     virtual vec2 GetMousePosition()              = 0;
 
     virtual void SetCursorPosition(int x, int y) = 0;
-    virtual void SetKeyToBuffer(KeyInteger, bool value) {};
+    virtual void SetKeyToBuffer(KeyInteger, bool value){};
     virtual void ClearKeyBuffer() = 0;
     virtual void GetPressedKeys() = 0;
     virtual void ShowCursor(bool) = 0;
@@ -64,9 +67,11 @@ public:
     void StashSubscribers();
     void StashPopSubscribers();
 
+    uint32 SubscribeOnMouseMove(MouseMoveFunc);
     uint32 SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func);
     uint32 SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func);
     uint32 SubscribeOnAnyKeyPress(KeysPressedFunc func);
+    void UnsubscribeSubscribeOnMouseMove(uint32);
     void UnsubscribeOnKeyDown(KeyCodes::Type key);
     void UnsubscribeOnKeyUp(KeyCodes::Type key);
     void UnsubscribeOnKeyDown(KeyCodes::Type key, uint32);
@@ -98,6 +103,7 @@ protected:
     void ExecuteOnKeyUp(KeyCodes::Type);
     void ExecuteAnyKey(KeyCodes::Type);
     void Exectute(KeyPressedSubscribers&, KeyCodes::Type);
+    void CheckMouseMoveAndNotifySubcribers();
 
 protected:
     std::unordered_map<GameAction, KeyCodes::Type> keyGameActions_;

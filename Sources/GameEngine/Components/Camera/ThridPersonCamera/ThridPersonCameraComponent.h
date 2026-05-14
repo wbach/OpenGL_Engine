@@ -71,6 +71,7 @@ public:
 private:
     std::vector<Camera::Event> eventQueue;
     std::optional<IdType> subscribtionOnTransformSnapshot;
+    std::optional<IdType> mouseMovementSubId;
     CameraComponent* maybeCameraComponent{nullptr};
 
 public:

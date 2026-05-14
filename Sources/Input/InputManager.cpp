@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <mutex>
+#include <vector>
 
 #include "Input/KeyCodes.h"
 #include "magic_enum/magic_enum.hpp"
@@ -379,6 +380,8 @@ std::optional<KeyEvent> InputManager::GetEvent()
 
 void InputManager::ProcessKeysEvents()
 {
+    CheckMouseMoveAndNotifySubcribers();
+
     while (true)
     {
         auto incomingEvent = GetEvent();
@@ -446,5 +449,28 @@ void InputManager::RegisterGameAction(GameAction action, KeyCodes::Type key)
 bool InputManager::IsCursorVisible() const
 {
     return isCursorVisible;
+}
+uint32 InputManager::SubscribeOnMouseMove(MouseMoveFunc func)
+{
+    auto id = idPool_.getId();
+    subscribers_.mouseMoveSubscribers_.insert({id, func});
+    return id;
+}
+void InputManager::UnsubscribeSubscribeOnMouseMove(uint32 id)
+{
+    subscribers_.mouseMoveSubscribers_.erase(id);
+}
+void InputManager::CheckMouseMoveAndNotifySubcribers()
+{
+    auto currentMousePos = CalcualteMouseMove();
+
+    if (currentMousePos.x != 0 or currentMousePos.y != 0)
+    {
+        auto copy = subscribers_.mouseMoveSubscribers_;
+        for (auto& [_, func] : copy)
+        {
+            func(currentMousePos);
+        }
+    }
 }
 }  // namespace Input
