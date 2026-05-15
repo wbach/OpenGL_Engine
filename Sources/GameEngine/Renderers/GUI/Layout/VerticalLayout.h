@@ -24,7 +24,7 @@ private:
     void updateVisibility();
     void adjustSize();
     bool isVisible(const Element&) const;
-    void accept(IElementVisitor&) override;
+    void accept(IElementVisitor&) const override;
     float calculateFirstChildYPosition() const;
     float calculateTotalChildrenHeight() const;
 

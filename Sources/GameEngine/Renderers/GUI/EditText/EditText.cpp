@@ -192,7 +192,7 @@ void EditText::onMouseClick(const vec2 &position, KeyCodes::Type key)
                                                                     }
                                                                 });
 }
-void EditText::accept(IElementVisitor &visitor)
+void EditText::accept(IElementVisitor &visitor) const
 {
     visitor.visit(*this);
 }

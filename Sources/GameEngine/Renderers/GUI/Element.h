@@ -19,9 +19,9 @@ using Label = std::string;
 
 class ENGINE_API Element
 {
+public:
     using Children = std::vector<std::unique_ptr<Element>>;
 
-public:
     Element();
     virtual ~Element();
 
@@ -36,7 +36,7 @@ public:
     virtual void onMousePositionUpdate(const vec2&);
     virtual void onMouseLeave();
     virtual bool onMouseWheel(const vec2&);
-    virtual void accept(IElementVisitor&);
+    virtual void accept(IElementVisitor&) const;
     virtual std::unique_ptr<Element> clone() const;
 
     void setParent(Element*);

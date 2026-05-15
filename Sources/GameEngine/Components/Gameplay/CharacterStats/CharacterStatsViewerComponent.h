@@ -1,4 +1,5 @@
 #pragma once
+#include <Input/KeysSubscriptionsManager.h>
 #include <TreeNode.h>
 
 #include <unordered_map>
@@ -16,6 +17,7 @@ class Window;
 class VerticalLayout;
 class Button;
 class Sprite;
+class Layer;
 }  // namespace GUI
 
 class GameState;
@@ -56,8 +58,11 @@ private:
     void hide();
 
 private:
+    Input::KeysSubscriptionsManager keySubManager;
     CharacterStatsComponent* characterStats{nullptr};
-    GUI::Window* mainWindow{nullptr};
+    GUI::Layer* layer{nullptr};
+    GUI::Element* group{nullptr};
+
     GUI::Sprite* hpValue{nullptr};
 
     std::unordered_map<std::string, GUI::Text*> params;

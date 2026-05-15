@@ -209,7 +209,7 @@ void Text::updateTexture()
     // invalidate();
     updateTexture(std::move(*imageData));
 }
-void Text::accept(IElementVisitor& visitor)
+void Text::accept(IElementVisitor& visitor) const
 {
     visitor.visit(*this);
 }

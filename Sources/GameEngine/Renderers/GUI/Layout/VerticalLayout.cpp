@@ -119,7 +119,7 @@ bool VerticalLayout::autoHideElements() const
 {
     return autoHideElements_;
 }
-void VerticalLayout::accept(IElementVisitor &visitor)
+void VerticalLayout::accept(IElementVisitor &visitor) const
 {
     visitor.visit(*this);
 }

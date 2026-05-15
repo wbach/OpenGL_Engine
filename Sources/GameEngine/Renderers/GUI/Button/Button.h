@@ -82,7 +82,7 @@ private:
     void applyNormalState();
     void applyHoverState();
     void applyActiveState();
-    void accept(IElementVisitor&) override;
+    void accept(IElementVisitor&) const override;
 
 private:
     OnClick onClick_;

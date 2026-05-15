@@ -189,9 +189,7 @@ bool ElementReader::read(const File &file, LayerName layerName, LayerGroup group
         layer = &manager_.createLayer(layerName);
     }
 
-    auto children = readElemets(*guiNode);
-
-    for (auto &child : children)
+    for (auto &child : readElemets(*guiNode))
     {
         if (group.empty())
         {
@@ -456,17 +454,17 @@ std::unique_ptr<Element> ElementReader::read(const TreeNode &node)
 {
     std::unique_ptr<Element> result;
     auto typenode = node.getChild(TYPE);
-    LOG_DEBUG << *typenode;
+
     if (not typenode)
     {
         result = std::make_unique<Element>();
         readGuiElementBasic(*result, node);
     }
-    if (typenode->value_ == TEXT)
+    else if (typenode->value_ == TEXT)
     {
         result = readText(node);
     }
-    if (typenode->value_ == MULTI_LINE_TEXT)
+    else if (typenode->value_ == MULTI_LINE_TEXT)
     {
         result = readMultiLineText(node);
     }

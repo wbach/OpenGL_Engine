@@ -16,24 +16,30 @@ inline constexpr std::string_view defaultGroupName{"defaultGroupName"};
 class ENGINE_API Layer
 {
 public:
+    using LayerGroups = std::unordered_map<std::string, Element, StringViewHash, std::equal_to<>>;
+
     Layer(std::string_view);
     Layer(const std::string&);
 
     void activate(bool);
+    void activate(std::string_view, bool);
     bool isActive() const;
+    bool isActive(std::string_view) const;
     void add(std::unique_ptr<Element>);
     void add(std::string_view, std::unique_ptr<Element>);
+    Element& createGroup(std::string_view);
     void setZPosition(float);
     bool removeElement(const Element&);
     void refresh();
     void clear();
 
     const std::string& getName() const;
-    const std::vector<std::unique_ptr<Element>>& get() const;
+    const LayerGroups& get() const;
     Element* get(std::string_view, const Label&);
     Element* get(std::string_view, IdType);
     Element* get(const Label&);
     Element* get(IdType);
+    Element* getGroup(std::string_view);
 
     template <typename T>
     T* getTypedElement(const std::string& name)
@@ -64,7 +70,6 @@ public:
 private:
     std::string name;
 
-    using LayerGroups = std::unordered_map<std::string, Element, StringViewHash, std::equal_to<>>;
     LayerGroups groups;
 
 private:

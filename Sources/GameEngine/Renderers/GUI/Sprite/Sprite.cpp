@@ -57,7 +57,7 @@ void Sprite::SetTexture(const FileHandle& file)
 
     texture_ = resourceManager_.GetTextureLoader().LoadTexture(file, params);
 }
-void Sprite::accept(IElementVisitor& visitor)
+void Sprite::accept(IElementVisitor& visitor) const
 {
     visitor.visit(*this);
 }

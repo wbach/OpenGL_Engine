@@ -14,18 +14,22 @@ namespace GUI
 Layer::Layer(std::string_view name)
     : name(name)
 {
-    groups.try_emplace(std::string{defaultGroupName}, Element{});
 }
 Layer::Layer(const std::string& name)
     : name(name)
 {
-    groups.try_emplace(std::string{defaultGroupName}, Element{});
 }
 
 void Layer::activate(bool v)
 {
     for (auto& [_, rootElement] : groups)
         rootElement.activate(v);
+}
+
+void Layer::activate(std::string_view name, bool v)
+{
+    if (auto iter = groups.find(name); iter != groups.end())
+        iter->second.activate(v);
 }
 
 bool Layer::isActive() const
@@ -41,6 +45,14 @@ bool Layer::isActive() const
     return false;
 }
 
+bool Layer::isActive(std::string_view name) const
+{
+    if (auto iter = groups.find(name); iter != groups.end())
+        return iter->second.isActive();
+
+    return false;
+}
+
 void Layer::add(std::unique_ptr<Element> element)
 {
     add(defaultGroupName, std::move(element));
@@ -49,15 +61,10 @@ void Layer::add(std::string_view group, std::unique_ptr<Element> element)
 {
     getOrCreateGroup(group).addChild(std::move(element));
 }
-const std::vector<std::unique_ptr<Element>>& Layer::get() const
+
+const Layer::LayerGroups& Layer::get() const
 {
-    if (auto iter = groups.find(defaultGroupName); iter != groups.end())
-        return iter->second.getChildren();
-
-    LOG_WARN << "defaultGroupName not exist";
-
-    static std::vector<std::unique_ptr<Element>> el;
-    return el;
+    return groups;
 }
 
 const std::string& Layer::getName() const
@@ -85,10 +92,7 @@ bool Layer::removeElement(const Element& element)
 }
 void Layer::clear()
 {
-    for (auto& [_, rootElement] : groups)
-    {
-        rootElement.removeAll();
-    }
+    groups.clear();
 }
 Element* Layer::get(const Label& label)
 {
@@ -127,8 +131,7 @@ Element& Layer::getOrCreateGroup(std::string_view name)
         return it->second;
     }
 
-    auto [it, inserted] = groups.try_emplace(std::string{name}, Element{});
-    return it->second;
+    return createGroup(name);
 }
 Element* Layer::get(std::string_view group, const Label& label)
 {
@@ -147,5 +150,18 @@ Element* Layer::get(std::string_view group, IdType id)
     return nullptr;
 }
 
+Element* Layer::getGroup(std::string_view name)
+{
+    if (auto iter = groups.find(name); iter != groups.end())
+        return &iter->second;
+
+    return nullptr;
+}
+Element& Layer::createGroup(std::string_view name)
+{
+    LOG_DEBUG << "Layer " << name << " add new group " << name;
+    auto [it, inserted] = groups.try_emplace(std::string{name}, Element{});
+    return it->second;
+}
 }  // namespace GUI
 }  // namespace GameEngine

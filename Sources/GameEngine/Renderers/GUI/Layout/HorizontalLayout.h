@@ -16,7 +16,7 @@ private:
     float calculateYPosition(const Element &);
     void refreshSelf() override;
     void calculateTotalChildrenScale();
-    void accept(IElementVisitor &) override;
+    void accept(IElementVisitor &) const override;
 
 private:
     float totalChildrenScaleX_;

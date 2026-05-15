@@ -80,6 +80,7 @@ REGISTER_COMPONENT(InventoryComponent)
 
 InventoryComponent::InventoryComponent(ComponentContext& componentContext, GameObject& gameObject)
     : Component(componentContext, gameObject)
+    , keySubManager(componentContext.inputManager_)
     , currentCategory(CAT_ALL)
 {
 }
@@ -88,6 +89,7 @@ InventoryComponent::~InventoryComponent()
 }
 void InventoryComponent::CleanUp()
 {
+    keySubManager.UnsubscribeKeys();
 }
 void InventoryComponent::Reload()
 {
@@ -104,21 +106,24 @@ void InventoryComponent::ReqisterFunctions()
     RegisterFunction(FunctionType::OnStart,
                      [this]()
                      {
-                         componentContext_.inputManager_.SubscribeOnKeyDown(Input::GameAction::INVENTORY_VIEW,
-                                                                            [this]()
-                                                                            {
-                                                                                if (not mainWindow)
-                                                                                    return;
+                         keySubManager = componentContext_.inputManager_.SubscribeOnKeyDown(Input::GameAction::INVENTORY_VIEW,
+                                                                                            [this]()
+                                                                                            {
+                                                                                                if (not group)
+                                                                                                    return;
 
-                                                                                if (mainWindow->isActive())
-                                                                                {
-                                                                                    hide();
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    show();
-                                                                                }
-                                                                            });
+                                                                                                if (group->isActive())
+                                                                                                {
+                                                                                                    hide();
+                                                                                                }
+                                                                                                else
+                                                                                                {
+                                                                                                    show();
+                                                                                                }
+                                                                                            });
+
+                         keySubManager =
+                             componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::ESCAPE, [this]() { hide(); });
                      });
 }
 void InventoryComponent::read(const TreeNode& input)
@@ -133,7 +138,7 @@ void InventoryComponent::write(TreeNode& node) const
 }
 void InventoryComponent::initGui()
 {
-    if (mainWindow)
+    if (group)
     {
         LOG_DEBUG << "Already initialized";
         return;
@@ -141,19 +146,19 @@ void InventoryComponent::initGui()
 
     GUI::ElementReader reader(componentContext_.guiManager_, componentContext_.guiElementFactory_);
 
-    const auto& layerGroup = GetTypeName();
-    if (reader.read(guiFile, Layers::Panels, layerGroup))
+    const auto& layerGroupName = GetTypeName();
+    if (reader.read(guiFile, Layers::Panels, layerGroupName))
     {
-        auto layer = componentContext_.guiManager_.getLayer(Layers::Panels);
+        layer = componentContext_.guiManager_.getLayer(Layers::Panels);
+        group = layer->getGroup(layerGroupName);
 
-        mainWindow  = layer->getTypedElement<GUI::Window>(layerGroup, "MainWindow");
-        itemsLayout = layer->getTypedElement<GUI::VerticalLayout>(layerGroup, "ItemsLayout");
+        itemsLayout = group->get<GUI::VerticalLayout>("ItemsLayout");
 
         std::vector<std::string> catNames = {CAT_ALL, CAT_WEAPON, CAT_ARMORS, CAT_POTIONS, CAT_MAGIC, CAT_OTHER};
 
         for (const auto& name : catNames)
         {
-            if (auto btn = layer->getTypedElement<GUI::Button>(layerGroup, name))
+            if (auto btn = group->get<GUI::Button>(name))
             {
                 categoryButtons.push_back(btn);
 
@@ -200,14 +205,14 @@ void InventoryComponent::initGui()
             }
         }
 
-        if (auto exitButton = layer->getTypedElement<GUI::Button>(layerGroup, "Exit"))
+        if (auto exitButton = group->get<GUI::Button>("Exit"))
         {
             exitButton->setOnClick([this]() { hide(); });
         }
 
-        if (mainWindow)
+        if (group)
         {
-            mainWindow->activate(false);
+            group->activate(false);
         }
 
         updateGui();
@@ -220,7 +225,7 @@ void InventoryComponent::initGui()
 
 void InventoryComponent::updateGui()
 {
-    if (not mainWindow or not mainWindow->isActive() or uiSlots.empty())
+    if (not group or not group->isActive() or uiSlots.empty())
         return;
 
     auto filteredItems = applyFilterToItems();
@@ -308,7 +313,10 @@ void InventoryComponent::updateGui()
 }
 void InventoryComponent::show()
 {
-    mainWindow->activate(true);
+    if (not group)
+        return;
+
+    group->activate(true);
 
     componentContext_.inputManager_.SetReleativeMouseMode(false);
     componentContext_.inputManager_.ShowCursor(true);
@@ -321,7 +329,16 @@ void InventoryComponent::show()
 }
 void InventoryComponent::hide()
 {
-    mainWindow->activate(false);
+    if (not group)
+        return;
+
+    group->activate(false);
+
+    if (layer->isActive())
+    {
+        LOG_DEBUG << "Other elements in layer " << Layers::Panels << " are active";
+        return;
+    }
 
     componentContext_.inputManager_.SetReleativeMouseMode(true);
     componentContext_.inputManager_.ShowCursor(false);

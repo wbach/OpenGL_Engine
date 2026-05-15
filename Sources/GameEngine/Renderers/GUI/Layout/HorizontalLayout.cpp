@@ -101,7 +101,7 @@ void HorizontalLayout::calculateTotalChildrenScale()
         }
     }
 }
-void HorizontalLayout::accept(IElementVisitor &visitor)
+void HorizontalLayout::accept(IElementVisitor &visitor) const
 {
     visitor.visit(*this);
 }

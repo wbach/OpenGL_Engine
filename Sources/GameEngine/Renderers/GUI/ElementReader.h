@@ -8,6 +8,7 @@
 
 #include "ElementsDef.h"
 #include "GameEngine/Renderers/GUI/Spacing.h"
+#include "GameEngine/Renderers/GUI/Layer/Layer.h"
 
 class TreeNode;
 
@@ -31,11 +32,14 @@ class IElementFactory;
 class ENGINE_API ElementReader
 {
 public:
-    using LayerName      = std::string_view;
+    using LayerName  = std::string_view;
     using LayerGroup = std::string_view;
 
     ElementReader(Manager&, IElementFactory&);
     bool read(const File&, LayerName, LayerGroup);
+
+    Layer readLayer(const TreeNode&);
+    std::vector<std::unique_ptr<Element>> readElemets(const TreeNode&);
 
     void readGuiElementBasic(Element&, const TreeNode&);
     std::unique_ptr<Element> read(const TreeNode&);
@@ -44,7 +48,6 @@ public:
     std::unique_ptr<Sprite> readSprite(const TreeNode&);
     std::unique_ptr<Button> readButton(const TreeNode&);
     std::unique_ptr<EditText> readEditText(const TreeNode&);
-    std::vector<std::unique_ptr<Element>> readElemets(const TreeNode&);
     std::unique_ptr<VerticalLayout> readVerticalLayout(const TreeNode&);
     std::unique_ptr<HorizontalLayout> readHorizontalLayout(const TreeNode&);
     std::unique_ptr<Window> readWindow(const TreeNode&);

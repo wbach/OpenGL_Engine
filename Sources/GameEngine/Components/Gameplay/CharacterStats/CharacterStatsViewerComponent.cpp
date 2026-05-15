@@ -67,6 +67,7 @@ REGISTER_COMPONENT(CharacterStatsViewerComponent)
 
 CharacterStatsViewerComponent::CharacterStatsViewerComponent(ComponentContext& componentContext, GameObject& gameObject)
     : Component(componentContext, gameObject)
+    , keySubManager(componentContext.inputManager_)
 {
 }
 CharacterStatsViewerComponent::~CharacterStatsViewerComponent()
@@ -74,6 +75,7 @@ CharacterStatsViewerComponent::~CharacterStatsViewerComponent()
 }
 void CharacterStatsViewerComponent::CleanUp()
 {
+    keySubManager.UnsubscribeKeys();
 }
 void CharacterStatsViewerComponent::Reload()
 {
@@ -90,21 +92,23 @@ void CharacterStatsViewerComponent::ReqisterFunctions()
     RegisterFunction(FunctionType::OnStart,
                      [this]()
                      {
-                         componentContext_.inputManager_.SubscribeOnKeyDown(Input::GameAction::CHARACTER_VIEW,
-                                                                            [this]()
-                                                                            {
-                                                                                if (not mainWindow)
-                                                                                    return;
+                         keySubManager = componentContext_.inputManager_.SubscribeOnKeyDown(Input::GameAction::CHARACTER_VIEW,
+                                                                                            [this]()
+                                                                                            {
+                                                                                                if (not group)
+                                                                                                    return;
 
-                                                                                if (mainWindow->isActive())
-                                                                                {
-                                                                                    hide();
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    show();
-                                                                                }
-                                                                            });
+                                                                                                if (group->isActive())
+                                                                                                {
+                                                                                                    hide();
+                                                                                                }
+                                                                                                else
+                                                                                                {
+                                                                                                    show();
+                                                                                                }
+                                                                                            });
+                         keySubManager =
+                             componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::ESCAPE, [this]() { hide(); });
                      });
 
     RegisterFunction(FunctionType::Update,
@@ -145,7 +149,7 @@ void CharacterStatsViewerComponent::updateGui()
 }
 void CharacterStatsViewerComponent::show()
 {
-    mainWindow->activate(true);
+    group->activate(true);
 
     componentContext_.inputManager_.SetReleativeMouseMode(false);
     componentContext_.inputManager_.ShowCursor(true);
@@ -158,7 +162,13 @@ void CharacterStatsViewerComponent::show()
 }
 void CharacterStatsViewerComponent::hide()
 {
-    mainWindow->activate(false);
+    group->activate(false);
+
+    if (layer->isActive())
+    {
+        LOG_DEBUG << "Other elements in layer " << Layers::Panels << " are active";
+        return;
+    }
 
     componentContext_.inputManager_.SetReleativeMouseMode(true);
     componentContext_.inputManager_.ShowCursor(false);
@@ -228,7 +238,7 @@ void CharacterStatsViewerComponent::updateGuiStats()
 }
 void CharacterStatsViewerComponent::initStatsPanel()
 {
-    if (mainWindow)
+    if (group)
     {
         LOG_DEBUG << "Already initialized";
         return;
@@ -236,26 +246,25 @@ void CharacterStatsViewerComponent::initStatsPanel()
 
     GUI::ElementReader reader(componentContext_.guiManager_, componentContext_.guiElementFactory_);
 
-    const auto& layerGroup = GetTypeName();
-    if (reader.read(guiFile, Layers::Panels, layerGroup))
+    const auto& layerGroupName = GetTypeName();
+    if (reader.read(guiFile, Layers::Panels, layerGroupName))
     {
-        auto layer = componentContext_.guiManager_.getLayer(Layers::Panels);
+        layer = componentContext_.guiManager_.getLayer(Layers::Panels);
+        group = layer->getGroup(layerGroupName);
 
-        mainWindow = layer->getTypedElement<GUI::Window>(layerGroup, "MainWindow");
-
-        if (auto exitButton = layer->getTypedElement<GUI::Button>(layerGroup, "Exit"))
+        if (auto exitButton = group->get<GUI::Button>("Exit"))
         {
             exitButton->setOnClick([this]() { hide(); });
         }
 
-        if (mainWindow)
+        if (group)
         {
-            mainWindow->activate(false);
+            group->activate(false);
         }
 
         auto getParamTxt = [&](const std::string& label)
         {
-            if (auto txt = layer->getTypedElement<GUI::Text>(layerGroup, label))
+            if (auto txt = group->get<GUI::Text>(label))
             {
                 params.insert({label, txt});
             }
@@ -296,11 +305,16 @@ void CharacterStatsViewerComponent::initHud()
 {
     GUI::ElementReader reader(componentContext_.guiManager_, componentContext_.guiElementFactory_);
 
-    const auto& layerGroup = GetTypeName();
-    if (reader.read(hudFile, Layers::Panels, layerGroup))
+    const auto& layerGroupName = GetTypeName();
+    if (reader.read(hudFile, Layers::Panels, layerGroupName))
     {
-        auto layer = componentContext_.guiManager_.getLayer(Layers::Panels);
-        hpValue    = layer->getTypedElement<GUI::Sprite>(layerGroup, "HpValue");
+        if (not group)
+        {
+            layer = componentContext_.guiManager_.getLayer(Layers::Panels);
+            group = layer->getGroup(layerGroupName);
+        }
+
+        hpValue = group->get<GUI::Sprite>("HpValue");
     }
 }
 }  // namespace Components

@@ -1,6 +1,10 @@
 #pragma once
 #include <Types.h>
 
+#include <vector>
+
+#include "Element.h"
+
 class TreeNode;
 namespace GameEngine
 {
@@ -8,16 +12,16 @@ class File;
 
 namespace GUI
 {
-class Layer;
-struct Theme;
 class Text;
-class MultiLineText;
+struct Theme;
 class Button;
 class Sprite;
+
+class MultiLineText;
 namespace ElementWriter
 {
-void write(std::vector<Layer>&);
-void write(const File&, const Layer&);
+void write(const File&, const Element&);
+void write(const File&, const Element::Children&);
 void write(const File&, const Theme&);
 void write(TreeNode&, const Text&);
 void write(TreeNode&, const MultiLineText&);

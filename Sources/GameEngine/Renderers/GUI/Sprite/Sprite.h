@@ -20,7 +20,7 @@ public:
     std::unique_ptr<Element> clone() const override;
 
 private:
-    void accept(IElementVisitor&) override;
+    void accept(IElementVisitor&) const override;
 };
 }  // namespace GUI
 }  // namespace GameEngine

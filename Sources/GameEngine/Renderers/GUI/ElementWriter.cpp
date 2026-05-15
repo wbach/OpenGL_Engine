@@ -224,39 +224,39 @@ public:
         : node(node)
     {
     }
-    void visit(Element& element) override
+    void visit(const Element& element) override
     {
         write(node, element);
     }
-    void visit(Text& element) override
+    void visit(const Text& element) override
     {
         write(node, element);
     }
-    void visit(MultiLineText& element) override
+    void visit(const MultiLineText& element) override
     {
         write(node, element);
     }
-    void visit(Sprite& element) override
+    void visit(const Sprite& element) override
     {
         write(node, element);
     }
-    void visit(Button& element) override
+    void visit(const Button& element) override
     {
         write(node, element);
     }
-    void visit(Window& element) override
+    void visit(const Window& element) override
     {
         write(node, element);
     }
-    void visit(EditText& element) override
+    void visit(const EditText& element) override
     {
         write(node, element);
     }
-    void visit(VerticalLayout& element) override
+    void visit(const VerticalLayout& element) override
     {
         write(node, element);
     }
-    void visit(HorizontalLayout& element) override
+    void visit(const HorizontalLayout& element) override
     {
         write(node, element);
     }
@@ -265,7 +265,7 @@ private:
     TreeNode& node;
 };
 
-void write(TreeNode& node, Element& element)
+void writeElement(TreeNode& node, const Element& element)
 {
     auto& elementNode = node.addChild(ELEMENT);
     ElementWriterVisitor v(elementNode);
@@ -276,27 +276,14 @@ void write(TreeNode& node, Element& element)
         auto& childrenNode = elementNode.addChild(CHILDREN);
         for (auto& child : element.getChildren())
         {
-            write(childrenNode, *child);
+            writeElement(childrenNode, *child);
         }
     }
 }
-
-void write(std::vector<Layer>& layers)
-{
-    for (const auto& layer : layers)
-    {
-        write(layer.getName(), layer);
-    }
-}
-
-void write(const File& file, const Layer& layer)
+void write(const File& file, const Element& element)
 {
     TreeNode root(ROOT);
-
-    for (const auto& element : layer.get())
-    {
-        write(root, *element);
-    }
+    writeElement(root, element);
 
     LOG_DEBUG << "Write to: " << file;
     Utils::Json::Write(file.GetAbsolutePath(), root);
@@ -304,6 +291,15 @@ void write(const File& file, const Layer& layer)
 void write(const File& file, const Theme& theme)
 {
     auto root = ThemeSerializer().Serialize(theme);
+    LOG_DEBUG << "Write to: " << file;
+    Utils::Json::Write(file.GetAbsolutePath(), root);
+}
+void write(const File& file, const Element::Children& elements)
+{
+    TreeNode root(ROOT);
+    for (auto& element : elements)
+        writeElement(root, *element);
+
     LOG_DEBUG << "Write to: " << file;
     Utils::Json::Write(file.GetAbsolutePath(), root);
 }

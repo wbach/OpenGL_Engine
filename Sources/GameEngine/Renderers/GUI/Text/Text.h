@@ -40,7 +40,7 @@ private:
     void updateTransformMatrix() override;
     void updateTexture() override;
     void updateTexture(TextureData);
-    void accept(IElementVisitor&) override;
+    void accept(IElementVisitor&) const override;
     int calculatePtSize(const vec2& screenScale, const vec2ui& windowSize, float marginFactor = 0.8f);
 
 private:

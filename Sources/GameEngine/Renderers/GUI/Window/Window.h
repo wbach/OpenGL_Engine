@@ -34,7 +34,7 @@ public:
     void setBar(std::unique_ptr<Element>);
 
 private:
-    void accept(IElementVisitor&) override;
+    void accept(IElementVisitor&) const override;
 
 private:
     WindowStyle style_;

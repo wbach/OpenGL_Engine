@@ -288,7 +288,7 @@ bool Element::onMouseWheel(const vec2& delta)
     }
     return false;
 }
-void Element::accept(IElementVisitor& v)
+void Element::accept(IElementVisitor& v) const
 {
     v.visit(*this);
 }

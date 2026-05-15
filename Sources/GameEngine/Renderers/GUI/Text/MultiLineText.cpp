@@ -117,7 +117,7 @@ void MultiLineText::pop()
         invalidate();
     }
 }
-void MultiLineText::accept(IElementVisitor& visitor)
+void MultiLineText::accept(IElementVisitor& visitor) const
 {
     visitor.visit(*this);
 }

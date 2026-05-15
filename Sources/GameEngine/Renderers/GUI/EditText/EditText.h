@@ -36,7 +36,7 @@ public:
     void setTextColor(const vec3&);
 
 private:
-    void accept(IElementVisitor&) override;
+    void accept(IElementVisitor&) const override;
 
 private:
     Input::InputManager& inputManager_;

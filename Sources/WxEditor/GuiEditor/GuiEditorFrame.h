@@ -44,6 +44,7 @@ private:
     void MoveTreeItem(wxTreeItemId, wxTreeItemId);
 
 private:
+    void Save(const GameEngine::File&) const;
     void FocusElementInTree(GameEngine::GUI::Element*);
     wxTreeItemId FindItemByElement(wxTreeItemId, GameEngine::GUI::Element*);
     void ReadRecentOpenedFiles();

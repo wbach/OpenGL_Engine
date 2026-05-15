@@ -319,7 +319,7 @@ void Button::onMouseLeave()
 
     applyState(State::Normal);
 }
-void Button::accept(IElementVisitor &visitor)
+void Button::accept(IElementVisitor &visitor) const
 {
     visitor.visit(*this);
 }

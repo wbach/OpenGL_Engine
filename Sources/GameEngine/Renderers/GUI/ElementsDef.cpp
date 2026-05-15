@@ -5,9 +5,11 @@ namespace GameEngine
 namespace GUI
 {
 const std::string NONE               = "none";
+const std::string NAME               = "none";
 const std::string TYPE               = "type";
 const std::string ROOT               = "gui";
 const std::string LABEL              = "label";
+const std::string GROUP              = "group";
 const std::string WRAP_WIDTH         = "wrapWidth";
 const std::string RENDER_MODE        = "renderMode";
 const std::string COLOR              = "color";

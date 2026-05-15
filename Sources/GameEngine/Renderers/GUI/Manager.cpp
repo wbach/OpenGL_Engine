@@ -150,9 +150,12 @@ void Manager::update(float deltaTime)
         {
             layer.refresh();
 
-            for (auto& element : layer.get())
+            for (auto& [_, groupElement] : layer.get())
             {
-                element->update();
+                for (auto& element : groupElement.getChildren())
+                {
+                    element->update();
+                }
             }
         }
     }
@@ -293,13 +296,16 @@ void Manager::inputUpdate()
         if (not layer->isActive())
             continue;
 
-        for (auto& element : layer->get())
+        for (auto& [_, groupElement] : layer->get())
         {
-            auto found = getCollisonElement(*element, mousePosition);
-            if (found)
+            for (auto& element : groupElement.getChildren())
             {
-                currentUnderMouse = found;
-                break;
+                auto found = getCollisonElement(*element, mousePosition);
+                if (found)
+                {
+                    currentUnderMouse = found;
+                    break;
+                }
             }
         }
         if (currentUnderMouse)

@@ -1,7 +1,9 @@
 #pragma once
+#include <Input/KeysSubscriptionsManager.h>
 #include <TreeNode.h>
 
 #include "GameEngine/Components/Component.h"
+#include "GameEngine/Renderers/GUI/Layer/Layer.h"
 #include "GameEngine/Resources/File.h"
 namespace GameEngine
 {
@@ -44,7 +46,10 @@ private:
     void hide();
 
 private:
-    GUI::Window* mainWindow{nullptr};
+    Input::KeysSubscriptionsManager keySubManager;
+    GUI::Layer* layer{nullptr};
+    GUI::Element* group{nullptr};
+
     GUI::VerticalLayout* questLayout{nullptr};
     GUI::VerticalLayout* contentLayout{nullptr};
     TreeNode questButtonTemplate;

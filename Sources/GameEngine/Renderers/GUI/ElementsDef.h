@@ -6,8 +6,10 @@ namespace GameEngine
 namespace GUI
 {
 extern const std::string NONE;
+extern const std::string NAME;
 extern const std::string TYPE;
 extern const std::string ROOT;
+extern const std::string GROUP;
 extern const std::string LABEL;
 extern const std::string WRAP_WIDTH;
 extern const std::string RENDER_MODE;

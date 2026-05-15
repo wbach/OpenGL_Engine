@@ -1,4 +1,5 @@
 #pragma once
+#include <Input/KeysSubscriptionsManager.h>
 #include <TreeNode.h>
 
 #include "GameEngine/Components/Component.h"
@@ -11,9 +12,10 @@ namespace GameEngine
 {
 namespace GUI
 {
-class Window;
-class VerticalLayout;
+class Layer;
 class Button;
+class Element;
+class VerticalLayout;
 }  // namespace GUI
 
 class GameState;
@@ -73,6 +75,7 @@ private:
     Color getDefaultItemSpriteColor() const;
 
 private:
+    Input::KeysSubscriptionsManager keySubManager;
     std::string currentCategory;
 
     struct UiSlot
@@ -83,7 +86,9 @@ private:
     std::vector<UiSlot> uiSlots;
     std::vector<GUI::Button*> categoryButtons;
 
-    GUI::Window* mainWindow{nullptr};
+    GUI::Layer* layer{nullptr};
+    GUI::Element* group{nullptr};
+
     Items items;
 
     GUI::VerticalLayout* itemsLayout;

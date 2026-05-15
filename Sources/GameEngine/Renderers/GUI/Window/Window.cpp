@@ -101,7 +101,7 @@ void Window::setBackground(const Color& color)
         background_->setTextureColor(color);
     }
 }
-void Window::accept(IElementVisitor& visitor)
+void Window::accept(IElementVisitor& visitor) const
 {
     visitor.visit(*this);
 }

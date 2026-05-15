@@ -25,6 +25,7 @@
 
 #include <magic_enum/magic_enum.hpp>
 #include <optional>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -32,6 +33,7 @@
 #include "GuiEditorControlIds.h"
 #include "GuiTreeItemData.h"
 #include "Renderers/GUI/IElementVisitor.h"
+#include "Renderers/GUI/Layer/Layer.h"
 #include "Resources/FileHandle.h"
 #include "TreeNode.h"
 #include "WxEditor/EngineRelated/GLCanvas.h"
@@ -42,6 +44,7 @@ namespace
 {
 const wxString DEFAULT_MEMORY_FONT{"segoe-ui.ttf"};
 const wxString DEFAULT_TEXTURE{"darkGrayButton.png"};
+const std::string_view LAYER_GROUP_NAME{"editorGroup"};
 
 class FileHandleProperty : public wxStringProperty
 {
@@ -1137,10 +1140,7 @@ void GuiEditorFrame::OnSave(wxCommandEvent& e)
 {
     if (currentFile)
     {
-        if (auto layer = canvas->GetScene().GetGuiManager().getLayer(GameEngine::GUI::DEFAULT_LAYER))
-        {
-            GameEngine::GUI::ElementWriter::write(currentFile->GetAbsolutePath(), *layer);
-        }
+        Save(*currentFile);
     }
     else
     {
@@ -1163,14 +1163,18 @@ void GuiEditorFrame::OnSaveAs(wxCommandEvent&)
         file.ChangeExtension("gui");
     }
 
-    if (auto layer = canvas->GetScene().GetGuiManager().getLayer(GameEngine::GUI::DEFAULT_LAYER))
-    {
-        GameEngine::GUI::ElementWriter::write(file, *layer);
-    }
+    Save(file);
 
     currentFile = file;
     lastDirPath = file.GetAbsolutePath().parent_path();
     AddToRecentFile(file);
+}
+void GuiEditorFrame::Save(const GameEngine::File& file) const
+{
+    if (auto layer = canvas->GetScene().GetGuiManager().getLayer(GameEngine::GUI::DEFAULT_LAYER))
+    {
+        GameEngine::GUI::ElementWriter::write(file, layer->getGroup(GameEngine::GUI::defaultGroupName)->getChildren());
+    }
 }
 void GuiEditorFrame::OnUndo(wxCommandEvent&)
 {
@@ -1194,9 +1198,10 @@ void GuiEditorFrame::OnTimer(wxTimerEvent&)
 void GuiEditorFrame::RefreshTree()
 {
     sceneTree->DeleteAllItems();
-    auto root  = sceneTree->AddRoot("GUI Root");
-    auto layer = canvas->GetScene().GetGuiManager().getLayer(GameEngine::GUI::DEFAULT_LAYER);
-    for (auto& element : layer->get())
+    auto root   = sceneTree->AddRoot("GUI Root");
+    auto layer  = canvas->GetScene().GetGuiManager().getLayer(GameEngine::GUI::DEFAULT_LAYER);
+    auto& group = layer->getOrCreateGroup(GameEngine::GUI::defaultGroupName);
+    for (auto& element : group.getChildren())
     {
         AddTreeItem(root, element.get());
     }
@@ -1547,7 +1552,7 @@ bool GuiEditorFrame::OpenFile(const GameEngine::File& file)
     propGrid->Clear();
     canvas->GetScene().GetGuiManager().removeAllFromLayer(GameEngine::GUI::DEFAULT_LAYER);
     GameEngine::GUI::ElementReader reader(canvas->GetScene().GetGuiManager(), canvas->GetScene().GetGuiElementFactory());
-    if (reader.read(file, GameEngine::GUI::DEFAULT_LAYER, {}))
+    if (reader.read(file, GameEngine::GUI::DEFAULT_LAYER, GameEngine::GUI::defaultGroupName))
     {
         currentFile = file;
         lastDirPath = currentFile->GetAbsolutePath().parent_path();

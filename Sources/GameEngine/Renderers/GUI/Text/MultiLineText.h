@@ -46,7 +46,7 @@ public:
     Property<float> lineHeight{0.2f};
 
 private:
-    void accept(IElementVisitor&) override;
+    void accept(IElementVisitor&) const override;
     void rebuildLines();
     std::vector<std::string> splitText(const std::string&, uint32);
 
