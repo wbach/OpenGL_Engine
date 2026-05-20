@@ -1,9 +1,9 @@
 #pragma once
 #include <GameEngine/Components/ComponentController.h>
 #include <GameEngine/Components/IComponent.h>
-#include <GameEngine/Components/VectorOfCustomStructure.h>
 #include <GameEngine/Components/ReadAnimationInfo.h>
 #include <GameEngine/Components/Renderer/Terrain/TerrainTexture.h>
+#include <GameEngine/Components/VectorOfCustomStructure.h>
 #include <GameEngine/Resources/File.h>
 #include <GameEngine/Resources/Models/Material.h>
 #include <wx/collpane.h>
@@ -43,6 +43,7 @@ private:
                            std::function<wxBoxSizer*(wxWindow*, T&)>, bool resizeable = true);
 
     wxBoxSizer* createItem(GameEngine::Components::IComponent&, wxWindow*, std::string&);
+    wxBoxSizer* createItem(GameEngine::Components::IComponent&, wxWindow*, bool&, const std::string& = {});
     wxBoxSizer* createItem(GameEngine::Components::IComponent&, wxWindow*, int&);
     wxBoxSizer* createItem(GameEngine::Components::IComponent&, wxWindow*, float&);
     wxBoxSizer* createItem(GameEngine::Components::IComponent&, wxWindow*, vec3&);
@@ -68,7 +69,7 @@ private:
         wxButton* browseBtn;
         wxStaticBitmap* warningIcon;
     };
-    BrowseRow CreateBrowseFileRow(wxWindow* parent, const wxString& label, const wxString& initial);
+    BrowseRow CreateBrowseFileRow(wxWindow* parent, const wxString& initial);
 
     struct TextureRow
     {

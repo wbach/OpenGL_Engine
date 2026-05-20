@@ -390,19 +390,52 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
 
     LOG_DEBUG << "Field type : " << magic_enum::enum_name(field.type);
 
-    auto helper = [ this, &component, pane, sizer, &field ]<typename T, typename Container = std::vector<T>>()
+    auto vectorItemHelper = [ this, &component, pane, sizer, &field ]<typename T, typename Container = std::vector<T>>()
     {
         CreateUIForVector<T, Container>(component, pane, sizer, field,
                                         [this, &component](auto* panePtr, auto& value)
                                         { return this->createItem(component, panePtr, value); });
     };
 
+    auto itemHelper = [this, &component, pane, sizer, &field]<typename T>()
+    {
+        auto* val  = static_cast<T*>(field.ptr);
+        auto ctrl  = createItem(component, pane, *val);
+        auto label = new wxStaticText(pane, wxID_ANY, field.name);
+        ctrl->Prepend(label, 0, wxEXPAND | wxALL, 5);
+        sizer->Add(ctrl, 0, wxEXPAND | wxALL, 5);
+    };
+
     switch (field.type)
     {
+        case GameEngine::Components::FieldType::AnimationClip:
+        {
+            auto* val      = static_cast<GameEngine::Components::ReadAnimationInfo*>(field.ptr);
+            auto clipSizer = CreateUIForAnimationClip(component, pane, val);
+            sizer->Add(clipSizer, 0, wxEXPAND | wxALL, 5);
+            break;
+        }
+        break;
+        case FieldType::Boolean:
+            sizer->Add(createItem(component, pane, *static_cast<bool*>(field.ptr), field.name), 0, wxEXPAND | wxALL, 5);
+            break;
+        case FieldType::UInt:
+        case FieldType::Int:
+            itemHelper.template operator()<int>();
+            break;
+
+        case FieldType::Float:
+            itemHelper.template operator()<float>();
+            break;
+        case FieldType::String:
+            itemHelper.template operator()<std::string>();
+            break;
+        case FieldType::File:
+            itemHelper.template operator()<GameEngine::File>();
+            break;
         case FieldType::Enum:
         {
             auto* ctrl = new wxChoice(pane, wxID_ANY);
-
             for (auto& n : field.enumNames())
                 ctrl->Append(wxString::FromUTF8(n.c_str()));
             ctrl->SetSelection(field.enumToIndex(field.ptr));
@@ -413,151 +446,12 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
             ctrl->Bind(wxEVT_CHOICE,
                        [&component, ptr = field.ptr, indexToEnum = field.indexToEnum](wxCommandEvent& evt)
                        {
-                           LOG_DEBUG << "OnChoice";
                            indexToEnum(ptr, evt.GetSelection());
-                           LOG_DEBUG << "reInit";
                            component.Reload();
                        });
 
             break;
         }
-        case GameEngine::Components::FieldType::AnimationClip:
-        {
-            auto* val      = static_cast<GameEngine::Components::ReadAnimationInfo*>(field.ptr);
-            auto clipSizer = CreateUIForAnimationClip(component, pane, val);
-            sizer->Add(clipSizer, 0, wxEXPAND | wxALL, 5);
-            break;
-        }
-        break;
-        case FieldType::UInt:
-        case FieldType::Int:
-        {
-            auto* val = static_cast<int*>(field.ptr);
-
-            auto* ctrl = new wxSpinCtrl(pane, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS);
-            ctrl->Bind(wxEVT_MOUSEWHEEL, [](auto& evt) {});
-            ctrl->SetRange(-1000, 1000);
-            ctrl->SetValue(*val);
-
-            auto* row = CreateLabeledRow(pane, field.name, ctrl);
-            sizer->Add(row, 0, wxEXPAND | wxALL, 5);
-
-            ctrl->Bind(wxEVT_SPINCTRL,
-                       [&component, val](auto& evt)
-                       {
-                           *val = evt.GetValue();
-                           component.Reload();
-                       });
-            break;
-        }
-
-        case FieldType::Float:
-        {
-            auto val  = static_cast<float*>(field.ptr);
-            auto ctrl = CreateFloatSpinCtrl(pane, *val, -1000.0, 1000.0, 0.01, 2);
-            auto row  = CreateLabeledRow(pane, field.name, ctrl);
-            sizer->Add(row, 0, wxEXPAND | wxALL, 5);
-
-            ctrl->Bind(wxEVT_SPINCTRLDOUBLE,
-                       [&component, val](auto& evt)
-                       {
-                           *val = static_cast<float>(evt.GetValue());
-                           component.Reload();
-                       });
-            break;
-        }
-
-        case FieldType::String:
-        {
-            auto* val  = static_cast<std::string*>(field.ptr);
-            auto* ctrl = createTextEnterCtrl(pane, *val);
-            auto* row  = CreateLabeledRow(pane, field.name, ctrl);
-            sizer->Add(row, 0, wxEXPAND | wxALL, 5);
-
-            ctrl->Bind(wxEVT_TEXT_ENTER,
-                       [&component, val](auto& evt)
-                       {
-                           *val = evt.GetString().ToStdString();
-                           component.Reload();
-                           evt.Skip();
-                       });
-
-            ctrl->Bind(wxEVT_TEXT_PASTE,
-                       [this, &component, ctrl, val](wxClipboardTextEvent& event)
-                       {
-                           event.Skip();
-                           this->CallAfter(
-                               [this, &component, ctrl, val]()
-                               {
-                                   *val = ctrl->GetValue().ToStdString();
-                                   component.Reload();
-                               });
-                       });
-            break;
-        }
-
-        case FieldType::Boolean:
-        {
-            auto* val   = static_cast<bool*>(field.ptr);
-            auto* check = new wxCheckBox(pane, wxID_ANY, field.name);
-            check->SetValue(*val);
-            sizer->Add(check, 0, wxALL, 5);
-
-            check->Bind(wxEVT_CHECKBOX,
-                        [val, &component](auto& e)
-                        {
-                            *val = e.IsChecked();
-                            component.Reload();
-                        });
-            break;
-        }
-
-        case FieldType::File:
-        {
-            auto* val = static_cast<GameEngine::File*>(field.ptr);
-            auto row  = CreateBrowseFileRow(pane, field.name, val->GetDataRelativePath().string());
-            sizer->Add(row.row, 0, wxEXPAND | wxALL, 5);
-            row.textCtrl->SetToolTip(row.textCtrl->GetValue());
-            // Browse action
-            row.browseBtn->Bind(wxEVT_BUTTON,
-                                [this, &component, txt = row.textCtrl, pane, val, warningIcon = row.warningIcon](auto& evt)
-                                {
-                                    this->browseFileControlAction(evt, component, txt, pane, val);
-                                    UpdateFileWarning(warningIcon, val->GetAbsolutePath());
-                                });
-
-            // Enter w polu
-            row.textCtrl->Bind(wxEVT_TEXT_ENTER,
-                               [this, &component, val, txt = row.textCtrl, warningIcon = row.warningIcon](auto& evt)
-                               {
-                                   val->Init(evt.GetString().ToStdString());
-                                   component.Reload();
-                                   txt->SetToolTip(txt->GetValue());
-                                   UpdateFileWarning(warningIcon, val->GetAbsolutePath());
-                               });
-
-            row.textCtrl->Bind(wxEVT_TEXT_PASTE,
-                               [this, &component, val, txt = row.textCtrl, warningIcon = row.warningIcon](auto& evt)
-                               {
-                                   val->Init(evt.GetString().ToStdString());
-                                   component.Reload();
-                                   txt->SetToolTip(txt->GetValue());
-                                   UpdateFileWarning(warningIcon, val->GetAbsolutePath());
-                               });
-
-            row.textCtrl->SetDropTarget(new FileDropTarget(
-                [this, &component, val, warningIcon = row.warningIcon, ctrl = row.textCtrl](const std::string& path)
-                {
-                    ctrl->ChangeValue(GameEngine::File(path).GetDataRelativePath().string());
-                    ctrl->SetToolTip(path);
-
-                    val->Init(path);
-                    component.Reload();
-                    UpdateFileWarning(warningIcon, val->GetAbsolutePath());
-                }));
-            break;
-        }
-
         case FieldType::Texture:
         {
             auto* val = static_cast<GameEngine::File*>(field.ptr);
@@ -724,18 +618,18 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
             break;
         }
         case FieldType::VectorOfStrings:
-            helper.template operator()<std::string>();
+            vectorItemHelper.template operator()<std::string>();
             break;
 
         case FieldType::VectorOfInt:
-            helper.template operator()<int>();
+            vectorItemHelper.template operator()<int>();
             break;
 
         case FieldType::VectorOfFloat:
-            helper.template operator()<float>();
+            vectorItemHelper.template operator()<float>();
             break;
         case FieldType::VectorOfFiles:
-            helper.template operator()<GameEngine::File>();
+            vectorItemHelper.template operator()<GameEngine::File>();
             break;
 
         case FieldType::VectorOfTextures:
@@ -749,18 +643,18 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                 [this, &component](auto p, auto& v) { return this->createTextureItem(component, p, v); }, false);
             break;
         case GameEngine::Components::FieldType::VectorOfVector3f:
-            helper.template operator()<vec3>();
+            vectorItemHelper.template operator()<vec3>();
             break;
         case GameEngine::Components::FieldType::VectorOfAnimationClips:
-            helper.template operator()<ReadAnimationInfo>();
+            vectorItemHelper.template operator()<ReadAnimationInfo>();
             break;
         case GameEngine::Components::FieldType::VectorOfTerrainTextures:
-            helper.template operator()<TerrainTexture>();
+            vectorItemHelper.template operator()<TerrainTexture>();
             break;
         case FieldType::Custom:
             break;
         case FieldType::VectorOfCustom:
-            helper.template operator()<CustomStructure, VectorOfCustomStructure>();
+            vectorItemHelper.template operator()<CustomStructure, VectorOfCustomStructure>();
             break;
         case FieldType::ConstMapOfMaterials:
             auto* materials = static_cast<GameEngine::MaterialsMap*>(field.ptr);
@@ -986,6 +880,24 @@ wxBoxSizer* ComponentPanel::createItem(GameEngine::Components::IComponent& compo
     return elemRow;
 }
 
+wxBoxSizer* ComponentPanel::createItem(GameEngine::Components::IComponent& component, wxWindow* pane, bool& val,
+                                       const std::string& fieldname)
+{
+    wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
+
+    auto* check = new wxCheckBox(pane, wxID_ANY, fieldname);
+    check->SetValue(val);
+    elemRow->Add(check, 0, wxALL, 5);
+    check->Bind(wxEVT_CHECKBOX,
+                [&val, &component](auto& e)
+                {
+                    val = e.IsChecked();
+                    component.Reload();
+                });
+
+    return elemRow;
+}
+
 wxBoxSizer* ComponentPanel::createItem(GameEngine::Components::IComponent& component, wxWindow* pane, int& val)
 {
     wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
@@ -1047,7 +959,7 @@ wxBoxSizer* ComponentPanel::createItem(GameEngine::Components::IComponent& compo
 {
     wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
 
-    auto row = CreateBrowseFileRow(pane, "File:", editedFile.GetDataRelativePath().string());
+    auto row = CreateBrowseFileRow(pane, editedFile.GetDataRelativePath().string());
     elemRow->Add(row.row, 1, wxEXPAND | wxRIGHT, 5);
 
     row.textCtrl->SetToolTip(row.textCtrl->GetValue());
@@ -1171,11 +1083,10 @@ wxTextCtrl* ComponentPanel::createTextEnterCtrl(wxWindow* pane, const std::strin
     return result;
 }
 
-ComponentPanel::BrowseRow ComponentPanel::CreateBrowseFileRow(wxWindow* parent, const wxString& label, const wxString& initial)
+ComponentPanel::BrowseRow ComponentPanel::CreateBrowseFileRow(wxWindow* parent, const wxString& initial)
 {
     BrowseRow out{};
     out.row = new wxBoxSizer(wxHORIZONTAL);
-    out.row->Add(new wxStaticText(parent, wxID_ANY, label), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
 
     out.textCtrl = createTextEnterCtrl(parent, initial.ToStdString());
     out.textCtrl->SetToolTip(initial);
@@ -1268,7 +1179,7 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
 
     // file
     {
-        auto row = CreateBrowseFileRow(pane, "File", val->file.GetDataRelativePath().string());
+        auto row = CreateBrowseFileRow(pane, val->file.GetDataRelativePath().string());
         clipSizer->Add(row.row, 0, wxEXPAND | wxALL, 2);
 
         row.browseBtn->Bind(
@@ -1510,35 +1421,7 @@ wxBoxSizer* ComponentPanel::createItem(GameEngine::Components::IComponent& compo
 
         auto* label = new wxStaticText(pane, wxID_ANY, subField.name);
         fieldGroupSizer->Add(label, 0, wxALIGN_LEFT | wxBOTTOM, 2);
-
-        switch (subField.type)
-        {
-            case GameEngine::Components::FieldType::Float:
-            {
-                auto& val      = *static_cast<float*>(subField.ptr);
-                auto ctrlSizer = this->createItem(component, pane, val);
-                fieldGroupSizer->Add(ctrlSizer, 1, wxEXPAND | wxRIGHT, 5);
-            }
-            break;
-            case GameEngine::Components::FieldType::Enum:
-            {
-                auto* ctrl = new wxChoice(pane, wxID_ANY);
-                for (auto& n : subField.enumNames())
-                    ctrl->Append(wxString::FromUTF8(n.c_str()));
-                ctrl->SetSelection(subField.enumToIndex(subField.ptr));
-                auto* row = CreateLabeledRow(pane, subField.name, ctrl);
-                fieldGroupSizer->Add(row, 0, wxEXPAND | wxALL, 5);
-                ctrl->Bind(wxEVT_CHOICE,
-                           [&component, ptr = subField.ptr, indexToEnum = subField.indexToEnum](wxCommandEvent& evt)
-                           {
-                               indexToEnum(ptr, evt.GetSelection());
-                               component.Reload();
-                           });
-            }
-            break;
-        }
-
-        mainRowSizer->Add(fieldGroupSizer, 1, wxEXPAND | wxRIGHT, 10);
+        CreateUIForField(component, pane, mainRowSizer, subField);
     }
     return mainRowSizer;
 }
