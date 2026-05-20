@@ -216,6 +216,12 @@ void ElementReader::readGuiElementBasic(Element &element, const TreeNode &node)
         ::Read(*paramNode, position);
         element.setLocalPosition(position);
     }
+     if (auto paramNode = node.getChild(ZVALUE))
+    {
+        float zValue(0);
+        ::Read(*paramNode, zValue);
+        element.setZPosition(zValue);
+    }
     if (auto paramNode = node.getChild(SCALE))
     {
         vec2 scale(1.f);

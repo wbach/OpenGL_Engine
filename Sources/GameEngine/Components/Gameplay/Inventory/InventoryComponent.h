@@ -3,8 +3,12 @@
 #include <TreeNode.h>
 
 #include "GameEngine/Components/Component.h"
+#include "GameEngine/Components/Gameplay/Inventory/CombatStatsComponent.h"
+#include "GameEngine/Components/Gameplay/Inventory/ItemIdentityComponent.h"
+#include "GameEngine/Components/Gameplay/Inventory/ItemVisualComponent.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Objects/Prefab.h"
+#include "GameEngine/Renderers/GUI/Text/MultiLineText.h"
 #include "GameEngine/Resources/File.h"
 #include "Types.h"
 
@@ -16,6 +20,9 @@ class Layer;
 class Button;
 class Element;
 class VerticalLayout;
+class Window;
+class Text;
+class Sprite;
 }  // namespace GUI
 
 class GameState;
@@ -23,6 +30,9 @@ namespace Components
 {
 class ConsumableComponent;
 class EquippableComponent;
+class CombatStatsComponent;
+class ItemIdentityComponent;
+class ItemVisualComponent;
 DECLARE_COMPONENT(InventoryComponent)
 {
 public:
@@ -73,6 +83,9 @@ private:
     std::vector<GameObject*> applyFilterToItems();
 
     Color getDefaultItemSpriteColor() const;
+    vec2 calculateCursorPosition(const GUI::Element&);
+
+    void updateItemDetailsWindow(const CombatStatsComponent&, const ItemIdentityComponent&, const ItemVisualComponent&);
 
 private:
     Input::KeysSubscriptionsManager keySubManager;
@@ -88,6 +101,13 @@ private:
 
     GUI::Layer* layer{nullptr};
     GUI::Element* group{nullptr};
+
+    GUI::Window* itemDetails{nullptr};
+    GUI::Text* itemNameTxt{nullptr};
+    GUI::MultiLineText* itemDescription{nullptr};
+    GUI::Sprite* itemImage{nullptr};
+    GUI::VerticalLayout* itemStats{nullptr};
+    std::optional<TreeNode> itemStatNode;
 
     Items items;
 

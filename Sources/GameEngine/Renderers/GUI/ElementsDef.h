@@ -15,6 +15,7 @@ extern const std::string WRAP_WIDTH;
 extern const std::string RENDER_MODE;
 extern const std::string COLOR;
 extern const std::string POSITION;
+extern const std::string ZVALUE;
 extern const std::string SCALE;
 extern const std::string ACTIVE;
 extern const std::string INBACKGROUND;

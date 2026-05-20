@@ -27,6 +27,7 @@
 #include "GameEngine/Renderers/GUI/Layout/HorizontalLayout.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
 #include "GameEngine/Renderers/GUI/Manager.h"
+#include "GameEngine/Renderers/GUI/Sprite/Sprite.h"
 #include "GameEngine/Renderers/GUI/Text/MultiLineText.h"
 #include "GameEngine/Renderers/GUI/Text/Text.h"
 #include "GameEngine/Renderers/GUI/Transform.h"
@@ -40,6 +41,7 @@
 #include "Json/JsonWriter.h"
 #include "TreeNode.h"
 #include "Types.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -215,6 +217,28 @@ void InventoryComponent::initGui()
             group->activate(false);
         }
 
+        itemDetails     = group->get<GUI::Window>("ITEM_DETAILS");
+        itemNameTxt     = group->get<GUI::Text>("ITEM_NAME");
+        itemDescription = group->get<GUI::MultiLineText>("ITEM_DESCRIPTION");
+        itemImage       = group->get<GUI::Sprite>("ITEM_IMAGE");
+        itemStats       = group->get<GUI::VerticalLayout>("ITEM_STATS");
+
+        if (auto itemStat = group->get<GUI::Text>("ITEM_STAT"))
+        {
+            itemStatNode.emplace();
+            GUI::ElementWriter::write(*itemStatNode, *itemStat);
+        }
+
+        if (itemDetails)
+        {
+            itemDetails->activate(false);
+        }
+
+        if (itemStats)
+        {
+            itemStats->removeAll();
+        }
+
         updateGui();
     }
     else
@@ -264,7 +288,8 @@ void InventoryComponent::updateGui()
 
                 slot.itemId = identity->getId();
 
-                if (auto visualComponent = item->GetComponent<ItemVisualComponent>())
+                auto visualComponent = item->GetComponent<ItemVisualComponent>();
+                if (visualComponent)
                 {
                     LOG_DEBUG << "Create item icon : " << visualComponent->iconPath;
                     if (auto sprite = componentContext_.guiElementFactory_.createSprite(visualComponent->iconPath))
@@ -277,6 +302,21 @@ void InventoryComponent::updateGui()
                     LOG_WARN << "Item dosent have a ItemVisualComponent";
                 }
 
+                slot.button->setOnHoverChange(
+                    [this, item, identity, visualComponent](auto isActive)
+                    {
+                        if (not itemDetails)
+                        {
+                            LOG_DEBUG << "not itemDetails";
+                            return;
+                        }
+                        itemDetails->setScreenPostion(calculateCursorPosition(*itemDetails));
+
+                        auto combatStatsComponent = item->GetComponent<CombatStatsComponent>();
+                        if (combatStatsComponent and identity and visualComponent)
+                            updateItemDetailsWindow(*combatStatsComponent, *identity, *visualComponent);
+                        itemDetails->activate(isActive);
+                    });
                 slot.button->setOnClick(
                     [this, item, identity]()
                     {
@@ -307,6 +347,7 @@ void InventoryComponent::updateGui()
                 slot.button->setBackground(std::move(sprite));
             }
             slot.button->setOnClick(nullptr);
+            slot.button->setOnHoverChange(nullptr);
             slot.itemId.reset();
         }
     }
@@ -599,5 +640,49 @@ Color InventoryComponent::getDefaultItemSpriteColor() const
 
     return Color(1.f);
 }
+vec2 InventoryComponent::calculateCursorPosition(const GUI::Element& element)
+{
+    auto convertedMousePosition = (componentContext_.inputManager_.GetMousePosition() + 1.f) / 2.f;
+    auto halfScreenScale        = element.getScreenScale() / 2.f;
+
+    return convertedMousePosition - halfScreenScale;
+}
+void InventoryComponent::updateItemDetailsWindow(const CombatStatsComponent& stats, const ItemIdentityComponent& identity,
+                                                 const ItemVisualComponent& visualComponent)
+{
+    if (itemNameTxt)
+    {
+        itemNameTxt->setText(identity.itemName);
+    }
+
+    if (itemDescription)
+    {
+        itemDescription->setText(identity.description);
+    }
+
+    if (itemImage)
+    {
+        itemImage->SetTexture(visualComponent.iconPath);
+    }
+
+    if (itemStats and itemStatNode)
+    {
+        itemStats->removeAll();
+        GUI::ElementReader reader(componentContext_.guiManager_, componentContext_.guiElementFactory_);
+
+        for (auto& modifier : stats.modifiers)
+        {
+            auto itemStatTxt = reader.readText(*itemStatNode);
+            itemStatTxt->setLabel("");
+
+            auto signStr = modifier.value >= 0.f ? "+" : "-";
+            auto typeStr = modifier.type == ModifierType::PercentAdditive ? "%" : "";
+            itemStatTxt->setText(std::string(magic_enum::enum_name(modifier.target)) + ": " + signStr +
+                                 std::to_string(static_cast<int>(std::round(modifier.value))) + typeStr);
+            itemStats->addChild(std::move(itemStatTxt));
+        }
+    }
+}
+
 }  // namespace Components
 }  // namespace GameEngine

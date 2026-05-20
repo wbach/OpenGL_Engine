@@ -308,16 +308,29 @@ void Button::onMouseClick(const vec2 &, KeyCodes::Type key)
 void Button::onMouseEnter()
 {
     if (stickyActiveState_ and currentState_ == State::Active)
+    {
         return;
+    }
 
     applyState(State::Hover);
+
+    if (onHoverChange_)
+    {
+        onHoverChange_(true);
+    }
 }
 void Button::onMouseLeave()
 {
     if (stickyActiveState_ and currentState_ == State::Active)
+    {
         return;
+    }
 
     applyState(State::Normal);
+    if (onHoverChange_)
+    {
+        onHoverChange_(false);
+    }
 }
 void Button::accept(IElementVisitor &visitor) const
 {
@@ -389,6 +402,10 @@ void Button::setStickyActiveState(bool v)
 void Button::setAsActive()
 {
     applyState(State::Active);
+}
+void Button::setOnHoverChange(OnHoverChange callback)
+{
+    onHoverChange_ = callback;
 }
 }  // namespace GUI
 }  // namespace GameEngine

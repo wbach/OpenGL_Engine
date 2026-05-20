@@ -4,8 +4,8 @@
 
 #include "GameEngine/Components/Component.h"
 #include "GameEngine/Components/ComponentCore.h"
-#include "GameEngine/Components/VectorOfCustomStructure.h"
 #include "GameEngine/Components/Gameplay/CharacterStats/ModifiableStat.h"
+#include "GameEngine/Components/VectorOfCustomStructure.h"
 
 namespace GameEngine
 {
@@ -39,15 +39,9 @@ DECLARE_COMPONENT(CombatStatsComponent)
 {
 public:
     VectorOfCustomStructure modifiersFields;
-    int test = 0;
-    float testfloat = 1.2f;
-    bool testBool = true;
 
     // clang-format off
     BEGIN_FIELDS()
-        FIELD_INT(test)
-        FIELD_FLOAT(testfloat)
-        FIELD_BOOL(testBool)
         FIELD_VECTOR_OF_CUSTOM(modifiersFields)
     END_FIELDS()
     // clang-format on

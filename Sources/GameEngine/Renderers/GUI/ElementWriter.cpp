@@ -91,6 +91,7 @@ void write(TreeNode& node, const Spacing& spacing)
 void writeBasicParams(TreeNode& node, const Element& element)
 {
     ::write(node.addChild(POSITION), element.getLocalPosition());
+    ::write(node.addChild(ZVALUE), element.getZValue());
     ::write(node.addChild(ACTION), element.isActive());
     ::write(node.addChild(SCALE), element.getLocalScale());
     ::write(node.addChild(LABEL), element.getLabel());

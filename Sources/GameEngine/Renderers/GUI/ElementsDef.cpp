@@ -16,6 +16,7 @@ const std::string COLOR              = "color";
 const std::string TEXTURE_COLOR      = "textureColor";
 const std::string BACKGROUND_COLOR   = "backgroundColor";
 const std::string POSITION           = "position";
+const std::string ZVALUE             = "zValue";
 const std::string SCALE              = "scale";
 const std::string ACTIVE             = "active";
 const std::string INBACKGROUND       = "inBackground";

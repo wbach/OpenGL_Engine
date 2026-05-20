@@ -14,6 +14,7 @@ namespace GameEngine
 namespace GUI
 {
 using OnClick = std::function<void()>;
+using OnHoverChange = std::function<void(bool)>;
 
 class ENGINE_API Button : public Element
 {
@@ -41,6 +42,7 @@ public:
     void setOnHover(std::unique_ptr<Sprite>);
     void setOnActive(std::unique_ptr<Sprite>);
     void setOnClick(OnClick);
+    void setOnHoverChange(OnHoverChange);
 
     void setBackground(const Color&);
     void setOnHover(const Color&);
@@ -86,6 +88,7 @@ private:
 
 private:
     OnClick onClick_;
+    OnHoverChange onHoverChange_;
 
     float textScale{1.f};
 
