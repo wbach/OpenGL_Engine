@@ -17,6 +17,7 @@
 #include <mutex>
 #include <utility>
 
+#include "Components/IComponent.h"
 #include "ReloadComponentLibEvent.h"
 #include "TreeNode.h"
 #include "WxEditor/Clipboard.h"
@@ -388,6 +389,14 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
     using namespace GameEngine::Components;
 
     LOG_DEBUG << "Field type : " << magic_enum::enum_name(field.type);
+
+    auto helper = [ this, &component, pane, sizer, &field ]<typename T, typename Container = std::vector<T>>()
+    {
+        CreateUIForVector<T, Container>(component, pane, sizer, field,
+                                        [this, &component](auto* panePtr, auto& value)
+                                        { return this->createItem(component, panePtr, value); });
+    };
+
     switch (field.type)
     {
         case FieldType::Enum:
@@ -420,12 +429,6 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
             break;
         }
         break;
-        case GameEngine::Components::FieldType::VectorOfAnimationClips:
-            CreateUIForVector<GameEngine::Components::ReadAnimationInfo>(
-                component, pane, sizer, field,
-                [this, &component](auto p, auto v, auto i, auto r, auto del)
-                { return this->CreateAnimationClipItem(component, p, v, i, r, del); });
-            break;
         case FieldType::UInt:
         case FieldType::Int:
         {
@@ -621,12 +624,10 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                 }));
             break;
         }
-
         case FieldType::Material:
         {
             break;
         }
-
         case GameEngine::Components::FieldType::Vector2i:
         {
             auto* val = static_cast<vec2i*>(field.ptr);
@@ -641,7 +642,6 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                 [](wxSpinCtrl* ctrl, auto handler) { ctrl->Bind(wxEVT_SPINCTRL, handler); });
             break;
         }
-
         case GameEngine::Components::FieldType::Vector2f:
         {
             auto* val = static_cast<vec2*>(field.ptr);
@@ -672,15 +672,6 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                 },
                 [](wxSpinDoubleEvent& e) { return static_cast<float>(e.GetValue()); },
                 [](wxSpinCtrlDouble* ctrl, auto handler) { ctrl->Bind(wxEVT_SPINCTRLDOUBLE, handler); });
-            break;
-        }
-        case GameEngine::Components::FieldType::VectorOfTerrainTextures:
-        {
-            CreateUIForVector<GameEngine::Components::TerrainTexture>(
-                component, pane, sizer, field,
-                [this, &component](wxWindow* parent, std::vector<GameEngine::Components::TerrainTexture>* vec, size_t index,
-                                   std::function<void()> onRemove, bool editable)
-                { return this->CreateTerrainTextureItem(component, parent, vec, index, onRemove, editable); });
             break;
         }
         case GameEngine::Components::FieldType::Vector4f:
@@ -732,50 +723,45 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                 {"R:", "G:", "B:", "A:"});
             break;
         }
-        // == Wektory ==
         case FieldType::VectorOfStrings:
-            CreateUIForVector<std::string>(component, pane, sizer, field,
-                                           [this, &component](auto p, auto v, auto i, auto r, auto del)
-                                           { return this->CreateStringItem(component, p, v, i, r, del); });
+            helper.template operator()<std::string>();
             break;
 
         case FieldType::VectorOfInt:
-            CreateUIForVector<int>(component, pane, sizer, field,
-                                   [this, &component](auto p, auto v, auto i, auto r, auto del)
-                                   { return this->CreateIntItem(component, p, v, i, r, del); });
+            helper.template operator()<int>();
             break;
 
         case FieldType::VectorOfFloat:
-            CreateUIForVector<float>(component, pane, sizer, field,
-                                     [this, &component](auto p, auto v, auto i, auto r, auto del)
-                                     { return this->CreateFloatItem(component, p, v, i, r, del); });
+            helper.template operator()<float>();
             break;
-
         case FieldType::VectorOfFiles:
-            CreateUIForVector<GameEngine::File>(component, pane, sizer, field,
-                                                [this, &component](auto p, auto v, auto i, auto r, auto del)
-                                                { return this->CreateFileItem(component, p, v, i, r, del); });
+            helper.template operator()<GameEngine::File>();
             break;
 
         case FieldType::VectorOfTextures:
             CreateUIForVector<GameEngine::File>(component, pane, sizer, field,
-                                                [this, &component](auto p, auto v, auto i, auto r, auto del)
-                                                { return this->CreateTextureItem(component, p, v, i, r, del); });
+                                                [this, &component](auto* p, auto& v)
+                                                { return this->createTextureItem(component, p, v); });
             break;
-
         case FieldType::ConstVectorOfTextures:
             CreateUIForVector<GameEngine::File>(
                 component, pane, sizer, field,
-                [this, &component](auto p, auto v, auto i, auto r, auto del)
-                { return this->CreateTextureItem(component, p, v, i, r, del); },
-                false);
+                [this, &component](auto p, auto& v) { return this->createTextureItem(component, p, v); }, false);
             break;
         case GameEngine::Components::FieldType::VectorOfVector3f:
-            CreateUIForVector<vec3>(component, pane, sizer, field,
-                                    [this, &component](auto p, auto v, auto i, auto r, auto del)
-                                    { return this->CreateVec3Item(component, p, v, i, r, del); });
+            helper.template operator()<vec3>();
             break;
-
+        case GameEngine::Components::FieldType::VectorOfAnimationClips:
+            helper.template operator()<ReadAnimationInfo>();
+            break;
+        case GameEngine::Components::FieldType::VectorOfTerrainTextures:
+            helper.template operator()<TerrainTexture>();
+            break;
+        case FieldType::Custom:
+            break;
+        case FieldType::VectorOfCustom:
+            helper.template operator()<CustomStructure, VectorOfCustomStructure>();
+            break;
         case FieldType::ConstMapOfMaterials:
             auto* materials = static_cast<GameEngine::MaterialsMap*>(field.ptr);
             CreateUIForMaterialsMap(component, pane, sizer, *materials);
@@ -864,32 +850,27 @@ void ComponentPanel::CreateVectorRow(GameEngine::Components::IComponent& compone
     sizer->Add(rowPanel, 0, wxEXPAND | wxBOTTOM, 5);
 }
 
-template <typename T>
-void ComponentPanel::CreateUIForVector(
-    GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
-    const GameEngine::Components::FieldInfo& field,
-    std::function<wxBoxSizer*(wxWindow*, std::vector<T>*, size_t, std::function<void()>, bool)> createElementControl,
-    bool resizeable)
+template <typename T, typename Container>
+void ComponentPanel::CreateUIForVector(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
+                                       const GameEngine::Components::FieldInfo& field,
+                                       std::function<wxBoxSizer*(wxWindow*, T&)> createElementControl, bool resizeable)
 {
-    auto val = static_cast<std::vector<T>*>(field.ptr);
-
-    wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
-
-    wxStaticText* nameLabel = new wxStaticText(pane, wxID_ANY, field.name);
+    auto val        = static_cast<Container*>(field.ptr);
+    auto* row       = new wxBoxSizer(wxHORIZONTAL);
+    auto* nameLabel = new wxStaticText(pane, wxID_ANY, field.name);
     row->Add(nameLabel, 0, wxRIGHT | wxALIGN_CENTER_VERTICAL, 10);
-
-    wxBoxSizer* valuesSizer = new wxBoxSizer(wxVERTICAL);
+    auto* valuesSizer = new wxBoxSizer(wxVERTICAL);
 
     // Pasek rozmiaru
-    wxBoxSizer* sizeRow     = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* sizeLabel = new wxStaticText(pane, wxID_ANY, "Vector size:");
+    auto* sizeRow   = new wxBoxSizer(wxHORIZONTAL);
+    auto* sizeLabel = new wxStaticText(pane, wxID_ANY, "Vector size:");
 
     long style = wxTE_PROCESS_ENTER;
     if (not resizeable)
     {
         style = wxTE_READONLY;
     }
-    wxTextCtrl* sizeCtrl =
+    auto* sizeCtrl =
         new wxTextCtrl(pane, wxID_ANY, wxString::Format("%zu", val->size()), wxDefaultPosition, wxDefaultSize, style);
 
     sizeRow->Add(sizeLabel, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
@@ -935,23 +916,42 @@ void ComponentPanel::CreateUIForVector(
                        });
     }
 
-    // Elementy
     for (size_t i = 0; i < val->size(); ++i)
     {
-        wxBoxSizer* elemRow = createElementControl(pane, val, i, rebuildUI, resizeable);
+        auto* elemRow = createElementControl(pane, (*val)[i]);
+
+        if (resizeable)
+        {
+            wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
+            removeButton->SetToolTip("Remove element");
+
+            elemRow->Add(removeButton, 0,
+                         elemRow->GetOrientation() == wxVERTICAL ? wxALIGN_CENTER_HORIZONTAL : wxALIGN_CENTER_VERTICAL);
+
+            removeButton->Bind(wxEVT_BUTTON,
+                               [this, &component, val, i, rebuildUI](auto&)
+                               {
+                                   if (i < val->size())
+                                   {
+                                       val->erase(val->begin() + i);
+                                       this->CallAfter(rebuildUI);
+                                       component.Reload();
+                                   }
+                               });
+        }
+
         valuesSizer->Add(elemRow, 0, wxEXPAND | wxBOTTOM, 3);
     }
 
     if (resizeable)
     {
-        // Dodawanie elementu
-        wxButton* addButton = new wxButton(pane, wxID_ANY, "Add element");
+        auto* addButton = new wxButton(pane, wxID_ANY, "Add element");
         valuesSizer->Add(addButton, 0, wxLEFT, 10);
 
         addButton->Bind(wxEVT_BUTTON,
                         [this, val, rebuildUI](const auto&)
                         {
-                            val->push_back({});
+                            val->emplace_back();
                             this->CallAfter(rebuildUI);
                         });
     }
@@ -960,193 +960,91 @@ void ComponentPanel::CreateUIForVector(
     sizer->Add(row, 0, wxEXPAND | wxALL, 5);
 }
 
-wxBoxSizer* ComponentPanel::CreateStringItem(GameEngine::Components::IComponent& component, wxWindow* pane,
-                                             std::vector<std::string>* val, size_t index, std::function<void()> rebuildUI,
-                                             bool canDelete)
+wxBoxSizer* ComponentPanel::createItem(GameEngine::Components::IComponent& component, wxWindow* pane, std::string& val)
 {
     wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
 
-    wxTextCtrl* stringCtrl = createTextEnterCtrl(pane, (*val)[index]);
+    wxTextCtrl* stringCtrl = createTextEnterCtrl(pane, val);
     elemRow->Add(stringCtrl, 1, wxEXPAND | wxRIGHT, 5);
-
     stringCtrl->SetToolTip(stringCtrl->GetValue());
     stringCtrl->Bind(wxEVT_TEXT_ENTER,
-                     [&component, val, index, stringCtrl](wxCommandEvent& evt)
+                     [&component, &val, stringCtrl](wxCommandEvent& evt)
                      {
-                         if (index < val->size())
-                         {
-                             (*val)[index] = evt.GetString().ToStdString();
-                             stringCtrl->SetToolTip(evt.GetString().ToStdString());
-                             component.Reload();
-                         }
+                         val = evt.GetString().ToStdString();
+                         stringCtrl->SetToolTip(evt.GetString().ToStdString());
+                         component.Reload();
                          evt.Skip();
                      });
     stringCtrl->Bind(wxEVT_TEXT_PASTE,
-                     [&component, val, index, stringCtrl](wxCommandEvent& evt)
+                     [&component, &val, stringCtrl](wxCommandEvent& evt)
                      {
-                         if (index < val->size())
-                         {
-                             (*val)[index] = evt.GetString().ToStdString();
-                             stringCtrl->SetToolTip(evt.GetString().ToStdString());
-                             component.Reload();
-                         }
+                         val = evt.GetString().ToStdString();
+                         stringCtrl->SetToolTip(evt.GetString().ToStdString());
+                         component.Reload();
                          evt.Skip();
                      });
-
-    if (canDelete)
-    {
-        wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
-        removeButton->SetToolTip("Remove element");
-        elemRow->Add(removeButton, 0, wxALIGN_CENTER_VERTICAL);
-
-        removeButton->Bind(wxEVT_BUTTON,
-                           [this, &component, val, index, rebuildUI](wxCommandEvent&)
-                           {
-                               if (index < val->size())
-                               {
-                                   val->erase(val->begin() + index);
-                                   this->CallAfter(rebuildUI);
-                                   component.Reload();
-                               }
-                           });
-    }
-
     return elemRow;
 }
 
-wxBoxSizer* ComponentPanel::CreateIntItem(GameEngine::Components::IComponent& component, wxWindow* pane, std::vector<int>* val,
-                                          size_t index, std::function<void()> rebuildUI, bool canDelete)
+wxBoxSizer* ComponentPanel::createItem(GameEngine::Components::IComponent& component, wxWindow* pane, int& val)
 {
     wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
 
-    wxSpinCtrl* spinCtrl = new wxSpinCtrl(pane, wxID_ANY, wxString::Format("%d", (*val)[index]));
+    wxSpinCtrl* spinCtrl = new wxSpinCtrl(pane, wxID_ANY, wxString::Format("%d", val));
     spinCtrl->Bind(wxEVT_MOUSEWHEEL, [](auto& evt) {});
     elemRow->Add(spinCtrl, 1, wxEXPAND | wxRIGHT, 5);
 
     spinCtrl->Bind(wxEVT_SPINCTRL,
-                   [&component, val, index](wxSpinEvent& evt)
+                   [&component, &val](wxSpinEvent& evt)
                    {
-                       if (index < val->size())
-                       {
-                           (*val)[index] = evt.GetPosition();
-                           component.Reload();
-                       }
+                       val = evt.GetPosition();
+                       component.Reload();
                    });
-
-    if (canDelete)
-    {
-        wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
-        removeButton->SetToolTip("Remove element");
-        elemRow->Add(removeButton, 0, wxALIGN_CENTER_VERTICAL);
-
-        removeButton->Bind(wxEVT_BUTTON,
-                           [this, &component, val, index, rebuildUI](wxCommandEvent&)
-                           {
-                               if (index < val->size())
-                               {
-                                   val->erase(val->begin() + index);
-                                   component.Reload();
-                                   this->CallAfter(rebuildUI);
-                               }
-                           });
-    }
 
     return elemRow;
 }
 
-wxBoxSizer* ComponentPanel::CreateFloatItem(GameEngine::Components::IComponent& component, wxWindow* pane,
-                                            std::vector<float>* val, size_t index, std::function<void()> rebuildUI,
-                                            bool canDelete)
+wxBoxSizer* ComponentPanel::createItem(GameEngine::Components::IComponent& component, wxWindow* pane, float& val)
 {
     auto elemRow   = new wxBoxSizer(wxHORIZONTAL);
-    auto floatCtrl = CreateFloatSpinCtrl(pane, (*val)[index], 0.01, 1000.0, 0.1, 2);
+    auto floatCtrl = CreateFloatSpinCtrl(pane, val, 0.01, 1000.0, 0.1, 2);
     elemRow->Add(floatCtrl, 1, wxEXPAND | wxRIGHT, 5);
 
     floatCtrl->Bind(wxEVT_SPINCTRLDOUBLE,
-                    [&component, val, index](wxSpinDoubleEvent& evt)
+                    [&component, &val](wxSpinDoubleEvent& evt)
                     {
-                        if (index < val->size())
-                        {
-                            (*val)[index] = static_cast<float>(evt.GetValue());
-                            component.Reload();
-                        }
+                        val = static_cast<float>(evt.GetValue());
+                        component.Reload();
                     });
-
-    if (canDelete)
-    {
-        wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
-        removeButton->SetToolTip("Remove element");
-        elemRow->Add(removeButton, 0, wxALIGN_CENTER_VERTICAL);
-
-        removeButton->Bind(wxEVT_BUTTON,
-                           [this, &component, val, index, rebuildUI](wxCommandEvent&)
-                           {
-                               if (index < val->size())
-                               {
-                                   val->erase(val->begin() + index);
-                                   component.Reload();
-                                   this->CallAfter(rebuildUI);
-                               }
-                           });
-    }
 
     return elemRow;
 }
 
-wxBoxSizer* ComponentPanel::CreateVec3Item(GameEngine::Components::IComponent& component, wxWindow* pane, std::vector<vec3>* val,
-                                           size_t index, std::function<void()> rebuildUI, bool canDelete)
+wxBoxSizer* ComponentPanel::createItem(GameEngine::Components::IComponent& component, wxWindow* pane, vec3& val)
 {
-    auto elemRow = new wxBoxSizer(wxHORIZONTAL);
-
-    // Wskaźnik na konkretny wektor w tablicy
-    vec3* vectorPtr = &((*val)[index]);
-
-    // Definicja etykiet dla składowych
+    auto elemRow                            = new wxBoxSizer(wxHORIZONTAL);
     const std::array<std::string, 3> labels = {"X", "Y", "Z"};
 
     for (int i = 0; i < 3; ++i)
     {
         auto label = new wxStaticText(pane, wxID_ANY, labels[i] + ":");
-        auto ctrl  = CreateFloatSpinCtrl(pane, (*vectorPtr)[i], -10000.0, 10000.0, 0.1, 2);
+        auto ctrl  = CreateFloatSpinCtrl(pane, val[i], -10000.0, 10000.0, 0.1, 2);
 
         elemRow->Add(label, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
         elemRow->Add(ctrl, 1, wxEXPAND | wxLEFT, 2);
-
-        // Bindowanie zmiany konkretnej składowej (x, y lub z)
         ctrl->Bind(wxEVT_SPINCTRLDOUBLE,
-                   [&component, vectorPtr, i](wxSpinDoubleEvent& evt)
+                   [&component, &val, i](wxSpinDoubleEvent& evt)
                    {
-                       (*vectorPtr)[i] = static_cast<float>(evt.GetValue());
+                       val[i] = static_cast<float>(evt.GetValue());
                        component.Reload();
                    });
     }
-
-    if (canDelete)
-    {
-        auto removeButton = new wxButton(pane, wxID_ANY, "Delete", wxDefaultPosition, wxSize(60, -1));
-        removeButton->SetToolTip("Remove element");
-        elemRow->Add(removeButton, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
-
-        removeButton->Bind(wxEVT_BUTTON,
-                           [this, &component, val, index, rebuildUI](wxCommandEvent&)
-                           {
-                               if (index < val->size())
-                               {
-                                   val->erase(val->begin() + index);
-                                   component.Reload();
-                                   this->CallAfter(rebuildUI);
-                               }
-                           });
-    }
-
     return elemRow;
 }
 
-wxBoxSizer* ComponentPanel::CreateFileItem(GameEngine::Components::IComponent& component, wxWindow* pane,
-                                           std::vector<GameEngine::File>* val, size_t index, std::function<void()> rebuildUI,
-                                           bool canDelete)
+wxBoxSizer* ComponentPanel::createItem(GameEngine::Components::IComponent& component, wxWindow* pane,
+                                       GameEngine::File& editedFile)
 {
-    auto& editedFile    = (*val)[index];
     wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
 
     auto row = CreateBrowseFileRow(pane, "File:", editedFile.GetDataRelativePath().string());
@@ -1182,32 +1080,12 @@ wxBoxSizer* ComponentPanel::CreateFileItem(GameEngine::Components::IComponent& c
             component.Reload();
         }));
 
-    if (canDelete)
-    {
-        wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
-        removeButton->SetToolTip("Remove element");
-        elemRow->Add(removeButton, 0, wxALIGN_CENTER_VERTICAL);
-
-        removeButton->Bind(wxEVT_BUTTON,
-                           [this, &component, val, index, rebuildUI](wxCommandEvent&)
-                           {
-                               if (index < val->size())
-                               {
-                                   val->erase(val->begin() + index);
-                                   component.Reload();
-                                   this->CallAfter(rebuildUI);
-                               }
-                           });
-    }
-
     return elemRow;
 }
 
-wxBoxSizer* ComponentPanel::CreateTextureItem(GameEngine::Components::IComponent& component, wxWindow* pane,
-                                              std::vector<GameEngine::File>* val, size_t index, std::function<void()> rebuildUI,
-                                              bool canDelete)
+wxBoxSizer* ComponentPanel::createTextureItem(GameEngine::Components::IComponent& component, wxWindow* pane,
+                                              GameEngine::File& editedFile)
 {
-    auto& editedFile    = (*val)[index];
     wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
 
     auto row = CreateBrowseTextureRow(pane, "Texture:", editedFile.GetDataRelativePath().string());
@@ -1259,24 +1137,6 @@ wxBoxSizer* ComponentPanel::CreateTextureItem(GameEngine::Components::IComponent
             component.Reload();
             UpdateFileWarning(warningIcon, editedFile.GetAbsolutePath());
         }));
-
-    if (canDelete)
-    {
-        wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
-        removeButton->SetToolTip("Remove element");
-        elemRow->Add(removeButton, 0, wxALIGN_CENTER_VERTICAL);
-
-        removeButton->Bind(wxEVT_BUTTON,
-                           [this, &component, val, index, rebuildUI](wxCommandEvent&)
-                           {
-                               if (index < val->size())
-                               {
-                                   val->erase(val->begin() + index);
-                                   component.Reload();
-                                   this->CallAfter(rebuildUI);
-                               }
-                           });
-    }
 
     return elemRow;
 }
@@ -1383,15 +1243,15 @@ void ComponentPanel::SetPreviewBitmap(wxStaticBitmap* preview, const wxString& p
 wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::IComponent& component, wxWindow* pane,
                                                      GameEngine::Components::ReadAnimationInfo* val)
 {
-    wxBoxSizer* clipSizer = new wxBoxSizer(wxVERTICAL);
+    auto* clipSizer = new wxBoxSizer(wxVERTICAL);
 
     // name
-    wxTextCtrl* ctrl = createTextEnterCtrl(pane, val->name);
-    wxBoxSizer* row  = CreateLabeledRow(pane, "Name", ctrl);
+    auto* ctrl = createTextEnterCtrl(pane, val->name);
+    auto* row  = CreateLabeledRow(pane, "Name", ctrl);
     clipSizer->Add(row, 0, wxEXPAND | wxALL, 2);
 
     ctrl->Bind(wxEVT_TEXT_ENTER,
-               [this, &component, val, ctrl](wxCommandEvent& evt)
+               [&component, val, ctrl](auto& evt)
                {
                    val->name = evt.GetString().ToStdString();
                    component.Reload();
@@ -1399,7 +1259,7 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
                });
 
     ctrl->Bind(wxEVT_TEXT_PASTE,
-               [this, &component, val, ctrl](wxCommandEvent& evt)
+               [&component, val, ctrl](auto& evt)
                {
                    val->name = evt.GetString().ToStdString();
                    component.Reload();
@@ -1468,12 +1328,12 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
 
     // playInLoop
     {
-        wxCheckBox* check = new wxCheckBox(pane, wxID_ANY, "Play In Loop");
+        auto* check = new wxCheckBox(pane, wxID_ANY, "Play In Loop");
         check->SetValue(val->playInLoop);
         clipSizer->Add(check, 0, wxALL, 2);
 
         check->Bind(wxEVT_CHECKBOX,
-                    [this, &component, val](wxCommandEvent& e)
+                    [&component, val](auto& e)
                     {
                         val->playInLoop = e.IsChecked();
                         component.Reload();
@@ -1482,12 +1342,12 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
 
     // useRootMotion
     {
-        wxCheckBox* check = new wxCheckBox(pane, wxID_ANY, "Use Root Motion");
+        auto* check = new wxCheckBox(pane, wxID_ANY, "Use Root Motion");
         check->SetValue(val->useRootMontion);
         clipSizer->Add(check, 0, wxALL, 2);
 
         check->Bind(wxEVT_CHECKBOX,
-                    [this, &component, val](wxCommandEvent& e)
+                    [&component, val](auto& e)
                     {
                         val->useRootMontion = e.IsChecked();
                         component.Reload();
@@ -1501,7 +1361,7 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
         clipSizer->Add(row, 0, wxEXPAND | wxALL, 2);
 
         ctrl->Bind(wxEVT_SPINCTRLDOUBLE,
-                   [this, &component, val](auto& evt)
+                   [&component, val](auto& evt)
                    {
                        val->playSpeed = static_cast<float>(evt.GetValue());
                        component.Reload();
@@ -1511,40 +1371,12 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
     return clipSizer;
 }
 
-wxBoxSizer* ComponentPanel::CreateAnimationClipItem(GameEngine::Components::IComponent& component, wxWindow* pane,
-                                                    std::vector<GameEngine::Components::ReadAnimationInfo>* val, size_t index,
-                                                    std::function<void()> rebuildUI, bool canDelete)
+wxBoxSizer* ComponentPanel::createItem(GameEngine::Components::IComponent& component, wxWindow* pane,
+                                       GameEngine::Components::ReadAnimationInfo& clip)
 {
-    wxStaticBoxSizer* box = new wxStaticBoxSizer(wxVERTICAL, pane, "AnimationClip " + std::to_string(index));
-
-    if (index >= val->size())
-        return box;
-
-    auto& clip = (*val)[index];
-
-    // Wykorzystujemy wspolna funkcje do tworzenia pol AnimationClip
+    auto* box      = new wxStaticBoxSizer(wxVERTICAL, pane, "AnimationClip");
     auto clipSizer = CreateUIForAnimationClip(component, pane, &clip);
     box->Add(clipSizer, 0, wxEXPAND | wxALL, 2);
-
-    // przycisk usuwania
-    if (canDelete)
-    {
-        auto removeButton = new wxButton(pane, wxID_ANY, "Delete");
-        removeButton->SetToolTip("Remove element");
-        box->Add(removeButton, 0, wxALIGN_RIGHT | wxALL, 2);
-
-        removeButton->Bind(wxEVT_BUTTON,
-                           [this, &component, val, index, rebuildUI](auto&)
-                           {
-                               if (index < val->size())
-                               {
-                                   val->erase(val->begin() + index);
-                                   component.Reload();
-                                   this->CallAfter(rebuildUI);
-                               }
-                           });
-    }
-
     return box;
 }
 
@@ -1578,14 +1410,12 @@ void ComponentPanel::UpdateFileWarning(wxStaticBitmap* warningIcon, const GameEn
         warningIcon->GetParent()->Layout();
 }
 
-wxBoxSizer* ComponentPanel::CreateTerrainTextureItem(GameEngine::Components::IComponent& component, wxWindow* parent,
-                                                     std::vector<GameEngine::Components::TerrainTexture>* vec, size_t index,
-                                                     std::function<void()> onRemove, bool editable)
+wxBoxSizer* ComponentPanel::createItem(GameEngine::Components::IComponent& component, wxWindow* parent,
+                                       GameEngine::Components::TerrainTexture& terrainTex)
 {
     using namespace GameEngine::Components;
 
-    auto* itemSizer  = new wxBoxSizer(wxVERTICAL);
-    auto& terrainTex = (*vec)[index];
+    auto* itemSizer = new wxBoxSizer(wxVERTICAL);
 
     // --- Texture file ---
     auto texRow = CreateBrowseTextureRow(parent, "Texture", terrainTex.file.GetDataRelativePath().string());
@@ -1594,24 +1424,23 @@ wxBoxSizer* ComponentPanel::CreateTerrainTextureItem(GameEngine::Components::ICo
     UpdateFileWarning(texRow.warningIcon, terrainTex.file.GetAbsolutePath());
 
     // Browse button
-    texRow.browseBtn->Bind(wxEVT_BUTTON,
-                           [this, &component, parent, &terrainTex, txt = texRow.textCtrl, prev = texRow.preview,
-                            warn = texRow.warningIcon](wxCommandEvent&)
-                           {
-                               wxFileDialog openFileDialog(parent, "Choose texture", EngineLocalConf.files.getDataPath().string(),
-                                                           "", "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
-                                                           wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-                               if (openFileDialog.ShowModal() == wxID_OK)
-                               {
-                                   wxString path = openFileDialog.GetPath();
-                                   terrainTex.file.Init(path.ToStdString());
-                                   txt->SetValue(terrainTex.file.GetDataRelativePath().string());
-                                   txt->SetToolTip(txt->GetValue());
-                                   SetPreviewBitmap(prev, terrainTex.file, parent);
-                                   UpdateFileWarning(warn, terrainTex.file.GetAbsolutePath());
-                                   component.Reload();
-                               }
-                           });
+    texRow.browseBtn->Bind(
+        wxEVT_BUTTON,
+        [this, &component, parent, &terrainTex, txt = texRow.textCtrl, prev = texRow.preview, warn = texRow.warningIcon](auto&)
+        {
+            wxFileDialog openFileDialog(parent, "Choose texture", EngineLocalConf.files.getDataPath().string(), "",
+                                        "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+            if (openFileDialog.ShowModal() == wxID_OK)
+            {
+                auto path = openFileDialog.GetPath();
+                terrainTex.file.Init(path.ToStdString());
+                txt->SetValue(terrainTex.file.GetDataRelativePath().string());
+                txt->SetToolTip(txt->GetValue());
+                SetPreviewBitmap(prev, terrainTex.file, parent);
+                UpdateFileWarning(warn, terrainTex.file.GetAbsolutePath());
+                component.Reload();
+            }
+        });
 
     if (terrainTex.type != GameEngine::TerrainTextureType::blendMap and
         terrainTex.type != GameEngine::TerrainTextureType::heightmap)
@@ -1629,17 +1458,13 @@ wxBoxSizer* ComponentPanel::CreateTerrainTextureItem(GameEngine::Components::ICo
                         });
     }
 
-    // --- Type (enum) ---
     auto enumValues = magic_enum::enum_values<GameEngine::TerrainTextureType>();
-
-    // Wypelnij kontrolke nazwami (kolejnosc odpowiada enumValues)
-    auto* typeCtrl = new wxChoice(parent, wxID_ANY);
+    auto* typeCtrl  = new wxChoice(parent, wxID_ANY);
     for (auto v : enumValues)
     {
         typeCtrl->Append(wxString::FromUTF8(std::string(magic_enum::enum_name(v)).c_str()));
     }
 
-    // Znajdz indeks odpowiadajacy aktualnej wartosci terrainTex.type
     size_t selectedIndex = 0;
     for (size_t i = 0; i < enumValues.size(); ++i)
     {
@@ -1651,12 +1476,11 @@ wxBoxSizer* ComponentPanel::CreateTerrainTextureItem(GameEngine::Components::ICo
     }
     typeCtrl->SetSelection(static_cast<int>(selectedIndex));
 
-    // Po wybraniu pozycji ustaw enumerator z enumValues wg indeksu
     auto* typeRow = CreateLabeledRow(parent, "Type", typeCtrl);
     itemSizer->Add(typeRow, 0, wxEXPAND | wxALL, 3);
 
     typeCtrl->Bind(wxEVT_CHOICE,
-                   [this, &component, &terrainTex, enumValues](wxCommandEvent& evt)
+                   [&component, &terrainTex, enumValues](wxCommandEvent& evt)
                    {
                        auto sel = static_cast<size_t>(evt.GetSelection());
                        if (sel < enumValues.size())
@@ -1666,13 +1490,55 @@ wxBoxSizer* ComponentPanel::CreateTerrainTextureItem(GameEngine::Components::ICo
                        }
                    });
 
-    // --- Remove button if editable ---
-    if (editable)
-    {
-        auto* delBtn = new wxButton(parent, wxID_ANY, "Remove");
-        delBtn->Bind(wxEVT_BUTTON, [onRemove](auto&) { onRemove(); });
-        itemSizer->Add(delBtn, 0, wxALIGN_RIGHT | wxALL, 3);
-    }
-
     return itemSizer;
+}
+
+wxBoxSizer* ComponentPanel::createItem(GameEngine::Components::IComponent& component, wxWindow* pane,
+                                       GameEngine::Components::CustomStructure& customStruct)
+{
+    LOG_DEBUG << "customStruct.fields.size() " << customStruct.fields.size();
+
+    auto* mainRowSizer = new wxBoxSizer(wxVERTICAL);
+    auto* label        = new wxStaticText(pane, wxID_ANY, customStruct.name);
+    mainRowSizer->Add(label, 0, wxALIGN_LEFT | wxBOTTOM, 2);
+
+    for (size_t i = 0; i < customStruct.fields.size(); ++i)
+    {
+        auto& subField        = customStruct.fields[i];
+        auto* fieldGroupSizer = new wxBoxSizer(wxVERTICAL);
+        LOG_DEBUG << "CustomStructure field : " << magic_enum::enum_name(subField.type);
+
+        auto* label = new wxStaticText(pane, wxID_ANY, subField.name);
+        fieldGroupSizer->Add(label, 0, wxALIGN_LEFT | wxBOTTOM, 2);
+
+        switch (subField.type)
+        {
+            case GameEngine::Components::FieldType::Float:
+            {
+                auto& val      = *static_cast<float*>(subField.ptr);
+                auto ctrlSizer = this->createItem(component, pane, val);
+                fieldGroupSizer->Add(ctrlSizer, 1, wxEXPAND | wxRIGHT, 5);
+            }
+            break;
+            case GameEngine::Components::FieldType::Enum:
+            {
+                auto* ctrl = new wxChoice(pane, wxID_ANY);
+                for (auto& n : subField.enumNames())
+                    ctrl->Append(wxString::FromUTF8(n.c_str()));
+                ctrl->SetSelection(subField.enumToIndex(subField.ptr));
+                auto* row = CreateLabeledRow(pane, subField.name, ctrl);
+                fieldGroupSizer->Add(row, 0, wxEXPAND | wxALL, 5);
+                ctrl->Bind(wxEVT_CHOICE,
+                           [&component, ptr = subField.ptr, indexToEnum = subField.indexToEnum](wxCommandEvent& evt)
+                           {
+                               indexToEnum(ptr, evt.GetSelection());
+                               component.Reload();
+                           });
+            }
+            break;
+        }
+
+        mainRowSizer->Add(fieldGroupSizer, 1, wxEXPAND | wxRIGHT, 10);
+    }
+    return mainRowSizer;
 }

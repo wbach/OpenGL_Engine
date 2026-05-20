@@ -1,6 +1,7 @@
 #pragma once
 #include <Types.h>
 
+#include "ModifiableStat.h"
 namespace GameEngine
 {
 namespace Gothic
@@ -40,27 +41,43 @@ struct General
 
 struct Attributes
 {
-    uint32_t str{10};
-    uint32_t dex{10};
-    vec2 mana{5.f};
-    vec2 life{40.f};
+    ModifiableStat str{10.f};
+    ModifiableStat dex{10.f};
+
+    float currentMana{5.f};
+    ModifiableStat maxMana{5.f};
+
+    float currentLife{40.f};
+    ModifiableStat maxLife{40.f};
+};
+
+struct Offense
+{
+    ModifiableStat meleeDamage{0.f};
+    ModifiableStat meleeAttackSpeed{1.0f};
+
+    ModifiableStat rangedDamage{0.f};
+    ModifiableStat rangedAttackSpeed{1.0f};
+
+    ModifiableStat magicDamage{0.f};
+    ModifiableStat castSpeed{1.0f};
 };
 
 struct Protection
 {
-    uint32_t weapon{0};
-    uint32_t arrow{0};
-    uint32_t fire{0};
-    uint32_t magic{0};
+    ModifiableStat weapon{0};
+    ModifiableStat arrow{0};
+    ModifiableStat fire{0};
+    ModifiableStat magic{0};
 };
 
 struct FightingSkills
 {
-    uint32_t oneHand{0};
-    uint32_t twoHand{0};
-    uint32_t bow{0};
-    uint32_t crossbow{0};
-    uint32_t magic{0};
+    float oneHand{0};
+    float twoHand{0};
+    float bow{0};
+    float crossbow{0};
+    float magic{0};
 };
 
 struct ThievingSkills

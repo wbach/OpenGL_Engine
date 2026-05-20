@@ -382,7 +382,7 @@ void GridNavigation::AddObstacle(Model& model, const glm::mat4& modelTransform, 
 void GridNavigation::AddPhysicsObstacle(Physics::IPhysicsApi& api, const BoundingBox& worldBB, float agentHeight)
 {
     std::lock_guard lk(nodesMutex);
-    LOG_DEBUG << worldBB;
+//    LOG_DEBUG << worldBB;
     auto getX = [&](auto worldX) { return static_cast<int>(std::floor((worldX - origin.x) / cellSize)); };
     auto getZ = [&](auto worldZ) { return static_cast<int>(std::floor((worldZ - origin.z) / cellSize)); };
 

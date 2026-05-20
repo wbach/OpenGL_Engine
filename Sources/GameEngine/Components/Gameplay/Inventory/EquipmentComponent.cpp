@@ -14,6 +14,9 @@
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "GameEngine/Components/Gameplay/Attack/MeleeAttackComponent.h"
 #include "GameEngine/Components/Gameplay/Attack/WeaponComponent.h"
+#include "GameEngine/Components/Gameplay/CharacterStats/CharacterStatsComponent.h"
+#include "GameEngine/Components/Gameplay/CharacterStats/CharacterStatsViewerComponent.h"
+#include "GameEngine/Components/Gameplay/CharacterStats/ModifiableStat.h"
 #include "GameEngine/Components/Gameplay/Inventory/CombatStatsComponent.h"
 #include "GameEngine/Components/Gameplay/Inventory/ItemVisualComponent.h"
 #include "GameEngine/Components/Gameplay/Inventory/SlotType.h"
@@ -36,6 +39,31 @@ constexpr char CHEST_COMPONENT_TAG[]{"ChestEquippedItem"};
 constexpr char CSTR_MAIN_HAND_ITEM[]{"MainHandItem"};
 constexpr char CSTR_EQUIP_JOINT_NAME[]{"equipJointName"};
 constexpr char CSTR_DISARM_JOINT_NAME[]{"disarmJointName"};
+
+ModifiableStat* getStatByTarget(TargetStat target, CharacterStatsComponent* stats)
+{
+    // clang-format off
+    switch (target)
+    {
+        case TargetStat::Strength:           return &stats->attributes.str;
+        case TargetStat::Dexterity:          return &stats->attributes.dex;
+        case TargetStat::MaxMana:            return &stats->attributes.maxMana;
+        case TargetStat::MaxLife:            return &stats->attributes.maxLife;
+        case TargetStat::ProjectionWeapon:   return &stats->protection.weapon;
+        case TargetStat::ProjectionArrow:    return &stats->protection.arrow;
+        case TargetStat::ProjectionFire:     return &stats->protection.fire;
+        case TargetStat::ProjectionMagic:    return &stats->protection.magic;
+        case TargetStat::MeleDamage:         return &stats->offense.meleeDamage;
+        case TargetStat::MeleeAttackSpeed:   return &stats->offense.meleeAttackSpeed;
+        case TargetStat::RangedDamage:       return &stats->offense.rangedDamage;
+        case TargetStat::RangedAttackSpeed:  return &stats->offense.rangedAttackSpeed;
+        case TargetStat::MagicDamage:        return &stats->offense.magicDamage;
+        case TargetStat::CastSpeed:          return &stats->offense.castSpeed;
+    }
+    // clang-format on
+
+    return nullptr;
+};
 }  // namespace
 
 REGISTER_COMPONENT(EquipmentComponent)
@@ -90,6 +118,7 @@ bool EquipmentComponent::equip(GameObject& item)
     }
 
     equippedItems[itemEquippableComponent->slot] = &item;
+    applyItemModifiers(item);
 
     return true;
 }
@@ -124,9 +153,10 @@ std::optional<IdType> EquipmentComponent::unequip(SlotType slot)
     auto iter = equippedItems.find(slot);
     if (iter != equippedItems.end() and iter->second)
     {
-        auto result  = iter->second->GetId();
+        auto itemId = iter->second->GetId();
+        removeItemModifiers(itemId);
         iter->second = nullptr;
-        return result;
+        return itemId;
     }
     return std::nullopt;
 }
@@ -242,6 +272,66 @@ void EquipmentComponent::unequipWeapon()
     if (auto mac = thisObject_.GetComponent<MeleeAttackComponent>())
     {
         mac->clearWeapon();
+    }
+}
+void EquipmentComponent::applyItemModifiers(GameObject& item)
+{
+    auto characterStats = thisObject_.GetComponent<CharacterStatsComponent>();
+    if (not characterStats)
+        return;
+
+    auto itemStats = item.GetComponent<CombatStatsComponent>();
+    if (not itemStats)
+        return;
+
+    auto itemId = item.GetId();
+    for (const auto& mod : itemStats->modifiers)
+    {
+        if (auto* stat = getStatByTarget(mod.target, characterStats))
+        {
+            LOG_DEBUG << "applyItemModifiers " << magic_enum::enum_name(mod.target) << " value " << mod.value;
+            stat->addModifier(StatSource::Equipment, itemId, mod.type, mod.value);
+        }
+    }
+
+    if (auto viewer = thisObject_.GetComponent<CharacterStatsViewerComponent>())
+    {
+        viewer->updateGuiStats();
+    }
+}
+void EquipmentComponent::removeItemModifiers(IdType itemId)
+{
+    auto characterStats = thisObject_.GetComponent<CharacterStatsComponent>();
+    if (not characterStats)
+        return;
+
+    auto& charAttrs   = characterStats->attributes;
+    auto& charProtect = characterStats->protection;
+    auto& charOffense = characterStats->offense;
+
+    // Attributes
+    charAttrs.str.removeModifiersFromSource(itemId);
+    charAttrs.dex.removeModifiersFromSource(itemId);
+    charAttrs.maxLife.removeModifiersFromSource(itemId);
+    charAttrs.maxMana.removeModifiersFromSource(itemId);
+
+    // Protection
+    charProtect.weapon.removeModifiersFromSource(itemId);
+    charProtect.arrow.removeModifiersFromSource(itemId);
+    charProtect.fire.removeModifiersFromSource(itemId);
+    charProtect.magic.removeModifiersFromSource(itemId);
+
+    // Offense
+    charOffense.meleeDamage.removeModifiersFromSource(itemId);
+    charOffense.meleeAttackSpeed.removeModifiersFromSource(itemId);
+    charOffense.rangedDamage.removeModifiersFromSource(itemId);
+    charOffense.rangedAttackSpeed.removeModifiersFromSource(itemId);
+    charOffense.magicDamage.removeModifiersFromSource(itemId);
+    charOffense.castSpeed.removeModifiersFromSource(itemId);
+
+    if (auto viewer = thisObject_.GetComponent<CharacterStatsViewerComponent>())
+    {
+        viewer->updateGuiStats();
     }
 }
 }  // namespace Components

@@ -4,6 +4,7 @@
 #include <Utils/TreeNodeWriteFunctions.h>
 
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Gameplay/CharacterStats/CharacterStatsComponent.h"
 #include "GameEngine/Components/Gameplay/HealthComponent.h"
 #include "GameEngine/Components/Gameplay/Inventory/CombatStatsComponent.h"
 #include "GameEngine/Components/Physics/CapsuleShape.h"
@@ -103,16 +104,22 @@ void MeleeAttackComponent::Update()
                                       sphereShape->radius))
             {
                 hitTargets.insert(enemyId);
-                if (auto combatStatsComponent = cachedWeapon->GetParentGameObject().GetComponent<CombatStatsComponent>())
+                if (auto stats = thisObject_.GetComponent<CharacterStatsComponent>())
                 {
-                    LOG_DEBUG << "Take " << combatStatsComponent->damage
+                    LOG_DEBUG << "Take " << stats->offense.meleeDamage
                               << " dmg to : " << enemy->GetParentGameObject().GetName();
-                    enemy->takeDamage(combatStatsComponent->damage);
+                    enemy->takeDamage(stats->offense.meleeDamage.getValue());
                 }
-                else
-                {
-                    LOG_DEBUG << "CombatStatsComponent not exist in weapon";
-                }
+                // if (auto combatStatsComponent = cachedWeapon->GetParentGameObject().GetComponent<CombatStatsComponent>())
+                // {
+                //     LOG_DEBUG << "Take " << combatStatsComponent->damage
+                //               << " dmg to : " << enemy->GetParentGameObject().GetName();
+                //     enemy->takeDamage(combatStatsComponent->offense);
+                // }
+                // else
+                // {
+                //     LOG_DEBUG << "CombatStatsComponent not exist in weapon";
+                // }
             }
             else
             {

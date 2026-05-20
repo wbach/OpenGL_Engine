@@ -5,6 +5,7 @@
 
 #include "CharacterStats.h"
 #include "GameEngine/Components/Component.h"
+#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Renderers/GUI/Text/Text.h"
 #include "GameEngine/Resources/File.h"
 namespace GameEngine
@@ -24,6 +25,7 @@ DECLARE_COMPONENT(CharacterStatsComponent)
 {
 public:
     Gothic::CharacterStats::General general;
+    Gothic::CharacterStats::Offense offense;
     Gothic::CharacterStats::Attributes attributes;
     Gothic::CharacterStats::Protection protection;
     Gothic::CharacterStats::FightingSkills fightingSkills;
@@ -39,24 +41,34 @@ public:
             FIELD_UINT(general.nextlvl)
             FIELD_UINT(general.skillPoints)
 
+            // Offense
+            // FIELD_FLOAT(offense.meleeDamage.ptr())
+            // FIELD_FLOAT(offense.meleeRange.ptr())
+            // FIELD_FLOAT(offense.meleeAttackSpeed)
+            // FIELD_FLOAT(offense.rangedDamage.ptr())
+            // FIELD_FLOAT(offense.rangedAttackSpeed)
+            // FIELD_FLOAT(offense.magicDamage.ptr())
+
             // Attributes
-            FIELD_UINT(attributes.str)
-            FIELD_UINT(attributes.dex)
-            FIELD_VECTOR2F(attributes.mana)
-            FIELD_VECTOR2F(attributes.life)
+            FIELD_FLOAT(attributes.str.ptr())
+            FIELD_FLOAT(attributes.dex.ptr())
+            FIELD_FLOAT(attributes.currentLife)
+            FIELD_FLOAT(attributes.maxLife.ptr())
+            FIELD_FLOAT(attributes.currentMana)
+            FIELD_FLOAT(attributes.maxMana.ptr())
 
             // Protection
-            FIELD_UINT(protection.weapon)
-            FIELD_UINT(protection.arrow)
-            FIELD_UINT(protection.fire)
-            FIELD_UINT(protection.magic)
+            FIELD_FLOAT(protection.weapon.ptr())
+            FIELD_FLOAT(protection.arrow.ptr())
+            FIELD_FLOAT(protection.fire.ptr())
+            FIELD_FLOAT(protection.magic.ptr())
 
             // Fighting Skills
-            FIELD_UINT(fightingSkills.oneHand)
-            FIELD_UINT(fightingSkills.twoHand)
-            FIELD_UINT(fightingSkills.bow)
-            FIELD_UINT(fightingSkills.crossbow)
-            FIELD_UINT(fightingSkills.magic)
+            FIELD_FLOAT(fightingSkills.oneHand)
+            FIELD_FLOAT(fightingSkills.twoHand)
+            FIELD_FLOAT(fightingSkills.bow)
+            FIELD_FLOAT(fightingSkills.crossbow)
+            FIELD_FLOAT(fightingSkills.magic)
 
             // Thieving Skills
             FIELD_UINT(thievingSkills.openLocks)

@@ -54,6 +54,9 @@ constexpr char MagicValue[]       = "MAGIC_VALUE";
 constexpr char OpenLocks[]        = "OPEN_LOCKS";
 constexpr char PickPocketing[]    = "PICK_POCKETING";
 constexpr char SneakingValue[]    = "SNEAKING_VALUE";
+constexpr char MeleDmgValue[]     = "MELEDMG_VALUE";
+constexpr char RangeDmgValue[]    = "RANGEDMG_VALUE";
+constexpr char MagicDmgValue[]    = "MAGICDMG_VALUE";
 constexpr char AcrobaticsValue[]  = "ACROBATICS_VALUE";
 }  // namespace CharacterParam
 namespace
@@ -116,10 +119,10 @@ void CharacterStatsViewerComponent::ReqisterFunctions()
                      {
                          if (characterStats and hpValue)
                          {
-                             auto life        = characterStats->attributes.life;
-                             auto currentLife = life.x / life.y;
-                             const auto scale = hpValue->getLocalScale();
-                             hpValue->setLocalScale(vec2{currentLife, scale.y});
+                             const auto& attributes     = characterStats->attributes;
+                             auto currentLifePercentage = attributes.currentLife / attributes.maxLife.getValue();
+                             const auto scale           = hpValue->getLocalScale();
+                             hpValue->setLocalScale(vec2{currentLifePercentage, scale.y});
                          }
                      });
 }
@@ -186,20 +189,29 @@ void CharacterStatsViewerComponent::updateGuiStats()
         iter->second->setText(std::string(str));
     }
 
-    auto setValue = [&]<typename T>(const char* param, T& value)
+    auto getRoundValueStr = []<typename T>(const T& value)
+    {
+        if constexpr (std::is_floating_point_v<T>)
+        {
+            return std::to_string(static_cast<int>(std::round(value)));
+        }
+
+        return std::to_string(value);
+    };
+
+    auto setValue = [&]<typename T>(const char* param, const T& value)
     {
         if (auto iter = params.find(param); iter != params.end())
         {
-            iter->second->setText(std::to_string(value));
+            iter->second->setText(getRoundValueStr(value));
         }
     };
 
-    auto setValueMinMax = [&](const char* param, const vec2& value)
+    auto setValueMinMax = [&]<typename T, typename B>(const char* param, const T& min, const B& max)
     {
         if (auto iter = params.find(param); iter != params.end())
         {
-            iter->second->setText(std::to_string(static_cast<uint32>(value.x)) + "/" +
-                                  std::to_string(static_cast<uint32>(value.y)));
+            iter->second->setText(getRoundValueStr(min) + "/" + getRoundValueStr(max));
         }
     };
 
@@ -209,11 +221,11 @@ void CharacterStatsViewerComponent::updateGuiStats()
     setValue(CharacterParam::NextLvlValue, characterStats->general.nextlvl);
     setValue(CharacterParam::SkillPointsValue, characterStats->general.skillPoints);
 
-    // Attributes
-    setValue(CharacterParam::StrValue, characterStats->attributes.str);
-    setValue(CharacterParam::DexValue, characterStats->attributes.dex);
-    setValueMinMax(CharacterParam::ManaValue, characterStats->attributes.mana);
-    setValueMinMax(CharacterParam::HpValue, characterStats->attributes.life);
+    auto& attributes = characterStats->attributes;
+    setValue(CharacterParam::StrValue, attributes.str);
+    setValue(CharacterParam::DexValue, attributes.dex);
+    setValueMinMax(CharacterParam::ManaValue, attributes.currentMana, attributes.maxMana);
+    setValueMinMax(CharacterParam::HpValue, attributes.currentLife, attributes.maxLife);
 
     // Protection
     setValue(CharacterParam::RWeapon, characterStats->protection.weapon);
@@ -232,6 +244,10 @@ void CharacterStatsViewerComponent::updateGuiStats()
     setValue(CharacterParam::OpenLocks, characterStats->thievingSkills.openLocks);
     setValue(CharacterParam::PickPocketing, characterStats->thievingSkills.pickpocketing);
     setValue(CharacterParam::SneakingValue, characterStats->thievingSkills.sneaking);
+
+    setValue(CharacterParam::MeleDmgValue, characterStats->offense.meleeDamage);
+    setValue(CharacterParam::RangeDmgValue, characterStats->offense.rangedDamage);
+    setValue(CharacterParam::MagicDmgValue, characterStats->offense.magicDamage);
 
     // Special Skills
     setValue(CharacterParam::AcrobaticsValue, characterStats->specialSkills.acrobatics);
@@ -292,6 +308,9 @@ void CharacterStatsViewerComponent::initStatsPanel()
         getParamTxt(CharacterParam::PickPocketing);
         getParamTxt(CharacterParam::SneakingValue);
         getParamTxt(CharacterParam::AcrobaticsValue);
+        getParamTxt(CharacterParam::MeleDmgValue);
+        getParamTxt(CharacterParam::RangeDmgValue);
+        getParamTxt(CharacterParam::MagicDmgValue);
 
         updateGui();
         updateGuiStats();

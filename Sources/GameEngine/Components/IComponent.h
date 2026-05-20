@@ -1,62 +1,22 @@
 #pragma once
 #include <Types.h>
 
+#include <cstddef>
 #include <functional>
 #include <optional>
 #include <string>
 
 #include "ComponentType.h"
 #include "FunctionType.h"
+#include "Field.h"
 
 class TreeNode;
-
 namespace GameEngine
 {
 class GameObject;
 
 namespace Components
 {
-enum class FieldType
-{
-    Int = 0,
-    UInt,
-    Float,
-    String,
-    Boolean,
-    Texture,
-    File,
-    AnimationClip,
-    Material,
-    Vector2i,
-    Vector2f,
-    Vector3f,
-    Vector4f,
-    ColorRGB,
-    ColorRGBA,
-    Enum,
-    VectorOfStrings,
-    VectorOfInt,
-    VectorOfFloat,
-    VectorOfFiles,
-    VectorOfTextures,
-    VectorOfVector3f,
-    VectorOfTerrainTextures,
-    VectorOfAnimationClips,
-    ConstVectorOfTextures,
-    ConstMapOfMaterials
-};
-
-struct ENGINE_API FieldInfo
-{
-    std::string name{""};
-    FieldType type{FieldType::Int};
-    void* ptr{nullptr};
-
-    std::function<std::vector<std::string>()> enumNames = {};
-    std::function<int(void*)> enumToIndex               = {};
-    std::function<void(void*, int)> indexToEnum         = {};
-};
-
 typedef std::string ParamName;
 
 class ENGINE_API IComponent

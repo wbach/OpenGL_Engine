@@ -1,6 +1,7 @@
 #pragma once
 #include <GameEngine/Components/ComponentController.h>
 #include <GameEngine/Components/IComponent.h>
+#include <GameEngine/Components/VectorOfCustomStructure.h>
 #include <GameEngine/Components/ReadAnimationInfo.h>
 #include <GameEngine/Components/Renderer/Terrain/TerrainTexture.h>
 #include <GameEngine/Resources/File.h>
@@ -37,26 +38,19 @@ private:
     void CreateVectorRow(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const wxString&, VecT*, int, SetVal, GetVal,
                          BindEvt, const std::vector<std::string>& = {"X:", "Y:", "Z:", "W:"});
 
-    template <typename T>
+    template <typename T, typename Container = std::vector<T>>
     void CreateUIForVector(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&,
-                           std::function<wxBoxSizer*(wxWindow*, std::vector<T>*, size_t, std::function<void()>, bool)>,
-                           bool resizeable = true);
+                           std::function<wxBoxSizer*(wxWindow*, T&)>, bool resizeable = true);
 
-    wxBoxSizer* CreateStringItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<std::string>*, size_t,
-                                 std::function<void()>, bool = true);
-    wxBoxSizer* CreateIntItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<int>*, size_t, std::function<void()>,
-                              bool = true);
-    wxBoxSizer* CreateFloatItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<float>*, size_t,
-                                std::function<void()>, bool = true);
-    wxBoxSizer* CreateVec3Item(GameEngine::Components::IComponent&, wxWindow*, std::vector<vec3>*, size_t, std::function<void()>,
-                               bool = true);
-    wxBoxSizer* CreateFileItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<GameEngine::File>*, size_t,
-                               std::function<void()>, bool = true);
-    wxBoxSizer* CreateTextureItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<GameEngine::File>*, size_t,
-                                  std::function<void()>, bool = true);
-    wxBoxSizer* CreateAnimationClipItem(GameEngine::Components::IComponent&, wxWindow*,
-                                        std::vector<GameEngine::Components::ReadAnimationInfo>*, size_t, std::function<void()>,
-                                        bool = true);
+    wxBoxSizer* createItem(GameEngine::Components::IComponent&, wxWindow*, std::string&);
+    wxBoxSizer* createItem(GameEngine::Components::IComponent&, wxWindow*, int&);
+    wxBoxSizer* createItem(GameEngine::Components::IComponent&, wxWindow*, float&);
+    wxBoxSizer* createItem(GameEngine::Components::IComponent&, wxWindow*, vec3&);
+    wxBoxSizer* createItem(GameEngine::Components::IComponent&, wxWindow*, GameEngine::File&);
+    wxBoxSizer* createTextureItem(GameEngine::Components::IComponent&, wxWindow*, GameEngine::File&);
+    wxBoxSizer* createItem(GameEngine::Components::IComponent&, wxWindow*, GameEngine::Components::ReadAnimationInfo&);
+    wxBoxSizer* createItem(GameEngine::Components::IComponent&, wxWindow*, GameEngine::Components::TerrainTexture&);
+    wxBoxSizer* createItem(GameEngine::Components::IComponent&, wxWindow*, GameEngine::Components::CustomStructure&);
     // == Akcje/logika ==
     void reInitComponent(GameEngine::Components::IComponent&);
     void browseFileControlAction(wxCommandEvent&, GameEngine::Components::IComponent& component, wxTextCtrl* fileCtrl,
@@ -97,10 +91,6 @@ private:
     void UpdateFileWarning(wxStaticBitmap* warningIcon, const GameEngine::File& file);
 
     void CreateUIForMaterialsMap(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, GameEngine::MaterialsMap&);
-
-    wxBoxSizer* CreateTerrainTextureItem(GameEngine::Components::IComponent& component, wxWindow* parent,
-                                         std::vector<GameEngine::Components::TerrainTexture>* vec, size_t index,
-                                         std::function<void()> onRemove, bool editable);
 
 private:
     std::mutex mutex;

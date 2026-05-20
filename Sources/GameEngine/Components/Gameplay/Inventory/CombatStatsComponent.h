@@ -1,36 +1,47 @@
 #pragma once
+#include <functional>
+#include <vector>
+
 #include "GameEngine/Components/Component.h"
+#include "GameEngine/Components/VectorOfCustomStructure.h"
+#include "GameEngine/Components/Gameplay/CharacterStats/ModifiableStat.h"
 
 namespace GameEngine
 {
 namespace Components
 {
+enum class TargetStat : uint8_t
+{
+    Strength,
+    Dexterity,
+    MaxMana,
+    MaxLife,
+    ProjectionWeapon,
+    ProjectionArrow,
+    ProjectionFire,
+    ProjectionMagic,
+    MeleDamage,
+    MeleeAttackSpeed,
+    RangedDamage,
+    RangedAttackSpeed,
+    MagicDamage,
+    CastSpeed
+};
+struct ItemStatModifier
+{
+    TargetStat target;
+    ModifierType type;
+    float value{0.f};
+};
+
 DECLARE_COMPONENT(CombatStatsComponent)
 {
 public:
-    int damage        = 0;
-    float attackSpeed = 1.0f;
-    float range       = 1.0f;
-
-    int physicalDefense = 0;
-    int magicDefense    = 0;
-    int fireResistance  = 0;
-
-    int hpBonus      = 0;
-    int manaBonus    = 0;
-    int staminaBonus = 0;
+    VectorOfCustomStructure modifiersFields;
 
     // clang-format off
     BEGIN_FIELDS()
-        FIELD_INT(damage)
-        FIELD_FLOAT(attackSpeed)
-        FIELD_FLOAT(range)
-        FIELD_INT(physicalDefense)
-        FIELD_INT(magicDefense)
-        FIELD_INT(fireResistance)
-        FIELD_INT(hpBonus)
-        FIELD_INT(manaBonus)
-        FIELD_INT(staminaBonus)
+        FIELD_VECTOR_OF_CUSTOM(modifiersFields)
     END_FIELDS()
     // clang-format on
 
@@ -41,6 +52,8 @@ public:
     void CleanUp() override;
     void ReqisterFunctions() override;
     void Reload() override;
+
+    std::vector<ItemStatModifier> modifiers;
 
 public:
     void read(const TreeNode&) override;

@@ -27,33 +27,35 @@ public:
     // clang-format on
 
 public:
-    EquipmentComponent(ComponentContext&, GameObject&);
+    EquipmentComponent(ComponentContext &, GameObject &);
     ~EquipmentComponent() override;
     void CleanUp() override;
     void ReqisterFunctions() override;
     void Reload() override;
     void readFile();
 
-    bool equip(GameObject&);
-    bool canEquip(GameObject&) const;
+    bool equip(GameObject &);
+    bool canEquip(GameObject &) const;
     bool isSlotFree(SlotType) const;
 
     std::optional<IdType> unequip(SlotType);
 
 private:
-    void equipChest(const GameObject&);
-    void equipOneHand(const GameObject&);
+    void equipChest(const GameObject &);
+    void equipOneHand(const GameObject &);
     void unequipWeapon();
     void unequipChest();
     void activeDefaultBody(bool);
     void reloadAnimator();
+    void applyItemModifiers(GameObject &);
+    void removeItemModifiers(IdType);
 
 private:
-    std::unordered_map<SlotType, GameObject*> equippedItems;
+    std::unordered_map<SlotType, GameObject *> equippedItems;
 
 public:
-    void read(const TreeNode&) override;
-    void write(TreeNode&) const override;
+    void read(const TreeNode &) override;
+    void write(TreeNode &) const override;
 };
 }  // namespace Components
 }  // namespace GameEngine

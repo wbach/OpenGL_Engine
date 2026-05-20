@@ -52,18 +52,18 @@ void HealthComponent::takeDamage(float rawDamage)
 
     auto& attributes = stats->attributes;
 
-    auto defense     = static_cast<float>(attributes.str);
+    auto defense     = attributes.str.getValue();
     auto finalDamage = std::max(1.0f, rawDamage - defense);
 
-    if (attributes.life.x > finalDamage)
+    if (attributes.currentLife > finalDamage)
     {
-        attributes.life.x -= finalDamage;
-        LOG_DEBUG << "HP: " << attributes.life;
+        attributes.currentLife -= finalDamage;
+        LOG_DEBUG << "HP: " << attributes.currentLife;
         controller->pushEventToQueue(HurtEvent{});
     }
     else
     {
-        attributes.life.x = 0;
+        attributes.currentLife = 0;
         if (controller)
         {
             LOG_INFO << thisObject_.GetName() << " has died.";
@@ -80,10 +80,10 @@ void HealthComponent::heal(float amount)
     }
 
     auto& attributes = stats->attributes;
-    attributes.life.x += amount;
+    attributes.currentLife += amount;
 
-    if (attributes.life.x > attributes.life.y)
-        attributes.life.x = attributes.life.y;
+    if (attributes.currentLife > attributes.maxLife.getValue())
+        attributes.currentLife = attributes.maxLife.getValue();
 }
 
 void HealthComponent::read(const TreeNode&)

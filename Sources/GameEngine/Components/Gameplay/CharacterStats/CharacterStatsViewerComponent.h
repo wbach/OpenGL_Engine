@@ -47,13 +47,13 @@ public:
     void CleanUp() override;
     void ReqisterFunctions() override;
     void Reload() override;
+    void updateGuiStats();
 
 private:
     void initGui();
     void initStatsPanel();
     void initHud();
     void updateGui();
-    void updateGuiStats();
     void show();
     void hide();
 

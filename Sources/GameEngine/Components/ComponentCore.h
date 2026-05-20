@@ -91,6 +91,8 @@ FieldInfo MakeEnumField(const char* name, Enum* value)
 #define FIELD_VECTOR_OF_ANIMATION_CLIPS(member) fields.push_back({#member, FieldType::VectorOfAnimationClips, &(this->member)});
 #define FIELD_VECTOR_OF_TERRAIN_TEXTURES(member) fields.push_back({#member, FieldType::VectorOfTerrainTextures, &(this->member)});
 #define FIELD_ENUM(member) fields.push_back(MakeEnumField(#member, &(this->member)));
+#define FIELD_CUSTOM(member) fields.push_back({#member, FieldType::Custom, &(this->member)});
+#define FIELD_VECTOR_OF_CUSTOM(member) fields.push_back({#member, FieldType::VectorOfCustom, &(this->member)});
 
 #define END_FIELDS() return fields; }
 // clang-format on

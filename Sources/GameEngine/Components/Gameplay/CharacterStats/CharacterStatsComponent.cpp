@@ -37,10 +37,12 @@ constexpr char CSTR_GENERAL_NEXTLVL[]      = "general.nextlvl";
 constexpr char CSTR_GENERAL_SKILL_POINTS[] = "general.skillPoints";
 
 // Attributes
-constexpr char CSTR_ATTR_STR[]  = "attributes.str";
-constexpr char CSTR_ATTR_DEX[]  = "attributes.dex";
-constexpr char CSTR_ATTR_MANA[] = "attributes.mana";
-constexpr char CSTR_ATTR_LIFE[] = "attributes.life";
+constexpr char CSTR_ATTR_STR[]      = "attributes.str";
+constexpr char CSTR_ATTR_DEX[]      = "attributes.dex";
+constexpr char CSTR_ATTR_MANA[]     = "attributes.mana";
+constexpr char CSTR_ATTR_MANA_MAX[] = "attributes.manaMax";
+constexpr char CSTR_ATTR_LIFE[]     = "attributes.life";
+constexpr char CSTR_ATTR_LIFE_MAX[] = "attributes.lifeMax";
 
 // Protection
 constexpr char CSTR_PROT_WEAPON[] = "protection.weapon";
@@ -62,11 +64,6 @@ constexpr char CSTR_THIEF_SNEAK[]      = "thieving.sneaking";
 
 // Special
 constexpr char CSTR_SPEC_ACROBATICS[] = "special.acrobatics";
-}  // namespace
-namespace
-{
-constexpr char GUI_FILE[]{"guiLayoutFile"};
-
 }  // namespace
 namespace Components
 {
@@ -98,10 +95,12 @@ void CharacterStatsComponent::read(const TreeNode& input)
     ::Read(input.getChild(CSTR_GENERAL_SKILL_POINTS), general.skillPoints);
 
     // Attributes
-    ::Read(input.getChild(CSTR_ATTR_STR), attributes.str);
     ::Read(input.getChild(CSTR_ATTR_DEX), attributes.dex);
-    ::Read(input.getChild(CSTR_ATTR_MANA), attributes.mana);
-    ::Read(input.getChild(CSTR_ATTR_LIFE), attributes.life);
+    ::Read(input.getChild(CSTR_ATTR_STR), attributes.str);
+    ::Read(input.getChild(CSTR_ATTR_MANA), attributes.currentMana);
+    ::Read(input.getChild(CSTR_ATTR_MANA_MAX), attributes.currentMana);
+    ::Read(input.getChild(CSTR_ATTR_LIFE), attributes.currentLife);
+    ::Read(input.getChild(CSTR_ATTR_LIFE_MAX), attributes.maxLife);
 
     // Protection
     ::Read(input.getChild(CSTR_PROT_WEAPON), protection.weapon);
@@ -137,8 +136,10 @@ void CharacterStatsComponent::write(TreeNode& node) const
     // Attributes
     ::write(node.addChild(CSTR_ATTR_STR), attributes.str);
     ::write(node.addChild(CSTR_ATTR_DEX), attributes.dex);
-    ::write(node.addChild(CSTR_ATTR_MANA), attributes.mana);
-    ::write(node.addChild(CSTR_ATTR_LIFE), attributes.life);
+    ::write(node.addChild(CSTR_ATTR_MANA), attributes.currentMana);
+    ::write(node.addChild(CSTR_ATTR_MANA_MAX), attributes.maxMana);
+    ::write(node.addChild(CSTR_ATTR_LIFE), attributes.currentLife);
+    ::write(node.addChild(CSTR_ATTR_LIFE_MAX), attributes.maxLife);
 
     // Protection
     ::write(node.addChild(CSTR_PROT_WEAPON), protection.weapon);
