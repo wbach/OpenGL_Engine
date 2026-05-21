@@ -468,7 +468,7 @@ void DebugRenderer::init()
 
                 if (auto aic = objectSelection->GetComponent<Components::AIController>())
                 {
-                    auto lineMesh = CreateLineMeshFromPath(aic->currentPath_);
+                    auto lineMesh = CreateLineMeshFromPath(aic->getCurrentPath());
                     result        = appendLineMesh(result, lineMesh);
                 }
 

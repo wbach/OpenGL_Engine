@@ -2428,7 +2428,8 @@ void MainFrame::MenuDebugCalulatePath(wxCommandEvent&)
                 const auto& parent = (*iter)->GetParentGameObject();
                 gameObjectsView->SelectItemWhenGameObjectBecomeAvaiable(parent.GetId());
                 LookAtGameObject(parent.GetId());
-                (*iter)->MoveTo(iter2->second->GetWorldTransform().GetPosition());
+                (*iter)->pushEventToQueue(GameEngine::Components::QuestTriggeredEvent{
+                    .targetPosition = iter2->second->GetWorldTransform().GetPosition()});
             }
         }
     }

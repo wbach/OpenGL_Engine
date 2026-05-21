@@ -30,7 +30,7 @@ namespace Debug
 {
 namespace
 {
-constexpr char COMMAND_CURRSOR[]    = "> ";
+constexpr char COMMAND_CURRSOR[]              = "> ";
 constexpr std::string_view CONSOLE_LAYER_NAME = "consoleLayer";
 Input::SingleCharType inputType{Input::SingleCharType::SMALL};
 const float WINDOW_Z_POSITION{-100.f};
@@ -785,7 +785,8 @@ void Console::MoveTo(const Params &args)
         {
             if (auto targetGameObject = scene_.GetGameObject(args[1]))
             {
-                ai->MoveTo(targetGameObject->GetWorldTransform().GetPosition());
+                ai->pushEventToQueue(
+                    Components::QuestTriggeredEvent{.targetPosition = targetGameObject->GetWorldTransform().GetPosition()});
                 return;
             }
 
@@ -794,7 +795,7 @@ void Console::MoveTo(const Params &args)
                 vec3 target(0);
                 std::from_string(args[1], target);
                 LOG_DEBUG << target;
-                ai->MoveTo(target);
+                ai->pushEventToQueue(Components::QuestTriggeredEvent{.targetPosition = target});
             }
             catch (...)
             {

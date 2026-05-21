@@ -73,19 +73,6 @@ void PlayerInputController::Init()
 
 void PlayerInputController::SubscribeForPushActions()
 {
-    // TMP for testing
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-        KeyCodes::M,
-        [&]()
-        {
-            auto ai = componentContext_.componentController_.GetAllComponentsOfType<AIController>();
-            for (auto& c : ai)
-            {
-                // c->MoveTo(vec3(0));
-                c->MoveTo(vec3(52.407, 68.898, -315.405));  // Wiata
-            }
-        });
-
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
         Input::GameAction::DODGE,
         [&]()

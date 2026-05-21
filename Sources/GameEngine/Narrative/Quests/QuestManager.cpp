@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "GameEngine/Components/Controllers/AI/AIController.h"
+#include "GameEngine/Components/Controllers/AI/AIControllerEvents.h"
 #include "GameEngine/Components/Dialogue/DialogueComponent.h"
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Narrative/Dialogs/DialogueManager.h"
@@ -77,111 +78,112 @@ void QuestManager::registerDefaultActions()
                        }
                    });
 
-    registerAction("moveToPos",
-                   [&](const std::vector<std::string>& params)
-                   {
-                       if (params.size() < 2)
-                       {
-                           LOG_DEBUG << "not enough arguments";
-                           return;
-                       }
+    registerAction(
+        "moveToPos",
+        [&](const std::vector<std::string>& params)
+        {
+            if (params.size() < 2)
+            {
+                LOG_DEBUG << "not enough arguments";
+                return;
+            }
 
-                       const std::string& gameObjectName = params[0];
+            const std::string& gameObjectName = params[0];
 
-                       vec3 target(0);
-                       if (not std::from_string(params[1], target))
-                       {
-                           LOG_DEBUG << "Target pos parse error.";
-                           return;
-                       }
+            vec3 target(0);
+            if (not std::from_string(params[1], target))
+            {
+                LOG_DEBUG << "Target pos parse error.";
+                return;
+            }
 
-                       Components::AIController::MoveType moveType{Components::AIController::MoveType::RUN};
-                       if (params.size() > 2)
-                       {
-                           if (auto mabeMoveType = magic_enum::enum_cast<Components::AIController::MoveType>(
-                                   params[2], magic_enum::case_insensitive))
-                           {
-                               moveType = *mabeMoveType;
-                           }
-                       }
+            Components::AIMoveType moveType{Components::AIMoveType::RUN};
+            if (params.size() > 2)
+            {
+                if (auto mabeMoveType = magic_enum::enum_cast<Components::AIMoveType>(params[2], magic_enum::case_insensitive))
+                {
+                    moveType = *mabeMoveType;
+                }
+            }
 
-                       if (auto scene = sceneManager.GetActiveScene())
-                       {
-                           if (auto go = scene->GetGameObject(gameObjectName))
-                           {
-                               if (auto ai = go->GetComponent<Components::AIController>())
-                               {
-                                   ai->MoveTo(target, moveType);
-                               }
-                               else
-                               {
-                                   LOG_DEBUG << "ai controller not found : " << gameObjectName;
-                               }
-                           }
-                           else
-                           {
-                               LOG_DEBUG << "gameobject not found : " << gameObjectName;
-                           }
-                       }
-                   });
+            if (auto scene = sceneManager.GetActiveScene())
+            {
+                if (auto go = scene->GetGameObject(gameObjectName))
+                {
+                    if (auto ai = go->GetComponent<Components::AIController>())
+                    {
+                        ai->pushEventToQueue(Components::QuestTriggeredEvent{.targetPosition = target, .moveType = moveType});
+                    }
+                    else
+                    {
+                        LOG_DEBUG << "ai controller not found : " << gameObjectName;
+                    }
+                }
+                else
+                {
+                    LOG_DEBUG << "gameobject not found : " << gameObjectName;
+                }
+            }
+        });
 
-    registerAction("moveToObject",
-                   [&](const std::vector<std::string>& params)
-                   {
-                       if (params.size() < 2)
-                       {
-                           LOG_DEBUG << "not enough arguments";
-                           return;
-                       }
+    registerAction(
+        "moveToObject",
+        [&](const std::vector<std::string>& params)
+        {
+            if (params.size() < 2)
+            {
+                LOG_DEBUG << "not enough arguments";
+                return;
+            }
 
-                       Components::AIController::MoveType moveType{Components::AIController::MoveType::RUN};
-                       if (params.size() > 2)
-                       {
-                           if (auto mabeMoveType = magic_enum::enum_cast<Components::AIController::MoveType>(
-                                   params[2], magic_enum::case_insensitive))
-                           {
-                               moveType = *mabeMoveType;
-                           }
-                       }
+            Components::AIMoveType moveType{Components::AIMoveType::RUN};
+            if (params.size() > 2)
+            {
+                if (auto mabeMoveType = magic_enum::enum_cast<Components::AIMoveType>(params[2], magic_enum::case_insensitive))
+                {
+                    moveType = *mabeMoveType;
+                }
+            }
 
-                       const std::string& targetObjectName = params[1];
-                       const std::string& gameObjectName   = params[0];
+            const std::string& targetObjectName = params[1];
+            const std::string& gameObjectName   = params[0];
 
-                       LOG_DEBUG << "GameObject: " << gameObjectName << ", targetObjectName " << targetObjectName;
+            LOG_DEBUG << "GameObject: " << gameObjectName << ", targetObjectName " << targetObjectName;
 
-                       if (auto scene = sceneManager.GetActiveScene())
-                       {
-                           LOG_DEBUG << "GetGameObject " << gameObjectName;
-                           if (auto go = scene->GetGameObject(gameObjectName))
-                           {
-                               LOG_DEBUG << "GetComponent " << gameObjectName;
-                               if (auto ai = go->GetComponent<Components::AIController>())
-                               {
-                                   LOG_DEBUG << "GetGameObject " << targetObjectName;
-                                   if (auto trargetGo = scene->GetGameObject(targetObjectName))
-                                   {
-                                       ai->MoveTo(trargetGo->GetWorldTransform().GetPosition(), moveType);
-                                   }
-                                   else
-                                   {
-                                       LOG_DEBUG << "target game object not found: " << trargetGo;
-                                   }
-                               }
-                               else
-                               {
-                                   LOG_DEBUG << "ai controller not found : " << gameObjectName;
-                               }
-                           }
-                           else
-                           {
-                               LOG_DEBUG << "gameobject not found : " << gameObjectName;
-                           }
-                       }
-                       else
-                       {
-                           LOG_DEBUG << "No active scene";
-                       }
-                   });
+            if (auto scene = sceneManager.GetActiveScene())
+            {
+                LOG_DEBUG << "GetGameObject " << gameObjectName;
+                if (auto go = scene->GetGameObject(gameObjectName))
+                {
+                    LOG_DEBUG << "GetComponent " << gameObjectName;
+                    if (auto ai = go->GetComponent<Components::AIController>())
+                    {
+                        LOG_DEBUG << "GetGameObject " << targetObjectName;
+                        if (auto trargetGo = scene->GetGameObject(targetObjectName))
+                        {
+                            ai->pushEventToQueue(Components::QuestTriggeredEvent{
+                                .targetPosition = trargetGo->GetWorldTransform().GetPosition(), .moveType = moveType});
+                        }
+                        else
+                        {
+                            LOG_DEBUG << "target game object not found: " << trargetGo;
+                        }
+                    }
+                    else
+                    {
+                        LOG_DEBUG << "ai controller not found : " << gameObjectName;
+                    }
+                }
+                else
+                {
+                    LOG_DEBUG << "gameobject not found : " << gameObjectName;
+                }
+            }
+            else
+            {
+                LOG_DEBUG << "No active scene";
+            }
+        });
 
     registerAction("startDialog",
                    [&](const std::vector<std::string>& params)

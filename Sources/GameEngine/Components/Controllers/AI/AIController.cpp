@@ -2,7 +2,10 @@
 
 #include <Logger/Log.h>
 
+#include <memory>
+
 #include "AICharacterFsm.h"
+#include "AIControllerContext.h"
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Controllers/AI/States/AIAmbientState.h"
@@ -11,23 +14,14 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Navigation/NavigationManager.h"
 #include "magic_enum/magic_enum.hpp"
-
 namespace GameEngine
 {
 namespace Components
 {
-namespace
-{
-Quaternion calculateTargetRotation(const vec3& direction)
-{
-    float angle = atan2f(direction.x, direction.z);
-    return glm::angleAxis(angle, vec3(0.0f, 1.0f, 0.0f));
-}
-}  // namespace
-
 struct AIController::Impl
 {
     std::unique_ptr<AICharacterFsm> stateMachine_;
+    std::unique_ptr<AIControllerContext> controllerContext_;
 
     void CleanUp()
     {
@@ -39,7 +33,6 @@ REGISTER_COMPONENT(AIController)
 
 AIController::AIController(ComponentContext& componentContext, GameObject& gameObject)
     : Component(componentContext, gameObject)
-    , characterController_{nullptr}
 {
     impl = std::make_unique<AIController::Impl>();
 }
@@ -57,17 +50,15 @@ void AIController::Reload()
 }
 void AIController::Init()
 {
-    characterController_ = thisObject_.GetComponent<CharacterController>();
-    impl->stateMachine_  = std::make_unique<AICharacterFsm>(AIAmbientState{}, AIChaseState{}, AIAttackState{}, AIQuestState{});
-}
-void AIController::Update()
-{
-    if (currentPath_.empty())
-        return;
+    auto characterController = thisObject_.GetComponent<CharacterController>();
+    impl->controllerContext_.reset(new AIControllerContext{.gameObject          = thisObject_,
+                                                           .navigationManager   = componentContext_.navigationManager,
+                                                           .characterController = *characterController,
+                                                           .controller          = *this});
 
-    UpdateNavigation();
+    impl->stateMachine_ = std::make_unique<AICharacterFsm>(AIAmbientState{}, AIChaseState{}, AIAttackState{},
+                                                           AIQuestState{*impl->controllerContext_});
 }
-
 void AIController::read(const TreeNode&)
 {
 }
@@ -75,64 +66,60 @@ void AIController::read(const TreeNode&)
 void AIController::write(TreeNode& node) const
 {
 }
-
-void AIController::MoveTo(const vec3& targetPosition, MoveType type)
+void AIController::Update()
 {
-    LOG_DEBUG << "Moving(" << magic_enum::enum_name(type) << ") " << thisObject_.GetName() << " to " << targetPosition;
+    if (not IsActive())
+        return;
 
-    moveType_        = type;
-    auto& navManager = componentContext_.navigationManager;
-    vec3 startPos    = thisObject_.GetWorldTransform().GetPosition();
+    processEvent();
 
-    currentPath_ = navManager.CalculatePath(startPos, targetPosition);
-
-    if (currentPath_.empty())
+    if (impl->stateMachine_)
     {
-        LOG_WARN << "AIController: Could not find path to target!";
+        std::visit([&](auto statePtr) { statePtr->update(componentContext_.time_.deltaTime); },
+                   impl->stateMachine_->currentState);
     }
 }
-void AIController::UpdateNavigation()
+void AIController::processEvent()
 {
-    auto currentPos   = thisObject_.GetWorldTransform().GetPosition();
-    auto nextWaypoint = currentPath_.front();
+    EventQueue tmpEventsQueue;
 
-    auto toTarget = vec2(nextWaypoint.x - currentPos.x, nextWaypoint.z - currentPos.z);
-    auto distance = glm::length(toTarget);
+    int safetyCounter    = 0;
+    const int maxBatches = 10;
 
-    if (distance < 0.5f)
+    while (safetyCounter < maxBatches)
     {
-        currentPath_.erase(currentPath_.begin());
-
-        if (currentPath_.empty())
         {
-            characterController_->pushEventToQueue(EndForwardMoveEvent{});
-            isMovingForward_ = false;
-            return;
+            std::lock_guard<std::mutex> lk(eventQueueMutex);
+            if (eventQueue.empty())
+            {
+                return;
+            }
+            tmpEventsQueue = std::move(eventQueue);
         }
-    }
 
-    auto direction = nextWaypoint - currentPos;
-    direction.y    = 0.0f;
-    if (glm::length(direction) > 0.0001f)
-    {
-        auto targetRotation = calculateTargetRotation(glm::normalize(direction));
-        characterController_->pushEventToQueue(RotateTargetEvent{targetRotation});
-    }
+        for (auto& event : tmpEventsQueue)
+        {
+            handleEvent(event);
+        }
 
-    if (not isMovingForward_)
-    {
-        characterController_->pushEventToQueue(MoveForwardEvent{});
-        if (moveType_ == MoveType::WALK)
-        {
-            characterController_->pushEventToQueue(WalkChangeStateEvent{});
-        }
-        else if (moveType_ == MoveType::SPRINT)
-        {
-            characterController_->pushEventToQueue(SprintStateChangeEvent{});
-        }
-        isMovingForward_ = true;
+        ++safetyCounter;
     }
 }
+void AIController::handleEvent(const AIEvent& event)
+{
+    auto passEventToMachine = [&](const auto& e) { impl->stateMachine_->handle(e); };
+    std::visit(passEventToMachine, event);
+}
 
+const std::vector<vec3>& AIController::getCurrentPath() const
+{
+    if (impl and impl->controllerContext_)
+    {
+        return impl->controllerContext_->currentPath;
+    }
+
+    static std::vector<vec3> result;
+    return result;
+};
 }  // namespace Components
 }  // namespace GameEngine

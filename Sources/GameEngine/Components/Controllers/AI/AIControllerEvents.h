@@ -6,6 +6,15 @@
 namespace GameEngine
 {
 class GameObject;
+namespace Components
+{
+enum AIMoveType
+{
+    WALK,
+    RUN,
+    SPRINT
+};
+
 struct AIUpdateEvent
 {
     float deltaTime = 0.0f;
@@ -30,8 +39,8 @@ struct TargetOutofAttackRangeEvent
 
 struct QuestTriggeredEvent
 {
-    int questId = 0;
     vec3 targetPosition{0.0f};
+    AIMoveType moveType{AIMoveType::RUN};
 };
 
 struct QuestFinishedEvent
@@ -49,4 +58,5 @@ struct NavigationPathCompletedEvent
 using AIEvent =
     std::variant<AIUpdateEvent, TargetSpottedEvent, TargetLostEvent, TargetInAttackRangeEvent, TargetOutofAttackRangeEvent,
                  QuestTriggeredEvent, QuestFinishedEvent, CurrentTargetDiedEvent, NavigationPathCompletedEvent>;
+}  // namespace Components
 }  // namespace GameEngine

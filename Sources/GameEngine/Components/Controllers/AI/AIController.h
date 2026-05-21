@@ -1,4 +1,7 @@
 #pragma once
+#include <deque>
+
+#include "AIControllerEvents.h"
 #include "GameEngine/Components/Component.h"
 
 namespace GameEngine
@@ -10,12 +13,8 @@ class CharacterController;
 DECLARE_COMPONENT(AIController)
 {
 public:
-    enum MoveType
-    {
-        WALK,
-        RUN,
-        SPRINT
-    };
+    using EventQueue = std::deque<AIEvent>;
+
     AIController(ComponentContext&, GameObject&);
 
     void CleanUp() override;
@@ -25,18 +24,22 @@ public:
     void Init();
     void Update();
 
-    void MoveTo(const vec3&, MoveType = MoveType::RUN);
+    template <typename Event>
+    void pushEventToQueue(const Event& event)
+    {
+        std::lock_guard<std::mutex> lk(eventQueueMutex);
+        eventQueue.push_back(event);
+    }
+    void handleEvent(const AIEvent&);
 
-    std::vector<vec3> currentPath_;
+    const std::vector<vec3>& getCurrentPath() const;
 
 private:
-    void calculateMovingPoints();
-    void UpdateNavigation();
+    void processEvent();
 
 private:
-    CharacterController* characterController_;
-    bool isMovingForward_{false};
-    MoveType moveType_;
+    EventQueue eventQueue;
+    std::mutex eventQueueMutex;
 
 private:
     struct Impl;

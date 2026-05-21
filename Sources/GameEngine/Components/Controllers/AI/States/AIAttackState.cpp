@@ -2,4 +2,7 @@
 
 namespace GameEngine
 {
+namespace Components
+{
 }
+}  // namespace GameEngine
