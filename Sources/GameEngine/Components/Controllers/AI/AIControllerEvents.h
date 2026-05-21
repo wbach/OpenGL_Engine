@@ -22,7 +22,7 @@ struct AIUpdateEvent
 
 struct TargetSpottedEvent
 {
-    GameObject* target = nullptr;
+    GameObject& target;
 };
 
 struct TargetLostEvent

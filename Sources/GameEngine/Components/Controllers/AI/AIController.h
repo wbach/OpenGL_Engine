@@ -3,16 +3,37 @@
 
 #include "AIControllerEvents.h"
 #include "GameEngine/Components/Component.h"
+#include "GameEngine/Components/ComponentCore.h"
 
 namespace GameEngine
 {
 namespace Components
 {
+class HealthComponent;
 class CharacterController;
-
 DECLARE_COMPONENT(AIController)
 {
 public:
+    enum class AITargetingMode
+    {
+        None,
+        AttackEverythingExceptSameRace,
+        AttackOnlyHumans,
+        HumanStandard,
+        GuildStrict,
+        CustomWhiteBlackList
+    };
+
+    float detectionRadius = 5.0f;
+    AITargetingMode targetingMode{AITargetingMode::None};
+
+    // clang-format off
+    BEGIN_FIELDS()
+        FIELD_ENUM(targetingMode)
+        FIELD_FLOAT(detectionRadius)
+    END_FIELDS()
+    // clang-format on
+
     using EventQueue = std::deque<AIEvent>;
 
     AIController(ComponentContext&, GameObject&);
@@ -30,16 +51,21 @@ public:
         std::lock_guard<std::mutex> lk(eventQueueMutex);
         eventQueue.push_back(event);
     }
-    void handleEvent(const AIEvent&);
 
     const std::vector<vec3>& getCurrentPath() const;
 
 private:
+    void handleEvent(const AIEvent&);
     void processEvent();
+    void runPerceptionCheck();
+    HealthComponent* getClosestTarget(float);
+    bool isHostile(const HealthComponent&) const;
 
 private:
     EventQueue eventQueue;
     std::mutex eventQueueMutex;
+    bool hasTarget{false};
+    HealthComponent* currentTargetHealthComponent{nullptr};
 
 private:
     struct Impl;
