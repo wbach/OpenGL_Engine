@@ -2,9 +2,11 @@
 
 #include <Logger/Log.h>
 
-#include "CharacterController/CharacterController.h"
+#include "AICharacterFsm.h"
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Controllers/AI/States/AIAmbientState.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Navigation/NavigationManager.h"
@@ -23,12 +25,23 @@ Quaternion calculateTargetRotation(const vec3& direction)
 }
 }  // namespace
 
+struct AIController::Impl
+{
+    std::unique_ptr<AICharacterFsm> stateMachine_;
+
+    void CleanUp()
+    {
+        stateMachine_.reset();
+    }
+};
+
 REGISTER_COMPONENT(AIController)
 
 AIController::AIController(ComponentContext& componentContext, GameObject& gameObject)
     : Component(componentContext, gameObject)
     , characterController_{nullptr}
 {
+    impl = std::make_unique<AIController::Impl>();
 }
 void AIController::CleanUp()
 {
@@ -45,6 +58,7 @@ void AIController::Reload()
 void AIController::Init()
 {
     characterController_ = thisObject_.GetComponent<CharacterController>();
+    impl->stateMachine_  = std::make_unique<AICharacterFsm>(AIAmbientState{}, AIChaseState{}, AIAttackState{}, AIQuestState{});
 }
 void AIController::Update()
 {

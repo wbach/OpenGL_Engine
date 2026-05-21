@@ -12,7 +12,7 @@
 #include "GameEngine/Audio/IAudioManager.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
-#include "GameEngine/Components/Controllers/AIController.h"
+#include "GameEngine/Components/Controllers/AI/AIController.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Dialogue/DialogueComponent.h"
 #include "GameEngine/Narrative/Dialogs/DialogueManager.h"

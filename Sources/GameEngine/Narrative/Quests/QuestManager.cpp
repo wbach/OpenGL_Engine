@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "GameEngine/Components/Controllers/AIController.h"
+#include "GameEngine/Components/Controllers/AI/AIController.h"
 #include "GameEngine/Components/Dialogue/DialogueComponent.h"
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Narrative/Dialogs/DialogueManager.h"

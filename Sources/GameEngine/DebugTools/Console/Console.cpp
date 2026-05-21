@@ -11,7 +11,7 @@
 #include <string_view>
 
 #include "GameEngine/Camera/FirstPersonCamera.h"
-#include "GameEngine/Components/Controllers/AIController.h"
+#include "GameEngine/Components/Controllers/AI/AIController.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"

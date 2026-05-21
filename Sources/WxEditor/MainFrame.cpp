@@ -47,7 +47,7 @@
 #include "ComponentPanel/ComponentPanel.h"
 #include "ComponentPanel/ComponentPickerPopup.h"
 #include "ComponentPanel/TransformPanel.h"
-#include "Components/Controllers/AIController.h"
+#include "Components/Controllers/AI/AIController.h"
 #include "Components/Physics/Rigidbody.h"
 #include "Components/Renderer/Water/WaterRendererComponent.h"
 #include "ControlsIds.h"

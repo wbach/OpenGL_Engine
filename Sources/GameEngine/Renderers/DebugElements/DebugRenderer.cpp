@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "GameEngine/Camera/ICamera.h"
-#include "GameEngine/Components/Controllers/AIController.h"
+#include "GameEngine/Components/Controllers/AI/AIController.h"
 #include "GameEngine/Components/Gameplay/Attack/WeaponComponent.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"

@@ -38,6 +38,10 @@ private:
     bool isMovingForward_{false};
     MoveType moveType_;
 
+private:
+    struct Impl;
+    std::unique_ptr<Impl> impl;
+
 public:
     void read(const TreeNode&) override;
     void write(TreeNode&) const override;
