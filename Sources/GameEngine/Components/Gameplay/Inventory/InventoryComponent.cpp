@@ -645,7 +645,7 @@ vec2 InventoryComponent::calculateCursorPosition(const GUI::Element& element)
     auto convertedMousePosition = (componentContext_.inputManager_.GetMousePosition() + 1.f) / 2.f;
     auto halfScreenScale        = element.getScreenScale() / 2.f;
 
-    return convertedMousePosition - halfScreenScale;
+    return convertedMousePosition - halfScreenScale - vec2(0.01f);
 }
 void InventoryComponent::updateItemDetailsWindow(const CombatStatsComponent& stats, const ItemIdentityComponent& identity,
                                                  const ItemVisualComponent& visualComponent)
