@@ -23,11 +23,12 @@ BaseComponentTestSchould::BaseComponentTestSchould()
     , threadSync_(measurementHandler_)
     , renderersManager_(graphicsApiMock_, physicsApiMock_, gpuResourceLoader_, measurementHandler_, threadSync_, time_,
                         std::make_unique<RendererFactory>(graphicsApiMock_))
-    , dialogueManager_(audioManager_, timerService_, inputManagerMock_, guiElementFactory_, *guiManager_, gameState_, tweenManager,
-                       addEngineEvent)
-    , context_{scene,           sceneManager,      graphicsApiMock_,     gpuResourceLoader_, time_,       inputManagerMock_,
+    , dialogueManager_(audioManager_, timerService_, inputManagerMock_, guiElementFactory_, *guiManager_, gameState_,
+                       tweenManager, addEngineEvent)
+    , context_{scene,           sceneManager,      graphicsApiMock_,     gpuResourceLoader_, time_,        inputManagerMock_,
                physicsApiMock_, resourcesManager_, componentController_, renderersManager_,  *guiManager_, guiElementFactory_,
-               timerService_,   dialogueManager_,  tweenManager,         audioManager_,      gameState_,  navigationManager}
+               timerService_,   dialogueManager_,  tweenManager,         audioManager_,      gameState_,   navigationManager,
+               factionManager_}
     , componentFactory_(context_)
     , obj_{std::make_unique<GameEngine::GameObject>("Test GameObject", componentController_, componentFactory_, gameObjectIdPool)}
 {

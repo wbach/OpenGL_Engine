@@ -23,6 +23,7 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Time/Time.h"
 #include "GraphicsApi/IFrameBuffer.h"
+#include "Narrative/FactionManager.h"
 #include "Scene/Navigation/NavigationManager.h"
 #include "Tests/Mocks/Api/FrameBufferMock.h"
 #include "Tests/Mocks/Api/GraphicsApiMock.h"
@@ -50,6 +51,7 @@ public:
 
     Scene scene;
     std::function<void(EngineEvent)> addEngineEvent;
+    FactionManager factionManager_;
     PhysicsApiMock physicsApiMock_;
     NavigationManager navigationManager;
     TweenManagerMock tweenManager;

@@ -21,5 +21,6 @@ struct AIControllerContext
 
     std::vector<vec3> currentPath{};
 };
+
 }  // namespace Components
 }  // namespace GameEngine

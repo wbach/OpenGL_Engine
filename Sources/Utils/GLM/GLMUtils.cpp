@@ -418,4 +418,9 @@ vec3 HSVtoRGB(float h, float s, float v)
 
     return rgb + vec3(m);
 }
+Quaternion calculateTargetRotation(const vec3& direction)
+{
+    float angle = atan2f(direction.x, direction.z);
+    return glm::angleAxis(angle, vec3(0.0f, 1.0f, 0.0f));
+}
 }  // namespace Utils

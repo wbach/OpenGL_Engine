@@ -31,10 +31,12 @@ public:
     Gothic::CharacterStats::FightingSkills fightingSkills;
     Gothic::CharacterStats::ThievingSkills thievingSkills;
     Gothic::CharacterStats::SpecialSkills specialSkills;
+    std::string faction;
 
 public:
     // clang-format off
     BEGIN_FIELDS()
+            FIELD_STRING(faction)
             FIELD_ENUM(general.guild)
             FIELD_UINT(general.level)
             FIELD_UINT(general.exp)

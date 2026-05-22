@@ -30,8 +30,11 @@ enum class Guild
     Necromancer
 };
 
+
+
 struct General
 {
+    uint32_t faction{0};
     Guild guild{Guild::None};
     uint32_t level{0};
     uint64_t exp{0};

@@ -21,6 +21,7 @@ public:
     void AddObstacle(const BoundingBox& box) override;
     void AddObstacle(Model&, const mat4&, float = 0.f) override;
     void AddPhysicsObstacle(Physics::IPhysicsApi&, const BoundingBox& worldBB, float agentHeight) override;
+    bool Raycast(const vec3&, const vec3&) override;
 
     bool IsWalkable(const vec3& position);
     void SetWalkable(int x, int y, bool walkable);

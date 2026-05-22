@@ -9,6 +9,7 @@
 
 #include "EngineEvent.h"
 #include "GameEngine/Display/DisplayManager.hpp"
+#include "GameEngine/Narrative/FactionManager.h"
 #include "GameEngine/Narrative/GameState.h"
 #include "GameEngine/Narrative/Quests/QuestManager.h"
 #include "GameEngine/Renderers/RenderersManager.h"
@@ -75,6 +76,7 @@ public:
     inline GameState& GetGameState();
     inline QuestManager& GetQuestManager();
     inline IAudioManager& GetAudioManager();
+    inline FactionManager& GetFactionManager();
 
 private:
     std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi_;
@@ -92,6 +94,7 @@ private:
 
     GameState gameState_;
     QuestManager questManager_;
+    FactionManager factionManager_;
 
     std::mutex engineEventsMutex_;
     EngineEvents engineEvents_;
@@ -159,5 +162,9 @@ QuestManager& EngineContext::GetQuestManager()
 IAudioManager& EngineContext::GetAudioManager()
 {
     return *audioManager;
+}
+FactionManager& EngineContext::GetFactionManager()
+{
+    return factionManager_;
 }
 }  // namespace GameEngine

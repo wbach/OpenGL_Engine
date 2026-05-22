@@ -423,6 +423,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Camera/Camera.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Camera/CameraManager.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Camera/Frustrum.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Camera/ThridPersonCamera.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/FactionManager.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/GameState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/Dialogs/DialogueManager.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/Dialogs/Fsm/TransitionState.cpp

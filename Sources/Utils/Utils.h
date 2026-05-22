@@ -94,4 +94,5 @@ std::string GetTypeName(const T&)
 {
     return GetTypeName<T>();
 }
+uint32_t HashString(std::string_view);
 }  // namespace Utils

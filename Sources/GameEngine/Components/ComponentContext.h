@@ -20,6 +20,7 @@ class Manager;
 class IElementFactory;
 }
 
+class FactionManager;
 class IResourceManager;
 class IGpuResourceLoader;
 class Scene;
@@ -63,6 +64,7 @@ struct ComponentContext
     IAudioManager& audioManager;
     GameState& gamestate;
     NavigationManager& navigationManager;
+    FactionManager& factionManager;
 };
 }  // namespace Components
 }  // namespace GameEngine

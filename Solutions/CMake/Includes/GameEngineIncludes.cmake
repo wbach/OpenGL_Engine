@@ -163,6 +163,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/Char
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/CharacterControllerFsm.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/ControllerUtlis.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/AI/AIControllerContext.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/AI/States/AIChaseState.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/AI/States/AIAttackState.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/AI/States/AIQuestState.h
@@ -598,6 +599,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/Dialogs/Fsm/Waiti
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/Dialogs/Fsm/DialogContext.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/Dialogs/Fsm/DialogFsm.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/Dialogs/Fsm/DialogEvents.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/FactionManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/Quests/Quest.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/Quests/QuestManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/CollisionContactInfo.h

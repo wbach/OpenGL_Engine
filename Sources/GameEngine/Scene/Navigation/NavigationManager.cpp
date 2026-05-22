@@ -148,4 +148,14 @@ std::shared_ptr<INavigationProvider> NavigationManager::GetNavigationProvider() 
     std::lock_guard<std::mutex> lock(providerMutex);
     return navigationProvider;
 }
+bool NavigationManager::Raycast(const vec3& start, const vec3& end)
+{
+    std::lock_guard lk(providerMutex);
+    if (not navigationProvider)
+    {
+        return false;
+    }
+
+    return navigationProvider->Raycast(start, end);
+}
 }  // namespace GameEngine

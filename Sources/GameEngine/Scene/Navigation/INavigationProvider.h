@@ -25,5 +25,6 @@ public:
     virtual void AddObstacle(const BoundingBox&)                                            = 0;
     virtual void AddObstacle(Model&, const mat4&, float = 0.f)                              = 0;
     virtual void AddPhysicsObstacle(Physics::IPhysicsApi&, const BoundingBox&, float = 0.f) = 0;
+    virtual bool Raycast(const vec3& start, const vec3& end)                                = 0;
 };
 }  // namespace GameEngine

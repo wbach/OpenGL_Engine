@@ -14,7 +14,9 @@
 #include "GameEngine/Components/Controllers/AI/States/AIAmbientState.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
+#include "GameEngine/Components/Gameplay/CharacterStats/CharacterStatsComponent.h"
 #include "GameEngine/Components/Gameplay/HealthComponent.h"
+#include "GameEngine/Narrative/FactionManager.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Navigation/NavigationManager.h"
 #include "magic_enum/magic_enum.hpp"
@@ -67,6 +69,7 @@ void AIController::Init()
         LOG_DEBUG << "CharacterController not found";
         return;
     }
+    myStats = thisObject_.GetComponent<CharacterStatsComponent>();
 
     impl->controllerContext_.reset(new AIControllerContext{.gameObject          = thisObject_,
                                                            .navigationManager   = componentContext_.navigationManager,
@@ -192,12 +195,17 @@ HealthComponent* AIController::getClosestTarget(float radius)
     auto minDistance{radius};
     for (auto& hpComponent : all)
     {
-        if (hpComponent->GetParentGameObject().GetId() == thisObject_.GetId())
+        const auto& targetObject = hpComponent->GetParentGameObject();
+        if (targetObject.GetId() == thisObject_.GetId())
         {
             continue;
         }
 
-        if (not isHostile(*hpComponent))
+        auto targetStats = targetObject.GetComponent<CharacterStatsComponent>();
+        if (not targetStats)
+            continue;
+
+        if (not isHostile(*targetStats))
         {
             continue;
         }
@@ -212,10 +220,17 @@ HealthComponent* AIController::getClosestTarget(float radius)
     }
     return result;
 }
-bool AIController::isHostile(const HealthComponent&) const
+bool AIController::isHostile(const CharacterStatsComponent& targetStats) const
 {
-    // TO DO:
-    return (targetingMode != AITargetingMode::None);
+    if (not myStats)
+        return false;
+
+    const auto attitude = componentContext_.factionManager.getAttitude(myStats->general.faction, targetStats.general.faction);
+    return attitude == Attitude::Hostile;
+}
+float AIController::getAttackRadius() const
+{
+    return 0.2f;
 }
 }  // namespace Components
 }  // namespace GameEngine

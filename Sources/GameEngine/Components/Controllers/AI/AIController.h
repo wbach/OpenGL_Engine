@@ -11,6 +11,7 @@ namespace Components
 {
 class HealthComponent;
 class CharacterController;
+class CharacterStatsComponent;
 DECLARE_COMPONENT(AIController)
 {
 public:
@@ -54,18 +55,21 @@ public:
 
     const std::vector<vec3>& getCurrentPath() const;
 
+    float getAttackRadius() const;
+
 private:
     void handleEvent(const AIEvent&);
     void processEvent();
     void runPerceptionCheck();
     HealthComponent* getClosestTarget(float);
-    bool isHostile(const HealthComponent&) const;
+    bool isHostile(const CharacterStatsComponent&) const;
 
 private:
     EventQueue eventQueue;
     std::mutex eventQueueMutex;
     bool hasTarget{false};
     HealthComponent* currentTargetHealthComponent{nullptr};
+    CharacterStatsComponent* myStats{nullptr};
 
 private:
     struct Impl;

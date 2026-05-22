@@ -424,6 +424,11 @@ void GridNavigation::AddPhysicsObstacle(Physics::IPhysicsApi& api, const Boundin
         }
     }
 }
+bool GridNavigation::Raycast(const vec3& start, const vec3& end)
+{
+    std::lock_guard lk(nodesMutex);
+    return HasLineOfSight(start, end);
+}
 int GridNavigation::GetWidth() const
 {
     return width;

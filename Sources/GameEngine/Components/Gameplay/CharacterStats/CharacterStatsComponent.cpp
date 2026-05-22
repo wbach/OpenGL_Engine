@@ -23,6 +23,7 @@
 #include "GameEngine/Renderers/GUI/Window/Window.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Logger/Log.h"
+#include "Utils.h"
 #include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
@@ -30,6 +31,7 @@ namespace GameEngine
 namespace
 {
 // General
+constexpr char CSTR_GENERAL_FACTION[]      = "general.faction";
 constexpr char CSTR_GENERAL_GUILD[]        = "general.guild";
 constexpr char CSTR_GENERAL_LEVEL[]        = "general.level";
 constexpr char CSTR_GENERAL_EXP[]          = "general.exp";
@@ -88,6 +90,10 @@ void CharacterStatsComponent::ReqisterFunctions()
 void CharacterStatsComponent::read(const TreeNode& input)
 {
     // General
+    ::Read(input.getChild(CSTR_GENERAL_FACTION), faction);
+    if (not faction.empty())
+        general.faction = Utils::HashString(faction);
+
     ::Read(input.getChild(CSTR_GENERAL_GUILD), general.guild);
     ::Read(input.getChild(CSTR_GENERAL_LEVEL), general.level);
     ::Read(input.getChild(CSTR_GENERAL_EXP), general.exp);
@@ -127,6 +133,7 @@ void CharacterStatsComponent::read(const TreeNode& input)
 void CharacterStatsComponent::write(TreeNode& node) const
 {
     // General
+    ::write(node.addChild(CSTR_GENERAL_FACTION), faction);
     ::write(node.addChild(CSTR_GENERAL_GUILD), general.guild);
     ::write(node.addChild(CSTR_GENERAL_LEVEL), general.level);
     ::write(node.addChild(CSTR_GENERAL_EXP), general.exp);

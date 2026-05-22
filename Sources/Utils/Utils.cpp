@@ -340,4 +340,14 @@ std::string Demangle(const char* name)
     return name;
 #endif
 }
+uint32_t HashString(std::string_view str)
+{
+    uint32_t hash = 2166136261u;
+    for (char c : str)
+    {
+        hash ^= static_cast<uint32_t>(c);
+        hash *= 16777619u;
+    }
+    return (hash == 0) ? 1u : hash;
+}
 }  // namespace Utils

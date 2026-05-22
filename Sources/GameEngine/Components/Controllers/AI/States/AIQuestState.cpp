@@ -1,5 +1,7 @@
 #include "AIQuestState.h"
 
+#include <Utils/GLM/GLMUtils.h>
+
 #include "../AIController.h"
 #include "../AIControllerContext.h"
 #include "GameEngine/Components/Controllers/AI/AIControllerEvents.h"
@@ -10,14 +12,6 @@ namespace GameEngine
 {
 namespace Components
 {
-namespace
-{
-Quaternion calculateTargetRotation(const vec3& direction)
-{
-    float angle = atan2f(direction.x, direction.z);
-    return glm::angleAxis(angle, vec3(0.0f, 1.0f, 0.0f));
-}
-}  // namespace
 
 AIQuestState::AIQuestState(AIControllerContext& context)
     : context_{context}
@@ -72,7 +66,7 @@ void AIQuestState::updateNavigation()
     direction.y    = 0.0f;
     if (glm::length(direction) > 0.0001f)
     {
-        auto targetRotation = calculateTargetRotation(glm::normalize(direction));
+        auto targetRotation = Utils::calculateTargetRotation(glm::normalize(direction));
         context_.characterController.pushEventToQueue(RotateTargetEvent{targetRotation});
     }
 

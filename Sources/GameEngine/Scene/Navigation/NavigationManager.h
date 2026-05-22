@@ -24,6 +24,7 @@ public:
     void lock();
     void unlock();
     void ReCreateProvider();
+    bool Raycast(const vec3&, const vec3&);
 
 private:
     Physics::IPhysicsApi& physicsApi;
