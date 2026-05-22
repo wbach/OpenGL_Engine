@@ -74,11 +74,13 @@ void AIController::Init()
     impl->controllerContext_.reset(new AIControllerContext{.gameObject          = thisObject_,
                                                            .navigationManager   = componentContext_.navigationManager,
                                                            .characterController = *characterController,
-                                                           .controller          = *this});
+                                                           .controller          = *this,
+                                                           .anchorPosition_     = thisObject_.GetWorldTransform().GetPosition(),
+                                                           .anchorRotation_     = thisObject_.GetWorldTransform().GetRotation().value_});
 
-    auto& context = *impl->controllerContext_;
-    impl->stateMachine_ =
-        std::make_unique<AICharacterFsm>(AIAmbientState{}, AIChaseState{context}, AIAttackState{}, AIQuestState{context});
+    auto& context       = *impl->controllerContext_;
+    impl->stateMachine_ = std::make_unique<AICharacterFsm>(AIAmbientState{}, AIChaseState{context}, AIReturnState{context},
+                                                           AIAttackState{}, AIQuestState{context});
 }
 void AIController::read(const TreeNode& input)
 {
@@ -162,6 +164,7 @@ void AIController::runPerceptionCheck()
         {
             hasTarget                    = false;
             currentTargetHealthComponent = nullptr;
+            LOG_DEBUG << "TargetLostEvent ";
             pushEventToQueue(TargetLostEvent{});
             return;
         }
@@ -184,6 +187,7 @@ void AIController::runPerceptionCheck()
     {
         hasTarget                    = false;
         currentTargetHealthComponent = nullptr;
+        LOG_DEBUG << "TargetLostEvent ";
         pushEventToQueue(TargetLostEvent{});
     }
 }
@@ -230,7 +234,7 @@ bool AIController::isHostile(const CharacterStatsComponent& targetStats) const
 }
 float AIController::getAttackRadius() const
 {
-    return 0.2f;
+    return 1.0f;
 }
 }  // namespace Components
 }  // namespace GameEngine

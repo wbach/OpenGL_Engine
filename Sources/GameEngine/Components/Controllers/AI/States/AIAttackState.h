@@ -11,7 +11,6 @@ public:
     AIAttackState()
     {
     }
-    // void onEnter();
     void update(float)
     {
     }

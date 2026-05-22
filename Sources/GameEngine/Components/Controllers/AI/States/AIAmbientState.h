@@ -15,6 +15,7 @@ class AIAmbientState : public Utils::StateMachine::Will<
                            Utils::StateMachine::On<QuestTriggeredEvent, Utils::StateMachine::TransitionTo<AIQuestState>>>
 {
 public:
+    void onEnter();
     void update(float)
     {
     }

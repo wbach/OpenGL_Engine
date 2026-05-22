@@ -143,7 +143,9 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/Char
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/AI/AIController.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/AI/States/AIQuestState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/AI/States/AIAmbientState.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/AI/States/AIReturnState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/AI/States/AIAttackState.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/AI/States/AIStateBase.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/AI/States/AIChaseState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentsReadFunctions.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/CameraComponent.cpp

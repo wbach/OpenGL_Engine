@@ -5,6 +5,7 @@
 #include "States/AIAttackState.h"
 #include "States/AIChaseState.h"
 #include "States/AIQuestState.h"
+#include "States/AIReturnState.h"
 
 namespace GameEngine
 {
@@ -15,6 +16,7 @@ using AICharacterFsm =
     Utils::StateMachine::Fsm<
                             AIAmbientState,
                             AIChaseState,
+                            AIReturnState,
                             AIAttackState,
                             AIQuestState
                             >;

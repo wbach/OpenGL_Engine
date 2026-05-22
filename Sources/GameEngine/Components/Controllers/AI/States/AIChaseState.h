@@ -6,16 +6,18 @@ namespace GameEngine
 {
 namespace Components
 {
-struct AIAttackState;
+class AIAttackState;
+class AIReturnState;
 struct AIControllerContext;
 class AIChaseState : public Utils::StateMachine::Will<
                          Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
                          Utils::StateMachine::On<TargetInAttackRangeEvent, Utils::StateMachine::TransitionTo<AIAttackState>>,
-                         Utils::StateMachine::On<TargetLostEvent, Utils::StateMachine::BackToPreviousState>>
+                         Utils::StateMachine::On<TargetLostEvent, Utils::StateMachine::TransitionTo<AIReturnState>>>
 
 {
 public:
     AIChaseState(AIControllerContext&);
+    void onEnter();
     void onEnter(const TargetSpottedEvent&);
     void update(float);
     void onLeave();
@@ -25,6 +27,7 @@ private:
     AIControllerContext& context_;
     GameObject* target{nullptr};
     float pathUpdateTimer_{-1.f};
+    bool isMoving{false};
 };
 }  // namespace Components
 }  // namespace GameEngine

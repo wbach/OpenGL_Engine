@@ -18,6 +18,8 @@ struct AIControllerContext
     NavigationManager& navigationManager;
     CharacterController& characterController;
     AIController& controller;
+    vec3 anchorPosition_{0.f};
+    Quaternion anchorRotation_;
 
     std::vector<vec3> currentPath{};
 };
