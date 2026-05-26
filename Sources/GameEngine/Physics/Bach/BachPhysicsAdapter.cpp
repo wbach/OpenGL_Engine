@@ -303,5 +303,9 @@ MaybeId BachPhysicsAdapter::subscribeForRigidbodyRemove(const RigidbodyId&, std:
 void BachPhysicsAdapter::unsubscribeForRigidbodyRemove(IdType)
 {
 }
+std::vector<IdType> BachPhysicsAdapter::getObjectsInBox(const vec3&, const vec3&) const
+{
+    return {};
+}
 }  // namespace Physics
 }  // namespace GameEngine

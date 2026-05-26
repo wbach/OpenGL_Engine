@@ -2,6 +2,7 @@
 
 #include <Utils/Variant.h>
 
+#include <limits>
 #include <memory>
 #include <mutex>
 
@@ -12,11 +13,16 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Objects/Layer.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
+#include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Scene/Navigation/GridNavigation.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
 {
+namespace
+{
+const float defaultAgentRadius = 0.4f;
+}
 NavigationManager::NavigationManager(Physics::IPhysicsApi& physicsApi)
     : physicsApi(physicsApi)
 {
@@ -36,26 +42,59 @@ void NavigationManager::Update(const SceneNotifEvent& event)
                            if (not e.gameObject->IsLayer(Layer::NoNavMesh))
                                return;
 
-                           if (e.gameObject->HasComponent<Components::TerrainRendererComponent>() or
-                               e.gameObject->HasComponent<Components::RendererComponent>() or
-                               e.gameObject->HasComponent<Components::Rigidbody>())
+                           auto hasTerrainComponent = e.gameObject->HasComponent<Components::TerrainRendererComponent>();
+                           auto hasRenderComponent  = e.gameObject->HasComponent<Components::RendererComponent>();
+                           auto rigidbody           = e.gameObject->GetComponent<Components::Rigidbody>();
+
+                           if (hasTerrainComponent)
                            {
-                               objectInPath.insert({e.gameObject->GetId(), e.gameObject});
+                               staticObjects.insert({e.gameObject->GetId(), e.gameObject});
+                               isDirty = true;
+                           }
+                           else if (rigidbody)
+                           {
+                               if (not rigidbody->IsStatic())
+                               {
+                                   LOG_DEBUG << "Dynamic : " << e.gameObject->GetName();
+                                   dynamicObjects[e.gameObject->GetId()] = DynamicObjectInfo{
+                                       .gameObject   = e.gameObject,
+                                       .lastPosition = e.gameObject->GetWorldTransform().GetPosition(),
+                                   };
+                               }
+                               else
+                               {
+                                   LOG_DEBUG << "Static : " << e.gameObject->GetName();
+                                   staticObjects.insert({e.gameObject->GetId(), e.gameObject});
+                                   isDirty = true;
+                               }
+                           }
+                           else if (hasRenderComponent)
+                           {
+                               LOG_DEBUG << "Static : " << e.gameObject->GetName();
+                               staticObjects.insert({e.gameObject->GetId(), e.gameObject});
                                isDirty = true;
                            }
                        },
                        [&](const ModifyGameObjectEvent& e) {}, [&](const ChangeParentEvent&) {},
                        [&](const ClearGameObjectsEvent&)
                        {
-                           objectInPath.clear();
+                           staticObjects.clear();
+                           dynamicObjects.clear();
                            navigationProvider.reset();
                            isDirty = false;
                        },
                        [&](const RemoveGameObjectEvent& e)
                        {
-                           if (objectInPath.erase(e.gameObjectId))
+                           if (staticObjects.erase(e.gameObjectId))
                            {
                                isDirty = true;
+                           }
+
+                           auto iter = dynamicObjects.find(e.gameObjectId);
+                           if (iter != dynamicObjects.end())
+                           {
+                               navigationProvider->RemovePhysicsObstacle(iter->second.grids);
+                               dynamicObjects.erase(iter);
                            }
                        }},
                event);
@@ -67,14 +106,23 @@ void NavigationManager::Update()
         ReCreateProvider();
         isDirty = false;
     }
+
+    UpdateDynamicObjects();
 }
 void NavigationManager::ReCreateProvider()
 {
+    LOG_DEBUG << "";
     std::lock_guard lk(providerMutex);
     Components::TerrainRendererComponent* terrain = nullptr;
     GameObject* terrainObj                        = nullptr;
 
-    for (auto& [id, obj] : objectInPath)
+    for (auto& [id, info] : dynamicObjects)
+    {
+        info.grids.clear();
+        info.lastPosition = vec3(std::numeric_limits<float>::max());
+    }
+
+    for (auto& [id, obj] : staticObjects)
     {
         if (auto t = obj->GetComponent<Components::TerrainRendererComponent>())
         {
@@ -106,10 +154,8 @@ void NavigationManager::ReCreateProvider()
     TerrainHeightGetter terrainHeightGetter(*terrain);
     navigationProvider->BakeTerrain(terrainHeightGetter, 30.0f);
 
-    const float defaultAgentRadius = 0.4f;
-
-    int obstacleCount = 0;
-    for (auto& [_, obj] : objectInPath)
+    int staticObstacleCount = 0;
+    for (auto& [_, obj] : staticObjects)
     {
         if (obj == terrainObj)
             continue;
@@ -118,8 +164,9 @@ void NavigationManager::ReCreateProvider()
         {
             if (auto pBB = physicsApi.getBoundingBox(maybRigidbody->GetId()))
             {
-                navigationProvider->AddPhysicsObstacle(physicsApi, *pBB, defaultAgentRadius);
-                obstacleCount++;
+                LOG_DEBUG << "AddPhysicsObstacle static : " << obj->GetName() << " getId " << obj->GetId();
+                navigationProvider->AddPhysicsObstacle(physicsApi, *maybRigidbody->GetId(), *pBB, defaultAgentRadius);
+                staticObstacleCount++;
             }
             else
             {
@@ -141,7 +188,8 @@ void NavigationManager::ReCreateProvider()
         //     obstacleCount++;
         // }
     }
-    LOG_INFO << "Navigation Grid Rebuilt: " << w << "x" << h << " cells, " << obstacleCount << " static obstacles.";
+
+    LOG_INFO << "Navigation Grid Rebuilt: " << w << "x" << h << " cells, " << staticObstacleCount << " static obstacles.";
 }
 std::shared_ptr<INavigationProvider> NavigationManager::GetNavigationProvider() const
 {
@@ -157,5 +205,45 @@ bool NavigationManager::Raycast(const vec3& start, const vec3& end)
     }
 
     return navigationProvider->Raycast(start, end);
+}
+void NavigationManager::UpdateDynamicObjects()
+{
+    if (not navigationProvider)
+    {
+        return;
+    }
+
+    for (auto& [id, info] : dynamicObjects)
+    {
+        auto* obj = info.gameObject;
+
+        if (not obj)
+            continue;
+
+        auto currentPos = obj->GetWorldTransform().GetPosition();
+
+        auto notEqual = glm::epsilonNotEqual(currentPos, info.lastPosition, 0.001f);
+        if (glm::any(notEqual))
+        {
+            auto rigidbody = obj->GetComponent<Components::Rigidbody>();
+            if (not rigidbody)
+                continue;
+
+            std::lock_guard lk(providerMutex);
+
+            if (auto pBB = physicsApi.getBoundingBox(rigidbody->GetId()))
+            {
+                navigationProvider->RemovePhysicsObstacle(info.grids);
+
+                info.grids =
+                    navigationProvider->AddPhysicsObstacle(physicsApi, *rigidbody->GetId(), *pBB, defaultAgentRadius);
+                info.lastPosition = currentPos;
+            }
+            else
+            {
+                LOG_DEBUG << "Dynamic BB not ready for partial update : " << obj->GetName();
+            }
+        }
+    }
 }
 }  // namespace GameEngine

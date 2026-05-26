@@ -48,7 +48,7 @@ struct PhysicsApiMock : public Physics::IPhysicsApi
     MOCK_METHOD2(setCollisionCallback, Physics::CollisionSubId(const Physics::RigidbodyId&, const Physics::CollisionDetection&));
     MOCK_METHOD1(celarCollisionCallback, void(const Physics::CollisionSubId&));
     MOCK_METHOD(std::optional<BoundingBox>, getBoundingBox, (const Physics::RigidbodyId&), (const, override));
-    MOCK_METHOD(bool, checkBoxOverlap, (const vec3&, const vec3&), (const, override));
+    MOCK_METHOD(std::vector<IdType> , getObjectsInBox, (const vec3&, const vec3&), (const, override));
     MOCK_METHOD(MaybeId, subscribeForRigidbodyRemove, (const Physics::RigidbodyId&, std::function<void()>), (override));
     MOCK_METHOD(void, unsubscribeForRigidbodyRemove, (IdType), (override));
 };

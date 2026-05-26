@@ -719,40 +719,50 @@ std::optional<BoundingBox> BulletAdapter::getBoundingBox(const RigidbodyId& rigi
 
     return std::nullopt;
 }
-bool BulletAdapter::checkBoxOverlap(const vec3& pos, const vec3& halfExtents) const
+std::vector<IdType> BulletAdapter::getObjectsInBox(const vec3& pos, const vec3& halfExtents) const
 {
-    btBoxShape boxShape(Convert(halfExtents));
-    btTransform transform;
+    auto boxShape  = btBoxShape(Convert(halfExtents));
+    auto transform = btTransform();
     transform.setIdentity();
     transform.setOrigin(Convert(pos));
 
-    btCollisionObject tempObject;
+    auto tempObject = btCollisionObject();
     tempObject.setCollisionShape(&boxShape);
     tempObject.setWorldTransform(transform);
 
     struct ContactSensorCallback : public btCollisionWorld::ContactResultCallback
     {
-        ContactSensorCallback()
+        const btCollisionObject* m_me;
+        std::vector<IdType> collidedIds;
+
+        ContactSensorCallback(const btCollisionObject* me)
+            : m_me(me)
         {
             m_collisionFilterGroup = CollisionGroup::Default;
             m_collisionFilterMask  = CollisionGroup::All ^ CollisionGroup::Terrain;
+            collidedIds.reserve(16);
         }
 
         btScalar addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0,
                                  const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override
         {
-            connected = true;
+            auto otherObj = (colObj0Wrap->getCollisionObject() == m_me) ? colObj1Wrap->getCollisionObject()
+                                                                        : colObj0Wrap->getCollisionObject();
+            collidedIds.push_back(static_cast<IdType>(otherObj->getUserIndex()));
             return 0;
         }
-
-        bool connected = false;
     };
 
-    ContactSensorCallback callback;
-    std::lock_guard<std::mutex> lk(dynamicWorldMutex);
+    auto callback = ContactSensorCallback(&tempObject);
+    auto lk       = std::lock_guard<std::mutex>(dynamicWorldMutex);
+
     btDynamicWorld->contactTest(&tempObject, callback);
 
-    return callback.connected;
+    std::sort(callback.collidedIds.begin(), callback.collidedIds.end());
+    auto last = std::unique(callback.collidedIds.begin(), callback.collidedIds.end());
+    callback.collidedIds.erase(last, callback.collidedIds.end());
+
+    return callback.collidedIds;
 }
 void BulletAdapter::checkCollisions()
 {

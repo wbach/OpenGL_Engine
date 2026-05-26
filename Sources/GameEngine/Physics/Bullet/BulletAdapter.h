@@ -81,7 +81,7 @@ public:
     CollisionSubId setCollisionCallback(const RigidbodyId&, const CollisionDetection&) override;
     void celarCollisionCallback(const CollisionSubId&) override;
     std::optional<BoundingBox> getBoundingBox(const RigidbodyId&) const override;
-    bool checkBoxOverlap(const vec3&, const vec3&) const override;
+    std::vector<IdType> getObjectsInBox(const vec3&, const vec3&) const override;
     MaybeId subscribeForRigidbodyRemove(const RigidbodyId&, std::function<void()>) override;
     void unsubscribeForRigidbodyRemove(IdType) override;
 

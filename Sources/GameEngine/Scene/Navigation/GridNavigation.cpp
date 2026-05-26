@@ -4,6 +4,7 @@
 
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
+#include "GameEngine/Physics/PhysicsApiTypes.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Models/Model.h"
 #include "Logger/Log.h"
@@ -22,10 +23,10 @@ GridNavigation::GridNavigation(const vec3& orgin, int w, int h, float size)
     {
         for (int x = 0; x < width; ++x)
         {
-            int idx               = y * width + x;
-            nodes[idx].x          = x;
-            nodes[idx].y          = y;
-            nodes[idx].isWalkable = true;
+            int idx                  = y * width + x;
+            nodes[idx].x             = x;
+            nodes[idx].y             = y;
+            nodes[idx].obstacleCount = 0;
         }
     }
 
@@ -82,7 +83,7 @@ std::vector<vec3> GridNavigation::CalculatePath(const vec3& startPos, const vec3
 
         for (auto* neighbor : GetNeighbors(currentNode))
         {
-            if (not neighbor->isWalkable or closedList.count(neighbor))
+            if (not neighbor->IsWalkable() or closedList.count(neighbor))
                 continue;
 
             auto newMovementCostToNeighbor = currentNode->gCost + GetDistance(currentNode, neighbor);
@@ -113,13 +114,13 @@ bool GridNavigation::IsWalkable(const vec3& position)
         return false;
     }
 
-    return nodes[index].isWalkable;
+    return nodes[index].IsWalkable();
 }
-void GridNavigation::SetWalkable(int x, int y, bool walkable)
+void GridNavigation::InObstacleCountInNode(int x, int y)
 {
     if (x >= 0 and x < width and y >= 0 and y < height)
     {
-        nodes[y * width + x].isWalkable = walkable;
+        nodes[y * width + x].obstacleCount++;
     }
 }
 const std::vector<NavNode>& GridNavigation::GetNodes() const
@@ -162,7 +163,7 @@ std::vector<NavNode*> GridNavigation::GetNeighbors(NavNode* node)
             {
                 if (std::abs(x) == 1 and std::abs(y) == 1)
                 {
-                    if (not nodes[node->y * width + checkX].isWalkable or not nodes[checkY * width + node->x].isWalkable)
+                    if (not nodes[node->y * width + checkX].IsWalkable() or not nodes[checkY * width + node->x].IsWalkable())
                     {
                         continue;
                     }
@@ -215,49 +216,51 @@ void GridNavigation::AddObstacle(const BoundingBox& box)
     {
         for (int z = startZ; z <= endZ; ++z)
         {
-            SetWalkable(x, z, false);
+            InObstacleCountInNode(x, z);
         }
     }
 }
 void GridNavigation::BakeTerrain(const TerrainHeightGetter& heightGetter, float maxClimbAngle)
 {
     std::lock_guard lk(nodesMutex);
-    auto maxSlope = std::tan(glm::radians(maxClimbAngle)) * cellSize;
+    float maxSlope = std::tan(glm::radians(maxClimbAngle)) * cellSize;
 
     for (int y = 0; y < height; ++y)
     {
         for (int x = 0; x < width; ++x)
         {
-            auto idx      = y * width + x;
-            auto worldPos = GetWorldPosFromIndex(x, y);
+            int idx       = y * width + x;
+            vec3 worldPos = GetWorldPosFromIndex(x, y);
 
-            auto h = heightGetter.GetHeightofTerrain(worldPos.x, worldPos.z);
+            std::optional<float> h = heightGetter.GetHeightofTerrain(worldPos.x, worldPos.z);
             if (h.has_value())
             {
-                nodes[idx].height     = h.value();
-                nodes[idx].isWalkable = true;
+                nodes[idx].height        = h.value();
+                nodes[idx].obstacleCount = 0;
             }
             else
             {
-                nodes[idx].isWalkable = false;
+                nodes[idx].obstacleCount = 1;
                 continue;
             }
 
             if (x > 0)
             {
-                auto hPrevX = nodes[idx - 1].height;
+                float hPrevX = nodes[idx - 1].height;
                 if (std::abs(nodes[idx].height - hPrevX) > maxSlope)
                 {
-                    nodes[idx].isWalkable = false;
+                    nodes[idx].obstacleCount     = 1;
+                    nodes[idx - 1].obstacleCount = 1;
                 }
             }
 
             if (y > 0)
             {
-                auto hPrevY = nodes[idx - width].height;
+                float hPrevY = nodes[idx - width].height;
                 if (std::abs(nodes[idx].height - hPrevY) > maxSlope)
                 {
-                    nodes[idx].isWalkable = false;
+                    nodes[idx].obstacleCount         = 1;
+                    nodes[idx - width].obstacleCount = 1;
                 }
             }
         }
@@ -311,7 +314,7 @@ bool GridNavigation::HasLineOfSight(const vec3& start, const vec3& end)
         vec3 checkPos = start + direction * (static_cast<float>(i) * stepDist);
         int idx       = GetIndexFromWorldPos(checkPos);
 
-        if (idx == -1 or not nodes[idx].isWalkable)
+        if (idx == -1 or not nodes[idx].IsWalkable())
             return false;
 
         float t              = static_cast<float>(i) / steps;
@@ -374,15 +377,17 @@ void GridNavigation::AddObstacle(Model& model, const glm::mat4& modelTransform, 
 
             if (hit)
             {
-                SetWalkable(x, z, false);
+                InObstacleCountInNode(x, z);
             }
         }
     }
 }
-void GridNavigation::AddPhysicsObstacle(Physics::IPhysicsApi& api, const BoundingBox& worldBB, float agentHeight)
+std::vector<int> GridNavigation::AddPhysicsObstacle(Physics::IPhysicsApi& api, IdType currentRigidBodyId,
+                                                    const BoundingBox& worldBB, float agentHeight)
 {
+    std::vector<int> affectedIndices;
     std::lock_guard lk(nodesMutex);
-//    LOG_DEBUG << worldBB;
+    //    LOG_DEBUG << worldBB;
     auto getX = [&](auto worldX) { return static_cast<int>(std::floor((worldX - origin.x) / cellSize)); };
     auto getZ = [&](auto worldZ) { return static_cast<int>(std::floor((worldZ - origin.z) / cellSize)); };
 
@@ -410,19 +415,24 @@ void GridNavigation::AddPhysicsObstacle(Physics::IPhysicsApi& api, const Boundin
         for (int x = startX; x <= endX; ++x)
         {
             int idx = z * width + x;
-            if (!nodes[idx].isWalkable)
-                continue;
 
             auto cellPos = GetWorldPosFromIndex(x, z, nodes[idx].height);
 
             vec3 testCenter(cellPos.x, cellPos.y, cellPos.z);
 
-            if (api.checkBoxOverlap(testCenter, halfExtents))
+           // LOG_DEBUG << "test center " << testCenter << " halfExtents " << halfExtents;
+            auto hitObjects = api.getObjectsInBox(testCenter, halfExtents);
+
+            auto it = std::find(hitObjects.begin(), hitObjects.end(), currentRigidBodyId);
+            if (it != hitObjects.end())
             {
-                nodes[idx].isWalkable = false;
+                nodes[idx].obstacleCount++;
+              //  LOG_DEBUG << "nodes[" << idx << "]" << x << "x" << z << ".obstacleCount " << nodes[idx].obstacleCount;
+                affectedIndices.push_back(idx);
             }
         }
     }
+    return affectedIndices;
 }
 bool GridNavigation::Raycast(const vec3& start, const vec3& end)
 {
@@ -444,5 +454,18 @@ float GridNavigation::GetCellSize() const
 const vec3& GridNavigation::GetOrigin() const
 {
     return origin;
+}
+void GridNavigation::RemovePhysicsObstacle(const std::vector<int>& indices)
+{
+    for (int idx : indices)
+    {
+        if (idx >= 0 and idx < static_cast<int>(nodes.size()))
+        {
+            if (nodes[idx].obstacleCount > 0)
+            {
+                nodes[idx].obstacleCount--;
+            }
+        }
+    }
 }
 }  // namespace GameEngine

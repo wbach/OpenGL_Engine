@@ -5,6 +5,7 @@
 
 #include "GameEngine/Components/ComponentType.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Scene/SceneEvents.h"
 #include "INavigationProvider.h"
 #include "Types.h"
@@ -27,9 +28,21 @@ public:
     bool Raycast(const vec3&, const vec3&);
 
 private:
+    void UpdateDynamicObjects();
+
+private:
+    struct DynamicObjectInfo
+    {
+        GameObject* gameObject;
+        vec3 lastPosition;
+        std::vector<int> grids;
+    };
+
     Physics::IPhysicsApi& physicsApi;
     std::shared_ptr<INavigationProvider> navigationProvider;
-    std::unordered_map<IdType, GameObject*> objectInPath;
+    std::unordered_map<uint64_t, GameObject*> staticObjects;
+    std::unordered_map<IdType, DynamicObjectInfo> dynamicObjects;
+
     bool isDirty{false};
     mutable std::mutex providerMutex;
 };

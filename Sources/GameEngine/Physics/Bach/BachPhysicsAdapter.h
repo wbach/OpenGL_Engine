@@ -53,6 +53,7 @@ public:
     void celarCollisionCallback(const CollisionSubId&) override;
     MaybeId subscribeForRigidbodyRemove(const RigidbodyId&, std::function<void()>) override;
     void unsubscribeForRigidbodyRemove(IdType) override;
+    std::vector<IdType> getObjectsInBox(const vec3&, const vec3&) const override;
 
 private:
     struct Pimpl;

@@ -105,7 +105,7 @@ public:
     virtual CollisionSubId setCollisionCallback(const RigidbodyId&, const CollisionDetection&)      = 0;
     virtual void celarCollisionCallback(const CollisionSubId&)                                      = 0;
     virtual std::optional<BoundingBox> getBoundingBox(const RigidbodyId&) const                     = 0;
-    virtual bool checkBoxOverlap(const vec3&, const vec3&) const                                    = 0;
+    virtual std::vector<IdType> getObjectsInBox(const vec3&, const vec3&) const                     = 0;
 };
 
 using IPhysicsApiPtr = std::shared_ptr<IPhysicsApi>;

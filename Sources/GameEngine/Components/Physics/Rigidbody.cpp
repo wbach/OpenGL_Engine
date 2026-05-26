@@ -121,6 +121,9 @@ void Rigidbody::CreateRigidbody()
         return;
     }
 
+    SetIsStatic(isStaticObject);
+    SetNoContactResponse(isNoConctactResponse);
+
     rigidBodyId_ = componentContext_.physicsApi_.CreateRigidbody(*maybeShapeId, thisObject_, collisionGroup, rigidbodyPropierties,
                                                                  mass, isSynchronizingWitPhysicsApi_);
     if (not rigidBodyId_)
@@ -340,7 +343,7 @@ float Rigidbody::GetMass() const
 }
 bool Rigidbody::IsStatic() const
 {
-    return rigidbodyPropierties.contains(Physics::RigidbodyProperty::Static);
+    return isStaticObject;
 }
 const std::string& Rigidbody::GetCollisionShapeType() const
 {

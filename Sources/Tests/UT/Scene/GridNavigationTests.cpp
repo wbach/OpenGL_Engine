@@ -118,7 +118,7 @@ protected:
         {
             for (int x = 0; x < width; ++x)
             {
-                if (!nodes[y * width + x].isWalkable)
+                if (!nodes[y * width + x].IsWalkable())
                 {
                     display[y][x] = '#';
                 }
@@ -203,9 +203,9 @@ TEST_F(GridNavigationTest, SimpleStraightPath)
 TEST_F(GridNavigationTest, ObstacleAvoidance)
 {
     createSut();
-    sut->SetWalkable(1, 0, false);
-    sut->SetWalkable(1, 1, false);
-    sut->SetWalkable(1, 2, false);
+    sut->InObstacleCountInNode(1, 0);
+    sut->InObstacleCountInNode(1, 1);
+    sut->InObstacleCountInNode(1, 2);
 
     glm::vec3 start(0.5f, 0.0f, 1.5f);
     glm::vec3 end(2.5f, 0.0f, 1.5f);
@@ -224,9 +224,9 @@ TEST_F(GridNavigationTest, ObstacleAvoidance)
 TEST_F(GridNavigationTest, NoPathFound)
 {
     createSut();
-    sut->SetWalkable(0, 1, false);
-    sut->SetWalkable(1, 1, false);
-    sut->SetWalkable(1, 0, false);
+    sut->InObstacleCountInNode(0, 1);
+    sut->InObstacleCountInNode(1, 1);
+    sut->InObstacleCountInNode(1, 0);
 
     glm::vec3 start(0.5f, 0.0f, 0.5f);
     glm::vec3 end(5.5f, 0.0f, 5.5f);
@@ -246,12 +246,12 @@ TEST_F(GridNavigationTest, CustomPath)
 
     for (int x = 2; x < 8; ++x)
     {
-        sut->SetWalkable(7, x, false);
+        sut->InObstacleCountInNode(7, x);
     }
 
     for (int x = 0; x < 8; ++x)
     {
-        sut->SetWalkable(x, 7, false);
+        sut->InObstacleCountInNode(x, 7);
     }
 
     auto path = sut->CalculatePath(start, end);
@@ -308,17 +308,17 @@ TEST_F(GridNavigationTest, MazeNavigationTest)
 
     for (int y = 0; y < 15; ++y)
     {
-        sut->SetWalkable(5, y, false);
+        sut->InObstacleCountInNode(5, y);
     }
 
     for (int y = 5; y < 20; ++y)
     {
-        sut->SetWalkable(10, y, false);
+        sut->InObstacleCountInNode(10, y);
     }
 
     for (int y = 0; y < 15; ++y)
     {
-        sut->SetWalkable(15, y, false);
+        sut->InObstacleCountInNode(15, y);
     }
 
     auto path = sut->CalculatePath(startPos, endPos);
@@ -356,7 +356,7 @@ TEST_F(GridNavigationTest, BakeTerrainWithRealHeightMap)
     // Przy x=0 w świecie jest granica naszego fakeImage (x < w/2)
     int wallIdx = sut->GetIndexFromWorldPos({0.0f, 0.0f, 0.0f});
     ASSERT_NE(wallIdx, -1);
-    EXPECT_FALSE(nodes[wallIdx].isWalkable) << "Krawędź uskoku powinna być zablokowana!";
+    EXPECT_FALSE(nodes[wallIdx].IsWalkable()) << "Krawędź uskoku powinna być zablokowana!";
 
     // 5. TEST PATHFINDINGU przez ścianę
     vec3 startPos(-5.0f, 0.0f, 0.0f);  // Po lewej (nisko)
@@ -414,17 +414,17 @@ TEST_F(GridNavigationTest, PathSmoothingTest)
 
     for (int y = 0; y < 15; ++y)
     {
-        sut->SetWalkable(5, y, false);
+        sut->InObstacleCountInNode(5, y);
     }
 
     for (int y = 5; y < 20; ++y)
     {
-        sut->SetWalkable(10, y, false);
+        sut->InObstacleCountInNode(10, y);
     }
 
     for (int y = 0; y < 15; ++y)
     {
-        sut->SetWalkable(15, y, false);
+        sut->InObstacleCountInNode(15, y);
     }
 
     auto rawPath    = sut->CalculatePath(startPos, endPos);
@@ -476,7 +476,7 @@ TEST_F(GridNavigationTest, CompareAABBvsOBB)
     DumpGrid();
     int aabbCount = 0;
     for (const auto& n : sut->GetNodes())
-        if (!n.isWalkable)
+        if (!n.IsWalkable())
             aabbCount++;
 
     createSut();
@@ -486,7 +486,7 @@ TEST_F(GridNavigationTest, CompareAABBvsOBB)
     DumpGrid();
     int obbCount = 0;
     for (const auto& n : sut->GetNodes())
-        if (!n.isWalkable)
+        if (!n.IsWalkable())
             obbCount++;
 
     LOG_DEBUG << "Zablokowane kafelki AABB: " << aabbCount;

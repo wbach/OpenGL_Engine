@@ -3,9 +3,12 @@
 
 #include <mutex>
 #include <set>
+#include <unordered_map>
+#include <vector>
 
 #include "INavigationProvider.h"
 #include "NavNode.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -20,11 +23,12 @@ public:
     std::vector<vec3> CalculatePath(const vec3& startPos, const vec3& targetPos) override;
     void AddObstacle(const BoundingBox& box) override;
     void AddObstacle(Model&, const mat4&, float = 0.f) override;
-    void AddPhysicsObstacle(Physics::IPhysicsApi&, const BoundingBox& worldBB, float agentHeight) override;
+    std::vector<int> AddPhysicsObstacle(Physics::IPhysicsApi&, IdType, const BoundingBox& worldBB, float agentHeight) override;
+    void RemovePhysicsObstacle(const std::vector<int>&) override;
     bool Raycast(const vec3&, const vec3&) override;
 
     bool IsWalkable(const vec3& position);
-    void SetWalkable(int x, int y, bool walkable);
+    void InObstacleCountInNode(int x, int y);
     const std::vector<NavNode>& GetNodes() const;
     int GetIndexFromWorldPos(const vec3&);
     std::vector<vec3> SmoothPath(const std::vector<vec3>& path);

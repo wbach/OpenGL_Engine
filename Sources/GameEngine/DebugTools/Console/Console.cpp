@@ -23,6 +23,7 @@
 #include "GameEngine/Scene/SceneEvents.h"
 #include "GameEngine/Scene/SceneReader.h"
 #include "GameEngine/Scene/SceneUtils.h"
+#include "Utils.h"
 
 namespace GameEngine
 {
@@ -99,6 +100,7 @@ void Console::RegisterActions()
                         {"moveto", [this](auto &p) { MoveTo(p); }},
                         {"lognow", [this](auto &p) { UseAsyncLogging(p); }},
                         {"snap", [this](auto &p) { TakeSnapshoot(p); }},
+                        {"navmesh", [this](auto &p) { ShowNawMesh(p); }},
                         {"reloadshaders", [this](auto &p) { ReloadShaders(p); }},
                         {"swapRenderMode", [this](auto &p) { SwapRenderMode(p); }},
                         {"editorinterface", [this](auto &p) { EnableEditorNetworkInterface(p); }},
@@ -806,6 +808,27 @@ void Console::MoveTo(const Params &args)
         {
             PrintMsgInConsole("Object should have AIController component");
         }
+    }
+}
+void Console::ShowNawMesh(const Params &args)
+{
+    bool show{true};
+    if (not args.empty())
+    {
+        show = Utils::StringToBool(args.front());
+    }
+
+    if (not show)
+    {
+        scene_.getEngineContext()->GetRenderersManager().GetDebugRenderer().RemoveState(
+            GameEngine::DebugRenderer::RenderState::NavMesh);
+        scene_.getEngineContext()->GetRenderersManager().GetDebugRenderer().VisualizationNavMesh(nullptr);
+        return;
+    }
+
+    if (auto manager = scene_.GetNavigationManager())
+    {
+        scene_.getEngineContext()->GetRenderersManager().GetDebugRenderer().VisualizationNavMesh(manager);
     }
 }
 }  // namespace Debug

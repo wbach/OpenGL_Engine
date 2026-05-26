@@ -130,7 +130,7 @@ GraphicsApi::LineMesh CreateLineMeshFromGrid(const ICamera* camera, const std::v
         for (int x = 0; x < width; ++x)
         {
             int idx    = z * width + x;
-            vec3 color = nodes[idx].isWalkable ? walkableColor : blockedColor;
+            auto color = nodes[idx].IsWalkable() ? walkableColor : blockedColor;
 
             // if (nodes[idx].isWalkable)
             //     continue;

@@ -76,6 +76,7 @@ private:
     void SetPhysicsVisualization(const Params&);
     void SetTimeMulitplayer(const Params&);
     void DebugRender(const Params&);
+    void ShowNawMesh(const Params&);
     void Help(const Params&);
     void Exit(const Params&);
 

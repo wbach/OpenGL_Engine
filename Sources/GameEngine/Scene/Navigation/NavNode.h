@@ -6,7 +6,7 @@ namespace GameEngine
 struct NavNode
 {
     int x{0}, y{0};
-    bool isWalkable{true};
+    int obstacleCount = 0;
     float height{0.f};
 
     float gCost{std::numeric_limits<float>::max()};
@@ -16,6 +16,11 @@ struct NavNode
     float fCost() const
     {
         return gCost + hCost;
+    }
+
+    bool IsWalkable() const
+    {
+        return obstacleCount == 0;
     }
 };
 }  // namespace GameEngine
