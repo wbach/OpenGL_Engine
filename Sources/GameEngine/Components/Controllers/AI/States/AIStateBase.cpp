@@ -82,11 +82,12 @@ void AIStateBase::startMoveTo(const vec3& targetPosition, AIMoveType moveType)
     auto& navManager = context_.navigationManager;
     vec3 startPos    = context_.gameObject.GetWorldTransform().GetPosition();
 
-    context_.currentPath = navManager.CalculatePath(startPos, targetPosition);
+    context_.currentPath = navManager.CalculatePath(context_.gameObject, startPos, targetPosition);
 
     if (context_.currentPath.empty())
     {
-        LOG_WARN << context_.gameObject.GetName() << ": AIController, Could not find path to target! targetPosition : " << targetPosition;
+        LOG_WARN << context_.gameObject.GetName()
+                 << ": AIController, Could not find path to target! targetPosition : " << targetPosition;
     }
 }
 }  // namespace Components

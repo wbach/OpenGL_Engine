@@ -33,9 +33,36 @@ GridNavigation::GridNavigation(const vec3& orgin, int w, int h, float size)
     LOG_DEBUG << "\n--- GRID DEBUG (Size: " << width << "x" << height << ", Cell: " << cellSize << ", Origin: " << origin.x << ","
               << origin.z << ") ---";
 }
-std::vector<vec3> GridNavigation::CalculatePath(const vec3& startPos, const vec3& targetPos)
+std::vector<vec3> GridNavigation::CalculatePath(const vec3& startPos, const vec3& targetPos,
+                                                const std::vector<int>& excludeIndices)
 {
     std::lock_guard lk(nodesMutex);
+
+    struct ScopedExclude
+    {
+        std::vector<NavNode>& gridNodes;
+        const std::vector<int>& indices;
+
+        ScopedExclude(std::vector<NavNode>& n, const std::vector<int>& idxs)
+            : gridNodes(n)
+            , indices(idxs)
+        {
+            for (int idx : indices)
+            {
+                if (idx >= 0 and idx < static_cast<int>(gridNodes.size()) and gridNodes[idx].obstacleCount > 0)
+                    gridNodes[idx].obstacleCount--;
+            }
+        }
+        ~ScopedExclude()
+        {
+            for (int idx : indices)
+            {
+                if (idx >= 0 and idx < static_cast<int>(gridNodes.size()))
+                    gridNodes[idx].obstacleCount++;
+            }
+        }
+    } excludeHelper(nodes, excludeIndices);
+
     for (auto& node : nodes)
     {
         node.gCost  = std::numeric_limits<float>::max();
@@ -65,17 +92,26 @@ std::vector<vec3> GridNavigation::CalculatePath(const vec3& startPos, const vec3
 
     openList.push_back(startNode);
 
+    NavNode* bestPartialNode = startNode;
+    float minHCost           = startNode->hCost;
+
     while (not openList.empty())
     {
         auto currentIt =
             std::min_element(openList.begin(), openList.end(), [](NavNode* a, NavNode* b) { return a->fCost() < b->fCost(); });
 
-        NavNode* currentNode = *currentIt;
+        auto currentNode = *currentIt;
 
         if (currentNode == targetNode)
         {
             LOG_DEBUG << "RetracePath";
             return RetracePath(startNode, targetNode);
+        }
+
+        if (currentNode->hCost < minHCost)
+        {
+            minHCost        = currentNode->hCost;
+            bestPartialNode = currentNode;
         }
 
         openList.erase(currentIt);
@@ -100,6 +136,12 @@ std::vector<vec3> GridNavigation::CalculatePath(const vec3& startPos, const vec3
                     openList.push_back(neighbor);
             }
         }
+    }
+
+    if (bestPartialNode and bestPartialNode != startNode)
+    {
+        LOG_DEBUG << "Full path not found, return partial";
+        return RetracePath(startNode, bestPartialNode);
     }
 
     LOG_DEBUG << "return empty";
@@ -420,14 +462,14 @@ std::vector<int> GridNavigation::AddPhysicsObstacle(Physics::IPhysicsApi& api, I
 
             vec3 testCenter(cellPos.x, cellPos.y, cellPos.z);
 
-           // LOG_DEBUG << "test center " << testCenter << " halfExtents " << halfExtents;
+            // LOG_DEBUG << "test center " << testCenter << " halfExtents " << halfExtents;
             auto hitObjects = api.getObjectsInBox(testCenter, halfExtents);
 
             auto it = std::find(hitObjects.begin(), hitObjects.end(), currentRigidBodyId);
             if (it != hitObjects.end())
             {
                 nodes[idx].obstacleCount++;
-              //  LOG_DEBUG << "nodes[" << idx << "]" << x << "x" << z << ".obstacleCount " << nodes[idx].obstacleCount;
+                //  LOG_DEBUG << "nodes[" << idx << "]" << x << "x" << z << ".obstacleCount " << nodes[idx].obstacleCount;
                 affectedIndices.push_back(idx);
             }
         }

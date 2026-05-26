@@ -32,6 +32,16 @@ std::vector<vec3> NavigationManager::CalculatePath(const vec3& start, const vec3
     std::lock_guard lk(providerMutex);
     return navigationProvider ? navigationProvider->CalculatePath(start, end) : std::vector<vec3>{};
 }
+std::vector<vec3> NavigationManager::CalculatePath(const GameObject& gameObject, const vec3& start, const vec3& end)
+{
+    std::lock_guard lk(providerMutex);
+    auto iter = dynamicObjects.find(gameObject.GetId());
+
+    if (iter != dynamicObjects.end())
+        return navigationProvider ? navigationProvider->CalculatePath(start, end, iter->second.grids) : std::vector<vec3>{};
+
+    return CalculatePath(start, end);
+}
 void NavigationManager::Update(const SceneNotifEvent& event)
 {
     std::visit(visitor{[&](const AddGameObjectNotifEvent& e)
@@ -55,7 +65,6 @@ void NavigationManager::Update(const SceneNotifEvent& event)
                            {
                                if (not rigidbody->IsStatic())
                                {
-                                   LOG_DEBUG << "Dynamic : " << e.gameObject->GetName();
                                    dynamicObjects[e.gameObject->GetId()] = DynamicObjectInfo{
                                        .gameObject   = e.gameObject,
                                        .lastPosition = e.gameObject->GetWorldTransform().GetPosition(),
@@ -63,14 +72,12 @@ void NavigationManager::Update(const SceneNotifEvent& event)
                                }
                                else
                                {
-                                   LOG_DEBUG << "Static : " << e.gameObject->GetName();
                                    staticObjects.insert({e.gameObject->GetId(), e.gameObject});
                                    isDirty = true;
                                }
                            }
                            else if (hasRenderComponent)
                            {
-                               LOG_DEBUG << "Static : " << e.gameObject->GetName();
                                staticObjects.insert({e.gameObject->GetId(), e.gameObject});
                                isDirty = true;
                            }
@@ -164,7 +171,6 @@ void NavigationManager::ReCreateProvider()
         {
             if (auto pBB = physicsApi.getBoundingBox(maybRigidbody->GetId()))
             {
-                LOG_DEBUG << "AddPhysicsObstacle static : " << obj->GetName() << " getId " << obj->GetId();
                 navigationProvider->AddPhysicsObstacle(physicsApi, *maybRigidbody->GetId(), *pBB, defaultAgentRadius);
                 staticObstacleCount++;
             }
@@ -235,8 +241,7 @@ void NavigationManager::UpdateDynamicObjects()
             {
                 navigationProvider->RemovePhysicsObstacle(info.grids);
 
-                info.grids =
-                    navigationProvider->AddPhysicsObstacle(physicsApi, *rigidbody->GetId(), *pBB, defaultAgentRadius);
+                info.grids = navigationProvider->AddPhysicsObstacle(physicsApi, *rigidbody->GetId(), *pBB, defaultAgentRadius);
                 info.lastPosition = currentPos;
             }
             else

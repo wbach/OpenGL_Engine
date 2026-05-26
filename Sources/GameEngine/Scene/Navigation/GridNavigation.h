@@ -20,7 +20,7 @@ public:
     GridNavigation(const vec3&, int w, int h, float size);
 
     void BakeTerrain(const TerrainHeightGetter&, float maxClimbAngle) override;
-    std::vector<vec3> CalculatePath(const vec3& startPos, const vec3& targetPos) override;
+    std::vector<vec3> CalculatePath(const vec3& startPos, const vec3& targetPos, const std::vector<int>& excludeIndices = {} ) override;
     void AddObstacle(const BoundingBox& box) override;
     void AddObstacle(Model&, const mat4&, float = 0.f) override;
     std::vector<int> AddPhysicsObstacle(Physics::IPhysicsApi&, IdType, const BoundingBox& worldBB, float agentHeight) override;

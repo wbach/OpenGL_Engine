@@ -20,7 +20,7 @@ class ENGINE_API INavigationProvider
 public:
     virtual ~INavigationProvider() = default;
 
-    virtual std::vector<vec3> CalculatePath(const vec3&, const vec3&)                                           = 0;
+    virtual std::vector<vec3> CalculatePath(const vec3&, const vec3&, const std::vector<int>& = {})             = 0;
     virtual void BakeTerrain(const TerrainHeightGetter&, float)                                                 = 0;
     virtual void AddObstacle(const BoundingBox&)                                                                = 0;
     virtual void AddObstacle(Model&, const mat4&, float = 0.f)                                                  = 0;

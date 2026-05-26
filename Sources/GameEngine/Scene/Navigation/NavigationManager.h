@@ -21,6 +21,7 @@ public:
     void Update();
     void Update(const SceneNotifEvent&);
     std::vector<vec3> CalculatePath(const vec3&, const vec3&);
+    std::vector<vec3> CalculatePath(const GameObject&, const vec3&, const vec3&);
     std::shared_ptr<INavigationProvider> GetNavigationProvider() const;
     void lock();
     void unlock();
