@@ -40,8 +40,7 @@ void AIChaseState::update(float deltaTime)
     if (distance <= context_.controller.getAttackRadius())
     {
         LOG_DEBUG << "InAttack range";
-        // context_.controller.pushEventToQueue(TargetInAttackRangeEvent{}); TO DO
-        context_.controller.pushEventToQueue(TargetLostEvent{});
+        context_.controller.pushEventToQueue(TargetInAttackRangeEvent{.target = *target});
         return;
     }
     auto& currentPath = context_.currentPath;

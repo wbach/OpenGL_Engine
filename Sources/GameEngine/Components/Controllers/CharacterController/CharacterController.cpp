@@ -3,6 +3,8 @@
 #include <Utils/TreeNodeReadFunctions.h>
 #include <Utils/TreeNodeWriteFunctions.h>
 
+#include <vector>
+
 #include "AnimationClipNames.h"
 #include "CharacterControllerFsm.h"
 #include "FsmContext.h"
@@ -65,6 +67,38 @@ CharacterController::CharacterController(ComponentContext& componentContext, Gam
     , aimJointName_{"mixamorig:Spine2"}
 {
     impl = std::make_unique<CharacterController::Impl>();
+
+    auto createAttackAnimatioElement = [](std::vector<AttackAnimation>& clips)
+    {
+        clips.emplace_back();
+        auto& newClip = clips.back();
+
+        return CustomStructure{.name   = Utils::GetTypeName<AttackAnimation>(),
+                               .fields = {MakeEnumField("State type", &newClip.stateType),
+                                          {"ClipSequnce", FieldType::VectorOfStrings, &newClip.clipsSequence}}};
+    };
+    disarmedAttackClips.createElement = [this, createAttackAnimatioElement]()
+    { return createAttackAnimatioElement(animationClipsNames_.disarmed.attack); };
+
+    armedAttackClips.createElement = [this, createAttackAnimatioElement]()
+    { return createAttackAnimatioElement(animationClipsNames_.armed.attack); };
+
+    auto initElements = [](std::vector<CustomStructure>& out, std::vector<AttackAnimation>& clips)
+    {
+        for (auto& attackAnimation : clips)
+        {
+            out.push_back(
+                CustomStructure{.name   = Utils::GetTypeName<AttackAnimation>(),
+                                .fields = {MakeEnumField("State type", &attackAnimation.stateType),
+                                           {"ClipSequnce", FieldType::VectorOfStrings, &attackAnimation.clipsSequence}}});
+        }
+    };
+
+    disarmedAttackClips.initElements = [this, initElements](std::vector<CustomStructure>& out)
+    { initElements(out, animationClipsNames_.disarmed.attack); };
+
+    armedAttackClips.initElements = [this, initElements](std::vector<CustomStructure>& out)
+    { initElements(out, animationClipsNames_.armed.attack); };
 }
 
 CharacterController::~CharacterController()
@@ -441,6 +475,7 @@ void CharacterController::handleEvent(const CharacterControllerEvent& event)
 {
     auto passEventToMachine = [&](const auto& e) { impl->stateMachine_->handle(e); };
     std::visit(passEventToMachine, event);
+    notifyEvent(event);
 }
 float CharacterController::getShapeSize() const
 {
@@ -452,6 +487,9 @@ void CharacterController::read(const TreeNode& node)
     ::Read(node.getChild(CSTR_EQUIP_TIMESTAMP), equipTimeStamp);
     ::Read(node.getChild(CSTR_DISARM_TIMESTAMP), disarmTimeStamp);
     ::Read(node.getChild(CSTR_AIM_JOINT_NAME), aimJointName_);
+
+    disarmedAttackClips.init();
+    armedAttackClips.init();
 }
 void CharacterController::write(TreeNode& node) const
 {
@@ -472,6 +510,29 @@ std::string CharacterController::getCurrentStateName() const
 bool CharacterController::isAlive() const
 {
     return not impl->stateMachine_->isCurrentStateOfType<DeathState>();
+}
+IdType CharacterController::subscribeForEvent(EventSubCallback callback)
+{
+    auto id = eventSubscribersIdPool.getId();
+    eventSubscribers.emplace(id, std::move(callback));
+    return id;
+}
+void CharacterController::unsubscribeForEvent(IdType id)
+{
+    eventSubscribersIdPool.releaseId(id);
+    eventSubscribers.erase(id);
+}
+void CharacterController::notifyEvent(const CharacterControllerEvent& event)
+{
+    auto subscribersCopy = eventSubscribers;
+
+    for (const auto& [id, callback] : subscribersCopy)
+    {
+        if (eventSubscribers.contains(id))
+        {
+            callback(event);
+        }
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine

@@ -23,19 +23,26 @@ REGISTER_COMPONENT(CombatStatsComponent)
 CombatStatsComponent::CombatStatsComponent(ComponentContext& componentContext, GameObject& gameObject)
     : Component(componentContext, gameObject)
 {
-    modifiersFields.init = [this]()
+    modifiersFields.createElement = [this]()
     {
         modifiers.emplace_back();
         auto& newMod = modifiers.back();
 
-        return CustomStructure
+        return CustomStructure{.name   = "ItemStatModifier",
+                               .fields = {MakeEnumField("Target", &newMod.target),
+                                          MakeEnumField("Type", &newMod.type),
+                                          {"Value", FieldType::Float, &newMod.value}}};
+    };
+
+    modifiersFields.initElements = [this](std::vector<CustomStructure>& out)
+    {
+        for (auto& modifier : modifiers)
         {
-            .name = "ItemStatModifier", .fields = {
-                MakeEnumField("Target", &newMod.target),
-                MakeEnumField("Type", &newMod.type),
-                {"Value", FieldType::Float, &newMod.value}
-            }
-        };
+            out.push_back(CustomStructure{.name   = "ItemStatModifier",
+                                          .fields = {MakeEnumField("Target", &modifier.target),
+                                                     MakeEnumField("Type", &modifier.type),
+                                                     {"Value", FieldType::Float, &modifier.value}}});
+        }
     };
 }
 
@@ -69,6 +76,8 @@ void CombatStatsComponent::read(const TreeNode& input)
             modifiers.push_back(mod);
         }
     }
+
+    modifiersFields.init();
 }
 
 void CombatStatsComponent::write(TreeNode& node) const

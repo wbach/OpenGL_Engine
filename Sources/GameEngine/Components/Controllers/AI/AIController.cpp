@@ -80,7 +80,7 @@ void AIController::Init()
 
     auto& context       = *impl->controllerContext_;
     impl->stateMachine_ = std::make_unique<AICharacterFsm>(AIAmbientState{}, AIChaseState{context}, AIReturnState{context},
-                                                           AIAttackState{}, AIQuestState{context});
+                                                           AIAttackState{context}, AIQuestState{context});
 }
 void AIController::read(const TreeNode& input)
 {

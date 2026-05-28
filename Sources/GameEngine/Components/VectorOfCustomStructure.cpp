@@ -6,105 +6,105 @@ namespace Components
 {
 size_t VectorOfCustomStructure::size() const
 {
-    return fields.size();
+    return structures.size();
 }
 void VectorOfCustomStructure::emplace_back()
 {
-    if (init)
+    if (createElement)
     {
-        fields.push_back(CustomStructure{init()});
+        structures.push_back(CustomStructure{createElement()});
     }
     else
     {
-        fields.push_back(CustomStructure{});
+        structures.push_back(CustomStructure{});
     }
 }
 void VectorOfCustomStructure::resize(size_t newSize)
 {
-    auto currentSize = fields.size();
+    auto currentSize = structures.size();
 
     if (newSize < currentSize)
     {
-        fields.resize(newSize);
+        structures.resize(newSize);
     }
     else if (newSize > currentSize)
     {
-        fields.reserve(newSize);
+        structures.reserve(newSize);
 
         size_t elementsToAdd = newSize - currentSize;
         for (size_t i = 0; i < elementsToAdd; ++i)
         {
-            if (init)
+            if (createElement)
             {
-                fields.push_back(CustomStructure{init()});
+                structures.push_back(CustomStructure{createElement()});
             }
             else
             {
-                fields.push_back(CustomStructure{});
+                structures.push_back(CustomStructure{});
             }
         }
     }
 }
 bool VectorOfCustomStructure::empty() const
 {
-    return fields.empty();
+    return structures.empty();
 }
 void VectorOfCustomStructure::push_back()
 {
-    if (init)
+    if (createElement)
     {
-        fields.push_back(CustomStructure{init()});
+        structures.push_back(CustomStructure{createElement()});
     }
 }
 void VectorOfCustomStructure::push_back(const CustomStructure& value)
 {
-    if (value.fields.empty() and init)
+    if (value.fields.empty() and createElement)
     {
-        fields.push_back(CustomStructure{init()});
+        structures.push_back(CustomStructure{createElement()});
     }
     else
     {
-        fields.push_back(value);
+        structures.push_back(value);
     }
 }
 void VectorOfCustomStructure::clear()
 {
-    fields.clear();
+    structures.clear();
 }
 void VectorOfCustomStructure::erase(size_t index)
 {
-    if (index < fields.size())
+    if (index < structures.size())
     {
-        fields.erase(fields.begin() + index);
+        structures.erase(structures.begin() + index);
     }
 }
 VectorOfCustomStructure::ConstIterator VectorOfCustomStructure::erase(VectorOfCustomStructure::ConstIterator position)
 {
-    return fields.erase(position);
+    return structures.erase(position);
 }
 CustomStructure& VectorOfCustomStructure::operator[](size_t index)
 {
-    return fields[index];
+    return structures[index];
 }
 const CustomStructure& VectorOfCustomStructure::operator[](size_t index) const
 {
-    return fields[index];
+    return structures[index];
 }
 VectorOfCustomStructure::ConstIterator VectorOfCustomStructure::begin()
 {
-    return fields.begin();
+    return structures.begin();
 }
 VectorOfCustomStructure::ConstIterator VectorOfCustomStructure::end()
 {
-    return fields.end();
+    return structures.end();
 }
 VectorOfCustomStructure::ConstIterator VectorOfCustomStructure::begin() const
 {
-    return fields.begin();
+    return structures.begin();
 }
 VectorOfCustomStructure::ConstIterator VectorOfCustomStructure::end() const
 {
-    return fields.end();
+    return structures.end();
 }
 }  // namespace Components
 }  // namespace GameEngine

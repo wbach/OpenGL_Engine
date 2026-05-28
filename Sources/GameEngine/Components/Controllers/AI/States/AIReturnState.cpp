@@ -26,8 +26,6 @@ void AIReturnState::update(float)
         LOG_DEBUG << "NavigationPathCompletedEvent";
         context_.controller.pushEventToQueue(NavigationPathCompletedEvent{});
     }
-
-    LOG_DEBUG << "";
 }
 }  // namespace Components
 }  // namespace GameEngine

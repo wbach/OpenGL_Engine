@@ -7,8 +7,17 @@ namespace Components
 {
 struct VectorOfCustomStructure
 {
-    std::function<CustomStructure()> init;
-    std::vector<CustomStructure> fields;
+    std::function<CustomStructure()> createElement;
+    std::function<void(std::vector<CustomStructure>&)> initElements;
+    std::vector<CustomStructure> structures;
+
+    void init()
+    {
+        if (initElements)
+        {
+            initElements(structures);
+        }
+    }
 
     size_t size() const;
     void emplace_back();

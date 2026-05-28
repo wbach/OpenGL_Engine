@@ -2,13 +2,19 @@
 #include <Utils/Time/Timer.h>
 
 #include <deque>
+#include <functional>
 #include <mutex>
+#include <optional>
+#include <unordered_map>
 
 #include "AnimationClipNames.h"
 #include "CharacterControllerEvents.h"
 #include "GameEngine/Components/Component.h"
+#include "GameEngine/Components/VectorOfCustomStructure.h"
 #include "GameEngine/Physics/PhysicsApiTypes.h"
+#include "IdPool.h"
 #include "MoveSpeed.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -34,6 +40,9 @@ public:
     float equipTimeStamp;
     float disarmTimeStamp;
     MoveSpeeds moveSpeeds_;
+
+    VectorOfCustomStructure disarmedAttackClips;
+    VectorOfCustomStructure armedAttackClips;
 
     // clang-format off
     BEGIN_FIELDS()
@@ -141,10 +150,15 @@ public:
         FIELD_FLOAT(disarmTimeStamp)
         FIELD_STRING(upperBodyGroupName)
         FIELD_STRING(lowerBodyGroupName)
+
+        FIELD_VECTOR_OF_CUSTOM(disarmedAttackClips)
+        FIELD_VECTOR_OF_CUSTOM(armedAttackClips)
+
     END_FIELDS()
     // clang-format on
 
-    using EventQueue = std::deque<CharacterControllerEvent>;
+    using EventQueue       = std::deque<CharacterControllerEvent>;
+    using EventSubCallback = std::function<void(const CharacterControllerEvent&)>;
 
     CharacterController(ComponentContext&, GameObject&);
     ~CharacterController();
@@ -190,8 +204,12 @@ public:
 
     bool isAlive() const;
 
+    IdType subscribeForEvent(EventSubCallback);
+    void unsubscribeForEvent(IdType);
+
 private:
     void processEvent();
+    void notifyEvent(const CharacterControllerEvent&);
 
 private:
     EventQueue eventQueue;
@@ -206,6 +224,9 @@ private:
     Physics::CollisionSubId groundEnterSubId;
     Physics::CollisionSubId groundExitSubId;
     bool isInit{false};
+
+    Utils::IdPool eventSubscribersIdPool;
+    std::unordered_map<IdType, EventSubCallback> eventSubscribers;
 
 private:
     struct Impl;

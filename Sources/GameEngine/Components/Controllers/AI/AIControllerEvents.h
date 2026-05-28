@@ -31,9 +31,10 @@ struct TargetLostEvent
 
 struct TargetInAttackRangeEvent
 {
+    GameObject& target;
 };
 
-struct TargetOutofAttackRangeEvent
+struct TargetOutOfAttackRangeEvent
 {
 };
 
@@ -56,7 +57,7 @@ struct NavigationPathCompletedEvent
 };
 
 using AIEvent =
-    std::variant<AIUpdateEvent, TargetSpottedEvent, TargetLostEvent, TargetInAttackRangeEvent, TargetOutofAttackRangeEvent,
+    std::variant<AIUpdateEvent, TargetSpottedEvent, TargetLostEvent, TargetInAttackRangeEvent, TargetOutOfAttackRangeEvent,
                  QuestTriggeredEvent, QuestFinishedEvent, CurrentTargetDiedEvent, NavigationPathCompletedEvent>;
 }  // namespace Components
 }  // namespace GameEngine

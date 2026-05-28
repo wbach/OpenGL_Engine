@@ -13,6 +13,7 @@ class AIStateBase
 {
 public:
     AIStateBase(AIControllerContext&);
+    virtual ~AIStateBase() = default;
 
     void onEnter();
     void onLeave();
