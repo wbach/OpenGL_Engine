@@ -30,6 +30,7 @@ private:
     const GameEngine::Animation::Joint* FindJointAt(const GameEngine::Animation::Joint&, wxPoint);
     void TrySelectSingle(wxMouseEvent&);
     std::string BuildHelpText() const;
+    void OnLeftDown(wxMouseEvent&);
 
 private:
     Mode mode_;
@@ -37,6 +38,8 @@ private:
     float scale_ = 300.0f;
     wxPoint viewOffset_;
     wxPoint lastMousePos_;
+    std::string notificationText = "";
+    wxLongLong notificationExpiry = 0;
 
     std::string selectedName_                  = "";
     GameEngine::Animation::JointId selectedId_ = 0;

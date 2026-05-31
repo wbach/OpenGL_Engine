@@ -22,6 +22,7 @@ ENGINE_API void write(TreeNode&, const vec3&);
 ENGINE_API void write(TreeNode&, const vec4&);
 ENGINE_API void write(TreeNode&, const Color&);
 ENGINE_API void write(TreeNode&, const std::vector<vec3>&);
+ENGINE_API void write(TreeNode&, const std::vector<std::string>&);
 
 template <class T>
 requires std::is_enum_v<T>

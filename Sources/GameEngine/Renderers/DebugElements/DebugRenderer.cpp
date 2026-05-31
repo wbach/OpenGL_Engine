@@ -6,11 +6,13 @@
 #include <Utils/Variant.h>
 
 #include <algorithm>
+#include <numbers>
 #include <variant>
 #include <vector>
 
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/Controllers/AI/AIController.h"
+#include "GameEngine/Components/Gameplay/Attack/MeleeAttackComponent.h"
 #include "GameEngine/Components/Gameplay/Attack/WeaponComponent.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
@@ -29,7 +31,6 @@
 #include "Types.h"
 #include "Utils.h"
 #include "glm/geometric.hpp"
-#include <numbers>
 
 namespace GameEngine
 {
@@ -39,11 +40,10 @@ struct ColorBuffer
 {
     AlignWrapper<vec4> color;
 };
-GraphicsApi::LineMesh BuildWeaponDebugMesh(const Components::WeaponComponent& component, const vec3& color)
+GraphicsApi::LineMesh BuildSocketsDebugMesh(const std::vector<vec3>& worldSocketsPos, float radius, const vec3& color)
 {
     GraphicsApi::LineMesh mesh;
 
-    auto worldSocketsPos = component.GetWorldSocketPositions();
     if (worldSocketsPos.empty())
     {
         return mesh;
@@ -80,10 +80,10 @@ GraphicsApi::LineMesh BuildWeaponDebugMesh(const Components::WeaponComponent& co
             float a1 = (static_cast<float>(i) / static_cast<float>(segments)) * 2.0f * pi;
             float a2 = (static_cast<float>(i + 1) / static_cast<float>(segments)) * 2.0f * pi;
 
-            float s1 = std::sin(a1) * component.radius;
-            float c1 = std::cos(a1) * component.radius;
-            float s2 = std::sin(a2) * component.radius;
-            float c2 = std::cos(a2) * component.radius;
+            float s1 = std::sin(a1) * radius;
+            float c1 = std::cos(a1) * radius;
+            float s2 = std::sin(a2) * radius;
+            float c2 = std::cos(a2) * radius;
 
             addLine(offset + vec3{c1, 0.0f, s1}, offset + vec3{c2, 0.0f, s2});
             addLine(offset + vec3{c1, s1, 0.0f}, offset + vec3{c2, s2, 0.0f});
@@ -474,8 +474,25 @@ void DebugRenderer::init()
 
                 if (auto weapon = objectSelection->GetComponent<Components::WeaponComponent>())
                 {
-                    auto lineMesh = BuildWeaponDebugMesh(*weapon, Color(0.f, 1.f, 0.f, 1.f).xyz());
-                    result        = appendLineMesh(result, lineMesh);
+                    auto positions = weapon->GetWorldSocketPositions();
+
+                    if (not positions.empty())
+                    {
+                        auto lineMesh = BuildSocketsDebugMesh(positions, weapon->radius, Color(0.f, 1.f, 0.f, 1.f).xyz());
+                        result        = appendLineMesh(result, lineMesh);
+                    }
+                }
+
+                if (auto meleAttackComponent = objectSelection->GetComponent<Components::MeleeAttackComponent>())
+                {
+                    auto positions = meleAttackComponent->GetWorldSocketPositions();
+
+                    if (not positions.empty())
+                    {
+                        auto lineMesh =
+                            BuildSocketsDebugMesh(positions, meleAttackComponent->unarmedRadius, Color(0.f, 1.f, 0.f, 1.f).xyz());
+                        result = appendLineMesh(result, lineMesh);
+                    }
                 }
             }
 

@@ -1,5 +1,7 @@
 #include "SkeletonPreviewDialog.h"
 
+#include <wx/clipbrd.h>
+
 SkeletonPreviewDialog::SkeletonPreviewDialog(wxWindow* parent, const GameEngine::Animation::Skeleton& skeleton,
                                              const std::string& title, Mode mode)
     : wxDialog(parent, wxID_ANY, title, wxDefaultPosition, wxSize(1000, 900))
@@ -22,6 +24,8 @@ SkeletonPreviewDialog::SkeletonPreviewDialog(wxWindow* parent, const GameEngine:
     {
         Bind(wxEVT_LEFT_DCLICK, &SkeletonPreviewDialog::TrySelectSingle, this);
     }
+
+    Bind(wxEVT_LEFT_DOWN, &SkeletonPreviewDialog::OnLeftDown, this);
 }
 const std::string& SkeletonPreviewDialog::GetSelectedName() const
 {
@@ -45,6 +49,17 @@ void SkeletonPreviewDialog::OnPaint(wxPaintEvent& event)
 
     dc.SetTextForeground(*wxLIGHT_GREY);
     dc.DrawText(BuildHelpText(), 10, 10);
+
+    if (notificationText.empty() == false and wxGetLocalTimeMillis() < notificationExpiry)
+    {
+        dc.SetTextForeground(*wxGREEN);
+        wxSize windowSize = GetClientSize();
+        dc.DrawText(notificationText, 10, windowSize.y - 25);
+    }
+    else if (notificationText.empty() == false)
+    {
+        notificationText = "";
+    }
 }
 void SkeletonPreviewDialog::DrawJoint(wxDC& dc, const GameEngine::Animation::Joint& joint)
 {
@@ -158,7 +173,7 @@ void SkeletonPreviewDialog::TrySelectSingle(wxMouseEvent& event)
 }
 std::string SkeletonPreviewDialog::BuildHelpText() const
 {
-    std::string help = "RMB: Pan | Scroll: Zoom";
+    std::string help = "RMB: Pan | Scroll: Zoom | LMB: Copy Name";
 
     if (mode_ == Mode::SINGLE_SELECTION)
     {
@@ -166,4 +181,22 @@ std::string SkeletonPreviewDialog::BuildHelpText() const
     }
 
     return help;
+}
+void SkeletonPreviewDialog::OnLeftDown(wxMouseEvent& event)
+{
+    const GameEngine::Animation::Joint* clickedJoint = FindJointAt(skeletonCopy_, event.GetPosition());
+
+    if (clickedJoint != nullptr)
+    {
+        if (wxTheClipboard->Open())
+        {
+            wxTheClipboard->SetData(new wxTextDataObject(clickedJoint->name));
+            wxTheClipboard->Close();
+
+            notificationText   = "Copied to clipboard: " + clickedJoint->name;
+            notificationExpiry = wxGetLocalTimeMillis() + 2000;
+
+            Refresh();
+        }
+    }
 }

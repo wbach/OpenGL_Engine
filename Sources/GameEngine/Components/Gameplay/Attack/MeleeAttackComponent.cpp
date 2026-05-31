@@ -1,22 +1,30 @@
 #include "MeleeAttackComponent.h"
 
+#include <Logger/Log.h>
 #include <Utils/TreeNodeReadFunctions.h>
 #include <Utils/TreeNodeWriteFunctions.h>
 
+#include <glm/geometric.hpp>
+
+#include "GameEngine/Components/Animation/Animator.h"
+#include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Gameplay/CharacterStats/CharacterStatsComponent.h"
 #include "GameEngine/Components/Gameplay/HealthComponent.h"
 #include "GameEngine/Components/Gameplay/Inventory/CombatStatsComponent.h"
 #include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "Logger/Log.h"
 #include "WeaponComponent.h"
-#include "glm/geometric.hpp"
 
 namespace GameEngine
 {
 namespace Components
 {
+namespace
+{
+constexpr char CSTR_SOCKETS[] = "socketOffsets";
+}  // namespace
+
 REGISTER_COMPONENT(MeleeAttackComponent)
 
 MeleeAttackComponent::MeleeAttackComponent(ComponentContext& componentContext, GameObject& gameObject)
@@ -34,8 +42,12 @@ void MeleeAttackComponent::Reload()
 }
 void MeleeAttackComponent::ReqisterFunctions()
 {
+    RegisterFunction(FunctionType::Awake, std::bind(&MeleeAttackComponent::Init, this), MakeDependencies<Animator>());
     RegisterFunction(FunctionType::Update, std::bind(&MeleeAttackComponent::Update, this));
-    // Deactivate();
+}
+void MeleeAttackComponent::Init()
+{
+    animator = thisObject_.GetComponent<Animator>();
 }
 void MeleeAttackComponent::StartAttack()
 {
@@ -56,16 +68,18 @@ void MeleeAttackComponent::StartAttack()
     }
     else
     {
-        LOG_DEBUG << "Weapon component not found in children of " << thisObject_.GetName();
+        previousPoints = GetWorldSocketPositions();
     }
 }
 
 void MeleeAttackComponent::Update()
 {
-    if (not isAttacking or not cachedWeapon)
+    if (not isAttacking)
         return;
 
-    auto currentPoints    = cachedWeapon->GetWorldSocketPositions();
+    auto radius        = cachedWeapon ? cachedWeapon->radius : unarmedRadius;
+    auto currentPoints = cachedWeapon ? cachedWeapon->GetWorldSocketPositions() : GetWorldSocketPositions();
+
     auto potentialTargets = GetEnemiesInRange(5.0f);
 
     for (auto i = 0u; i < currentPoints.size(); ++i)
@@ -100,26 +114,14 @@ void MeleeAttackComponent::Update()
             const auto enemyBottom = offsetPos;
             const auto enemyTop    = offsetPos + vec3(0, sphereShape->height, 0);
 
-            if (CheckCapsuleCollision(swordSegmentStart, swordSegmentEnd, cachedWeapon->radius, enemyBottom, enemyTop,
-                                      sphereShape->radius))
+            if (CheckCapsuleCollision(swordSegmentStart, swordSegmentEnd, radius, enemyBottom, enemyTop, sphereShape->radius))
             {
                 hitTargets.insert(enemyId);
                 if (auto stats = thisObject_.GetComponent<CharacterStatsComponent>())
                 {
-                    LOG_DEBUG << "Take " << stats->offense.meleeDamage
-                              << " dmg to : " << enemy->GetParentGameObject().GetName();
+                    LOG_DEBUG << "Take " << stats->offense.meleeDamage << " dmg to : " << enemy->GetParentGameObject().GetName();
                     enemy->takeDamage(stats->offense.meleeDamage.getValue());
                 }
-                // if (auto combatStatsComponent = cachedWeapon->GetParentGameObject().GetComponent<CombatStatsComponent>())
-                // {
-                //     LOG_DEBUG << "Take " << combatStatsComponent->damage
-                //               << " dmg to : " << enemy->GetParentGameObject().GetName();
-                //     enemy->takeDamage(combatStatsComponent->offense);
-                // }
-                // else
-                // {
-                //     LOG_DEBUG << "CombatStatsComponent not exist in weapon";
-                // }
             }
             else
             {
@@ -138,11 +140,15 @@ void MeleeAttackComponent::EndAttack()
     isAttacking = false;
     previousPoints.clear();
 }
-void MeleeAttackComponent::read(const TreeNode&)
+void MeleeAttackComponent::read(const TreeNode& input)
 {
+    ::Read(input.getChild(CSTR_SOCKETS), unarmedSocketJoints);
+    ::Read(input.getChild(CSTR_RADIUS), unarmedRadius);
 }
 void MeleeAttackComponent::write(TreeNode& node) const
 {
+    ::write(node.addChild(CSTR_SOCKETS), unarmedSocketJoints);
+    ::write(node.addChild(CSTR_RADIUS), unarmedRadius);
 }
 bool MeleeAttackComponent::CheckCapsuleCollision(const vec3& swordStart, const vec3& swordEnd, float swordRadius,
                                                  const vec3& targetStart, const vec3& targetEnd, float targetRadius)
@@ -208,5 +214,22 @@ void MeleeAttackComponent::clearWeapon()
 {
     cachedWeapon = nullptr;
 }
+std::vector<vec3> MeleeAttackComponent::GetWorldSocketPositions() const
+{
+    std::vector<vec3> worldPositions;
+    if (animator)
+    {
+        for (const auto& name : unarmedSocketJoints)
+        {
+            if (auto transform = animator->getWorldPosOfJoint(name))
+            {
+                worldPositions.push_back(transform->first);
+            }
+        }
+    }
+
+    return worldPositions;
+}
+
 }  // namespace Components
 }  // namespace GameEngine

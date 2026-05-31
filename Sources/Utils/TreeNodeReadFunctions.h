@@ -18,6 +18,7 @@ ENGINE_API void Read(const TreeNode&, std::string&);
 ENGINE_API void Read(const TreeNode&, std::filesystem::path&);
 ENGINE_API void Read(const TreeNode&, std::vector<vec2>&);
 ENGINE_API void Read(const TreeNode&, std::vector<vec3>&);
+ENGINE_API void Read(const TreeNode&, std::vector<std::string>&);
 
 template <class T>
 void Read(const TreeNode& node, std::optional<T>& v)

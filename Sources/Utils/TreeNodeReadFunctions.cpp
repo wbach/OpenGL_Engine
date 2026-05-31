@@ -231,3 +231,12 @@ void Read(const TreeNode& node, vec2& v)
         LOG_ERROR << "Read error: " << node;
     }
 }
+void Read(const TreeNode& node, std::vector<std::string>& result)
+{
+    for (const auto& node : node.getChildren())
+    {
+        std::string v;
+        Read(*node, v);
+        result.push_back(v);
+    }
+}

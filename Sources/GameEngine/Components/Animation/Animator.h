@@ -20,6 +20,7 @@
 #include "GameEngine/Components/ReadAnimationInfo.h"
 #include "MasterSkeletonData.h"
 #include "PlayDirection.h"
+#include "Rotation.h"
 #include "SlaveSkeletonData.h"
 #include "StateMachine.h"
 
@@ -90,9 +91,11 @@ public:
 
     void UnSubscribeForAnimationFrame(IdType);
 
+    Animation::Skeleton& getSkeleton();
     Animation::Joint* GetRootJoint();
     Animation::Joint* GetJoint(const std::string&);
     Animation::Joint* GetJoint(const Animation::JointId&);
+    std::optional<std::pair<vec3, Rotation>> getWorldPosOfJoint(std::string_view) const;
 
     std::optional<uint32> subscribeForPoseBufferUpdate(std::function<void()>);
     void unSubscribeForPoseUpdateBuffer(uint32);

@@ -9,11 +9,11 @@
 namespace GameEngine
 {
 class GameObject;
+struct EndAttackEvent;
 
 namespace Components
 {
 struct AIControllerContext;
-struct EndAttackEvent;
 struct TargetOutOfAttackRangeEvent;
 struct TargetLostEvent;
 struct TargetInAttackRangeEvent;

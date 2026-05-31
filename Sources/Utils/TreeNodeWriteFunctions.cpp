@@ -2,6 +2,8 @@
 
 #include "Utils.h"
 
+inline const std::string CSTR_STR  = "string";
+
 void write(TreeNode& node, float v)
 {
     node.value_ = std::to_string(v);
@@ -70,5 +72,12 @@ void write(TreeNode& node, const std::vector<vec3>& v)
     for (const auto& value : v)
     {
         ::write(node.addChild(CSTR_VEC3), value);
+    }
+}
+void write(TreeNode& node, const std::vector<std::string>& v)
+{
+     for (const auto& value : v)
+    {
+        ::write(node.addChild(CSTR_STR), value);
     }
 }

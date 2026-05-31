@@ -1,6 +1,7 @@
 #include "Animator.h"
 
 #include <Common/Transform.h>
+#include <GLM/GLMUtils.h>
 #include <Logger/Log.h>
 #include <Utils/TreeNodeReadFunctions.h>
 #include <Utils/TreeNodeWriteFunctions.h>
@@ -18,7 +19,6 @@
 #include "GameEngine/Animations/Skeleton.h"
 #include "GameEngine/Components/Animation/SlaveSkeletonData.h"
 #include "GameEngine/Components/Animation/StateMachine.h"
-#include "GameEngine/Components/ComponentCore.h"
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentType.h"
@@ -830,6 +830,37 @@ AnimationClipInfo* Animator::getAnimationClipInfo(const std::string& name)
     }
 
     return nullptr;
+}
+Animation::Skeleton& Animator::getSkeleton()
+{
+    return masterSkeletonData.skeleton;
+}
+std::optional<std::pair<vec3, Rotation>> Animator::getWorldPosOfJoint(std::string_view jointName) const
+{
+    if (not masterRendererComponent_)
+        return {};
+
+    auto joint = masterSkeletonData.skeleton.getJoint(std::string(jointName));
+
+    if (not joint)
+        return {};
+
+    const auto& currentParentWorldMatrix = thisObject_.GetWorldTransform().GetMatrix();
+
+    auto model = masterRendererComponent_->GetModelWrapper().Get();
+    if (not model)
+        return {};
+
+    const auto& meshes = model->GetMeshes();
+    if (meshes.empty())
+        return {};
+
+    const auto& meshTransform = meshes.front().GetMeshTransform();
+
+    auto worldBoneMatrix                           = currentParentWorldMatrix * meshTransform * joint->worldTransform;
+    auto [boneWorldPosition, boneWorldRotation, _] = Utils::decompose(worldBoneMatrix);
+
+    return std::pair<vec3, Rotation>{boneWorldPosition, boneWorldRotation};
 }
 }  // namespace Components
 }  // namespace GameEngine
