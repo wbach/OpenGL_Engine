@@ -10,12 +10,12 @@
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Gameplay/CharacterStats/CharacterStatsComponent.h"
-#include "GameEngine/Components/Gameplay/Layers.h"
 #include "GameEngine/Renderers/GUI/Button/Button.h"
 #include "GameEngine/Renderers/GUI/ElementReader.h"
 #include "GameEngine/Renderers/GUI/ElementWriter.h"
 #include "GameEngine/Renderers/GUI/IElementFactory.h"
 #include "GameEngine/Renderers/GUI/IGuiRenderer.h"
+#include "GameEngine/Renderers/GUI/Layer/DefaultLayers.h"
 #include "GameEngine/Renderers/GUI/Layout/HorizontalLayout.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
 #include "GameEngine/Renderers/GUI/Manager.h"
@@ -117,12 +117,17 @@ void CharacterStatsViewerComponent::ReqisterFunctions()
     RegisterFunction(FunctionType::Update,
                      [this]()
                      {
-                         if (characterStats and hpValue)
+                         if (characterStats)
                          {
-                             const auto& attributes     = characterStats->attributes;
-                             auto currentLifePercentage = attributes.currentLife / attributes.maxLife.getValue();
-                             const auto scale           = hpValue->getLocalScale();
-                             hpValue->setLocalScale(vec2{currentLifePercentage, scale.y});
+                             updateGuiStats();
+
+                             if (hpValue)
+                             {
+                                 const auto& attributes     = characterStats->attributes;
+                                 auto currentLifePercentage = attributes.currentLife / attributes.maxLife.getValue();
+                                 const auto scale           = hpValue->getLocalScale();
+                                 hpValue->setLocalScale(vec2{currentLifePercentage, scale.y});
+                             }
                          }
                      });
 }
@@ -147,9 +152,6 @@ void CharacterStatsViewerComponent::initGui()
     initStatsPanel();
     initHud();
 }
-void CharacterStatsViewerComponent::updateGui()
-{
-}
 void CharacterStatsViewerComponent::show()
 {
     group->activate(true);
@@ -160,7 +162,6 @@ void CharacterStatsViewerComponent::show()
     if (auto mainCamera = componentContext_.scene_.GetCameraManager().GetMainCamera())
     {
         mainCamera->Lock();
-        updateGui();
     }
 }
 void CharacterStatsViewerComponent::hide()
@@ -183,6 +184,9 @@ void CharacterStatsViewerComponent::hide()
 }
 void CharacterStatsViewerComponent::updateGuiStats()
 {
+    if (not group or not group->isActive())
+        return;
+
     if (auto iter = params.find(CharacterParam::GuildName); iter != params.end())
     {
         auto str = magic_enum::enum_name(characterStats->general.guild);
@@ -311,9 +315,6 @@ void CharacterStatsViewerComponent::initStatsPanel()
         getParamTxt(CharacterParam::MeleDmgValue);
         getParamTxt(CharacterParam::RangeDmgValue);
         getParamTxt(CharacterParam::MagicDmgValue);
-
-        updateGui();
-        updateGuiStats();
     }
     else
     {
@@ -325,15 +326,11 @@ void CharacterStatsViewerComponent::initHud()
     GUI::ElementReader reader(componentContext_.guiManager_, componentContext_.guiElementFactory_);
 
     const auto& layerGroupName = GetTypeName();
-    if (reader.read(hudFile, Layers::Panels, layerGroupName))
+    if (reader.read(hudFile, Layers::Hud, layerGroupName))
     {
-        if (not group)
-        {
-            layer = componentContext_.guiManager_.getLayer(Layers::Panels);
-            group = layer->getGroup(layerGroupName);
-        }
-
-        hpValue = group->get<GUI::Sprite>("HpValue");
+        auto layer = componentContext_.guiManager_.getLayer(Layers::Hud);
+        auto group = layer->getGroup(layerGroupName);
+        hpValue    = group->get<GUI::Sprite>("HpValue");
     }
 }
 }  // namespace Components

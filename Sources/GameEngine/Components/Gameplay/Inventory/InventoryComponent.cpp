@@ -17,7 +17,7 @@
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Gameplay/CharacterStats/CharacterStatsComponent.h"
-#include "GameEngine/Components/Gameplay/Layers.h"
+#include "GameEngine/Renderers/GUI/Layer/DefaultLayers.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/GUI/Button/Button.h"
 #include "GameEngine/Renderers/GUI/ElementReader.h"

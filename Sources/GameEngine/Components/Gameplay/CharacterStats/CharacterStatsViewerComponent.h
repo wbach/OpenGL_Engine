@@ -53,7 +53,6 @@ private:
     void initGui();
     void initStatsPanel();
     void initHud();
-    void updateGui();
     void show();
     void hide();
 

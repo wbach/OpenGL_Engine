@@ -30,14 +30,13 @@ namespace GameEngine
 {
 namespace Components
 {
-PauseMenu::PauseMenu(File& logoFile, State startState,ComponentContext& context,
-                     const vec2& menuButtonSize)
+PauseMenu::PauseMenu(File& logoFile, State startState, ComponentContext& context, const vec2& menuButtonSize)
     : PauseMenu(logoFile, startState, context, menuButtonSize, {})
 {
 }
 
-PauseMenu::PauseMenu(File& logoFile, State startState,ComponentContext& context,
-                     const vec2& menuButtonSize, const std::unordered_map<std::string, uint32>& avaiableScenes)
+PauseMenu::PauseMenu(File& logoFile, State startState, ComponentContext& context, const vec2& menuButtonSize,
+                     const std::unordered_map<std::string, uint32>& avaiableScenes)
     : context(context)
     , logoFile{logoFile}
     , startState_{startState}
@@ -220,7 +219,7 @@ void PauseMenu::show()
     enableState(startState_);
 
     onePramaterNeedRestart_ = false;
-    auto hudLayer           = guiManager_.getLayer(DefaultGuiLayers::hud);
+    auto hudLayer           = guiManager_.getLayer(Layers::Hud);
     if (hudLayer)
     {
         hudLayer->activate(false);
@@ -230,8 +229,7 @@ void PauseMenu::show()
 
 void PauseMenu::hide()
 {
-    auto playerComponents =
-        context.componentController_.GetAllActiveComponentsOfType<Components::PlayerInputController>();
+    auto playerComponents = context.componentController_.GetAllActiveComponentsOfType<Components::PlayerInputController>();
     for (auto& playerComponent : playerComponents)
     {
         auto iter = playerComponentToRestore.find(playerComponent);
@@ -271,7 +269,7 @@ void PauseMenu::hide()
     mainWindow_->activate(false);
     onePramaterNeedRestart_ = false;
 
-    auto hudLayer = guiManager_.getLayer(DefaultGuiLayers::hud);
+    auto hudLayer = guiManager_.getLayer(Layers::Hud);
     if (hudLayer)
     {
         hudLayer->activate(true);
@@ -363,16 +361,14 @@ void PauseMenu::createMainMenuLayout()
     verticalLayout->setAlign(GUI::VerticalAlign::TOP);
     view.layout = verticalLayout.get();
 
-    createButtonForLayout(
-        view, "New game",
-        [this]() {
-            scene_.addEngineEvent(ChangeSceneEvent{ChangeSceneEvent::Type::LOAD_SCENE_BY_ID, 1});
-        });
+    createButtonForLayout(view, "New game",
+                          [this]() {
+                              scene_.addEngineEvent(ChangeSceneEvent{ChangeSceneEvent::Type::LOAD_SCENE_BY_ID, 1});
+                          });
     createButtonForLayout(view, "Load game", [this]() { createMessageBox("Not implemented yet"); });
     createButtonForLayout(view, "Start specyfic scene", [this]() { enableSceneLoaderViewState(); });
     createButtonForLayout(view, "Settings", [this]() { enableSettingsViewState(); });
-    createButtonForLayout(view, "Exit game",
-                          [this]() { scene_.addEngineEvent(QuitEvent{QuitEvent::ASK_QUIT}); });
+    createButtonForLayout(view, "Exit game", [this]() { scene_.addEngineEvent(QuitEvent{QuitEvent::ASK_QUIT}); });
 
     verticalLayout->activate(false);
     setMainWindowVerticalLayoutTransform(*verticalLayout);
@@ -390,13 +386,11 @@ void PauseMenu::createPauseMenuLayout()
     createButtonForLayout(view, "Load game", [this]() { createMessageBox("Not implemented yet"); });
     createButtonForLayout(view, "Save game", [this]() { createMessageBox("Not implemented yet"); });
     createButtonForLayout(view, "Settings", [this]() { enableSettingsViewState(); });
-    createButtonForLayout(
-        view, "Back to main menu",
-        [this]() {
-            scene_.addEngineEvent(ChangeSceneEvent{ChangeSceneEvent::Type::LOAD_SCENE_BY_ID, 0});
-        });
-    createButtonForLayout(view, "Exit game",
-                          [this]() { scene_.addEngineEvent(QuitEvent{QuitEvent::ASK_QUIT}); });
+    createButtonForLayout(view, "Back to main menu",
+                          [this]() {
+                              scene_.addEngineEvent(ChangeSceneEvent{ChangeSceneEvent::Type::LOAD_SCENE_BY_ID, 0});
+                          });
+    createButtonForLayout(view, "Exit game", [this]() { scene_.addEngineEvent(QuitEvent{QuitEvent::ASK_QUIT}); });
 
     verticalLayout->activate(false);
     setMainWindowVerticalLayoutTransform(*verticalLayout);
@@ -618,8 +612,7 @@ void PauseMenu::createMessageBox(const std::string& messageText)
 
     vec2 buttonSize{0.3f, 0.1f};
     auto messageBoxWindow = factory_.createWindow(GUI::WindowStyle::BACKGROUND_ONLY);
-    messageBoxWindow->setTransform(
-        GUI::Transform{.position = {0.5f, 0.5f}, .scale = {0.5f, 0.25f}, .zValue = -100.f});
+    messageBoxWindow->setTransform(GUI::Transform{.position = {0.5f, 0.5f}, .scale = {0.5f, 0.25f}, .zValue = -100.f});
     messageBox_ = messageBoxWindow.get();
 
     auto text = factory_.createText(messageText);

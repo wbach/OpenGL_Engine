@@ -1,10 +1,12 @@
 #pragma once
-#include <string>
 
+#include <string_view>
 namespace GameEngine
 {
-namespace DefaultGuiLayers
+namespace Layers
 {
-const static std::string hud{"hud"};
+inline constexpr std::string_view Panels{"Panels"};
+inline constexpr std::string_view Hud{"Hud"};
+inline const std::string_view Menu{"Menu"};
 }
 }  // namespace GameEngine

@@ -15,7 +15,6 @@
 #include "GameEngine/Components/Gameplay/Attack/MeleeAttackComponent.h"
 #include "GameEngine/Components/Gameplay/Attack/WeaponComponent.h"
 #include "GameEngine/Components/Gameplay/CharacterStats/CharacterStatsComponent.h"
-#include "GameEngine/Components/Gameplay/CharacterStats/CharacterStatsViewerComponent.h"
 #include "GameEngine/Components/Gameplay/CharacterStats/ModifiableStat.h"
 #include "GameEngine/Components/Gameplay/Inventory/CombatStatsComponent.h"
 #include "GameEngine/Components/Gameplay/Inventory/ItemVisualComponent.h"
@@ -293,11 +292,6 @@ void EquipmentComponent::applyItemModifiers(GameObject& item)
             stat->addModifier(StatSource::Equipment, itemId, mod.type, mod.value);
         }
     }
-
-    if (auto viewer = thisObject_.GetComponent<CharacterStatsViewerComponent>())
-    {
-        viewer->updateGuiStats();
-    }
 }
 void EquipmentComponent::removeItemModifiers(IdType itemId)
 {
@@ -328,11 +322,6 @@ void EquipmentComponent::removeItemModifiers(IdType itemId)
     charOffense.rangedAttackSpeed.removeModifiersFromSource(itemId);
     charOffense.magicDamage.removeModifiersFromSource(itemId);
     charOffense.castSpeed.removeModifiersFromSource(itemId);
-
-    if (auto viewer = thisObject_.GetComponent<CharacterStatsViewerComponent>())
-    {
-        viewer->updateGuiStats();
-    }
 }
 }  // namespace Components
 }  // namespace GameEngine
