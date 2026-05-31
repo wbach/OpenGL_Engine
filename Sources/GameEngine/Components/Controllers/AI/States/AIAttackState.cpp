@@ -8,6 +8,8 @@
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "Logger/Log.h"
+#include "Utils.h"
 
 namespace GameEngine
 {
@@ -27,8 +29,15 @@ void AIAttackState::update(float)
 void AIAttackState::onEnter()
 {
     characterControllerEventSubId = context.characterController.subscribeForEvent(
-        [this](const auto& event) {
-            std::visit(visitor{[&](const EndAttackEvent& endAttackEvent) { process(endAttackEvent); }, [&](const auto&) {}},
+        [this](const auto& event)
+        {
+            std::visit(visitor{[&](const EndAttackEvent& endAttackEvent) { process(endAttackEvent); },
+                               [&](const DeathEvent&)
+                               {
+                                   LOG_DEBUG << "";
+                                   context.controller.pushEventToQueue(TargetOutOfAttackRangeEvent{});
+                               },
+                               [&](const auto& e) {LOG_DEBUG << Utils::GetTypeName(e);}},
                        event);
         });
 

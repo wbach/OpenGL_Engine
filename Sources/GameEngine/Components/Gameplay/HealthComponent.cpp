@@ -51,10 +51,10 @@ void HealthComponent::takeDamage(float rawDamage)
     }
 
     auto& attributes = stats->attributes;
-
-    auto defense     = attributes.str.getValue();
+    auto defense = stats->protection.weapon.getValue();
     auto finalDamage = std::max(1.0f, rawDamage - defense);
 
+    LOG_DEBUG << "rawDamage : " << rawDamage << ", defense : " << defense << ", final dmg : " << finalDamage;
     if (attributes.currentLife > finalDamage)
     {
         attributes.currentLife -= finalDamage;

@@ -38,6 +38,9 @@ constexpr char CSTR_GENERAL_EXP[]          = "general.exp";
 constexpr char CSTR_GENERAL_NEXTLVL[]      = "general.nextlvl";
 constexpr char CSTR_GENERAL_SKILL_POINTS[] = "general.skillPoints";
 
+// Offense
+constexpr char CSTR_OFFENSE_MELE_DMG[] = "offense.meledmg";
+
 // Attributes
 constexpr char CSTR_ATTR_STR[]      = "attributes.str";
 constexpr char CSTR_ATTR_DEX[]      = "attributes.dex";
@@ -100,6 +103,9 @@ void CharacterStatsComponent::read(const TreeNode& input)
     ::Read(input.getChild(CSTR_GENERAL_NEXTLVL), general.nextlvl);
     ::Read(input.getChild(CSTR_GENERAL_SKILL_POINTS), general.skillPoints);
 
+    // Offense
+    ::Read(input.getChild(CSTR_OFFENSE_MELE_DMG), offense.meleeDamage);
+
     // Attributes
     ::Read(input.getChild(CSTR_ATTR_DEX), attributes.dex);
     ::Read(input.getChild(CSTR_ATTR_STR), attributes.str);
@@ -139,6 +145,9 @@ void CharacterStatsComponent::write(TreeNode& node) const
     ::write(node.addChild(CSTR_GENERAL_EXP), general.exp);
     ::write(node.addChild(CSTR_GENERAL_NEXTLVL), general.nextlvl);
     ::write(node.addChild(CSTR_GENERAL_SKILL_POINTS), general.skillPoints);
+
+    // Attributes
+    ::write(node.addChild(CSTR_OFFENSE_MELE_DMG), offense.meleeDamage);
 
     // Attributes
     ::write(node.addChild(CSTR_ATTR_STR), attributes.str);

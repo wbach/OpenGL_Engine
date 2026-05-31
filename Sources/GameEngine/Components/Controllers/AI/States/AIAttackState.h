@@ -10,6 +10,7 @@ namespace GameEngine
 {
 class GameObject;
 struct EndAttackEvent;
+struct DeathEvent;
 
 namespace Components
 {

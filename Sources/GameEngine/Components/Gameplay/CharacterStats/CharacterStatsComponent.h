@@ -44,7 +44,7 @@ public:
             FIELD_UINT(general.skillPoints)
 
             // Offense
-            // FIELD_FLOAT(offense.meleeDamage.ptr())
+            FIELD_FLOAT(offense.meleeDamage.ptr())
             // FIELD_FLOAT(offense.meleeRange.ptr())
             // FIELD_FLOAT(offense.meleeAttackSpeed)
             // FIELD_FLOAT(offense.rangedDamage.ptr())
