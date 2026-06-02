@@ -4,6 +4,7 @@
 #include "AIControllerEvents.h"
 #include "GameEngine/Components/Component.h"
 #include "GameEngine/Components/ComponentCore.h"
+#include <mutex>
 
 namespace GameEngine
 {

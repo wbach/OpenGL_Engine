@@ -3,10 +3,11 @@
 #include <optional>
 #include "Types.h"
 #include <mutex>
+#include "EngineApi.h"
 
 namespace Utils
 {
-class IdPool
+class ENGINE_API IdPool
 {
 public:
     IdPool(IdType startupValue = 0);
