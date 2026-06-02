@@ -20,6 +20,11 @@ if(DEFINED ENV{DISTCC})
     set(CMAKE_CXX_COMPILER_LAUNCHER "/usr/bin/distcc" CACHE STRING "C++ compiler" FORCE)
 endif()
 
+if(NOT MSVC AND WIN32)
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-all-symbols -Wl,--allow-multiple-definition")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--allow-multiple-definition")
+endif()
+
 message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     #add_compile_options(-Wall -Wextra -Wpedantic)

@@ -1,10 +1,11 @@
 #pragma once
 #include "Utils/TreeNode.h"
 #include <filesystem>
+#include "EngineApi.h"
 
 namespace Utils
 {
-class XmlReader
+class ENGINE_API XmlReader
 {
 public:
     bool Read(const std::filesystem::path&);

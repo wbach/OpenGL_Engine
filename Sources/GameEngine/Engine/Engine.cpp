@@ -136,6 +136,7 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi(std::unique_ptr<Gra
 {
     if (requestedGraphicsApi)
     {
+            LOG_DEBUG << "path " << EngineLocalConf.files.getShaderPath();
         requestedGraphicsApi->SetShadersFilesLocations(EngineLocalConf.files.getShaderPath());
         requestedGraphicsApi->DebugNormalMeshGeneration(EngineConf.debugParams.generateDebugNormalsMeshes);
         return requestedGraphicsApi;
@@ -164,6 +165,7 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi(std::unique_ptr<Gra
     graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
 #endif
 
+    LOG_DEBUG << "path " << EngineLocalConf.files.getShaderPath();
     graphicsApi->SetShadersFilesLocations(EngineLocalConf.files.getShaderPath());
     graphicsApi->DebugNormalMeshGeneration(EngineConf.debugParams.generateDebugNormalsMeshes);
     return graphicsApi;

@@ -51,6 +51,7 @@ void ShaderManager::UseShader(uint32 id)
 
 void ShaderManager::SetShadersFilesLocations(const std::filesystem::path& path)
 {
+    LOG_DEBUG << "path " << path;
     shadersFileLocation_ = path / "OpenGLApi" / "GLSL";
 }
 
@@ -111,7 +112,7 @@ GraphicsApi::ID ShaderManager::Create(GraphicsApi::ShaderProgramType shaderType)
 
 bool ShaderManager::AddShader(OpenGLShaderProgram& shaderProgram, const std::string& filename, GraphicsApi::ShaderType mode)
 {
-    auto fullPath = shadersFileLocation_ / filename;
+    auto fullPath = std::filesystem::absolute(shadersFileLocation_ / filename).lexically_normal();
     LOG_DEBUG << "fullPath " << fullPath;
     std::string source = Utils::ReadFilesWithIncludes(fullPath.string());
 

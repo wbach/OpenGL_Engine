@@ -69,8 +69,13 @@ if(BUILD_GAME_ENGINE)
         add_library(GameEngineLib SHARED ${GameEngineSources})
     endif()
 
+    target_compile_definitions(GameEngineLib PRIVATE ENGINE_EXPORTS)
 
-    set_target_properties(GameEngineLib PROPERTIES WIN32_EXECUTABLE OFF)
+    set_target_properties(GameEngineLib PROPERTIES 
+        POSITION_INDEPENDENT_CODE ON
+        WIN32_EXECUTABLE OFF
+        #WINDOWS_EXPORT_ALL_SYMBOLS TRUE
+    )
 
     target_compile_options(GameEngineLib PRIVATE ${ENGINE_COMPILE_FLAGS})
 

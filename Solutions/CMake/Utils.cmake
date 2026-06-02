@@ -6,7 +6,8 @@ if(BUILD_UTILS)
     else()
             add_library(UtilsLib SHARED ${UtilsSources})
     endif()
-
+    
+    target_compile_definitions(UtilsLib PRIVATE ENGINE_EXPORTS)
 
     set_target_properties(UtilsLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 

@@ -10,6 +10,8 @@ if(BUILD_GAME_ENGINE OR BUILD_GAME)
         add_library(InputLib SHARED ${InputSources})
     endif()
 
+    target_compile_definitions(InputLib PRIVATE ENGINE_EXPORTS)
+
     set_target_properties(InputLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
     # Flagi kompilacji (tylko dla InputLib)

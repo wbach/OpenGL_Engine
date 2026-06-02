@@ -11,8 +11,12 @@ if(BUILD_UTILS_NETWORK)
             add_library(UtilsNetworkLib SHARED ${UtilsNetworkSources})
     endif()
 
+    target_compile_definitions(UtilsNetworkLib PRIVATE ENGINE_EXPORTS)
 
-    set_target_properties(UtilsNetworkLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    set_target_properties(UtilsNetworkLib PROPERTIES 
+        POSITION_INDEPENDENT_CODE ON
+        WINDOWS_EXPORT_ALL_SYMBOLS TRUE
+    )
 
     # Flagi kompilacji (tylko dla tego targetu)
     target_compile_options(UtilsNetworkLib PRIVATE ${ENGINE_COMPILE_FLAGS})

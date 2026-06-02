@@ -10,6 +10,8 @@ if(BUILD_GAME_ENGINE OR BUILD_GAME)
         add_library(GraphicsApiLib SHARED ${GraphicsApiSources})
     endif()
 
+    target_compile_definitions(GraphicsApiLib PRIVATE ENGINE_EXPORTS)
+
     set_target_properties(GraphicsApiLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
     # Flagi kompilacji

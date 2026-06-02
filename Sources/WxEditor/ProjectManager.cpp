@@ -51,6 +51,7 @@ void ProjectManager::SetProjectPath(const std::filesystem::path& path)
     {
         ReadEditorConfig();
         EngineLocalConf.files.setShaderPath(engineIncludesDir / "Sources");
+        LOG_DEBUG << "Shader path :" << engineIncludesDir / "Sources";
     }
     else
     {

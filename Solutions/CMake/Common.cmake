@@ -12,6 +12,9 @@ if(BUILD_COMMON)
 
     set_target_properties(CommonLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
+    target_compile_definitions(CommonLib PRIVATE ENGINE_EXPORTS)
+    
+
     # Flagi kompilacji (tylko dla tego targetu)
     target_compile_options(CommonLib PRIVATE ${ENGINE_COMPILE_FLAGS})
 

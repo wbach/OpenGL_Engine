@@ -3,12 +3,13 @@
 #include <cstdint>
 #include <functional>
 #include <vector>
+#include "EngineApi.h"
 
 namespace Utils
 {
 namespace Time
 {
-class CTimeMeasurer
+class ENGINE_API CTimeMeasurer
 {
 public:
     using int64  = std::int64_t;
