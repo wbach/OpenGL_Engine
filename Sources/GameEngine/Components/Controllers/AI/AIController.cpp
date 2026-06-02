@@ -19,6 +19,7 @@
 #include "GameEngine/Narrative/FactionManager.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Navigation/NavigationManager.h"
+#include "Utils.h"
 #include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
@@ -48,6 +49,9 @@ AIController::AIController(ComponentContext& componentContext, GameObject& gameO
 {
     impl = std::make_unique<AIController::Impl>();
 }
+AIController::~AIController()
+{
+}
 void AIController::CleanUp()
 {
 }
@@ -71,13 +75,15 @@ void AIController::Init()
     }
     myStats = thisObject_.GetComponent<CharacterStatsComponent>();
 
-    impl->controllerContext_.reset(new AIControllerContext{.gameObject          = thisObject_,
-                                                           .navigationManager   = componentContext_.navigationManager,
-                                                           .characterController = *characterController,
-                                                           .controller          = *this,
-                                                           .anchorPosition_     = thisObject_.GetWorldTransform().GetPosition(),
-                                                           .anchorRotation_     = thisObject_.GetWorldTransform().GetRotation().value_});
+    impl->controllerContext_.reset(
+        new AIControllerContext{.gameObject          = thisObject_,
+                                .navigationManager   = componentContext_.navigationManager,
+                                .characterController = *characterController,
+                                .controller          = *this,
+                                .anchorPosition_     = thisObject_.GetWorldTransform().GetPosition(),
+                                .anchorRotation_     = thisObject_.GetWorldTransform().GetRotation().value_});
 
+    LOG_DEBUG << "Create fsm";
     auto& context       = *impl->controllerContext_;
     impl->stateMachine_ = std::make_unique<AICharacterFsm>(AIAmbientState{}, AIChaseState{context}, AIReturnState{context},
                                                            AIAttackState{context}, AIQuestState{context});
@@ -139,7 +145,11 @@ void AIController::processEvent()
 }
 void AIController::handleEvent(const AIEvent& event)
 {
-    auto passEventToMachine = [&](const auto& e) { impl->stateMachine_->handle(e); };
+    auto passEventToMachine = [&](const auto& e)
+    {
+        LOG_DEBUG << Utils::GetTypeName(e);
+        impl->stateMachine_->handle(e);
+    };
     std::visit(passEventToMachine, event);
 }
 

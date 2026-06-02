@@ -38,6 +38,7 @@ public:
     using EventQueue = std::deque<AIEvent>;
 
     AIController(ComponentContext&, GameObject&);
+    ~AIController();
 
     void CleanUp() override;
     void ReqisterFunctions() override;

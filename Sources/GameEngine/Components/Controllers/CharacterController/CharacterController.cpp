@@ -340,8 +340,9 @@ void CharacterController::PostStart()
 {
     LOG_DEBUG << "PostStart";
     const auto& scale  = thisObject_.GetWorldTransform().GetScale();
-    auto capsuleRadius = shapeSize_ / glm::compMax(vec2(scale.x, scale.z));
 
+    auto capsuleRadius = shapeSize_ / glm::compMax(vec2(scale.x, scale.z));
+        LOG_DEBUG << "PostStart2 " << scale;
     // TO DO : this subcribtion will be invalide when rigibody is removed or deactivated. Use common system in controller for
     // handle state of dependencies
     groundExitSubId = componentContext_.physicsApi_.setCollisionCallback(
@@ -387,7 +388,7 @@ void CharacterController::PostStart()
                 }
             },
         });
-
+        LOG_DEBUG << "PostStart2 " << scale;
     groundEnterSubId = componentContext_.physicsApi_.setCollisionCallback(
         rigidbody_->GetId(),
         Physics::CollisionDetection{.action = Physics::CollisionDetection::Action::onEnter,
@@ -434,6 +435,8 @@ void CharacterController::PostStart()
                                             return (collisionInfo.pos1.y <= characterPosWithOffset.y);
                                         }
                                     }});
+
+    LOG_DEBUG << "PostStart end";
 }
 void CharacterController::processEvent()
 {
