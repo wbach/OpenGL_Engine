@@ -19,16 +19,6 @@ void Read(const TreeNode& node, MovmentClipNames& result)
     Read(node.getChild(CSTR_RIGHT), result.right);
 }
 
-void Read(const TreeNode& node, std::vector<std::string>& result)
-{
-    for (const auto& node : node.getChildren())
-    {
-        std::string str;
-        Read(*node, str);
-        result.push_back(str);
-    }
-}
-
 void Read(const TreeNode& node, GameEngine::AnimSequence& result)
 {
     if (not node.value_.empty())

@@ -136,7 +136,6 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi(std::unique_ptr<Gra
 {
     if (requestedGraphicsApi)
     {
-            LOG_DEBUG << "path " << EngineLocalConf.files.getShaderPath();
         requestedGraphicsApi->SetShadersFilesLocations(EngineLocalConf.files.getShaderPath());
         requestedGraphicsApi->DebugNormalMeshGeneration(EngineConf.debugParams.generateDebugNormalsMeshes);
         return requestedGraphicsApi;
@@ -165,7 +164,6 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi(std::unique_ptr<Gra
     graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
 #endif
 
-    LOG_DEBUG << "path " << EngineLocalConf.files.getShaderPath();
     graphicsApi->SetShadersFilesLocations(EngineLocalConf.files.getShaderPath());
     graphicsApi->DebugNormalMeshGeneration(EngineConf.debugParams.generateDebugNormalsMeshes);
     return graphicsApi;
@@ -323,16 +321,16 @@ void Engine::ProcessEngineEvents()
 
     for (auto& event : events)
     {
-        std::visit(visitor{[&](const SetGameStateFlag& e)
-                           {
-                               engineContext_.GetGameState().setFlag(e.flag, e.value);
-                               engineContext_.GetQuestManager().onSetFlag(e.flag, e.value);
-                           },
-                           [&](const SceneStartedEvent&) { engineContext_.GetQuestManager().onSceneStarted(); },
-                           [&](const QuitEvent& e) { Quit(e); },
-                           [&](const ChangeSceneEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); },
-                           [&](const ChangeSceneConfirmEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); }},
-                   event);
+        std::visit(
+            visitor{[&](const SetGameStateFlag& e)
+                    {
+                        engineContext_.GetGameState().setFlag(e.flag, e.value);
+                        engineContext_.GetQuestManager().onSetFlag(e.flag, e.value);
+                    },
+                    [&](const SceneStartedEvent&) { engineContext_.GetQuestManager().onSceneStarted(); }, [&](const QuitEvent& e)
+                    { Quit(e); }, [&](const ChangeSceneEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); },
+                    [&](const ChangeSceneConfirmEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); }},
+            event);
     }
 }
 

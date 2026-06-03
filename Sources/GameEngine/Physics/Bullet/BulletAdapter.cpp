@@ -213,19 +213,25 @@ ShapeId BulletAdapter::CreateMeshCollider(const PositionOffset& positionOffset, 
 
         for (size_t i = 0; i < indicies.size(); i += 3)
         {
-            auto idx0 = indicies[i];
-            auto idx1 = indicies[i + 1];
-            auto idx2 = indicies[i + 2];
+            if (i + 2 < indicies.size())
+            {
+                auto idx0 = indicies[i];
+                auto idx1 = indicies[i + 1];
+                auto idx2 = indicies[i + 2];
+                if (3 * idx0 + 2 < data.size() and 3 * idx1 + 2 < data.size() and 3 * idx2 + 2 < data.size())
+                {
+                    btVector3 v0(data[3 * idx0], data[3 * idx0 + 1], data[3 * idx0 + 2]);
+                    btVector3 v1(data[3 * idx1], data[3 * idx1 + 1], data[3 * idx1 + 2]);
+                    btVector3 v2(data[3 * idx2], data[3 * idx2 + 1], data[3 * idx2 + 2]);
 
-            btVector3 v0(data[3 * idx0], data[3 * idx0 + 1], data[3 * idx0 + 2]);
-            btVector3 v1(data[3 * idx1], data[3 * idx1 + 1], data[3 * idx1 + 2]);
-            btVector3 v2(data[3 * idx2], data[3 * idx2 + 1], data[3 * idx2 + 2]);
-
-            btMesh->addTriangle(v0, v1, v2);
+                    btMesh->addTriangle(v0, v1, v2);
+                }
+            }
         }
 
         auto meshShape      = std::make_unique<MeshShape>(std::move(btMesh));
-        meshShape->btShape_ = std::make_unique<btBvhTriangleMeshShape>(meshShape->btMesh_.get(), true, true);
+        auto btMeshShapePtr = meshShape->btMesh_.get();
+        meshShape->btShape_ = std::make_unique<btBvhTriangleMeshShape>(btMeshShapePtr, true, true);
         meshShape->btShape_->setLocalScaling(Convert(scale));
         meshShape->positionOffset_ = Convert(positionOffset);
 
@@ -237,7 +243,8 @@ ShapeId BulletAdapter::CreateMeshCollider(const PositionOffset& positionOffset, 
 
         for (size_t i = 0; i < data.size(); i += 3)
         {
-            hullShape->addPoint(btVector3(data[i], data[i + 1], data[i + 2]), false);
+            if (i + 2 < data.size())
+                hullShape->addPoint(btVector3(data[i], data[i + 1], data[i + 2]), false);
         }
 
         hullShape->optimizeConvexHull();
@@ -662,7 +669,7 @@ void BulletAdapter::createWorld()
     btBroadPhase           = std::make_unique<btDbvtBroadphase>();
     btSolver               = std::make_unique<btSequentialImpulseConstraintSolver>();
     btDynamicWorld         = std::make_unique<btDiscreteDynamicsWorld>(btDispacher.get(), btBroadPhase.get(), btSolver.get(),
-                                                               collisionConfiguration.get());
+                                                                       collisionConfiguration.get());
     btDynamicWorld->setGravity(btVector3(0, -10, 0));
 
     bulletDebugDrawer_ = std::make_unique<BulletDebugDrawer>();
@@ -776,22 +783,21 @@ void BulletAdapter::checkCollisions()
             auto result                           = contactTest(*rigidbody);
             if (not collisionDetection.ignoredList.empty())
             {
-                result = Utils::Filter(result,
-                                       [&ignoredList = collisionDetection.ignoredList,
-                                        predicate    = collisionDetection.predicate](const auto& collisionInfo)
-                                       {
-                                           auto iter1  = std::find_if(ignoredList.begin(), ignoredList.end(),
-                                                                      [&collisionInfo](auto ignoredRbId) {
-                                                                         return ignoredRbId == collisionInfo.rigidbodyId1 or
-                                                                                ignoredRbId == collisionInfo.rigidbodyId2;
-                                                                     });
-                                           auto result = (iter1 != ignoredList.end());
-                                           if (result and predicate)
-                                           {
-                                               return predicate(collisionInfo);
-                                           }
-                                           return result;
-                                       });
+                result = Utils::Filter(
+                    result,
+                    [&ignoredList = collisionDetection.ignoredList,
+                     predicate    = collisionDetection.predicate](const auto& collisionInfo)
+                    {
+                        auto iter1 = std::find_if(
+                            ignoredList.begin(), ignoredList.end(), [&collisionInfo](auto ignoredRbId)
+                            { return ignoredRbId == collisionInfo.rigidbodyId1 or ignoredRbId == collisionInfo.rigidbodyId2; });
+                        auto result = (iter1 != ignoredList.end());
+                        if (result and predicate)
+                        {
+                            return predicate(collisionInfo);
+                        }
+                        return result;
+                    });
             }
 
             auto finalCallback = [&, cd = collisionDetection]

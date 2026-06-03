@@ -341,7 +341,6 @@ void Read(TreeNode& node, Params::Files& files)
     };
     if (auto child = node.getChild(CSTR_SHADER_LOCATION))
     {
-        LOG_DEBUG << child->value_;
         files.setShaderPath(child->value_);
     };
     if (auto child = node.getChild(CSTR_LOADING_SCREEN_BACKGROUND))

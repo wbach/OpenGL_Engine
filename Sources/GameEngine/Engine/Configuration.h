@@ -87,5 +87,18 @@ struct ENGINE_API LocalConfiguration
 
 }  // namespace GameEngine
 
+#if defined(_WIN32)
+    #ifdef ENGINE_EXPORTS
+        template class ENGINE_API SingleTon<GameEngine::GlobalConfiguration>;
+        template class ENGINE_API SingleTon<GameEngine::LocalConfiguration>;
+    #else
+        extern template class ENGINE_API SingleTon<GameEngine::GlobalConfiguration>;
+        extern template class ENGINE_API SingleTon<GameEngine::LocalConfiguration>;
+    #endif
+#else
+    template class SingleTon<GameEngine::GlobalConfiguration>;
+    template class SingleTon<GameEngine::LocalConfiguration>;
+#endif
+
 #define EngineConf SingleTon<GameEngine::GlobalConfiguration>::Get()
 #define EngineLocalConf SingleTon<GameEngine::LocalConfiguration>::Get()
