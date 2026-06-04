@@ -48,11 +48,7 @@ bool InputSDL::GetMouseKey(KeyCodes::Type key)
 }
 void InputSDL::SetReleativeMouseMode(bool v)
 {
-    isRelativeMouseMode = v;
-    isCursorVisible     = v;
-    SDL_GetRelativeMouseState(NULL, NULL);
-    SDL_SetRelativeMouseMode(v ? SDL_TRUE : SDL_FALSE);
-    lastMouseMovmentPosition_ = GetPixelMousePosition();
+    pendingRelativeMouseModeChange = v;
 }
 vec2i InputSDL::GetPixelMousePosition()
 {
@@ -103,6 +99,23 @@ void InputSDL::ShowCursor(bool is)
     LOG_DEBUG << is;
     isCursorVisible = is;
     SDL_ShowCursor(is ? SDL_ENABLE : SDL_DISABLE);
+}
+void InputSDL::ApplyPendingChanges()
+{
+    if (pendingRelativeMouseModeChange.has_value())
+    {
+        bool v = *pendingRelativeMouseModeChange;
+
+        isRelativeMouseMode = v;
+        isCursorVisible     = v;
+
+        SDL_GetRelativeMouseState(nullptr, nullptr);
+        SDL_SetRelativeMouseMode(v ? SDL_TRUE : SDL_FALSE);
+
+        lastMouseMovmentPosition_ = GetPixelMousePosition();
+
+        pendingRelativeMouseModeChange = std::nullopt;
+    }
 }
 KeyCodes::Type InputSDL::ConvertCode(uint32 value) const
 {

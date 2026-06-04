@@ -22,6 +22,7 @@ public:
     void SetCursorPosition(int x, int y) override;
     void GetPressedKeys() override;
     void ShowCursor(bool) override;
+    void ApplyPendingChanges() override;
 
 protected:
     KeyCodes::Type ConvertCode(uint32) const override;
@@ -35,7 +36,8 @@ private:
     vec2i windowsSize_;
     bool isRelativeMouseMode;
     vec2i lastMouseMovmentPosition_;
+    std::optional<bool> pendingRelativeMouseModeChange;
     std::set<KeyCodes::Type> keyBuffer;
 };
 
-}  // OpenGLApi
+}  // namespace OpenGLApi

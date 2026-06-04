@@ -57,9 +57,9 @@ struct SdlOpenGlApi::Pimpl
 SdlOpenGlApi::SdlOpenGlApi()
     : inputManager_()
 {
-//#ifdef USE_GNU
+    // #ifdef USE_GNU
     SDL_setenv("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0", 1);
-//#endif
+    // #endif
     impl_ = std::make_unique<Pimpl>();
 }
 
@@ -164,7 +164,6 @@ bool SdlOpenGlApi::CheckActiveWindow()
 void SdlOpenGlApi::ShowCursor(bool show)
 {
     SDL_ShowCursor(show ? SDL_ENABLE : SDL_DISABLE);
-
 }
 
 Input::InputManager& SdlOpenGlApi::GetInputManager()
@@ -272,6 +271,12 @@ void SdlOpenGlApi::BeginFrame()
 void SdlOpenGlApi::ProcessEvents()
 {
     BeginFrame();
+
+    if (inputManager_)
+    {
+        inputManager_->ApplyPendingChanges();
+    }
+
     while (SDL_PollEvent(&impl_->event))
     {
         ProcessSdlEvent();
