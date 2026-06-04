@@ -24,7 +24,7 @@ if(BUILD_WX_EDITOR)
     add_executable(WxEditorExe ${WxEditorSources})
 
     if (WIN32 AND MINGW)
-        target_sources(WxEditorExe PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/app.manifest)
+        target_sources(WxEditorExe PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/resource.rc)
     endif()
 
     target_compile_options(WxEditorExe PRIVATE ${ENGINE_COMPILE_FLAGS})
