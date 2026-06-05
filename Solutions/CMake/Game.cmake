@@ -23,7 +23,7 @@ if(BUILD_GAME)
     # Flagi kompilacji
     target_compile_options(GameExe PRIVATE ${ENGINE_COMPILE_FLAGS})
 
-    
+
     if(WIN32)
         target_link_options(GameExe PRIVATE -Wl,-subsystem,console)
     endif()
@@ -36,6 +36,7 @@ if(BUILD_GAME)
         PUBLIC
             GameEngineLib
             OpenGLApiLib
+            VulkanApiLib
             GraphicsApiLib
             InputLib
             UtilsNetworkLib

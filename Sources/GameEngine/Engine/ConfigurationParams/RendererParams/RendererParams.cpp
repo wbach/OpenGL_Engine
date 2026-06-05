@@ -34,6 +34,9 @@ std::vector<std::string> avaiablesApis()
     result.push_back({"DirectX11"});
 #endif
 #endif
+#ifdef __linux__
+    result.push_back("Vulkan");
+#endif
     return result;
 }
 }  // namespace

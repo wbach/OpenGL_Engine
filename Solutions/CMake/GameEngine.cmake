@@ -71,7 +71,7 @@ if(BUILD_GAME_ENGINE)
 
     target_compile_definitions(GameEngineLib PRIVATE ENGINE_EXPORTS)
 
-    set_target_properties(GameEngineLib PROPERTIES 
+    set_target_properties(GameEngineLib PROPERTIES
         POSITION_INDEPENDENT_CODE ON
         WIN32_EXECUTABLE OFF
         #WINDOWS_EXPORT_ALL_SYMBOLS TRUE
@@ -89,6 +89,7 @@ if(BUILD_GAME_ENGINE)
             assimp::assimp
             ${BULLET_LIBS}
             OpenGLApiLib
+            VulkanApiLib
             GraphicsApiLib
             InputLib
             UtilsNetworkLib

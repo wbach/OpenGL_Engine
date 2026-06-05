@@ -28,6 +28,12 @@
 #else
 #endif
 #include <OpenGLApi/OpenGLApi.h>
+//#include <VulkanApi/VulkanApi.h>
+
+#ifdef __linux__
+#include <VulkanApi/VulkanApi.h>
+#endif
+
 #include <signal.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
@@ -155,16 +161,30 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi(std::unique_ptr<Gra
     {
         graphicsApi = std::make_unique<DirectX::DirectXApi>();
     }
+    else if (EngineConf.renderer.graphicsApi == "Vulkan")
+    {
+        graphicsApi = std::make_unique<GraphicsApi::VulkanApi::VulkanApi>();
+    }
     else
     {
         graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
     }
 #else
-    if (EngineConf.renderer.graphicsApi != "OpenGL")
+    LOG_DEBUG << EngineConf.renderer.graphicsApi.get();
+    if (EngineConf.renderer.graphicsApi == "OpenGL")
     {
-        LOG_ERROR << "GNU support only OpenGL";
+        graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
     }
-    graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
+    #ifdef __linux__
+    else if (EngineConf.renderer.graphicsApi == "Vulkan")
+    {
+        graphicsApi = std::make_unique<GraphicsApi::VulkanApi::VulkanApi>();
+    }
+    #endif
+    else
+    {
+        graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
+    }
 #endif
 
     graphicsApi->SetShadersFilesLocations(EngineLocalConf.files.getShaderPath());
@@ -324,16 +344,16 @@ void Engine::ProcessEngineEvents()
 
     for (auto& event : events)
     {
-        std::visit(
-            visitor{[&](const SetGameStateFlag& e)
-                    {
-                        engineContext_.GetGameState().setFlag(e.flag, e.value);
-                        engineContext_.GetQuestManager().onSetFlag(e.flag, e.value);
-                    },
-                    [&](const SceneStartedEvent&) { engineContext_.GetQuestManager().onSceneStarted(); }, [&](const QuitEvent& e)
-                    { Quit(e); }, [&](const ChangeSceneEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); },
-                    [&](const ChangeSceneConfirmEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); }},
-            event);
+        std::visit(visitor{[&](const SetGameStateFlag& e)
+                           {
+                               engineContext_.GetGameState().setFlag(e.flag, e.value);
+                               engineContext_.GetQuestManager().onSetFlag(e.flag, e.value);
+                           },
+                           [&](const SceneStartedEvent&) { engineContext_.GetQuestManager().onSceneStarted(); },
+                           [&](const QuitEvent& e) { Quit(e); },
+                           [&](const ChangeSceneEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); },
+                           [&](const ChangeSceneConfirmEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); }},
+                   event);
     }
 }
 

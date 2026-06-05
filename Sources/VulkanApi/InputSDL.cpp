@@ -1,0 +1,137 @@
+#include "InputSDL.h"
+
+#include <SDL2/SDL_events.h>
+#include <SDL2/SDL_keyboard.h>
+#include <SDL2/SDL_mouse.h>
+#include <SDL2/SDL_video.h>
+
+#include "Logger/Log.h"
+#include "SdlKeyConverter.h"
+
+namespace VulkanApi
+{
+InputSDL::InputSDL(SDL_Window* sdlWindow)
+    : sdlWindow_(sdlWindow)
+    , isRelativeMouseMode(false)
+    , lastMouseMovmentPosition_(GetPixelMousePosition())
+{
+}
+bool InputSDL::GetKey(KeyCodes::Type key)
+{
+    std::lock_guard<std::mutex> lk(keyBufferMutex_);
+    for (auto k : keyBuffer)
+    {
+        if (k == key)
+            return true;
+    }
+    return false;
+}
+vec2i InputSDL::CalcualteMouseMove()
+{
+    vec2i result;
+    if (isRelativeMouseMode)
+    {
+        SDL_GetRelativeMouseState(&result.x, &result.y);
+    }
+    else
+    {
+        auto currentMousePosition = GetPixelMousePosition();
+        result.x                  = lastMouseMovmentPosition_.x - currentMousePosition.x;
+        result.y                  = lastMouseMovmentPosition_.y - currentMousePosition.y;
+        lastMouseMovmentPosition_ = currentMousePosition;
+    }
+    return result;
+}
+bool InputSDL::GetMouseKey(KeyCodes::Type key)
+{
+    return SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SdlKeyConverter::Convert(key));
+}
+void InputSDL::SetReleativeMouseMode(bool v)
+{
+    pendingRelativeMouseModeChange = v;
+}
+vec2i InputSDL::GetPixelMousePosition()
+{
+    vec2i result;
+    SDL_GetMouseState(&result.x, &result.y);
+    return result;
+}
+vec2 InputSDL::GetMousePosition()
+{
+    auto mousePosition = GetPixelMousePosition();
+    SDL_GetWindowSize(sdlWindow_, &windowsSize_.x, &windowsSize_.y);
+
+    vec2 out;
+    out.x = 2.f * (static_cast<float>(mousePosition.x) / static_cast<float>(windowsSize_.x)) - 1.f;
+    out.y = 1.f - (2.f * (static_cast<float>(mousePosition.y) / static_cast<float>(windowsSize_.y)));
+    return out;
+}
+void InputSDL::SetCursorPosition(int x, int y)
+{
+    SDL_WarpMouseInWindow(sdlWindow_, x, y);
+}
+void InputSDL::GetPressedKeys()
+{
+    std::lock_guard<std::mutex> lk(keyBufferMutex_);
+    keyBuffer.clear();
+    int32 arraySize;
+    const Uint8* state = SDL_GetKeyboardState(&arraySize);
+
+    for (const auto& p : SdlKeyConverter::keys.GetXY())
+    {
+        if (state[p.second])
+        {
+            keyBuffer.insert(p.first);
+        }
+    }
+
+    if (GetMouseKey(KeyCodes::LMOUSE))
+    {
+        keyBuffer.insert(KeyCodes::LMOUSE);
+    }
+    if (GetMouseKey(KeyCodes::RMOUSE))
+    {
+        keyBuffer.insert(KeyCodes::RMOUSE);
+    }
+}
+void InputSDL::ShowCursor(bool is)
+{
+    LOG_DEBUG << is;
+    isCursorVisible = is;
+    SDL_ShowCursor(is ? SDL_ENABLE : SDL_DISABLE);
+}
+void InputSDL::ApplyPendingChanges()
+{
+    if (pendingRelativeMouseModeChange.has_value())
+    {
+        bool v = *pendingRelativeMouseModeChange;
+
+        isRelativeMouseMode = v;
+        isCursorVisible     = v;
+
+        SDL_GetRelativeMouseState(nullptr, nullptr);
+        SDL_SetRelativeMouseMode(v ? SDL_TRUE : SDL_FALSE);
+
+        lastMouseMovmentPosition_ = GetPixelMousePosition();
+
+        pendingRelativeMouseModeChange = std::nullopt;
+    }
+}
+KeyCodes::Type InputSDL::ConvertCode(uint32 value) const
+{
+    return SdlKeyConverter::Convert(value);
+}
+bool InputSDL::IsKeyUpEventType(uint32 type) const
+{
+    return type == SDL_KEYUP;
+}
+bool InputSDL::IsKeyDownEventType(uint32 type) const
+{
+    return type == SDL_KEYDOWN;
+}
+void InputSDL::ClearKeyBuffer()
+{
+    keyBuffer.clear();
+}
+}  // namespace VulkanApi
+

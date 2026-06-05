@@ -39,6 +39,7 @@ if(BUILD_WX_EDITOR)
         PUBLIC
             GameEngineLib
             OpenGLApiLib
+            VulkanApiLib
             GraphicsApiLib
             InputLib
             UtilsNetworkLib

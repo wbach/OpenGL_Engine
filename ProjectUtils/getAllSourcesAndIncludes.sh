@@ -14,18 +14,20 @@ function createSrc()
 }
 
 createSrc Common
-createSrc DirectXApi
-createSrc Game
-createSrc GameEngine
-createSrc GraphicsApi
-createSrc Input
-createSrc OpenGLApi
 createSrc RpgGameServer
-createSrc Tests
-createSrc Benchmark
 createSrc Utils
+createSrc Input
 createSrc UtilsNetwork
-createSrc UtilsNetworkTests
+createSrc GraphicsApi
+createSrc SdlApi
+createSrc DirectXApi
+createSrc OpenGLApi
+createSrc VulkanApi
+createSrc GameEngine
 createSrc WxEditor
+createSrc Game
+createSrc Tests
+createSrc UtilsNetworkTests
+createSrc Benchmark
 
 cd ../../ProjectUtils/

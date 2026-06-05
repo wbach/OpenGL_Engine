@@ -35,6 +35,7 @@ if(BUILD_TESTS)
         PRIVATE
             GameEngineLib
             OpenGLApiLib
+            VulkanApiLib
             GraphicsApiLib
             InputLib
             UtilsNetworkLib
