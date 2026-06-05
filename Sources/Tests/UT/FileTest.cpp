@@ -9,20 +9,36 @@
 
 using namespace GameEngine;
 
+std::string GetTestAbsoluteDataBasePath()
+{
+#ifdef _WIN32
+    return std::filesystem::path("C:/Users/basze/Documents/GitHub/OpenGL_Engine/Data/").lexically_normal().string();
+#else
+    return std::filesystem::path("/home/baszek/Projects/RPG/Data/").lexically_normal().string();
+#endif
+}
+
 TEST(FileTests, DataRelativeCreation)
 {
-    EngineLocalConf.files.setDataPath("/home/baszek/Projects/RPG/Data/");
+    std::string const dataBasePath = GetTestAbsoluteDataBasePath();
+    EngineLocalConf.files.setDataPath(dataBasePath);
+    
     GameEngine::File file("Assets/a/Monk.md5mesh");
-    std::string expected{"/home/baszek/Projects/RPG/Data/Assets/a/Monk.md5mesh"};
+    
+    std::string const expected = (std::filesystem::path(dataBasePath) / "Assets/a/Monk.md5mesh").lexically_normal().string();
 
     EXPECT_EQ(file.GetAbsolutePath(), expected);
 }
 
 TEST(FileTests, AbsolutePathCreation)
 {
-    EngineLocalConf.files.setDataPath("/home/baszek/Projects/RPG/Data/");
-    GameEngine::File file("/home/baszek/Projects/RPG/Data/Assets/a/Monk.md5mesh");
-    std::string expected{"Assets/a/Monk.md5mesh"};
+    std::string const dataBasePath = GetTestAbsoluteDataBasePath();
+    EngineLocalConf.files.setDataPath(dataBasePath);
+    
+    std::filesystem::path const absolutePath = std::filesystem::path(dataBasePath) / "Assets/a/Monk.md5mesh";
+    GameEngine::File file(absolutePath.lexically_normal().string());
+    
+    std::string const expected = std::filesystem::path("Assets/a/Monk.md5mesh").lexically_normal().string();
 
     EXPECT_EQ(file.GetDataRelativePath(), expected);
 }
@@ -40,7 +56,7 @@ TEST(FileTests, DataPathEmpty)
 {
     EngineLocalConf.files.setDataPath("");
     GameEngine::File file("Folder/Blabla/dummy.obj");
-    EXPECT_EQ(file.GetAbsolutePath(), std::filesystem::current_path() / "Folder/Blabla/dummy.obj");
+    EXPECT_EQ(file.GetAbsolutePath(), (std::filesystem::current_path() / "Folder/Blabla/dummy.obj").lexically_normal());
 }
 
 TEST(FileTests, DataPathIsRelative)

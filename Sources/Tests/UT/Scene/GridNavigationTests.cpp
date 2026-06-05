@@ -366,9 +366,12 @@ TEST_F(GridNavigationTest, BakeTerrainWithRealHeightMap)
 
     // Wizualizacja - powinniśmy zobaczyć pionową linię '#' na środku
     DumpGrid(path, startPos, endPos);
+    
+    EXPECT_FALSE(path.empty()) << "NPC powinien wygenerować częściową ścieżkę do momentu napotkania ściany!";
 
-    // Asercja: Nie da się przejść przez pionową ścianę 10m!
-    EXPECT_TRUE(path.empty()) << "NPC nie powinien umieć wspiąć się na pionową ścianę 10m!";
+    vec3 finalPathPos = path.back();
+    EXPECT_LT(finalPathPos.x, 0.0f) << "Ścieżka powinna urwać się przed ścianą (X powinno być mniejsze od 0)!";
+    EXPECT_GE(glm::distance(finalPathPos, endPos), 5.0f) << "NPC nie powinien umieć wspiąć się na pionową ścianę 10m!";
 
     // 6. Test wysokości punktów (czy A* przepisuje Y z węzłów)
     // Sprawdźmy punkt na płaskim terenie

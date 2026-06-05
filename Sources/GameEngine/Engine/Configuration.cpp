@@ -148,4 +148,14 @@ void Files::makeAbolutePath(std::filesystem::path& input)
     input = std::filesystem::absolute(projectPath / input).lexically_normal();
 }
 }  // namespace Params
+
+GlobalConfiguration& GetEngineConf()
+{
+    return SingleTon<GlobalConfiguration>::Get();
+}
+LocalConfiguration& GetEngineLocalConf()
+{
+    return SingleTon<LocalConfiguration>::Get();
+}
+
 }  // namespace GameEngine

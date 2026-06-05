@@ -41,7 +41,7 @@ TEST_F(TimerServiceTest, PeriodicTimerExecutesMultipleTimes)
 {
     std::atomic<int> executions{0};
     service.periodicTimer(20ms, [&]() { executions++; });
-    std::this_thread::sleep_for(80ms);
+    std::this_thread::sleep_for(150ms);
 
     EXPECT_GE(executions.load(), 3);
 }

@@ -277,21 +277,19 @@ std::unordered_map<std::string, std::string> parseArguments(int argc, char* argv
     {
         std::string arg = argv[i];
 
-        // Sprawdzamy, czy argument zaczyna się od "--"
         if (arg.rfind("--", 0) == 0)
         {
-            std::string key = arg.substr(2);  // usuwamy "--"
+            std::string key = arg.substr(2); 
             std::string value;
 
-            // Jeśli kolejny argument istnieje i nie zaczyna się od "--", traktujemy go jako wartość
             if (i + 1 < argc && std::string(argv[i + 1]).rfind("--", 0) != 0)
             {
                 value = argv[i + 1];
-                ++i;  // przesuwamy indeks, bo wartość już wykorzystana
+                ++i; 
             }
             else
             {
-                value = "true";  // jeśli brak wartości, traktujemy jako flagę
+                value = "true"; 
             }
 
             args[key] = value;

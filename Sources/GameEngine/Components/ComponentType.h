@@ -24,13 +24,12 @@ inline const ComponentType NULL_COMPONENT_TYPE{.id = 0u, .name = "global"};
 
 std::ostream& operator<<(std::ostream& os, const ComponentType& type);
 
-ENGINE_API ComponentTypeID GetUniqueComponentID();
+ENGINE_API ComponentType GetOrCreateComponentType(const std::string&);
 
 template <typename T>
 inline ComponentType GetComponentType()
 {
-    static ComponentType type{.id = GetUniqueComponentID(), .name = Utils::GetTypeName<T>()};
-    return type;
+    return GetOrCreateComponentType(Utils::GetTypeName<T>());
 }
 }  // namespace Components
 }  // namespace GameEngine

@@ -41,9 +41,7 @@ if(BUILD_TESTS)
             CommonLib
             UtilsLib
             gtest
-            gtest_main
             gmock
-            gmock_main
             ${UNIX_LINK_LIBS}
             ${BULLET_LIBS}
     )

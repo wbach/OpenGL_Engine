@@ -9,10 +9,11 @@
 int main(int argc, char** argv)
 {
     auto args = Utils::parseArguments(argc, argv);
-
+    std::cout << "Running tests with arguments: " << args << std::endl;
+    
     if (Utils::GetValue(args, "verbose"))
     {
-        CLogger::Instance().EnableLogs(LoggingLvl::ErrorWarningInfoDebug, CLogger::LogMode::SCREEN_ONLY);
+        CLogger::Instance().EnableLogs(LoggingLvl::ErrorWarningInfoDebug, CLogger::LogMode::BOTH);
         CLogger::Instance().UseAsyncLogging(false);
     }
     else

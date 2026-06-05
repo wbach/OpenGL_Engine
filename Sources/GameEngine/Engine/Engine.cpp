@@ -93,7 +93,8 @@ void bt_sighandler(int nSig)
 
 void bt_sighandler(int nSig)
 {
-    /* LOG TO FIX*/ LOG_ERROR << ("print_trace: got signal " + std::to_string(nSig));
+    std::stringstream out;
+    out << "print_trace: got signal " << nSig << '\n';
 
     HANDLE hProcess = GetCurrentProcess();
     SymInitialize(hProcess, NULL, TRUE);
@@ -113,13 +114,15 @@ void bt_sighandler(int nSig)
         DWORD64 displacement = 0;
         if (SymFromAddr(hProcess, addr, &displacement, symbol))
         {
-            /* LOG TO FIX*/ LOG_ERROR << (std::string(symbol->Name) + " [0x" + std::to_string(symbol->Address) + "]");
+            out << (std::string(symbol->Name) + " [0x" + std::to_string(symbol->Address) + "]");
         }
         else
         {
-            /* LOG TO FIX*/ LOG_ERROR << ("Unknown function at [0x" + std::to_string((uintptr_t)addr) + "]");
+            out << ("Unknown function at [0x" + std::to_string((uintptr_t)addr) + "]");
         }
     }
+
+    LOG_ERROR_RAW << out.str();
 
     SymCleanup(hProcess);
 
