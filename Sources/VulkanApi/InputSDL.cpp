@@ -8,7 +8,7 @@
 #include "Logger/Log.h"
 #include "SdlKeyConverter.h"
 
-namespace VulkanApi
+namespace GraphicsApi::Vulkan
 {
 InputSDL::InputSDL(SDL_Window* sdlWindow)
     : sdlWindow_(sdlWindow)
@@ -133,5 +133,4 @@ void InputSDL::ClearKeyBuffer()
 {
     keyBuffer.clear();
 }
-}  // namespace VulkanApi
-
+}  // namespace GraphicsApi::Vulkan

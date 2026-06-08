@@ -7,12 +7,12 @@
 #include "GraphicsApi/WindowApi.hpp"
 #include "VulkanContext.hpp"
 
-namespace VulkanApi
+namespace GraphicsApi::Vulkan
 {
 class SdlVulkanApi : public GraphicsApi::IWindowApi
 {
 public:
-    SdlVulkanApi(GraphicsApi::VulkanContext&);
+    SdlVulkanApi(VulkanContext&);
     ~SdlVulkanApi() override;
 
     void Init() override;
@@ -49,7 +49,7 @@ private:
     void RecreateSwapChain();
 
 private:
-    GraphicsApi::VulkanContext& vkContext;
+    VulkanContext& vkContext;
     struct Pimpl;
     std::unique_ptr<Pimpl> impl;
 

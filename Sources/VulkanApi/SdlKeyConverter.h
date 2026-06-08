@@ -1,9 +1,10 @@
 #pragma once
 #include <Input/KeyCodes.h>
+
 #include "BidirectionalUnorderedMap.h"
 #include "Types.h"
 
-namespace VulkanApi
+namespace GraphicsApi::Vulkan
 {
 typedef BidirectionalUnorderedMap<KeyCodes::Type, uint32> SdlKeysMap;
 
@@ -13,4 +14,4 @@ struct SdlKeyConverter
     static uint32 Convert(KeyCodes::Type);
     static SdlKeysMap keys;
 };
-}  // VulkanApi
+}  // namespace GraphicsApi::Vulkan

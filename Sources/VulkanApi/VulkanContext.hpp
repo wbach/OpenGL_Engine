@@ -2,7 +2,13 @@
 #include <Types.h>
 #include <vulkan/vulkan.h>
 
-namespace GraphicsApi
+#include <functional>
+#include <unordered_map>
+
+#include "IdPool.h"
+#include "VulkanProgram.h"
+
+namespace GraphicsApi::Vulkan
 {
 struct VulkanContext
 {
@@ -25,6 +31,7 @@ struct VulkanContext
     VkExtent2D swapChainExtent;
 
     VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
+    VkSemaphore renderFinishedSemaphore = VK_NULL_HANDLE;
 
     VkRenderPass renderPass = VK_NULL_HANDLE;
     std::vector<VkFramebuffer> framebuffers;
@@ -33,5 +40,10 @@ struct VulkanContext
     std::vector<VkCommandBuffer> commandBuffers;
 
     Color backgroundColor{0.9f, 0.0f, 0.0f, 1.0f};
+
+    std::unordered_map<IdType, VulkanProgram> programs;
+    Utils::IdPool programsPoolId;
+
+    std::function<void (uint32)> renderFrame;
 };
-}  // namespace GraphicsApi
+}  // namespace GraphicsApi::Vulkan

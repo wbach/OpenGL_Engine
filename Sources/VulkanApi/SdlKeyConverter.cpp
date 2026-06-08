@@ -3,7 +3,7 @@
 #include <SDL2/SDL_mouse.h>
 #include <SDL2/SDL_scancode.h>
 
-namespace VulkanApi
+namespace GraphicsApi::Vulkan
 {
 SdlKeysMap SdlKeyConverter::keys = SdlKeysMap({
     // Mysz (SDL używa indeksów przycisków)
@@ -146,4 +146,4 @@ uint32 SdlKeyConverter::Convert(KeyCodes::Type type)
 
     return keys[type];
 }
-}  // namespace VulkanApi
+}  // namespace GraphicsApi::Vulkan

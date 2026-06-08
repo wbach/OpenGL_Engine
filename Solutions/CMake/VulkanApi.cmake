@@ -30,10 +30,13 @@ if(BUILD_GAME_ENGINE OR BUILD_GAME)
     # 4. Wyszukiwanie Vulkana (wymaga CMake 3.7+)
     find_package(Vulkan REQUIRED)
 
+    find_library(SHADERC_LIB shaderc_shared)
+
     # 5. Linkowanie z użyciem oficjalnego targetu nowoczesnego CMake
     target_link_libraries(VulkanApiLib
         PUBLIC
             Vulkan::Vulkan
+            ${SHADERC_LIB}
             InputLib
             UtilsLib
             GraphicsApiLib

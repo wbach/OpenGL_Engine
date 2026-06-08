@@ -12,8 +12,9 @@
 #include <iostream>
 
 #include "InputSDL.h"
+#include "SimpleForwardShaderFiles.h"
 
-namespace VulkanApi
+namespace GraphicsApi::Vulkan
 {
 
 #ifndef USE_GNU
@@ -28,7 +29,7 @@ struct SdlVulkanApi::Pimpl
     SDL_Event event;
 };
 
-SdlVulkanApi::SdlVulkanApi(GraphicsApi::VulkanContext& context)
+SdlVulkanApi::SdlVulkanApi(VulkanContext& context)
     : vkContext(context)
 {
     SDL_setenv("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0", 1);
@@ -563,11 +564,22 @@ void SdlVulkanApi::CreateContext()
         return;
     }
 
+    if (vkCreateSemaphore(vkContext.device, &semaphoreInfo, nullptr, &vkContext.renderFinishedSemaphore) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Blad tworzenia renderFinishedSemaphore!\n";
+    }
+
     LOG_DEBUG << "Sukces: Utworzono Swapchain oraz semafory!";
 }
 void SdlVulkanApi::DeleteContext()
 {
     vkDestroySemaphore(vkContext.device, vkContext.imageAvailableSemaphore, nullptr);
+
+    if (vkContext.renderFinishedSemaphore != VK_NULL_HANDLE)
+    {
+        vkDestroySemaphore(vkContext.device, vkContext.renderFinishedSemaphore, nullptr);
+        vkContext.renderFinishedSemaphore = VK_NULL_HANDLE;
+    }
 
     if (vkContext.device != VK_NULL_HANDLE)
     {
@@ -642,58 +654,19 @@ void SdlVulkanApi::UpdateWindow()
         return;
     }
 
-    // 2. Nagrywanie komendy czyszczenia ekranu na pobranym obrazie
-    VkCommandBuffer commandBuffer = vkContext.commandBuffers[imageIndex];
-
-    VkCommandBufferBeginInfo beginInfo{};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-    if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
+    // 2. WYWOŁANIE CALLBACKU RENDEROWANIA (Cała magia rysowania dzieje się tutaj)
+    if (vkContext.renderFrame)
     {
-        LOG_ERROR << "Blad: Nie udalo sie rozpoczac nagrywania Command Buffera!\n";
-        return;
+        vkContext.renderFrame(imageIndex);
     }
 
-    VkRenderPassBeginInfo renderPassInfo{};
-    renderPassInfo.sType             = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass        = vkContext.renderPass;
-    renderPassInfo.framebuffer       = vkContext.framebuffers[imageIndex];
-    renderPassInfo.renderArea.offset = {0, 0};
-    renderPassInfo.renderArea.extent = vkContext.swapChainExtent;
-
-    // Tutaj definiujesz kolor tła (R, G, B, A) w zakresie 0.0f - 1.0f
-    VkClearValue clearColor        = {{{vkContext.backgroundColor[0], vkContext.backgroundColor[1], vkContext.backgroundColor[2],
-                                        vkContext.backgroundColor[3]}}};
-    renderPassInfo.clearValueCount = 1;
-    renderPassInfo.pClearValues    = &clearColor;
-
-    // Rozpoczęcie Render Passu automatycznie wyczyści ekran zdefiniowanym kolorem
-    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-    vkCmdEndRenderPass(commandBuffer);
-
-    if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
-    {
-        LOG_ERROR << "Blad: Nie udalo sie zakonczyc nagrywania Command Buffera!\n";
-        return;
-    }
-
-    // 3. Wysłanie nagranych poleceń do wykonania przez GPU (Kolejka graficzna)
-    VkSubmitInfo submitInfo{};
-    submitInfo.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers    = &commandBuffer;
-
-    if (vkQueueSubmit(vkContext.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
-    {
-        LOG_ERROR << "Blad podczas wysyłania komend renderowania do kolejki (vkQueueSubmit)!\n";
-        return;
-    }
-
-    // 4. Przygotowanie prezentacji przetworzonego obrazu na ekranie
+    // 3. Przygotowanie prezentacji przetworzonego obrazu na ekranie
     VkPresentInfoKHR presentInfo{};
-    presentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+    // Czekamy na semafor sygnalizujący zakończenie rysowania przez RenderFrame!
     presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores    = &vkContext.imageAvailableSemaphore;
+    presentInfo.pWaitSemaphores    = &vkContext.renderFinishedSemaphore;
 
     VkSwapchainKHR swapChains[] = {vkContext.swapChain};
     presentInfo.swapchainCount  = 1;
@@ -711,9 +684,8 @@ void SdlVulkanApi::UpdateWindow()
         LOG_ERROR << "Blad prezentacji obrazu!\n";
     }
 
-    // Tymczasowa pełna synchronizacja - czekamy, aż GPU skończy całą pracę,
-    // aby bezpiecznie przejść do kolejnej klatki bez ryzyka nadpisania buforów.
-    vkQueueWaitIdle(vkContext.presentQueue);
+    // Czekamy na urządzenie przed kolejną klatką
+    vkDeviceWaitIdle(vkContext.device);
 }
 void SdlVulkanApi::RecreateSwapChain()
 {
@@ -849,4 +821,4 @@ void SdlVulkanApi::RecreateSwapChain()
 
     LOG_DEBUG << "Sukces: Swapchain zrekonstruowany pomyślnie! Nowy rozmiar: " << extent.width << "x" << extent.height;
 }
-}  // namespace VulkanApi
+}  // namespace GraphicsApi::Vulkan

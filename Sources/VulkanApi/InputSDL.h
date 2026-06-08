@@ -6,7 +6,7 @@
 
 struct SDL_Window;
 
-namespace VulkanApi
+namespace GraphicsApi::Vulkan
 {
 class InputSDL : public Input::InputManager
 {
@@ -40,4 +40,4 @@ private:
     std::set<KeyCodes::Type> keyBuffer;
 };
 
-}  // namespace VulkanApi
+}  // namespace GraphicsApi::Vulkan

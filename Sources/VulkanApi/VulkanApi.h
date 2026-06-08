@@ -1,11 +1,14 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include <vulkan/vulkan.h>
+#include <optional>
 
 #include "GraphicsApi/IGraphicsApi.h"
+#include "Types.h"
 #include "VulkanContext.hpp"
+#include "VulkanApi/VulkanContext.hpp"
 
-namespace GraphicsApi::VulkanApi
+namespace GraphicsApi::Vulkan
 {
 class VulkanApi : public IGraphicsApi
 {
@@ -104,12 +107,16 @@ public:
 
 private:
     void InitRendering();
+    void RenderFrame(uint32 imageIndex);
 
 private:
     VulkanContext vkContext;
     std::unique_ptr<GraphicsApi::IWindowApi> windowApi_;
+    std::filesystem::path shadersFileLocation_;
 
     TextureInfo dummyTextureInfo{};
     IFrameBuffer* dummyFrameBuffer = nullptr;
+
+    std::optional<IdType> activePipelineId;
 };
-}  // namespace GraphicsApi::VulkanApi
+}  // namespace GraphicsApi::Vulkan

@@ -159,7 +159,7 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi(std::unique_ptr<Gra
     }
     else if (EngineConf.renderer.graphicsApi == "Vulkan")
     {
-        graphicsApi = std::make_unique<GraphicsApi::VulkanApi::VulkanApi>();
+        graphicsApi = std::make_unique<GraphicsApi::Vulkan::VulkanApi>();
     }
     else
     {
@@ -174,7 +174,7 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi(std::unique_ptr<Gra
     }
     else if (EngineConf.renderer.graphicsApi == "Vulkan")
     {
-        graphicsApi = std::make_unique<GraphicsApi::VulkanApi::VulkanApi>();
+        graphicsApi = std::make_unique<GraphicsApi::Vulkan::VulkanApi>();
     }
     else
     {
