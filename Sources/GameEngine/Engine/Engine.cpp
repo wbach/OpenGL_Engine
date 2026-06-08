@@ -28,11 +28,7 @@
 #else
 #endif
 #include <OpenGLApi/OpenGLApi.h>
-//#include <VulkanApi/VulkanApi.h>
-
-#ifdef __linux__
 #include <VulkanApi/VulkanApi.h>
-#endif
 
 #include <signal.h>
 
@@ -171,16 +167,15 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi(std::unique_ptr<Gra
     }
 #else
     LOG_DEBUG << EngineConf.renderer.graphicsApi.get();
+
     if (EngineConf.renderer.graphicsApi == "OpenGL")
     {
         graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
     }
-    #ifdef __linux__
     else if (EngineConf.renderer.graphicsApi == "Vulkan")
     {
         graphicsApi = std::make_unique<GraphicsApi::VulkanApi::VulkanApi>();
     }
-    #endif
     else
     {
         graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
@@ -195,6 +190,7 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi(std::unique_ptr<Gra
 
 Engine::ConfigurationReader::ConfigurationReader()
 {
+    LOG_DEBUG << "Read configuration from file. EngineConf : " << EngineConf.filename << " EngineLocalConf : " << EngineLocalConf.filename;
     ReadConfigFromFile(EngineConf);
 }
 

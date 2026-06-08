@@ -32,6 +32,7 @@ additionalIncludesDir='
 '$toolsDir'/Windows/gtest/include;
 '$toolsDir'/Windows/gmock/include;
 '$toolsDir'/Windows/Directx/Include/;
+'$toolsDir'/Windows/Vulkan/include;
 '
 
 release64IncludesDir=''$additionalIncludesDir'
@@ -41,6 +42,7 @@ debug64IncludesDir=''$additionalIncludesDir'
 '$toolsDir'/Windows/wxWidgets/x64/Debug/mswud;'
 
 additionalDebug32LibsDir='
+'$toolsDir'/Windows/Vulkan/lib/x86;
 '$toolsDir'/Windows/fbx_sdk/lib/vs2017/x86/debug;
 '$toolsDir'/Windows/assimp-5.0.1/lib/x86/release;
 '$toolsDir'/Windows/GL;
@@ -59,6 +61,7 @@ additionalDebug32LibsDir='
 '$toolsDir'/Windows/wxWidgets/x86/Debug;
 '
 additionalRelease32LibsDir='
+'$toolsDir'/Windows/Vulkan/lib/x86;
 '$toolsDir'/Windows/fbx_sdk/lib/vs2017/x86/release;
 '$toolsDir'/Windows/assimp-5.0.1/lib/x86/release;
 '$toolsDir'/Windows/GL;
@@ -77,6 +80,7 @@ additionalRelease32LibsDir='
 '$toolsDir'/Windows/wxWidgets/x86/Release;
 '
 additionalDebug64LibsDir='
+'$toolsDir'/Windows/Vulkan/lib/x64;
 '$toolsDir'/Windows/fbx_sdk/lib/vs2017/x64/debug;
 '$toolsDir'/Windows/assimp-5.0.1/lib/x64/release;
 '$toolsDir'/Windows/GL;
@@ -95,6 +99,7 @@ additionalDebug64LibsDir='
 '$toolsDir'/Windows/wxWidgets/x64/Debug;
 '
 additionalRelease64LibsDir='
+'$toolsDir'/Windows/Vulkan/lib/;
 '$toolsDir'/Windows/fbx_sdk/lib/vs2017/x64/release;
 '$toolsDir'/Windows/assimp-5.0.1/lib/x64/release;
 '$toolsDir'/Windows/GL;
@@ -268,11 +273,13 @@ xapobase.lib;
 xapobased.lib;
 XAPOFX.lib;
 XInput.lib;
+vulkan-1.lib;
 '
 #'$wxWidgetsReleaseLibs'
 additionalReleaseLibs='
 '$wxWidgetsReleaseLibs'
 '$bulletReleaseLibs'
+vulkan-1.lib;
 libfbxsdk-md.lib;
 libxml2-md.lib;
 zlib-md.lib;

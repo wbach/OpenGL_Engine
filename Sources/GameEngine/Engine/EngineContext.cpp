@@ -30,6 +30,7 @@ EngineContext::EngineContext(std::unique_ptr<GraphicsApi::IGraphicsApi> graphics
     , audioManager(std::make_unique<AudioManager>())
     , questManager_(gameState_, *sceneManager_, [this](const auto& event) { AddEngineEvent(event); })
 {
+    LOG_DEBUG << "EngineContext constructor";
 }
 
 EngineContext::EngineContext(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr<ISceneFactory> sceneFactory,
@@ -51,6 +52,7 @@ EngineContext::EngineContext(std::unique_ptr<Physics::IPhysicsApi> physicsApi, s
     , audioManager(std::make_unique<AudioManager>())
     , questManager_(gameState_, *sceneManager_, [this](const auto& event) { AddEngineEvent(event); })
 {
+    LOG_DEBUG << "EngineContext constructor";
 }
 
 EngineContext::~EngineContext()

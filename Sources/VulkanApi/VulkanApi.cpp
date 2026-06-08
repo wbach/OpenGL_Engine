@@ -13,6 +13,7 @@ namespace GraphicsApi::VulkanApi
 VulkanApi::VulkanApi()
     : windowApi_(std::make_unique<::VulkanApi::SdlVulkanApi>(vkContext))
 {
+    LOG_DEBUG << "";
 }
 
 VulkanApi::~VulkanApi()

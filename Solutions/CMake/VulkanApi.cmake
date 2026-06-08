@@ -21,6 +21,12 @@ if(BUILD_GAME_ENGINE OR BUILD_GAME)
             ${CMAKE_CURRENT_SOURCE_DIR}/Sources/VulkanApi
     )
 
+    if(WIN32)
+        set(LOCAL_VULKAN_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/Windows/Vulkan")
+        set(Vulkan_ROOT "${LOCAL_VULKAN_DIR}")
+        set(Vulkan_FIND_REGISTRY NEVER)
+    endif()
+
     # 4. Wyszukiwanie Vulkana (wymaga CMake 3.7+)
     find_package(Vulkan REQUIRED)
 
