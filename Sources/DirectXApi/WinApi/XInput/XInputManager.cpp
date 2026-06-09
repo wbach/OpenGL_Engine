@@ -1,15 +1,11 @@
 #include "XInputManager.h"
 
-#include <D3DX11.h>
 #include <Logger/Log.h>
 
-#include <algorithm>
 #include <magic_enum/magic_enum.hpp>
-
-#include "Mutex.hpp"
 #include "WinApiKeyConverter.h"
 
-namespace DirectX
+namespace GraphicsApi::Dx11
 {
 XInputManager::XInputManager(HWND windowHwnd, const vec2ui& windowSize)
     : windowHwnd_(windowHwnd)
@@ -147,4 +143,4 @@ bool XInputManager::IsKeyDownEventType(uint32 type) const
 {
     return (type == WM_KEYDOWN);
 }
-}  // namespace DirectX
+}  // namespace GraphicsApi::Dx11

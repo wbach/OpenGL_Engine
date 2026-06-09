@@ -2,7 +2,7 @@
 
 #include <Windows.h>
 
-namespace DirectX
+namespace GraphicsApi::Dx11
 {
 namespace
 {
@@ -140,4 +140,4 @@ const KeysMap& GetKeysMap()
     return keys;
 }
 }  // namespace WinApiKeyConverter
-}  // namespace DirectX
+}  // namespace GraphicsApi::Dx11

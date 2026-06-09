@@ -1,42 +1,45 @@
-#include <D3D11Shader.h>
+#include "DirectXApi.h"
+
+#include <DirectXMath.h>
 #include <d3d11.h>
-// #include <d3dx10.h>
-#include <d3dx11.h>
+#include <d3d11shader.h>
+#include <dxgi.h>
 #include <windows.h>
 #include <windowsx.h>
-#include <xnamath.h>
-#include <cstddef>
-#include <optional>
 
-#include "GraphicsApi/IGraphicsApi.h"
+#include <algorithm>
+#include <cstddef>
+#include <memory>
+#include <optional>
+#include <string>
+#include <vector>
+
 #undef CreateFont
 #undef CreateWindow
+#undef ANYSIZE
+#include <Utils.h>
 #include <Utils/Container.h>
 #include <Utils/Variant.h>
 
-#include <algorithm>
-#include <string>
-
 #include "Buffer.h"
-#include "DirectXApi.h"
 #include "DirectXContext.h"
 #include "DirectXTools.h"
 #include "DxFrameBuffer.h"
 #include "DxShader.h"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "GraphicsApi/MeshRawData.h"
 #include "Logger/Log.h"
 #include "Object.h"
 #include "Shaders/DxForwardShaderFiles.h"
-#include "Utils.h"
 #include "Vao.h"
 #include "Vertex.h"
 #include "WinApi/WinApi.h"
 
-namespace DirectX
+namespace GraphicsApi::Dx11
 {
 namespace
 {
-GraphicsApi::TextureInfo defaultTextureInfo;
+TextureInfo defaultTextureInfo;
 }
 struct Quad : public Vao
 {
@@ -94,7 +97,7 @@ HRESULT InitDevice(DirectXContext &directXContext)
         D3D_DRIVER_TYPE_REFERENCE,
     };
 
-    std::string driverTypesStr[] = {
+    const char *driverTypesStr[] = {
         "D3D_DRIVER_TYPE_HARDWARE",
         "D3D_DRIVER_TYPE_WARP",
         "D3D_DRIVER_TYPE_REFERENCE",
@@ -132,12 +135,12 @@ HRESULT InitDevice(DirectXContext &directXContext)
 
         if (SUCCEEDED(hr))
         {
-            LOG_DEBUG << "Use driver : " + driverTypesStr[driverTypeIndex];
+            LOG_DEBUG << "Use driver : " << driverTypesStr[driverTypeIndex];
             break;
         }
         else
         {
-            LOG_ERROR << "Can not use driver : " + driverTypesStr[driverTypeIndex];
+            LOG_ERROR << "Can not use driver : " << driverTypesStr[driverTypeIndex];
         }
     }
     if (FAILED(hr))
@@ -174,8 +177,8 @@ void Release(T &t)
 
 struct GraphicsApiTextureInfo
 {
-    GraphicsApi::TextureFilter filter{GraphicsApi::TextureFilter::LINEAR};
-    GraphicsApi::TextureMipmap mimap{GraphicsApi::TextureMipmap::LINEAR};
+    TextureFilter filter{TextureFilter::LINEAR};
+    TextureMipmap mimap{TextureMipmap::LINEAR};
 };
 
 bool operator==(const GraphicsApiTextureInfo &a, const GraphicsApiTextureInfo &b)
@@ -204,7 +207,7 @@ public:
     DirectXContext dxContext_;
     std::vector<Buffer> buffers_;
     std::vector<DxShader> shaders_;
-    std::vector<std::unique_ptr<GraphicsApi::IFrameBuffer>> frameBuffers_;
+    std::vector<std::unique_ptr<IFrameBuffer>> frameBuffers_;
     ID3D11RasterizerState *rasterStateCullBack = nullptr;
     ID3D11RasterizerState *rasterStateCullNone = nullptr;
 
@@ -354,7 +357,7 @@ void DirectXApi::EndFrame()
     if (windowApi_)
         windowApi_->UpdateWindow();
 }
-GraphicsApi::IFrameBuffer &DirectXApi::GetDefaultFrameBuffer()
+IFrameBuffer &DirectXApi::GetDefaultFrameBuffer()
 {
     if (impl_->frameBuffers_.empty())
     {
@@ -362,12 +365,12 @@ GraphicsApi::IFrameBuffer &DirectXApi::GetDefaultFrameBuffer()
     }
     return *impl_->frameBuffers_.front();
 }
-GraphicsApi::IFrameBuffer &DirectXApi::CreateFrameBuffer(const std::vector<GraphicsApi::FrameBuffer::Attachment> &)
+IFrameBuffer &DirectXApi::CreateFrameBuffer(const std::vector<FrameBuffer::Attachment> &)
 {
     impl_->frameBuffers_.push_back(std::make_unique<DxFrameBuffer>());
     return *impl_->frameBuffers_.back();
 }
-void DirectXApi::DeleteFrameBuffer(GraphicsApi::IFrameBuffer &frameBuffer)
+void DirectXApi::DeleteFrameBuffer(IFrameBuffer &frameBuffer)
 {
     auto iter = std::find_if(impl_->frameBuffers_.begin(), impl_->frameBuffers_.end(),
                              [id = frameBuffer.GetId()](const auto &bufferPtr) { return bufferPtr->GetId() == id; });
@@ -478,7 +481,7 @@ void DirectXApi::SetShadersFilesLocations(const std::filesystem::path &path)
 {
     shadersFileLocation_ = path / "DirectXApi" / "HLSL";
 }
-void DirectXApi::SetShaderQuaility(GraphicsApi::ShaderQuaility)
+void DirectXApi::SetShaderQuaility(ShaderQuaility)
 {
 }
 void DirectXApi::DebugNormalMeshGeneration(bool)
@@ -498,11 +501,11 @@ bool DirectXApi::IsTesselationSupported() const
 {
     return false;
 }
-std::vector<GraphicsApi::RendererType> DirectXApi::GetSupportedRenderers() const
+std::vector<RendererType> DirectXApi::GetSupportedRenderers() const
 {
-    return {GraphicsApi::RendererType::SIMPLE};
+    return {RendererType::SIMPLE};
 }
-GraphicsApi::IWindowApi &DirectXApi::GetWindowApi()
+IWindowApi &DirectXApi::GetWindowApi()
 {
     return *windowApi_;
 }
@@ -536,7 +539,7 @@ void DirectXApi::DisableDepthTest()
 {
     impl_->dxContext_.devcon->OMSetRenderTargets(1, &impl_->dxContext_.renderTargetView, nullptr);
 }
-GraphicsApi::ID DirectXApi::CreateShader(GraphicsApi::ShaderProgramType shaderType)
+ID DirectXApi::CreateShader(ShaderProgramType shaderType)
 {
     if (not FileNameExist(shaderType))
     {
@@ -547,7 +550,7 @@ GraphicsApi::ID DirectXApi::CreateShader(GraphicsApi::ShaderProgramType shaderTy
 
     DxShader shader;
 
-    auto vsShaderFileName = shadersFileLocation_ / filenames.at(GraphicsApi::ShaderType::VERTEX_SHADER);
+    auto vsShaderFileName = shadersFileLocation_ / filenames.at(ShaderType::VERTEX_SHADER);
     LOG_DEBUG << "Compiling " << vsShaderFileName << "...";
     auto hr = CompileShaderFromFile(vsShaderFileName.string(), "VS", "vs_4_0", &shader.blob_.vertex_);
 
@@ -591,7 +594,7 @@ GraphicsApi::ID DirectXApi::CreateShader(GraphicsApi::ShaderProgramType shaderTy
 
     impl_->dxContext_.devcon->IASetInputLayout(shader.vertexLayout_);
 
-    auto fragmentShaderFile = shadersFileLocation_ / filenames.at(GraphicsApi::ShaderType::FRAGMENT_SHADER);
+    auto fragmentShaderFile = shadersFileLocation_ / filenames.at(ShaderType::FRAGMENT_SHADER);
     LOG_DEBUG << "Compiling " << fragmentShaderFile << "...";
     hr = CompileShaderFromFile(fragmentShaderFile.string(), "PS", "ps_4_0", &shader.blob_.pixel_);
 
@@ -630,7 +633,7 @@ void DirectXApi::UseShader(uint32 id)
     impl_->dxContext_.devcon->IASetInputLayout(shader.vertexLayout_);
 }
 
-GraphicsApi::ID DirectXApi::CreateShaderBuffer(uint32 bindLocation, uint32 size, GraphicsApi::DrawFlag)
+ID DirectXApi::CreateShaderBuffer(uint32 bindLocation, uint32 size, DrawFlag)
 {
     D3D11_BUFFER_DESC bd;
     ZeroMemory(&bd, sizeof(bd));
@@ -652,7 +655,7 @@ GraphicsApi::ID DirectXApi::CreateShaderBuffer(uint32 bindLocation, uint32 size,
 
     return impl_->buffers_.size() - 1;
 }
-GraphicsApi::ID DirectXApi::CreateShaderStorageBuffer(uint32 bindLocation, uint32 size, GraphicsApi::DrawFlag flag)
+ID DirectXApi::CreateShaderStorageBuffer(uint32 bindLocation, uint32 size, DrawFlag flag)
 {
     return {};
     D3D11_BUFFER_DESC bd;
@@ -663,10 +666,10 @@ GraphicsApi::ID DirectXApi::CreateShaderStorageBuffer(uint32 bindLocation, uint3
     // Dla uproszczenia przyjmijmy, że traktujemy to jako surowy bufor bajtów lub musisz znać 'stride'.
     uint32 elementStride = 4;  // To powinno być przekazywane jako parametr, np. sizeof(MyStruct)
 
-    bd.Usage               = (flag == GraphicsApi::DrawFlag::Dynamic) ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_DEFAULT;
+    bd.Usage               = (flag == DrawFlag::Dynamic) ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_DEFAULT;
     bd.ByteWidth           = size;
     bd.BindFlags           = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;  // SRV + UAV
-    bd.CPUAccessFlags      = (flag == GraphicsApi::DrawFlag::Dynamic) ? D3D11_CPU_ACCESS_WRITE : 0;
+    bd.CPUAccessFlags      = (flag == DrawFlag::Dynamic) ? D3D11_CPU_ACCESS_WRITE : 0;
     bd.MiscFlags           = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
     bd.StructureByteStride = elementStride;
 
@@ -766,7 +769,8 @@ uint32 DirectXApi::BindShaderBuffer(uint32 id)
     return 0;  // to do return last binded buffer
 }
 
-ID3D11ShaderResourceView *CreateTexture2DDesc(DirectXContext &context, const vec2ui &size, const void *data, const std::optional<size_t>& pitch)
+ID3D11ShaderResourceView *CreateTexture2DDesc(DirectXContext &context, const vec2ui &size, const void *data,
+                                              const std::optional<size_t> &pitch)
 {
     ID3D11ShaderResourceView *rv;
     ID3D11Texture2D *texture2d;
@@ -788,11 +792,12 @@ ID3D11ShaderResourceView *CreateTexture2DDesc(DirectXContext &context, const vec
     desc.MiscFlags          = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
     D3D11_SUBRESOURCE_DATA subResource;
-    subResource.pSysMem          = data;
+    subResource.pSysMem = data;
     if (pitch)
     {
         subResource.SysMemPitch = *pitch;
-    } else
+    }
+    else
     {
         subResource.SysMemPitch = desc.Width * 4;
     }
@@ -824,10 +829,10 @@ ID3D11ShaderResourceView *CreateTexture2DDesc(DirectXContext &context, const vec
     return rv;
 }
 
-GraphicsApi::ID DirectXApi::CreateTexture(const Utils::Image &image, GraphicsApi::TextureFilter filter,
-                                          GraphicsApi::TextureMipmap mipmap)
+ID DirectXApi::CreateTexture(const Utils::Image &image, TextureFilter filter,
+                                          TextureMipmap mipmap)
 {
-    GraphicsApi::TextureType type{GraphicsApi::TextureType::DEPTH_BUFFER_2D};
+    TextureType type{TextureType::DEPTH_BUFFER_2D};
     auto channels = image.getChannelsCount();
     std::visit(
         visitor{
@@ -836,7 +841,7 @@ GraphicsApi::ID DirectXApi::CreateTexture(const Utils::Image &image, GraphicsApi
                 switch (channels)
                 {
                     case 4:
-                        type = GraphicsApi::TextureType::U8_RGBA;
+                        type = TextureType::U8_RGBA;
                         break;
                     default:
                         LOG_ERROR << "Not implmented.";
@@ -847,16 +852,16 @@ GraphicsApi::ID DirectXApi::CreateTexture(const Utils::Image &image, GraphicsApi
                 switch (channels)
                 {
                     case 1:
-                        type = GraphicsApi::TextureType::FLOAT_TEXTURE_1D;
+                        type = TextureType::FLOAT_TEXTURE_1D;
                         break;
                     case 2:
-                        type = GraphicsApi::TextureType::FLOAT_TEXTURE_2D;
+                        type = TextureType::FLOAT_TEXTURE_2D;
                         break;
                     case 3:
-                        type = GraphicsApi::TextureType::FLOAT_TEXTURE_3D;
+                        type = TextureType::FLOAT_TEXTURE_3D;
                         break;
                     case 4:
-                        type = GraphicsApi::TextureType::FLOAT_TEXTURE_4D;
+                        type = TextureType::FLOAT_TEXTURE_4D;
                         break;
                     default:
                         LOG_ERROR << "Not implmented.";
@@ -866,7 +871,7 @@ GraphicsApi::ID DirectXApi::CreateTexture(const Utils::Image &image, GraphicsApi
         },
         image.getImageData());
 
-    if (type != GraphicsApi::TextureType::U8_RGBA)
+    if (type != TextureType::U8_RGBA)
     {
         LOG_ERROR << "Not implmented.";
         return {};
@@ -881,8 +886,8 @@ GraphicsApi::ID DirectXApi::CreateTexture(const Utils::Image &image, GraphicsApi
     return impl_->AddTexture(resourceview, samplerId);
 }
 
-GraphicsApi::ID DirectXApi::CreateTexture(const std::vector<Utils::Image> &images, GraphicsApi::TextureFilter filter,
-                                          GraphicsApi::TextureMipmap mipmap)
+ID DirectXApi::CreateTexture(const std::vector<Utils::Image> &images, TextureFilter filter,
+                                          TextureMipmap mipmap)
 {
     if (images.empty())
         return {};
@@ -944,11 +949,11 @@ GraphicsApi::ID DirectXApi::CreateTexture(const std::vector<Utils::Image> &image
     return impl_->AddTexture(srv, samplerId);
 }
 
-std::optional<uint32> DirectXApi::CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter, int32)
+std::optional<uint32> DirectXApi::CreateTextureStorage(TextureType, TextureFilter, int32)
 {
     return std::optional<uint32>();
 }
-GraphicsApi::ID DirectXApi::CreateCubMapTexture(const std::array<Utils::Image, 6> &images)
+ID DirectXApi::CreateCubMapTexture(const std::array<Utils::Image, 6> &images)
 {
     DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
     // D3DObjects to create
@@ -1006,8 +1011,8 @@ GraphicsApi::ID DirectXApi::CreateCubMapTexture(const std::array<Utils::Image, 6
         return std::nullopt;
     }
 
-    GraphicsApi::TextureFilter filter{GraphicsApi::TextureFilter::LINEAR};
-    GraphicsApi::TextureMipmap mimap{GraphicsApi::TextureMipmap::NONE};
+    TextureFilter filter{TextureFilter::LINEAR};
+    TextureMipmap mimap{TextureMipmap::NONE};
 
     auto samplerId = impl_->GetSamplerState({filter, mimap});
     return impl_->AddTexture(shaderResourceView, samplerId);
@@ -1027,13 +1032,13 @@ void DirectXApi::UpdateTexture(uint32 id, const Utils::Image &image)
     texture.resourceView_ = CreateTexture2DDesc(impl_->dxContext_, image.size(), image.getRawDataPtr(), image.pitch);
 }
 
-// void DirectXApi::ClearBuffer(GraphicsApi::BufferType type)
+// void DirectXApi::ClearBuffer(BufferType type)
 //{
 //    FLOAT color[] = {0.0f, 0.2f, 0.4f, 1.0f};
-//    if (type == GraphicsApi::BufferType::COLOR)
+//    if (type == BufferType::COLOR)
 //        impl_->dxContext_.devcon->ClearRenderTargetView(impl_->dxContext_.renderTargetView, color);
 //
-//    if (type == GraphicsApi::BufferType::DEPTH)
+//    if (type == BufferType::DEPTH)
 //        impl_->dxContext_.devcon->ClearDepthStencilView(impl_->dxContext_.depthStencilView, D3D11_CLEAR_DEPTH, 1.0f,
 //        0);
 //}
@@ -1096,15 +1101,15 @@ std::string DirectXApi::GetBufferStatus()
 {
     return std::string();
 }
-GraphicsApi::ID DirectXApi::CreatePatchMesh(const std::vector<float> &)
+ID DirectXApi::CreatePatchMesh(const std::vector<float> &)
 {
     return {};
 }
-GraphicsApi::ID DirectXApi::CreatePurePatchMeshInstanced(uint32, uint32)
+ID DirectXApi::CreatePurePatchMeshInstanced(uint32, uint32)
 {
     return {};
 }
-GraphicsApi::ID DirectXApi::CreateMesh(const GraphicsApi::MeshRawData &meshData, GraphicsApi::RenderType rendertype)
+ID DirectXApi::CreateMesh(const MeshRawData &meshData, RenderType rendertype)
 {
     static_assert(sizeof(Vertex) == 76, "Błąd: Struktura Vertex musi mieć dokładnie 76 bajtów dla DX11 Layout!");
 
@@ -1171,15 +1176,15 @@ GraphicsApi::ID DirectXApi::CreateMesh(const GraphicsApi::MeshRawData &meshData,
 
     return impl_->CreateAndAddDxObject(vao);
 }
-GraphicsApi::ID DirectXApi::CreateDynamicLineMesh()
+ID DirectXApi::CreateDynamicLineMesh()
 {
-    return GraphicsApi::ID();
+    return ID();
 }
-GraphicsApi::ID DirectXApi::CreateParticle()
+ID DirectXApi::CreateParticle()
 {
     return {};
 }
-GraphicsApi::ID DirectXApi::CreateAnimatedParticle()
+ID DirectXApi::CreateAnimatedParticle()
 {
     return {};
 }
@@ -1306,10 +1311,10 @@ void DirectXApi::BindTexture(uint32 id) const
     impl_->dxContext_.devcon->PSSetShaderResources(0, 1, &texture.resourceView_);
     impl_->dxContext_.devcon->PSSetSamplers(0, 1, &samplerState.samplerState_);
 }
-void DirectXApi::BindImageTexture(uint32, GraphicsApi::TextureAccess)
+void DirectXApi::BindImageTexture(uint32, TextureAccess)
 {
 }
-GraphicsApi::ID DirectXApi::CreateShadowMap(uint32, uint32)
+ID DirectXApi::CreateShadowMap(uint32, uint32)
 {
     return {};
 }
@@ -1319,18 +1324,18 @@ void DirectXApi::PolygonModeRender()
 void DirectXApi::LineModeRender()
 {
 }
-void DirectXApi::SetBlendFunction(GraphicsApi::BlendFunctionType)
+void DirectXApi::SetBlendFunction(BlendFunctionType)
 {
 }
 void DirectXApi::UpdateMatrixes(uint32, const std::vector<mat4> &)
 {
     LOG_ERROR << "Not implmented.";
 }
-void DirectXApi::UpdateMesh(uint32, const GraphicsApi::MeshRawData &, const std::set<VertexBufferObjects> &)
+void DirectXApi::UpdateMesh(uint32, const MeshRawData &, const std::set<VertexBufferObjects> &)
 {
     LOG_ERROR << "Not implmented.";
 }
-void DirectXApi::UpdateLineMesh(uint32, const GraphicsApi::LineMesh &)
+void DirectXApi::UpdateLineMesh(uint32, const LineMesh &)
 {
     LOG_ERROR << "Not implmented.";
 }
@@ -1358,7 +1363,7 @@ std::vector<uint8> DirectXApi::GetTextureData(uint32) const
 {
     return std::vector<uint8>();
 }
-const GraphicsApi::TextureInfo &DirectXApi::GetTextureInfo(uint32) const
+const TextureInfo &DirectXApi::GetTextureInfo(uint32) const
 {
     return defaultTextureInfo;
 }
@@ -1369,4 +1374,4 @@ std::optional<Utils::Image> DirectXApi::GetImage(IdType) const
 {
     return std::optional<Utils::Image>();
 }
-}  // namespace DirectX
+}  // namespace Dx11

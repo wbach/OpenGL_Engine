@@ -1,9 +1,11 @@
 #pragma once
-#include <D3D11.h>
+#include <d3d11.h>
+
 #include "DirectXTools.h"
 #include "ViewPort.h"
 
-namespace DirectX
+
+namespace GraphicsApi::Dx11
 {
 struct DirectXContext
 {
@@ -31,4 +33,4 @@ struct DirectXContext
         ReleasePtr(rasterState);
     }
 };
-}  // namespace DirectX
+}  // namespace GraphicsApi::Dx11

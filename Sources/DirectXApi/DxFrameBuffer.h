@@ -1,7 +1,7 @@
 #pragma once
 #include <GraphicsApi/IFrameBuffer.h>
 
-namespace DirectX
+namespace GraphicsApi::Dx11
 {
 class DxFrameBuffer : public GraphicsApi::IFrameBuffer
 {
@@ -20,4 +20,4 @@ public:
     std::optional<Utils::Image> GetImage(IdType) const override;
     std::optional<Utils::Image> GetImage(GraphicsApi::FrameBuffer::Type) const override;
 };
-}  // namespace DirectX
+}  // namespace GraphicsApi::Dx11

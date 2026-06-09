@@ -1,13 +1,15 @@
 #pragma once
-#include <D3D11.h>
+#include <d3d11.h>
+
 #include <vector>
+
 #include "Buffer.h"
 #include "DirectXContext.h"
 #include "Types.h"
 #include "Vao.h"
 #include "Vertex.h"
 
-namespace DirectX
+namespace GraphicsApi::Dx11
 {
 class Object
 {
@@ -34,4 +36,4 @@ private:
     const DirectXContext& dxCondext_;
     Vao vao_;
 };
-}  // namespace DirectX
+}  // namespace GraphicsApi::Dx11

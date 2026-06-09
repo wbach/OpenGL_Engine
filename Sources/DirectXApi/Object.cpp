@@ -1,6 +1,6 @@
 #include "Object.h"
-#include <xnamath.h>
-namespace DirectX
+
+namespace GraphicsApi::Dx11
 {
 Object::Object(const DirectXContext& dxCondext, const Vao& vao)
     : stride_(sizeof(Vertex))
@@ -17,7 +17,7 @@ void Object::Bind() const
 }
 void Object::BindVertexBuffer() const
 {
-      dxCondext_.devcon->IASetVertexBuffers(0, 1, &vertexBuffer_.ptr, &stride_, &offset_);
+    dxCondext_.devcon->IASetVertexBuffers(0, 1, &vertexBuffer_.ptr, &stride_, &offset_);
 }
 void Object::Draw() const
 {
@@ -82,7 +82,7 @@ void Object::CreateIndiciesBuffer(const std::vector<Index>& indicies)
     {
         return;
     }
- 
+
     D3D11_BUFFER_DESC bd;
     ZeroMemory(&bd, sizeof(bd));
     D3D11_SUBRESOURCE_DATA InitData;
@@ -101,4 +101,4 @@ void Object::CreateIndiciesBuffer(const std::vector<Index>& indicies)
     }
     Bind();
 }
-}  // namespace DirectX
+}  // namespace GraphicsApi::Dx11

@@ -1,10 +1,10 @@
 #pragma once
 #include "Types.h"
 
-namespace DirectX
+namespace GraphicsApi::Dx11
 {
 struct ViewPort
 {
     vec2ui size;
 };
-}  // namespace DirectX
+}  // namespace GraphicsApi::Dx11

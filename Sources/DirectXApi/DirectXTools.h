@@ -1,18 +1,12 @@
 #pragma once
-//#include <D3D11Shader.h>
-//#include <Windows.h>
-//#include <d3d11.h>
 #include <d3dcompiler.h>
-//#include<d3dx10.h>
-//
 #include <string>
 
-namespace DirectX
+namespace GraphicsApi::Dx11
 {
-HRESULT CompileShaderFromFile(const std::string& filename, LPCSTR szEntryPoint, LPCSTR szShaderModel,
-                              ID3DBlob** ppBlobOut);
+HRESULT CompileShaderFromFile(const std::string& filename, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 
-template<typename T>
+template <typename T>
 void ReleasePtr(T*& ptr)
 {
     if (ptr)
@@ -21,4 +15,4 @@ void ReleasePtr(T*& ptr)
         ptr = nullptr;
     }
 }
-}  // namespace DirectX
+}  // namespace GraphicsApi::Dx11

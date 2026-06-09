@@ -40,6 +40,7 @@ if(BUILD_WX_EDITOR)
             GameEngineLib
             OpenGLApiLib
             VulkanApiLib
+            DirectXApiLib
             GraphicsApiLib
             InputLib
             UtilsNetworkLib

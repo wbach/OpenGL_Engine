@@ -36,6 +36,7 @@ if(BUILD_GAME)
         PUBLIC
             GameEngineLib
             OpenGLApiLib
+            DirectXApiLib
             VulkanApiLib
             GraphicsApiLib
             InputLib

@@ -1,6 +1,6 @@
 #include "DxFrameBuffer.h"
 
-namespace DirectX
+namespace GraphicsApi::Dx11
 {
 bool DxFrameBuffer::Init()
 {
@@ -56,4 +56,4 @@ std::optional<Utils::Image> DxFrameBuffer::GetImage(GraphicsApi::FrameBuffer::Ty
 {
     return std::optional<Utils::Image>();
 }
-}  // namespace DirectX
+}  // namespace GraphicsApi::Dx11

@@ -1,18 +1,15 @@
 #pragma once
+#include <Input/InputManager.h>
+#include <Types.h>
 #include <Windows.h>
 
-#include <bitset>
-#include <optional>
 
-#include "Input/InputManager.h"
-#include "Types.h"
-
-namespace DirectX
+namespace GraphicsApi::Dx11
 {
 class XInputManager : public Input::InputManager
 {
 public:
-    XInputManager(HWND windowHwnd, const vec2ui& windowSize);
+    XInputManager(HWND, const vec2ui&);
     ~XInputManager() override;
 
     bool GetKey(KeyCodes::Type) override;
@@ -42,4 +39,4 @@ private:
     unsigned char keyStates_[256];
 };
 
-}  // namespace DirectX
+}  // namespace GraphicsApi::Dx11

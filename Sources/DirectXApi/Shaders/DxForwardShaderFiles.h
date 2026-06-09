@@ -2,8 +2,8 @@
 #include "GraphicsApi/ShaderFiles.h"
 #include "GraphicsApi/ShaderProgramType.h"
 
-namespace DirectX
+namespace GraphicsApi::Dx11
 {
 GraphicsApi::ShadersFiles GetDxForwardShaderFiles(GraphicsApi::ShaderProgramType shaderType);
 bool FileNameExist(GraphicsApi::ShaderProgramType shaderType);
-}  // namespace DirectX
+}  // namespace GraphicsApi::Dx11

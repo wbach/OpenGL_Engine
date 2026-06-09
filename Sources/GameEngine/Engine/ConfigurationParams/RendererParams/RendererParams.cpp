@@ -29,10 +29,8 @@ namespace
 std::vector<std::string> avaiablesApis()
 {
     std::vector<std::string> result{"OpenGL", "Vulkan"};
-#ifndef USE_GNU
-#ifndef USE_MINGW  // TO DO
+#ifdef _WIN32
     result.push_back({"DirectX11"});
-#endif
 #endif
     return result;
 }

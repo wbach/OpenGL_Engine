@@ -1,7 +1,6 @@
-
 #include "WinApi.h"
 
-#include <D3D11.h>
+#include <d3d11.h>
 #include <Logger/Log.h>
 #include <Utils/IdPool.h>
 #include <Windows.h>
@@ -13,7 +12,7 @@
 
 #undef CreateWindow
 
-namespace DirectX
+namespace GraphicsApi::Dx11
 {
 namespace
 {
@@ -47,17 +46,17 @@ public:
         dispalyModes_ = {{640, 480, 60, 0}, {1280, 800, 60, 0}, {1366, 768, 60, 0}, {1920, 1080, 60, 0}};
     }
 
-    void CreateGameWindow(const std::string& window_name, uint32 width, uint32 height, GraphicsApi::WindowType full_screen)
+    void CreateGameWindow(const std::string& window_name, uint32 width, uint32 height, WindowType full_screen)
     {
-        RECT r{0, 0, width, height};
+        RECT r     = {0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};
         windowSize = {width, height};
         rect_      = r;
         std::wstring wideTitle(window_name.begin(), window_name.end());
 
         AdjustWindowRect(&rect_, WS_OVERLAPPEDWINDOW, FALSE);
-        directXContext_.mainWindow =
-            CreateWindowEx(WS_EX_CLIENTEDGE, mainWindowClassName_, wideTitle.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT,
-                           CW_USEDEFAULT, rect_.right - rect_.left, rect_.bottom - rect_.top, nullptr, nullptr, hInstance_, this);
+        directXContext_.mainWindow = CreateWindowExW(WS_EX_CLIENTEDGE, mainWindowClassName_, wideTitle.c_str(),
+                                                     WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, rect_.right - rect_.left,
+                                                     rect_.bottom - rect_.top, nullptr, nullptr, hInstance_, this);
 
         if (directXContext_.mainWindow != nullptr)
         {
@@ -93,7 +92,7 @@ public:
         directXContext_.swapchain->Present(0, 0);
     }
 
-    IdType SubscribeForEvent(std::function<void(const GraphicsApi::IWindowApi::Event&)> f)
+    IdType SubscribeForEvent(std::function<void(const IWindowApi::Event&)> f)
     {
         std::lock_guard<std::mutex> lk(eventSubscribersMutex_);
         auto id = eventSubscribersEventsPool_.getId();
@@ -111,7 +110,7 @@ public:
         }
     }
 
-    const std::vector<GraphicsApi::DisplayMode>& GetDisplayModes() const
+    const std::vector<DisplayMode>& GetDisplayModes() const
     {
         return dispalyModes_;
     }
@@ -131,14 +130,11 @@ private:
 private:
     Utils::IdPool eventSubscribersEventsPool_;
     std::mutex eventSubscribersMutex_;
-    std::unordered_map<IdType, std::function<void(const GraphicsApi::IWindowApi::Event&)>> eventsSubscribers_;
-
-    uint32 startTime{0};
-    bool fullScreenActive{false};
+    std::unordered_map<IdType, std::function<void(const IWindowApi::Event&)>> eventsSubscribers_;
     vec2ui windowSize{0, 0};
 
     std::function<void(uint32, uint32)> addKeyEvent_;
-    std::vector<GraphicsApi::DisplayMode> dispalyModes_;
+    std::vector<DisplayMode> dispalyModes_;
     std::unique_ptr<Input::InputManager> inputManager_;
 };
 
@@ -197,7 +193,7 @@ LRESULT WinApi::Pimpl::HandleMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
                     std::lock_guard<std::mutex> lk(eventSubscribersMutex_);
                     for (const auto& [_, subscriber] : eventsSubscribers_)
                     {
-                        subscriber(GraphicsApi::DropFileEvent{finalPath});
+                        subscriber(DropFileEvent{finalPath});
                     }
                 }
             }
@@ -252,7 +248,7 @@ LRESULT WinApi::Pimpl::HandleMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
             std::lock_guard<std::mutex> lk(eventSubscribersMutex_);
             for (const auto& [_, subscriber] : eventsSubscribers_)
             {
-                subscriber(GraphicsApi::QuitEvent{});
+                subscriber(QuitEvent{});
             }
 
             DestroyWindow(hwnd);
@@ -325,7 +321,7 @@ void WinApi::Init()
 {
     impl_->Init();
 }
-void WinApi::CreateGameWindow(const std::string& windowName, uint32 width, uint32 height, GraphicsApi::WindowType fullScreen)
+void WinApi::CreateGameWindow(const std::string& windowName, uint32 width, uint32 height, WindowType fullScreen)
 {
     impl_->CreateGameWindow(windowName, width, height, fullScreen);
 }
@@ -351,7 +347,7 @@ void WinApi::UpdateWindow()
 {
     impl_->UpdateWindow();
 }
-IdType WinApi::SubscribeForEvent(std::function<void(const GraphicsApi::IWindowApi::Event&)> f)
+IdType WinApi::SubscribeForEvent(std::function<void(const IWindowApi::Event&)> f)
 {
     return impl_->SubscribeForEvent(f);
 }
@@ -419,8 +415,8 @@ void WinApi::ShowMessageBox(const std::string& title, const std::string& msg, st
     int msgboxID = MessageBoxA(NULL, msg.c_str(), title.c_str(), MB_ICONEXCLAMATION | MB_YESNO);
     func(msgboxID == IDYES);
 }
-const std::vector<GraphicsApi::DisplayMode>& WinApi::GetDisplayModes() const
+const std::vector<DisplayMode>& WinApi::GetDisplayModes() const
 {
     return impl_->GetDisplayModes();
 }
-}  // namespace DirectX
+}  // namespace GraphicsApi::Dx11

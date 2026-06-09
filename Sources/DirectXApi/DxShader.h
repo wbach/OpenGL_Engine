@@ -1,8 +1,10 @@
 #pragma once
-#include <D3D11.h>
+#include <d3d11.h>
+
 #include "DirectXTools.h"
 
-namespace DirectX
+
+namespace GraphicsApi::Dx11
 {
 struct Blob
 {
@@ -30,4 +32,4 @@ struct DxShader
         blob_.Release();
     }
 };
-}  // namespace DirectX
+}  // namespace GraphicsApi::Dx11

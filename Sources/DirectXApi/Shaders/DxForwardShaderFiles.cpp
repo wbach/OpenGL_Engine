@@ -1,6 +1,6 @@
 #include "DxForwardShaderFiles.h"
 
-namespace DirectX
+namespace GraphicsApi::Dx11
 {
 namespace
 {
@@ -75,4 +75,4 @@ bool FileNameExist(GraphicsApi::ShaderProgramType shaderType)
 {
     return shaderFiles.count(shaderType) > 0;
 }
-}  // namespace DirectX
+}  // namespace GraphicsApi::Dx11

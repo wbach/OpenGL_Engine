@@ -2,9 +2,9 @@
 #pragma once
 #include "GraphicsApi/IGraphicsApi.h"
 
-namespace DirectX
+namespace GraphicsApi::Dx11
 {
-class DirectXApi : public GraphicsApi::IGraphicsApi
+class DirectXApi : public IGraphicsApi
 {
 public:
     DirectXApi();
@@ -13,14 +13,14 @@ public:
     void PrepareFrame() override;
     void EndFrame() override;
     void SetShadersFilesLocations(const std::filesystem::path&) override;
-    void SetShaderQuaility(GraphicsApi::ShaderQuaility) override;
+    void SetShaderQuaility(ShaderQuaility) override;
     void DebugNormalMeshGeneration(bool) override;
     void CreateContext() override;
     void DeleteContext() override;
     void PrintVersion() override;
     bool IsTesselationSupported() const override;
-    std::vector<GraphicsApi::RendererType> GetSupportedRenderers() const override;
-    GraphicsApi::IWindowApi& GetWindowApi() override;
+    std::vector<RendererType> GetSupportedRenderers() const override;
+    IWindowApi& GetWindowApi() override;
 
     void SetDefaultTarget() override;
     void SetBackgroundColor(const Color&) override;
@@ -28,11 +28,11 @@ public:
     void EnableDepthTest() override;
     void DisableDepthTest() override;
 
-    GraphicsApi::ID CreateShader(GraphicsApi::ShaderProgramType) override;
+    ID CreateShader(ShaderProgramType) override;
     void UseShader(uint32) override;
 
-    GraphicsApi::ID CreateShaderBuffer(uint32 bindLocation, uint32 size, GraphicsApi::DrawFlag) override;
-    GraphicsApi::ID CreateShaderStorageBuffer(uint32 bindLocation, uint32 size, GraphicsApi::DrawFlag) override;
+    ID CreateShaderBuffer(uint32 bindLocation, uint32 size, DrawFlag) override;
+    ID CreateShaderStorageBuffer(uint32 bindLocation, uint32 size, DrawFlag) override;
     void UpdateShaderBuffer(uint32 id, void const* buffer) override;
     void UpdateShaderStorageBuffer(uint32 id, void const* buffer, uint32 size) override;
     void* MapShaderStorageBuffer(uint32 id, uint32 size, uint32 flags) override;
@@ -40,11 +40,10 @@ public:
 
     uint32 BindShaderBuffer(uint32) override;
 
-    GraphicsApi::ID CreateTexture(const Utils::Image&, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap) override;
-    GraphicsApi::ID CreateTexture(const std::vector<Utils::Image>&, GraphicsApi::TextureFilter,
-                                  GraphicsApi::TextureMipmap) override;
-    std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter, int32) override;
-    GraphicsApi::ID CreateCubMapTexture(const std::array<Utils::Image, 6>&) override;
+    ID CreateTexture(const Utils::Image&, TextureFilter, TextureMipmap) override;
+    ID CreateTexture(const std::vector<Utils::Image>&, TextureFilter, TextureMipmap) override;
+    std::optional<uint32> CreateTextureStorage(TextureType, TextureFilter, int32) override;
+    ID CreateCubMapTexture(const std::array<Utils::Image, 6>&) override;
     void GenerateMipmaps(IdType) override;
     void CopyTexture(IdType src, IdType dst, uint32 width, uint32 height) override;
     void UpdateTexture(uint32, const vec2ui&, const Utils::Image&) override;
@@ -66,12 +65,12 @@ public:
     void DeleteShaderBuffer(const std::vector<uint32>&) override;
 
     std::string GetBufferStatus() override;
-    GraphicsApi::ID CreatePatchMesh(const std::vector<float>&) override;
-    GraphicsApi::ID CreatePurePatchMeshInstanced(uint32, uint32) override;
-    GraphicsApi::ID CreateMesh(const GraphicsApi::MeshRawData&, GraphicsApi::RenderType rendertype) override;
-    GraphicsApi::ID CreateDynamicLineMesh() override;
-    GraphicsApi::ID CreateParticle() override;
-    GraphicsApi::ID CreateAnimatedParticle() override;
+    ID CreatePatchMesh(const std::vector<float>&) override;
+    ID CreatePurePatchMeshInstanced(uint32, uint32) override;
+    ID CreateMesh(const MeshRawData&, RenderType rendertype) override;
+    ID CreateDynamicLineMesh() override;
+    ID CreateParticle() override;
+    ID CreateAnimatedParticle() override;
     void Compute(uint32, uint32, uint32) override;
     void RenderPurePatchedMeshInstances(uint32) override;
     void RenderMesh(uint32) override;
@@ -88,16 +87,16 @@ public:
     void DisableCulling() override;
     void SetViewPort(uint32, uint32, uint32, uint32) override;
     void BindTexture(uint32) const override;
-    void BindImageTexture(uint32, GraphicsApi::TextureAccess) override;
-    GraphicsApi::ID CreateShadowMap(uint32, uint32) override;
+    void BindImageTexture(uint32, TextureAccess) override;
+    ID CreateShadowMap(uint32, uint32) override;
 
     void PolygonModeRender() override;
     void LineModeRender() override;
-    void SetBlendFunction(GraphicsApi::BlendFunctionType) override;
+    void SetBlendFunction(BlendFunctionType) override;
 
     void UpdateMatrixes(uint32, const std::vector<mat4>&) override;
-    void UpdateMesh(uint32, const GraphicsApi::MeshRawData&, const std::set<VertexBufferObjects>&) override;
-    void UpdateLineMesh(uint32, const GraphicsApi::LineMesh&) override;
+    void UpdateMesh(uint32, const MeshRawData&, const std::set<VertexBufferObjects>&) override;
+    void UpdateLineMesh(uint32, const LineMesh&) override;
     void UpdateOffset(uint32, const std::vector<vec4>&) override;
     void UpdateBlend(uint32, const std::vector<float>&) override;
 
@@ -106,13 +105,13 @@ public:
     void DrawLine(const vec3& color, const vec3& from, const vec3& to) override;
     mat4 PrepareMatrixToLoad(const mat4& m) override;
     std::vector<uint8> GetTextureData(uint32) const override;
-    const GraphicsApi::TextureInfo& GetTextureInfo(uint32) const override;
+    const TextureInfo& GetTextureInfo(uint32) const override;
     void TakeSnapshoot(const std::filesystem::path&) const override;
     std::optional<Utils::Image> GetImage(IdType) const override;
 
-    GraphicsApi::IFrameBuffer& GetDefaultFrameBuffer() override;
-    GraphicsApi::IFrameBuffer& CreateFrameBuffer(const std::vector<GraphicsApi::FrameBuffer::Attachment>&) override;
-    void DeleteFrameBuffer(GraphicsApi::IFrameBuffer&) override;
+    IFrameBuffer& GetDefaultFrameBuffer() override;
+    IFrameBuffer& CreateFrameBuffer(const std::vector<FrameBuffer::Attachment>&) override;
+    void DeleteFrameBuffer(IFrameBuffer&) override;
 
 private:
     void InitRenderTarget();
@@ -123,11 +122,11 @@ private:
 private:
     class Pimpl;
     std::unique_ptr<Pimpl> impl_;
-    std::unique_ptr<GraphicsApi::IWindowApi> windowApi_;
+    std::unique_ptr<IWindowApi> windowApi_;
 
 private:
     float bgColor_[4];
     Color bgColor;
     std::filesystem::path shadersFileLocation_;
 };
-}  // namespace DirectX
+}  // namespace GraphicsApi::Dx11

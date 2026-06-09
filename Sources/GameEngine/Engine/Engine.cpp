@@ -3,12 +3,17 @@
 #include <GraphicsApi/IGraphicsApi.h>
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
+#include <OpenGLApi/OpenGLApi.h>
 #include <Utils/IThreadSync.h>
 #include <Utils/ThreadSubscriber.h>
 #include <Utils/Variant.h>
+#include <VulkanApi/VulkanApi.h>
+#include <signal.h>
 
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <memory>
 #include <sstream>
+#include <string>
 #include <utility>
 
 #include "Configuration.h"
@@ -17,24 +22,9 @@
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
-#include "GameEngine/Resources/IResourceManagerFactory.h"
-
-#ifndef USE_GNU
-#ifndef USE_MINGW  // TO DO
-#include <DirectXApi/DirectXApi.h>
-#endif
-#include <shlobj.h>
-#include <windows.h>
-#else
-#endif
-#include <OpenGLApi/OpenGLApi.h>
-#include <VulkanApi/VulkanApi.h>
-
-#include <signal.h>
-
-#include <Utils/FileSystem/FileSystemUtils.hpp>
 
 #ifdef USE_GNU
+#include <cxxabi.h>
 #include <execinfo.h>
 
 void bt_sighandler(int nSig)
@@ -87,11 +77,13 @@ void bt_sighandler(int nSig)
     exit(-1);
 }
 #else
+
+#include <DirectXApi/DirectXApi.h>
+// clang-format off
+#include <windows.h>
 #include <dbghelp.h>
-
-#include <string>
-
-#pragma comment(lib, "dbghelp.lib")
+#include <shlobj.h>
+// clang-format on
 
 void bt_sighandler(int nSig)
 {
@@ -132,7 +124,6 @@ void bt_sighandler(int nSig)
     raise(nSig);
 }
 #endif
-
 namespace GameEngine
 {
 namespace
@@ -148,39 +139,24 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi(std::unique_ptr<Gra
 
     std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi;
 
-#if !defined(USE_GNU) && !defined(USE_MINGW)
     if (EngineConf.renderer.graphicsApi == "OpenGL")
     {
         graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
     }
+    else if (EngineConf.renderer.graphicsApi == "Vulkan")
+    {
+        graphicsApi = std::make_unique<GraphicsApi::Vulkan::VulkanApi>();
+    }
+#ifdef _WIN32
     else if (EngineConf.renderer.graphicsApi == "DirectX11")
     {
-        graphicsApi = std::make_unique<DirectX::DirectXApi>();
-    }
-    else if (EngineConf.renderer.graphicsApi == "Vulkan")
-    {
-        graphicsApi = std::make_unique<GraphicsApi::Vulkan::VulkanApi>();
-    }
-    else
-    {
-        graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
-    }
-#else
-    LOG_DEBUG << EngineConf.renderer.graphicsApi.get();
-
-    if (EngineConf.renderer.graphicsApi == "OpenGL")
-    {
-        graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
-    }
-    else if (EngineConf.renderer.graphicsApi == "Vulkan")
-    {
-        graphicsApi = std::make_unique<GraphicsApi::Vulkan::VulkanApi>();
-    }
-    else
-    {
-        graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
+        graphicsApi = std::make_unique<GraphicsApi::Dx11::DirectXApi>();
     }
 #endif
+    else
+    {
+        graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
+    }
 
     graphicsApi->SetShadersFilesLocations(EngineLocalConf.files.getShaderPath());
     graphicsApi->DebugNormalMeshGeneration(EngineConf.debugParams.generateDebugNormalsMeshes);
@@ -190,7 +166,8 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi(std::unique_ptr<Gra
 
 Engine::ConfigurationReader::ConfigurationReader()
 {
-    LOG_DEBUG << "Read configuration from file. EngineConf : " << EngineConf.filename << " EngineLocalConf : " << EngineLocalConf.filename;
+    LOG_DEBUG << "Read configuration from file. EngineConf : " << EngineConf.filename
+              << " EngineLocalConf : " << EngineLocalConf.filename;
     ReadConfigFromFile(EngineConf);
 }
 
@@ -340,16 +317,16 @@ void Engine::ProcessEngineEvents()
 
     for (auto& event : events)
     {
-        std::visit(visitor{[&](const SetGameStateFlag& e)
-                           {
-                               engineContext_.GetGameState().setFlag(e.flag, e.value);
-                               engineContext_.GetQuestManager().onSetFlag(e.flag, e.value);
-                           },
-                           [&](const SceneStartedEvent&) { engineContext_.GetQuestManager().onSceneStarted(); },
-                           [&](const QuitEvent& e) { Quit(e); },
-                           [&](const ChangeSceneEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); },
-                           [&](const ChangeSceneConfirmEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); }},
-                   event);
+        std::visit(
+            visitor{[&](const SetGameStateFlag& e)
+                    {
+                        engineContext_.GetGameState().setFlag(e.flag, e.value);
+                        engineContext_.GetQuestManager().onSetFlag(e.flag, e.value);
+                    },
+                    [&](const SceneStartedEvent&) { engineContext_.GetQuestManager().onSceneStarted(); }, [&](const QuitEvent& e)
+                    { Quit(e); }, [&](const ChangeSceneEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); },
+                    [&](const ChangeSceneConfirmEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); }},
+            event);
     }
 }
 

@@ -1,9 +1,8 @@
 #pragma once
 
-namespace DirectX
+namespace GraphicsApi::Dx11
 {
 class ShaderManager
 {
-
 };
-}  // namespace DirectX
+}  // namespace GraphicsApi::Dx11

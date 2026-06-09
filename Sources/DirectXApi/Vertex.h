@@ -1,7 +1,7 @@
 #pragma once
 #include "Types.h"
 
-namespace DirectX
+namespace GraphicsApi::Dx11
 {
 #pragma pack(push, 1)
 struct Vertex
@@ -14,4 +14,4 @@ struct Vertex
     vec4i bonesIds;
 };
 #pragma pack(pop)
-}  // namespace DirectX
+}  // namespace GraphicsApi::Dx11
