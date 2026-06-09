@@ -1,5 +1,6 @@
 #include "VulkanShaderCompiler.h"
 
+#include <Types.h>
 #include <vulkan/vulkan.h>
 
 #include <fstream>

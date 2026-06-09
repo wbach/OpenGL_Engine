@@ -46,6 +46,8 @@ public:
 
     virtual IWindowApi& GetWindowApi()                                                                                 = 0;
     virtual void Init()                                                                                                = 0;
+    virtual void PrepareFrame()                                                                                        = 0;
+    virtual void EndFrame()                                                                                            = 0;
     virtual void SetShadersFilesLocations(const std::filesystem::path&)                                                = 0;
     virtual void DebugNormalMeshGeneration(bool)                                                                       = 0;
     virtual void SetShaderQuaility(ShaderQuaility)                                                                     = 0;
@@ -59,7 +61,6 @@ public:
     virtual const Color& GetBackgroundColor() const                                                                    = 0;
     virtual void EnableDepthTest()                                                                                     = 0;
     virtual void DisableDepthTest()                                                                                    = 0;
-    virtual void PrepareFrame()                                                                                        = 0;
     virtual ID CreateShader(ShaderProgramType)                                                                         = 0;
     virtual ID CreateShaderBuffer(uint32 bindLocation, uint32 size, DrawFlag)                                          = 0;
     virtual ID CreateShaderStorageBuffer(uint32 bindLocation, uint32 size, DrawFlag)                                   = 0;

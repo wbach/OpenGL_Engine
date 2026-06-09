@@ -204,6 +204,16 @@ GIMPACTUtils.lib;
 HACD.lib;
 LinearMath.lib;
 '
+
+vulkanReleaseLibs='
+vulkan-1.lib;
+shaderc_combined.lib;
+SPIRV.lib;
+spirv-cross-core.lib;
+spirv-cross-glsl.lib;
+spirv-reflect-static.lib;
+'
+
 bulletDebugLibs='
 Bullet2FileLoader_Debug.lib;
 BulletInverseDynamicsUtils_Debug.lib;
@@ -279,7 +289,7 @@ vulkan-1.lib;
 additionalReleaseLibs='
 '$wxWidgetsReleaseLibs'
 '$bulletReleaseLibs'
-vulkan-1.lib;
+'$vulkanReleaseLibs'
 libfbxsdk-md.lib;
 libxml2-md.lib;
 zlib-md.lib;

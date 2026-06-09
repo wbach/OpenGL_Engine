@@ -1,9 +1,7 @@
 if(BUILD_GAME_ENGINE OR BUILD_GAME)
 
-    # 1. Dołączenie listy plików źródłowych
     include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/VulkanApiSources.cmake)
 
-    # 2. Tworzenie biblioteki (STATIC/SHARED)
     if(MSVC)
         add_library(VulkanApiLib STATIC ${VulkanApiSources})
     else()
@@ -15,7 +13,6 @@ if(BUILD_GAME_ENGINE OR BUILD_GAME)
     target_compile_definitions(VulkanApiLib PRIVATE ENGINE_EXPORTS)
     target_compile_options(VulkanApiLib PRIVATE ${ENGINE_COMPILE_FLAGS})
 
-    # 3. Poprawiona ścieżka do nagłówków (zmieniono z VulkanApiSources na katalog z nagłówkami)
     target_include_directories(VulkanApiLib
         PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR}/Sources/VulkanApi
@@ -25,21 +22,22 @@ if(BUILD_GAME_ENGINE OR BUILD_GAME)
         set(LOCAL_VULKAN_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/Windows/Vulkan")
         set(Vulkan_ROOT "${LOCAL_VULKAN_DIR}")
         set(Vulkan_FIND_REGISTRY NEVER)
+        find_library(SHADERC_LIB shaderc_shared HINTS "${LOCAL_VULKAN_DIR}/Lib")
+        target_include_directories(VulkanApiLib PRIVATE "${LOCAL_VULKAN_DIR}/Include")
+    else()
+        find_library(SHADERC_LIB shaderc_shared)
     endif()
 
-    # 4. Wyszukiwanie Vulkana (wymaga CMake 3.7+)
     find_package(Vulkan REQUIRED)
 
-    find_library(SHADERC_LIB shaderc_shared)
-
-    # 5. Linkowanie z użyciem oficjalnego targetu nowoczesnego CMake
     target_link_libraries(VulkanApiLib
         PUBLIC
             Vulkan::Vulkan
-            ${SHADERC_LIB}
             InputLib
             UtilsLib
             GraphicsApiLib
+        PRIVATE
+            ${SHADERC_LIB}
     )
 
     if(WIN32)

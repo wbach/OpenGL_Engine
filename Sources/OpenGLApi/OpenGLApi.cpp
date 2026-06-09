@@ -150,8 +150,7 @@ void GL_APIENTRY OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLen
     LOG_ERROR << "Message: " << message;
     LOG_ERROR << "ID: " << id;
 
-    LOG_ERROR << "Source: "
-              << [&]()
+    LOG_ERROR << "Source: " << [&]()
     {
         switch (source)
         {
@@ -170,8 +169,7 @@ void GL_APIENTRY OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLen
         }
     }();
 
-    LOG_ERROR << "Type: "
-              << [&]()
+    LOG_ERROR << "Type: " << [&]()
     {
         switch (type)
         {
@@ -190,8 +188,7 @@ void GL_APIENTRY OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLen
         }
     }();
 
-    LOG_ERROR << "Severity: "
-              << [&]()
+    LOG_ERROR << "Severity: " << [&]()
     {
         switch (severity)
         {
@@ -343,6 +340,11 @@ void OpenGLApi::Init()
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glDebugMessageCallback(OpenGLDebugCallback, 0);
     LOG_DEBUG << "Init done.";
+}
+void OpenGLApi::EndFrame()
+{
+    if (windowApi_)
+        windowApi_->UpdateWindow();
 }
 void OpenGLApi::SetShadersFilesLocations(const std::filesystem::path& path)
 {

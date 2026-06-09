@@ -17,6 +17,8 @@ public:
 
     MOCK_METHOD(IWindowApi&, GetWindowApi, (), (override));
     MOCK_METHOD(void, Init, (), (override));
+    MOCK_METHOD(void, PrepareFrame, (), (override));
+    MOCK_METHOD(void, EndFrame, (), (override));
     MOCK_METHOD(void, SetShadersFilesLocations, (const std::filesystem::path&), (override));
     MOCK_METHOD(void, DebugNormalMeshGeneration, (bool), (override));
     MOCK_METHOD(void, SetShaderQuaility, (ShaderQuaility), (override));
@@ -30,7 +32,6 @@ public:
     MOCK_METHOD(const Color&, GetBackgroundColor, (), (const, override));
     MOCK_METHOD(void, EnableDepthTest, (), (override));
     MOCK_METHOD(void, DisableDepthTest, (), (override));
-    MOCK_METHOD(void, PrepareFrame, (), (override));
     MOCK_METHOD(ID, CreateShader, (ShaderProgramType), (override));
     MOCK_METHOD(ID, CreateShaderBuffer, (uint32 bindLocation, uint32 size, GraphicsApi::DrawFlag), (override));
     MOCK_METHOD(ID, CreateShaderStorageBuffer, (uint32 bindLocation, uint32 size, GraphicsApi::DrawFlag), (override));

@@ -19,7 +19,7 @@ VkShaderModule CreateShaderModule(VulkanContext& context, const std::vector<uint
 {
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    createInfo.codeSize = code.size() * sizeof(uint32_t);  // Rozmiar w bajtach!
+    createInfo.codeSize = code.size() * sizeof(uint32_t);
     createInfo.pCode    = code.data();
 
     VkShaderModule shaderModule = VK_NULL_HANDLE;
@@ -37,8 +37,6 @@ VulkanApi::VulkanApi()
     : windowApi_(std::make_unique<SdlVulkanApi>(vkContext))
 {
     LOG_DEBUG << "";
-
-    vkContext.renderFrame = [this](auto index) { RenderFrame(index); };
 }
 
 VulkanApi::~VulkanApi()
@@ -53,6 +51,59 @@ IWindowApi& VulkanApi::GetWindowApi()
 
 void VulkanApi::Init()
 {
+}
+
+void VulkanApi::EndFrame()
+{
+
+    if (vkContext.swapChain == VK_NULL_HANDLE)
+        return;
+
+    uint32 imageIndex = 0;
+
+    // 1. Pobranie indeksu wolnego obrazu ze Swapchaina
+    VkResult result = vkAcquireNextImageKHR(vkContext.device, vkContext.swapChain, UINT64_MAX, vkContext.imageAvailableSemaphore,
+                                            VK_NULL_HANDLE, &imageIndex);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR)
+    {
+        windowApi_->RecreateSwapChain();
+        return;
+    }
+    else if (result != VK_SUCCESS and result != VK_SUBOPTIMAL_KHR)
+    {
+        LOG_ERROR << "Blad podczas pobierania obrazu ze Swapchaina! Kod bledu: " << result;
+        return;
+    }
+
+    RenderFrame(imageIndex);
+
+    // 3. Przygotowanie prezentacji przetworzonego obrazu na ekranie
+    VkPresentInfoKHR presentInfo{};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+    // Czekamy na semafor sygnalizujący zakończenie rysowania przez RenderFrame!
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores    = &vkContext.renderFinishedSemaphore;
+
+    VkSwapchainKHR swapChains[] = {vkContext.swapChain};
+    presentInfo.swapchainCount  = 1;
+    presentInfo.pSwapchains     = swapChains;
+    presentInfo.pImageIndices   = &imageIndex;
+
+    result = vkQueuePresentKHR(vkContext.presentQueue, &presentInfo);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR or result == VK_SUBOPTIMAL_KHR)
+    {
+        windowApi_->RecreateSwapChain();
+    }
+    else if (result != VK_SUCCESS)
+    {
+        LOG_ERROR << "Blad prezentacji obrazu!\n";
+    }
+
+    // Czekamy na urządzenie przed kolejną klatką
+    vkDeviceWaitIdle(vkContext.device);
 }
 
 void VulkanApi::CreateContext()
@@ -244,7 +295,7 @@ ID VulkanApi::CreateShader(ShaderProgramType type)
     auto fragPathFullPath = std::filesystem::absolute(shadersFileLocation_ / fragPath).lexically_normal();
 
     std::string vertCode = ReadTextFile(vertPathFullPath.string());
-    std::string fragCode = ReadTextFile(fragPathFullPath);
+    std::string fragCode = ReadTextFile(fragPathFullPath.string());
 
     if (vertCode.empty() or fragCode.empty())
     {
@@ -693,8 +744,8 @@ void VulkanApi::RenderFrame(uint32 imageIndex)
     renderPassInfo.renderArea.extent = vkContext.swapChainExtent;
 
     // Pobieramy kolor tła z konfiguracji silnika
-    VkClearValue clearColor = {{{vkContext.backgroundColor[0], vkContext.backgroundColor[1], vkContext.backgroundColor[2],
-                                 vkContext.backgroundColor[3]}}};
+    VkClearValue clearColor        = {{{vkContext.backgroundColor[0], vkContext.backgroundColor[1], vkContext.backgroundColor[2],
+                                        vkContext.backgroundColor[3]}}};
     renderPassInfo.clearValueCount = 1;
     renderPassInfo.pClearValues    = &clearColor;
 
@@ -715,8 +766,8 @@ void VulkanApi::RenderFrame(uint32 imageIndex)
 
         for (const VulkanDrawCall& drawCall : program.drawCalls)
         {
-              vkCmdDraw(commandBuffer, 3, 1, 0, 0);
-            //vkCmdDraw(commandBuffer, program.vertexCount, 1, 0, 0);
+            vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+            // vkCmdDraw(commandBuffer, program.vertexCount, 1, 0, 0);
         }
 
         program.drawCalls.clear();
@@ -736,8 +787,8 @@ void VulkanApi::RenderFrame(uint32 imageIndex)
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
     // Czekaj z rysowaniem, aż obraz będzie wolny (imageAvailable)
-    VkSemaphore waitSemaphores[]      = { vkContext.imageAvailableSemaphore };
-    VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+    VkSemaphore waitSemaphores[]      = {vkContext.imageAvailableSemaphore};
+    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     submitInfo.waitSemaphoreCount     = 1;
     submitInfo.pWaitSemaphores        = waitSemaphores;
     submitInfo.pWaitDstStageMask      = waitStages;
@@ -746,9 +797,9 @@ void VulkanApi::RenderFrame(uint32 imageIndex)
     submitInfo.pCommandBuffers    = &commandBuffer;
 
     // Sygnalizuj semafor renderFinished, kiedy GPU skończy rysować geometrię
-    VkSemaphore signalSemaphores[]    = { vkContext.renderFinishedSemaphore };
-    submitInfo.signalSemaphoreCount   = 1;
-    submitInfo.pSignalSemaphores      = signalSemaphores;
+    VkSemaphore signalSemaphores[]  = {vkContext.renderFinishedSemaphore};
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores    = signalSemaphores;
 
     if (vkQueueSubmit(vkContext.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
     {

@@ -43,7 +43,5 @@ struct VulkanContext
 
     std::unordered_map<IdType, VulkanProgram> programs;
     Utils::IdPool programsPoolId;
-
-    std::function<void (uint32)> renderFrame;
 };
 }  // namespace GraphicsApi::Vulkan

@@ -21,6 +21,8 @@ public:
     OpenGLApi(std::unique_ptr<GraphicsApi::IWindowApi>);
     ~OpenGLApi();
     void Init() override;
+    void PrepareFrame() override;
+    void EndFrame() override;
     void SetShadersFilesLocations(const std::filesystem::path&) override;
     void DebugNormalMeshGeneration(bool) override;
     void SetShaderQuaility(GraphicsApi::ShaderQuaility) override;
@@ -31,7 +33,6 @@ public:
     bool IsTesselationSupported() const override;
     GraphicsApi::IWindowApi& GetWindowApi() override;
 
-    void PrepareFrame() override;
     void SetDefaultTarget() override;
     void SetBackgroundColor(const Color&) override;
     const Color& GetBackgroundColor() const override;

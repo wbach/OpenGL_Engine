@@ -9,11 +9,8 @@
 #include <vulkan/vulkan_core.h>
 
 #include <cassert>
-#include <iostream>
 
 #include "InputSDL.h"
-#include "SimpleForwardShaderFiles.h"
-
 namespace GraphicsApi::Vulkan
 {
 
@@ -61,9 +58,6 @@ void SdlVulkanApi::CreateGameWindow(const std::string& window_name, uint32 width
     int w, h;
     SDL_Vulkan_GetDrawableSize(impl->window, &w, &h);
     windowSize_ = vec2ui(static_cast<uint32>(w), static_cast<uint32>(h));
-
-    //    windowSize_ = vec2ui(width, height);
-    //  windowSize_ = GetWindowSize();
 }
 
 void SdlVulkanApi::SetWindowSize(const vec2ui& size)
@@ -634,58 +628,7 @@ void SdlVulkanApi::DeleteContext()
 }
 void SdlVulkanApi::UpdateWindow()
 {
-    if (vkContext.swapChain == VK_NULL_HANDLE)
-        return;
 
-    uint32 imageIndex = 0;
-
-    // 1. Pobranie indeksu wolnego obrazu ze Swapchaina
-    VkResult result = vkAcquireNextImageKHR(vkContext.device, vkContext.swapChain, UINT64_MAX, vkContext.imageAvailableSemaphore,
-                                            VK_NULL_HANDLE, &imageIndex);
-
-    if (result == VK_ERROR_OUT_OF_DATE_KHR)
-    {
-        RecreateSwapChain();
-        return;
-    }
-    else if (result != VK_SUCCESS and result != VK_SUBOPTIMAL_KHR)
-    {
-        LOG_ERROR << "Blad podczas pobierania obrazu ze Swapchaina! Kod bledu: " << result;
-        return;
-    }
-
-    // 2. WYWOŁANIE CALLBACKU RENDEROWANIA (Cała magia rysowania dzieje się tutaj)
-    if (vkContext.renderFrame)
-    {
-        vkContext.renderFrame(imageIndex);
-    }
-
-    // 3. Przygotowanie prezentacji przetworzonego obrazu na ekranie
-    VkPresentInfoKHR presentInfo{};
-    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
-    // Czekamy na semafor sygnalizujący zakończenie rysowania przez RenderFrame!
-    presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores    = &vkContext.renderFinishedSemaphore;
-
-    VkSwapchainKHR swapChains[] = {vkContext.swapChain};
-    presentInfo.swapchainCount  = 1;
-    presentInfo.pSwapchains     = swapChains;
-    presentInfo.pImageIndices   = &imageIndex;
-
-    result = vkQueuePresentKHR(vkContext.presentQueue, &presentInfo);
-
-    if (result == VK_ERROR_OUT_OF_DATE_KHR or result == VK_SUBOPTIMAL_KHR)
-    {
-        RecreateSwapChain();
-    }
-    else if (result != VK_SUCCESS)
-    {
-        LOG_ERROR << "Blad prezentacji obrazu!\n";
-    }
-
-    // Czekamy na urządzenie przed kolejną klatką
-    vkDeviceWaitIdle(vkContext.device);
 }
 void SdlVulkanApi::RecreateSwapChain()
 {

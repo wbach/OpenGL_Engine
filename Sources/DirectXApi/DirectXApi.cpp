@@ -349,6 +349,11 @@ void DirectXApi::Init()
     // TO DO : default frame buffer
     impl_->frameBuffers_.push_back(std::make_unique<DxFrameBuffer>());
 }
+void DirectXApi::EndFrame()
+{
+    if (windowApi_)
+        windowApi_->UpdateWindow();
+}
 GraphicsApi::IFrameBuffer &DirectXApi::GetDefaultFrameBuffer()
 {
     if (impl_->frameBuffers_.empty())

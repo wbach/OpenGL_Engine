@@ -37,6 +37,7 @@ public:
     void ShowMessageBox(const std::string& title, const std::string& msg, std::function<void(bool)> selectedFunc) const override;
     const std::vector<GraphicsApi::DisplayMode>& GetDisplayModes() const override;
     void ProcessEvents() override;
+    void RecreateSwapChain();
 
 private:
     void FillDisplayModes();
@@ -45,8 +46,6 @@ private:
     void BeginFrame() override;
     void ProcessSdlEvent();
     void ProccesSdlKeyDown(uint32 type) const;
-
-    void RecreateSwapChain();
 
 private:
     VulkanContext& vkContext;

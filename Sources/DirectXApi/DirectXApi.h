@@ -10,6 +10,8 @@ public:
     DirectXApi();
     ~DirectXApi();
     void Init() override;
+    void PrepareFrame() override;
+    void EndFrame() override;
     void SetShadersFilesLocations(const std::filesystem::path&) override;
     void SetShaderQuaility(GraphicsApi::ShaderQuaility) override;
     void DebugNormalMeshGeneration(bool) override;
@@ -20,7 +22,6 @@ public:
     std::vector<GraphicsApi::RendererType> GetSupportedRenderers() const override;
     GraphicsApi::IWindowApi& GetWindowApi() override;
 
-    void PrepareFrame() override;
     void SetDefaultTarget() override;
     void SetBackgroundColor(const Color&) override;
     const Color& GetBackgroundColor() const override;

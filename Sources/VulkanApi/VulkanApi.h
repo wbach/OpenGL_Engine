@@ -1,15 +1,18 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include <vulkan/vulkan.h>
+
 #include <optional>
 
 #include "GraphicsApi/IGraphicsApi.h"
 #include "Types.h"
-#include "VulkanContext.hpp"
 #include "VulkanApi/VulkanContext.hpp"
+#include "VulkanContext.hpp"
+
 
 namespace GraphicsApi::Vulkan
 {
+class SdlVulkanApi;
 class VulkanApi : public IGraphicsApi
 {
 public:
@@ -17,6 +20,8 @@ public:
     ~VulkanApi() override;
     IWindowApi& GetWindowApi() override;
     void Init() override;
+    void PrepareFrame() override;
+    void EndFrame() override;
     void CreateContext() override;
     void DeleteContext() override;
     void SetShadersFilesLocations(const std::filesystem::path&) override;
@@ -30,7 +35,6 @@ public:
     const Color& GetBackgroundColor() const override;
     void EnableDepthTest() override;
     void DisableDepthTest() override;
-    void PrepareFrame() override;
     ID CreateShader(ShaderProgramType) override;
     ID CreateShaderBuffer(uint32, uint32, DrawFlag) override;
     ID CreateShaderStorageBuffer(uint32, uint32, DrawFlag) override;
@@ -107,11 +111,11 @@ public:
 
 private:
     void InitRendering();
-    void RenderFrame(uint32 imageIndex);
+    void RenderFrame(uint32);
 
 private:
     VulkanContext vkContext;
-    std::unique_ptr<GraphicsApi::IWindowApi> windowApi_;
+    std::unique_ptr<SdlVulkanApi> windowApi_;
     std::filesystem::path shadersFileLocation_;
 
     TextureInfo dummyTextureInfo{};
