@@ -40,7 +40,7 @@ if(BUILD_WX_EDITOR)
             GameEngineLib
             OpenGLApiLib
             VulkanApiLib
-            DirectXApiLib
+            $<$<PLATFORM_ID:Windows>:DirectXApiLib>
             GraphicsApiLib
             InputLib
             UtilsNetworkLib

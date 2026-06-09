@@ -89,7 +89,7 @@ if(BUILD_GAME_ENGINE)
             assimp::assimp
             ${BULLET_LIBS}
             OpenGLApiLib
-            DirectXApiLib
+            $<$<PLATFORM_ID:Windows>:DirectXApiLib>
             VulkanApiLib
             GraphicsApiLib
             InputLib
