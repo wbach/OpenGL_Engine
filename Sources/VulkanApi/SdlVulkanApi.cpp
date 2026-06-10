@@ -279,6 +279,38 @@ bool CreateSwapChainResources(VulkanContext& vkContext, const vec2ui& windowSize
     return true;
 }
 
+bool RecreateSwapChainResources(VulkanContext& vkContext, SDL_Window* window)
+{
+    vkDeviceWaitIdle(vkContext.device);
+
+    for (VkImageView imageView : vkContext.swapChainImageViews)
+    {
+        vkDestroyImageView(vkContext.device, imageView, nullptr);
+    }
+    vkContext.swapChainImageViews.clear();
+    vkContext.swapChainImages.clear();
+
+    if (vkContext.swapChain != VK_NULL_HANDLE)
+    {
+        vkDestroySwapchainKHR(vkContext.device, vkContext.swapChain, nullptr);
+        vkContext.swapChain = VK_NULL_HANDLE;
+    }
+
+    int w = 0;
+    int h = 0;
+    SDL_Vulkan_GetDrawableSize(window, &w, &h);
+
+    while (w == 0 or h == 0)
+    {
+        SDL_Vulkan_GetDrawableSize(window, &w, &h);
+        SDL_WaitEvent(nullptr);
+    }
+
+    vkContext.swapChainExtent = VkExtent2D{static_cast<uint32>(w), static_cast<uint32>(h)};
+
+    return CreateSwapChainResources(vkContext, vec2ui(static_cast<uint32>(w), static_cast<uint32>(h)));
+}
+
 bool CreateSyncObjects(VulkanContext& vkContext)
 {
     VkSemaphoreCreateInfo semaphoreInfo{};
@@ -692,136 +724,13 @@ void SdlVulkanApi::UpdateWindow()
 }
 void SdlVulkanApi::RecreateSwapChain()
 {
-    // 1. Czekamy, aż GPU będzie bezczynne
-    vkDeviceWaitIdle(vkContext.device);
-
-    // 2. Czyścimy stare zasoby Swapchaina
-    for (VkImageView imageView : vkContext.swapChainImageViews)
+    if (!RecreateSwapChainResources(vkContext, impl->window))
     {
-        vkDestroyImageView(vkContext.device, imageView, nullptr);
-    }
-    vkContext.swapChainImageViews.clear();
-    vkContext.swapChainImages.clear();
-
-    if (vkContext.swapChain != VK_NULL_HANDLE)
-    {
-        vkDestroySwapchainKHR(vkContext.device, vkContext.swapChain, nullptr);
-        vkContext.swapChain = VK_NULL_HANDLE;
-    }
-
-    // 3. Pobieramy absolutnie świeży, realny rozmiar okna z SDL
-    int w = 0;
-    int h = 0;
-    SDL_Vulkan_GetDrawableSize(impl->window, &w, &h);
-
-    // Jeśli okno jest zminimalizowane (rozmiar 0,0), stopujemy pętlę, dopóki się nie pojawi
-    while (w == 0 or h == 0)
-    {
-        SDL_Vulkan_GetDrawableSize(impl->window, &w, &h);
-        SDL_WaitEvent(&impl->event);  // Czekamy na jakikolwiek event systemowy (np. przywrócenie okna)
-    }
-
-    windowSize_ = vec2ui(static_cast<uint32>(w), static_cast<uint32>(h));
-
-    // 4. Ponowne uruchomienie logiki tworzenia Swapchaina
-    // Pobieramy capabilities dla nowego rozmiaru okna
-    VkSurfaceCapabilitiesKHR capabilities;
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vkContext.physicalDevice, vkContext.surface, &capabilities);
-
-    uint32 formatCount = 0;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(vkContext.physicalDevice, vkContext.surface, &formatCount, nullptr);
-    std::vector<VkSurfaceFormatKHR> formats(formatCount);
-    vkGetPhysicalDeviceSurfaceFormatsKHR(vkContext.physicalDevice, vkContext.surface, &formatCount, formats.data());
-
-    VkSurfaceFormatKHR surfaceFormat = formats[0];
-    for (const auto& availableFormat : formats)
-    {
-        if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB and availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-        {
-            surfaceFormat = availableFormat;
-            break;
-        }
-    }
-
-    VkExtent2D extent = capabilities.currentExtent;
-    if (extent.width == 0xFFFFFFFF)
-    {
-        extent.width  = std::clamp(windowSize_.x, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
-        extent.height = std::clamp(windowSize_.y, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
-    }
-
-    uint32 imageCount = capabilities.minImageCount + 1;
-    if (capabilities.maxImageCount > 0 and imageCount > capabilities.maxImageCount)
-    {
-        imageCount = capabilities.maxImageCount;
-    }
-
-    VkSwapchainCreateInfoKHR swapChainCreateInfo{};
-    swapChainCreateInfo.sType            = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    swapChainCreateInfo.surface          = vkContext.surface;
-    swapChainCreateInfo.minImageCount    = imageCount;
-    swapChainCreateInfo.imageFormat      = surfaceFormat.format;
-    swapChainCreateInfo.imageColorSpace  = surfaceFormat.colorSpace;
-    swapChainCreateInfo.imageExtent      = extent;
-    swapChainCreateInfo.imageArrayLayers = 1;
-    swapChainCreateInfo.imageUsage       = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
-    uint32 queueFamilyIndices[] = {vkContext.graphicsFamilyIndex, vkContext.presentFamilyIndex};
-    if (vkContext.graphicsFamilyIndex != vkContext.presentFamilyIndex)
-    {
-        swapChainCreateInfo.imageSharingMode      = VK_SHARING_MODE_CONCURRENT;
-        swapChainCreateInfo.queueFamilyIndexCount = 2;
-        swapChainCreateInfo.pQueueFamilyIndices   = queueFamilyIndices;
-    }
-    else
-    {
-        swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    }
-
-    swapChainCreateInfo.preTransform   = capabilities.currentTransform;
-    swapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-    swapChainCreateInfo.presentMode    = VK_PRESENT_MODE_FIFO_KHR;  // Bezpieczny fallback na V-Sync
-    swapChainCreateInfo.clipped        = VK_TRUE;
-    swapChainCreateInfo.oldSwapchain   = VK_NULL_HANDLE;
-
-    if (vkCreateSwapchainKHR(vkContext.device, &swapChainCreateInfo, nullptr, &vkContext.swapChain) != VK_SUCCESS)
-    {
-        LOG_ERROR << "Error: Failed to recreate swapchain!\n";
         return;
     }
 
-    vkContext.swapChainImageFormat = surfaceFormat.format;
-    vkContext.swapChainExtent      = extent;
-
-    vkGetSwapchainImagesKHR(vkContext.device, vkContext.swapChain, &imageCount, nullptr);
-    vkContext.swapChainImages.resize(imageCount);
-    vkGetSwapchainImagesKHR(vkContext.device, vkContext.swapChain, &imageCount, vkContext.swapChainImages.data());
-
-    vkContext.swapChainImageViews.resize(vkContext.swapChainImages.size());
-    for (size_t i = 0; i < vkContext.swapChainImages.size(); ++i)
-    {
-        VkImageViewCreateInfo viewInfo{};
-        viewInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        viewInfo.image                           = vkContext.swapChainImages[i];
-        viewInfo.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
-        viewInfo.format                          = vkContext.swapChainImageFormat;
-        viewInfo.components.r                    = VK_COMPONENT_SWIZZLE_IDENTITY;
-        viewInfo.components.g                    = VK_COMPONENT_SWIZZLE_IDENTITY;
-        viewInfo.components.b                    = VK_COMPONENT_SWIZZLE_IDENTITY;
-        viewInfo.components.a                    = VK_COMPONENT_SWIZZLE_IDENTITY;
-        viewInfo.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-        viewInfo.subresourceRange.baseMipLevel   = 0;
-        viewInfo.subresourceRange.levelCount     = 1;
-        viewInfo.subresourceRange.baseArrayLayer = 0;
-        viewInfo.subresourceRange.layerCount     = 1;
-
-        if (vkCreateImageView(vkContext.device, &viewInfo, nullptr, &vkContext.swapChainImageViews[i]) != VK_SUCCESS)
-        {
-            LOG_ERROR << "Error: Failed to recreate VkImageView at index " << i << "\n";
-            return;
-        }
-    }
-
-    LOG_DEBUG << "Success: Swapchain recreated successfully! New size: " << extent.width << "x" << extent.height;
+    windowSize_ = vec2ui(vkContext.swapChainExtent.width, vkContext.swapChainExtent.height);
+    LOG_DEBUG << "Success: Swapchain recreated successfully! New size: " << vkContext.swapChainExtent.width << "x"
+              << vkContext.swapChainExtent.height;
 }
 }  // namespace GraphicsApi::Vulkan
