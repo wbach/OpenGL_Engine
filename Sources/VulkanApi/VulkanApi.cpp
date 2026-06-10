@@ -182,26 +182,11 @@ bool InitializeRenderingResources(VulkanContext& vkContext)
     return true;
 }
 
-VkShaderModule CreateShaderModule(VulkanContext& context, const std::vector<uint32_t>& code)
-{
-    VkShaderModuleCreateInfo createInfo{};
-    createInfo.sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    createInfo.codeSize = code.size() * sizeof(uint32_t);
-    createInfo.pCode    = code.data();
-
-    VkShaderModule shaderModule = VK_NULL_HANDLE;
-    if (vkCreateShaderModule(context.device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
-    {
-        LOG_ERROR << "Error: Failed to create VkShaderModule!\n";
-        return VK_NULL_HANDLE;
-    }
-
-    return shaderModule;
-}
 }  // namespace
 
 VulkanApi::VulkanApi()
     : windowApi_(std::make_unique<SdlVulkanApi>(vkContext))
+    , shaderManager_(vkContext)
 {
     LOG_DEBUG << "";
 }
@@ -274,18 +259,18 @@ void VulkanApi::PrintVersion()
 {
     if (vkContext.physicalDevice == VK_NULL_HANDLE)
     {
-        std::cout << "Vulkan Device: Nie zainicjalizowano\n";
+        LOG_ERROR << "Vulkan device is not initialized.\n";
         return;
     }
 
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(vkContext.physicalDevice, &deviceProperties);
-    std::cout << "Vulkan Device: " << deviceProperties.deviceName << "\n";
+    LOG_DEBUG << "Vulkan device: " << deviceProperties.deviceName << "\n";
 }
 
 void VulkanApi::SetShadersFilesLocations(const std::filesystem::path& path)
 {
-    shadersFileLocation_ = path / "VulkanApi" / "GLSL";
+    shaderManager_.SetShadersFilesLocations(path);
 }
 void VulkanApi::DebugNormalMeshGeneration(bool)
 {
@@ -323,166 +308,7 @@ void VulkanApi::PrepareFrame()
 }
 ID VulkanApi::CreateShader(ShaderProgramType type)
 {
-    std::string vertPath = "";
-    std::string fragPath = "";
-
-    // if (type == ShaderProgramType::Loading)
-    {
-        vertPath = "triangle.vert";
-        fragPath = "triangle.frag";
-    }
-    // else
-    // {
-    //     LOG_ERROR << "Nieobsługiwany typ programu shaderów!\n";
-    //     return {};
-    // }
-
-    auto vertPathFullPath = std::filesystem::absolute(shadersFileLocation_ / vertPath).lexically_normal();
-    auto fragPathFullPath = std::filesystem::absolute(shadersFileLocation_ / fragPath).lexically_normal();
-
-    std::string vertCode = ReadTextFile(vertPathFullPath.string());
-    std::string fragCode = ReadTextFile(fragPathFullPath.string());
-
-    if (vertCode.empty() or fragCode.empty())
-    {
-        LOG_ERROR << "Error: Shader source is empty or the files could not be opened.\n";
-        return {};
-    }
-
-    std::vector<uint32_t> vertSpirv = CompileGlslToSpirv(vertPath, shaderc_vertex_shader, vertCode);
-    std::vector<uint32_t> fragSpirv = CompileGlslToSpirv(fragPath, shaderc_fragment_shader, fragCode);
-
-    if (vertSpirv.empty() or fragSpirv.empty())
-    {
-        LOG_ERROR << "Stopping shader loading due to compilation errors.\n";
-        return {};
-    }
-
-    VkShaderModule vertModule = CreateShaderModule(vkContext, vertSpirv);
-    VkShaderModule fragModule = CreateShaderModule(vkContext, fragSpirv);
-
-    if (vertModule == VK_NULL_HANDLE or fragModule == VK_NULL_HANDLE)
-    {
-        LOG_ERROR << "Error: Failed to allocate VkShaderModule.\n";
-        return {};
-    }
-
-    VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-    vertShaderStageInfo.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    vertShaderStageInfo.stage  = VK_SHADER_STAGE_VERTEX_BIT;
-    vertShaderStageInfo.module = vertModule;
-    vertShaderStageInfo.pName  = "main";
-
-    VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-    fragShaderStageInfo.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    fragShaderStageInfo.stage  = VK_SHADER_STAGE_FRAGMENT_BIT;
-    fragShaderStageInfo.module = fragModule;
-    fragShaderStageInfo.pName  = "main";
-
-    VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
-    VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-    vertexInputInfo.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount   = 0;
-    vertexInputInfo.vertexAttributeDescriptionCount = 0;
-
-    VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-    inputAssembly.sType                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    inputAssembly.topology               = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-    inputAssembly.primitiveRestartEnable = VK_FALSE;
-
-    VkViewport viewport{};
-    viewport.x        = 0.0f;
-    viewport.y        = 0.0f;
-    viewport.width    = static_cast<float>(vkContext.swapChainExtent.width);
-    viewport.height   = static_cast<float>(vkContext.swapChainExtent.height);
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-
-    VkRect2D scissor{};
-    scissor.offset = {0, 0};
-    scissor.extent = vkContext.swapChainExtent;
-
-    VkPipelineViewportStateCreateInfo viewportState{};
-    viewportState.sType         = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-    viewportState.viewportCount = 1;
-    viewportState.pViewports    = &viewport;
-    viewportState.scissorCount  = 1;
-    viewportState.pScissors     = &scissor;
-
-    VkPipelineRasterizationStateCreateInfo rasterizer{};
-    rasterizer.sType                   = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-    rasterizer.depthClampEnable        = VK_FALSE;
-    rasterizer.rasterizerDiscardEnable = VK_FALSE;
-    rasterizer.polygonMode             = VK_POLYGON_MODE_FILL;
-    rasterizer.lineWidth               = 1.0f;
-    rasterizer.cullMode                = VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace               = VK_FRONT_FACE_CLOCKWISE;
-    rasterizer.depthBiasEnable         = VK_FALSE;
-
-    VkPipelineMultisampleStateCreateInfo multisampling{};
-    multisampling.sType                = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-    multisampling.sampleShadingEnable  = VK_FALSE;
-    multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-
-    VkPipelineColorBlendAttachmentState colorBlendAttachment{};
-    colorBlendAttachment.colorWriteMask =
-        VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-    colorBlendAttachment.blendEnable = VK_FALSE;
-
-    VkPipelineColorBlendStateCreateInfo colorBlending{};
-    colorBlending.sType           = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-    colorBlending.logicOpEnable   = VK_FALSE;
-    colorBlending.attachmentCount = 1;
-    colorBlending.pAttachments    = &colorBlendAttachment;
-
-    VulkanProgram newProgram{};
-
-    VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-    pipelineLayoutInfo.sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount         = 0;
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
-
-    if (vkCreatePipelineLayout(vkContext.device, &pipelineLayoutInfo, nullptr, &newProgram.layout) != VK_SUCCESS)
-    {
-        LOG_ERROR << "Error: Failed to create Pipeline Layout!\n";
-        vkDestroyShaderModule(vkContext.device, fragModule, nullptr);
-        vkDestroyShaderModule(vkContext.device, vertModule, nullptr);
-        return {};
-    }
-
-    VkGraphicsPipelineCreateInfo pipelineInfo{};
-    pipelineInfo.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipelineInfo.stageCount          = 2;
-    pipelineInfo.pStages             = shaderStages;
-    pipelineInfo.pVertexInputState   = &vertexInputInfo;
-    pipelineInfo.pInputAssemblyState = &inputAssembly;
-    pipelineInfo.pViewportState      = &viewportState;
-    pipelineInfo.pRasterizationState = &rasterizer;
-    pipelineInfo.pMultisampleState   = &multisampling;
-    pipelineInfo.pColorBlendState    = &colorBlending;
-    pipelineInfo.layout              = newProgram.layout;
-    pipelineInfo.renderPass          = vkContext.renderPass;  // Powiązanie z naszym Render Passem czyszczącym okno
-    pipelineInfo.subpass             = 0;
-
-    if (vkCreateGraphicsPipelines(vkContext.device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &newProgram.pipeline) !=
-        VK_SUCCESS)
-    {
-        LOG_ERROR << "Error: Failed to compile Graphics Pipeline!\n";
-        vkDestroyPipelineLayout(vkContext.device, newProgram.layout, nullptr);
-        vkDestroyShaderModule(vkContext.device, fragModule, nullptr);
-        vkDestroyShaderModule(vkContext.device, vertModule, nullptr);
-        return {};
-    }
-
-    vkDestroyShaderModule(vkContext.device, fragModule, nullptr);
-    vkDestroyShaderModule(vkContext.device, vertModule, nullptr);
-
-    auto programId                = vkContext.programsPoolId.getId();
-    vkContext.programs[programId] = std::move(newProgram);
-
-    LOG_DEBUG << "Sukces: Shader i stan maszyny GPU skompilowane! Zarejestrowano VulkanProgram pod ID: " << programId;
-
-    return programId;
+    return shaderManager_.Create(type);
 }
 ID VulkanApi::CreateShaderBuffer(uint32, uint32, DrawFlag)
 {

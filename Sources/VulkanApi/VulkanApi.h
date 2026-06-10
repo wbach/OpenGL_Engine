@@ -8,6 +8,7 @@
 #include "Types.h"
 #include "VulkanApi/VulkanContext.hpp"
 #include "VulkanContext.hpp"
+#include "VulkanShaderManager.h"
 
 
 namespace GraphicsApi::Vulkan
@@ -116,7 +117,7 @@ private:
 private:
     VulkanContext vkContext;
     std::unique_ptr<SdlVulkanApi> windowApi_;
-    std::filesystem::path shadersFileLocation_;
+    VulkanShaderManager shaderManager_;
 
     TextureInfo dummyTextureInfo{};
     IFrameBuffer* dummyFrameBuffer = nullptr;
