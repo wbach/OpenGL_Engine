@@ -182,6 +182,105 @@ bool InitializeRenderingResources(VulkanContext& vkContext)
     return true;
 }
 
+bool BeginCommandBuffer(VkCommandBuffer commandBuffer)
+{
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+    if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Error: Failed to begin recording the command buffer.\n";
+        return false;
+    }
+
+    return true;
+}
+
+bool BeginRenderPass(VulkanContext& vkContext, VkCommandBuffer commandBuffer, uint32 imageIndex)
+{
+    VkRenderPassBeginInfo renderPassInfo{};
+    renderPassInfo.sType             = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassInfo.renderPass        = vkContext.renderPass;
+    renderPassInfo.framebuffer       = vkContext.framebuffers[imageIndex];
+    renderPassInfo.renderArea.offset = {0, 0};
+    renderPassInfo.renderArea.extent = vkContext.swapChainExtent;
+
+    VkClearValue clearColor = {{{vkContext.backgroundColor[0], vkContext.backgroundColor[1], vkContext.backgroundColor[2],
+                                 vkContext.backgroundColor[3]}}};
+    renderPassInfo.clearValueCount = 1;
+    renderPassInfo.pClearValues    = &clearColor;
+
+    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    return true;
+}
+
+void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer)
+{
+    for (std::pair<const IdType, VulkanProgram>& pair : vkContext.programs)
+    {
+        VulkanProgram& program = pair.second;
+
+        if (program.drawCalls.empty())
+        {
+            continue;
+        }
+
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program.pipeline);
+
+        for (const VulkanDrawCall& drawCall : program.drawCalls)
+        {
+            (void)drawCall;
+            vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+        }
+
+        program.drawCalls.clear();
+    }
+}
+
+bool EndRenderPass(VkCommandBuffer commandBuffer)
+{
+    vkCmdEndRenderPass(commandBuffer);
+    return true;
+}
+
+bool EndCommandBuffer(VkCommandBuffer commandBuffer)
+{
+    if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Error: Failed to finish recording the command buffer.\n";
+        return false;
+    }
+
+    return true;
+}
+
+bool SubmitCommandBuffer(VulkanContext& vkContext, VkCommandBuffer commandBuffer)
+{
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    VkSemaphore waitSemaphores[]      = {vkContext.imageAvailableSemaphore};
+    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submitInfo.waitSemaphoreCount     = 1;
+    submitInfo.pWaitSemaphores        = waitSemaphores;
+    submitInfo.pWaitDstStageMask      = waitStages;
+
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers    = &commandBuffer;
+
+    VkSemaphore signalSemaphores[]  = {vkContext.renderFinishedSemaphore};
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores    = signalSemaphores;
+
+    if (vkQueueSubmit(vkContext.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Error while submitting render commands to the queue.\n";
+        return false;
+    }
+
+    return true;
+}
+
 }  // namespace
 
 VulkanApi::VulkanApi()
@@ -599,85 +698,25 @@ void VulkanApi::RenderFrame(uint32 imageIndex)
 {
     VkCommandBuffer commandBuffer = vkContext.commandBuffers[imageIndex];
 
-    VkCommandBufferBeginInfo beginInfo{};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-    if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
+    if (!BeginCommandBuffer(commandBuffer))
     {
-        LOG_ERROR << "Error: Failed to begin recording the Command Buffer!\n";
         return;
     }
 
-    VkRenderPassBeginInfo renderPassInfo{};
-    renderPassInfo.sType             = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass        = vkContext.renderPass;
-    renderPassInfo.framebuffer       = vkContext.framebuffers[imageIndex];
-    renderPassInfo.renderArea.offset = {0, 0};
-    renderPassInfo.renderArea.extent = vkContext.swapChainExtent;
-
-    // Pobieramy kolor tła z konfiguracji silnika
-    VkClearValue clearColor        = {{{vkContext.backgroundColor[0], vkContext.backgroundColor[1], vkContext.backgroundColor[2],
-                                        vkContext.backgroundColor[3]}}};
-    renderPassInfo.clearValueCount = 1;
-    renderPassInfo.pClearValues    = &clearColor;
-
-    // Otwieramy Render Pass (Karta graficzna czyści ekran kolorem tła)
-    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-    // RYSOWANIE GEOMETRII
-    for (std::pair<const IdType, VulkanProgram>& pair : vkContext.programs)
+    if (!BeginRenderPass(vkContext, commandBuffer, imageIndex))
     {
-        VulkanProgram& program = pair.second;
-
-        if (program.drawCalls.empty())
-        {
-            continue;
-        }
-
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program.pipeline);
-
-        for (const VulkanDrawCall& drawCall : program.drawCalls)
-        {
-            (void)drawCall;
-            vkCmdDraw(commandBuffer, 3, 1, 0, 0);
-            // vkCmdDraw(commandBuffer, program.vertexCount, 1, 0, 0);
-        }
-
-        program.drawCalls.clear();
-    }
-
-    // Dopiero po narysowaniu wszystkich obiektów zamykamy Render Pass!
-    vkCmdEndRenderPass(commandBuffer);
-
-    if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
-    {
-        LOG_ERROR << "Error: Failed to finish recording the Command Buffer!\n";
         return;
     }
 
-    // WYSYŁKA DO GPU Z PEŁNĄ SYNCHRONIZACJĄ SEMAFORÓW
-    VkSubmitInfo submitInfo{};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    RecordDrawCalls(vkContext, commandBuffer);
 
-    // Czekaj z rysowaniem, aż obraz będzie wolny (imageAvailable)
-    VkSemaphore waitSemaphores[]      = {vkContext.imageAvailableSemaphore};
-    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-    submitInfo.waitSemaphoreCount     = 1;
-    submitInfo.pWaitSemaphores        = waitSemaphores;
-    submitInfo.pWaitDstStageMask      = waitStages;
+    EndRenderPass(commandBuffer);
 
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers    = &commandBuffer;
-
-    // Sygnalizuj semafor renderFinished, kiedy GPU skończy rysować geometrię
-    VkSemaphore signalSemaphores[]  = {vkContext.renderFinishedSemaphore};
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores    = signalSemaphores;
-
-    if (vkQueueSubmit(vkContext.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
+    if (!EndCommandBuffer(commandBuffer))
     {
-        LOG_ERROR << "Error while submitting render commands to the queue (vkQueueSubmit)!\n";
         return;
     }
+
+    SubmitCommandBuffer(vkContext, commandBuffer);
 }
 }  // namespace GraphicsApi::Vulkan
