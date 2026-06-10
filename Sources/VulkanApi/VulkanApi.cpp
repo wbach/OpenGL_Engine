@@ -15,6 +15,121 @@ namespace GraphicsApi::Vulkan
 {
 namespace
 {
+bool CreateRenderPass(VulkanContext& vkContext)
+{
+    VkAttachmentDescription colorAttachment{};
+    colorAttachment.format         = vkContext.swapChainImageFormat;
+    colorAttachment.samples        = VK_SAMPLE_COUNT_1_BIT;
+    colorAttachment.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    colorAttachment.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachment.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    colorAttachment.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
+    colorAttachment.finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+    VkAttachmentReference colorAttachmentRef{};
+    colorAttachmentRef.attachment = 0;
+    colorAttachmentRef.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkSubpassDescription subpass{};
+    subpass.pipelineBindPoint    = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments    = &colorAttachmentRef;
+
+    VkRenderPassCreateInfo renderPassInfo{};
+    renderPassInfo.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    renderPassInfo.attachmentCount = 1;
+    renderPassInfo.pAttachments    = &colorAttachment;
+    renderPassInfo.subpassCount    = 1;
+    renderPassInfo.pSubpasses      = &subpass;
+
+    if (vkCreateRenderPass(vkContext.device, &renderPassInfo, nullptr, &vkContext.renderPass) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Error: Failed to create Render Pass.\n";
+        return false;
+    }
+
+    return true;
+}
+
+bool CreateFramebuffers(VulkanContext& vkContext)
+{
+    vkContext.framebuffers.resize(vkContext.swapChainImageViews.size());
+
+    for (size_t i = 0; i < vkContext.swapChainImageViews.size(); ++i)
+    {
+        VkImageView attachments[] = {vkContext.swapChainImageViews[i]};
+
+        VkFramebufferCreateInfo framebufferInfo{};
+        framebufferInfo.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebufferInfo.renderPass      = vkContext.renderPass;
+        framebufferInfo.attachmentCount = 1;
+        framebufferInfo.pAttachments    = attachments;
+        framebufferInfo.width           = vkContext.swapChainExtent.width;
+        framebufferInfo.height          = vkContext.swapChainExtent.height;
+        framebufferInfo.layers          = 1;
+
+        if (vkCreateFramebuffer(vkContext.device, &framebufferInfo, nullptr, &vkContext.framebuffers[i]) != VK_SUCCESS)
+        {
+            LOG_ERROR << "Error: Failed to create Framebuffer for index " << i << "\n";
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool CreateCommandPoolAndBuffers(VulkanContext& vkContext)
+{
+    VkCommandPoolCreateInfo poolInfo{};
+    poolInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolInfo.queueFamilyIndex = vkContext.graphicsFamilyIndex;
+    poolInfo.flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+
+    if (vkCreateCommandPool(vkContext.device, &poolInfo, nullptr, &vkContext.commandPool) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Error: Failed to create Command Pool.\n";
+        return false;
+    }
+
+    vkContext.commandBuffers.resize(vkContext.framebuffers.size());
+
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool        = vkContext.commandPool;
+    allocInfo.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = static_cast<uint32>(vkContext.commandBuffers.size());
+
+    if (vkAllocateCommandBuffers(vkContext.device, &allocInfo, vkContext.commandBuffers.data()) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Error: Failed to allocate Command Buffers.\n";
+        return false;
+    }
+
+    return true;
+}
+
+bool InitializeRenderingResources(VulkanContext& vkContext)
+{
+    if (!CreateRenderPass(vkContext))
+    {
+        return false;
+    }
+
+    if (!CreateFramebuffers(vkContext))
+    {
+        return false;
+    }
+
+    if (!CreateCommandPoolAndBuffers(vkContext))
+    {
+        return false;
+    }
+
+    LOG_DEBUG << "Success: Render Pass, Framebuffers and Command Buffers are ready!";
+    return true;
+}
+
 VkShaderModule CreateShaderModule(VulkanContext& context, const std::vector<uint32_t>& code)
 {
     VkShaderModuleCreateInfo createInfo{};
@@ -25,7 +140,7 @@ VkShaderModule CreateShaderModule(VulkanContext& context, const std::vector<uint
     VkShaderModule shaderModule = VK_NULL_HANDLE;
     if (vkCreateShaderModule(context.device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
     {
-        LOG_ERROR << "Blad: Nie udalo sie utworzyc VkShaderModule!\n";
+        LOG_ERROR << "Error: Failed to create VkShaderModule!\n";
         return VK_NULL_HANDLE;
     }
 
@@ -99,7 +214,7 @@ void VulkanApi::EndFrame()
     }
     else if (result != VK_SUCCESS)
     {
-        LOG_ERROR << "Blad prezentacji obrazu!\n";
+        LOG_ERROR << "Error: Image presentation failed!\n";
     }
 
     // Czekamy na urządzenie przed kolejną klatką
@@ -110,100 +225,19 @@ void VulkanApi::CreateContext()
 {
     windowApi_->CreateContext();
     PrintVersion();
-    InitRendering();
+
+    if (!InitializeRenderingResources(vkContext))
+    {
+        return;
+    }
 }
 
 void VulkanApi::InitRendering()
 {
-    // ==========================================
-    // KROK 1: TWORZENIE RENDER PASS
-    // ==========================================
-    VkAttachmentDescription colorAttachment{};
-    colorAttachment.format         = vkContext.swapChainImageFormat;
-    colorAttachment.samples        = VK_SAMPLE_COUNT_1_BIT;
-    colorAttachment.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;   // To wymusza czyszczenie kolorem!
-    colorAttachment.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;  // Chcemy zachować wynik, by go wyświetlić
-    colorAttachment.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    colorAttachment.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
-    colorAttachment.finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;  // Obraz gotowy do wysłania do SDL2
-
-    VkAttachmentReference colorAttachmentRef{};
-    colorAttachmentRef.attachment = 0;
-    colorAttachmentRef.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-    VkSubpassDescription subpass{};
-    subpass.pipelineBindPoint    = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments    = &colorAttachmentRef;
-
-    VkRenderPassCreateInfo renderPassInfo{};
-    renderPassInfo.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.attachmentCount = 1;
-    renderPassInfo.pAttachments    = &colorAttachment;
-    renderPassInfo.subpassCount    = 1;
-    renderPassInfo.pSubpasses      = &subpass;
-
-    if (vkCreateRenderPass(vkContext.device, &renderPassInfo, nullptr, &vkContext.renderPass) != VK_SUCCESS)
+    if (!InitializeRenderingResources(vkContext))
     {
-        LOG_ERROR << "Blad: Nie udalo sie utworzyc Render Pass.\n";
         return;
     }
-
-    // ==========================================
-    // KROK 2: TWORZENIE FRAMEBUFFERS
-    // ==========================================
-    vkContext.framebuffers.resize(vkContext.swapChainImageViews.size());
-
-    for (size_t i = 0; i < vkContext.swapChainImageViews.size(); ++i)
-    {
-        VkImageView attachments[] = {vkContext.swapChainImageViews[i]};
-
-        VkFramebufferCreateInfo framebufferInfo{};
-        framebufferInfo.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.renderPass      = vkContext.renderPass;
-        framebufferInfo.attachmentCount = 1;
-        framebufferInfo.pAttachments    = attachments;
-        framebufferInfo.width           = vkContext.swapChainExtent.width;
-        framebufferInfo.height          = vkContext.swapChainExtent.height;
-        framebufferInfo.layers          = 1;
-
-        if (vkCreateFramebuffer(vkContext.device, &framebufferInfo, nullptr, &vkContext.framebuffers[i]) != VK_SUCCESS)
-        {
-            LOG_ERROR << "Blad: Nie udalo sie utworzyc Framebuffera dla indeksu " << i << "\n";
-            return;
-        }
-    }
-
-    // ==========================================
-    // KROK 3: TWORZENIE COMMAND POOL & BUFFERS
-    // ==========================================
-    VkCommandPoolCreateInfo poolInfo{};
-    poolInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.queueFamilyIndex = vkContext.graphicsFamilyIndex;
-    poolInfo.flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-
-    if (vkCreateCommandPool(vkContext.device, &poolInfo, nullptr, &vkContext.commandPool) != VK_SUCCESS)
-    {
-        LOG_ERROR << "Blad: Nie udalo sie utworzyc Command Pool.\n";
-        return;
-    }
-
-    vkContext.commandBuffers.resize(vkContext.framebuffers.size());
-
-    VkCommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool        = vkContext.commandPool;
-    allocInfo.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = static_cast<uint32>(vkContext.commandBuffers.size());
-
-    if (vkAllocateCommandBuffers(vkContext.device, &allocInfo, vkContext.commandBuffers.data()) != VK_SUCCESS)
-    {
-        LOG_ERROR << "Blad: Nie udalo sie zaalokowac Command Buffers.\n";
-        return;
-    }
-
-    LOG_DEBUG << "Sukces: Render Pass, Framebuffers i Command Buffers gotowe!";
 }
 
 void VulkanApi::DeleteContext()
@@ -299,7 +333,7 @@ ID VulkanApi::CreateShader(ShaderProgramType type)
 
     if (vertCode.empty() or fragCode.empty())
     {
-        LOG_ERROR << "Blad: Kod zrodlowy shadera jest pusty lub nie udalo sie otworzyc plikow.\n";
+        LOG_ERROR << "Error: Shader source is empty or the files could not be opened.\n";
         return {};
     }
 
@@ -308,7 +342,7 @@ ID VulkanApi::CreateShader(ShaderProgramType type)
 
     if (vertSpirv.empty() or fragSpirv.empty())
     {
-        LOG_ERROR << "Przerwanie ladowania shaderow z powodu bledow kompilacji.\n";
+        LOG_ERROR << "Stopping shader loading due to compilation errors.\n";
         return {};
     }
 
@@ -317,7 +351,7 @@ ID VulkanApi::CreateShader(ShaderProgramType type)
 
     if (vertModule == VK_NULL_HANDLE or fragModule == VK_NULL_HANDLE)
     {
-        LOG_ERROR << "Blad: Nie udalo sie zaalokowac VkShaderModule.\n";
+        LOG_ERROR << "Error: Failed to allocate VkShaderModule.\n";
         return {};
     }
 
@@ -398,7 +432,7 @@ ID VulkanApi::CreateShader(ShaderProgramType type)
 
     if (vkCreatePipelineLayout(vkContext.device, &pipelineLayoutInfo, nullptr, &newProgram.layout) != VK_SUCCESS)
     {
-        LOG_ERROR << "Blad: Nie udalo sie utworzyc Pipeline Layout!\n";
+        LOG_ERROR << "Error: Failed to create Pipeline Layout!\n";
         vkDestroyShaderModule(vkContext.device, fragModule, nullptr);
         vkDestroyShaderModule(vkContext.device, vertModule, nullptr);
         return {};
@@ -421,7 +455,7 @@ ID VulkanApi::CreateShader(ShaderProgramType type)
     if (vkCreateGraphicsPipelines(vkContext.device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &newProgram.pipeline) !=
         VK_SUCCESS)
     {
-        LOG_ERROR << "Blad: Nie udalo sie skompilowac Graphics Pipeline!\n";
+        LOG_ERROR << "Error: Failed to compile Graphics Pipeline!\n";
         vkDestroyPipelineLayout(vkContext.device, newProgram.layout, nullptr);
         vkDestroyShaderModule(vkContext.device, fragModule, nullptr);
         vkDestroyShaderModule(vkContext.device, vertModule, nullptr);
@@ -467,7 +501,7 @@ void VulkanApi::UseShader(uint32 shaderId)
 {
     if (vkContext.programs.find(shaderId) == vkContext.programs.end())
     {
-        LOG_ERROR << "Proba aktywacji nieistniejacego shadera/potoku o ID: " << shaderId << "\n";
+        LOG_ERROR << "Attempt to activate a non-existent shader/pipeline with ID: " << shaderId << "\n";
         activePipelineId.reset();
         return;
     }
@@ -573,7 +607,7 @@ void VulkanApi::RenderMesh(uint32 meshId)
 {
     if (not activePipelineId.has_value())
     {
-        LOG_WARN << "Proba wywolania RenderMesh bez ustawionego aktywnego shadera (UseShader)!\n";
+        LOG_WARN << "Attempt to call RenderMesh without an active shader set (UseShader)!\n";
         return;
     }
 
@@ -588,7 +622,7 @@ void VulkanApi::RenderMesh(uint32 meshId)
     }
     else
     {
-        LOG_ERROR << "Blad: Aktywne ID shadera (" << activePipelineId << ") nie istnieje w kontekscie Vulkana!\n";
+        LOG_ERROR << "Error: The active shader ID (" << activePipelineId << ") does not exist in the Vulkan context!\n";
     }
 }
 void VulkanApi::RenderProcedural(uint32)
@@ -624,7 +658,7 @@ void VulkanApi::RenderQuad()
     }
     else
     {
-        LOG_ERROR << "Blad: RenderQuad probuje uzyc nieistniejacego aktywnego shadera o ID: " << activePipelineId << "\n";
+        LOG_ERROR << "Error: RenderQuad is trying to use a non-existent active shader ID: " << activePipelineId << "\n";
     }
 }
 void VulkanApi::RenderQuadTs()
@@ -732,7 +766,7 @@ void VulkanApi::RenderFrame(uint32 imageIndex)
 
     if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
     {
-        LOG_ERROR << "Blad: Nie udalo sie rozpoczac nagrywania Command Buffera!\n";
+        LOG_ERROR << "Error: Failed to begin recording the Command Buffer!\n";
         return;
     }
 
@@ -766,6 +800,7 @@ void VulkanApi::RenderFrame(uint32 imageIndex)
 
         for (const VulkanDrawCall& drawCall : program.drawCalls)
         {
+            (void)drawCall;
             vkCmdDraw(commandBuffer, 3, 1, 0, 0);
             // vkCmdDraw(commandBuffer, program.vertexCount, 1, 0, 0);
         }
@@ -778,7 +813,7 @@ void VulkanApi::RenderFrame(uint32 imageIndex)
 
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
     {
-        LOG_ERROR << "Blad: Nie udalo sie zakonczyc nagrywania Command Buffera!\n";
+        LOG_ERROR << "Error: Failed to finish recording the Command Buffer!\n";
         return;
     }
 
@@ -803,7 +838,7 @@ void VulkanApi::RenderFrame(uint32 imageIndex)
 
     if (vkQueueSubmit(vkContext.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
     {
-        LOG_ERROR << "Blad podczas wysyłania komend renderowania do kolejki (vkQueueSubmit)!\n";
+        LOG_ERROR << "Error while submitting render commands to the queue (vkQueueSubmit)!\n";
         return;
     }
 }
