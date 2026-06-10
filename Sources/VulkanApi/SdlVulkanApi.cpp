@@ -399,7 +399,6 @@ vec2ui SdlVulkanApi::GetWindowSize() const
 IdType SdlVulkanApi::SubscribeForEvent(std::function<void(const GraphicsApi::IWindowApi::Event&)> f)
 {
     std::lock_guard<std::mutex> lk(eventSubscribersMutex_);
-    // Pobierz ID ze swojej puli (uproszczone generowanie ID na potrzeby szablonu)
     IdType id = eventsSubscribers_.size() + 1;
     eventsSubscribers_.insert({id, f});
     return id;
@@ -659,64 +658,7 @@ void SdlVulkanApi::CreateContext()
 }
 void SdlVulkanApi::DeleteContext()
 {
-    vkDestroySemaphore(vkContext.device, vkContext.imageAvailableSemaphore, nullptr);
-
-    if (vkContext.renderFinishedSemaphore != VK_NULL_HANDLE)
-    {
-        vkDestroySemaphore(vkContext.device, vkContext.renderFinishedSemaphore, nullptr);
-        vkContext.renderFinishedSemaphore = VK_NULL_HANDLE;
-    }
-
-    if (vkContext.device != VK_NULL_HANDLE)
-    {
-        if (vkContext.commandPool != VK_NULL_HANDLE)
-        {
-            vkDestroyCommandPool(vkContext.device, vkContext.commandPool, nullptr);
-            vkContext.commandPool = VK_NULL_HANDLE;
-        }
-
-        // 2. Niszczymy Framebuffers
-        for (VkFramebuffer framebuffer : vkContext.framebuffers)
-        {
-            vkDestroyFramebuffer(vkContext.device, framebuffer, nullptr);
-        }
-        vkContext.framebuffers.clear();
-
-        // 3. Niszczymy Render Pass
-        if (vkContext.renderPass != VK_NULL_HANDLE)
-        {
-            vkDestroyRenderPass(vkContext.device, vkContext.renderPass, nullptr);
-            vkContext.renderPass = VK_NULL_HANDLE;
-        }
-
-        for (auto imageView : vkContext.swapChainImageViews)
-        {
-            vkDestroyImageView(vkContext.device, imageView, nullptr);
-        }
-        vkContext.swapChainImageViews.clear();
-        vkContext.swapChainImages.clear();
-
-        if (vkContext.swapChain != VK_NULL_HANDLE)
-        {
-            vkDestroySwapchainKHR(vkContext.device, vkContext.swapChain, nullptr);
-            vkContext.swapChain = VK_NULL_HANDLE;
-        }
-
-        vkDestroyDevice(vkContext.device, nullptr);
-        vkContext.device = VK_NULL_HANDLE;
-    }
-
-    if (vkContext.surface != VK_NULL_HANDLE)
-    {
-        vkDestroySurfaceKHR(vkContext.instance, vkContext.surface, nullptr);
-        vkContext.surface = VK_NULL_HANDLE;
-    }
-
-    if (vkContext.instance != VK_NULL_HANDLE)
-    {
-        vkDestroyInstance(vkContext.instance, nullptr);
-        vkContext.instance = VK_NULL_HANDLE;
-    }
+    vkContext.ClearResources();
 }
 void SdlVulkanApi::UpdateWindow()
 {

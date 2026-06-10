@@ -4,6 +4,7 @@
 
 #include <functional>
 #include <unordered_map>
+#include <vector>
 
 #include "IdPool.h"
 #include "VulkanProgram.h"
@@ -12,6 +13,8 @@ namespace GraphicsApi::Vulkan
 {
 struct VulkanContext
 {
+    void ClearResources();
+
     VkInstance instance             = VK_NULL_HANDLE;
     VkSurfaceKHR surface            = VK_NULL_HANDLE;
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
