@@ -6,6 +6,24 @@ void VulkanContext::ClearResources()
 {
     if (device != VK_NULL_HANDLE)
     {
+        vkDeviceWaitIdle(device);
+
+        for (auto& [_, program] : programs)
+        {
+            if (program.pipeline != VK_NULL_HANDLE)
+            {
+                vkDestroyPipeline(device, program.pipeline, nullptr);
+                program.pipeline = VK_NULL_HANDLE;
+            }
+
+            if (program.layout != VK_NULL_HANDLE)
+            {
+                vkDestroyPipelineLayout(device, program.layout, nullptr);
+                program.layout = VK_NULL_HANDLE;
+            }
+        }
+        programs.clear();
+
         if (imageAvailableSemaphore != VK_NULL_HANDLE)
         {
             vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);

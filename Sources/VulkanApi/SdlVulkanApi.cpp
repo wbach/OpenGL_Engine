@@ -658,7 +658,7 @@ void SdlVulkanApi::CreateContext()
 }
 void SdlVulkanApi::DeleteContext()
 {
-    vkContext.ClearResources();
+    // Resources will be cleaned up in VulkanContext::ClearResources, which is called in VulkanApi::DeleteContext
 }
 void SdlVulkanApi::UpdateWindow()
 {

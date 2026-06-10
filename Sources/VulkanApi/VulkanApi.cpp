@@ -267,20 +267,7 @@ void VulkanApi::InitRendering()
 
 void VulkanApi::DeleteContext()
 {
-    for (std::pair<const IdType, VulkanProgram>& pair : vkContext.programs)
-    {
-        if (pair.second.pipeline != VK_NULL_HANDLE)
-        {
-            vkDestroyPipeline(vkContext.device, pair.second.pipeline, nullptr);
-        }
-        if (pair.second.layout != VK_NULL_HANDLE)
-        {
-            vkDestroyPipelineLayout(vkContext.device, pair.second.layout, nullptr);
-        }
-    }
-    vkContext.programs.clear();
-
-    windowApi_->DeleteContext();
+    vkContext.ClearResources();
 }
 
 void VulkanApi::PrintVersion()
