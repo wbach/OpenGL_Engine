@@ -278,6 +278,63 @@ bool UploadBufferData(VulkanContext& vkContext, VkBuffer buffer, VkDeviceMemory 
     return true;
 }
 
+VkDescriptorSet PrepareDrawCallDescriptorSet(VulkanContext& context, VkDescriptorPool pool, VkDescriptorSetLayout layout,
+                                             const std::unordered_map<uint32, uint32>& boundBuffers)
+{
+    auto drawCallSet = VkDescriptorSet{VK_NULL_HANDLE};
+
+    auto allocInfo               = VkDescriptorSetAllocateInfo{};
+    allocInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool     = pool;
+    allocInfo.descriptorSetCount = 1u;
+    allocInfo.pSetLayouts        = &layout;
+
+    if (vkAllocateDescriptorSets(context.device, &allocInfo, &drawCallSet) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Error: Failed to allocate dynamic VkDescriptorSet for DrawCall!\n";
+        return VK_NULL_HANDLE;
+    }
+
+    auto descriptorWrites = std::vector<VkWriteDescriptorSet>{};
+    auto bufferInfos      = std::vector<VkDescriptorBufferInfo>{};
+    bufferInfos.reserve(boundBuffers.size());
+
+    for (auto const& [bindLocation, bufferId] : boundBuffers)
+    {
+        auto bufIt = context.shaderBuffers.find(bufferId);
+        if (bufIt == context.shaderBuffers.end())
+            continue;
+        auto& shaderBuffer = bufIt->second;
+
+        auto bufferInfo   = VkDescriptorBufferInfo{};
+        bufferInfo.buffer = shaderBuffer.buffer;
+        bufferInfo.offset = 0;
+        bufferInfo.range  = shaderBuffer.size;
+        bufferInfos.push_back(bufferInfo);
+
+        auto descriptorWrite            = VkWriteDescriptorSet{};
+        descriptorWrite.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrite.dstSet          = drawCallSet;
+        descriptorWrite.dstBinding      = bindLocation;
+        descriptorWrite.dstArrayElement = 0;
+        descriptorWrite.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        descriptorWrite.descriptorCount = 1;
+        descriptorWrites.push_back(descriptorWrite);
+    }
+
+    for (auto i = size_t{0u}; i < descriptorWrites.size(); ++i)
+    {
+        descriptorWrites[i].pBufferInfo = &bufferInfos[i];
+    }
+
+    if (not descriptorWrites.empty())
+    {
+        vkUpdateDescriptorSets(context.device, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+    }
+
+    return drawCallSet;
+}
+
 void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer)
 {
     for (auto& [_, program] : vkContext.programs)
@@ -287,6 +344,7 @@ void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer)
             continue;
         }
 
+        vkResetDescriptorPool(vkContext.device, program.descriptorPool, 0);
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program.pipeline);
 
         for (const auto& drawCall : program.drawCalls)
@@ -297,9 +355,19 @@ void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer)
                 continue;
             }
 
+            auto drawCallSet = PrepareDrawCallDescriptorSet(vkContext, program.descriptorPool, program.descriptorSetLayout,
+                                                            drawCall.boundShaderBuffers);
+
+            if (drawCallSet == VK_NULL_HANDLE)
+            {
+                continue;
+            }
+
             VkBuffer vertexBuffers[] = {meshIt->second.vertexBuffer};
             VkDeviceSize offsets[]   = {0};
             vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program.layout, 0, 1, &drawCallSet, 0,
+                                    nullptr);
 
             if (meshIt->second.useIndices and meshIt->second.indexBuffer != VK_NULL_HANDLE)
             {
@@ -498,16 +566,51 @@ ID VulkanApi::CreateShader(ShaderProgramType type)
 {
     return shaderManager_.Create(type);
 }
-ID VulkanApi::CreateShaderBuffer(uint32, uint32, DrawFlag)
+ID VulkanApi::CreateShaderBuffer(uint32 bindLocation, uint32 size, GraphicsApi::DrawFlag flag)
 {
-    return 0;
+    VulkanShaderBuffer shaderBuffer{};
+    shaderBuffer.size                = size;
+    shaderBuffer.bindLocation        = bindLocation;
+    VkBufferUsageFlags usage         = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+
+    if (not CreateBuffer(vkContext, size, usage, properties, shaderBuffer.buffer, shaderBuffer.memory))
+    {
+        LOG_ERROR << "Error: Failed to create VkBuffer for UBO!\n";
+        return {};
+    }
+
+    if (vkMapMemory(vkContext.device, shaderBuffer.memory, 0, size, 0, &shaderBuffer.mappedData) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Error: Failed to map UBO memory to CPU space!\n";
+        vkDestroyBuffer(vkContext.device, shaderBuffer.buffer, nullptr);
+        vkFreeMemory(vkContext.device, shaderBuffer.memory, nullptr);
+        return {};
+    }
+
+    const auto bufferId               = vkContext.shaderBuffersPoolId.getId();
+    vkContext.shaderBuffers[bufferId] = std::move(shaderBuffer);
+
+    LOG_DEBUG << "Created Vulkan UBO ID: " << bufferId << ", size: " << size << " bytes"
+              << ", target bind location: " << bindLocation;
+
+    return bufferId;
 }
 ID VulkanApi::CreateShaderStorageBuffer(uint32, uint32, DrawFlag)
 {
     return 0;
 }
-void VulkanApi::UpdateShaderBuffer(uint32, void const*)
+void VulkanApi::UpdateShaderBuffer(uint32 id, void const* buffer)
 {
+    auto it = vkContext.shaderBuffers.find(id);
+    if (it == vkContext.shaderBuffers.end() or buffer == nullptr)
+    {
+        LOG_ERROR << "Error: Cannot update shader buffer. Invalid ID (" << id << ") or null data pointer!\n";
+        return;
+    }
+
+    auto& shaderBuffer = it->second;
+    std::memcpy(shaderBuffer.mappedData, buffer, shaderBuffer.size);
 }
 void VulkanApi::UpdateShaderStorageBuffer(uint32, void const*, uint32)
 {
@@ -519,20 +622,28 @@ void* VulkanApi::MapShaderStorageBuffer(uint32, uint32, uint32)
 void VulkanApi::UnmapShaderStorageBuffer(uint32)
 {
 }
-uint32 VulkanApi::BindShaderBuffer(uint32)
+uint32 VulkanApi::BindShaderBuffer(uint32 id)
 {
-    return 0;
+    auto bufIt = vkContext.shaderBuffers.find(id);
+    if (bufIt == vkContext.shaderBuffers.end())
+    {
+        LOG_ERROR << "Error: Cannot bind shader buffer. Buffer ID " << id << " not found!\n";
+        return std::numeric_limits<uint32>::max();
+    }
+
+    const auto bindLocation                                       = bufIt->second.bindLocation;
+    vkContext.currentRenderState.boundShaderBuffers[bindLocation] = id;
+    return bufIt->second.bindLocation;
 }
 void VulkanApi::UseShader(uint32 shaderId)
 {
     if (vkContext.programs.find(shaderId) == vkContext.programs.end())
     {
         LOG_ERROR << "Attempt to activate a non-existent shader/pipeline with ID: " << shaderId << "\n";
-        activePipelineId.reset();
         return;
     }
 
-    activePipelineId = shaderId;
+    vkContext.currentRenderState.activeProgramId = shaderId;
 }
 ID VulkanApi::CreateTexture(const Utils::Image&, TextureFilter, TextureMipmap)
 {
@@ -778,24 +889,17 @@ void VulkanApi::RenderMesh(uint32 meshId)
         return;
     }
 
-    if (not activePipelineId.has_value())
-    {
-        LOG_WARN << "Attempt to call RenderMesh without an active shader set (UseShader)!\n";
-        return;
-    }
-
-    auto it = vkContext.programs.find(*activePipelineId);
+    auto it = vkContext.programs.find(vkContext.currentRenderState.activeProgramId);
 
     if (it != vkContext.programs.end())
     {
-        VulkanDrawCall drawCall{};
-        drawCall.meshId = meshId;
-
+        VulkanDrawCall drawCall{.meshId = meshId, .boundShaderBuffers = vkContext.currentRenderState.boundShaderBuffers};
         it->second.drawCalls.push_back(drawCall);
     }
     else
     {
-        LOG_ERROR << "Error: The active shader ID (" << activePipelineId << ") does not exist in the Vulkan context!\n";
+        LOG_ERROR << "Error: The active shader ID (" << vkContext.currentRenderState.activeProgramId
+                  << ") does not exist in the Vulkan context!\n";
     }
 }
 void VulkanApi::RenderProcedural(uint32)

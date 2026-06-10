@@ -8,22 +8,10 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include "Logger/Log.h"
 
 namespace GraphicsApi::Vulkan
 {
-std::string ReadTextFile(const std::string& filename)
-{
-    std::ifstream file(filename);
-    if (not file.is_open())
-    {
-        std::cerr << "Nie udalo sie otworzyc pliku: " << filename << "\n";
-        return "";
-    }
-    std::stringstream stream;
-    stream << file.rdbuf();
-    return stream.str();
-}
-
 std::vector<uint32_t> CompileGlslToSpirv(const std::string& sourceName, shaderc_shader_kind kind, const std::string& sourceStr)
 {
     shaderc::Compiler compiler;
@@ -35,7 +23,7 @@ std::vector<uint32_t> CompileGlslToSpirv(const std::string& sourceName, shaderc_
 
     if (result.GetCompilationStatus() != shaderc_compilation_status_success)
     {
-        std::cerr << "Blad kompilacji shaderow (" << sourceName << "):\n" << result.GetErrorMessage() << "\n";
+        LOG_ERROR << "Blad kompilacji shaderow (" << sourceName << "):\n" << result.GetErrorMessage() << "\n";
         return std::vector<uint32_t>();
     }
     return std::vector<uint32_t>(result.cbegin(), result.cend());

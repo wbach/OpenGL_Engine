@@ -2,12 +2,12 @@
 
 #include <Logger/Log.h>
 
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <vector>
 
 #include "GraphicsApi/ShaderProgramType.h"
 #include "Types.h"
 #include "VulkanShaderCompiler.h"
-
 namespace GraphicsApi::Vulkan
 {
 namespace
@@ -31,7 +31,10 @@ VkShaderModule CreateShaderModule(VulkanContext& context, const std::vector<uint
 
 std::pair<std::string, std::string> GetShaderSourceNames(ShaderProgramType type)
 {
-    (void)type;
+    if (type == ShaderProgramType::Entity)
+    {
+        return {"SimpleEntityShader.vert", "SimpleEntityShader.frag"};
+    }
     return {"triangle.vert", "triangle.frag"};
 }
 
@@ -41,8 +44,11 @@ bool LoadShaderSourceFiles(const std::filesystem::path& shaderDirectory, const s
     const auto vertPathFullPath = std::filesystem::absolute(shaderDirectory / vertName).lexically_normal();
     const auto fragPathFullPath = std::filesystem::absolute(shaderDirectory / fragName).lexically_normal();
 
-    vertCode = ReadTextFile(vertPathFullPath.string());
-    fragCode = ReadTextFile(fragPathFullPath.string());
+    vertCode = Utils::ReadFilesWithIncludes(vertPathFullPath);
+    fragCode = Utils::ReadFilesWithIncludes(fragPathFullPath);
+
+    LOG_DEBUG << "Vertex vertCode: " << vertCode;
+    LOG_DEBUG << "Fragment fragCode: " << fragCode;
 
     if (vertCode.empty() or fragCode.empty())
     {
@@ -151,11 +157,12 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     inputAssembly.topology               = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     inputAssembly.primitiveRestartEnable = VK_FALSE;
 
+    // After openglowskie Y+ w górę, musimy odwrócić viewport, aby renderować poprawnie
     VkViewport viewport{};
     viewport.x        = 0.0f;
-    viewport.y        = 0.0f;
+    viewport.y        = static_cast<float>(context.swapChainExtent.height);
     viewport.width    = static_cast<float>(context.swapChainExtent.width);
-    viewport.height   = static_cast<float>(context.swapChainExtent.height);
+    viewport.height   = -static_cast<float>(context.swapChainExtent.height);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
@@ -177,7 +184,7 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     rasterizer.polygonMode             = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth               = 1.0f;
     rasterizer.cullMode                = VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace               = VK_FRONT_FACE_CLOCKWISE;
+    rasterizer.frontFace               = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizer.depthBiasEnable         = VK_FALSE;
 
     VkPipelineMultisampleStateCreateInfo multisampling{};
@@ -217,6 +224,50 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
         VK_SUCCESS)
     {
         LOG_ERROR << "Error: Failed to create Descriptor Set Layout for Program!\n";
+        return false;
+    }
+
+    VkDescriptorPoolSize poolSize{};
+    poolSize.type            = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSize.descriptorCount = 9u * 1000u;
+
+    VkDescriptorPoolCreateInfo poolInfo{};
+    poolInfo.sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.poolSizeCount = 1u;
+    poolInfo.pPoolSizes    = &poolSize;
+    poolInfo.maxSets       = 1000u;
+
+    if (vkCreateDescriptorPool(context.device, &poolInfo, nullptr, &newProgram.descriptorPool) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Error: Failed to create VkDescriptorPool!\n";
+        return {};
+    }
+
+    VkDescriptorSetAllocateInfo allocInfo{};
+    allocInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool     = newProgram.descriptorPool;
+    allocInfo.descriptorSetCount = 1u;
+    allocInfo.pSetLayouts        = &newProgram.descriptorSetLayout;
+
+    if (vkAllocateDescriptorSets(context.device, &allocInfo, &newProgram.descriptorSet) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Error: Failed to allocate VkDescriptorSet!\n";
+        vkDestroyDescriptorPool(context.device, newProgram.descriptorPool, nullptr);
+        return {};
+    }
+
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+    pipelineLayoutInfo.sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipelineLayoutInfo.setLayoutCount         = 1;
+    pipelineLayoutInfo.pSetLayouts            = &newProgram.descriptorSetLayout;
+    pipelineLayoutInfo.pushConstantRangeCount = 0;
+    pipelineLayoutInfo.pPushConstantRanges    = nullptr;
+
+    if (vkCreatePipelineLayout(context.device, &pipelineLayoutInfo, nullptr, &newProgram.layout) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Error: Failed to create Pipeline Layout!\n";
+        vkDestroyDescriptorPool(context.device, newProgram.descriptorPool, nullptr);
+        vkDestroyDescriptorSetLayout(context.device, newProgram.descriptorSetLayout, nullptr);
         return false;
     }
 

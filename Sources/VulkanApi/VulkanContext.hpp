@@ -9,9 +9,15 @@
 #include "IdPool.h"
 #include "VulkanMesh.h"
 #include "VulkanProgram.h"
-
+#include "VulkanShaderBuffer.h"
 namespace GraphicsApi::Vulkan
 {
+struct RenderState
+{
+    uint32 activeProgramId = 0u;
+    std::unordered_map<uint32, uint32> boundShaderBuffers;
+};
+
 struct VulkanContext
 {
     void ClearResources();
@@ -50,5 +56,10 @@ struct VulkanContext
 
     std::unordered_map<IdType, VulkanMesh> meshes;
     Utils::IdPool meshesPoolId;
+
+    std::unordered_map<IdType, VulkanShaderBuffer> shaderBuffers;
+    Utils::IdPool shaderBuffersPoolId;
+
+    RenderState currentRenderState;
 };
 }  // namespace GraphicsApi::Vulkan

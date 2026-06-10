@@ -4,12 +4,12 @@
 
 #include <optional>
 
+#include "DefaultFrameBuffer.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "Types.h"
 #include "VulkanApi/VulkanContext.hpp"
 #include "VulkanContext.hpp"
 #include "VulkanShaderManager.h"
-#include "DefaultFrameBuffer.h"
 
 namespace GraphicsApi::Vulkan
 {
@@ -122,7 +122,6 @@ private:
     TextureInfo dummyTextureInfo{};
     DefaultFrameBuffer dummyFrameBuffer;
 
-    std::optional<IdType> activePipelineId;
     ID quadMeshId;
 };
 }  // namespace GraphicsApi::Vulkan
