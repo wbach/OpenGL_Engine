@@ -135,7 +135,10 @@ ParticleEffectComponent& ParticleEffectComponent::SetTexture(const std::string& 
 {
     textureFile_ = filename;
     TextureParameters params;
-    params.flipMode = TextureFlip::VERTICAL;
+    params.flipMode  = TextureFlip::VERTICAL;
+    params.filter    = GraphicsApi::TextureFilter::LINEAR;
+    params.mimap     = GraphicsApi::TextureMipmap::LINEAR;
+    params.sizeLimit = EngineConf.renderer.textures.maxSize;
 
     DeleteTexture();
     texture_ = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(filename, params);

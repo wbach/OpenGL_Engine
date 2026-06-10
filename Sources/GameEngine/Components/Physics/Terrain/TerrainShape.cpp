@@ -93,7 +93,6 @@ void TerrainShape::LoadHeightMapIfSet()
 
     TextureParameters params;
     params.sizeLimit = std::nullopt;
-    ;
 
     auto heightMapTexture = componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(heightMapFile, params);
 

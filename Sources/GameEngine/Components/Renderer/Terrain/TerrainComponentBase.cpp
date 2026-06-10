@@ -105,8 +105,8 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
     thisObject_.SetWorldRotation(Rotation{});
     thisObject_.SetWorldScale(vec3(1.f));
     std::atomic_bool updateRigidbodyOnTransformChange_ = false;
-    auto rigidBodyId_ =
-        componentContext_.physicsApi_.CreateRigidbody(*collisionShapeId, thisObject_, Physics::CollisionGroup::Default, {}, 0.f, updateRigidbodyOnTransformChange_);
+    auto rigidBodyId_                                  = componentContext_.physicsApi_.CreateRigidbody(
+                                         *collisionShapeId, thisObject_, Physics::CollisionGroup::Default, {}, 0.f, updateRigidbodyOnTransformChange_);
 
     if (not rigidBodyId_)
     {
@@ -281,6 +281,7 @@ void TerrainComponentBase::LoadTextureImpl(const TerrainTexture &terrainTexture)
     TextureParameters textureParams;
     textureParams.flipMode = TextureFlip::VERTICAL;
     textureParams.mimap    = GraphicsApi::TextureMipmap::LINEAR;
+    textureParams.filter   = GraphicsApi::TextureFilter::LINEAR;
 
     if (TerrainTextureType::heightmap == terrainTexture.type)
     {
@@ -305,11 +306,12 @@ void TerrainComponentBase::LoadTextureImpl(const TerrainTexture &terrainTexture)
     if (TerrainTextureType::blendMap == terrainTexture.type)
     {
         textureParams.dataStorePolicy = DataStorePolicy::Store;
-        textureParams.sizeLimit = std::nullopt;;
+        textureParams.sizeLimit       = std::nullopt;
     }
     else
     {
         textureParams.dataStorePolicy = DataStorePolicy::ToRelease;
+        textureParams.sizeLimit       = EngineConf.renderer.textures.maxSize;
     }
 
     auto texture = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(terrainTexture.file, textureParams);
@@ -579,29 +581,35 @@ void TerrainComponentBase::updateTerrainTextureBufferData()
                 break;
 
             case TerrainTextureType::backgroundTexture:
-                bufferData.haveTextureBackground.value.x   = 1.f;
-                bufferData.backgroundTextureScales.value.x = terrainTexture.tiledScale / thisObject_.GetWorldTransform().GetScale().x;
+                bufferData.haveTextureBackground.value.x = 1.f;
+                bufferData.backgroundTextureScales.value.x =
+                    terrainTexture.tiledScale / thisObject_.GetWorldTransform().GetScale().x;
                 break;
             case TerrainTextureType::backgroundTextureNormal:
-                bufferData.haveTextureBackground.value.y   = 1.f;
-                bufferData.backgroundTextureScales.value.x = terrainTexture.tiledScale / thisObject_.GetWorldTransform().GetScale().x;
+                bufferData.haveTextureBackground.value.y = 1.f;
+                bufferData.backgroundTextureScales.value.x =
+                    terrainTexture.tiledScale / thisObject_.GetWorldTransform().GetScale().x;
                 break;
             case TerrainTextureType::backgroundTextureDisplacement:
-                bufferData.haveTextureBackground.value.z   = 1.f;
-                bufferData.backgroundTextureScales.value.x = terrainTexture.tiledScale / thisObject_.GetWorldTransform().GetScale().x;
+                bufferData.haveTextureBackground.value.z = 1.f;
+                bufferData.backgroundTextureScales.value.x =
+                    terrainTexture.tiledScale / thisObject_.GetWorldTransform().GetScale().x;
                 break;
 
             case TerrainTextureType::rockTexture:
-                bufferData.haveTextureRock.value.x         = 1.f;
-                bufferData.backgroundTextureScales.value.y = terrainTexture.tiledScale / thisObject_.GetWorldTransform().GetScale().x;
+                bufferData.haveTextureRock.value.x = 1.f;
+                bufferData.backgroundTextureScales.value.y =
+                    terrainTexture.tiledScale / thisObject_.GetWorldTransform().GetScale().x;
                 break;
             case TerrainTextureType::rockTextureNormal:
-                bufferData.haveTextureRock.value.y         = 1.f;
-                bufferData.backgroundTextureScales.value.y = terrainTexture.tiledScale / thisObject_.GetWorldTransform().GetScale().x;
+                bufferData.haveTextureRock.value.y = 1.f;
+                bufferData.backgroundTextureScales.value.y =
+                    terrainTexture.tiledScale / thisObject_.GetWorldTransform().GetScale().x;
                 break;
             case TerrainTextureType::rockTextureDisplacement:
-                bufferData.haveTextureRock.value.z         = 1.f;
-                bufferData.backgroundTextureScales.value.y = terrainTexture.tiledScale / thisObject_.GetWorldTransform().GetScale().x;
+                bufferData.haveTextureRock.value.z = 1.f;
+                bufferData.backgroundTextureScales.value.y =
+                    terrainTexture.tiledScale / thisObject_.GetWorldTransform().GetScale().x;
                 break;
 
             default:

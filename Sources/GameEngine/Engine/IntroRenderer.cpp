@@ -32,7 +32,7 @@ void IntroRenderer::Render()
 
     CleanUp();
 
-    //sleep(2);
+    // sleep(2);
 }
 void IntroRenderer::Init()
 {
@@ -40,9 +40,9 @@ void IntroRenderer::Init()
     shader_.Start();
 
     TextureParameters params;
-    params.loadType        = TextureLoadType::Immediately;
-    params.flipMode        = TextureFlip::VERTICAL;
-    params.sizeLimit = std::nullopt;;
+    params.loadType  = TextureLoadType::Immediately;
+    params.flipMode  = TextureFlip::VERTICAL;
+    params.sizeLimit = std::nullopt;
 
     auto image = ReadImage(BENGINE_png, BENGINE_png_len, params);
 

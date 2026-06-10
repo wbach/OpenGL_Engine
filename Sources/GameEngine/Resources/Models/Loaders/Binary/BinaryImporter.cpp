@@ -7,6 +7,7 @@
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <fstream>
 
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Resources/TextureParameters.h"
@@ -18,10 +19,14 @@ namespace GameEngine
 {
 GeneralTexture* createTexture(ITextureLoader& textureLoader, const TextureSerilizeData& data)
 {
+    // generowanie i eksport bylo bez limitu, ale import juz moze ten limit nakladac
+    auto textureParameters      = data.paramters;
+    textureParameters.sizeLimit = EngineConf.renderer.textures.maxSize;
+
     if (not data.path.empty())
     {
         LOG_DEBUG << "createTexture: " << data.path;
-        return textureLoader.LoadTexture(data.path, data.paramters);
+        return textureLoader.LoadTexture(data.path, textureParameters);
     }
 
     if (data.image.has_value())
@@ -32,7 +37,7 @@ GeneralTexture* createTexture(ITextureLoader& textureLoader, const TextureSerili
         {
             copyImage.decompressData();
         }
-        return textureLoader.CreateTexture(Utils::CreateUniqueFilename(), data.paramters, std::move(copyImage));
+        return textureLoader.CreateTexture(Utils::CreateUniqueFilename(), textureParameters, std::move(copyImage));
     }
 
     return nullptr;

@@ -70,7 +70,7 @@ GeneralTexture* TextureLoader::CreateTexture(const std::string& name, const Text
 
     if (params.sizeLimit and EngineConf.renderer.textures.limitTextureSize)
     {
-        image.resizeImage(*params.sizeLimit);
+        image.enforceMaxDimensions(*params.sizeLimit);
     }
 
     auto texture    = std::make_unique<GeneralTexture>(graphicsApi_, std::move(image), params);
@@ -90,7 +90,7 @@ ArrayTexture* TextureLoader::CreateTexture(const std::string& name, const Textur
     {
         for (auto& image : images)
         {
-            image.resizeImage(*params.sizeLimit);
+            image.enforceMaxDimensions(*params.sizeLimit);
         }
     }
 

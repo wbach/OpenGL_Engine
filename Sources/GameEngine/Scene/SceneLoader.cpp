@@ -104,11 +104,11 @@ void SceneLoader::Init()
 {
     LOG_DEBUG << "Init LoadingScreenRenderer";
     TextureParameters params;
-    params.loadType        = TextureLoadType::Immediately;
-    params.flipMode        = TextureFlip::VERTICAL;
-    params.sizeLimit = std::nullopt;;
-    params.filter          = GraphicsApi::TextureFilter::LINEAR;
-    params.mimap           = GraphicsApi::TextureMipmap::LINEAR;
+    params.loadType  = TextureLoadType::Immediately;
+    params.flipMode  = TextureFlip::VERTICAL;
+    params.sizeLimit = std::nullopt;
+    params.filter    = GraphicsApi::TextureFilter::LINEAR;
+    params.mimap     = GraphicsApi::TextureMipmap::LINEAR;
 
     if (not resourceManager)
     {

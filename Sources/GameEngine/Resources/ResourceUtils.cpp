@@ -41,11 +41,16 @@ FIBITMAP* resizeImageIfisLimited(FIBITMAP* image, const std::optional<vec2ui>& s
 {
     if (sizeLimit and EngineConf.renderer.textures.limitTextureSize)
     {
-        const auto& textureSize = sizeLimit.value();
-        bool resize_texture{false};
-
         uint32 w = FreeImage_GetWidth(image);
         uint32 h = FreeImage_GetHeight(image);
+
+        if (w <= sizeLimit->x and h <= sizeLimit->y)
+        {
+            return image;
+        }
+
+        const auto& textureSize = sizeLimit.value();
+        bool resize_texture{false};
         vec2ui newImageSize(w, h);
 
         if (w > textureSize.x)
@@ -183,6 +188,8 @@ std::optional<Utils::Image> ReadImage(const unsigned char* data, unsigned int le
     resultImage.height = FreeImage_GetHeight(image);
     resultImage.setChannels(4);
     resultImage.allocateImage<uint8>();
+
+    LOG_DEBUG << "resultImage : " << resultImage;
 
     auto pixeles = FreeImage_GetBits(image);
 

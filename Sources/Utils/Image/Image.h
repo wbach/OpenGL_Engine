@@ -64,6 +64,7 @@ public:
 
     void resizeImage(uint32, uint32);
     void resizeImage(const vec2ui&);
+    void enforceMaxDimensions(const vec2ui&);
 
     uint32 width{0};
     uint32 height{0};

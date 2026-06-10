@@ -153,7 +153,9 @@ Material GrassRendererComponent::CreateMaterial() const
     }
 
     GameEngine::TextureParameters tp;
-    tp.mimap = GraphicsApi::TextureMipmap::LINEAR;
+    tp.filter    = GraphicsApi::TextureFilter::LINEAR;
+    tp.mimap     = GraphicsApi::TextureMipmap::LINEAR;
+    tp.sizeLimit = EngineConf.renderer.textures.maxSize;
 
     Material material;
     material.baseColorTexture = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(textureFile, tp);

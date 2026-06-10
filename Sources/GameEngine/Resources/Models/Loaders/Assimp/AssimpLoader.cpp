@@ -2,9 +2,9 @@
 
 #include <GLM/GLMUtils.h>
 #include <Logger/Log.h>
+#include <Utils/TreeNodeReadFunctions.h>
 #include <XML/XMLUtils.h>
 #include <XML/XmlReader.h>
-#include <Utils/TreeNodeReadFunctions.h>
 
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/Models/MeshData.h"
@@ -514,8 +514,8 @@ GeneralTexture* CreateMaterialTexture(const std::optional<File>& currentProcessi
     {
         std::string pathStr = path.C_Str();
         TextureParameters parameters;
-        parameters.filter = GraphicsApi::TextureFilter::LINEAR;
-        parameters.mimap  = GraphicsApi::TextureMipmap::LINEAR;
+        parameters.filter    = GraphicsApi::TextureFilter::LINEAR;
+        parameters.mimap     = GraphicsApi::TextureMipmap::LINEAR;
         parameters.sizeLimit = EngineConf.renderer.textures.maxSize;
 
         if (pathStr.size() > 1 and pathStr[0] == '*')

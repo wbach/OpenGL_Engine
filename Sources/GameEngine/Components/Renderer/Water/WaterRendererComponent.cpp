@@ -126,6 +126,7 @@ WaterRendererComponent& WaterRendererComponent::LoadTextures(const File& dudv, c
     TextureParameters paramters;
     paramters.mimap  = GraphicsApi::TextureMipmap::LINEAR;
     paramters.filter = GraphicsApi::TextureFilter::LINEAR;
+    paramters.sizeLimit = EngineConf.renderer.textures.maxSize;
 
     normalMap_ = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(normal, paramters);
     dudvMap_   = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(dudv, paramters);

@@ -5,6 +5,7 @@
 #include <Utils/Json/JsonWriter.h>
 #include <Utils/Utils.h>
 
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/TextureParameters.h"
@@ -38,7 +39,9 @@ Material ParseMaterial(const File& file, ITextureLoader& texLoader)
         };
 
         TextureParameters textureParams;
-        textureParams.mimap = GraphicsApi::TextureMipmap::LINEAR;
+        textureParams.filter    = GraphicsApi::TextureFilter::LINEAR;
+        textureParams.mimap     = GraphicsApi::TextureMipmap::LINEAR;
+        textureParams.sizeLimit = EngineConf.renderer.textures.maxSize;
 
         // --- PBR Textures ---
         material.baseColorTexture    = loadTexture("baseColorTexture", textureParams);

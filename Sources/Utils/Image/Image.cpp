@@ -517,4 +517,14 @@ void Image::resizeImage(const vec2ui& v)
 {
     resizeImage(v.x, v.y);
 }
+void Image::enforceMaxDimensions(const vec2ui& sizeLimit)
+{
+    if (width <= sizeLimit.x and height <= sizeLimit.y)
+    {
+        LOG_DEBUG << size();
+        return;
+    }
+
+    resizeImage(sizeLimit.x, sizeLimit.y);
+}
 }  // namespace Utils

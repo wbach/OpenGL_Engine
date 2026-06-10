@@ -833,7 +833,9 @@ std::pair<GameEngine::Material, GameEngine::Material> PrepareTreeMaterials(GameE
                                                                            const TreeGenerationParams& params)
 {
     GameEngine::TextureParameters tp;
-    tp.mimap = GraphicsApi::TextureMipmap::LINEAR;
+    tp.mimap     = GraphicsApi::TextureMipmap::LINEAR;
+    tp.filter    = GraphicsApi::TextureFilter::LINEAR;
+    //tp.sizeLimit = EngineConf.renderer.textures.maxSize;
 
     auto trunkMaterial                = GameEngine::MaterialPresets::Trunk();
     trunkMaterial.baseColorTexture    = tl.LoadTexture(params.trunkMaterialBaseColorTexture, tp);
