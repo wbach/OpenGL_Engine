@@ -1,7 +1,7 @@
 #pragma once
 #include <Input/InputManager.h>
 #include <Types.h>
-#include <Windows.h>
+#include <windows.h>
 
 
 namespace GraphicsApi::Dx11

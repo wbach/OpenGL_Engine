@@ -22,8 +22,12 @@ if(DEFINED ENV{DISTCC})
 endif()
 
 if(NOT MSVC AND WIN32)
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-all-symbols -Wl,--allow-multiple-definition")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--allow-multiple-definition")
+    # Flagi, które miałeś do tej pory + dopisane na końcu flagi statyczne dla MinGW
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-all-symbols -Wl,--allow-multiple-definition -static-libgcc -static-libstdc++ -Wl,-Bstatic -lwinpthread -Wl,-Bdynamic")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--allow-multiple-definition -static-libgcc -static-libstdc++ -Wl,-Bstatic -lwinpthread -Wl,-Bdynamic")
+
+    # DODAJEMY RÓWNIEŻ TO (bardzo ważne dla modułów wczytywanych przez silnik):
+    set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -static-libgcc -static-libstdc++ -Wl,-Bstatic -lwinpthread -Wl,-Bdynamic")
 endif()
 
 message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
@@ -195,6 +199,7 @@ add_custom_command(TARGET ${lib_target} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:${lib_target}>
         ${CMAKE_BINARY_DIR}
+        COMMENT "Kopiowanie ${lib_target} do folderu wykonywalnego"
 )
 endfunction()
 
@@ -206,6 +211,7 @@ function(copy_all_dlls_to_target dll_dir exe_target)
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${dll_file}"
                 ${CMAKE_BINARY_DIR}
+                COMMENT "Kopiowanie ${dll_file} do folderu wykonywalnego"
         )
     endforeach()
 endfunction()

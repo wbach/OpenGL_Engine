@@ -3,7 +3,7 @@
 #include <d3d11.h>
 #include <Logger/Log.h>
 #include <Utils/IdPool.h>
-#include <Windows.h>
+#include <windows.h>
 
 #include <mutex>
 

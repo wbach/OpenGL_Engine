@@ -1,6 +1,6 @@
 #include "WinApiKeyConverter.h"
 
-#include <Windows.h>
+#include <windows.h>
 
 namespace GraphicsApi::Dx11
 {
