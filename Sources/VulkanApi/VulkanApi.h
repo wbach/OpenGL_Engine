@@ -123,5 +123,6 @@ private:
     IFrameBuffer* dummyFrameBuffer = nullptr;
 
     std::optional<IdType> activePipelineId;
+    ID quadMeshId;
 };
 }  // namespace GraphicsApi::Vulkan

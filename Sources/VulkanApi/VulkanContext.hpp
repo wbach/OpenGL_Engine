@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "IdPool.h"
+#include "VulkanMesh.h"
 #include "VulkanProgram.h"
 
 namespace GraphicsApi::Vulkan
@@ -46,5 +47,8 @@ struct VulkanContext
 
     std::unordered_map<IdType, VulkanProgram> programs;
     Utils::IdPool programsPoolId;
+
+    std::unordered_map<IdType, VulkanMesh> meshes;
+    Utils::IdPool meshesPoolId;
 };
 }  // namespace GraphicsApi::Vulkan

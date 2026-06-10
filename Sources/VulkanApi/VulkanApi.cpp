@@ -3,6 +3,7 @@
 #include <Logger/Log.h>
 #include <SDL2/SDL_vulkan.h>
 
+#include <cstring>
 #include <iostream>
 #include <vector>
 
@@ -214,6 +215,77 @@ bool BeginRenderPass(VulkanContext& vkContext, VkCommandBuffer commandBuffer, ui
     return true;
 }
 
+uint32 FindMemoryType(VulkanContext& vkContext, uint32 typeFilter, VkMemoryPropertyFlags properties)
+{
+    VkPhysicalDeviceMemoryProperties memProperties{};
+    vkGetPhysicalDeviceMemoryProperties(vkContext.physicalDevice, &memProperties);
+
+    for (uint32 i = 0; i < memProperties.memoryTypeCount; ++i)
+    {
+        if ((typeFilter & (1u << i)) and (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
+        {
+            return i;
+        }
+    }
+
+    return 0;
+}
+
+bool CreateBuffer(VulkanContext& vkContext,
+                  VkDeviceSize size,
+                  VkBufferUsageFlags usage,
+                  VkMemoryPropertyFlags properties,
+                  VkBuffer& buffer,
+                  VkDeviceMemory& bufferMemory)
+{
+    VkBufferCreateInfo bufferInfo{};
+    bufferInfo.sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.size        = size;
+    bufferInfo.usage       = usage;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    if (vkCreateBuffer(vkContext.device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Error: Failed to create buffer.\n";
+        return false;
+    }
+
+    VkMemoryRequirements memRequirements{};
+    vkGetBufferMemoryRequirements(vkContext.device, buffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo{};
+    allocInfo.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize  = memRequirements.size;
+    allocInfo.memoryTypeIndex = FindMemoryType(vkContext, memRequirements.memoryTypeBits, properties);
+
+    if (vkAllocateMemory(vkContext.device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Error: Failed to allocate buffer memory.\n";
+        vkDestroyBuffer(vkContext.device, buffer, nullptr);
+        return false;
+    }
+
+    vkBindBufferMemory(vkContext.device, buffer, bufferMemory, 0);
+    return true;
+}
+
+bool UploadBufferData(VulkanContext& vkContext,
+                      VkBuffer buffer,
+                      VkDeviceMemory bufferMemory,
+                      const void* data,
+                      VkDeviceSize size)
+{
+    void* mapped = nullptr;
+    if (vkMapMemory(vkContext.device, bufferMemory, 0, size, 0, &mapped) != VK_SUCCESS)
+    {
+        return false;
+    }
+
+    std::memcpy(mapped, data, static_cast<size_t>(size));
+    vkUnmapMemory(vkContext.device, bufferMemory);
+    return true;
+}
+
 void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer)
 {
     for (std::pair<const IdType, VulkanProgram>& pair : vkContext.programs)
@@ -229,8 +301,25 @@ void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer)
 
         for (const VulkanDrawCall& drawCall : program.drawCalls)
         {
-            (void)drawCall;
-            vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+            const auto meshIt = vkContext.meshes.find(drawCall.meshId);
+            if (meshIt == vkContext.meshes.end())
+            {
+                continue;
+            }
+
+            VkBuffer vertexBuffers[] = {meshIt->second.vertexBuffer};
+            VkDeviceSize offsets[] = {0};
+            vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+            if (meshIt->second.useIndices and meshIt->second.indexBuffer != VK_NULL_HANDLE)
+            {
+                vkCmdBindIndexBuffer(commandBuffer, meshIt->second.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+                vkCmdDrawIndexed(commandBuffer, static_cast<uint32>(meshIt->second.meshData.indices_.size()), 1, 0, 0, 0);
+            }
+            else
+            {
+                vkCmdDraw(commandBuffer, meshIt->second.vertexCount, 1, 0, 0);
+            }
         }
 
         program.drawCalls.clear();
@@ -338,6 +427,22 @@ void VulkanApi::CreateContext()
     if (!InitializeRenderingResources(vkContext))
     {
         return;
+    }
+
+    if (!quadMeshId.has_value())
+    {
+        MeshRawData quadMeshData{};
+        quadMeshData.positions_ = {-1.0f, -1.0f, 0.0f,
+                                    1.0f, -1.0f, 0.0f,
+                                    1.0f,  1.0f, 0.0f,
+                                   -1.0f,  1.0f, 0.0f};
+        quadMeshData.textCoords_ = {0.0f, 0.0f,
+                                    1.0f, 0.0f,
+                                    1.0f, 1.0f,
+                                    0.0f, 1.0f};
+        quadMeshData.indices_ = {0, 1, 2, 0, 2, 3};
+
+        quadMeshId = CreateMesh(quadMeshData, RenderType::TRIANGLES);
     }
 }
 
@@ -518,9 +623,92 @@ ID VulkanApi::CreatePurePatchMeshInstanced(uint32, uint32)
 {
     return 0;
 }
-ID VulkanApi::CreateMesh(const MeshRawData&, RenderType)
+ID VulkanApi::CreateMesh(const MeshRawData& meshData, RenderType renderType)
 {
-    return 0;
+    VulkanMesh mesh{};
+    mesh.meshData = meshData;
+    mesh.renderType = renderType;
+    mesh.vertexCount = static_cast<uint32>(meshData.positions_.size() / 3u);
+    mesh.useIndices = !meshData.indices_.empty();
+
+    const auto meshId = vkContext.meshesPoolId.getId();
+
+    if (!meshData.positions_.empty())
+    {
+        std::vector<float> interleavedVertices;
+        interleavedVertices.reserve(mesh.vertexCount * 5u);
+
+        for (uint32 i = 0; i < mesh.vertexCount; ++i)
+        {
+            const auto posOffset = i * 3u;
+            interleavedVertices.push_back(meshData.positions_[posOffset]);
+            interleavedVertices.push_back(meshData.positions_[posOffset + 1u]);
+            interleavedVertices.push_back(meshData.positions_[posOffset + 2u]);
+
+            const auto texOffset = i * 2u;
+            if (texOffset + 1u < meshData.textCoords_.size())
+            {
+                interleavedVertices.push_back(meshData.textCoords_[texOffset]);
+                interleavedVertices.push_back(meshData.textCoords_[texOffset + 1u]);
+            }
+            else
+            {
+                interleavedVertices.push_back(0.0f);
+                interleavedVertices.push_back(0.0f);
+            }
+        }
+
+        if (!CreateBuffer(vkContext,
+                          interleavedVertices.size() * sizeof(interleavedVertices[0]),
+                          VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                          mesh.vertexBuffer,
+                          mesh.vertexBufferMemory))
+        {
+            return {};
+        }
+
+        if (!UploadBufferData(vkContext,
+                              mesh.vertexBuffer,
+                              mesh.vertexBufferMemory,
+                              interleavedVertices.data(),
+                              interleavedVertices.size() * sizeof(interleavedVertices[0])))
+        {
+            vkDestroyBuffer(vkContext.device, mesh.vertexBuffer, nullptr);
+            vkFreeMemory(vkContext.device, mesh.vertexBufferMemory, nullptr);
+            return {};
+        }
+    }
+
+    if (!meshData.indices_.empty())
+    {
+        if (!CreateBuffer(vkContext,
+                          meshData.indices_.size() * sizeof(meshData.indices_[0]),
+                          VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                          mesh.indexBuffer,
+                          mesh.indexBufferMemory))
+        {
+            return {};
+        }
+
+        if (!UploadBufferData(vkContext,
+                              mesh.indexBuffer,
+                              mesh.indexBufferMemory,
+                              meshData.indices_.data(),
+                              meshData.indices_.size() * sizeof(meshData.indices_[0])))
+        {
+            vkDestroyBuffer(vkContext.device, mesh.indexBuffer, nullptr);
+            vkFreeMemory(vkContext.device, mesh.indexBufferMemory, nullptr);
+            return {};
+        }
+    }
+
+    vkContext.meshes[meshId] = std::move(mesh);
+
+    LOG_DEBUG << "Created Vulkan mesh ID: " << meshId << ", vertices: " << vkContext.meshes[meshId].vertexCount
+              << ", indices: " << vkContext.meshes[meshId].meshData.indices_.size();
+    return meshId;
 }
 ID VulkanApi::CreateDynamicLineMesh()
 {
@@ -542,6 +730,12 @@ void VulkanApi::RenderPurePatchedMeshInstances(uint32)
 }
 void VulkanApi::RenderMesh(uint32 meshId)
 {
+    if (vkContext.meshes.find(meshId) == vkContext.meshes.end())
+    {
+        LOG_ERROR << "Attempt to render a non-existent Vulkan mesh with ID: " << meshId << "\n";
+        return;
+    }
+
     if (not activePipelineId.has_value())
     {
         LOG_WARN << "Attempt to call RenderMesh without an active shader set (UseShader)!\n";
@@ -579,24 +773,23 @@ void VulkanApi::RenderPoints(uint32)
 }
 void VulkanApi::RenderQuad()
 {
-    if (not activePipelineId.has_value())
+    if (!quadMeshId.has_value())
     {
-        return;
+        MeshRawData quadMeshData{};
+        quadMeshData.positions_ = {-1.0f, -1.0f, 0.0f,
+                                    1.0f, -1.0f, 0.0f,
+                                    1.0f,  1.0f, 0.0f,
+                                   -1.0f,  1.0f, 0.0f};
+        quadMeshData.textCoords_ = {0.0f, 0.0f,
+                                    1.0f, 0.0f,
+                                    1.0f, 1.0f,
+                                    0.0f, 1.0f};
+        quadMeshData.indices_ = {0, 1, 2, 0, 2, 3};
+
+        quadMeshId = CreateMesh(quadMeshData, RenderType::TRIANGLES);
     }
 
-    std::unordered_map<IdType, VulkanProgram>::iterator it = vkContext.programs.find(*activePipelineId);
-
-    if (it != vkContext.programs.end())
-    {
-        VulkanDrawCall drawCall{};
-        drawCall.meshId = 0;
-
-        it->second.drawCalls.push_back(drawCall);
-    }
-    else
-    {
-        LOG_ERROR << "Error: RenderQuad is trying to use a non-existent active shader ID: " << activePipelineId << "\n";
-    }
+    RenderMesh(quadMeshId.value_or(0));
 }
 void VulkanApi::RenderQuadTs()
 {
