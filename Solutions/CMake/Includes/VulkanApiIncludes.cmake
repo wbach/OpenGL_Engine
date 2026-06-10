@@ -1,5 +1,8 @@
 set(VulkanApiIncludes
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanShaderManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/SdlKeyConverter.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanMesh.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/DefaultFrameBuffer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanShaderCompiler.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/SdlVulkanApi.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanProgram.h

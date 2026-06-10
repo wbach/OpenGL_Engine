@@ -9,7 +9,7 @@
 #include "VulkanApi/VulkanContext.hpp"
 #include "VulkanContext.hpp"
 #include "VulkanShaderManager.h"
-
+#include "DefaultFrameBuffer.h"
 
 namespace GraphicsApi::Vulkan
 {
@@ -120,7 +120,7 @@ private:
     VulkanShaderManager shaderManager_;
 
     TextureInfo dummyTextureInfo{};
-    IFrameBuffer* dummyFrameBuffer = nullptr;
+    DefaultFrameBuffer dummyFrameBuffer;
 
     std::optional<IdType> activePipelineId;
     ID quadMeshId;

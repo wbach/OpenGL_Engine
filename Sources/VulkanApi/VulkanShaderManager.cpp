@@ -35,11 +35,8 @@ std::pair<std::string, std::string> GetShaderSourceNames(ShaderProgramType type)
     return {"triangle.vert", "triangle.frag"};
 }
 
-bool LoadShaderSourceFiles(const std::filesystem::path& shaderDirectory,
-                           const std::string& vertName,
-                           const std::string& fragName,
-                           std::string& vertCode,
-                           std::string& fragCode)
+bool LoadShaderSourceFiles(const std::filesystem::path& shaderDirectory, const std::string& vertName, const std::string& fragName,
+                           std::string& vertCode, std::string& fragCode)
 {
     const auto vertPathFullPath = std::filesystem::absolute(shaderDirectory / vertName).lexically_normal();
     const auto fragPathFullPath = std::filesystem::absolute(shaderDirectory / fragName).lexically_normal();
@@ -56,12 +53,8 @@ bool LoadShaderSourceFiles(const std::filesystem::path& shaderDirectory,
     return true;
 }
 
-bool CompileShaderSources(const std::string& vertName,
-                          const std::string& fragName,
-                          const std::string& vertCode,
-                          const std::string& fragCode,
-                          std::vector<uint32_t>& vertSpirv,
-                          std::vector<uint32_t>& fragSpirv)
+bool CompileShaderSources(const std::string& vertName, const std::string& fragName, const std::string& vertCode,
+                          const std::string& fragCode, std::vector<uint32_t>& vertSpirv, std::vector<uint32_t>& fragSpirv)
 {
     vertSpirv = CompileGlslToSpirv(vertName, shaderc_vertex_shader, vertCode);
     fragSpirv = CompileGlslToSpirv(fragName, shaderc_fragment_shader, fragCode);
@@ -75,11 +68,8 @@ bool CompileShaderSources(const std::string& vertName,
     return true;
 }
 
-bool CreateShaderModules(VulkanContext& context,
-                         const std::vector<uint32_t>& vertSpirv,
-                         const std::vector<uint32_t>& fragSpirv,
-                         VkShaderModule& vertModule,
-                         VkShaderModule& fragModule)
+bool CreateShaderModules(VulkanContext& context, const std::vector<uint32_t>& vertSpirv, const std::vector<uint32_t>& fragSpirv,
+                         VkShaderModule& vertModule, VkShaderModule& fragModule)
 {
     vertModule = CreateShaderModule(context, vertSpirv);
     fragModule = CreateShaderModule(context, fragSpirv);
@@ -109,31 +99,51 @@ bool CreatePipelineLayout(VulkanContext& context, VulkanProgram& newProgram)
     return true;
 }
 
-bool CreateGraphicsPipeline(VulkanContext& context,
-                            VulkanProgram& newProgram,
+bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
                             const VkPipelineShaderStageCreateInfo* shaderStages)
 {
     VkVertexInputBindingDescription bindingDescription{};
     bindingDescription.binding   = 0;
-    bindingDescription.stride    = 5 * sizeof(float);
+    bindingDescription.stride    = 19 * sizeof(float);  // size wszystkich (3 + 2 + 3 + 3 + 4 + 4)
     bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-    VkVertexInputAttributeDescription attributeDescriptions[2]{};
+    VkVertexInputAttributeDescription attributeDescriptions[6]{};
+    // 0: Position (vec3)
     attributeDescriptions[0].binding  = 0;
     attributeDescriptions[0].location = 0;
     attributeDescriptions[0].format   = VK_FORMAT_R32G32B32_SFLOAT;
     attributeDescriptions[0].offset   = 0;
-
+    // 1: TexCoord (vec2)
     attributeDescriptions[1].binding  = 0;
     attributeDescriptions[1].location = 1;
     attributeDescriptions[1].format   = VK_FORMAT_R32G32_SFLOAT;
     attributeDescriptions[1].offset   = 3 * sizeof(float);
+    // 2: Normal (vec3)
+    attributeDescriptions[2].binding  = 0;
+    attributeDescriptions[2].location = 2;
+    attributeDescriptions[2].format   = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDescriptions[2].offset   = (3 + 2) * sizeof(float);
+    // 3: Tangent (vec3)
+    attributeDescriptions[3].binding  = 0;
+    attributeDescriptions[3].location = 3;
+    attributeDescriptions[3].format   = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDescriptions[3].offset   = (3 + 2 + 3) * sizeof(float);
+    // 4: Weights (vec4)
+    attributeDescriptions[4].binding  = 0;
+    attributeDescriptions[4].location = 4;
+    attributeDescriptions[4].format   = VK_FORMAT_R32G32B32A32_SFLOAT;
+    attributeDescriptions[4].offset   = (3 + 2 + 3 + 3) * sizeof(float);
+    // 5: BoneIds (ivec4)
+    attributeDescriptions[5].binding  = 0;
+    attributeDescriptions[5].location = 5;
+    attributeDescriptions[5].format   = VK_FORMAT_R32G32B32A32_SINT;
+    attributeDescriptions[5].offset   = (3 + 2 + 3 + 3 + 4) * sizeof(float);
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputInfo.vertexBindingDescriptionCount   = 1;
     vertexInputInfo.pVertexBindingDescriptions      = &bindingDescription;
-    vertexInputInfo.vertexAttributeDescriptionCount = 2;
+    vertexInputInfo.vertexAttributeDescriptionCount = 6;
     vertexInputInfo.pVertexAttributeDescriptions    = attributeDescriptions;
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
@@ -186,6 +196,30 @@ bool CreateGraphicsPipeline(VulkanContext& context,
     colorBlending.attachmentCount = 1;
     colorBlending.pAttachments    = &colorBlendAttachment;
 
+    const auto globalStages = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+    auto bindings           = std::vector<VkDescriptorSetLayoutBinding>(9);
+
+    for (uint32_t i = 0; i < 9; ++i)
+    {
+        bindings[i].binding            = i;
+        bindings[i].descriptorType     = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        bindings[i].descriptorCount    = 1;
+        bindings[i].stageFlags         = globalStages;
+        bindings[i].pImmutableSamplers = nullptr;
+    }
+
+    VkDescriptorSetLayoutCreateInfo descriptorLayoutInfo{};
+    descriptorLayoutInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    descriptorLayoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+    descriptorLayoutInfo.pBindings    = bindings.data();
+
+    if (vkCreateDescriptorSetLayout(context.device, &descriptorLayoutInfo, nullptr, &newProgram.descriptorSetLayout) !=
+        VK_SUCCESS)
+    {
+        LOG_ERROR << "Error: Failed to create Descriptor Set Layout for Program!\n";
+        return false;
+    }
+
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.stageCount          = 2;
@@ -200,8 +234,7 @@ bool CreateGraphicsPipeline(VulkanContext& context,
     pipelineInfo.renderPass          = context.renderPass;
     pipelineInfo.subpass             = 0;
 
-    if (vkCreateGraphicsPipelines(context.device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &newProgram.pipeline) !=
-        VK_SUCCESS)
+    if (vkCreateGraphicsPipelines(context.device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &newProgram.pipeline) != VK_SUCCESS)
     {
         LOG_ERROR << "Error: Failed to compile Graphics Pipeline!\n";
         return false;
@@ -289,11 +322,10 @@ ID VulkanShaderManager::Create(ShaderProgramType type)
 
     DestroyShaderModules(vkContext_, vertModule, fragModule);
 
-    const auto programId = vkContext_.programsPoolId.getId();
+    const auto programId           = vkContext_.programsPoolId.getId();
     vkContext_.programs[programId] = std::move(newProgram);
 
-    LOG_DEBUG << "Success: Shader and GPU pipeline state compiled successfully. Registered VulkanProgram with ID: "
-              << programId;
+    LOG_DEBUG << "Success: Shader and GPU pipeline state compiled successfully. Registered VulkanProgram with ID: " << programId;
 
     return programId;
 }

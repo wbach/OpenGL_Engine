@@ -70,7 +70,7 @@ protected:
 
 protected:
     RendererContext& context_;
-    GraphicsApi::IFrameBuffer* renderTarget;
+    GraphicsApi::IFrameBuffer* renderTarget{nullptr};
     Renderers renderers;
 
 private:

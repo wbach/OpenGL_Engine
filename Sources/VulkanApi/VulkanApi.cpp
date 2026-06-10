@@ -18,8 +18,8 @@ namespace
 {
 bool AcquireNextSwapChainImage(VulkanContext& vkContext, uint32& imageIndex)
 {
-    VkResult result = vkAcquireNextImageKHR(vkContext.device, vkContext.swapChain, UINT64_MAX,
-                                            vkContext.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(vkContext.device, vkContext.swapChain, UINT64_MAX, vkContext.imageAvailableSemaphore,
+                                            VK_NULL_HANDLE, &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
@@ -38,14 +38,14 @@ bool AcquireNextSwapChainImage(VulkanContext& vkContext, uint32& imageIndex)
 bool PresentSwapChainImage(VulkanContext& vkContext, uint32 imageIndex)
 {
     VkPresentInfoKHR presentInfo{};
-    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores    = &vkContext.renderFinishedSemaphore;
 
     VkSwapchainKHR swapChains[] = {vkContext.swapChain};
-    presentInfo.swapchainCount = 1;
-    presentInfo.pSwapchains    = swapChains;
-    presentInfo.pImageIndices  = &imageIndex;
+    presentInfo.swapchainCount  = 1;
+    presentInfo.pSwapchains     = swapChains;
+    presentInfo.pImageIndices   = &imageIndex;
 
     VkResult result = vkQueuePresentKHR(vkContext.presentQueue, &presentInfo);
 
@@ -206,8 +206,8 @@ bool BeginRenderPass(VulkanContext& vkContext, VkCommandBuffer commandBuffer, ui
     renderPassInfo.renderArea.offset = {0, 0};
     renderPassInfo.renderArea.extent = vkContext.swapChainExtent;
 
-    VkClearValue clearColor = {{{vkContext.backgroundColor[0], vkContext.backgroundColor[1], vkContext.backgroundColor[2],
-                                 vkContext.backgroundColor[3]}}};
+    VkClearValue clearColor        = {{{vkContext.backgroundColor[0], vkContext.backgroundColor[1], vkContext.backgroundColor[2],
+                                        vkContext.backgroundColor[3]}}};
     renderPassInfo.clearValueCount = 1;
     renderPassInfo.pClearValues    = &clearColor;
 
@@ -231,12 +231,8 @@ uint32 FindMemoryType(VulkanContext& vkContext, uint32 typeFilter, VkMemoryPrope
     return 0;
 }
 
-bool CreateBuffer(VulkanContext& vkContext,
-                  VkDeviceSize size,
-                  VkBufferUsageFlags usage,
-                  VkMemoryPropertyFlags properties,
-                  VkBuffer& buffer,
-                  VkDeviceMemory& bufferMemory)
+bool CreateBuffer(VulkanContext& vkContext, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
+                  VkBuffer& buffer, VkDeviceMemory& bufferMemory)
 {
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -269,11 +265,7 @@ bool CreateBuffer(VulkanContext& vkContext,
     return true;
 }
 
-bool UploadBufferData(VulkanContext& vkContext,
-                      VkBuffer buffer,
-                      VkDeviceMemory bufferMemory,
-                      const void* data,
-                      VkDeviceSize size)
+bool UploadBufferData(VulkanContext& vkContext, VkBuffer buffer, VkDeviceMemory bufferMemory, const void* data, VkDeviceSize size)
 {
     void* mapped = nullptr;
     if (vkMapMemory(vkContext.device, bufferMemory, 0, size, 0, &mapped) != VK_SUCCESS)
@@ -288,10 +280,8 @@ bool UploadBufferData(VulkanContext& vkContext,
 
 void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer)
 {
-    for (std::pair<const IdType, VulkanProgram>& pair : vkContext.programs)
+    for (auto& [_, program] : vkContext.programs)
     {
-        VulkanProgram& program = pair.second;
-
         if (program.drawCalls.empty())
         {
             continue;
@@ -299,7 +289,7 @@ void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer)
 
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program.pipeline);
 
-        for (const VulkanDrawCall& drawCall : program.drawCalls)
+        for (const auto& drawCall : program.drawCalls)
         {
             const auto meshIt = vkContext.meshes.find(drawCall.meshId);
             if (meshIt == vkContext.meshes.end())
@@ -308,7 +298,7 @@ void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer)
             }
 
             VkBuffer vertexBuffers[] = {meshIt->second.vertexBuffer};
-            VkDeviceSize offsets[] = {0};
+            VkDeviceSize offsets[]   = {0};
             vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
             if (meshIt->second.useIndices and meshIt->second.indexBuffer != VK_NULL_HANDLE)
@@ -432,15 +422,9 @@ void VulkanApi::CreateContext()
     if (!quadMeshId.has_value())
     {
         MeshRawData quadMeshData{};
-        quadMeshData.positions_ = {-1.0f, -1.0f, 0.0f,
-                                    1.0f, -1.0f, 0.0f,
-                                    1.0f,  1.0f, 0.0f,
-                                   -1.0f,  1.0f, 0.0f};
-        quadMeshData.textCoords_ = {0.0f, 0.0f,
-                                    1.0f, 0.0f,
-                                    1.0f, 1.0f,
-                                    0.0f, 1.0f};
-        quadMeshData.indices_ = {0, 1, 2, 0, 2, 3};
+        quadMeshData.positions_  = {-1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f, 0.0f};
+        quadMeshData.textCoords_ = {0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
+        quadMeshData.indices_    = {0, 1, 2, 0, 2, 3};
 
         quadMeshId = CreateMesh(quadMeshData, RenderType::TRIANGLES);
     }
@@ -626,25 +610,27 @@ ID VulkanApi::CreatePurePatchMeshInstanced(uint32, uint32)
 ID VulkanApi::CreateMesh(const MeshRawData& meshData, RenderType renderType)
 {
     VulkanMesh mesh{};
-    mesh.meshData = meshData;
-    mesh.renderType = renderType;
+    mesh.meshData    = meshData;
+    mesh.renderType  = renderType;
     mesh.vertexCount = static_cast<uint32>(meshData.positions_.size() / 3u);
-    mesh.useIndices = !meshData.indices_.empty();
+    mesh.useIndices  = not meshData.indices_.empty();
 
     const auto meshId = vkContext.meshesPoolId.getId();
 
-    if (!meshData.positions_.empty())
+    if (not meshData.positions_.empty())
     {
         std::vector<float> interleavedVertices;
-        interleavedVertices.reserve(mesh.vertexCount * 5u);
+        interleavedVertices.reserve(mesh.vertexCount * 19u);
 
         for (uint32 i = 0; i < mesh.vertexCount; ++i)
         {
+            // 1. Position (vec3) - Zawsze obowiązkowe
             const auto posOffset = i * 3u;
             interleavedVertices.push_back(meshData.positions_[posOffset]);
             interleavedVertices.push_back(meshData.positions_[posOffset + 1u]);
             interleavedVertices.push_back(meshData.positions_[posOffset + 2u]);
 
+            // 2. TexCoord (vec2)
             const auto texOffset = i * 2u;
             if (texOffset + 1u < meshData.textCoords_.size())
             {
@@ -656,23 +642,85 @@ ID VulkanApi::CreateMesh(const MeshRawData& meshData, RenderType renderType)
                 interleavedVertices.push_back(0.0f);
                 interleavedVertices.push_back(0.0f);
             }
+
+            // 3. Normal (vec3)
+            const auto normOffset = i * 3u;
+            if (normOffset + 2u < meshData.normals_.size())
+            {
+                interleavedVertices.push_back(meshData.normals_[normOffset]);
+                interleavedVertices.push_back(meshData.normals_[normOffset + 1u]);
+                interleavedVertices.push_back(meshData.normals_[normOffset + 2u]);
+            }
+            else
+            {
+                // Domyślna normalna skierowana w stronę kamery (Z+)
+                interleavedVertices.push_back(0.0f);
+                interleavedVertices.push_back(0.0f);
+                interleavedVertices.push_back(1.0f);
+            }
+
+            // 4. Tangent (vec3)
+            const auto tangOffset = i * 3u;
+            if (tangOffset + 2u < meshData.tangents_.size())
+            {
+                interleavedVertices.push_back(meshData.tangents_[tangOffset]);
+                interleavedVertices.push_back(meshData.tangents_[tangOffset + 1u]);
+                interleavedVertices.push_back(meshData.tangents_[tangOffset + 2u]);
+            }
+            else
+            {
+                interleavedVertices.push_back(0.0f);
+                interleavedVertices.push_back(0.0f);
+                interleavedVertices.push_back(0.0f);
+            }
+
+            // 5. Weights (vec4)
+            const auto weightOffset = i * 4u;
+            if (weightOffset + 3u < meshData.bonesWeights_.size())
+            {
+                interleavedVertices.push_back(meshData.bonesWeights_[weightOffset]);
+                interleavedVertices.push_back(meshData.bonesWeights_[weightOffset + 1u]);
+                interleavedVertices.push_back(meshData.bonesWeights_[weightOffset + 2u]);
+                interleavedVertices.push_back(meshData.bonesWeights_[weightOffset + 3u]);
+            }
+            else
+            {
+                interleavedVertices.push_back(0.0f);
+                interleavedVertices.push_back(0.0f);
+                interleavedVertices.push_back(0.0f);
+                interleavedVertices.push_back(0.0f);
+            }
+
+            // 6. BoneIds (ivec4) - PUŁAPKA BITOWA!
+            // Ponieważ interleavedVertices to wektor floatów, a shader oczekuje liczb całkowitych (SINT),
+            // musimy skopiować surowe bity int32 do obszaru pamięci floata przy użyciu std::bit_cast.
+            const auto boneOffset = i * 4u;
+            if (boneOffset + 3u < meshData.joinIds_.size())
+            {
+                interleavedVertices.push_back(std::bit_cast<float>(meshData.joinIds_[boneOffset]));
+                interleavedVertices.push_back(std::bit_cast<float>(meshData.joinIds_[boneOffset + 1u]));
+                interleavedVertices.push_back(std::bit_cast<float>(meshData.joinIds_[boneOffset + 2u]));
+                interleavedVertices.push_back(std::bit_cast<float>(meshData.joinIds_[boneOffset + 3u]));
+            }
+            else
+            {
+                interleavedVertices.push_back(0.0f);
+                interleavedVertices.push_back(0.0f);
+                interleavedVertices.push_back(0.0f);
+                interleavedVertices.push_back(0.0f);
+            }
         }
 
-        if (!CreateBuffer(vkContext,
-                          interleavedVertices.size() * sizeof(interleavedVertices[0]),
-                          VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                          mesh.vertexBuffer,
-                          mesh.vertexBufferMemory))
+        if (not CreateBuffer(vkContext, interleavedVertices.size() * sizeof(interleavedVertices[0]),
+                             VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, mesh.vertexBuffer,
+                             mesh.vertexBufferMemory))
         {
             return {};
         }
 
-        if (!UploadBufferData(vkContext,
-                              mesh.vertexBuffer,
-                              mesh.vertexBufferMemory,
-                              interleavedVertices.data(),
-                              interleavedVertices.size() * sizeof(interleavedVertices[0])))
+        if (not UploadBufferData(vkContext, mesh.vertexBuffer, mesh.vertexBufferMemory, interleavedVertices.data(),
+                                 interleavedVertices.size() * sizeof(interleavedVertices[0])))
         {
             vkDestroyBuffer(vkContext.device, mesh.vertexBuffer, nullptr);
             vkFreeMemory(vkContext.device, mesh.vertexBufferMemory, nullptr);
@@ -680,23 +728,17 @@ ID VulkanApi::CreateMesh(const MeshRawData& meshData, RenderType renderType)
         }
     }
 
-    if (!meshData.indices_.empty())
+    if (not meshData.indices_.empty())
     {
-        if (!CreateBuffer(vkContext,
-                          meshData.indices_.size() * sizeof(meshData.indices_[0]),
-                          VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                          mesh.indexBuffer,
-                          mesh.indexBufferMemory))
+        if (not CreateBuffer(vkContext, meshData.indices_.size() * sizeof(meshData.indices_[0]), VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, mesh.indexBuffer,
+                             mesh.indexBufferMemory))
         {
             return {};
         }
 
-        if (!UploadBufferData(vkContext,
-                              mesh.indexBuffer,
-                              mesh.indexBufferMemory,
-                              meshData.indices_.data(),
-                              meshData.indices_.size() * sizeof(meshData.indices_[0])))
+        if (not UploadBufferData(vkContext, mesh.indexBuffer, mesh.indexBufferMemory, meshData.indices_.data(),
+                                 meshData.indices_.size() * sizeof(meshData.indices_[0])))
         {
             vkDestroyBuffer(vkContext.device, mesh.indexBuffer, nullptr);
             vkFreeMemory(vkContext.device, mesh.indexBufferMemory, nullptr);
@@ -776,15 +818,9 @@ void VulkanApi::RenderQuad()
     if (!quadMeshId.has_value())
     {
         MeshRawData quadMeshData{};
-        quadMeshData.positions_ = {-1.0f, -1.0f, 0.0f,
-                                    1.0f, -1.0f, 0.0f,
-                                    1.0f,  1.0f, 0.0f,
-                                   -1.0f,  1.0f, 0.0f};
-        quadMeshData.textCoords_ = {0.0f, 0.0f,
-                                    1.0f, 0.0f,
-                                    1.0f, 1.0f,
-                                    0.0f, 1.0f};
-        quadMeshData.indices_ = {0, 1, 2, 0, 2, 3};
+        quadMeshData.positions_  = {-1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f, 0.0f};
+        quadMeshData.textCoords_ = {0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
+        quadMeshData.indices_    = {0, 1, 2, 0, 2, 3};
 
         quadMeshId = CreateMesh(quadMeshData, RenderType::TRIANGLES);
     }
@@ -878,11 +914,11 @@ std::vector<Utils::Image> VulkanApi::GetImageArray(IdType) const
 }
 IFrameBuffer& VulkanApi::GetDefaultFrameBuffer()
 {
-    return *dummyFrameBuffer;
+    return dummyFrameBuffer;
 }
 IFrameBuffer& VulkanApi::CreateFrameBuffer(const std::vector<FrameBuffer::Attachment>&)
 {
-    return *dummyFrameBuffer;
+    return dummyFrameBuffer;
 }
 void VulkanApi::DeleteFrameBuffer(IFrameBuffer&)
 {
