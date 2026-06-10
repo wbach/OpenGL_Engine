@@ -15,6 +15,58 @@ namespace GraphicsApi::Vulkan
 {
 namespace
 {
+bool AcquireNextSwapChainImage(VulkanContext& vkContext, uint32& imageIndex)
+{
+    VkResult result = vkAcquireNextImageKHR(vkContext.device, vkContext.swapChain, UINT64_MAX,
+                                            vkContext.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR)
+    {
+        return false;
+    }
+
+    if (result != VK_SUCCESS and result != VK_SUBOPTIMAL_KHR)
+    {
+        LOG_ERROR << "Error while acquiring an image from the swapchain! Error code: " << result;
+        return false;
+    }
+
+    return true;
+}
+
+bool PresentSwapChainImage(VulkanContext& vkContext, uint32 imageIndex)
+{
+    VkPresentInfoKHR presentInfo{};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores    = &vkContext.renderFinishedSemaphore;
+
+    VkSwapchainKHR swapChains[] = {vkContext.swapChain};
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains    = swapChains;
+    presentInfo.pImageIndices  = &imageIndex;
+
+    VkResult result = vkQueuePresentKHR(vkContext.presentQueue, &presentInfo);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR or result == VK_SUBOPTIMAL_KHR)
+    {
+        return false;
+    }
+
+    if (result != VK_SUCCESS)
+    {
+        LOG_ERROR << "Error: Image presentation failed!\n";
+        return false;
+    }
+
+    return true;
+}
+
+void WaitForDeviceIdle(VulkanContext& vkContext)
+{
+    vkDeviceWaitIdle(vkContext.device);
+}
+
 bool CreateRenderPass(VulkanContext& vkContext)
 {
     VkAttachmentDescription colorAttachment{};
@@ -170,55 +222,28 @@ void VulkanApi::Init()
 
 void VulkanApi::EndFrame()
 {
-
     if (vkContext.swapChain == VK_NULL_HANDLE)
+    {
         return;
+    }
 
     uint32 imageIndex = 0;
 
-    // 1. Pobranie indeksu wolnego obrazu ze Swapchaina
-    VkResult result = vkAcquireNextImageKHR(vkContext.device, vkContext.swapChain, UINT64_MAX, vkContext.imageAvailableSemaphore,
-                                            VK_NULL_HANDLE, &imageIndex);
-
-    if (result == VK_ERROR_OUT_OF_DATE_KHR)
+    if (!AcquireNextSwapChainImage(vkContext, imageIndex))
     {
         windowApi_->RecreateSwapChain();
-        return;
-    }
-    else if (result != VK_SUCCESS and result != VK_SUBOPTIMAL_KHR)
-    {
-        LOG_ERROR << "Blad podczas pobierania obrazu ze Swapchaina! Kod bledu: " << result;
         return;
     }
 
     RenderFrame(imageIndex);
 
-    // 3. Przygotowanie prezentacji przetworzonego obrazu na ekranie
-    VkPresentInfoKHR presentInfo{};
-    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
-    // Czekamy na semafor sygnalizujący zakończenie rysowania przez RenderFrame!
-    presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores    = &vkContext.renderFinishedSemaphore;
-
-    VkSwapchainKHR swapChains[] = {vkContext.swapChain};
-    presentInfo.swapchainCount  = 1;
-    presentInfo.pSwapchains     = swapChains;
-    presentInfo.pImageIndices   = &imageIndex;
-
-    result = vkQueuePresentKHR(vkContext.presentQueue, &presentInfo);
-
-    if (result == VK_ERROR_OUT_OF_DATE_KHR or result == VK_SUBOPTIMAL_KHR)
+    if (!PresentSwapChainImage(vkContext, imageIndex))
     {
         windowApi_->RecreateSwapChain();
-    }
-    else if (result != VK_SUCCESS)
-    {
-        LOG_ERROR << "Error: Image presentation failed!\n";
+        return;
     }
 
-    // Czekamy na urządzenie przed kolejną klatką
-    vkDeviceWaitIdle(vkContext.device);
+    WaitForDeviceIdle(vkContext);
 }
 
 void VulkanApi::CreateContext()
