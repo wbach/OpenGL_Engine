@@ -12,9 +12,9 @@ struct VulkanDrawCall
 
 struct VulkanProgram
 {
-    VkDescriptorPool descriptorPool           = VK_NULL_HANDLE;
+    std::vector<VkDescriptorPool> descriptorPools;
+    std::vector<VkDescriptorSet> descriptorSets;
     VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
-    VkDescriptorSet descriptorSet             = VK_NULL_HANDLE;
     VkPipelineLayout layout                   = VK_NULL_HANDLE;
     VkPipeline pipeline                       = VK_NULL_HANDLE;
 

@@ -237,23 +237,17 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     poolInfo.pPoolSizes    = &poolSize;
     poolInfo.maxSets       = 1000u;
 
-    if (vkCreateDescriptorPool(context.device, &poolInfo, nullptr, &newProgram.descriptorPool) != VK_SUCCESS)
-    {
-        LOG_ERROR << "Error: Failed to create VkDescriptorPool!\n";
-        return {};
-    }
+    auto imageCount = context.swapChainImages.size();
+    newProgram.descriptorPools.resize(imageCount); // One pool per swapchain image
 
-    VkDescriptorSetAllocateInfo allocInfo{};
-    allocInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorPool     = newProgram.descriptorPool;
-    allocInfo.descriptorSetCount = 1u;
-    allocInfo.pSetLayouts        = &newProgram.descriptorSetLayout;
-
-    if (vkAllocateDescriptorSets(context.device, &allocInfo, &newProgram.descriptorSet) != VK_SUCCESS)
+    for (auto i = 0u; i < imageCount; ++i)
     {
-        LOG_ERROR << "Error: Failed to allocate VkDescriptorSet!\n";
-        vkDestroyDescriptorPool(context.device, newProgram.descriptorPool, nullptr);
-        return {};
+        if (vkCreateDescriptorPool(context.device, &poolInfo, nullptr, &newProgram.descriptorPools[i]) not_eq VK_SUCCESS)
+        {
+            LOG_ERROR << "Error: Failed to create VkDescriptorPool for frame " << i << "!\n";
+            return false;
+        }
+
     }
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
@@ -263,11 +257,9 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges    = nullptr;
 
-    if (vkCreatePipelineLayout(context.device, &pipelineLayoutInfo, nullptr, &newProgram.layout) != VK_SUCCESS)
+    if (vkCreatePipelineLayout(context.device, &pipelineLayoutInfo, nullptr, &newProgram.layout) not_eq VK_SUCCESS)
     {
         LOG_ERROR << "Error: Failed to create Pipeline Layout!\n";
-        vkDestroyDescriptorPool(context.device, newProgram.descriptorPool, nullptr);
-        vkDestroyDescriptorSetLayout(context.device, newProgram.descriptorSetLayout, nullptr);
         return false;
     }
 

@@ -335,7 +335,7 @@ VkDescriptorSet PrepareDrawCallDescriptorSet(VulkanContext& context, VkDescripto
     return drawCallSet;
 }
 
-void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer)
+void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer, uint32 imageIndex)
 {
     for (auto& [_, program] : vkContext.programs)
     {
@@ -344,7 +344,8 @@ void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer)
             continue;
         }
 
-        vkResetDescriptorPool(vkContext.device, program.descriptorPool, 0);
+        auto& currentPool = program.descriptorPools[imageIndex];
+        vkResetDescriptorPool(vkContext.device, currentPool, 0);
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program.pipeline);
 
         for (const auto& drawCall : program.drawCalls)
@@ -355,7 +356,7 @@ void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer)
                 continue;
             }
 
-            auto drawCallSet = PrepareDrawCallDescriptorSet(vkContext, program.descriptorPool, program.descriptorSetLayout,
+            auto drawCallSet = PrepareDrawCallDescriptorSet(vkContext, currentPool, program.descriptorSetLayout,
                                                             drawCall.boundShaderBuffers);
 
             if (drawCallSet == VK_NULL_HANDLE)
@@ -1041,7 +1042,7 @@ void VulkanApi::RenderFrame(uint32 imageIndex)
         return;
     }
 
-    RecordDrawCalls(vkContext, commandBuffer);
+    RecordDrawCalls(vkContext, commandBuffer, imageIndex);
 
     EndRenderPass(commandBuffer);
 

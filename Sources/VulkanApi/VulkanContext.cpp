@@ -21,6 +21,12 @@ void VulkanContext::ClearResources()
                 vkDestroyPipelineLayout(device, program.layout, nullptr);
                 program.layout = VK_NULL_HANDLE;
             }
+
+            if (program.descriptorSetLayout != VK_NULL_HANDLE)
+            {
+                vkDestroyDescriptorSetLayout(device, program.descriptorSetLayout, nullptr);
+                program.descriptorSetLayout = VK_NULL_HANDLE;
+            }
         }
         programs.clear();
 

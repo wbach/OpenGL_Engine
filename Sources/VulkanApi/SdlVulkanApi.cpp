@@ -23,6 +23,31 @@ struct QueueFamilyIndices
     uint32 presentFamily  = 0xFFFFFFFF;
 };
 
+static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                                                          VkDebugUtilsMessageTypeFlagsEXT messageType,
+                                                          const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+                                                          void* pUserData)
+{
+    if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+    {
+        LOG_ERROR << "[Vulkan Validation] " << pCallbackData->pMessage << "\n";
+    }
+    else if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+    {
+        LOG_WARN << "[Vulkan Validation] " << pCallbackData->pMessage << "\n";
+    }
+    else if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
+    {
+        LOG_INFO << "[Vulkan Validation] " << pCallbackData->pMessage << "\n";
+    }
+    else
+    {
+        LOG_DEBUG << "[Vulkan Validation] " << pCallbackData->pMessage << "\n";
+    }
+
+    return VK_FALSE;
+}
+
 bool CreateVulkanInstance(VulkanContext& vkContext, SDL_Window* window)
 {
     uint32 extensionCount = 0;
@@ -49,6 +74,29 @@ bool CreateVulkanInstance(VulkanContext& vkContext, SDL_Window* window)
     createInfo.enabledExtensionCount   = static_cast<uint32>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
     createInfo.enabledLayerCount       = 0;
+
+    const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
+    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+
+    bool enableValidationLayers{true};
+    if (enableValidationLayers)
+    {
+        createInfo.enabledLayerCount   = static_cast<uint32_t>(validationLayers.size());
+        createInfo.ppEnabledLayerNames = validationLayers.data();
+
+        debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+
+        debugCreateInfo.messageSeverity =
+            VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT or VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+        debugCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT or
+                                      VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT or
+                                      VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+
+        debugCreateInfo.pfnUserCallback = VulkanDebugCallback;
+        debugCreateInfo.pUserData       = nullptr;
+
+        createInfo.pNext = &debugCreateInfo;
+    }
 
     if (vkCreateInstance(&createInfo, nullptr, &vkContext.instance) != VK_SUCCESS)
     {
@@ -127,9 +175,9 @@ bool CreateLogicalDevice(VulkanContext& vkContext, const QueueFamilyIndices& ind
     deviceCreateInfo.pEnabledFeatures     = &deviceFeatures;
 
     const std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-    deviceCreateInfo.enabledExtensionCount   = static_cast<uint32>(deviceExtensions.size());
-    deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();
-    deviceCreateInfo.enabledLayerCount       = 0;
+    deviceCreateInfo.enabledExtensionCount          = static_cast<uint32>(deviceExtensions.size());
+    deviceCreateInfo.ppEnabledExtensionNames        = deviceExtensions.data();
+    deviceCreateInfo.enabledLayerCount              = 0;
 
     if (vkCreateDevice(vkContext.physicalDevice, &deviceCreateInfo, nullptr, &vkContext.device) != VK_SUCCESS)
     {
@@ -149,8 +197,7 @@ VkSurfaceFormatKHR ChooseSwapChainSurfaceFormat(const std::vector<VkSurfaceForma
 {
     for (const auto& availableFormat : formats)
     {
-        if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB and
-            availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+        if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB and availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
         {
             return availableFormat;
         }
@@ -179,9 +226,8 @@ VkExtent2D ChooseSwapChainExtent(const VkSurfaceCapabilitiesKHR& capabilities, c
         return capabilities.currentExtent;
     }
 
-    return VkExtent2D{
-        std::clamp(windowSize.x, capabilities.minImageExtent.width, capabilities.maxImageExtent.width),
-        std::clamp(windowSize.y, capabilities.minImageExtent.height, capabilities.maxImageExtent.height)};
+    return VkExtent2D{std::clamp(windowSize.x, capabilities.minImageExtent.width, capabilities.maxImageExtent.width),
+                      std::clamp(windowSize.y, capabilities.minImageExtent.height, capabilities.maxImageExtent.height)};
 }
 
 bool CreateSwapChainResources(VulkanContext& vkContext, const vec2ui& windowSize)
@@ -332,7 +378,6 @@ bool CreateSyncObjects(VulkanContext& vkContext)
 }
 }  // namespace
 
-
 #ifndef USE_GNU
 const SDL_MessageBoxButtonData buttons[] = {{0, 0, "no"}, {SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "yes"}};
 #else
@@ -348,6 +393,9 @@ struct SdlVulkanApi::Pimpl
 SdlVulkanApi::SdlVulkanApi(VulkanContext& context)
     : vkContext(context)
 {
+#ifdef __linux__
+    SDL_setenv("SDL_VIDEODRIVER", "x11", 1);
+#endif
     SDL_setenv("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0", 1);
     impl = std::make_unique<Pimpl>();
 }
@@ -387,6 +435,10 @@ void SdlVulkanApi::SetWindowSize(const vec2ui& size)
 
 vec2ui SdlVulkanApi::GetWindowSize() const
 {
+    if (vkContext.swapChainExtent.width not_eq 0 and vkContext.swapChainExtent.height not_eq 0)
+    {
+        return vec2ui{vkContext.swapChainExtent.width, vkContext.swapChainExtent.height};
+    }
     if (impl->window)
     {
         vec2i createdSize(0);
@@ -620,7 +672,7 @@ void SdlVulkanApi::CreateContext()
         LOG_ERROR << "Error: No Vulkan-capable graphics device was found\n";
         vkDestroySurfaceKHR(vkContext.instance, vkContext.surface, nullptr);
         vkDestroyInstance(vkContext.instance, nullptr);
-        vkContext.surface = VK_NULL_HANDLE;
+        vkContext.surface  = VK_NULL_HANDLE;
         vkContext.instance = VK_NULL_HANDLE;
         return;
     }
@@ -646,6 +698,8 @@ void SdlVulkanApi::CreateContext()
         return;
     }
 
+    windowSize_ = vec2ui(vkContext.swapChainExtent.width, vkContext.swapChainExtent.height);
+
     if (!CreateSyncObjects(vkContext))
     {
         return;
@@ -660,17 +714,14 @@ void SdlVulkanApi::DeleteContext()
 {
     // Resources will be cleaned up in VulkanContext::ClearResources, which is called in VulkanApi::DeleteContext
 }
+
 void SdlVulkanApi::UpdateWindow()
 {
-
 }
+
 void SdlVulkanApi::RecreateSwapChain()
 {
-    if (!RecreateSwapChainResources(vkContext, impl->window))
-    {
-        return;
-    }
-
+    RecreateSwapChainResources(vkContext, impl->window);
     windowSize_ = vec2ui(vkContext.swapChainExtent.width, vkContext.swapChainExtent.height);
     LOG_DEBUG << "Success: Swapchain recreated successfully! New size: " << vkContext.swapChainExtent.width << "x"
               << vkContext.swapChainExtent.height;
