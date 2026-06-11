@@ -22,7 +22,11 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
     , isFullScreen_(EngineConf.window.fullScreen)
 {
     changeWindowSizeSubscription_ = EngineConf.window.size.subscribeForChange(
-        [this]() { graphicsApi_.GetWindowApi().SetWindowSize(EngineConf.window.size); });
+        [this]()
+        {
+            LOG_DEBUG << "Event window size changed";
+            graphicsApi_.GetWindowApi().SetWindowSize(EngineConf.window.size);
+        });
 
     changeFullScreenSubscription_ =
         EngineConf.window.fullScreen.subscribeForChange([this]() { SetFullScreen(EngineConf.window.fullScreen); });

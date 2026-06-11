@@ -359,6 +359,24 @@ VkDescriptorSet PrepareDrawCallDescriptorSet(VulkanContext& context, VkDescripto
 
 void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer, uint32 imageIndex)
 {
+    VkViewport viewport{};
+    viewport.x        = 0.0f;
+    viewport.y        = static_cast<float>(vkContext.swapChainExtent.height);
+    viewport.width    = static_cast<float>(vkContext.swapChainExtent.width);
+    viewport.height   = -static_cast<float>(vkContext.swapChainExtent.height);
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+
+    VkRect2D scissor{};
+    scissor.offset = {
+        .x = 0,
+        .y = 0
+    };
+    scissor.extent = vkContext.swapChainExtent;
+
+    vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+    vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
     for (auto& [_, program] : vkContext.programs)
     {
         if (program.drawCalls.empty())

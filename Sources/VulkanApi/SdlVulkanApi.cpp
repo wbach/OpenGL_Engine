@@ -420,15 +420,18 @@ void SdlVulkanApi::CreateGameWindow(const std::string& window_name, uint32 width
                                     GraphicsApi::WindowType windowType)
 {
     uint32 flags = CreateWindowFlags(windowType);
+    LOG_DEBUG << "Create window : " << width << "x" << height;
     CreateSDLWindow(window_name, width, height, flags);
 
     int w, h;
     SDL_Vulkan_GetDrawableSize(impl->window, &w, &h);
     windowSize_ = vec2ui(static_cast<uint32>(w), static_cast<uint32>(h));
+    LOG_DEBUG << "Drawable size : " << windowSize_.x << "x" << windowSize_.y;
 }
 
 void SdlVulkanApi::SetWindowSize(const vec2ui& size)
 {
+    LOG_DEBUG << "Set window size : " << size.x << "x" << size.y;
     SDL_SetWindowSize(impl->window, static_cast<int>(size.x), static_cast<int>(size.y));
     SDL_SetWindowPosition(impl->window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 }
