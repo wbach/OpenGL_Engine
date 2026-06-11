@@ -179,8 +179,30 @@ bool InitializeRenderingResources(VulkanContext& vkContext)
         return false;
     }
 
-    LOG_DEBUG << "Success: Render Pass, Framebuffers and Command Buffers are ready!";
     return true;
+}
+
+void CleanupSwapChainResources(VulkanContext& vkContext)
+{
+    for (auto framebuffer : vkContext.framebuffers)
+    {
+        vkDestroyFramebuffer(vkContext.device, framebuffer, nullptr);
+    }
+    vkContext.framebuffers.clear();
+
+    if (vkContext.commandPool != VK_NULL_HANDLE)
+    {
+        vkDestroyCommandPool(vkContext.device, vkContext.commandPool, nullptr);
+        vkContext.commandPool = VK_NULL_HANDLE;
+    }
+
+    if (vkContext.renderPass != VK_NULL_HANDLE)
+    {
+        vkDestroyRenderPass(vkContext.device, vkContext.renderPass, nullptr);
+        vkContext.renderPass = VK_NULL_HANDLE;
+    }
+
+    LOG_DEBUG << "Success: Render Pass, Framebuffers and Command Buffers are ready!";
 }
 
 bool BeginCommandBuffer(VkCommandBuffer commandBuffer)
@@ -463,7 +485,7 @@ void VulkanApi::EndFrame()
 
     if (!AcquireNextSwapChainImage(vkContext, imageIndex))
     {
-        windowApi_->RecreateSwapChain();
+        RecreateSwapChain();
         return;
     }
 
@@ -471,7 +493,7 @@ void VulkanApi::EndFrame()
 
     if (!PresentSwapChainImage(vkContext, imageIndex))
     {
-        windowApi_->RecreateSwapChain();
+        RecreateSwapChain();
         return;
     }
 
@@ -497,6 +519,17 @@ void VulkanApi::CreateContext()
 
         quadMeshId = CreateMesh(quadMeshData, RenderType::TRIANGLES);
     }
+}
+
+void VulkanApi::RecreateSwapChain()
+{
+    vkDeviceWaitIdle(vkContext.device);
+
+    CleanupSwapChainResources(vkContext);
+    windowApi_->RecreateSwapChain();
+
+    InitializeRenderingResources(vkContext);
+    LOG_DEBUG << "Vulkan rendering resources recreated successfully.";
 }
 
 void VulkanApi::InitRendering()

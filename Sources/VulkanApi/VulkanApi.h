@@ -113,6 +113,7 @@ public:
 private:
     void InitRendering();
     void RenderFrame(uint32);
+    void RecreateSwapChain();
 
 private:
     VulkanContext vkContext;
