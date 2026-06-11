@@ -6,8 +6,10 @@
 #include <vector>
 
 #include "GraphicsApi/ShaderProgramType.h"
+#include "SimpleForwardShaderFiles.h"
 #include "Types.h"
 #include "VulkanShaderCompiler.h"
+#include "magic_enum/magic_enum.hpp"
 namespace GraphicsApi::Vulkan
 {
 namespace
@@ -29,15 +31,6 @@ VkShaderModule CreateShaderModule(VulkanContext& context, const std::vector<uint
     return shaderModule;
 }
 
-std::pair<std::string, std::string> GetShaderSourceNames(ShaderProgramType type)
-{
-    if (type == ShaderProgramType::Entity)
-    {
-        return {"SimpleEntityShader.vert", "SimpleEntityShader.frag"};
-    }
-    return {"triangle.vert", "triangle.frag"};
-}
-
 bool LoadShaderSourceFiles(const std::filesystem::path& shaderDirectory, const std::string& vertName, const std::string& fragName,
                            std::string& vertCode, std::string& fragCode)
 {
@@ -46,9 +39,6 @@ bool LoadShaderSourceFiles(const std::filesystem::path& shaderDirectory, const s
 
     vertCode = Utils::ReadFilesWithIncludes(vertPathFullPath);
     fragCode = Utils::ReadFilesWithIncludes(fragPathFullPath);
-
-    LOG_DEBUG << "Vertex vertCode: " << vertCode;
-    LOG_DEBUG << "Fragment fragCode: " << fragCode;
 
     if (vertCode.empty() or fragCode.empty())
     {
@@ -157,10 +147,7 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     inputAssembly.topology               = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     inputAssembly.primitiveRestartEnable = VK_FALSE;
 
-    std::vector<VkDynamicState> dynamicStates = {
-        VK_DYNAMIC_STATE_VIEWPORT,
-        VK_DYNAMIC_STATE_SCISSOR
-    };
+    std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
     VkPipelineDynamicStateCreateInfo dynamicState{};
     dynamicState.sType             = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
@@ -235,7 +222,7 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     poolInfo.maxSets       = 1000u;
 
     auto imageCount = context.swapChainImages.size();
-    newProgram.descriptorPools.resize(imageCount); // One pool per swapchain image
+    newProgram.descriptorPools.resize(imageCount);  // One pool per swapchain image
 
     for (auto i = 0u; i < imageCount; ++i)
     {
@@ -244,7 +231,6 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
             LOG_ERROR << "Error: Failed to create VkDescriptorPool for frame " << i << "!\n";
             return false;
         }
-
     }
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
@@ -305,12 +291,44 @@ VulkanShaderManager::VulkanShaderManager(VulkanContext& vkContext)
 
 void VulkanShaderManager::SetShadersFilesLocations(const std::filesystem::path& path)
 {
-    shadersFileLocation_ = path / "VulkanApi" / "GLSL";
+    shadersFileLocation_ = path / "GLSL";
 }
 
 ID VulkanShaderManager::Create(ShaderProgramType type)
 {
-    const auto [vertName, fragName] = GetShaderSourceNames(type);
+    auto maybeShaderFiles = GetSimpleForwardShaderFiles(type);
+
+    if (not maybeShaderFiles)
+        return {};
+
+    std::string vertName;
+    std::string fragName;
+
+    auto vertexShaderIter = maybeShaderFiles->find(ShaderType::VERTEX_SHADER);
+
+    if (vertexShaderIter != maybeShaderFiles->end())
+    {
+        vertName = vertexShaderIter->second;
+    }
+    else
+    {
+        LOG_ERROR << "Shader not found";
+        return {};
+    }
+    auto fragmentShaderIter = maybeShaderFiles->find(ShaderType::FRAGMENT_SHADER);
+
+    if (fragmentShaderIter != maybeShaderFiles->end())
+    {
+        fragName = fragmentShaderIter->second;
+    }
+    else
+    {
+        LOG_ERROR << "Shader not found";
+        return {};
+    }
+
+    LOG_DEBUG << "Compile shaderType: " << magic_enum::enum_name(type) << ", vertName: " << vertName
+              << ", fragName: " << fragName;
 
     std::string vertCode;
     std::string fragCode;
@@ -323,6 +341,11 @@ ID VulkanShaderManager::Create(ShaderProgramType type)
     std::vector<uint32_t> fragSpirv;
     if (!CompileShaderSources(vertName, fragName, vertCode, fragCode, vertSpirv, fragSpirv))
     {
+        LOG_DEBUG << "Compile shaderType: " << magic_enum::enum_name(type) << "\n"
+                  << "=================Vertex shader=================(" << vertName << ")\n"
+                  << vertCode << "\n"
+                  << "=================Fragment shader=================(" << fragName << ")\n"
+                  << fragCode << "\n===================================================";
         return {};
     }
 

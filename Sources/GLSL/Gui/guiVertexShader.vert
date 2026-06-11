@@ -1,7 +1,7 @@
 #version 440
 
-in vec2 position;
-out vec2 textureCoords;
+layout(location = 0) in vec2 position;
+layout(location = 0) out vec2 textureCoords;
 
 layout (std140, binding=3) uniform PerObjectUpdate
 {

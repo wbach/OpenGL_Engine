@@ -8,7 +8,7 @@ layout (std140, binding=3) uniform PerObjectUpdate
     mat4 transformationMatrix;
 } perObjectUpdate;
 
-out vec2 TexCoordOut;
+layout(location = 0) out vec2 TexCoordOut;
 
 void main()
 {

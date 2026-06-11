@@ -29,7 +29,7 @@ layout (std140, align=16, binding=4) uniform PerPoseUpdate
     mat4 bonesTransforms[MAX_BONES];
 } perPoseUpdate;
 
-out VS_OUT
+layout(location = 0) out VS_OUT
 {
     vec2 texCoord;
     vec2 textureOffset;

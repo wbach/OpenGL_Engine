@@ -12,7 +12,7 @@ layout (std140, align=16, binding=6) uniform PerMaterial
     vec4 hasTextures2; // x - AmbientOcclusionTexture, y - OpacityTexture, z -DisplacementTexture, w - tiledScale
 } perMaterial;
 
-in VS_OUT
+layout(location = 0) in VS_OUT
 {
     vec2 texCoord;
     vec2 textureOffset;
@@ -23,7 +23,7 @@ in VS_OUT
 
 layout(binding = 0) uniform sampler2D DiffuseTexture;
 
-out vec4 outputColor;
+layout(location = 0) out vec4 outputColor;
 
 bool Is(float v)
 {

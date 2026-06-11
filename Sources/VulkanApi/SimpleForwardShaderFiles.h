@@ -8,3 +8,4 @@ namespace GraphicsApi::Vulkan
 {
 std::optional<GraphicsApi::ShadersFiles> GetSimpleForwardShaderFiles(GraphicsApi::ShaderProgramType shaderType);
 }  // namespace GraphicsApi::Vulkan
+
