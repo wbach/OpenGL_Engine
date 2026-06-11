@@ -41,7 +41,7 @@ layout(std430, binding = 5) readonly buffer ClusterBuffer
     ClusterData clusters[];
 };
 
-out VS_OUT
+layout(location = 0) out VS_OUT
 {
     vec2 texCoord;
     float layerIndex;

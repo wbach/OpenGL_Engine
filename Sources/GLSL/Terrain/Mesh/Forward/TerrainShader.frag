@@ -1,4 +1,4 @@
-#version 440 core
+#version 450
 #extension GL_GOOGLE_include_directive : enable
 
 const vec3 normalizedDummySunVector = vec3(0.5773502691896258, 0.5773502691896258, 0.5773502691896258);
@@ -12,7 +12,7 @@ const vec2 diffRange = vec2(0.f, 1.f - ambientFactor);
 #include "../../PerTerrainTexturesBuffer.glsl"
 #include "../TerrainFragShaderCommon.glsl"
 
-in VS_OUT
+layout(location = 0) in VS_OUT
 {
     vec4 worldPosition;
     vec2 texCoord;
@@ -20,7 +20,7 @@ in VS_OUT
     float visibility;
 } fs_in;
 
-out vec4 outputColor;
+layout(location = 0) out vec4 outputColor;
 
 vec4 calculateBackgroundColor(float backTextureAmount)
 {

@@ -22,7 +22,7 @@ layout(std430, binding = 6) buffer LeafIndices
     uint indices[];
 };
 
-out VS_OUT
+layout(location = 0) out VS_OUT
 {
     vec2 texCoord;
     vec3 normal;

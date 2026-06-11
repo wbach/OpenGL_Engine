@@ -27,7 +27,7 @@ layout(std140, align=16, binding = 4) uniform LeafParams
     float time;
 } leafParams;
 
-in VS_OUT
+layout(location = 0) in VS_OUT
 {
     vec2 texCoord;
     vec4 worldPos;

@@ -39,7 +39,7 @@ layout (std140, align=16, binding=6) uniform PerMaterial
     vec4 hasTextures2; // x - AmbientOcclusionTexture, y - OpacityTexture, z -DisplacementTexture, w - tiledScale
 } perMaterial;
 
-in VS_OUT
+layout(location = 0) in VS_OUT
 {
     vec2 texCoord;
     vec4 worldPos;
@@ -94,7 +94,7 @@ void main()
 
     vec4 baseColor = vec4(1.0, 1.0, 1.0, 1.0);
     vec3 normal = fs_in.normal;
-    
+
     float roughness = 1.0;
     float metallic = 0.0;
     float ao = 1.0;
@@ -105,7 +105,7 @@ void main()
     {
         baseColor  = texture(BaseColorTexture, GetAtlasUV(fs_in.texCoord, textureIndex));
         //baseColor = baseColor * vec4(0.95f, 1.00f, 0.95f, 1.0f); //perMaterial.baseColor;
-        
+
         // Opacity
         vec4 opacityTex = texture(OpacityTexture, GetAtlasUV(fs_in.texCoord, textureIndex));
         if(opacityTex.x < 0.5) discard;

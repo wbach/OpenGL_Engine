@@ -1,6 +1,6 @@
 #version 450 core
-in vec2 TexCoords;
-flat in int TexIndex;
+layout(location = 0) in vec2 TexCoords;
+layout(location = 1) flat in int TexIndex;
 
 //uniform sampler2DArray shadowTextureArray;
 layout(binding = 0) uniform sampler2D BaseColorTexture;

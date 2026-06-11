@@ -44,7 +44,7 @@ layout (std140, align=16, binding=6) uniform PerMaterial
     vec4 hasTextures2;
 } perMaterial;
 
-in VS_OUT
+layout(location = 0) in VS_OUT
 {
     vec2 texCoord;
     float layerIndex;

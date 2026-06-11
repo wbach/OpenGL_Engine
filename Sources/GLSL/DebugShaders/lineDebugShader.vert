@@ -18,7 +18,7 @@ layout (std140, binding=3) uniform PerObjectUpdate
     mat4 transformationMatrix;
 } perObjectUpdate;
 
-out vec3 color;
+layout(location = 0) out vec3 color;
 
 void main()
 {

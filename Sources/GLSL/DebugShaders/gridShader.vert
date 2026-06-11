@@ -17,7 +17,7 @@ layout (std140, binding=3) uniform PerObjectUpdate
     mat4 transformationMatrix;
 } perObjectUpdate;
 
-out vec2 textureCoords;
+layout(location = 0) out vec2 textureCoords;
 
 void main()
 {

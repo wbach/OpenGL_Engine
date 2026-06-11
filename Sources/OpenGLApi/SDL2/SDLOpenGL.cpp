@@ -190,15 +190,13 @@ void SdlOpenGlApi::ShowMessageBox(const std::string& title, const std::string& m
 
 void SdlOpenGlApi::ShowMessageBox(const std::string& title, const std::string& msg, std::function<void(bool)> selectedFunc) const
 {
-    const SDL_MessageBoxData messageboxdata = {
-        SDL_MESSAGEBOX_INFORMATION, /* .flags */
-        impl_->window,              /* .window, can be null */
-        title.c_str(),              /* .title */
-        msg.c_str(),                /* .message */
-        SDL_arraysize(buttons),     /* .numbuttons */
-        buttons,                    /* .buttons */
-        nullptr                     //&colorScheme  /* .colorScheme */
-    };
+    SDL_MessageBoxData messageboxdata = {.flags      = SDL_MESSAGEBOX_INFORMATION,
+                                         .window     = impl_->window,
+                                         .title      = title.c_str(),
+                                         .message    = msg.c_str(),
+                                         .numbuttons = SDL_arraysize(buttons),
+                                         .buttons    = buttons};
+
     int buttonid;
     if (SDL_ShowMessageBox(&messageboxdata, &buttonid) < 0)
     {

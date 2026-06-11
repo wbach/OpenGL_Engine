@@ -16,9 +16,9 @@ layout (std140, binding=3) uniform PerObjectUpdate
 
 layout(std140, align=16, binding = 4) uniform LeafParams
 {
-    vec4 wind; 
-    vec4 fparams; 
-    ivec4 atlasParams; 
+    vec4 wind;
+    vec4 fparams;
+    ivec4 atlasParams;
     float time;
 } leafParams;
 
@@ -34,7 +34,7 @@ layout(std430, binding = 5) buffer LeafData
     Leaf leaves[];
 };
 
-out VS_OUT
+layout(location = 0) out VS_OUT
 {
     vec2 texCoord;
     vec4 worldPos;
@@ -46,7 +46,7 @@ out VS_OUT
 
 vec3 ComputeWindBend(float time, float leafPhase, vec3 windDir, float windStrength, float t, vec3 outwardDir)
 {
-    vec3 sideDir = normalize(cross(windDir, outwardDir)); 
+    vec3 sideDir = normalize(cross(windDir, outwardDir));
     float flutter = sin(time * 8.0 + leafPhase * 3.0) * windStrength * 0.2;
     return windDir * windStrength * (t * t) + sideDir * flutter * t;
 }
@@ -63,7 +63,7 @@ vec2 rotateUV(vec2 uv, float rotation)
     );
 }
 
-void main() 
+void main()
 {
     int leafID = gl_VertexID / 6;
     int cornerID = gl_VertexID % 6;
@@ -88,13 +88,13 @@ void main()
     vec3 outwardDir = normalize(localDirection);
     vec3 leafBase = localPosData + outwardDir * leafOffset + windOffset * 0.1;
 
-    vec3 upRef = vec3(0.0, 1.0, 0.0); 
+    vec3 upRef = vec3(0.0, 1.0, 0.0);
     vec3 right = normalize(cross(outwardDir, upRef));
     if(length(right) < 0.01) right = normalize(cross(outwardDir, vec3(1,0,0)));
     right *= scale;
 
     vec3 up = outwardDir * scale;
-    vec3 bend = vec3(0.0, -1.0, 0.0) * bendAmount; 
+    vec3 bend = vec3(0.0, -1.0, 0.0) * bendAmount;
     vec3 windTop = ComputeWindBend(time, leafPhase, windDir, windStrength, 1.0, outwardDir);
 
     vec3 v0 = leafBase - right * 0.5;
@@ -109,12 +109,12 @@ void main()
     vec2 uvs[6]   = vec2[]( uv0, uv1, uv2, uv0, uv2, uv3 );
 
     vec4 worldPos = perObjectUpdate.transformationMatrix * vec4(verts[cornerID], 1.0);
-    
+
     vec3 bentUp = up + windTop;
     vec3 localNormal = normalize(cross(right, bentUp));
-    
+
     vs_out.normal = normalize(mat3(perObjectUpdate.transformationMatrix) * localNormal);
-    
+
     //vs_out.texCoord = uvs[cornerID];
     vs_out.texCoord = rotateUV(uvs[cornerID], rotation);
     vs_out.worldPos = worldPos;

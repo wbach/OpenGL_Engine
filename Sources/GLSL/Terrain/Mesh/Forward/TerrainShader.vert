@@ -1,4 +1,4 @@
-#version 440 core
+#version 450
 #extension GL_GOOGLE_include_directive : enable
 #include "../../../Common/PerApp.glsl"
 #include "../../../Common/PerFrameBuffer.glsl"
@@ -8,19 +8,20 @@ layout (location = 1) in vec2 TEXTCOORD;
 layout (location = 2) in vec3 NORMAL;
 layout (location = 3) in vec3 TANGENT;
 
+
 layout (std140, binding=3) uniform PerObjectUpdate
 {
     mat4 transformationMatrix;
 } perObjectUpdate;
 
-out VS_OUT
+
+layout(location = 0) out VS_OUT
 {
     vec4 worldPosition;
     vec2 texCoord;
     vec3 normal;
     float visibility;
 } vs_out;
-
 
 void main()
 {
