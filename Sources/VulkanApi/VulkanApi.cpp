@@ -287,6 +287,185 @@ bool CreateBuffer(VulkanContext& vkContext, VkDeviceSize size, VkBufferUsageFlag
     return true;
 }
 
+VkCommandBuffer BeginSingleTimeCommands(VulkanContext& vkContext)
+{
+    VkCommandBufferAllocateInfo allocInfo = {
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+        .commandPool = vkContext.commandPool,
+        .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+        .commandBufferCount = 1
+    };
+
+    VkCommandBuffer commandBuffer;
+    vkAllocateCommandBuffers(vkContext.device, &allocInfo, &commandBuffer);
+
+    VkCommandBufferBeginInfo beginInfo = {
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+        .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
+    };
+
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+    return commandBuffer;
+}
+
+void EndSingleTimeCommands(VulkanContext& vkContext, VkCommandBuffer commandBuffer)
+{
+    vkEndCommandBuffer(commandBuffer);
+
+    VkSubmitInfo submitInfo = {
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .commandBufferCount = 1,
+        .pCommandBuffers = &commandBuffer
+    };
+
+    vkQueueSubmit(vkContext.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(vkContext.graphicsQueue);
+    vkFreeCommandBuffers(vkContext.device, vkContext.commandPool, 1, &commandBuffer);
+}
+
+bool CreateImage(VulkanContext& vkContext, uint32 width, uint32 height, VkFormat format, VkImageTiling tiling,
+                 VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
+{
+    VkImageCreateInfo imageInfo = {
+        .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+        .imageType = VK_IMAGE_TYPE_2D,
+        .format = format,
+        .extent = {.width = width, .height = height, .depth = 1},
+        .mipLevels = 1,
+        .arrayLayers = 1,
+        .samples = VK_SAMPLE_COUNT_1_BIT,
+        .tiling = tiling,
+        .usage = usage,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+        .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED
+    };
+
+    if (vkCreateImage(vkContext.device, &imageInfo, nullptr, &image) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Failed to create image!";
+        return false;
+    }
+
+    VkMemoryRequirements memRequirements;
+    vkGetImageMemoryRequirements(vkContext.device, image, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo = {
+        .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+        .allocationSize = memRequirements.size,
+        .memoryTypeIndex = FindMemoryType(vkContext, memRequirements.memoryTypeBits, properties)
+    };
+
+    if (vkAllocateMemory(vkContext.device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Failed to allocate image memory!";
+        return false;
+    }
+
+    vkBindImageMemory(vkContext.device, image, imageMemory, 0);
+    return true;
+}
+
+void TransitionImageLayout(VulkanContext& vkContext, VkImage image, [[maybe_unused]] VkFormat format, VkImageLayout oldLayout,
+                           VkImageLayout newLayout)
+{
+    VkCommandBuffer commandBuffer = BeginSingleTimeCommands(vkContext);
+
+    VkImageMemoryBarrier barrier = {
+        .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+        .srcAccessMask = 0,
+        .dstAccessMask = 0,
+        .oldLayout = oldLayout,
+        .newLayout = newLayout,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .image = image,
+        .subresourceRange = {
+            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+            .baseMipLevel = 0,
+            .levelCount = 1,
+            .baseArrayLayer = 0,
+            .layerCount = 1
+        }
+    };
+
+    VkPipelineStageFlags sourceStage;
+    VkPipelineStageFlags destinationStage;
+
+    if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED and newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+    {
+        barrier.srcAccessMask = 0;
+        barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+        destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    }
+    else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL and newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+    {
+        barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+        destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    }
+    else
+    {
+        LOG_ERROR << "Unsupported layout transition!";
+        EndSingleTimeCommands(vkContext, commandBuffer);
+        return;
+    }
+
+    vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+    EndSingleTimeCommands(vkContext, commandBuffer);
+}
+
+void CopyBufferToImage(VulkanContext& vkContext, VkBuffer buffer, VkImage image, uint32 width, uint32 height)
+{
+    VkCommandBuffer commandBuffer = BeginSingleTimeCommands(vkContext);
+
+    VkBufferImageCopy region = {
+        .bufferOffset = 0,
+        .bufferRowLength = 0,
+        .bufferImageHeight = 0,
+        .imageSubresource = {
+            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+            .mipLevel = 0,
+            .baseArrayLayer = 0,
+            .layerCount = 1
+        },
+        .imageOffset = {0, 0, 0},
+        .imageExtent = {width, height, 1}
+    };
+
+    vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+    EndSingleTimeCommands(vkContext, commandBuffer);
+}
+
+VkImageView CreateImageView(VkDevice device, VkImage image, VkFormat format)
+{
+    VkImageViewCreateInfo viewInfo = {
+        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+        .image = image,
+        .viewType = VK_IMAGE_VIEW_TYPE_2D,
+        .format = format,
+        .subresourceRange = {
+            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+            .baseMipLevel = 0,
+            .levelCount = 1,
+            .baseArrayLayer = 0,
+            .layerCount = 1
+        }
+    };
+
+    VkImageView imageView;
+    if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Failed to create texture image view!";
+        return VK_NULL_HANDLE;
+    }
+
+    return imageView;
+}
+
 bool UploadBufferData(VulkanContext& vkContext, VkBuffer buffer, VkDeviceMemory bufferMemory, const void* data, VkDeviceSize size)
 {
     void* mapped = nullptr;
@@ -697,9 +876,52 @@ void VulkanApi::UseShader(uint32 shaderId)
 
     vkContext.currentRenderState.activeProgramId = shaderId;
 }
-ID VulkanApi::CreateTexture(const Utils::Image&, TextureFilter, TextureMipmap)
+ID VulkanApi::CreateTexture(const Utils::Image& image, [[maybe_unused]] TextureFilter filter, [[maybe_unused]] TextureMipmap mipmap)
 {
-    return 0;
+    VkDeviceSize imageSize = image.width * image.height * 4;
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    CreateBuffer(vkContext, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
+                 stagingBufferMemory);
+
+    void* data;
+    vkMapMemory(vkContext.device, stagingBufferMemory, 0, imageSize, 0, &data);
+    std::memcpy(data, image.getRawDataPtr(), static_cast<size_t>(imageSize));
+    vkUnmapMemory(vkContext.device, stagingBufferMemory);
+
+    VulkanTexture texture;
+    if (not CreateImage(vkContext, image.width, image.height, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
+                        VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                        texture.image, texture.memory))
+    {
+        vkDestroyBuffer(vkContext.device, stagingBuffer, nullptr);
+        vkFreeMemory(vkContext.device, stagingBufferMemory, nullptr);
+        return {};
+    }
+
+    TransitionImageLayout(vkContext, texture.image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
+                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    CopyBufferToImage(vkContext, stagingBuffer, texture.image, static_cast<uint32>(image.width),
+                      static_cast<uint32>(image.height));
+    TransitionImageLayout(vkContext, texture.image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                          VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+    vkDestroyBuffer(vkContext.device, stagingBuffer, nullptr);
+    vkFreeMemory(vkContext.device, stagingBufferMemory, nullptr);
+
+    texture.imageView = CreateImageView(vkContext.device, texture.image, VK_FORMAT_R8G8B8A8_SRGB);
+
+    if (texture.imageView == VK_NULL_HANDLE)
+    {
+        return {};
+    }
+
+    const auto textureId = vkContext.texturesPoolId.getId();
+    vkContext.textures[textureId] = std::move(texture);
+
+    return textureId;
 }
 ID VulkanApi::CreateTexture(const std::vector<Utils::Image>&, TextureFilter, TextureMipmap)
 {

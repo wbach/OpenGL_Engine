@@ -10,8 +10,15 @@
 #include "VulkanMesh.h"
 #include "VulkanProgram.h"
 #include "VulkanShaderBuffer.h"
+
 namespace GraphicsApi::Vulkan
 {
+struct VulkanTexture
+{
+    VkImage image         = VK_NULL_HANDLE;
+    VkDeviceMemory memory = VK_NULL_HANDLE;
+    VkImageView imageView = VK_NULL_HANDLE;
+};
 struct RenderState
 {
     uint32 activeProgramId = 0u;
@@ -59,6 +66,9 @@ struct VulkanContext
 
     std::unordered_map<IdType, VulkanShaderBuffer> shaderBuffers;
     Utils::IdPool shaderBuffersPoolId;
+
+    std::unordered_map<IdType, VulkanTexture> textures;
+    Utils::IdPool texturesPoolId;
 
     RenderState currentRenderState;
 };
