@@ -44,6 +44,10 @@ struct VulkanContext
     std::vector<VkImage> swapChainImages;
     std::vector<VkImageView> swapChainImageViews;
 
+    VkImage depthImage;
+    VkDeviceMemory depthImageMemory;
+    VkImageView depthImageView;
+
     VkFormat swapChainImageFormat;
     VkExtent2D swapChainExtent;
 

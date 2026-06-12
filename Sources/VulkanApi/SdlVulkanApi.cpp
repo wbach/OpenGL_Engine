@@ -230,6 +230,22 @@ VkExtent2D ChooseSwapChainExtent(const VkSurfaceCapabilitiesKHR& capabilities, c
                       std::clamp(windowSize.y, capabilities.minImageExtent.height, capabilities.maxImageExtent.height)};
 }
 
+uint32_t FindMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties)
+{
+    VkPhysicalDeviceMemoryProperties memProperties;
+    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+
+    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
+    {
+        if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
+        {
+            return i;
+        }
+    }
+
+    throw std::runtime_error("failed to find suitable memory type!");
+}
+
 bool CreateSwapChainResources(VulkanContext& vkContext, const vec2ui& windowSize)
 {
     VkSurfaceCapabilitiesKHR capabilities{};
@@ -320,6 +336,59 @@ bool CreateSwapChainResources(VulkanContext& vkContext, const vec2ui& windowSize
             LOG_ERROR << "Error: Failed to create VkImageView for swapchain image at index " << i << "\n";
             return false;
         }
+    }
+
+    VkImageCreateInfo imageInfo{};
+    imageInfo.sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    imageInfo.imageType     = VK_IMAGE_TYPE_2D;
+    imageInfo.extent.width  = vkContext.swapChainExtent.width;
+    imageInfo.extent.height = vkContext.swapChainExtent.height;
+    imageInfo.extent.depth  = 1;
+    imageInfo.mipLevels     = 1;
+    imageInfo.arrayLayers   = 1;
+    imageInfo.format        = VK_FORMAT_D32_SFLOAT;
+    imageInfo.tiling        = VK_IMAGE_TILING_OPTIMAL;
+    imageInfo.usage         = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    imageInfo.samples       = VK_SAMPLE_COUNT_1_BIT;
+    imageInfo.sharingMode   = VK_SHARING_MODE_EXCLUSIVE;
+    imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+    if (vkCreateImage(vkContext.device, &imageInfo, nullptr, &vkContext.depthImage) != VK_SUCCESS)
+    {
+        return false;
+    }
+
+    VkMemoryRequirements memRequirements;
+    vkGetImageMemoryRequirements(vkContext.device, vkContext.depthImage, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo{};
+    allocInfo.sType          = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex =
+        FindMemoryType(vkContext.physicalDevice, memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    if (vkAllocateMemory(vkContext.device, &allocInfo, nullptr, &vkContext.depthImageMemory) != VK_SUCCESS)
+    {
+        return false;
+    }
+
+    vkBindImageMemory(vkContext.device, vkContext.depthImage, vkContext.depthImageMemory, 0);
+
+    VkImageViewCreateInfo viewInfo{};
+    viewInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    viewInfo.image                           = vkContext.depthImage;
+    viewInfo.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
+    viewInfo.format                          = VK_FORMAT_D32_SFLOAT;
+    viewInfo.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_DEPTH_BIT;  // Kluczowa różnica!
+    viewInfo.subresourceRange.baseMipLevel   = 0;
+    viewInfo.subresourceRange.levelCount     = 1;
+    viewInfo.subresourceRange.baseArrayLayer = 0;
+    viewInfo.subresourceRange.layerCount     = 1;
+
+    if (vkCreateImageView(vkContext.device, &viewInfo, nullptr, &vkContext.depthImageView) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Error: Failed to create VkImageView for swapchain image";
+        return false;
     }
 
     return true;

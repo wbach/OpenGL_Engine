@@ -8,7 +8,6 @@ layout (location = 1) in vec2 TEXTCOORD;
 layout (location = 2) in vec3 NORMAL;
 layout (location = 3) in vec3 TANGENT;
 
-
 layout (std140, binding=3) uniform PerObjectUpdate
 {
     mat4 transformationMatrix;

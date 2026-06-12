@@ -1,11 +1,10 @@
 #pragma once
 #include <optional>
 
-#include "GraphicsApi/ShaderFiles.h"
 #include "GraphicsApi/ShaderProgramType.h"
+#include "PipelineConfig.h"
 
 namespace GraphicsApi::Vulkan
 {
-std::optional<GraphicsApi::ShadersFiles> GetSimpleForwardShaderFiles(GraphicsApi::ShaderProgramType shaderType);
+std::optional<PipelineConfig> GetSimpleForwardShaderFiles(GraphicsApi::ShaderProgramType shaderType);
 }  // namespace GraphicsApi::Vulkan
-

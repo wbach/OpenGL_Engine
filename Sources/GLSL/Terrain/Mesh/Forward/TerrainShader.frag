@@ -83,6 +83,9 @@ float convertValueFromRange(float value, vec2 sourceRange, vec2 targetRange)
 
 void main()
 {
+    // outputColor = vec4(0.8, 0.8, 0.8, 1.f);
+    // return;
+    
     float dummyDiffuseFactor = dot(normalizedDummySunVector, fs_in.normal);
     if (dummyDiffuseFactor > 0)
     {

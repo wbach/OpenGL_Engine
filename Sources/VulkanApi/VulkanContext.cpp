@@ -67,6 +67,10 @@ void VulkanContext::ClearResources()
         swapChainImageViews.clear();
         swapChainImages.clear();
 
+        vkDestroyImageView(device, depthImageView, nullptr);
+        vkDestroyImage(device, depthImage, nullptr);
+        vkFreeMemory(device, depthImageMemory, nullptr);
+
         if (swapChain != VK_NULL_HANDLE)
         {
             vkDestroySwapchainKHR(device, swapChain, nullptr);

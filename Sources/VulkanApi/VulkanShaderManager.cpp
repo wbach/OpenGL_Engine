@@ -6,8 +6,10 @@
 #include <vector>
 
 #include "GraphicsApi/ShaderProgramType.h"
+#include "ShaderTypes.h"
 #include "SimpleForwardShaderFiles.h"
 #include "Types.h"
+#include "VulkanApi/PipelineConfig.h"
 #include "VulkanShaderCompiler.h"
 #include "magic_enum/magic_enum.hpp"
 namespace GraphicsApi::Vulkan
@@ -96,8 +98,11 @@ bool CreatePipelineLayout(VulkanContext& context, VulkanProgram& newProgram)
 }
 
 bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
-                            const VkPipelineShaderStageCreateInfo* shaderStages)
+                            const VkPipelineShaderStageCreateInfo* shaderStages, const PipelineConfig& pipelineConfig)
 {
+    LOG_DEBUG << pipelineConfig.shaders.at(ShaderType::VERTEX_SHADER)
+              << ", topology = " << magic_enum::enum_name(pipelineConfig.topology);
+
     VkVertexInputBindingDescription bindingDescription{};
     bindingDescription.binding   = 0;
     bindingDescription.stride    = 19 * sizeof(float);  // size wszystkich (3 + 2 + 3 + 3 + 4 + 4)
@@ -144,9 +149,33 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
     inputAssembly.sType                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    inputAssembly.topology               = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-    inputAssembly.primitiveRestartEnable = VK_FALSE;
+    inputAssembly.pNext                  = nullptr;
+    inputAssembly.flags                  = 0;
+    inputAssembly.primitiveRestartEnable = pipelineConfig.primitiveRestartEnable ? VK_TRUE : VK_FALSE;
 
+    switch (pipelineConfig.topology)
+    {
+        case Topology::TriangleList:
+            inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+            break;
+        case Topology::TriangleStrip:
+            inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+            break;
+            // case Topology::PointList:
+            //     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+            //     break;
+            // case Topology::LineList:
+            //     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+            //     break;
+            // case Topology::PatchList:
+            //     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
+            //     break;
+
+        default:
+            inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    }
+
+    LOG_DEBUG << "inputAssembly.topology " << inputAssembly.topology;
     std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
     VkPipelineDynamicStateCreateInfo dynamicState{};
@@ -203,7 +232,7 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     descriptorLayoutInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     descriptorLayoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
     descriptorLayoutInfo.pBindings    = bindings.data();
-
+    LOG_DEBUG << "vkCreateDescriptorSetLayout";
     if (vkCreateDescriptorSetLayout(context.device, &descriptorLayoutInfo, nullptr, &newProgram.descriptorSetLayout) !=
         VK_SUCCESS)
     {
@@ -223,9 +252,9 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
 
     auto imageCount = context.swapChainImages.size();
     newProgram.descriptorPools.resize(imageCount);  // One pool per swapchain image
-
     for (auto i = 0u; i < imageCount; ++i)
     {
+        LOG_DEBUG << "vkCreateDescriptorPool " << i;
         if (vkCreateDescriptorPool(context.device, &poolInfo, nullptr, &newProgram.descriptorPools[i]) not_eq VK_SUCCESS)
         {
             LOG_ERROR << "Error: Failed to create VkDescriptorPool for frame " << i << "!\n";
@@ -239,7 +268,7 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     pipelineLayoutInfo.pSetLayouts            = &newProgram.descriptorSetLayout;
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges    = nullptr;
-
+    LOG_DEBUG << "vkCreatePipelineLayout";
     if (vkCreatePipelineLayout(context.device, &pipelineLayoutInfo, nullptr, &newProgram.layout) not_eq VK_SUCCESS)
     {
         LOG_ERROR << "Error: Failed to create Pipeline Layout!\n";
@@ -261,6 +290,18 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     pipelineInfo.renderPass          = context.renderPass;
     pipelineInfo.subpass             = 0;
 
+    VkPipelineDepthStencilStateCreateInfo depthStencil{.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+                                                       .depthTestEnable       = VK_TRUE,
+                                                       .depthWriteEnable      = VK_TRUE,
+                                                       .depthCompareOp        = VK_COMPARE_OP_LESS,
+                                                       .depthBoundsTestEnable = VK_FALSE,
+                                                       .stencilTestEnable     = VK_FALSE};
+   // if (pipelineConfig.depthTestEnable)
+    {
+        pipelineInfo.pDepthStencilState = &depthStencil;
+    }
+
+    LOG_DEBUG << "vkCreateGraphicsPipelines";
     if (vkCreateGraphicsPipelines(context.device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &newProgram.pipeline) != VK_SUCCESS)
     {
         LOG_ERROR << "Error: Failed to compile Graphics Pipeline!\n";
@@ -296,17 +337,19 @@ void VulkanShaderManager::SetShadersFilesLocations(const std::filesystem::path& 
 
 ID VulkanShaderManager::Create(ShaderProgramType type)
 {
-    auto maybeShaderFiles = GetSimpleForwardShaderFiles(type);
+    auto maybePiplineConfig = GetSimpleForwardShaderFiles(type);
 
-    if (not maybeShaderFiles)
+    if (not maybePiplineConfig)
         return {};
+
+    const auto& shaderFiles = maybePiplineConfig->shaders;
 
     std::string vertName;
     std::string fragName;
 
-    auto vertexShaderIter = maybeShaderFiles->find(ShaderType::VERTEX_SHADER);
+    auto vertexShaderIter = shaderFiles.find(ShaderType::VERTEX_SHADER);
 
-    if (vertexShaderIter != maybeShaderFiles->end())
+    if (vertexShaderIter != shaderFiles.end())
     {
         vertName = vertexShaderIter->second;
     }
@@ -315,9 +358,9 @@ ID VulkanShaderManager::Create(ShaderProgramType type)
         LOG_ERROR << "Shader not found";
         return {};
     }
-    auto fragmentShaderIter = maybeShaderFiles->find(ShaderType::FRAGMENT_SHADER);
+    auto fragmentShaderIter = shaderFiles.find(ShaderType::FRAGMENT_SHADER);
 
-    if (fragmentShaderIter != maybeShaderFiles->end())
+    if (fragmentShaderIter != shaderFiles.end())
     {
         fragName = fragmentShaderIter->second;
     }
@@ -371,13 +414,14 @@ ID VulkanShaderManager::Create(ShaderProgramType type)
     VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
     VulkanProgram newProgram{};
+
     if (!CreatePipelineLayout(vkContext_, newProgram))
     {
         DestroyShaderModules(vkContext_, vertModule, fragModule);
         return {};
     }
 
-    if (!CreateGraphicsPipeline(vkContext_, newProgram, shaderStages))
+    if (!CreateGraphicsPipeline(vkContext_, newProgram, shaderStages, *maybePiplineConfig))
     {
         vkDestroyPipelineLayout(vkContext_.device, newProgram.layout, nullptr);
         DestroyShaderModules(vkContext_, vertModule, fragModule);

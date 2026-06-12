@@ -70,31 +70,41 @@ void WaitForDeviceIdle(VulkanContext& vkContext)
 
 bool CreateRenderPass(VulkanContext& vkContext)
 {
-    VkAttachmentDescription colorAttachment{};
-    colorAttachment.format         = vkContext.swapChainImageFormat;
-    colorAttachment.samples        = VK_SAMPLE_COUNT_1_BIT;
-    colorAttachment.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    colorAttachment.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
-    colorAttachment.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    colorAttachment.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
-    colorAttachment.finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    VkAttachmentDescription colorAttachment{.format         = vkContext.swapChainImageFormat,
+                                            .samples        = VK_SAMPLE_COUNT_1_BIT,
+                                            .loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR,
+                                            .storeOp        = VK_ATTACHMENT_STORE_OP_STORE,
+                                            .stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                                            .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                                            .initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED,
+                                            .finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR};
 
-    VkAttachmentReference colorAttachmentRef{};
-    colorAttachmentRef.attachment = 0;
-    colorAttachmentRef.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    VkAttachmentReference colorAttachmentRef{.attachment = 0, .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
 
-    VkSubpassDescription subpass{};
-    subpass.pipelineBindPoint    = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments    = &colorAttachmentRef;
+    VkAttachmentDescription depthAttachment{.format         = VK_FORMAT_D32_SFLOAT,
+                                            .samples        = VK_SAMPLE_COUNT_1_BIT,
+                                            .loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR,
+                                            .storeOp        = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                                            .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                                            .initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED,
+                                            .finalLayout    = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
 
-    VkRenderPassCreateInfo renderPassInfo{};
-    renderPassInfo.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.attachmentCount = 1;
-    renderPassInfo.pAttachments    = &colorAttachment;
-    renderPassInfo.subpassCount    = 1;
-    renderPassInfo.pSubpasses      = &subpass;
+    VkAttachmentReference depthAttachmentRef{.attachment = 1, .layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
+
+    VkSubpassDescription subpass{.pipelineBindPoint       = VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                 .colorAttachmentCount    = 1,
+                                 .pColorAttachments       = &colorAttachmentRef,
+                                 .pDepthStencilAttachment = &depthAttachmentRef};
+
+    VkAttachmentDescription attachments[] = {colorAttachment, depthAttachment};
+
+    VkRenderPassCreateInfo renderPassInfo{
+        .sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
+        .attachmentCount = 2,
+        .pAttachments    = attachments,
+        .subpassCount    = 1,
+        .pSubpasses      = &subpass,
+    };
 
     if (vkCreateRenderPass(vkContext.device, &renderPassInfo, nullptr, &vkContext.renderPass) != VK_SUCCESS)
     {
@@ -111,12 +121,12 @@ bool CreateFramebuffers(VulkanContext& vkContext)
 
     for (size_t i = 0; i < vkContext.swapChainImageViews.size(); ++i)
     {
-        VkImageView attachments[] = {vkContext.swapChainImageViews[i]};
+        VkImageView attachments[] = {vkContext.swapChainImageViews[i], vkContext.depthImageView};
 
         VkFramebufferCreateInfo framebufferInfo{};
         framebufferInfo.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferInfo.renderPass      = vkContext.renderPass;
-        framebufferInfo.attachmentCount = 1;
+        framebufferInfo.attachmentCount = 2;
         framebufferInfo.pAttachments    = attachments;
         framebufferInfo.width           = vkContext.swapChainExtent.width;
         framebufferInfo.height          = vkContext.swapChainExtent.height;
@@ -221,17 +231,17 @@ bool BeginCommandBuffer(VkCommandBuffer commandBuffer)
 
 bool BeginRenderPass(VulkanContext& vkContext, VkCommandBuffer commandBuffer, uint32 imageIndex)
 {
-    VkRenderPassBeginInfo renderPassInfo{};
-    renderPassInfo.sType             = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass        = vkContext.renderPass;
-    renderPassInfo.framebuffer       = vkContext.framebuffers[imageIndex];
-    renderPassInfo.renderArea.offset = {0, 0};
-    renderPassInfo.renderArea.extent = vkContext.swapChainExtent;
+    VkClearValue clearColor[2] = {
+        {.color = VkClearColorValue{.float32 = {vkContext.backgroundColor[0], vkContext.backgroundColor[1],
+                                                vkContext.backgroundColor[2], vkContext.backgroundColor[3]}}},
+        {.depthStencil = VkClearDepthStencilValue{.depth = 1.0f, .stencil = 0}}};
 
-    VkClearValue clearColor        = {{{vkContext.backgroundColor[0], vkContext.backgroundColor[1], vkContext.backgroundColor[2],
-                                        vkContext.backgroundColor[3]}}};
-    renderPassInfo.clearValueCount = 1;
-    renderPassInfo.pClearValues    = &clearColor;
+    VkRenderPassBeginInfo renderPassInfo{.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+                                         .renderPass      = vkContext.renderPass,
+                                         .framebuffer     = vkContext.framebuffers[imageIndex],
+                                         .renderArea      = VkRect2D{.offset = {0, 0}, .extent = vkContext.swapChainExtent},
+                                         .clearValueCount = 2,
+                                         .pClearValues    = clearColor};
 
     vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
     return true;
@@ -289,20 +299,16 @@ bool CreateBuffer(VulkanContext& vkContext, VkDeviceSize size, VkBufferUsageFlag
 
 VkCommandBuffer BeginSingleTimeCommands(VulkanContext& vkContext)
 {
-    VkCommandBufferAllocateInfo allocInfo = {
-        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-        .commandPool = vkContext.commandPool,
-        .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-        .commandBufferCount = 1
-    };
+    VkCommandBufferAllocateInfo allocInfo = {.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+                                             .commandPool        = vkContext.commandPool,
+                                             .level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+                                             .commandBufferCount = 1};
 
     VkCommandBuffer commandBuffer;
     vkAllocateCommandBuffers(vkContext.device, &allocInfo, &commandBuffer);
 
-    VkCommandBufferBeginInfo beginInfo = {
-        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-        .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
-    };
+    VkCommandBufferBeginInfo beginInfo = {.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+                                          .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
 
     vkBeginCommandBuffer(commandBuffer, &beginInfo);
     return commandBuffer;
@@ -313,10 +319,7 @@ void EndSingleTimeCommands(VulkanContext& vkContext, VkCommandBuffer commandBuff
     vkEndCommandBuffer(commandBuffer);
 
     VkSubmitInfo submitInfo = {
-        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-        .commandBufferCount = 1,
-        .pCommandBuffers = &commandBuffer
-    };
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO, .commandBufferCount = 1, .pCommandBuffers = &commandBuffer};
 
     vkQueueSubmit(vkContext.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
     vkQueueWaitIdle(vkContext.graphicsQueue);
@@ -326,19 +329,17 @@ void EndSingleTimeCommands(VulkanContext& vkContext, VkCommandBuffer commandBuff
 bool CreateImage(VulkanContext& vkContext, uint32 width, uint32 height, VkFormat format, VkImageTiling tiling,
                  VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
 {
-    VkImageCreateInfo imageInfo = {
-        .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-        .imageType = VK_IMAGE_TYPE_2D,
-        .format = format,
-        .extent = {.width = width, .height = height, .depth = 1},
-        .mipLevels = 1,
-        .arrayLayers = 1,
-        .samples = VK_SAMPLE_COUNT_1_BIT,
-        .tiling = tiling,
-        .usage = usage,
-        .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
-        .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED
-    };
+    VkImageCreateInfo imageInfo = {.sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+                                   .imageType     = VK_IMAGE_TYPE_2D,
+                                   .format        = format,
+                                   .extent        = {.width = width, .height = height, .depth = 1},
+                                   .mipLevels     = 1,
+                                   .arrayLayers   = 1,
+                                   .samples       = VK_SAMPLE_COUNT_1_BIT,
+                                   .tiling        = tiling,
+                                   .usage         = usage,
+                                   .sharingMode   = VK_SHARING_MODE_EXCLUSIVE,
+                                   .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED};
 
     if (vkCreateImage(vkContext.device, &imageInfo, nullptr, &image) != VK_SUCCESS)
     {
@@ -349,11 +350,9 @@ bool CreateImage(VulkanContext& vkContext, uint32 width, uint32 height, VkFormat
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(vkContext.device, image, &memRequirements);
 
-    VkMemoryAllocateInfo allocInfo = {
-        .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-        .allocationSize = memRequirements.size,
-        .memoryTypeIndex = FindMemoryType(vkContext, memRequirements.memoryTypeBits, properties)
-    };
+    VkMemoryAllocateInfo allocInfo = {.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+                                      .allocationSize  = memRequirements.size,
+                                      .memoryTypeIndex = FindMemoryType(vkContext, memRequirements.memoryTypeBits, properties)};
 
     if (vkAllocateMemory(vkContext.device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
     {
@@ -371,22 +370,16 @@ void TransitionImageLayout(VulkanContext& vkContext, VkImage image, [[maybe_unus
     VkCommandBuffer commandBuffer = BeginSingleTimeCommands(vkContext);
 
     VkImageMemoryBarrier barrier = {
-        .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-        .srcAccessMask = 0,
-        .dstAccessMask = 0,
-        .oldLayout = oldLayout,
-        .newLayout = newLayout,
+        .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+        .srcAccessMask       = 0,
+        .dstAccessMask       = 0,
+        .oldLayout           = oldLayout,
+        .newLayout           = newLayout,
         .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .image = image,
-        .subresourceRange = {
-            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-            .baseMipLevel = 0,
-            .levelCount = 1,
-            .baseArrayLayer = 0,
-            .layerCount = 1
-        }
-    };
+        .image               = image,
+        .subresourceRange    = {
+               .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1}};
 
     VkPipelineStageFlags sourceStage;
     VkPipelineStageFlags destinationStage;
@@ -395,15 +388,15 @@ void TransitionImageLayout(VulkanContext& vkContext, VkImage image, [[maybe_unus
     {
         barrier.srcAccessMask = 0;
         barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-        destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+        sourceStage           = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+        destinationStage      = VK_PIPELINE_STAGE_TRANSFER_BIT;
     }
     else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL and newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
     {
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-        sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-        destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        sourceStage           = VK_PIPELINE_STAGE_TRANSFER_BIT;
+        destinationStage      = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
     }
     else
     {
@@ -422,18 +415,12 @@ void CopyBufferToImage(VulkanContext& vkContext, VkBuffer buffer, VkImage image,
     VkCommandBuffer commandBuffer = BeginSingleTimeCommands(vkContext);
 
     VkBufferImageCopy region = {
-        .bufferOffset = 0,
-        .bufferRowLength = 0,
+        .bufferOffset      = 0,
+        .bufferRowLength   = 0,
         .bufferImageHeight = 0,
-        .imageSubresource = {
-            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-            .mipLevel = 0,
-            .baseArrayLayer = 0,
-            .layerCount = 1
-        },
-        .imageOffset = {0, 0, 0},
-        .imageExtent = {width, height, 1}
-    };
+        .imageSubresource  = {.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT, .mipLevel = 0, .baseArrayLayer = 0, .layerCount = 1},
+        .imageOffset       = {0, 0, 0},
+        .imageExtent       = {width, height, 1}};
 
     vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
@@ -443,18 +430,12 @@ void CopyBufferToImage(VulkanContext& vkContext, VkBuffer buffer, VkImage image,
 VkImageView CreateImageView(VkDevice device, VkImage image, VkFormat format)
 {
     VkImageViewCreateInfo viewInfo = {
-        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-        .image = image,
-        .viewType = VK_IMAGE_VIEW_TYPE_2D,
-        .format = format,
+        .sType            = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+        .image            = image,
+        .viewType         = VK_IMAGE_VIEW_TYPE_2D,
+        .format           = format,
         .subresourceRange = {
-            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-            .baseMipLevel = 0,
-            .levelCount = 1,
-            .baseArrayLayer = 0,
-            .layerCount = 1
-        }
-    };
+            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1}};
 
     VkImageView imageView;
     if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
@@ -547,10 +528,7 @@ void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer, ui
     viewport.maxDepth = 1.0f;
 
     VkRect2D scissor{};
-    scissor.offset = {
-        .x = 0,
-        .y = 0
-    };
+    scissor.offset = {.x = 0, .y = 0};
     scissor.extent = vkContext.swapChainExtent;
 
     vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
@@ -575,8 +553,8 @@ void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer, ui
                 continue;
             }
 
-            auto drawCallSet = PrepareDrawCallDescriptorSet(vkContext, currentPool, program.descriptorSetLayout,
-                                                            drawCall.boundShaderBuffers);
+            auto drawCallSet =
+                PrepareDrawCallDescriptorSet(vkContext, currentPool, program.descriptorSetLayout, drawCall.boundShaderBuffers);
 
             if (drawCallSet == VK_NULL_HANDLE)
             {
@@ -876,15 +854,15 @@ void VulkanApi::UseShader(uint32 shaderId)
 
     vkContext.currentRenderState.activeProgramId = shaderId;
 }
-ID VulkanApi::CreateTexture(const Utils::Image& image, [[maybe_unused]] TextureFilter filter, [[maybe_unused]] TextureMipmap mipmap)
+ID VulkanApi::CreateTexture(const Utils::Image& image, [[maybe_unused]] TextureFilter filter,
+                            [[maybe_unused]] TextureMipmap mipmap)
 {
     VkDeviceSize imageSize = image.width * image.height * 4;
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
     CreateBuffer(vkContext, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
-                 stagingBufferMemory);
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
     void* data;
     vkMapMemory(vkContext.device, stagingBufferMemory, 0, imageSize, 0, &data);
@@ -918,7 +896,7 @@ ID VulkanApi::CreateTexture(const Utils::Image& image, [[maybe_unused]] TextureF
         return {};
     }
 
-    const auto textureId = vkContext.texturesPoolId.getId();
+    const auto textureId          = vkContext.texturesPoolId.getId();
     vkContext.textures[textureId] = std::move(texture);
 
     return textureId;
@@ -994,6 +972,9 @@ ID VulkanApi::CreatePurePatchMeshInstanced(uint32, uint32)
 }
 ID VulkanApi::CreateMesh(const MeshRawData& meshData, RenderType renderType)
 {
+    if (renderType != RenderType::TRIANGLES and renderType != RenderType::TRIAGNLE_STRIP)
+        return {};
+
     VulkanMesh mesh{};
     mesh.meshData    = meshData;
     mesh.renderType  = renderType;
@@ -1182,10 +1163,11 @@ void VulkanApi::RenderProcedural(uint32)
 void VulkanApi::RenderDebugNormals(uint32)
 {
 }
-void VulkanApi::RenderTriangleStripMesh(uint32)
+void VulkanApi::RenderTriangleStripMesh(uint32 id)
 {
+    RenderMesh(id);
 }
-void VulkanApi::RenderMeshInstanced(uint32, uint32)
+void VulkanApi::RenderMeshInstanced(uint32 id, uint32 istanced)
 {
 }
 void VulkanApi::RenderPoints(uint32)

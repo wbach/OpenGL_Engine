@@ -145,7 +145,18 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi(std::unique_ptr<Gra
     }
     else if (EngineConf.renderer.graphicsApi == "Vulkan")
     {
-        graphicsApi = std::make_unique<GraphicsApi::Vulkan::VulkanApi>();
+        // textures not implment yet, disable
+        auto& t              = EngineConf.renderer.textures;
+        t.useDiffuse         = false;
+        t.useDisplacement    = false;
+        t.useAmbient         = false;
+        t.useNormal          = false;
+        t.useSpecular        = false;
+        t.useRoughness       = false;
+        t.useMetallic        = false;
+        t.useAmientOcclusion = false;
+        t.useOpacity         = false;
+        graphicsApi          = std::make_unique<GraphicsApi::Vulkan::VulkanApi>();
     }
 #ifdef _WIN32
     else if (EngineConf.renderer.graphicsApi == "DirectX11")
@@ -317,16 +328,16 @@ void Engine::ProcessEngineEvents()
 
     for (auto& event : events)
     {
-        std::visit(
-            visitor{[&](const SetGameStateFlag& e)
-                    {
-                        engineContext_.GetGameState().setFlag(e.flag, e.value);
-                        engineContext_.GetQuestManager().onSetFlag(e.flag, e.value);
-                    },
-                    [&](const SceneStartedEvent&) { engineContext_.GetQuestManager().onSceneStarted(); }, [&](const QuitEvent& e)
-                    { Quit(e); }, [&](const ChangeSceneEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); },
-                    [&](const ChangeSceneConfirmEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); }},
-            event);
+        std::visit(visitor{[&](const SetGameStateFlag& e)
+                           {
+                               engineContext_.GetGameState().setFlag(e.flag, e.value);
+                               engineContext_.GetQuestManager().onSetFlag(e.flag, e.value);
+                           },
+                           [&](const SceneStartedEvent&) { engineContext_.GetQuestManager().onSceneStarted(); },
+                           [&](const QuitEvent& e) { Quit(e); },
+                           [&](const ChangeSceneEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); },
+                           [&](const ChangeSceneConfirmEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); }},
+                   event);
     }
 }
 
