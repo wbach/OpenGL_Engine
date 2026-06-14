@@ -255,7 +255,7 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     for (auto i = 0u; i < imageCount; ++i)
     {
         LOG_DEBUG << "vkCreateDescriptorPool " << i;
-        if (vkCreateDescriptorPool(context.device, &poolInfo, nullptr, &newProgram.descriptorPools[i]) not_eq VK_SUCCESS)
+        if (vkCreateDescriptorPool(context.device, &poolInfo, nullptr, &newProgram.descriptorPools[i]) != VK_SUCCESS)
         {
             LOG_ERROR << "Error: Failed to create VkDescriptorPool for frame " << i << "!\n";
             return false;
@@ -269,7 +269,7 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges    = nullptr;
     LOG_DEBUG << "vkCreatePipelineLayout";
-    if (vkCreatePipelineLayout(context.device, &pipelineLayoutInfo, nullptr, &newProgram.layout) not_eq VK_SUCCESS)
+    if (vkCreatePipelineLayout(context.device, &pipelineLayoutInfo, nullptr, &newProgram.layout)  != VK_SUCCESS)
     {
         LOG_ERROR << "Error: Failed to create Pipeline Layout!\n";
         return false;

@@ -507,7 +507,7 @@ void SdlVulkanApi::SetWindowSize(const vec2ui& size)
 
 vec2ui SdlVulkanApi::GetWindowSize() const
 {
-    if (vkContext.swapChainExtent.width not_eq 0 and vkContext.swapChainExtent.height not_eq 0)
+    if (vkContext.swapChainExtent.width  != 0 and vkContext.swapChainExtent.height  != 0)
     {
         return vec2ui{vkContext.swapChainExtent.width, vkContext.swapChainExtent.height};
     }
