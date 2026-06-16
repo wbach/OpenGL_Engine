@@ -9,7 +9,6 @@
 #include "Logger/Log.h"
 #include "OpenGLApi/IdPool.h"
 #include "OpenGLApi/OpenGLUtils.h"
-#include "SimpleDeprecetedShaders.h"
 #include "SimpleForwardShaderFiles.h"
 
 namespace OpenGLApi
@@ -30,8 +29,7 @@ const std::unordered_map<GraphicsApi::ShaderType, uint32> shaderTypeMap =
 }  // namespace
 
 ShaderManager::ShaderManager(IdPool& idPool)
-    : useDeprectedShaders_(false)
-    , currentShader_(0)
+    : currentShader_(0)
     , idPool_(idPool)
     , shaderQuality_(GraphicsApi::ShaderQuaility::FullDefferedRendering)
 {
@@ -39,7 +37,7 @@ ShaderManager::ShaderManager(IdPool& idPool)
 
 void ShaderManager::UseDeprectedShaders()
 {
-    useDeprectedShaders_ = true;
+    LOG_WARN << "Using deprecated shaders. Not supported anymore.";
 }
 
 void ShaderManager::UseShader(uint32 id)
@@ -52,7 +50,7 @@ void ShaderManager::UseShader(uint32 id)
 void ShaderManager::SetShadersFilesLocations(const std::filesystem::path& path)
 {
     LOG_DEBUG << "path " << path;
-    shadersFileLocation_ = path  / "GLSL";
+    shadersFileLocation_ = path / "GLSL";
 }
 
 std::optional<GLuint> ShaderManager::CreateShaderProgram()
@@ -229,11 +227,6 @@ void ShaderManager::CheckAndPrintGLError(OpenGLShaderProgram& shaderProgram)
 
 std::optional<GraphicsApi::ShadersFiles> ShaderManager::GetShaderFiles(GraphicsApi::ShaderProgramType shaderType)
 {
-    if (useDeprectedShaders_)
-    {
-        return GetSimpleDeprecetedShaders(shaderType);
-    }
-
     switch (shaderQuality_)
     {
         case GraphicsApi::ShaderQuaility::FullDefferedRendering:

@@ -1,13 +1,24 @@
 #pragma once
 #include <Types.h>
 #include <vulkan/vulkan.h>
+#include <map>
+#include <variant>
 
 namespace GraphicsApi::Vulkan
 {
+struct VulkanProceduralDraw
+{
+    uint32 count{0};
+};
+
+struct VulkanMeshDraw
+{
+    IdType id{0};
+};
 struct VulkanDrawCall
 {
-    IdType meshId;
-    std::unordered_map<uint32, uint32> boundShaderBuffers;
+    std::variant<VulkanMeshDraw, VulkanProceduralDraw> drawCommand;
+    std::map<uint32, uint32> boundShaderBuffers;
 };
 
 struct VulkanProgram

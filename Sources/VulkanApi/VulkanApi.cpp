@@ -2,14 +2,17 @@
 
 #include <Logger/Log.h>
 #include <SDL2/SDL_vulkan.h>
+#include <Variant.h>
 
 #include <cstring>
 #include <iostream>
 #include <vector>
 
+#include "PipelineConfig.h"
 #include "Types.h"
 #include "VulkanApi/SdlVulkanApi.h"
 #include "VulkanApi/VulkanContext.hpp"
+#include "VulkanApi/VulkanProgram.h"
 #include "VulkanShaderCompiler.h"
 
 namespace GraphicsApi::Vulkan
@@ -461,11 +464,11 @@ bool UploadBufferData(VulkanContext& vkContext, VkBuffer buffer, VkDeviceMemory 
 }
 
 VkDescriptorSet PrepareDrawCallDescriptorSet(VulkanContext& context, VkDescriptorPool pool, VkDescriptorSetLayout layout,
-                                             const std::unordered_map<uint32, uint32>& boundBuffers)
+                                             const std::map<uint32, uint32>& boundBuffers)
 {
-    auto drawCallSet = VkDescriptorSet{VK_NULL_HANDLE};
+    VkDescriptorSet drawCallSet{VK_NULL_HANDLE};
 
-    auto allocInfo               = VkDescriptorSetAllocateInfo{};
+    VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool     = pool;
     allocInfo.descriptorSetCount = 1u;
@@ -477,8 +480,8 @@ VkDescriptorSet PrepareDrawCallDescriptorSet(VulkanContext& context, VkDescripto
         return VK_NULL_HANDLE;
     }
 
-    auto descriptorWrites = std::vector<VkWriteDescriptorSet>{};
-    auto bufferInfos      = std::vector<VkDescriptorBufferInfo>{};
+    std::vector<VkWriteDescriptorSet> descriptorWrites{};
+    std::vector<VkDescriptorBufferInfo> bufferInfos{};
     bufferInfos.reserve(boundBuffers.size());
 
     for (auto const& [bindLocation, bufferId] : boundBuffers)
@@ -486,20 +489,38 @@ VkDescriptorSet PrepareDrawCallDescriptorSet(VulkanContext& context, VkDescripto
         auto bufIt = context.shaderBuffers.find(bufferId);
         if (bufIt == context.shaderBuffers.end())
             continue;
+
         auto& shaderBuffer = bufIt->second;
 
-        auto bufferInfo   = VkDescriptorBufferInfo{};
-        bufferInfo.buffer = shaderBuffer.buffer;
-        bufferInfo.offset = 0;
-        bufferInfo.range  = shaderBuffer.size;
+        VkDescriptorBufferInfo bufferInfo{};
+
+        if (shaderBuffer.type == BufferType::DynamicPerFrame)
+        {
+            // Dla dynamicznego UBO bierzemy globalny bufor (bo nasz wirtualny ma poprawnie przypisany uchwyt z dUbo w Create)
+            bufferInfo.buffer = shaderBuffer.buffer;
+            bufferInfo.offset = 0;  // BARDZO WAŻNE: Dla dynamicznych UBO offset w strukturze info zawsze wynosi 0!
+            bufferInfo.range  = shaderBuffer.size;  // Rozmiar pojedynczego okienka danych
+        }
+        else
+        {
+            bufferInfo.buffer = shaderBuffer.buffer;
+            bufferInfo.offset = 0;
+            bufferInfo.range  = shaderBuffer.size;
+        }
+
         bufferInfos.push_back(bufferInfo);
 
-        auto descriptorWrite            = VkWriteDescriptorSet{};
+        VkWriteDescriptorSet descriptorWrite{};
         descriptorWrite.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrite.dstSet          = drawCallSet;
         descriptorWrite.dstBinding      = bindLocation;
         descriptorWrite.dstArrayElement = 0;
-        descriptorWrite.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
+        // Zależnie od typu bufora ustawiamy odpowiedni typ deskryptora
+        descriptorWrite.descriptorType = (shaderBuffer.type == BufferType::DynamicPerFrame)
+                                             ? VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC
+                                             : VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
         descriptorWrite.descriptorCount = 1;
         descriptorWrites.push_back(descriptorWrite);
     }
@@ -547,12 +568,6 @@ void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer, ui
 
         for (const auto& drawCall : program.drawCalls)
         {
-            const auto meshIt = vkContext.meshes.find(drawCall.meshId);
-            if (meshIt == vkContext.meshes.end())
-            {
-                continue;
-            }
-
             auto drawCallSet =
                 PrepareDrawCallDescriptorSet(vkContext, currentPool, program.descriptorSetLayout, drawCall.boundShaderBuffers);
 
@@ -561,21 +576,62 @@ void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer, ui
                 continue;
             }
 
-            VkBuffer vertexBuffers[] = {meshIt->second.vertexBuffer};
-            VkDeviceSize offsets[]   = {0};
-            vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program.layout, 0, 1, &drawCallSet, 0,
-                                    nullptr);
+            std::vector<uint32> dynamicOffsets;
+            const uint32_t totalBindingsCount = 12;
 
-            if (meshIt->second.useIndices and meshIt->second.indexBuffer != VK_NULL_HANDLE)
+            for (uint32_t i = 0; i < totalBindingsCount; ++i)
             {
-                vkCmdBindIndexBuffer(commandBuffer, meshIt->second.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-                vkCmdDrawIndexed(commandBuffer, static_cast<uint32>(meshIt->second.meshData.indices_.size()), 1, 0, 0, 0);
+                // Sprawdzamy naszą funkcją przejściową, czy ten slot w ogóle oczekuje typu Dynamic
+                if (GetDrawFlagByBindLocation(i) == GraphicsApi::DrawFlag::Dynamic)
+                {
+                    uint32_t offsetForThisSlot = 0;  // Domyślnie bezpieczne zero
+
+                    // Szukamy, czy silnik podpiął jakiś bufor pod ten konkretny bindLocation (i)
+                    auto boundIt = drawCall.boundShaderBuffers.find(i);
+                    if (boundIt != drawCall.boundShaderBuffers.end())
+                    {
+                        auto bufIt = vkContext.shaderBuffers.find(boundIt->second);
+                        if (bufIt != vkContext.shaderBuffers.end() && bufIt->second.type == BufferType::DynamicPerFrame)
+                        {
+                            offsetForThisSlot = bufIt->second.dynamicOffset;
+                        }
+                    }
+                    // LOG_DEBUG << "Slot " << i << " jest Dynamic. Dodaję offset: " << offsetForThisSlot;
+                    //  Vulkan dostanie offset dokładnie w takiej kolejności, w jakiej ma zdefiniowane sloty dynamiczne
+                    dynamicOffsets.push_back(offsetForThisSlot);
+                }
             }
-            else
-            {
-                vkCmdDraw(commandBuffer, meshIt->second.vertexCount, 1, 0, 0);
-            }
+
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program.layout, 0, 1, &drawCallSet,
+                                    static_cast<uint32>(dynamicOffsets.size()),
+                                    dynamicOffsets.empty() ? nullptr : dynamicOffsets.data());
+
+            std::visit(
+                visitor{[&](VulkanMeshDraw meshDraw)
+                        {
+                            const auto meshIt = vkContext.meshes.find(meshDraw.id);
+                            if (meshIt == vkContext.meshes.end())
+                            {
+                                return;
+                            }
+
+                            VkBuffer vertexBuffers[] = {meshIt->second.vertexBuffer};
+                            VkDeviceSize offsets[]   = {0};
+                            vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+                            if (meshIt->second.useIndices and meshIt->second.indexBuffer != VK_NULL_HANDLE)
+                            {
+                                vkCmdBindIndexBuffer(commandBuffer, meshIt->second.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+                                vkCmdDrawIndexed(commandBuffer, static_cast<uint32>(meshIt->second.meshData.indices_.size()), 1,
+                                                 0, 0, 0);
+                            }
+                            else
+                            {
+                                vkCmdDraw(commandBuffer, meshIt->second.vertexCount, 1, 0, 0);
+                            }
+                        },
+                        [&](VulkanProceduralDraw proceduralDraw) { vkCmdDraw(commandBuffer, proceduralDraw.count, 1, 0, 0); }},
+                drawCall.drawCommand);
         }
 
         program.drawCalls.clear();
@@ -625,7 +681,41 @@ bool SubmitCommandBuffer(VulkanContext& vkContext, VkCommandBuffer commandBuffer
 
     return true;
 }
+ID CreateQuad(VulkanContext& vkContext)
+{
+    std::vector<float> vertices = {
+        -1.0f, -1.0f,  // 0: Lewy dół
+        1.0f,  -1.0f,  // 1: Prawy dół
+        1.0f,  1.0f,   // 2: Prawy góra
+        -1.0f, 1.0f    // 3: Lewy góra
+    };
 
+    std::vector<uint16_t> indices = {0, 1, 2, 0, 2, 3};
+
+    VulkanMesh quadMesh{};
+    quadMesh.vertexCount = 4;
+    quadMesh.useIndices  = true;
+
+    CreateBuffer(vkContext, vertices.size() * sizeof(float), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, quadMesh.vertexBuffer,
+                 quadMesh.vertexBufferMemory);
+
+    UploadBufferData(vkContext, quadMesh.vertexBuffer, quadMesh.vertexBufferMemory, vertices.data(),
+                     vertices.size() * sizeof(float));
+
+    CreateBuffer(vkContext, indices.size() * sizeof(uint16_t), VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, quadMesh.indexBuffer,
+                 quadMesh.indexBufferMemory);
+
+    UploadBufferData(vkContext, quadMesh.indexBuffer, quadMesh.indexBufferMemory, indices.data(),
+                     indices.size() * sizeof(uint16_t));
+
+    auto meshId              = vkContext.meshesPoolId.getId();
+    vkContext.meshes[meshId] = std::move(quadMesh);
+
+    LOG_DEBUG << "Quad created with ID: " << meshId;
+    return meshId;
+}
 }  // namespace
 
 VulkanApi::VulkanApi()
@@ -678,6 +768,7 @@ void VulkanApi::EndFrame()
 void VulkanApi::CreateContext()
 {
     windowApi_->CreateContext();
+
     PrintVersion();
 
     if (!InitializeRenderingResources(vkContext))
@@ -687,13 +778,15 @@ void VulkanApi::CreateContext()
 
     if (!quadMeshId.has_value())
     {
+        // quadMeshId = CreateQuad(vkContext);
         MeshRawData quadMeshData{};
         quadMeshData.positions_  = {-1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f, 0.0f};
         quadMeshData.textCoords_ = {0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
         quadMeshData.indices_    = {0, 1, 2, 0, 2, 3};
-
-        quadMeshId = CreateMesh(quadMeshData, RenderType::TRIANGLES);
+        quadMeshId               = CreateMesh(quadMeshData, RenderType::TRIANGLES);
     }
+
+    InitializeDynamicUniformBuffer(64 * 1024 * 1024);
 }
 
 void VulkanApi::RecreateSwapChain()
@@ -770,40 +863,62 @@ void VulkanApi::DisableDepthTest()
 }
 void VulkanApi::PrepareFrame()
 {
+    vkContext.globalDynamicUBO.currentOffset = 0;
 }
 ID VulkanApi::CreateShader(ShaderProgramType type)
 {
     return shaderManager_.Create(type);
 }
-ID VulkanApi::CreateShaderBuffer(uint32 bindLocation, uint32 size, GraphicsApi::DrawFlag flag)
+ID VulkanApi::CreateShaderBuffer(uint32 bindLocation, uint32 size, GraphicsApi::DrawFlag /*flag*/)
 {
-    VulkanShaderBuffer shaderBuffer{};
-    shaderBuffer.size                = size;
-    shaderBuffer.bindLocation        = bindLocation;
-    VkBufferUsageFlags usage         = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-    VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-
-    if (not CreateBuffer(vkContext, size, usage, properties, shaderBuffer.buffer, shaderBuffer.memory))
+    auto flag = GetDrawFlagByBindLocation(bindLocation);
+    if (flag == DrawFlag::Static)
     {
-        LOG_ERROR << "Error: Failed to create VkBuffer for UBO!\n";
-        return {};
+        VulkanShaderBuffer shaderBuffer{};
+        shaderBuffer.size                = size;
+        shaderBuffer.bindLocation        = bindLocation;
+        shaderBuffer.type                = BufferType::StaticPerObject;
+        VkBufferUsageFlags usage         = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+        VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+
+        if (not CreateBuffer(vkContext, size, usage, properties, shaderBuffer.buffer, shaderBuffer.memory))
+        {
+            LOG_ERROR << "Error: Failed to create VkBuffer for UBO!\n";
+            return {};
+        }
+
+        if (vkMapMemory(vkContext.device, shaderBuffer.memory, 0, size, 0, &shaderBuffer.mappedData) != VK_SUCCESS)
+        {
+            LOG_ERROR << "Error: Failed to map UBO memory to CPU space!\n";
+            vkDestroyBuffer(vkContext.device, shaderBuffer.buffer, nullptr);
+            vkFreeMemory(vkContext.device, shaderBuffer.memory, nullptr);
+            return {};
+        }
+
+        const auto bufferId               = vkContext.shaderBuffersPoolId.getId();
+        vkContext.shaderBuffers[bufferId] = std::move(shaderBuffer);
+
+        vkContext.activeStaticAllocationsCount++;
+
+        LOG_DEBUG << "Created Vulkan UBO ID: " << bufferId << ", size: " << size << " bytes"
+                  << ", target bind location: " << bindLocation
+                  << " | Active GPU allocations: " << vkContext.activeStaticAllocationsCount << "/4096";
+        return bufferId;
     }
 
-    if (vkMapMemory(vkContext.device, shaderBuffer.memory, 0, size, 0, &shaderBuffer.mappedData) != VK_SUCCESS)
-    {
-        LOG_ERROR << "Error: Failed to map UBO memory to CPU space!\n";
-        vkDestroyBuffer(vkContext.device, shaderBuffer.buffer, nullptr);
-        vkFreeMemory(vkContext.device, shaderBuffer.memory, nullptr);
-        return {};
-    }
+    VulkanShaderBuffer virtualBuffer{};
+    virtualBuffer.size          = size;
+    virtualBuffer.bindLocation  = bindLocation;
+    virtualBuffer.type          = BufferType::DynamicPerFrame;
+    virtualBuffer.dynamicOffset = 0;
+    virtualBuffer.buffer        = vkContext.globalDynamicUBO.buffer;
+    virtualBuffer.memory        = vkContext.globalDynamicUBO.memory;
+    virtualBuffer.mappedData    = vkContext.globalDynamicUBO.mappedData;
 
-    const auto bufferId               = vkContext.shaderBuffersPoolId.getId();
-    vkContext.shaderBuffers[bufferId] = std::move(shaderBuffer);
+    const auto virtualId               = vkContext.shaderBuffersPoolId.getId();
+    vkContext.shaderBuffers[virtualId] = std::move(virtualBuffer);
 
-    LOG_DEBUG << "Created Vulkan UBO ID: " << bufferId << ", size: " << size << " bytes"
-              << ", target bind location: " << bindLocation;
-
-    return bufferId;
+    return virtualId;
 }
 ID VulkanApi::CreateShaderStorageBuffer(uint32, uint32, DrawFlag)
 {
@@ -812,14 +927,47 @@ ID VulkanApi::CreateShaderStorageBuffer(uint32, uint32, DrawFlag)
 void VulkanApi::UpdateShaderBuffer(uint32 id, void const* buffer)
 {
     auto it = vkContext.shaderBuffers.find(id);
-    if (it == vkContext.shaderBuffers.end() or buffer == nullptr)
+    if (it == vkContext.shaderBuffers.end() || buffer == nullptr)
     {
         LOG_ERROR << "Error: Cannot update shader buffer. Invalid ID (" << id << ") or null data pointer!\n";
         return;
     }
 
     auto& shaderBuffer = it->second;
-    std::memcpy(shaderBuffer.mappedData, buffer, shaderBuffer.size);
+
+    if (shaderBuffer.type == BufferType::DynamicPerFrame)
+    {
+        auto& dUbo = vkContext.globalDynamicUBO;
+
+        // 2. Wyliczamy wyrównany offset (alignment) dla obecnych danych
+        uint32 alignedOffset = (dUbo.currentOffset + dUbo.alignment - 1) & ~(dUbo.alignment - 1);
+
+        // 3. Sprawdzamy, czy dane zmieszczą się jeszcze w globalnym buforze
+        if (alignedOffset + shaderBuffer.size > dUbo.totalSize)
+        {
+            LOG_ERROR << "Critical: Global Dynamic UBO Out of Memory! Resetting offset to 0. "
+                      << "Requested: " << shaderBuffer.size << " bytes, Available: " << (dUbo.totalSize - alignedOffset)
+                      << " bytes.";
+
+            // W trybie jednoklatkowym awaryjnie resetujemy na 0 (może nadpisać dane, ale uchroni przed crashem)
+            alignedOffset = 0;
+        }
+
+        // 4. Kopiujemy dane CPU do globalnego pasma pamięci pod wyliczony offset
+        void* targetPtr = static_cast<char*>(dUbo.mappedData) + alignedOffset;
+        std::memcpy(targetPtr, buffer, shaderBuffer.size);
+
+        // 5. Zapisujemy wyliczony offset w tym KONKRETNYM obiekcie bufora.
+        //    Dzięki temu podczas bindowania (vkCmdBindDescriptorSets) wiemy, jaki offset przekazać.
+        shaderBuffer.dynamicOffset = alignedOffset;
+
+        // 6. Przesuwamy globalny wskaźnik alokacji na koniec zapisanych danych
+        dUbo.currentOffset = alignedOffset + shaderBuffer.size;
+    }
+    else
+    {
+        std::memcpy(shaderBuffer.mappedData, buffer, shaderBuffer.size);
+    }
 }
 void VulkanApi::UpdateShaderStorageBuffer(uint32, void const*, uint32)
 {
@@ -833,6 +981,12 @@ void VulkanApi::UnmapShaderStorageBuffer(uint32)
 }
 uint32 VulkanApi::BindShaderBuffer(uint32 id)
 {
+    if (id == vkContext.globalDynamicUBOId)
+    {
+        LOG_WARN << "Warning: Trying to bind global UBO directly via ID " << id;
+        return 0;
+    }
+
     auto bufIt = vkContext.shaderBuffers.find(id);
     if (bufIt == vkContext.shaderBuffers.end())
     {
@@ -857,6 +1011,8 @@ void VulkanApi::UseShader(uint32 shaderId)
 ID VulkanApi::CreateTexture(const Utils::Image& image, [[maybe_unused]] TextureFilter filter,
                             [[maybe_unused]] TextureMipmap mipmap)
 {
+    // return {};
+
     VkDeviceSize imageSize = image.width * image.height * 4;
 
     VkBuffer stagingBuffer;
@@ -952,8 +1108,32 @@ void VulkanApi::DeleteObject(uint32)
 void VulkanApi::DeleteObject(const std::vector<uint32>&)
 {
 }
-void VulkanApi::DeleteShaderBuffer(uint32)
+void VulkanApi::DeleteShaderBuffer(uint32 id)
 {
+    auto it = vkContext.shaderBuffers.find(id);
+    if (it == vkContext.shaderBuffers.end())
+        return;
+
+    if (it->second.type == BufferType::StaticPerObject)
+    {
+        vkUnmapMemory(vkContext.device, it->second.memory);
+        vkDestroyBuffer(vkContext.device, it->second.buffer, nullptr);
+        vkFreeMemory(vkContext.device, it->second.memory, nullptr);  // <--- Tutaj zwalniasz alokację!
+
+        if (vkContext.activeStaticAllocationsCount > 0)
+        {
+            vkContext.activeStaticAllocationsCount--;
+        }
+
+        LOG_DEBUG << "Destroyed Static UBO ID: " << id << " | Active GPU allocations: " << vkContext.activeStaticAllocationsCount
+                  << "/4096";
+    }
+    else
+    {
+        // LOG_DEBUG << "Destroyed Virtual Dynamic UBO ID: " << id << " (Global allocation untouched)";
+    }
+
+    vkContext.shaderBuffers.erase(it);
 }
 void VulkanApi::DeleteShaderBuffer(const std::vector<uint32>&)
 {
@@ -1148,7 +1328,8 @@ void VulkanApi::RenderMesh(uint32 meshId)
 
     if (it != vkContext.programs.end())
     {
-        VulkanDrawCall drawCall{.meshId = meshId, .boundShaderBuffers = vkContext.currentRenderState.boundShaderBuffers};
+        VulkanDrawCall drawCall{.drawCommand        = VulkanMeshDraw{meshId},
+                                .boundShaderBuffers = vkContext.currentRenderState.boundShaderBuffers};
         it->second.drawCalls.push_back(drawCall);
     }
     else
@@ -1157,8 +1338,16 @@ void VulkanApi::RenderMesh(uint32 meshId)
                   << ") does not exist in the Vulkan context!\n";
     }
 }
-void VulkanApi::RenderProcedural(uint32)
+void VulkanApi::RenderProcedural(uint32 count)
 {
+    auto it = vkContext.programs.find(vkContext.currentRenderState.activeProgramId);
+
+    if (it != vkContext.programs.end())
+    {
+        VulkanDrawCall drawCall{.drawCommand        = VulkanProceduralDraw{count},
+                                .boundShaderBuffers = vkContext.currentRenderState.boundShaderBuffers};
+        it->second.drawCalls.push_back(drawCall);
+    }
 }
 void VulkanApi::RenderDebugNormals(uint32)
 {
@@ -1175,16 +1364,6 @@ void VulkanApi::RenderPoints(uint32)
 }
 void VulkanApi::RenderQuad()
 {
-    if (!quadMeshId.has_value())
-    {
-        MeshRawData quadMeshData{};
-        quadMeshData.positions_  = {-1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f, 0.0f};
-        quadMeshData.textCoords_ = {0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
-        quadMeshData.indices_    = {0, 1, 2, 0, 2, 3};
-
-        quadMeshId = CreateMesh(quadMeshData, RenderType::TRIANGLES);
-    }
-
     RenderMesh(quadMeshId.value_or(0));
 }
 void VulkanApi::RenderQuadTs()
@@ -1307,5 +1486,26 @@ void VulkanApi::RenderFrame(uint32 imageIndex)
     }
 
     SubmitCommandBuffer(vkContext, commandBuffer);
+}
+void VulkanApi::InitializeDynamicUniformBuffer(uint32 sizeInBytes)
+{
+    VkPhysicalDeviceProperties properties;
+    vkGetPhysicalDeviceProperties(vkContext.physicalDevice, &properties);
+
+    auto& dUbo         = vkContext.globalDynamicUBO;
+    dUbo.totalSize     = sizeInBytes;
+    dUbo.currentOffset = 0;
+    dUbo.alignment     = static_cast<uint32>(properties.limits.minUniformBufferOffsetAlignment);
+
+    VkBufferUsageFlags usage       = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    VkMemoryPropertyFlags memProps = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+
+    CreateBuffer(vkContext, dUbo.totalSize, usage, memProps, dUbo.buffer, dUbo.memory);
+    vkMapMemory(vkContext.device, dUbo.memory, 0, dUbo.totalSize, 0, &dUbo.mappedData);
+
+    vkContext.globalDynamicUBOId = vkContext.shaderBuffersPoolId.getId();
+
+    LOG_DEBUG << "Initialized Global Dynamic UBO with total size: " << dUbo.totalSize << " bytes, alignment: " << dUbo.alignment
+              << " bytes, and assigned ID: " << vkContext.globalDynamicUBOId;
 }
 }  // namespace GraphicsApi::Vulkan

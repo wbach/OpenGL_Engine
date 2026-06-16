@@ -3,6 +3,7 @@
 #include <vulkan/vulkan.h>
 
 #include <functional>
+#include <map>
 #include <unordered_map>
 #include <vector>
 
@@ -22,7 +23,18 @@ struct VulkanTexture
 struct RenderState
 {
     uint32 activeProgramId = 0u;
-    std::unordered_map<uint32, uint32> boundShaderBuffers;
+    std::map<uint32, uint32> boundShaderBuffers;
+};
+
+struct DynamicUniformBuffer
+{
+    VkBuffer buffer       = VK_NULL_HANDLE;
+    VkDeviceMemory memory = VK_NULL_HANDLE;
+    void* mappedData      = nullptr;
+    uint32 totalSize      = 0u;
+    uint32 currentOffset  = 0u;
+    uint32 dynamicOffset  = 0u;
+    uint32 alignment      = 0u;
 };
 
 struct VulkanContext
@@ -63,7 +75,7 @@ struct VulkanContext
     Color backgroundColor{0.9f, 0.0f, 0.0f, 1.0f};
 
     std::unordered_map<IdType, VulkanProgram> programs;
-    Utils::IdPool programsPoolId;
+    Utils::IdPool programsPoolId;    // zalezy nam na zachowaniu kolejnosci wstawiania shader bufferow, bo wlasnie w tej kolejnosci beda one wiazane do descriptor setu
 
     std::unordered_map<IdType, VulkanMesh> meshes;
     Utils::IdPool meshesPoolId;
@@ -75,5 +87,10 @@ struct VulkanContext
     Utils::IdPool texturesPoolId;
 
     RenderState currentRenderState;
+
+    IdType globalDynamicUBOId = 0u;
+    GraphicsApi::Vulkan::DynamicUniformBuffer globalDynamicUBO;
+
+    uint32 activeStaticAllocationsCount = 0;
 };
 }  // namespace GraphicsApi::Vulkan

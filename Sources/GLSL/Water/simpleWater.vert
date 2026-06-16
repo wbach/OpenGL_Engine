@@ -31,7 +31,7 @@ layout (std140, binding=3) uniform PerObjectUpdate
     mat4 transformationMatrix;
 } perObjectUpdate;
 
-out VS_OUT
+layout(location = 0) out VS_OUT
 {
     vec2 texCoord;
     vec3 normal;

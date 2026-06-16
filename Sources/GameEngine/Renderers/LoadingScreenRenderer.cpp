@@ -96,14 +96,14 @@ void LoadingScreenRenderer::renderQuad(const GraphicsApi::ID &bufferId, const Gr
         graphicsApi_.ActiveTexture(0, *textureId);
 
     graphicsApi_.BindShaderBuffer(*bufferId);
-    graphicsApi_.RenderQuad();
+    graphicsApi_.RenderProcedural(6);
 }
 void LoadingScreenRenderer::CreateBuffers()
 {
     if (not backgroundBufferId_)
     {
         backgroundBufferId_ = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate),
-                                                              GraphicsApi::DrawFlag::Dynamic);
+                                                              GraphicsApi::DrawFlag::Static);
 
         PerObjectUpdate perObjectUpdate_;
         perObjectUpdate_.TransformationMatrix = graphicsApi_.PrepareMatrixToLoad(mat4(1.f));
@@ -115,14 +115,14 @@ void LoadingScreenRenderer::CreateBuffers()
     if (not circleBufferId_)
     {
         circleBufferId_ = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate),
-                                                          GraphicsApi::DrawFlag::Dynamic);
+                                                          GraphicsApi::DrawFlag::Static);
         circleMatrix_   = Utils::CreateTransformationMatrix(vec3(0.81, -0.75, -0.1), DegreesVec3(0), vec3(0.1f));
 
         PerObjectUpdate perObjectUpdate_;
         perObjectUpdate_.TransformationMatrix = graphicsApi_.PrepareMatrixToLoad(circleMatrix_);
         graphicsApi_.UpdateShaderBuffer(*circleBufferId_, &perObjectUpdate_);
 
-        LOG_DEBUG << "backgroundBufferId_: = " << circleBufferId_;
+        LOG_DEBUG << "circleBufferId_: = " << circleBufferId_;
     }
 }
 }  // namespace GameEngine

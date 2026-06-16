@@ -95,11 +95,7 @@ layout(binding = 9) uniform sampler2DShadow shadowMap1;
 layout(binding = 10) uniform sampler2DShadow shadowMap2;
 layout(binding = 11) uniform sampler2DShadow shadowMap3;
 
-in VS_OUT
-{
-    vec2 textureCoords;
-    vec3 cameraPosition;
-} vs_in;
+layout(location = 0) in vec2 textureCoords;
 
 out vec4 FragColor;
 
@@ -190,7 +186,7 @@ vec4 CalculateBaseLight(
 
     if (Is(lightsPass.effectsEnabledIndicators.x))
     {
-       float dynamicSSAO = texture(SsaoTexture, vs_in.textureCoords).r;
+       float dynamicSSAO = texture(SsaoTexture, textureCoords).r;
        float finalSSAO = pow(dynamicSSAO, ssaoStrength);
        fakeIndirect *= finalSSAO;
     }
@@ -404,11 +400,11 @@ vec4 CreateFog(vec4 finalColor, float fogEnabled)
     {
         // distance-based fog/visibility:
         float viewDist = perApp.viewDistance.x; //lightsPass.viewDistance;
-        float zView = ToZBuffer(DepthTexture, vs_in.textureCoords);
+        float zView = ToZBuffer(DepthTexture, textureCoords);
         float gradient = perApp.fogData.w;
         float visibility = exp(-pow((zView * (6 / max(1.0, viewDist))), gradient));
         visibility = clamp(visibility, 0.0, 1.0);
-        vec3 sky = texture(SkyTexture, vs_in.textureCoords).rgb;
+        vec3 sky = texture(SkyTexture, textureCoords).rgb;
         return  mix(vec4(sky, 1.f), finalColor, visibility);
     }
     return finalColor;
@@ -416,18 +412,18 @@ vec4 CreateFog(vec4 finalColor, float fogEnabled)
 
 void main()
 {
-    float depth = texture(DepthTexture, vs_in.textureCoords).r;
+    float depth = texture(DepthTexture, textureCoords).r;
     if (depth >= 1.0)
     {
-        vec3 sky = texture(SkyTexture, vs_in.textureCoords).rgb;
+        vec3 sky = texture(SkyTexture, textureCoords).rgb;
         FragColor = vec4(sky, 1.0);
         return;
     }
 
-    vec4 normal4            = texture(NormalMap, vs_in.textureCoords);
-    vec4 surfacePram        = texture(SurfaceParamsMap, vs_in.textureCoords);
-    vec3 worldPosition      = texture(PositionMap, vs_in.textureCoords).xyz;
-    vec4 colorMap           = texture(ColorMap, vs_in.textureCoords);
+    vec4 normal4            = texture(NormalMap, textureCoords);
+    vec4 surfacePram        = texture(SurfaceParamsMap, textureCoords);
+    vec3 worldPosition      = texture(PositionMap, textureCoords).xyz;
+    vec4 colorMap           = texture(ColorMap, textureCoords);
     vec3 normal             = normalize(normal4.xyz);
 
     SMaterial material;
@@ -444,7 +440,7 @@ void main()
 
     if (Is(lightsPass.effectsEnabledIndicators.y))
     {
-        vec3 rays = texture(LightshaftTexture, vs_in.textureCoords).rgb;
+        vec3 rays = texture(LightshaftTexture, textureCoords).rgb;
         finalColor.rgb = finalColor.rgb + rays;
     }
 

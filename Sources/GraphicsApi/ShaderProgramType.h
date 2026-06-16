@@ -40,7 +40,6 @@ enum class ShaderProgramType
     Blur,
     Deffered,
     Loading,
-    Font,
     Texture,
     Grid,
     Line,

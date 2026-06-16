@@ -2,7 +2,6 @@ set(OpenGLApiIncludes
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/OpenGLApi/Shaders/OpenGLShaderProgram.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/OpenGLApi/Shaders/ShaderManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/OpenGLApi/Shaders/SimpleForwardShaderFiles.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/OpenGLApi/Shaders/SimpleDeprecetedShaders.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/OpenGLApi/Shaders/FullDefferedShaderFiles.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/OpenGLApi/DefaultFrameBuffer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/OpenGLApi/IdPool.h

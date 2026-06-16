@@ -18,6 +18,7 @@ std::vector<uint32_t> CompileGlslToSpirv(const std::string& sourceName, shaderc_
     shaderc::CompileOptions options;
 
     options.SetOptimizationLevel(shaderc_optimization_level_performance);
+    options.AddMacroDefinition("IS_VULKAN", "1");
 
     shaderc::SpvCompilationResult result = compiler.CompileGlslToSpv(sourceStr, kind, sourceName.c_str(), options);
 

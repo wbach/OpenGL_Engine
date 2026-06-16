@@ -106,6 +106,7 @@ void BaseRenderer::createBaseRenderers()
 {
     // addRenderer<PreviewRenderer>();
     //  addRenderer<ConcreteSkyBoxRenderer>();
+
     addRenderer<ConcreteTerrainMeshRenderer>();
     addRenderer<ConcreteTreeRenderer>();
     addRenderer<ConcreteEntityRenderer>();

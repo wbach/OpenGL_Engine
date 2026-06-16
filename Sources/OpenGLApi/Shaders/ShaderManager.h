@@ -20,12 +20,12 @@ class IdPool;
 class ShaderManager
 {
 public:
-    ShaderManager(IdPool& idPool);
+    ShaderManager(IdPool&);
     void UseShader(uint32);
     void UseDeprectedShaders();
     void SetShadersFilesLocations(const std::filesystem::path&);
     GraphicsApi::ID Create(GraphicsApi::ShaderProgramType);
-    void DeleteShader(uint32 programId);
+    void DeleteShader(uint32);
     void SetShaderQuaility(GraphicsApi::ShaderQuaility);
 
 private:
@@ -39,7 +39,6 @@ private:
     std::optional<GraphicsApi::ShadersFiles> GetShaderFiles(GraphicsApi::ShaderProgramType);
 
 private:
-    bool useDeprectedShaders_;
     uint32 currentShader_;
     IdPool& idPool_;
     std::filesystem::path shadersFileLocation_;

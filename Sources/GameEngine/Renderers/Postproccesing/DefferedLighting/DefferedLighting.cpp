@@ -118,7 +118,7 @@ void DefferedLighting::Render(const Scene& scene)
 
     bindShadowMapCascades();
 
-    rendererContext_.graphicsApi_.RenderQuad();
+    rendererContext_.graphicsApi_.RenderProcedural(3);
     RetriveChanges();
 }
 

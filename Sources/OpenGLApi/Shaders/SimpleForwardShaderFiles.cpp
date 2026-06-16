@@ -10,7 +10,7 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
     {
         GraphicsApi::ShaderProgramType::Loading,
         {
-            {GraphicsApi::ShaderType::VERTEX_SHADER, "Game/loadingShader.vert"},
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Common/Quad.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER,"Game/loadingShader.frag"}
         }
     },
@@ -143,7 +143,7 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
     {
         GraphicsApi::ShaderProgramType::SimpleSky,
         {
-            {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/Sky/SimpleSky.vert"},
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Common/FullscreenTriangle.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "PostProcess/Sky/SimpleSky.frag"}
         }
     },
@@ -199,16 +199,9 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
         }
     },
     {
-        GraphicsApi::ShaderProgramType::Font,
-        {
-            {GraphicsApi::ShaderType::VERTEX_SHADER, "Font/fontVertex.vert"},
-            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Font/fontFragment.frag"}
-        }
-    },
-    {
         GraphicsApi::ShaderProgramType::Texture,
         {
-            {GraphicsApi::ShaderType::VERTEX_SHADER, "Gui/guiVertexShader.vert"},
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Common/Quad.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Gui/guiFragmentShader.frag"}
         }
     },

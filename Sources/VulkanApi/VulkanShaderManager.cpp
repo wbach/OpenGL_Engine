@@ -105,47 +105,31 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
 
     VkVertexInputBindingDescription bindingDescription{};
     bindingDescription.binding   = 0;
-    bindingDescription.stride    = 19 * sizeof(float);  // size wszystkich (3 + 2 + 3 + 3 + 4 + 4)
+    bindingDescription.stride    = pipelineConfig.vertexLayout.stride;
     bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-    VkVertexInputAttributeDescription attributeDescriptions[6]{};
-    // 0: Position (vec3)
-    attributeDescriptions[0].binding  = 0;
-    attributeDescriptions[0].location = 0;
-    attributeDescriptions[0].format   = VK_FORMAT_R32G32B32_SFLOAT;
-    attributeDescriptions[0].offset   = 0;
-    // 1: TexCoord (vec2)
-    attributeDescriptions[1].binding  = 0;
-    attributeDescriptions[1].location = 1;
-    attributeDescriptions[1].format   = VK_FORMAT_R32G32_SFLOAT;
-    attributeDescriptions[1].offset   = 3 * sizeof(float);
-    // 2: Normal (vec3)
-    attributeDescriptions[2].binding  = 0;
-    attributeDescriptions[2].location = 2;
-    attributeDescriptions[2].format   = VK_FORMAT_R32G32B32_SFLOAT;
-    attributeDescriptions[2].offset   = (3 + 2) * sizeof(float);
-    // 3: Tangent (vec3)
-    attributeDescriptions[3].binding  = 0;
-    attributeDescriptions[3].location = 3;
-    attributeDescriptions[3].format   = VK_FORMAT_R32G32B32_SFLOAT;
-    attributeDescriptions[3].offset   = (3 + 2 + 3) * sizeof(float);
-    // 4: Weights (vec4)
-    attributeDescriptions[4].binding  = 0;
-    attributeDescriptions[4].location = 4;
-    attributeDescriptions[4].format   = VK_FORMAT_R32G32B32A32_SFLOAT;
-    attributeDescriptions[4].offset   = (3 + 2 + 3 + 3) * sizeof(float);
-    // 5: BoneIds (ivec4)
-    attributeDescriptions[5].binding  = 0;
-    attributeDescriptions[5].location = 5;
-    attributeDescriptions[5].format   = VK_FORMAT_R32G32B32A32_SINT;
-    attributeDescriptions[5].offset   = (3 + 2 + 3 + 3 + 4) * sizeof(float);
+    std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
+    for (const auto& attr : pipelineConfig.vertexLayout.attributes)
+    {
+        attributeDescriptions.push_back({attr.location, 0, attr.format, attr.offset});
+    }
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-    vertexInputInfo.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount   = 1;
-    vertexInputInfo.pVertexBindingDescriptions      = &bindingDescription;
-    vertexInputInfo.vertexAttributeDescriptionCount = 6;
-    vertexInputInfo.pVertexAttributeDescriptions    = attributeDescriptions;
+    vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    if (pipelineConfig.vertexLayout.attributes.empty())
+    {
+        vertexInputInfo.vertexBindingDescriptionCount   = 0;
+        vertexInputInfo.pVertexBindingDescriptions      = nullptr;
+        vertexInputInfo.vertexAttributeDescriptionCount = 0;
+        vertexInputInfo.pVertexAttributeDescriptions    = nullptr;
+    }
+    else
+    {
+        vertexInputInfo.vertexBindingDescriptionCount   = 1;
+        vertexInputInfo.pVertexBindingDescriptions      = &bindingDescription;
+        vertexInputInfo.vertexAttributeDescriptionCount = pipelineConfig.vertexLayout.attributes.size();
+        vertexInputInfo.pVertexAttributeDescriptions    = attributeDescriptions.data();
+    }
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
     inputAssembly.sType                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -216,16 +200,26 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     colorBlending.attachmentCount = 1;
     colorBlending.pAttachments    = &colorBlendAttachment;
 
-    const auto globalStages = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-    auto bindings           = std::vector<VkDescriptorSetLayoutBinding>(9);
+    const auto globalStages           = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+    const uint32_t totalBindingsCount = 12;
+    auto bindings                     = std::vector<VkDescriptorSetLayoutBinding>(totalBindingsCount);
 
-    for (uint32_t i = 0; i < 9; ++i)
+    for (uint32_t i = 0; i < totalBindingsCount; ++i)
     {
         bindings[i].binding            = i;
-        bindings[i].descriptorType     = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         bindings[i].descriptorCount    = 1;
         bindings[i].stageFlags         = globalStages;
         bindings[i].pImmutableSamplers = nullptr;
+
+        auto it = pipelineConfig.bufferLayout.find(i);
+        if (it != pipelineConfig.bufferLayout.end() && it->second == GraphicsApi::DrawFlag::Dynamic)
+        {
+            bindings[i].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+        }
+        else
+        {
+            bindings[i].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        }
     }
 
     VkDescriptorSetLayoutCreateInfo descriptorLayoutInfo{};
@@ -240,15 +234,16 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
         return false;
     }
 
-    VkDescriptorPoolSize poolSize{};
-    poolSize.type            = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSize.descriptorCount = 9u * 1000u;
+    std::vector<VkDescriptorPoolSize> poolSizes = {
+        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 12u * 1000u},
+        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 12u * 1000u}
+    };
 
     VkDescriptorPoolCreateInfo poolInfo{};
     poolInfo.sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolInfo.poolSizeCount = 1u;
-    poolInfo.pPoolSizes    = &poolSize;
-    poolInfo.maxSets       = 1000u;
+    poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+    poolInfo.pPoolSizes    = poolSizes.data();
+    poolInfo.maxSets       = 2000u;
 
     auto imageCount = context.swapChainImages.size();
     newProgram.descriptorPools.resize(imageCount);  // One pool per swapchain image
@@ -296,7 +291,7 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
                                                        .depthCompareOp        = VK_COMPARE_OP_LESS,
                                                        .depthBoundsTestEnable = VK_FALSE,
                                                        .stencilTestEnable     = VK_FALSE};
-   // if (pipelineConfig.depthTestEnable)
+    // if (pipelineConfig.depthTestEnable)
     {
         pipelineInfo.pDepthStencilState = &depthStencil;
     }

@@ -58,7 +58,7 @@ void IntroRenderer::Init()
     if (not perUpdateObjectBuffer_)
     {
         perUpdateObjectBuffer_ = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate),
-                                                                 GraphicsApi::DrawFlag::Static);
+                                                                 GraphicsApi::DrawFlag::Dynamic);
 
         PerObjectUpdate perObjectUpdate;
         perObjectUpdate.TransformationMatrix = graphicsApi_.PrepareMatrixToLoad(mat4(1.f));
@@ -76,7 +76,7 @@ void IntroRenderer::RenderThis()
     if (backgroundTexture_ and backgroundTexture_->GetGraphicsObjectId())
         graphicsApi_.ActiveTexture(0, *backgroundTexture_->GetGraphicsObjectId());
 
-    graphicsApi_.RenderQuad();
+    graphicsApi_.RenderProcedural(6);
     shader_.Stop();
 }
 void IntroRenderer::CleanUp()

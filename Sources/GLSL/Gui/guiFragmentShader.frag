@@ -1,6 +1,7 @@
 #version 440
 
 layout(location = 0) in vec2 textureCoords;
+
 layout(location = 0) out vec4 outColor;
 
 layout(binding = 0) uniform sampler2D guiTexture;
@@ -14,7 +15,6 @@ layout (std140, binding=6) uniform PerMeshObject
 
 void main(void)
 {
-
     vec4 sampledColor = vec4(0.0);
    
     if (perMeshObject.params.x > 0.5) 

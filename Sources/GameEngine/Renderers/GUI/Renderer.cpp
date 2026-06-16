@@ -115,7 +115,8 @@ void Renderer::render()
         {
             graphicsApi_.ActiveTexture(0, *subscriber->getTextureId());
         }
-        graphicsApi_.RenderQuad();
+
+        graphicsApi_.RenderProcedural(6);
 
         if (subscriber->getZValue() > min)
         {

@@ -10,7 +10,7 @@ layout (std140, align=16, binding=6) uniform SkyBuffer
     vec4 sunColor;     // rgb = sun/moon color, a = isNight (0 day, 1 night)
 } skyBuffer;
 
-out vec4 outSkyColor;
+layout(location = 0) out vec4 outSkyColor;
 
 // --- CONFIG ---
 const float SUN_SIZE       = 0.009;
