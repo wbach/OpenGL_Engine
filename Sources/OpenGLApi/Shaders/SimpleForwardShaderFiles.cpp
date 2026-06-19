@@ -201,7 +201,8 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
     {
         GraphicsApi::ShaderProgramType::Texture,
         {
-            {GraphicsApi::ShaderType::VERTEX_SHADER, "Common/Quad.vert"},
+            //{GraphicsApi::ShaderType::VERTEX_SHADER, "Common/Quad.vert"},
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Gui/guiFragmentShader.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Gui/guiFragmentShader.frag"}
         }
     },

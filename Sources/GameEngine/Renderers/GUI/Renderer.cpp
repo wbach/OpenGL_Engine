@@ -20,8 +20,9 @@ namespace
 {
 std::mutex subscriberMutex;
 
-struct ColorBuffer
+struct ElementBuffer
 {
+    AlignWrapper<mat4> transformationMatrix;
     AlignWrapper<vec4> color;
     AlignWrapper<vec4> backgroundColor;
     AlignWrapper<vec4> params;
@@ -37,29 +38,21 @@ Renderer::Renderer(GraphicsApi::IGraphicsApi& graphicsApi)
 
 Renderer::~Renderer()
 {
-    graphicsApi_.DeleteShaderBuffer(transformBuffer_);
-    graphicsApi_.DeleteShaderBuffer(colorBuffer_);
+    if (elementBufferId_)
+        graphicsApi_.DeleteShaderBuffer(elementBufferId_);
     shader_.Clear();
 }
 
 void Renderer::Init()
 {
     auto id =
-        graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate), GraphicsApi::DrawFlag::Dynamic);
+        graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(ElementBuffer), GraphicsApi::DrawFlag::Dynamic);
     if (not id)
     {
         isInit_ = false;
         return;
     }
-    transformBuffer_ = *id;
-
-    id = graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(ColorBuffer), GraphicsApi::DrawFlag::Dynamic);
-    if (not id)
-    {
-        isInit_ = false;
-        return;
-    }
-    colorBuffer_ = *id;
+    elementBufferId_ = *id;
 
     shader_.Init();
 
@@ -98,18 +91,14 @@ void Renderer::render()
         if (not hasTexture and subscriber->getBackgroundColor().value.w < 0.001f)
             continue;
 
-        PerObjectUpdate buffer;
-        buffer.TransformationMatrix = graphicsApi_.PrepareMatrixToLoad(subscriber->getTransformMatrix());
-        graphicsApi_.UpdateShaderBuffer(transformBuffer_, &buffer);
-        graphicsApi_.BindShaderBuffer(transformBuffer_);
+        ElementBuffer elementBuffer;
+        elementBuffer.transformationMatrix = graphicsApi_.PrepareMatrixToLoad(subscriber->getTransformMatrix());
+        elementBuffer.color                = subscriber->getTextureColor().value;
+        elementBuffer.backgroundColor      = subscriber->getBackgroundColor().value;
+        elementBuffer.params.value.x       = hasTexture ? 1.f : 0.f;
 
-        ColorBuffer colorBuffer;
-        colorBuffer.color           = subscriber->getTextureColor().value;
-        colorBuffer.backgroundColor = subscriber->getBackgroundColor().value;
-        colorBuffer.params.value.x  = hasTexture ? 1.f : 0.f;
-
-        graphicsApi_.UpdateShaderBuffer(colorBuffer_, &colorBuffer);
-        graphicsApi_.BindShaderBuffer(colorBuffer_);
+        graphicsApi_.UpdateShaderBuffer(elementBufferId_, &elementBuffer);
+        graphicsApi_.BindShaderBuffer(elementBufferId_);
 
         if (hasTexture)
         {

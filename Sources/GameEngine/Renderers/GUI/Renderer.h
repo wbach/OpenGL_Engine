@@ -38,8 +38,7 @@ private:
     std::vector<RenderAble*> subscribers_;
 
     bool isInit_;
-    uint32 colorBuffer_;
-    uint32 transformBuffer_;
+    uint32 elementBufferId_;
 };
 }  // namespace GUI
 }  // namespace GameEngine
