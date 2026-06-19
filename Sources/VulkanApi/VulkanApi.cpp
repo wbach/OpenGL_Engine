@@ -1508,4 +1508,8 @@ void VulkanApi::InitializeDynamicUniformBuffer(uint32 sizeInBytes)
     LOG_DEBUG << "Initialized Global Dynamic UBO with total size: " << dUbo.totalSize << " bytes, alignment: " << dUbo.alignment
               << " bytes, and assigned ID: " << vkContext.globalDynamicUBOId;
 }
+std::optional<uint64_t> VulkanApi::GetBindlessHandle(IdType)
+{
+    return {};
+}
 }  // namespace GraphicsApi::Vulkan

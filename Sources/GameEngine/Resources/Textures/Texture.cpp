@@ -107,4 +107,13 @@ const TextureParameters& Texture::getTextureParameters() const
 {
     return textureParamters_;
 }
+std::optional<uint64_t> Texture::GetBindlessHandle(IdType)
+{
+    if (graphicsObjectId_ == std::nullopt)
+    {
+        LOG_ERROR << "Texture is not loaded to GPU. Cannot get bindless handle.";
+        return std::nullopt;
+    }
+    return graphicsApi_.GetBindlessHandle(*graphicsObjectId_);
+}
 }  // namespace GameEngine

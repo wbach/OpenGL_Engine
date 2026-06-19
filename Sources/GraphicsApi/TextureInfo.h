@@ -13,5 +13,6 @@ struct TextureInfo
     TextureType textureType{TextureType::U8_RGBA};
     TextureFilter textureFilter{TextureFilter::LINEAR};
     TextureMipmap textureMipmap{TextureMipmap::NONE};
+    uint64 bindlessHandle{0};
 };
 }  // namespace GraphicsApi

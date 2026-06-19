@@ -49,6 +49,7 @@ public:
     ID CreateTexture(const std::vector<Utils::Image>&, TextureFilter, TextureMipmap) override;
     ID CreateTextureStorage(TextureType, TextureFilter, int32) override;
     ID CreateCubMapTexture(const CubemapImages&) override;
+    std::optional<uint64_t> GetBindlessHandle(IdType) override;
     void GenerateMipmaps(IdType) override;
     void CopyTexture(IdType, IdType, uint32, uint32) override;
     void UpdateTexture(uint32, const vec2ui&, const Utils::Image&) override;

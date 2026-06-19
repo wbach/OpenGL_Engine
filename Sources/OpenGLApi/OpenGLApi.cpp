@@ -56,13 +56,13 @@ std::unordered_map<GraphicsApi::TextureFilter, GLfloat> textureFilterMap_;
 std::unordered_map<GraphicsApi::TextureAccess, uint32> textureAccessMap_;
 std::unordered_map<GraphicsApi::RenderType, uint32> renderTypeMap_;
 
-const GraphicsApi::TextureInfo defaultTextureInfo;
+GraphicsApi::TextureInfo defaultTextureInfo;
 
 struct TextTypeParams
 {
     GLenum target        = GL_TEXTURE_2D;
     GLenum dataType      = GL_FLOAT;
-    GLint internalFormat = GL_RGBA;
+    GLint internalFormat = GL_RGBA8;
     GLenum format        = GL_RGBA;
 };
 
@@ -76,7 +76,7 @@ TextTypeParams GetTextureTypeParams(GraphicsApi::TextureType type)
         params.dataType = GL_FLOAT;
         if (type == GraphicsApi::TextureType::DEPTH_BUFFER_2D)
         {
-            params.internalFormat = GL_DEPTH_COMPONENT32;
+            params.internalFormat = GL_DEPTH_COMPONENT32F;
             params.format         = GL_DEPTH_COMPONENT;
         }
         else
@@ -94,7 +94,7 @@ TextTypeParams GetTextureTypeParams(GraphicsApi::TextureType type)
     {
         params.format         = GL_RGBA;
         params.dataType       = GL_UNSIGNED_BYTE;
-        params.internalFormat = GL_RGBA;
+        params.internalFormat = GL_RGBA8;
     }
     else if (type == GraphicsApi::TextureType::FLOAT_TEXTURE_3D)
     {
@@ -110,6 +110,7 @@ TextTypeParams GetTextureTypeParams(GraphicsApi::TextureType type)
     }
     return params;
 }
+
 size_t GetBytesPerPixel(GraphicsApi::TextureType type)
 {
     switch (type)
@@ -150,7 +151,8 @@ void GL_APIENTRY OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLen
     LOG_ERROR << "Message: " << message;
     LOG_ERROR << "ID: " << id;
 
-    LOG_ERROR << "Source: " << [&]()
+    LOG_ERROR << "Source: "
+              << [&]()
     {
         switch (source)
         {
@@ -169,7 +171,8 @@ void GL_APIENTRY OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLen
         }
     }();
 
-    LOG_ERROR << "Type: " << [&]()
+    LOG_ERROR << "Type: "
+              << [&]()
     {
         switch (type)
         {
@@ -188,7 +191,8 @@ void GL_APIENTRY OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLen
         }
     }();
 
-    LOG_ERROR << "Severity: " << [&]()
+    LOG_ERROR << "Severity: "
+              << [&]()
     {
         switch (severity)
         {
@@ -592,6 +596,14 @@ const GraphicsApi::TextureInfo& OpenGLApi::GetTextureInfo(uint32 id) const
         return iter->second;
 
     return defaultTextureInfo;
+}
+GraphicsApi::TextureInfo* OpenGLApi::GetTextureInfo(uint32 id)
+{
+    auto iter = impl_->textureInfos_.find(id);
+    if (iter != impl_->textureInfos_.end())
+        return &iter->second;
+
+    return nullptr;
 }
 void OpenGLApi::TakeSnapshoot(const std::filesystem::path& path) const
 {
@@ -1103,10 +1115,20 @@ void CreateGlTexture(GLuint texture, GraphicsApi::TextureType type, GraphicsApi:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
     }
 
-    glTexImage2D(params.target, 0, params.internalFormat, static_cast<GLsizei>(size.x), static_cast<GLsizei>(size.y), 0,
-                 params.format, params.dataType, data);
-    glTexParameterf(params.target, GL_TEXTURE_MIN_FILTER, textureFilterMap_.at(filter));
-    glTexParameterf(params.target, GL_TEXTURE_MAG_FILTER, textureFilterMap_.at(filter));
+    GLsizei levels = 1;
+    if (mimpamp == GraphicsApi::TextureMipmap::LINEAR)
+    {
+        levels = static_cast<GLsizei>(std::floor(std::log2(std::max(size.x, size.y)))) + 1;
+    }
+    glTexStorage2D(params.target, levels, params.internalFormat, static_cast<GLsizei>(size.x), static_cast<GLsizei>(size.y));
+    if (data != nullptr)
+    {
+        glTexSubImage2D(params.target, 0, 0, 0, static_cast<GLsizei>(size.x), static_cast<GLsizei>(size.y), params.format,
+                        params.dataType, data);
+    }
+
+    glTexParameteri(params.target, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(params.target, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     if (mimpamp == GraphicsApi::TextureMipmap::LINEAR)
     {
@@ -1114,9 +1136,12 @@ void CreateGlTexture(GLuint texture, GraphicsApi::TextureType type, GraphicsApi:
         glTexParameteri(params.target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameterf(params.target, GL_TEXTURE_LOD_BIAS, 0);
     }
+    else
+    {
+        glTexParameterf(params.target, GL_TEXTURE_MIN_FILTER, textureFilterMap_.at(filter));
+        glTexParameterf(params.target, GL_TEXTURE_MAG_FILTER, textureFilterMap_.at(filter));
+    }
 
-    glTexParameteri(params.target, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(params.target, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glBindTexture(params.target, 0);
 }
 
@@ -2284,5 +2309,28 @@ std::vector<Utils::Image> OpenGLApi::GetImageArray(IdType id) const
 void OpenGLApi::DebugNormalMeshGeneration(bool v)
 {
     debugNormalMeshGeneration = v;
+}
+std::optional<uint64_t> OpenGLApi::GetBindlessHandle(IdType id)
+{
+    auto openGLId = impl_->idPool_.ToGL(id);
+    auto iter     = createdObjectIds.find(id);
+
+    if (iter != createdObjectIds.end())
+    {
+        auto textureInfo = GetTextureInfo(iter->first);
+        if (textureInfo)
+        {
+            if (textureInfo->bindlessHandle)
+            {
+                return textureInfo->bindlessHandle;
+            }
+
+            auto handle = glGetTextureHandleARB(openGLId);
+            glMakeTextureHandleResidentARB(handle);
+            textureInfo->bindlessHandle = handle;
+        }
+    }
+
+    return std::nullopt;
 }
 }  // namespace OpenGLApi

@@ -56,6 +56,7 @@ public:
                                   GraphicsApi::TextureMipmap) override;
     std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter, int32 N) override;
     GraphicsApi::ID CreateCubMapTexture(const std::array<Utils::Image, 6>&) override;
+    std::optional<uint64_t> GetBindlessHandle(IdType) override;
     void GenerateMipmaps(IdType) override;
     void CopyTexture(IdType src, IdType dst, uint32 width, uint32 height) override;
 
@@ -129,6 +130,7 @@ public:
     std::vector<Utils::Image> GetImageArray(IdType) const override;
 
 private:
+    GraphicsApi::TextureInfo* GetTextureInfo(uint32);
     void CreateDebugNormalMesh(uint32, const GraphicsApi::MeshRawData&);
     void DeleteMesh(uint32);
     void DeleteMesh(const std::vector<uint32>&);

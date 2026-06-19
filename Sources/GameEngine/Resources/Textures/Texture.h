@@ -35,6 +35,7 @@ public:
     std::optional<uint32> GetNumberOfRowsBasedOnTextureFileName(const std::string&) const;
     uint32 getNumberOfRows() const;
     const TextureParameters& getTextureParameters() const;
+    std::optional<uint64_t> GetBindlessHandle(IdType);
 
 protected:
     GraphicsApi::IGraphicsApi& graphicsApi_;

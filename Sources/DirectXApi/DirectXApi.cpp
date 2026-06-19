@@ -1374,4 +1374,7 @@ std::optional<Utils::Image> DirectXApi::GetImage(IdType) const
 {
     return std::optional<Utils::Image>();
 }
-}  // namespace Dx11
+std::optional<uint64_t> DirectXApi::GetBindlessHandle(IdType)
+{
+}
+}  // namespace GraphicsApi::Dx11

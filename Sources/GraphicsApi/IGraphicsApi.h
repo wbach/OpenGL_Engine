@@ -39,6 +39,12 @@ enum class DrawFlag : uint32
     Dynamic,
 };
 
+struct TextureParamters
+{
+    TextureFilter filter{TextureFilter::NEAREST};
+    TextureMipmap mimap{TextureMipmap::NONE};
+};
+
 class IGraphicsApi
 {
 public:
@@ -74,6 +80,7 @@ public:
     virtual ID CreateTexture(const std::vector<Utils::Image>&, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap) = 0;
     virtual ID CreateTextureStorage(TextureType, TextureFilter, int32 N)                                               = 0;
     virtual ID CreateCubMapTexture(const CubemapImages&)                                                               = 0;
+    virtual std::optional<uint64_t> GetBindlessHandle(IdType)                                                          = 0;
     virtual void GenerateMipmaps(IdType)                                                                               = 0;
     virtual void CopyTexture(IdType src, IdType dst, uint32 width, uint32 height)                                      = 0;
     virtual void UpdateTexture(uint32, const vec2ui&, const Utils::Image&)                                             = 0;
