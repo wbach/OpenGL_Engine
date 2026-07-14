@@ -19,9 +19,13 @@
 #include "GameEngine/Narrative/FactionManager.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Navigation/NavigationManager.h"
+#include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Time/DayNightCycle.h"
+#include "ProfessionComponent.h"
+#include "RoutineComponent.h"
+#include "RoutineStep.h"
 #include "Utils.h"
 #include "magic_enum/magic_enum.hpp"
-
 namespace GameEngine
 {
 namespace Components
@@ -87,6 +91,8 @@ void AIController::Init()
     auto& context       = *impl->controllerContext_;
     impl->stateMachine_ = std::make_unique<AICharacterFsm>(AIAmbientState{}, AIChaseState{context}, AIReturnState{context},
                                                            AIAttackState{context}, AIQuestState{context});
+
+    routineComponent_ = thisObject_.GetComponent<RoutineComponent>();
 }
 void AIController::read(const TreeNode& input)
 {
@@ -116,6 +122,36 @@ void AIController::Update()
     }
 
     runPerceptionCheck();
+
+    if (routineComponent_)
+    {
+        const auto& currentTime = componentContext_.scene_.GetDayNightCycle().GetCurrentHour();
+        RoutineStep currentStep = routineComponent_->UpdateAndGetCurrentStep(currentTime);
+
+        switch (currentStep.behaviorState)
+        {
+            case AIBehaviorState::Idle:
+                break;
+            case AIBehaviorState::Eat:
+                break;
+            case AIBehaviorState::Patrol:
+                break;
+            case AIBehaviorState::Sleep:
+                break;
+            case AIBehaviorState::Work:
+            {
+                if (profession_)
+                {
+                    profession_->ExecuteWork(currentStep.targetPosition);
+                }
+                else
+                {
+                    // ExecuteIdleBehavior();
+                }
+                break;
+            }
+        }
+    }
 }
 void AIController::processEvent()
 {
@@ -245,6 +281,10 @@ bool AIController::isHostile(const CharacterStatsComponent& targetStats) const
 float AIController::getAttackRadius() const
 {
     return 1.0f;
+}
+void AIController::RegisterProfession(ProfessionComponent& component)
+{
+    profession_ = &component;
 }
 }  // namespace Components
 }  // namespace GameEngine

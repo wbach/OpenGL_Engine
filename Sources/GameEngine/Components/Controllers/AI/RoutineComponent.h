@@ -2,23 +2,14 @@
 #include <string>
 #include <vector>
 
-#include "AIBehaviorState.h"
 #include "GameEngine/Components/Component.h"
 #include "GameEngine/Components/VectorOfCustomStructure.h"
+#include "RoutineStep.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-struct RoutineStep
-{
-    int startHour   = 0;
-    int startMinute = 0;
-    AIBehaviorState behaviorState;
-    vec3 targetPosition;
-
-    int GetMinutesFromStartOfDay() const;
-};
 
 DECLARE_COMPONENT(RoutineComponent)
 {
@@ -59,7 +50,7 @@ private:
     std::vector<RoutineStep> schedule_;
     VectorOfCustomStructure routineSteps_;
 
-    float debugCurrentGameTime_    = 0.0f;
+    float debugCurrentGameTime_        = 0.0f;
     AIBehaviorState debugCurrentState_ = AIBehaviorState::Idle;
     vec3 debugTargetPosition_;
 };

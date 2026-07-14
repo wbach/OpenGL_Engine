@@ -1071,7 +1071,7 @@ wxBoxSizer* ComponentPanel::CreateLabeledRow(wxWindow* parent, const wxString& l
                                              int flags, int border)
 {
     wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
-    row->Add(new wxStaticText(parent, wxID_ANY, label), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+    row->Add(new wxStaticText(parent, wxID_ANY, label), 1, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
     row->Add(control, proportion, flags, border);
     return row;
 }

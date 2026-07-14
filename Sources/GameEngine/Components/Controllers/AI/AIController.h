@@ -1,10 +1,10 @@
 #pragma once
 #include <deque>
+#include <mutex>
 
 #include "AIControllerEvents.h"
 #include "GameEngine/Components/Component.h"
 #include "GameEngine/Components/ComponentCore.h"
-#include <mutex>
 
 namespace GameEngine
 {
@@ -13,6 +13,9 @@ namespace Components
 class HealthComponent;
 class CharacterController;
 class CharacterStatsComponent;
+class RoutineComponent;
+class ProfessionComponent;
+
 DECLARE_COMPONENT(AIController)
 {
 public:
@@ -56,6 +59,7 @@ public:
     }
 
     const std::vector<vec3>& getCurrentPath() const;
+    void RegisterProfession(ProfessionComponent&);
 
     float getAttackRadius() const;
 
@@ -72,6 +76,8 @@ private:
     bool hasTarget{false};
     HealthComponent* currentTargetHealthComponent{nullptr};
     CharacterStatsComponent* myStats{nullptr};
+    RoutineComponent* routineComponent_{nullptr};
+    ProfessionComponent* profession_{nullptr};
 
 private:
     struct Impl;
