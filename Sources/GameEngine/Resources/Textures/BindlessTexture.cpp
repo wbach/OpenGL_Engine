@@ -1,4 +1,4 @@
-#include "GeneralTexture.h"
+#include "BindlessTexture.h"
 
 #include <Logger/Log.h>
 
@@ -9,7 +9,7 @@
 
 namespace GameEngine
 {
-GeneralTexture::GeneralTexture(GraphicsApi::IGraphicsApi& graphicsApi, Utils::Image&& image, const TextureParameters& paramters,
+BindlessTexture::BindlessTexture(GraphicsApi::IGraphicsApi& graphicsApi, Utils::Image&& image, const TextureParameters& paramters,
                                const std::optional<FileHandle>& file)
     : Texture(graphicsApi, paramters, vec2ui(image.width, image.height), file)
     , image_(std::move(image))
@@ -22,11 +22,11 @@ GeneralTexture::GeneralTexture(GraphicsApi::IGraphicsApi& graphicsApi, Utils::Im
     }
 }
 
-GeneralTexture::~GeneralTexture()
+BindlessTexture::~BindlessTexture()
 {
 }
 
-void GeneralTexture::GpuLoadingPass()
+void BindlessTexture::GpuLoadingPass()
 {
     std::string debugFileNamePrint{"{genertated}"};
     if (file_)
@@ -56,7 +56,7 @@ void GeneralTexture::GpuLoadingPass()
         image_.clearData();
     }
 }
-void GeneralTexture::UpdateGpuPass()
+void BindlessTexture::UpdateGpuPass()
 {
     if (graphicsObjectId_)
     {
@@ -64,39 +64,39 @@ void GeneralTexture::UpdateGpuPass()
         isGpuAtual = true;
     }
 }
-void GeneralTexture::SetImage(Utils::Image&& image)
+void BindlessTexture::SetImage(Utils::Image&& image)
 {
     size_  = vec2ui(image.width, image.height);
     image_ = std::move(image);
 }
-const Utils::Image& GeneralTexture::GetImage() const
+const Utils::Image& BindlessTexture::GetImage() const
 {
     return image_;
 }
 
-Utils::Image& GeneralTexture::GetImage()
+Utils::Image& BindlessTexture::GetImage()
 {
     return image_;
 }
 
-Utils::Image GeneralTexture::MoveImage()
+Utils::Image BindlessTexture::MoveImage()
 {
     return std::move(image_);
 }
 
-void GeneralTexture::SetPixel(const vec2ui& position, const Color& color)
+void BindlessTexture::SetPixel(const vec2ui& position, const Color& color)
 {
     image_.setPixel(position, color);
 }
-void GeneralTexture::setImageData(Utils::ImageData&& data)
+void BindlessTexture::setImageData(Utils::ImageData&& data)
 {
     image_.moveData(std::move(data));
 }
-bool GeneralTexture::IsGpuAtual() const
+bool BindlessTexture::IsGpuAtual() const
 {
     return isGpuAtual;
 }
-void GeneralTexture::MarkAsNotActualGpuStatus()
+void BindlessTexture::MarkAsNotActualGpuStatus()
 {
     isGpuAtual = false;
 }

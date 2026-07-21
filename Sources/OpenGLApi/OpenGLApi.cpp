@@ -1115,12 +1115,16 @@ void CreateGlTexture(GLuint texture, GraphicsApi::TextureType type, GraphicsApi:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
     }
 
-    GLsizei levels = 1;
-    if (mimpamp == GraphicsApi::TextureMipmap::LINEAR)
-    {
-        levels = static_cast<GLsizei>(std::floor(std::log2(std::max(size.x, size.y)))) + 1;
-    }
-    glTexStorage2D(params.target, levels, params.internalFormat, static_cast<GLsizei>(size.x), static_cast<GLsizei>(size.y));
+    // GLsizei levels = 1;
+    // if (mimpamp == GraphicsApi::TextureMipmap::LINEAR)
+    // {
+    //     levels = static_cast<GLsizei>(std::floor(std::log2(std::max(size.x, size.y)))) + 1;
+    // }
+    //  glTexStorage2D(params.target, levels, params.internalFormat, static_cast<GLsizei>(size.x), static_cast<GLsizei>(size.y));
+
+    glTexImage2D(params.target, 0, params.internalFormat, static_cast<GLsizei>(size.x), static_cast<GLsizei>(size.y), 0,
+                 params.format, params.dataType, data);
+
     if (data != nullptr)
     {
         glTexSubImage2D(params.target, 0, 0, 0, static_cast<GLsizei>(size.x), static_cast<GLsizei>(size.y), params.format,
@@ -2022,6 +2026,9 @@ void OpenGLApi::RenderProcedural(uint32 count)
     {
         LOG_WARN << "Count is 0";
     }
+
+    // GLuint64 handle = glGetTextureHandleARB(0);
+    // glMakeTextureHandleResidentARB(handle);
 }
 
 void OpenGLApi::RenderTriangleStripMesh(uint32 id)
