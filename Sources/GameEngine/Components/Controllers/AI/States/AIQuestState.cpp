@@ -22,6 +22,11 @@ void AIQuestState::onEnter(const QuestTriggeredEvent& event)
     startMoveTo(event.targetPosition, event.moveType);
 }
 
+void AIQuestState::update(const QuestTriggeredEvent& event)
+{
+    startMoveTo(event.targetPosition, event.moveType);
+}
+
 void AIQuestState::update(float)
 {
     if (updateNavigation() != AIStateBase::NavigationStatus::InProgress)

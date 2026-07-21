@@ -1,6 +1,7 @@
 #pragma once
-#include "AIBehaviorState.h"
 #include <Types.h>
+
+#include "AIBehaviorState.h"
 
 namespace GameEngine
 {
@@ -10,8 +11,8 @@ struct RoutineStep
 {
     int startHour   = 0;
     int startMinute = 0;
-    AIBehaviorState behaviorState;
-    vec3 targetPosition;
+    AIBehaviorState behaviorState{AIBehaviorState::Idle};
+    vec3 targetPosition{0.f};
 
     int GetMinutesFromStartOfDay() const;
 };

@@ -26,6 +26,7 @@ public:
 public:
     RoutineComponent(ComponentContext&, GameObject&);
     ~RoutineComponent() override;
+
     void CleanUp() override;
     void ReqisterFunctions() override;
     void Reload() override;
@@ -41,7 +42,7 @@ public:
     }
     void AddStep(const RoutineStep& step);
 
-    RoutineStep UpdateAndGetCurrentStep(const vec2i& currentHourAndMinutes);
+    std::optional<RoutineStep> UpdateAndGetCurrentStep(const vec2i& currentHourAndMinutes);
 
 private:
     void InitializeEditorStructures();

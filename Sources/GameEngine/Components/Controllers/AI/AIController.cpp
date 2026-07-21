@@ -93,6 +93,8 @@ void AIController::Init()
                                                            AIAttackState{context}, AIQuestState{context});
 
     routineComponent_ = thisObject_.GetComponent<RoutineComponent>();
+
+    LOG_DEBUG << thisObject_.GetName() << " RoutineComponent " << (routineComponent_ != nullptr);
 }
 void AIController::read(const TreeNode& input)
 {
@@ -126,29 +128,35 @@ void AIController::Update()
     if (routineComponent_)
     {
         const auto& currentTime = componentContext_.scene_.GetDayNightCycle().GetCurrentHour();
-        RoutineStep currentStep = routineComponent_->UpdateAndGetCurrentStep(currentTime);
-
-        switch (currentStep.behaviorState)
+        if (auto currentStep = routineComponent_->UpdateAndGetCurrentStep(currentTime))
         {
-            case AIBehaviorState::Idle:
-                break;
-            case AIBehaviorState::Eat:
-                break;
-            case AIBehaviorState::Patrol:
-                break;
-            case AIBehaviorState::Sleep:
-                break;
-            case AIBehaviorState::Work:
+            switch (currentStep->behaviorState)
             {
-                if (profession_)
+                // case AIBehaviorState::Idle:
+                //     break;
+                // case AIBehaviorState::Eat:
+                //     break;
+                // case AIBehaviorState::Patrol:
+                //     break;
+                // case AIBehaviorState::Sleep:
+                //     break;
+                case AIBehaviorState::Work:
                 {
-                    profession_->ExecuteWork(currentStep.targetPosition);
+                    if (profession_)
+                    {
+                        profession_->ExecuteWork(currentStep->targetPosition);
+                    }
+                    else
+                    {
+                        LOG_DEBUG << thisObject_.GetName() << " no profession";
+                        // ExecuteIdleBehavior();
+                    }
+                    break;
                 }
-                else
-                {
-                    // ExecuteIdleBehavior();
-                }
-                break;
+                default:
+                    LOG_DEBUG << thisObject_.GetName()
+                              << " No supported ai state: " << magic_enum::enum_name(currentStep->behaviorState);
+                    break;
             }
         }
     }
@@ -284,6 +292,7 @@ float AIController::getAttackRadius() const
 }
 void AIController::RegisterProfession(ProfessionComponent& component)
 {
+    LOG_DEBUG << "RegisterProfession: " << component.GetTypeName() << " " << thisObject_.GetName();
     profession_ = &component;
 }
 }  // namespace Components

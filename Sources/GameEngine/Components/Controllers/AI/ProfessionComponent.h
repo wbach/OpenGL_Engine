@@ -5,6 +5,7 @@ namespace GameEngine
 {
 namespace Components
 {
+class AIController;
 class ProfessionComponent : public ComponentCore
 {
 public:
@@ -12,6 +13,9 @@ public:
 
     void ReqisterFunctions() override;
     virtual void ExecuteWork(const vec3&) = 0;
+
+protected:
+    AIController* controller{nullptr};
 };
 }  // namespace Components
 }  // namespace GameEngine

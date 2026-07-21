@@ -4,6 +4,7 @@
 #include <Utils/TreeNodeWriteFunctions.h>
 
 #include <algorithm>
+#include <optional>
 
 namespace GameEngine
 {
@@ -123,13 +124,13 @@ int RoutineStep::GetMinutesFromStartOfDay() const
     return (startHour * 60) + startMinute;
 }
 
-RoutineStep RoutineComponent::UpdateAndGetCurrentStep(const vec2i& currentHourAndMinutes)
+std::optional<RoutineStep> RoutineComponent::UpdateAndGetCurrentStep(const vec2i& currentHourAndMinutes)
 {
     int currentGlobalMinutes = (currentHourAndMinutes.x * 60) + currentHourAndMinutes.y;
 
     if (schedule_.empty())
     {
-        return RoutineStep{};
+        return std::nullopt;
     }
 
     std::sort(schedule_.begin(), schedule_.end(),

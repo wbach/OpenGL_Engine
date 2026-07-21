@@ -1,7 +1,9 @@
 #include "ProfessionComponent.h"
 
 #include <GameEngine/Objects/GameObject.h>
+
 #include "AIController.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -16,9 +18,14 @@ void ProfessionComponent::ReqisterFunctions()
     RegisterFunction(FunctionType::Awake,
                      [this]()
                      {
-                         if (auto ai = thisObject_.GetComponent<AIController>())
+                         controller = thisObject_.GetComponent<AIController>();
+                         if (controller)
                          {
-                             ai->RegisterProfession(*this);
+                             controller->RegisterProfession(*this);
+                         }
+                         else
+                         {
+                             LOG_DEBUG << "AIController not found";
                          }
                      });
 }
