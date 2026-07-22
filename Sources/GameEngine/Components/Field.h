@@ -1,6 +1,8 @@
 #pragma once
 #include <Types.h>
 
+#include "magic_enum/magic_enum.hpp"
+
 namespace GameEngine
 {
 namespace Components
@@ -47,5 +49,15 @@ struct ENGINE_API FieldInfo
     std::function<int(void*)> enumToIndex               = {};
     std::function<void(void*, int)> indexToEnum         = {};
 };
+
+inline std::ostream& operator<<(std::ostream& os, const FieldInfo& info)
+{
+    os << "FieldInfo(\n"
+       << "Name: " << info.name << ", \n"
+       << "Type: " << magic_enum::enum_name(info.type) << ",\n"
+       << "Ptr: [" << info.ptr << "])";
+
+    return os;
+}
 }  // namespace Components
 }  // namespace GameEngine

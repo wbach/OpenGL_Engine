@@ -388,7 +388,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
 {
     using namespace GameEngine::Components;
 
-    LOG_DEBUG << "Field type : " << magic_enum::enum_name(field.type);
+    LOG_DEBUG << field;
 
     auto vectorItemHelper = [ this, &component, pane, sizer, &field ]<typename T, typename Container = std::vector<T>>()
     {
@@ -661,6 +661,8 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
             CreateUIForMaterialsMap(component, pane, sizer, *materials);
             break;
     }
+
+    LOG_DEBUG << "Create for field done";
 }
 
 void ComponentPanel::CreateUIForMaterialsMap(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,

@@ -148,7 +148,6 @@ std::optional<RoutineStep> RoutineComponent::UpdateAndGetCurrentStep(const vec2i
         }
     }
 
-    debugCurrentState_   = foundStep.behaviorState;
     debugTargetPosition_ = foundStep.targetPosition;
 
     return foundStep;

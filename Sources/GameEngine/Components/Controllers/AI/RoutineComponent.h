@@ -18,7 +18,6 @@ public:
     BEGIN_FIELDS()
         FIELD_VECTOR_OF_CUSTOM(routineSteps_)
         FIELD_FLOAT(debugCurrentGameTime_)
-        FIELD_STRING(debugCurrentState_)
         FIELD_VECTOR3F(debugTargetPosition_)
     END_FIELDS()
     // clang-format on
@@ -52,7 +51,6 @@ private:
     VectorOfCustomStructure routineSteps_;
 
     float debugCurrentGameTime_        = 0.0f;
-    AIBehaviorState debugCurrentState_ = AIBehaviorState::Idle;
     vec3 debugTargetPosition_;
 };
 }  // namespace Components
