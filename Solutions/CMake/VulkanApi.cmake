@@ -46,7 +46,7 @@ if(BUILD_GAME_ENGINE OR BUILD_GAME)
 
         target_include_directories(VulkanApiLib PRIVATE "${LOCAL_VULKAN_DIR}/Include")
     else()
-        find_library(SHADERC_LIB shaderc_shared)
+        find_library(SHADERC_LIB NAMES shaderc_shared shaderc)
     endif()
 
     # Teraz w pełni bezpieczne i wymuszone wyszukiwanie

@@ -61,6 +61,66 @@ wxGLAttributes GetWxGLAttributes()
     canvasAttrs.PlatformDefaults().RGBA().DoubleBuffer().Depth(24).Stencil(8).EndList();
     return canvasAttrs;
 }
+
+#if defined(__WXGTK__) && defined(__UNIX__)
+  #include <X11/Xlib.h>
+  #include <X11/keysym.h>
+#endif
+
+bool SafeGetKeyState(int keyCode)
+{
+    // 1. Dla modyfikatorów bezpiecznie używamy wxGetKeyState
+    switch (keyCode)
+    {
+        case WXK_CONTROL:
+        case WXK_ALT:
+        case WXK_SHIFT:
+        case WXK_CAPITAL:
+        case WXK_NUMLOCK:
+        case WXK_SCROLL:
+            return wxGetKeyState(static_cast<wxKeyCode>(keyCode));
+    }
+
+#if defined(__WXGTK__) && defined(__UNIX__)
+    // 2. Bezpośrednie, czyste połączenie z serwerem X11
+    Display* display = XOpenDisplay(NULL);
+    if (!display)
+        return false;
+
+    // Mapowanie kodów wxWidgets na X11 KeySym
+    KeySym keysym = NoSymbol;
+    if (keyCode >= 'A' && keyCode <= 'Z') keysym = keyCode + ('a' - 'A');
+    else if (keyCode >= 'a' && keyCode <= 'z') keysym = keyCode;
+    else {
+        switch (keyCode) {
+            case WXK_LEFT:  keysym = XK_Left; break;
+            case WXK_RIGHT: keysym = XK_Right; break;
+            case WXK_UP:    keysym = XK_Up; break;
+            case WXK_DOWN:  keysym = XK_Down; break;
+            case WXK_SPACE: keysym = XK_space; break;
+            default:        keysym = keyCode; break;
+        }
+    }
+
+    KeyCode xKeyCode = XKeysymToKeycode(display, keysym);
+    if (xKeyCode == 0) {
+        XCloseDisplay(display);
+        return false;
+    }
+
+    // Odpytanie fizycznej mapy klawiatury w X11
+    char keys_return[32];
+    XQueryKeymap(display, keys_return);
+
+    bool isPressed = (keys_return[xKeyCode >> 3] & (1 << (xKeyCode & 7))) != 0;
+
+    XCloseDisplay(display);
+    return isPressed;
+#else
+    return wxGetKeyState(static_cast<wxKeyCode>(keyCode));
+#endif
+}
+
 }  // namespace
 
 GLCanvas::GLCanvas(wxWindow* parent, OnStartupDone onStartupDone, SceneTreeCtrl* sceneTreeCtrl,
@@ -306,7 +366,7 @@ void GLCanvas::OnKeyUp(wxKeyEvent& event)
     }
 
     auto keyCode = event.GetKeyCode();
-    if (wxGetKeyState((wxKeyCode)keyCode))
+    if (SafeGetKeyState((wxKeyCode)keyCode))
     {
         return;
     }
@@ -642,7 +702,7 @@ void GLCanvas::EmergencyKeyRelease()
         while (it != pressedKeys.end())
         {
             int code = *it;
-            if (not wxGetKeyState((wxKeyCode)code))
+            if (not SafeGetKeyState((wxKeyCode)code))
             {
                 wxKeyEvent dummyEvent(wxEVT_KEY_UP);
                 dummyEvent.m_keyCode = code;

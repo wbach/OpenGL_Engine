@@ -68,6 +68,8 @@ RUN apt-get update && apt-get install -y \
     libwxgtk3.0-gtk3-dev \
     wget \
     clangd \
+    libshaderc-dev \
+    glslc \
     && rm -rf /var/lib/apt/lists/*
 
 # Konfiguracja SSH i generowanie host keys
