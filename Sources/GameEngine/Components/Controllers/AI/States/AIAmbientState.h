@@ -7,12 +7,12 @@ namespace GameEngine
 {
 namespace Components
 {
-class AIQuestState;
+class AIMoveToState;
 class AIChaseState;
 class AIAmbientState : public Utils::StateMachine::Will<
                            Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
                            Utils::StateMachine::On<TargetSpottedEvent, Utils::StateMachine::TransitionTo<AIChaseState>>,
-                           Utils::StateMachine::On<QuestTriggeredEvent, Utils::StateMachine::TransitionTo<AIQuestState>>>
+                           Utils::StateMachine::On<MoveToTargetEvent, Utils::StateMachine::TransitionTo<AIMoveToState>>>
 {
 public:
     void onEnter();

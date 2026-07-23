@@ -1,4 +1,4 @@
-#include "AIQuestState.h"
+#include "AIMoveToState.h"
 
 #include <Utils/GLM/GLMUtils.h>
 
@@ -13,25 +13,25 @@ namespace GameEngine
 {
 namespace Components
 {
-AIQuestState::AIQuestState(AIControllerContext& context)
+AIMoveToState::AIMoveToState(AIControllerContext& context)
     : AIStateBase{context}
 {
 }
-void AIQuestState::onEnter(const QuestTriggeredEvent& event)
+void AIMoveToState::onEnter(const MoveToTargetEvent& event)
 {
     startMoveTo(event.targetPosition, event.moveType);
 }
 
-void AIQuestState::update(const QuestTriggeredEvent& event)
+void AIMoveToState::update(const MoveToTargetEvent& event)
 {
     startMoveTo(event.targetPosition, event.moveType);
 }
 
-void AIQuestState::update(float)
+void AIMoveToState::update(float)
 {
     if (updateNavigation() != AIStateBase::NavigationStatus::InProgress)
     {
-        context_.controller.pushEventToQueue(QuestFinishedEvent{});
+        context_.controller.pushEventToQueue(TargetReachedEvent{});
     }
 }
 }  // namespace Components

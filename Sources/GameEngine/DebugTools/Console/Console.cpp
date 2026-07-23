@@ -788,7 +788,7 @@ void Console::MoveTo(const Params &args)
             if (auto targetGameObject = scene_.GetGameObject(args[1]))
             {
                 ai->pushEventToQueue(
-                    Components::QuestTriggeredEvent{.targetPosition = targetGameObject->GetWorldTransform().GetPosition()});
+                    Components::MoveToTargetEvent{.targetPosition = targetGameObject->GetWorldTransform().GetPosition()});
                 return;
             }
 
@@ -797,7 +797,7 @@ void Console::MoveTo(const Params &args)
                 vec3 target(0);
                 std::from_string(args[1], target);
                 LOG_DEBUG << target;
-                ai->pushEventToQueue(Components::QuestTriggeredEvent{.targetPosition = target});
+                ai->pushEventToQueue(Components::MoveToTargetEvent{.targetPosition = target});
             }
             catch (...)
             {

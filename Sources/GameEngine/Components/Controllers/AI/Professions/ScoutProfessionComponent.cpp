@@ -68,7 +68,7 @@ void ScoutProfessionComponent::ExecuteWork(const vec3& targetPosition)
         currentTargetTimer_ = 0.0f;
 
         GenerateNewPatrolTarget(spawnPosition.value_or(targetPosition));
-        controller->pushEventToQueue(QuestTriggeredEvent{.targetPosition = currentPatrolTarget_, .moveType = AIMoveType::WALK});
+        controller->pushEventToQueue(MoveToTargetEvent{.targetPosition = currentPatrolTarget_, .moveType = AIMoveType::WALK});
         LOG_DEBUG << thisObject_.GetName() << " currentPatrolTarget_ : " << currentPatrolTarget_;
     }
 }

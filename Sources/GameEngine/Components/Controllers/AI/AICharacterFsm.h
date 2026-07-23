@@ -4,7 +4,7 @@
 #include "States/AIAmbientState.h"
 #include "States/AIAttackState.h"
 #include "States/AIChaseState.h"
-#include "States/AIQuestState.h"
+#include "States/AIMoveToState.h"
 #include "States/AIReturnState.h"
 
 namespace GameEngine
@@ -18,7 +18,7 @@ using AICharacterFsm =
                             AIChaseState,
                             AIReturnState,
                             AIAttackState,
-                            AIQuestState
+                            AIMoveToState
                             >;
 }
 // clang-format on

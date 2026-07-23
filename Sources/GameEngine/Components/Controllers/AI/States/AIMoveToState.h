@@ -9,20 +9,20 @@ namespace Components
 {
 class AIAmbientState;
 
-class AIQuestState : public AIStateBase,
+class AIMoveToState : public AIStateBase,
                      public Utils::StateMachine::Will<
                          Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-                         Utils::StateMachine::On<QuestTriggeredEvent, Utils::StateMachine::Update>,
-                         Utils::StateMachine::On<QuestFinishedEvent, Utils::StateMachine::TransitionTo<AIAmbientState>>>
+                         Utils::StateMachine::On<MoveToTargetEvent, Utils::StateMachine::Update>,
+                         Utils::StateMachine::On<TargetReachedEvent, Utils::StateMachine::TransitionTo<AIAmbientState>>>
 {
 public:
-    AIQuestState(AIControllerContext&);
+    AIMoveToState(AIControllerContext&);
 
     using AIStateBase::onEnter;
     using AIStateBase::onLeave;
 
-    void onEnter(const QuestTriggeredEvent&);
-    void update(const QuestTriggeredEvent&);
+    void onEnter(const MoveToTargetEvent&);
+    void update(const MoveToTargetEvent&);
     void update(float);
 };
 }  // namespace Components

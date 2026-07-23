@@ -112,7 +112,7 @@ void QuestManager::registerDefaultActions()
                 {
                     if (auto ai = go->GetComponent<Components::AIController>())
                     {
-                        ai->pushEventToQueue(Components::QuestTriggeredEvent{.targetPosition = target, .moveType = moveType});
+                        ai->pushEventToQueue(Components::MoveToTargetEvent{.targetPosition = target, .moveType = moveType});
                     }
                     else
                     {
@@ -161,7 +161,7 @@ void QuestManager::registerDefaultActions()
                         LOG_DEBUG << "GetGameObject " << targetObjectName;
                         if (auto trargetGo = scene->GetGameObject(targetObjectName))
                         {
-                            ai->pushEventToQueue(Components::QuestTriggeredEvent{
+                            ai->pushEventToQueue(Components::MoveToTargetEvent{
                                 .targetPosition = trargetGo->GetWorldTransform().GetPosition(), .moveType = moveType});
                         }
                         else

@@ -90,7 +90,7 @@ void AIController::Init()
     LOG_DEBUG << "Create fsm";
     auto& context       = *impl->controllerContext_;
     impl->stateMachine_ = std::make_unique<AICharacterFsm>(AIAmbientState{}, AIChaseState{context}, AIReturnState{context},
-                                                           AIAttackState{context}, AIQuestState{context});
+                                                           AIAttackState{context}, AIMoveToState{context});
 
     routineComponent_ = thisObject_.GetComponent<RoutineComponent>();
 

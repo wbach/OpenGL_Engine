@@ -38,13 +38,13 @@ struct TargetOutOfAttackRangeEvent
 {
 };
 
-struct QuestTriggeredEvent
+struct MoveToTargetEvent
 {
     vec3 targetPosition{0.0f};
     AIMoveType moveType{AIMoveType::RUN};
 };
 
-struct QuestFinishedEvent
+struct TargetReachedEvent
 {
 };
 
@@ -58,6 +58,6 @@ struct NavigationPathCompletedEvent
 
 using AIEvent =
     std::variant<AIUpdateEvent, TargetSpottedEvent, TargetLostEvent, TargetInAttackRangeEvent, TargetOutOfAttackRangeEvent,
-                 QuestTriggeredEvent, QuestFinishedEvent, CurrentTargetDiedEvent, NavigationPathCompletedEvent>;
+                 MoveToTargetEvent, TargetReachedEvent, CurrentTargetDiedEvent, NavigationPathCompletedEvent>;
 }  // namespace Components
 }  // namespace GameEngine
