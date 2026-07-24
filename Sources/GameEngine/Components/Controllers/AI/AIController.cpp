@@ -7,11 +7,10 @@
 #include <limits>
 #include <memory>
 
-#include "AICharacterFsm.h"
+#include "ActionStateMachine/ActionStateMachine.h"
 #include "AIControllerContext.h"
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
-#include "GameEngine/Components/Controllers/AI/States/AIAmbientState.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "GameEngine/Components/Gameplay/CharacterStats/CharacterStatsComponent.h"
@@ -26,6 +25,7 @@
 #include "RoutineStep.h"
 #include "Utils.h"
 #include "magic_enum/magic_enum.hpp"
+
 namespace GameEngine
 {
 namespace Components
@@ -37,7 +37,7 @@ constexpr char CSTR_TARGETING_MODE[]   = "targetingMode";
 }  // namespace
 struct AIController::Impl
 {
-    std::unique_ptr<AICharacterFsm> stateMachine_;
+    std::unique_ptr<ActionStateMachine> stateMachine_;
     std::unique_ptr<AIControllerContext> controllerContext_;
 
     void CleanUp()
@@ -89,7 +89,7 @@ void AIController::Init()
 
     LOG_DEBUG << "Create fsm";
     auto& context       = *impl->controllerContext_;
-    impl->stateMachine_ = std::make_unique<AICharacterFsm>(AIAmbientState{}, AIChaseState{context}, AIReturnState{context},
+    impl->stateMachine_ = std::make_unique<ActionStateMachine>(AIAmbientState{}, AIChaseState{context}, AIReturnState{context},
                                                            AIAttackState{context}, AIMoveToState{context});
 
     routineComponent_ = thisObject_.GetComponent<RoutineComponent>();

@@ -12,7 +12,7 @@ namespace GameEngine
 namespace Components
 {
 // clang-format off
-using AICharacterFsm =
+using ActionStateMachine =
     Utils::StateMachine::Fsm<
                             AIAmbientState,
                             AIChaseState,

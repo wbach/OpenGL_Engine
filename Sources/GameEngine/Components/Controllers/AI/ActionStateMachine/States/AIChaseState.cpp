@@ -3,13 +3,13 @@
 #include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
 
-#include "../AIController.h"
-#include "../AIControllerContext.h"
-#include "GameEngine/Components/Controllers/AI/AIControllerEvents.h"
+#include "GameEngine/Components/Controllers/AI/AIController.h"
+#include "GameEngine/Components/Controllers/AI/AIControllerContext.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Navigation/NavigationManager.h"
+
 namespace GameEngine
 {
 namespace Components

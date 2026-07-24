@@ -2,9 +2,9 @@
 
 #include <Variant.h>
 
-#include "../AIController.h"
-#include "../AIControllerContext.h"
-#include "../AIControllerEvents.h"
+#include "../ActionAIEvents.h"
+#include "GameEngine/Components/Controllers/AI/AIController.h"
+#include "GameEngine/Components/Controllers/AI/AIControllerContext.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -37,7 +37,7 @@ void AIAttackState::onEnter()
                                    LOG_DEBUG << "";
                                    context.controller.pushEventToQueue(TargetOutOfAttackRangeEvent{});
                                },
-                               [&](const auto& e) {LOG_DEBUG << Utils::GetTypeName(e);}},
+                               [&](const auto& e) { LOG_DEBUG << Utils::GetTypeName(e); }},
                        event);
         });
 

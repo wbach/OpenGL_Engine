@@ -1,8 +1,7 @@
 #include "AIReturnState.h"
 
-#include "../AIController.h"
-#include "../AIControllerContext.h"
-#include "GameEngine/Components/Controllers/AI/AIControllerEvents.h"
+#include "GameEngine/Components/Controllers/AI/AIControllerContext.h"
+#include "GameEngine/Components/Controllers/AI/AIController.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
