@@ -7,7 +7,6 @@ enum class AIBehaviorState : int
     Idle,
     Work,
     Eat,
-    Sleep,
-    Patrol
+    Sleep
 };
 }

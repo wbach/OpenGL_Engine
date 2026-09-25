@@ -8,6 +8,9 @@
 #include <memory>
 
 #include "ActionStateMachine/ActionStateMachine.h"
+#include "GameEngine/Components/Controllers/AI/MindStateMachine/MindStateMachine.h"
+#include "MindStateMachine/MindStateMachine.h"
+#include "RoutineStateMachine/RoutineStateMachine.h"
 #include "AIControllerContext.h"
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
@@ -38,6 +41,8 @@ constexpr char CSTR_TARGETING_MODE[]   = "targetingMode";
 struct AIController::Impl
 {
     std::unique_ptr<ActionStateMachine> stateMachine_;
+    std::unique_ptr<MindStateMachine> mindStateMachine_;
+    std::unique_ptr<RoutineStateMachine> routineStateMachine_;
     std::unique_ptr<AIControllerContext> controllerContext_;
 
     void CleanUp()
@@ -92,6 +97,9 @@ void AIController::Init()
     impl->stateMachine_ = std::make_unique<ActionStateMachine>(AIAmbientState{}, AIChaseState{context}, AIReturnState{context},
                                                            AIAttackState{context}, AIMoveToState{context});
 
+    impl->mindStateMachine_ = std::make_unique<MindStateMachine>();
+    impl->routineStateMachine_ = std::make_unique<RoutineStateMachine>();
+
     routineComponent_ = thisObject_.GetComponent<RoutineComponent>();
 
     LOG_DEBUG << thisObject_.GetName() << " RoutineComponent " << (routineComponent_ != nullptr);
@@ -135,8 +143,6 @@ void AIController::Update()
                 // case AIBehaviorState::Idle:
                 //     break;
                 // case AIBehaviorState::Eat:
-                //     break;
-                // case AIBehaviorState::Patrol:
                 //     break;
                 // case AIBehaviorState::Sleep:
                 //     break;
