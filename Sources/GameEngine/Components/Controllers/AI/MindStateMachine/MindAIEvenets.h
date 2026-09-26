@@ -31,7 +31,6 @@ struct TargetLost
     uint64_t targetId{0};
 };
 
-
 struct LowHealthReached
 {
     float currentHealthPercent{0.0f};
@@ -50,29 +49,13 @@ struct ThreatCleared
 {
 };
 
-struct DialogueStarted
-{
-    uint64_t interactorId{0};
-};
-
-struct DialogueEnded
-{
-};
-
-struct QuestTriggered
-{
-    uint32_t questId{0};
-    uint32_t stepId{0};
-};
-
 struct ScheduleUpdated
 {
     uint8_t newHour{0};
 };
 
-using MindAIEventVariant =
-    std::variant<DamageTaken, TargetSpotted, NoiseHeard, TargetLost, LowHealthReached, MoraleBroken, PathBlocked, ThreatCleared,
-                 DialogueStarted, DialogueEnded, QuestTriggered, ScheduleUpdated>;
+using MindAIEventVariant = std::variant<DamageTaken, TargetSpotted, NoiseHeard, TargetLost, LowHealthReached, MoraleBroken,
+                                        PathBlocked, ThreatCleared, ScheduleUpdated>;
 
 }  // namespace Components
 }  // namespace GameEngine

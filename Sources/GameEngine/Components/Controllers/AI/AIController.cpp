@@ -1,19 +1,20 @@
 #include "AIController.h"
 
 #include <Logger/Log.h>
+#include <Utils/Blackboard.h>
 #include <Utils/TreeNodeReadFunctions.h>
 #include <Utils/TreeNodeWriteFunctions.h>
 
 #include <limits>
 #include <memory>
 
-#include "ActionStateMachine/ActionStateMachine.h"
-#include "GameEngine/Components/Controllers/AI/MindStateMachine/MindStateMachine.h"
-#include "MindStateMachine/MindStateMachine.h"
-#include "RoutineStateMachine/RoutineStateMachine.h"
 #include "AIControllerContext.h"
+#include "ActionStateMachine/ActionStateMachine.h"
+#include "IntentStateMachine/IntentStateMachine.h"
+#include "Blackboard.h"
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Controllers/AI/MindStateMachine/MindStateMachine.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "GameEngine/Components/Gameplay/CharacterStats/CharacterStatsComponent.h"
@@ -23,8 +24,10 @@
 #include "GameEngine/Scene/Navigation/NavigationManager.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Time/DayNightCycle.h"
+#include "MindStateMachine/MindStateMachine.h"
 #include "ProfessionComponent.h"
 #include "RoutineComponent.h"
+#include "RoutineStateMachine/RoutineStateMachine.h"
 #include "RoutineStep.h"
 #include "Utils.h"
 #include "magic_enum/magic_enum.hpp"
@@ -43,7 +46,9 @@ struct AIController::Impl
     std::unique_ptr<ActionStateMachine> stateMachine_;
     std::unique_ptr<MindStateMachine> mindStateMachine_;
     std::unique_ptr<RoutineStateMachine> routineStateMachine_;
+    std::unique_ptr<IntentStateMachine> intentStateMachine_;
     std::unique_ptr<AIControllerContext> controllerContext_;
+    Utils::Blackboard blackboard_;
 
     void CleanUp()
     {
@@ -95,10 +100,11 @@ void AIController::Init()
     LOG_DEBUG << "Create fsm";
     auto& context       = *impl->controllerContext_;
     impl->stateMachine_ = std::make_unique<ActionStateMachine>(AIAmbientState{}, AIChaseState{context}, AIReturnState{context},
-                                                           AIAttackState{context}, AIMoveToState{context});
+                                                               AIAttackState{context}, AIMoveToState{context});
 
-    impl->mindStateMachine_ = std::make_unique<MindStateMachine>();
+    impl->mindStateMachine_    = std::make_unique<MindStateMachine>();
     impl->routineStateMachine_ = std::make_unique<RoutineStateMachine>();
+    impl->intentStateMachine_  = std::make_unique<IntentStateMachine>();
 
     routineComponent_ = thisObject_.GetComponent<RoutineComponent>();
 

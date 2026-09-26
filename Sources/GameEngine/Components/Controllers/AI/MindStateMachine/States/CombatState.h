@@ -9,7 +9,6 @@ namespace Components
 {
 class PanicState;
 class RoutineState;
-class QuestState;
 class RetreatState;
 
 class CombatState
@@ -18,8 +17,6 @@ class CombatState
                                        Utils::StateMachine::On<PathBlocked, Utils::StateMachine::TransitionTo<PanicState>>,
                                        Utils::StateMachine::On<ThreatCleared, Utils::StateMachine::TransitionTo<RoutineState>>,
                                        Utils::StateMachine::On<TargetLost, Utils::StateMachine::TransitionTo<RoutineState>>,
-                                       Utils::StateMachine::On<DialogueStarted, Utils::StateMachine::TransitionTo<QuestState>>,
-                                       Utils::StateMachine::On<QuestTriggered, Utils::StateMachine::TransitionTo<QuestState>>,
                                        Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>>
 {
 public:

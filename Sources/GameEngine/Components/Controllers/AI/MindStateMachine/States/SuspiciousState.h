@@ -10,7 +10,7 @@ namespace Components
 class RoutineState;
 class CombatState;
 class PanicState;
-class DialogState;
+class PassiveState;
 
 class SuspiciousState
     : public Utils::StateMachine::Will<Utils::StateMachine::On<TargetSpotted, Utils::StateMachine::TransitionTo<CombatState>>,
@@ -18,7 +18,6 @@ class SuspiciousState
                                        Utils::StateMachine::On<MoraleBroken, Utils::StateMachine::TransitionTo<PanicState>>,
                                        Utils::StateMachine::On<ThreatCleared, Utils::StateMachine::TransitionTo<RoutineState>>,
                                        Utils::StateMachine::On<TargetLost, Utils::StateMachine::TransitionTo<RoutineState>>,
-                                       Utils::StateMachine::On<DialogueStarted, Utils::StateMachine::TransitionTo<DialogState>>,
                                        Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>>
 {
 public:
