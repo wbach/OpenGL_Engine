@@ -1,12 +1,24 @@
 #pragma once
 #include <Utils/Fsm/Actions.h>
 
+#include "../MindAIEvenets.h"
+
 namespace GameEngine
 {
 namespace Components
 {
-class RoutineState : public Utils::StateMachine::Will<
-                           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>>
+class AttackState;
+class PanicState;
+class DialogState;
+class QuestState;
+
+class RoutineState
+    : public Utils::StateMachine::Will<Utils::StateMachine::On<DamageTaken, Utils::StateMachine::TransitionTo<AttackState>>,
+                                       Utils::StateMachine::On<TargetSpotted, Utils::StateMachine::TransitionTo<AttackState>>,
+                                       Utils::StateMachine::On<MoraleBroken, Utils::StateMachine::TransitionTo<PanicState>>,
+                                       Utils::StateMachine::On<DialogueStarted, Utils::StateMachine::TransitionTo<DialogState>>,
+                                       Utils::StateMachine::On<QuestTriggered, Utils::StateMachine::TransitionTo<QuestState>>,
+                                       Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>>
 {
 public:
     void onEnter();
