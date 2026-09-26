@@ -16,8 +16,12 @@ class SleepState
                                        Utils::StateMachine::On<ShiftStarted, Utils::StateMachine::TransitionTo<WorkState>>>
 {
 public:
-    void onEnter();
-    void update(float dt);
+    void onEnter()
+    {
+    }
+    void update(float dt)
+    {
+    }
 };
 }  // namespace Components
 }  // namespace GameEngine

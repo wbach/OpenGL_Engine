@@ -54,7 +54,7 @@ struct ScheduleUpdated
     uint8_t newHour{0};
 };
 
-using MindAIEventVariant = std::variant<DamageTaken, TargetSpotted, NoiseHeard, TargetLost, LowHealthReached, MoraleBroken,
+using MindAIEvent= std::variant<DamageTaken, TargetSpotted, NoiseHeard, TargetLost, LowHealthReached, MoraleBroken,
                                         PathBlocked, ThreatCleared, ScheduleUpdated>;
 
 }  // namespace Components

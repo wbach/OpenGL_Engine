@@ -7,17 +7,19 @@ namespace GameEngine
 {
 namespace Components
 {
-class RoutineState;
+class PassiveState;
 class CombatState;
 class RetreatState;
 
 class PanicState
-    : public Utils::StateMachine::Will<Utils::StateMachine::On<ThreatCleared, Utils::StateMachine::TransitionTo<RoutineState>>,
+    : public Utils::StateMachine::Will<Utils::StateMachine::On<ThreatCleared, Utils::StateMachine::TransitionTo<PassiveState>>,
                                        Utils::StateMachine::On<PathBlocked, Utils::StateMachine::TransitionTo<CombatState>>,
                                        Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>>
 {
 public:
-    void onEnter();
+    void onEnter()
+    {
+    }
     void update(float)
     {
     }

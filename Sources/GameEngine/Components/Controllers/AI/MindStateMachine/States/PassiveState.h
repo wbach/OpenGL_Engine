@@ -7,7 +7,7 @@ namespace GameEngine
 {
 namespace Components
 {
-class RoutineState;
+class PassiveState;
 class CombatState;
 class PanicState;
 
@@ -17,7 +17,9 @@ class PassiveState
                                        Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>>
 {
 public:
-    void onEnter();
+    void onEnter()
+    {
+    }
     void update(float)
     {
     }

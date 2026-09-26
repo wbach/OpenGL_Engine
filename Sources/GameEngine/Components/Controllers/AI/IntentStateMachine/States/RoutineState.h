@@ -16,7 +16,9 @@ class RoutineState
                                        Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>>
 {
 public:
-    void onEnter();
+    void onEnter()
+    {
+    }
     void update(float)
     {
     }

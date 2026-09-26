@@ -5,11 +5,12 @@ namespace GameEngine
 {
 namespace Components
 {
-class DeadState : public Utils::StateMachine::Will<
-                           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>>
+class DeadState : public Utils::StateMachine::Will<Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>>
 {
 public:
-    void onEnter();
+    void onEnter()
+    {
+    }
     void update(float)
     {
     }

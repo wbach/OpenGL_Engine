@@ -16,7 +16,7 @@ struct QuestEnded
 struct DeathEvent
 {
 };
-using IntentStateEvents = std::variant<QuestTriggered, QuestEnded, DeathEvent>;
+using IntentAIEvent = std::variant<QuestTriggered, QuestEnded, DeathEvent>;
 
 }  // namespace Components
 }  // namespace GameEngine

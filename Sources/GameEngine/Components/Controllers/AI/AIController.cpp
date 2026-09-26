@@ -4,16 +4,19 @@
 #include <Utils/Blackboard.h>
 #include <Utils/TreeNodeReadFunctions.h>
 #include <Utils/TreeNodeWriteFunctions.h>
+#include <Utils/Variant.h>
 
 #include <limits>
 #include <memory>
 
 #include "AIControllerContext.h"
 #include "ActionStateMachine/ActionStateMachine.h"
-#include "IntentStateMachine/IntentStateMachine.h"
 #include "Blackboard.h"
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Controllers/AI/ActionStateMachine/ActionAIEvents.h"
+#include "GameEngine/Components/Controllers/AI/IntentStateMachine/IntentStateEvents.h"
+#include "GameEngine/Components/Controllers/AI/MindStateMachine/MindAIEvenets.h"
 #include "GameEngine/Components/Controllers/AI/MindStateMachine/MindStateMachine.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
@@ -24,6 +27,7 @@
 #include "GameEngine/Scene/Navigation/NavigationManager.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Time/DayNightCycle.h"
+#include "IntentStateMachine/IntentStateMachine.h"
 #include "MindStateMachine/MindStateMachine.h"
 #include "ProfessionComponent.h"
 #include "RoutineComponent.h"
@@ -199,14 +203,45 @@ void AIController::processEvent()
         ++safetyCounter;
     }
 }
-void AIController::handleEvent(const AIEvent& event)
+void AIController::handleEvent(const AIEvent& aiEvent)
 {
-    auto passEventToMachine = [&](const auto& e)
-    {
-        LOG_DEBUG << Utils::GetTypeName(e);
-        impl->stateMachine_->handle(e);
-    };
-    std::visit(passEventToMachine, event);
+    std::visit(visitor{[&](const MindAIEvent& event)
+                       {
+                           auto passEventToMachine = [&](const auto& e)
+                           {
+                               LOG_DEBUG << Utils::GetTypeName(e);
+                               impl->mindStateMachine_->handle(e);
+                           };
+                           std::visit(passEventToMachine, event);
+                       },
+                       [&](const IntentAIEvent& event)
+                       {
+                           auto passEventToMachine = [&](const auto& e)
+                           {
+                               LOG_DEBUG << Utils::GetTypeName(e);
+                               impl->intentStateMachine_->handle(e);
+                           };
+                           std::visit(passEventToMachine, event);
+                       },
+                       [&](const RoutineAIEvent& event)
+                       {
+                           auto passEventToMachine = [&](const auto& e)
+                           {
+                               LOG_DEBUG << Utils::GetTypeName(e);
+                               impl->routineStateMachine_->handle(e);
+                           };
+                           std::visit(passEventToMachine, event);
+                       },
+                       [&](const ActionAIEvent& event)
+                       {
+                           auto passEventToMachine = [&](const auto& e)
+                           {
+                               LOG_DEBUG << Utils::GetTypeName(e);
+                               impl->stateMachine_->handle(e);
+                           };
+                           std::visit(passEventToMachine, event);
+                       }},
+               aiEvent);
 }
 
 const std::vector<vec3>& AIController::getCurrentPath() const

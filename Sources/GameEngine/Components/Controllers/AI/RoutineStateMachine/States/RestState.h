@@ -18,8 +18,12 @@ class RestState : public Utils::StateMachine::Will<
                       Utils::StateMachine::On<FatigueThresholdReached, Utils::StateMachine::TransitionTo<SleepState>>>
 {
 public:
-    void onEnter();
-    void update(float dt);
+    void onEnter()
+    {
+    }
+    void update(float dt)
+    {
+    }
 };
 }  // namespace Components
 }  // namespace GameEngine
