@@ -50,7 +50,6 @@ struct ThreatCleared
 {
 };
 
-
 struct DialogueStarted
 {
     uint64_t interactorId{0};

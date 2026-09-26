@@ -12,7 +12,7 @@ class RoutineState;
 class QuestState;
 class RetreatState;
 
-class AttackState
+class CombatState
     : public Utils::StateMachine::Will<Utils::StateMachine::On<LowHealthReached, Utils::StateMachine::TransitionTo<RetreatState>>,
                                        Utils::StateMachine::On<MoraleBroken, Utils::StateMachine::TransitionTo<PanicState>>,
                                        Utils::StateMachine::On<PathBlocked, Utils::StateMachine::TransitionTo<PanicState>>,

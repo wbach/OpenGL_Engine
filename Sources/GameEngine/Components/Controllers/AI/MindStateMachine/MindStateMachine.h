@@ -5,7 +5,7 @@
 #include "States/QuestState.h"
 #include "States/DialogState.h"
 #include "States/SuspiciousState.h"
-#include "States/AttackState.h"
+#include "States/CombatState.h"
 #include "States/SurrenderedState.h"
 #include "States/PanicState.h"
 #include "States/RetreatState.h"
@@ -22,7 +22,7 @@ using MindStateMachine =
                             QuestState,
                             DialogState,
                             SuspiciousState,
-                            AttackState,
+                            CombatState,
                             SurrenderedState,
                             PanicState,
                             RetreatState,

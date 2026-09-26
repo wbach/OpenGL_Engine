@@ -8,12 +8,12 @@ namespace GameEngine
 namespace Components
 {
 class RoutineState;
-class AttackState;
+class CombatState;
 class PanicState;
 class DialogState;
 
 class QuestState
-    : public Utils::StateMachine::Will<Utils::StateMachine::On<DamageTaken, Utils::StateMachine::TransitionTo<AttackState>>,
+    : public Utils::StateMachine::Will<Utils::StateMachine::On<DamageTaken, Utils::StateMachine::TransitionTo<CombatState>>,
                                        Utils::StateMachine::On<MoraleBroken, Utils::StateMachine::TransitionTo<PanicState>>,
                                        Utils::StateMachine::On<DialogueStarted, Utils::StateMachine::TransitionTo<DialogState>>,
                                        Utils::StateMachine::On<ThreatCleared, Utils::StateMachine::TransitionTo<RoutineState>>,
