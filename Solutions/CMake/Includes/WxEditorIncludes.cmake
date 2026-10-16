@@ -1,4 +1,5 @@
 set(WxEditorIncludes
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MaterialEditor/MaterialEditorFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/AnimationFileDropTarget.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/AnimationViewerFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/AnimationViwerIcon.h
@@ -38,7 +39,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/GuiEditor/GuiEditorControlIds
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/GuiEditor/GuiEditorFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/GuiEditor/GuiTreeItemData.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MainFrame.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MaterialEditor/MaterialEditorFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/OptionsFrame/OptionsFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/OptionsFrame/Theme.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectManager.h

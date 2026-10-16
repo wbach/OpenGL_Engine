@@ -1,12 +1,4 @@
 set(UtilsNetworkIncludes
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/ClientCreator.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/ConectContext.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/ConnectionManager.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/Gateway.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/IMessage.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/IMessageConverter.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/ISDLNetWrapper.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/MessageFormat.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/Messages/BinaryConnectionMessageConverter.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/Messages/Connection/AuthenticationMessage.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/Messages/Connection/ConnectionMessage.h
@@ -15,6 +7,14 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/Messages/MessageTypes.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/Messages/TextMessage.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/Messages/XmlConnectionMessageConverter.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/Messages/XmlConverterUtils.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/ClientCreator.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/ConectContext.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/ConnectionManager.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/Gateway.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/IMessage.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/IMessageConverter.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/ISDLNetWrapper.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/MessageFormat.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/MessageTarget.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/NetworkCreator.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/NetworkTypes.h

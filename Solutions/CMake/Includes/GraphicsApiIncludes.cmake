@@ -1,4 +1,5 @@
 set(GraphicsApiIncludes
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/MeshRawData.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/ApiMessages.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/BlendFunctionsTypes.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/BufferParamters.h
@@ -9,7 +10,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/GraphicsObject.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/IFrameBuffer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/IGraphicsApi.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/LineMesh.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/MeshRawData.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/MeshRawDataSerilizeHelpers.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/MeshRawDataSerilizer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/RendererType.h
