@@ -151,61 +151,43 @@ void GL_APIENTRY OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLen
     LOG_ERROR << "Message: " << message;
     LOG_ERROR << "ID: " << id;
 
-    LOG_ERROR << "Source: "
-              << [&]()
-    {
+    auto getSourceString = [](GLenum source) -> std::string {
         switch (source)
         {
-            case GL_DEBUG_SOURCE_API:
-                return "API";
-            case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
-                return "Window System";
-            case GL_DEBUG_SOURCE_SHADER_COMPILER:
-                return "Shader Compiler";
-            case GL_DEBUG_SOURCE_THIRD_PARTY:
-                return "Third Party";
-            case GL_DEBUG_SOURCE_APPLICATION:
-                return "Application";
-            default:
-                return "Other";
+            case GL_DEBUG_SOURCE_API:           return "API";
+            case GL_DEBUG_SOURCE_WINDOW_SYSTEM: return "Window System";
+            case GL_DEBUG_SOURCE_SHADER_COMPILER: return "Shader Compiler";
+            case GL_DEBUG_SOURCE_THIRD_PARTY:    return "Third Party";
+            case GL_DEBUG_SOURCE_APPLICATION:    return "Application";
+            default:                               return "Other";
         }
-    }();
+    };
 
-    LOG_ERROR << "Type: "
-              << [&]()
-    {
+    auto getTypeString = [](GLenum type) -> std::string {
         switch (type)
         {
-            case GL_DEBUG_TYPE_ERROR:
-                return "Error";
-            case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-                return "Deprecated Behaviour";
-            case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-                return "Undefined Behaviour";
-            case GL_DEBUG_TYPE_PORTABILITY:
-                return "Portability";
-            case GL_DEBUG_TYPE_PERFORMANCE:
-                return "Performance";
-            default:
-                return "Other";
+            case GL_DEBUG_TYPE_ERROR:             return "Error";
+            case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "Deprecated Behaviour";
+            case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: return "Undefined Behaviour";
+            case GL_DEBUG_TYPE_PORTABILITY:       return "Portability";
+            case GL_DEBUG_TYPE_PERFORMANCE:       return "Performance";
+            default:                                return "Other";
         }
-    }();
+    };
 
-    LOG_ERROR << "Severity: "
-              << [&]()
-    {
+    auto getSeverityString = [](GLenum severity) -> std::string {
         switch (severity)
         {
-            case GL_DEBUG_SEVERITY_HIGH:
-                return "HIGH";
-            case GL_DEBUG_SEVERITY_MEDIUM:
-                return "MEDIUM";
-            case GL_DEBUG_SEVERITY_LOW:
-                return "LOW";
-            default:
-                return "NOTIFICATION";
+            case GL_DEBUG_SEVERITY_HIGH:   return "HIGH";
+            case GL_DEBUG_SEVERITY_MEDIUM: return "MEDIUM";
+            case GL_DEBUG_SEVERITY_LOW:    return "LOW";
+            default:                        return "NOTIFICATION";
         }
-    }();
+    };
+
+    LOG_ERROR << "Source: " << getSourceString(source);
+    LOG_ERROR << "Type: " << getTypeString(type);
+    LOG_ERROR << "Severity: " << getSeverityString(severity);
 }
 
 }  // namespace
@@ -217,14 +199,6 @@ struct ShaderBuffer
     uint32 bufferSize;
     uint32 bindLocation;
     uint32 type;
-};
-
-struct DebugNormalMesh
-{
-    std::vector<float> position_;
-    std::vector<float> normal_;
-    std::vector<float> tangent_;
-    GraphicsApi::ID id_;
 };
 
 struct OpenGLApi::Pimpl
@@ -531,21 +505,23 @@ std::vector<uint8> OpenGLApi::GetTextureData(uint32 id) const
     const auto& textureInfo = iter->second;
     auto params             = GetTextureTypeParams(textureInfo.textureType);
 
-    // 1. Kluczowa poprawka: Określenie targetu i całkowitej liczby pikseli (uwzględniając warstwy)
     GLenum target      = (textureInfo.layers > 1) ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D;
     size_t totalPixels = static_cast<size_t>(textureInfo.size.x) * textureInfo.size.y * textureInfo.layers;
 
-    std::vector<uint8> data;
     BindTexture(id);
 
-    // 2. Obsługa formatu U8_RGBA
-    if (params.dataType == GL_UNSIGNED_BYTE && params.format == GL_RGBA)
+    return ExtractTextureData(target, params.format, params.dataType, totalPixels);
+}
+
+std::vector<uint8> OpenGLApi::ExtractTextureData(GLenum target, GLenum format, GLenum dataType, size_t totalPixels) const
+{
+    std::vector<uint8> data;
+    if (dataType == GL_UNSIGNED_BYTE && format == GL_RGBA)
     {
         data.resize(4 * totalPixels);
         glGetTexImage(target, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
     }
-    // 3. Obsługa formatu FLOAT_RGBA (4 kanały)
-    else if (params.dataType == GL_FLOAT && params.format == GL_RGBA)
+    else if (dataType == GL_FLOAT && format == GL_RGBA)
     {
         data.resize(4 * totalPixels);
         std::vector<float> floatdata(4 * totalPixels);
@@ -554,8 +530,7 @@ std::vector<uint8> OpenGLApi::GetTextureData(uint32 id) const
         std::transform(floatdata.begin(), floatdata.end(), data.begin(),
                        [](float f) { return static_cast<uint8>(std::clamp(f * 255.f, 0.f, 255.f)); });
     }
-    // 4. Obsługa formatu FLOAT_RGB (3 kanały -> wymuszamy 4 dla zapisu obrazu)
-    else if (params.dataType == GL_FLOAT && params.format == GL_RGB)
+    else if (dataType == GL_FLOAT && format == GL_RGB)
     {
         data.reserve(4 * totalPixels);
         std::vector<float> floatdata(3 * totalPixels);
@@ -566,11 +541,10 @@ std::vector<uint8> OpenGLApi::GetTextureData(uint32 id) const
             data.push_back(static_cast<uint8>(std::clamp(floatdata[i] * 255.f, 0.f, 255.f)));
             data.push_back(static_cast<uint8>(std::clamp(floatdata[i + 1] * 255.f, 0.f, 255.f)));
             data.push_back(static_cast<uint8>(std::clamp(floatdata[i + 2] * 255.f, 0.f, 255.f)));
-            data.push_back(255);  // Dodajemy pełną alfę dla zgodności z RGBA
+            data.push_back(255);
         }
     }
-    // 5. Obsługa formatu FLOAT_RED (1 kanał -> konwersja na Grayscale RGBA)
-    else if (params.dataType == GL_FLOAT && params.format == GL_RED)
+    else if (dataType == GL_FLOAT && format == GL_RED)
     {
         data.reserve(4 * totalPixels);
         std::vector<float> floatdata(totalPixels);
@@ -579,10 +553,10 @@ std::vector<uint8> OpenGLApi::GetTextureData(uint32 id) const
         for (auto& f : floatdata)
         {
             auto value = static_cast<uint8>(std::clamp(f * 255.f, 0.f, 255.f));
-            data.push_back(value);  // R
-            data.push_back(value);  // G
-            data.push_back(value);  // B
-            data.push_back(255);    // A
+            data.push_back(value);
+            data.push_back(value);
+            data.push_back(value);
+            data.push_back(255);
         }
     }
 
@@ -605,7 +579,7 @@ GraphicsApi::TextureInfo* OpenGLApi::GetTextureInfo(uint32 id)
 
     return nullptr;
 }
-void OpenGLApi::TakeSnapshoot(const std::filesystem::path& path) const
+void OpenGLApi::TakeSnapshot(const std::filesystem::path& path) const
 {
     for (const auto& object : createdObjectIds)
     {
@@ -616,44 +590,20 @@ void OpenGLApi::TakeSnapshoot(const std::filesystem::path& path) const
                 if (impl_->textureInfos_.count(object.first) == 0)
                 {
                     LOG_DEBUG << "Texture info not found. Id : " << object.first;
-                    break;
                 }
-                const auto& textureInfo = GetTextureInfo(object.first);
-                auto resultData         = GetTextureData(object.first);
-
-                const std::filesystem::path folderPath = path / "Textures2d";
-                Utils::CreateDirectories(folderPath);
-
-                std::string fileName = std::to_string(object.first) + ".png";
-                Utils::SaveImage(resultData, textureInfo.size, folderPath / fileName);
+                else
+                {
+                    TakeTextureSnapshot(object.first, GetTextureInfo(object.first), path);
+                }
             }
             break;
 
             case ObjectType::TEXTURE_2D_ARRAY:
             {
-                if (impl_->textureInfos_.count(object.first) == 0)
+                if (impl_->textureInfos_.count(object.first) != 0)
                 {
-                    break;
+                    TakeTextureArraySnapshot(object.first, GetTextureInfo(object.first), path);
                 }
-
-                const auto& textureInfo = GetTextureInfo(object.first);
-                auto resultData         = GetTextureData(object.first);
-
-                const auto fullPath = path / "TextureArrays" / std::to_string(object.first);
-                Utils::CreateDirectories(fullPath);
-
-                size_t layerSize = textureInfo.size.x * textureInfo.size.y * GetBytesPerPixel(textureInfo.textureType);
-                size_t numLayers = textureInfo.layers;
-
-                for (size_t layer = 0; layer < numLayers; ++layer)
-                {
-                    std::vector<uint8> layerData(resultData.begin() + (layer * layerSize),
-                                                 resultData.begin() + ((layer + 1) * layerSize));
-
-                    auto fileName = "layer_" + std::to_string(layer) + ".png";
-                    Utils::SaveImage(layerData, textureInfo.size, (fullPath / fileName).string());
-                }
-                LOG_DEBUG << "Saved " << numLayers << " layers for texture array " << object.first;
             }
             break;
 
@@ -669,13 +619,8 @@ void OpenGLApi::TakeSnapshoot(const std::filesystem::path& path) const
         {
             case ObjectType::FRAME_BUFFER:
             {
-                const auto& frameBuffer = impl_->frameBuffers_.at(object.first);
-
-                const std::filesystem::path fullPath =
-                    path / "FrameBuffersTextures" / ("FrameBuffer_" + std::to_string(frameBuffer->GetId()));
-
-                Utils::CreateDirectories(fullPath);
-                impl_->frameBuffers_.at(object.first)->TakeSnapshot(fullPath);
+                auto& frameBuffer = *impl_->frameBuffers_.at(object.first);
+                TakeFrameBufferSnapshot(object.first, frameBuffer, path);
             }
             break;
 
@@ -684,6 +629,47 @@ void OpenGLApi::TakeSnapshoot(const std::filesystem::path& path) const
                 break;
         }
     }
+}
+
+void OpenGLApi::TakeTextureSnapshot(uint32 id, const GraphicsApi::TextureInfo& textureInfo, const std::filesystem::path& path) const
+{
+    auto resultData = GetTextureData(id);
+
+    const std::filesystem::path folderPath = path / "Textures2d";
+    Utils::CreateDirectories(folderPath);
+
+    std::string fileName = std::to_string(id) + ".png";
+    Utils::SaveImage(resultData, textureInfo.size, folderPath / fileName);
+}
+
+void OpenGLApi::TakeTextureArraySnapshot(uint32 id, const GraphicsApi::TextureInfo& textureInfo, const std::filesystem::path& path) const
+{
+    auto resultData = GetTextureData(id);
+
+    const auto fullPath = path / "TextureArrays" / std::to_string(id);
+    Utils::CreateDirectories(fullPath);
+
+    size_t layerSize = textureInfo.size.x * textureInfo.size.y * GetBytesPerPixel(textureInfo.textureType);
+    size_t numLayers = textureInfo.layers;
+
+    for (size_t layer = 0; layer < numLayers; ++layer)
+    {
+        std::vector<uint8> layerData(resultData.begin() + (layer * layerSize),
+                                      resultData.begin() + ((layer + 1) * layerSize));
+
+        auto fileName = "layer_" + std::to_string(layer) + ".png";
+        Utils::SaveImage(layerData, textureInfo.size, (fullPath / fileName).string());
+    }
+    LOG_DEBUG << "Saved " << numLayers << " layers for texture array " << id;
+}
+
+void OpenGLApi::TakeFrameBufferSnapshot(uint32 id, IFrameBuffer& framebuffer, const std::filesystem::path& path) const
+{
+    const std::filesystem::path fullPath =
+        path / "FrameBuffersTextures" / ("FrameBuffer_" + std::to_string(framebuffer.GetId()));
+
+    Utils::CreateDirectories(fullPath);
+    framebuffer.TakeSnapshot(fullPath);
 }
 
 GraphicsApi::IFrameBuffer& OpenGLApi::GetDefaultFrameBuffer()
@@ -730,93 +716,62 @@ void OpenGLApi::CreateDebugNormalMesh(uint32 rid, const GraphicsApi::MeshRawData
 
     if (not meshRawData.positions_.empty() and not meshRawData.normals_.empty())
     {
-        auto& debugNormalMesh = impl_->debugNormalsMesh_[rid];
-        debugNormalMesh.position_.clear();
-        debugNormalMesh.normal_.clear();
-        debugNormalMesh.tangent_.clear();
+        DebugNormalMesh dm;
+        dm.id_ = rid;
+        dm.position_ = meshRawData.positions_;
+        dm.normal_ = meshRawData.normals_;
+        dm.tangent_ = meshRawData.tangents_;
 
-        debugNormalMesh.position_.reserve(meshRawData.positions_.size());
-        debugNormalMesh.normal_.reserve(meshRawData.positions_.size());
-        debugNormalMesh.tangent_.reserve(meshRawData.positions_.size());
+        UpdateDebugNormalMeshBuffers(rid, dm);
+    }
+}
 
-        for (size_t i = 0; i < meshRawData.positions_.size(); i += 3)
-        {
-            auto p1 = meshRawData.positions_[i];
-            auto p2 = meshRawData.positions_[i + 1];
-            auto p3 = meshRawData.positions_[i + 2];
+void OpenGLApi::UpdateDebugNormalMeshBuffers(uint32 rid, const DebugNormalMesh& dm)
+{
+    impl_->debugNormalsMesh_[rid] = dm;
+    auto& current_dm = impl_->debugNormalsMesh_[rid];
 
-            debugNormalMesh.position_.push_back(p1);
-            debugNormalMesh.position_.push_back(p2);
-            debugNormalMesh.position_.push_back(p3);
+    if (not current_dm.id_)
+    {
+        current_dm.id_ = impl_->idPool_.ToUint(0);
+        createdObjectIds.insert({*current_dm.id_, ObjectType::MESH});
 
-            auto n1 = meshRawData.normals_[i];
-            auto n2 = meshRawData.normals_[i + 1];
-            auto n3 = meshRawData.normals_[i + 2];
+        openGlMeshes_.insert({*current_dm.id_, {}});
+        auto& mesh = openGlMeshes_.at(*current_dm.id_);
 
-            debugNormalMesh.normal_.push_back(n1);
-            debugNormalMesh.normal_.push_back(n2);
-            debugNormalMesh.normal_.push_back(n3);
+        VaoCreator vaoCreator;
+        vaoCreator.SetSize(0);
+        vaoCreator.AllocateDynamicAttribute(VertexBufferObjects::POSITION, 3);
+        vaoCreator.AllocateDynamicAttribute(VertexBufferObjects::NORMAL, 3);
+        vaoCreator.AllocateDynamicAttribute(VertexBufferObjects::TANGENT, 3);
+        mesh            = Convert(vaoCreator.Get());
+        mesh.renderType = GraphicsApi::RenderType::POINTS;
+    }
 
-            if (not meshRawData.tangents_.empty())
-            {
-                auto t1 = meshRawData.tangents_[i];
-                auto t2 = meshRawData.tangents_[i + 1];
-                auto t3 = meshRawData.tangents_[i + 2];
+    if (current_dm.id_)
+    {
+        auto& obj                    = openGlMeshes_.at(*current_dm.id_);
+        auto sizeInBytesBeforeUpdate = obj.sizeInBytes;
+        obj.sizeInBytes              = 0;
 
-                debugNormalMesh.tangent_.push_back(t1);
-                debugNormalMesh.tangent_.push_back(t2);
-                debugNormalMesh.tangent_.push_back(t3);
-            }
-            else
-            {
-                debugNormalMesh.tangent_.push_back(0.f);
-                debugNormalMesh.tangent_.push_back(0.f);
-                debugNormalMesh.tangent_.push_back(0.f);
-            }
-        }
+        obj.vertexCount = static_cast<GLsizei>(current_dm.position_.size());
 
-        if (not debugNormalMesh.id_)
-        {
-            debugNormalMesh.id_ = impl_->idPool_.ToUint(0);
-            createdObjectIds.insert({*debugNormalMesh.id_, ObjectType::MESH});
+        glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::POSITION]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * current_dm.position_.size(), &current_dm.position_[0],
+                     GL_STREAM_DRAW);
+        obj.sizeInBytes += sizeof(float) * current_dm.position_.size();
 
-            openGlMeshes_.insert({*debugNormalMesh.id_, {}});
-            auto& mesh = openGlMeshes_.at(*debugNormalMesh.id_);
+        glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::NORMAL]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * current_dm.normal_.size(), &current_dm.normal_[0],
+                     GL_STREAM_DRAW);
+        obj.sizeInBytes += sizeof(float) * current_dm.normal_.size();
 
-            VaoCreator vaoCreator;
-            vaoCreator.SetSize(0);
-            vaoCreator.AllocateDynamicAttribute(VertexBufferObjects::POSITION, 3);
-            vaoCreator.AllocateDynamicAttribute(VertexBufferObjects::NORMAL, 3);
-            vaoCreator.AllocateDynamicAttribute(VertexBufferObjects::TANGENT, 3);
-            mesh            = Convert(vaoCreator.Get());
-            mesh.renderType = GraphicsApi::RenderType::POINTS;
-        }
+        glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::TANGENT]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * current_dm.tangent_.size(), &current_dm.tangent_[0],
+                     GL_STREAM_DRAW);
+        obj.sizeInBytes += sizeof(float) * current_dm.tangent_.size();
 
-        if (debugNormalMesh.id_)
-        {
-            auto& obj                    = openGlMeshes_.at(*debugNormalMesh.id_);
-            auto sizeInBytesBeforeUpdate = obj.sizeInBytes;
-            obj.sizeInBytes              = 0;
-
-            obj.vertexCount = static_cast<GLsizei>(debugNormalMesh.position_.size());
-
-            glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::POSITION]);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * debugNormalMesh.position_.size(), &debugNormalMesh.position_[0],
-                         GL_STREAM_DRAW);
-            obj.sizeInBytes += sizeof(float) * debugNormalMesh.position_.size();
-
-            glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::NORMAL]);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * debugNormalMesh.normal_.size(), &debugNormalMesh.normal_[0],
-                         GL_STREAM_DRAW);
-            obj.sizeInBytes += sizeof(float) * debugNormalMesh.normal_.size();
-
-            glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::TANGENT]);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * debugNormalMesh.tangent_.size(), &debugNormalMesh.tangent_[0],
-                         GL_STREAM_DRAW);
-            obj.sizeInBytes += sizeof(float) * debugNormalMesh.tangent_.size();
-
-            allocatedBytes(obj.sizeInBytes - sizeInBytesBeforeUpdate);
-        }
+        allocatedBytes(obj.sizeInBytes - sizeInBytesBeforeUpdate);
     }
 }
 

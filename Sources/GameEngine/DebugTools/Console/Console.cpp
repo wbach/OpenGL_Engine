@@ -99,7 +99,7 @@ void Console::RegisterActions()
                         {"reload", [this](auto &p) { ReloadScene(p); }},
                         {"moveto", [this](auto &p) { MoveTo(p); }},
                         {"lognow", [this](auto &p) { UseAsyncLogging(p); }},
-                        {"snap", [this](auto &p) { TakeSnapshoot(p); }},
+                        {"snap", [this](auto &p) { TakeSnapshot(p); }},
                         {"navmesh", [this](auto &p) { ShowNawMesh(p); }},
                         {"reloadshaders", [this](auto &p) { ReloadShaders(p); }},
                         {"swapRenderMode", [this](auto &p) { SwapRenderMode(p); }},
@@ -456,7 +456,7 @@ void Console::UseAsyncLogging(const Params &params)
     CLogger::Instance().UseAsyncLogging(use);
 }
 
-void Console::TakeSnapshoot(const Params &params)
+void Console::TakeSnapshot(const Params &params)
 {
     std::string path{"../../snapshoot/"};
     if (not params.empty())
@@ -464,8 +464,8 @@ void Console::TakeSnapshoot(const Params &params)
         path = params[0];
     }
 
-    auto takeSnapshoot = [this, path]() { scene_.resourceManager_->GetGraphicsApi().TakeSnapshoot(path); };
-    scene_.resourceManager_->GetGpuResourceLoader().AddFunctionToCall(takeSnapshoot);
+    auto takeSnapshot = [this, path]() { scene_.resourceManager_->GetGraphicsApi().TakeSnapshot(path); };
+    scene_.resourceManager_->GetGpuResourceLoader().AddFunctionToCall(takeSnapshot);
 }
 
 void Console::ReloadShaders(const Params &)
@@ -778,7 +778,10 @@ void Console::MoveTo(const Params &args)
         return;
     }
 
-    LOG_DEBUG << args;
+    for (const auto& arg : args)
+    {
+        LOG_DEBUG << arg;
+    }
 
     auto gameObject = GetGameObject(args[0]);
     if (gameObject)

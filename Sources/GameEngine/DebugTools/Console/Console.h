@@ -69,7 +69,7 @@ private:
     void MoveTo(const Params&);
     void ReloadScene(const Params&);
     void UseAsyncLogging(const Params&);
-    void TakeSnapshoot(const Params&);
+    void TakeSnapshot(const Params&);
     void ReloadShaders(const Params&);
     void SwapRenderMode(const Params&);
     void EnableEditorNetworkInterface(const Params&);

@@ -1367,7 +1367,7 @@ const TextureInfo &DirectXApi::GetTextureInfo(uint32) const
 {
     return defaultTextureInfo;
 }
-void DirectXApi::TakeSnapshoot(const std::filesystem::path &) const
+void DirectXApi::TakeSnapshot(const std::filesystem::path &) const
 {
 }
 std::optional<Utils::Image> DirectXApi::GetImage(IdType) const

@@ -8,8 +8,19 @@
 #include "SimpleModels/Quad.h"
 #include "optional.hpp"
 
+
+#include <GraphicsApi/MeshRawData.h>
+
 namespace OpenGLApi
 {
+struct DebugNormalMesh
+{
+    std::vector<float> position_;
+    std::vector<float> normal_;
+    std::vector<float> tangent_;
+    GraphicsApi::ID id_;
+};
+
 const uint32 MAX_SHADER_BUFFER_SIZE = 20;
 
 class OpenGLApi : public GraphicsApi::IGraphicsApi
@@ -120,9 +131,10 @@ public:
     mat4 PrepareMatrixToLoad(const mat4& m) override;
     std::vector<uint8> GetTextureData(uint32) const override;
     const GraphicsApi::TextureInfo& GetTextureInfo(uint32) const override;
-    void TakeSnapshoot(const std::filesystem::path&) const override;
+    void TakeSnapshot(const std::filesystem::path&) const override;
 
     IFrameBuffer& GetDefaultFrameBuffer() override;
+
     IFrameBuffer& CreateFrameBuffer(const std::vector<GraphicsApi::FrameBuffer::Attachment>&) override;
     void DeleteFrameBuffer(IFrameBuffer&) override;
 
@@ -130,8 +142,13 @@ public:
     std::vector<Utils::Image> GetImageArray(IdType) const override;
 
 private:
+    void TakeTextureSnapshot(uint32 id, const GraphicsApi::TextureInfo& textureInfo, const std::filesystem::path& path) const;
+    void TakeTextureArraySnapshot(uint32 id, const GraphicsApi::TextureInfo& textureInfo, const std::filesystem::path& path) const;
+    void TakeFrameBufferSnapshot(uint32 id, IFrameBuffer& framebuffer, const std::filesystem::path& path) const;
     GraphicsApi::TextureInfo* GetTextureInfo(uint32);
+    std::vector<uint8> ExtractTextureData(GLenum target, GLenum format, GLenum dataType, size_t totalPixels) const;
     void CreateDebugNormalMesh(uint32, const GraphicsApi::MeshRawData&);
+    void UpdateDebugNormalMeshBuffers(uint32, const DebugNormalMesh&);
     void DeleteMesh(uint32);
     void DeleteMesh(const std::vector<uint32>&);
     void DeleteDebugNormalMesh(uint32);

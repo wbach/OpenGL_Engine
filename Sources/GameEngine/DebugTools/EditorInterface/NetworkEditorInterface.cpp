@@ -1885,8 +1885,8 @@ void NetworkEditorInterface::Takesnapshot(const NetworkEditorInterface::EntryPar
         path = params.at("location");
     }
 
-    auto takeSnapshoot = [this, path]() { scene_.resourceManager_->GetGraphicsApi().TakeSnapshoot(path); };
-    scene_.resourceManager_->GetGpuResourceLoader().AddFunctionToCall(takeSnapshoot);
+    auto takeSnapshot = [this, path]() { scene_.resourceManager_->GetGraphicsApi().TakeSnapshot(path); };
+    scene_.resourceManager_->GetGpuResourceLoader().AddFunctionToCall(takeSnapshot);
 }
 
 void NetworkEditorInterface::Exit(const NetworkEditorInterface::EntryParameters &)

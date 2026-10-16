@@ -104,7 +104,7 @@ public:
     mat4 PrepareMatrixToLoad(const mat4& matrix) override;
     std::vector<uint8> GetTextureData(uint32) const override;
     const TextureInfo& GetTextureInfo(uint32) const override;
-    void TakeSnapshoot(const std::filesystem::path&) const override;
+    void TakeSnapshot(const std::filesystem::path&) const override;
     std::optional<Utils::Image> GetImage(IdType) const override;
     std::vector<Utils::Image> GetImageArray(IdType) const override;
     IFrameBuffer& GetDefaultFrameBuffer() override;

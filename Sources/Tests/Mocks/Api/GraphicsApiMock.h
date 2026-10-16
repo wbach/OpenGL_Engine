@@ -99,7 +99,7 @@ public:
     MOCK_METHOD(mat4, PrepareMatrixToLoad, (const mat4&), (override));
     MOCK_METHOD(std::vector<uint8>, GetTextureData, (uint32), (const, override));
     MOCK_METHOD(const TextureInfo&, GetTextureInfo, (uint32), (const, override));
-    MOCK_METHOD(void, TakeSnapshoot, (const std::filesystem::path&), (const, override));
+    MOCK_METHOD(void, TakeSnapshot, (const std::filesystem::path&), (const, override));
     MOCK_METHOD(std::optional<Utils::Image>, GetImage, (IdType), (const, override));
     MOCK_METHOD(std::vector<Utils::Image>, GetImageArray, (IdType), (const, override));
     MOCK_METHOD(IFrameBuffer&, GetDefaultFrameBuffer, (), (override));

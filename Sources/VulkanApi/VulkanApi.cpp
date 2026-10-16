@@ -1440,7 +1440,7 @@ const TextureInfo& VulkanApi::GetTextureInfo(uint32) const
 {
     return dummyTextureInfo;
 }
-void VulkanApi::TakeSnapshoot(const std::filesystem::path&) const
+void VulkanApi::TakeSnapshot(const std::filesystem::path&) const
 {
 }
 std::optional<Utils::Image> VulkanApi::GetImage(IdType) const

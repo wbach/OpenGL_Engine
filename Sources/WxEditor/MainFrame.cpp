@@ -884,8 +884,8 @@ void MainFrame::MenuRendererTakeSnapshot(wxCommandEvent&)
         std::filesystem::remove_all(path);
 
         auto& resourceManager = canvas->GetScene().GetResourceManager();
-        auto takeSnapshoot    = [&, path]() { resourceManager.GetGraphicsApi().TakeSnapshoot(path); };
-        resourceManager.GetGpuResourceLoader().AddFunctionToCall(takeSnapshoot);
+        auto takeSnapshot    = [&, path]() { resourceManager.GetGraphicsApi().TakeSnapshot(path); };
+        resourceManager.GetGpuResourceLoader().AddFunctionToCall(takeSnapshot);
     }
     catch (...)
     {
