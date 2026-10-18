@@ -2,8 +2,9 @@
 
 #include <GameEngine/Objects/GameObject.h>
 
-#include "AIController.h"
 #include "Logger/Log.h"
+#include "RoutineComponent.h"
+#include "AIController.h"
 
 namespace GameEngine
 {
@@ -18,15 +19,16 @@ void ProfessionComponent::ReqisterFunctions()
     RegisterFunction(FunctionType::Awake,
                      [this]()
                      {
-                         controller = thisObject_.GetComponent<AIController>();
-                         if (controller)
+                         routineComponent = thisObject_.GetComponent<RoutineComponent>();
+                         if (routineComponent)
                          {
-                             controller->RegisterProfession(*this);
+                             routineComponent->RegisterProfession(*this);
                          }
                          else
                          {
-                             LOG_DEBUG << "AIController not found";
+                             LOG_DEBUG << "RoutineComponent not found";
                          }
+                         controller = thisObject_.GetComponent<AIController>();
                      });
 }
 }  // namespace Components

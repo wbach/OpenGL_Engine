@@ -16,8 +16,8 @@
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Controllers/AI/ActionStateMachine/ActionAIEvents.h"
 #include "GameEngine/Components/Controllers/AI/IntentStateMachine/IntentStateEvents.h"
-#include "GameEngine/Components/Controllers/AI/MindStateMachine/MindAIEvenets.h"
-#include "GameEngine/Components/Controllers/AI/MindStateMachine/MindStateMachine.h"
+#include "GameEngine/Components/Controllers/AI/ReactionStateMachine/ReactionAIEvents.h"
+#include "GameEngine/Components/Controllers/AI/ReactionStateMachine/ReactionStateMachine.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "GameEngine/Components/Gameplay/CharacterStats/CharacterStatsComponent.h"
@@ -28,11 +28,8 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Time/DayNightCycle.h"
 #include "IntentStateMachine/IntentStateMachine.h"
-#include "MindStateMachine/MindStateMachine.h"
-#include "ProfessionComponent.h"
+#include "ReactionStateMachine/ReactionStateMachine.h"
 #include "RoutineComponent.h"
-#include "RoutineStateMachine/RoutineStateMachine.h"
-#include "RoutineStep.h"
 #include "Utils.h"
 #include "magic_enum/magic_enum.hpp"
 
@@ -48,10 +45,10 @@ constexpr char CSTR_TARGETING_MODE[]   = "targetingMode";
 struct AIController::Impl
 {
     std::unique_ptr<ActionStateMachine> stateMachine_;
-    std::unique_ptr<MindStateMachine> mindStateMachine_;
-    std::unique_ptr<RoutineStateMachine> routineStateMachine_;
+    std::unique_ptr<ReactionStateMachine> reactionStateMachine_;
     std::unique_ptr<IntentStateMachine> intentStateMachine_;
     std::unique_ptr<AIControllerContext> controllerContext_;
+
     Utils::Blackboard blackboard_;
 
     void CleanUp()
@@ -75,8 +72,7 @@ void AIController::CleanUp()
 }
 void AIController::ReqisterFunctions()
 {
-    RegisterFunction(
-        FunctionType::OnStart, [this]() { Init(); }, MakeDependencies<CharacterController>());
+    RegisterFunction(FunctionType::OnStart, [this]() { Init(); }, MakeDependencies<CharacterController>());
     RegisterFunction(FunctionType::Update, [this]() { Update(); });
 }
 void AIController::Reload()
@@ -106,10 +102,8 @@ void AIController::Init()
     impl->stateMachine_ = std::make_unique<ActionStateMachine>(AIAmbientState{}, AIChaseState{context}, AIReturnState{context},
                                                                AIAttackState{context}, AIMoveToState{context});
 
-    impl->mindStateMachine_    = std::make_unique<MindStateMachine>();
-    impl->routineStateMachine_ = std::make_unique<RoutineStateMachine>();
-    impl->intentStateMachine_  = std::make_unique<IntentStateMachine>();
-
+    impl->reactionStateMachine_   = std::make_unique<ReactionStateMachine>();
+    impl->intentStateMachine_ = std::make_unique<IntentStateMachine>();
     routineComponent_ = thisObject_.GetComponent<RoutineComponent>();
 
     LOG_DEBUG << thisObject_.GetName() << " RoutineComponent " << (routineComponent_ != nullptr);
@@ -142,40 +136,6 @@ void AIController::Update()
     }
 
     runPerceptionCheck();
-
-    if (routineComponent_)
-    {
-        const auto& currentTime = componentContext_.scene_.GetDayNightCycle().GetCurrentHour();
-        if (auto currentStep = routineComponent_->UpdateAndGetCurrentStep(currentTime))
-        {
-            switch (currentStep->behaviorState)
-            {
-                // case AIBehaviorState::Idle:
-                //     break;
-                // case AIBehaviorState::Eat:
-                //     break;
-                // case AIBehaviorState::Sleep:
-                //     break;
-                case AIBehaviorState::Work:
-                {
-                    if (profession_)
-                    {
-                        profession_->ExecuteWork(currentStep->targetPosition);
-                    }
-                    else
-                    {
-                        LOG_DEBUG << thisObject_.GetName() << " no profession";
-                        // ExecuteIdleBehavior();
-                    }
-                    break;
-                }
-                default:
-                    LOG_DEBUG << thisObject_.GetName()
-                              << " No supported ai state: " << magic_enum::enum_name(currentStep->behaviorState);
-                    break;
-            }
-        }
-    }
 }
 void AIController::processEvent()
 {
@@ -205,12 +165,12 @@ void AIController::processEvent()
 }
 void AIController::handleEvent(const AIEvent& aiEvent)
 {
-    std::visit(visitor{[&](const MindAIEvent& event)
+    std::visit(visitor{[&](const ReactionAIEvent& event)
                        {
                            auto passEventToMachine = [&](const auto& e)
                            {
                                LOG_DEBUG << Utils::GetTypeName(e);
-                               impl->mindStateMachine_->handle(e);
+                               impl->reactionStateMachine_->handle(e);
                            };
                            std::visit(passEventToMachine, event);
                        },
@@ -220,15 +180,6 @@ void AIController::handleEvent(const AIEvent& aiEvent)
                            {
                                LOG_DEBUG << Utils::GetTypeName(e);
                                impl->intentStateMachine_->handle(e);
-                           };
-                           std::visit(passEventToMachine, event);
-                       },
-                       [&](const RoutineAIEvent& event)
-                       {
-                           auto passEventToMachine = [&](const auto& e)
-                           {
-                               LOG_DEBUG << Utils::GetTypeName(e);
-                               impl->routineStateMachine_->handle(e);
                            };
                            std::visit(passEventToMachine, event);
                        },
@@ -336,11 +287,6 @@ bool AIController::isHostile(const CharacterStatsComponent& targetStats) const
 float AIController::getAttackRadius() const
 {
     return 1.0f;
-}
-void AIController::RegisterProfession(ProfessionComponent& component)
-{
-    LOG_DEBUG << "RegisterProfession: " << component.GetTypeName() << " " << thisObject_.GetName();
-    profession_ = &component;
 }
 }  // namespace Components
 }  // namespace GameEngine

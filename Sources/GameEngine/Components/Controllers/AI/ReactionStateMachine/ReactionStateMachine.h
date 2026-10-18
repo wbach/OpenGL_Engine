@@ -13,7 +13,7 @@ namespace GameEngine
 namespace Components
 {
 // clang-format off
-using MindStateMachine =
+using ReactionStateMachine =
     Utils::StateMachine::Fsm<
                             PassiveState,
                             SuspiciousState,

@@ -6,6 +6,10 @@
 #include <algorithm>
 #include <optional>
 
+#include "GameEngine/Components/ComponentContext.h"
+#include "GameEngine/Scene/Scene.hpp"
+#include "ProfessionComponent.h"
+
 namespace GameEngine
 {
 namespace Components
@@ -60,8 +64,10 @@ REGISTER_COMPONENT(RoutineComponent)
 
 RoutineComponent::RoutineComponent(ComponentContext& componentContext, GameObject& gameObject)
     : Component(componentContext, gameObject)
+    , context(RoutineContext{.profession_ = nullptr, .gameObject = gameObject})
 {
     InitializeEditorStructures();
+    InitializeStateMachine();
 }
 
 RoutineComponent::~RoutineComponent()
@@ -97,11 +103,45 @@ void RoutineComponent::InitializeEditorStructures()
     };
     routineSteps_.initElements = [this, initElements](std::vector<CustomStructure>& out) { initElements(out, schedule_); };
 }
+RoutineAIEvent RoutineComponent::CreateEvent(const RoutineStep& step)
+{
+    switch (step.behaviorState)
+    {
+        case AIBehaviorState::Work:
+            return WorkStarted{.workLocation = step.targetPosition};
+
+        case AIBehaviorState::Eat:
+            return MealStarted{.foodSource = step.targetPosition};
+
+        case AIBehaviorState::Sleep:
+            return SleepStarted{};
+
+        case AIBehaviorState::Rest:
+            return RestStarted{};
+
+        case AIBehaviorState::None:
+            break;
+    }
+
+    throw std::runtime_error("Unknown routine behavior");
+}
+
+void RoutineComponent::InitializeStateMachine()
+{
+    stateMachine_ =
+        std::make_unique<RoutineStateMachine>(WorkState{context}, RestState{}, EatState{}, SleepState{}, SuspendedState{});
+}
+
+void RoutineComponent::ReqisterFunctions()
+{
+    RegisterFunction(FunctionType::Update, [this]() { Update(); });
+}
 
 void RoutineComponent::CleanUp()
 {
     schedule_.clear();
     routineSteps_.clear();
+    stateMachine_.reset();
 }
 
 void RoutineComponent::Reload()
@@ -109,8 +149,30 @@ void RoutineComponent::Reload()
     routineSteps_.init();
 }
 
-void RoutineComponent::ReqisterFunctions()
+void RoutineComponent::Update()
 {
+    if (!stateMachine_)
+    {
+        return;
+    }
+
+    const auto currentTime = componentContext_.scene_.GetDayNightCycle().GetCurrentHour();
+
+    const auto currentStep = UpdateAndGetCurrentStep(currentTime);
+
+    if (currentStep and currentStep->behaviorState != AIBehaviorState::None and
+        currentStep->behaviorState == currentBehaviorState_)
+    {
+        currentBehaviorState_ = currentStep->behaviorState;
+        stateMachine_->handle(CreateEvent(*currentStep));
+    }
+
+    std::visit([&](auto statePtr) { statePtr->update(componentContext_.time_.deltaTime); }, stateMachine_->currentState);
+}
+void RoutineComponent::RegisterProfession(ProfessionComponent& component)
+{
+    LOG_DEBUG << "RegisterProfession: " << component.GetTypeName() << " " << thisObject_.GetName();
+    context.profession_ = &component;
 }
 
 void RoutineComponent::AddStep(const RoutineStep& step)
@@ -133,8 +195,7 @@ std::optional<RoutineStep> RoutineComponent::UpdateAndGetCurrentStep(const vec2i
         return std::nullopt;
     }
 
-    std::sort(schedule_.begin(), schedule_.end(),
-              [](const RoutineStep& a, const RoutineStep& b)
+    std::sort(schedule_.begin(), schedule_.end(), [](const RoutineStep& a, const RoutineStep& b)
               { return a.GetMinutesFromStartOfDay() < b.GetMinutesFromStartOfDay(); });
 
     RoutineStep foundStep = schedule_.back();
@@ -151,6 +212,18 @@ std::optional<RoutineStep> RoutineComponent::UpdateAndGetCurrentStep(const vec2i
     debugTargetPosition_ = foundStep.targetPosition;
 
     return foundStep;
+}
+
+void RoutineComponent::HandleEvent(const RoutineAIEvent& event)
+{
+    if (stateMachine_)
+    {
+        stateMachine_->handle(event);
+    }
+}
+
+void RoutineComponent::UpdateStateMachine(float deltaTime)
+{
 }
 
 void RoutineComponent::read(const TreeNode& node)

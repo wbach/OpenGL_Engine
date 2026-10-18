@@ -7,45 +7,32 @@ namespace GameEngine
 {
 namespace Components
 {
-
-struct ShiftStarted
+struct WorkStarted
 {
-    glm::vec3 workLocation;
+    vec3 workLocation;
 };
 
-struct ShiftEnded
+struct MealStarted
 {
+    vec3 foodSource;
 };
 
-struct HungerThresholdReached
-{
-    glm::vec3 preferredFoodSource;
-};
-
-struct MealFinished
+struct SleepStarted
 {
 };
 
-struct FatigueThresholdReached
+struct RestStarted
 {
 };
 
-struct WakeUp
+struct Suspend
 {
 };
 
-struct UnderAttack
+struct Resume
 {
-    unsigned int attackerId;
 };
 
-struct WeatherChanged
-{
-    bool isRaining;
-};
-
-using RoutineAIEvent = std::variant<ShiftStarted, ShiftEnded, HungerThresholdReached, MealFinished, FatigueThresholdReached,
-                                    WakeUp, UnderAttack, WeatherChanged>;
-
+using RoutineAIEvent = std::variant<WorkStarted, MealStarted, SleepStarted, Suspend, Resume, RestStarted>;
 }  // namespace Components
 }  // namespace GameEngine

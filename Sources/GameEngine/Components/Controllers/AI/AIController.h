@@ -59,8 +59,6 @@ public:
     }
 
     const std::vector<vec3>& getCurrentPath() const;
-    void RegisterProfession(ProfessionComponent&);
-
     float getAttackRadius() const;
 
 private:
@@ -77,7 +75,6 @@ private:
     HealthComponent* currentTargetHealthComponent{nullptr};
     CharacterStatsComponent* myStats{nullptr};
     RoutineComponent* routineComponent_{nullptr};
-    ProfessionComponent* profession_{nullptr};
 
 private:
     struct Impl;

@@ -1,9 +1,10 @@
 #pragma once
 #include <Utils/Fsm/Fsm.h>
 
-#include "States/RoutineState.h"
-#include "States/QuestState.h"
 #include "States/DeadState.h"
+#include "States/QuestState.h"
+#include "States/ReactionState.h"
+#include "States/RoutineState.h"
 
 namespace GameEngine
 {
@@ -13,6 +14,7 @@ namespace Components
 using IntentStateMachine =
     Utils::StateMachine::Fsm<
                             RoutineState,
+                            ReactionState,
                             QuestState,
                             DeadState
                             >;

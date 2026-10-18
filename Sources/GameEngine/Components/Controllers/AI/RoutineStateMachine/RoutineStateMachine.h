@@ -5,6 +5,7 @@
 #include "States/EatState.h"
 #include "States/RestState.h"
 #include "States/SleepState.h"
+#include "States/SuspendedState.h"
 
 namespace GameEngine
 {
@@ -16,7 +17,8 @@ using RoutineStateMachine =
                             WorkState,
                             RestState,
                             EatState,
-                            SleepState
+                            SleepState,
+                            SuspendedState
                             >;
 }
 // clang-format on

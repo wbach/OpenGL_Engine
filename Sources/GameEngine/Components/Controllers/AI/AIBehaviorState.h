@@ -4,9 +4,10 @@ namespace GameEngine
 {
 enum class AIBehaviorState : int
 {
-    Idle,
+    None,
     Work,
     Eat,
-    Sleep
+    Sleep,
+    Rest
 };
 }

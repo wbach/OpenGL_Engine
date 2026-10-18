@@ -10,12 +10,16 @@ namespace Components
 class WorkState;
 class EatState;
 class SleepState;
+class SuspendState;
 
 class RestState : public Utils::StateMachine::Will<
                       Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-                      Utils::StateMachine::On<ShiftStarted, Utils::StateMachine::TransitionTo<WorkState>>,
-                      Utils::StateMachine::On<HungerThresholdReached, Utils::StateMachine::TransitionTo<EatState>>,
-                      Utils::StateMachine::On<FatigueThresholdReached, Utils::StateMachine::TransitionTo<SleepState>>>
+                      Utils::StateMachine::On<WorkStarted, Utils::StateMachine::TransitionTo<WorkState>>,
+                      Utils::StateMachine::On<MealStarted, Utils::StateMachine::TransitionTo<EatState>>,
+                      Utils::StateMachine::On<SleepStarted, Utils::StateMachine::TransitionTo<SleepState>>,
+                      Utils::StateMachine::On<Suspend, Utils::StateMachine::TransitionTo<SuspendState>>,
+                      Utils::StateMachine::On<Resume, Utils::StateMachine::TransitionTo<RestState>>,
+                      Utils::StateMachine::On<RestStarted, Utils::StateMachine::TransitionTo<RestState>>>
 {
 public:
     void onEnter()

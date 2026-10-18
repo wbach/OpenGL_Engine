@@ -54,8 +54,8 @@ struct ScheduleUpdated
     uint8_t newHour{0};
 };
 
-using MindAIEvent= std::variant<DamageTaken, TargetSpotted, NoiseHeard, TargetLost, LowHealthReached, MoraleBroken,
-                                        PathBlocked, ThreatCleared, ScheduleUpdated>;
+using ReactionAIEvent = std::variant<DamageTaken, TargetSpotted, NoiseHeard, TargetLost, LowHealthReached, MoraleBroken,
+                                      PathBlocked, ThreatCleared, ScheduleUpdated>;
 
 }  // namespace Components
 }  // namespace GameEngine

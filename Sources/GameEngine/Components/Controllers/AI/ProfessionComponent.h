@@ -5,7 +5,9 @@ namespace GameEngine
 {
 namespace Components
 {
+class RoutineComponent;
 class AIController;
+
 class ProfessionComponent : public ComponentCore
 {
 public:
@@ -15,6 +17,7 @@ public:
     virtual void ExecuteWork(const vec3&) = 0;
 
 protected:
+    RoutineComponent* routineComponent{nullptr};
     AIController* controller{nullptr};
 };
 }  // namespace Components

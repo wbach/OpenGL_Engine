@@ -1,7 +1,7 @@
 #pragma once
 #include <Utils/Fsm/Actions.h>
 
-#include "../MindAIEvenets.h"
+#include "../ReactionAIEvents.h"
 
 namespace GameEngine
 {
