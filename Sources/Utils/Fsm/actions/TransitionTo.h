@@ -34,10 +34,10 @@ public:
             return;
         }
 
-        #ifdef NOREALTIME_LOG_ENABLED
+        //#ifdef NOREALTIME_LOG_ENABLED
         LOG_DEBUG << "PrevState : " << typeName<State>();
         LOG_DEBUG << "Entering : " << typeName<TargetState>();
-        #endif
+        //#endif
 
         leave(prevState);
         leave(prevState, event);

@@ -1,6 +1,8 @@
 #pragma once
 #include <Utils/Fsm/Actions.h>
 
+#include "../../ReactionStateMachine/ReactionStateMachine.h"
+
 namespace GameEngine
 {
 namespace Components
@@ -8,12 +10,14 @@ namespace Components
 class ReactionState : public Utils::StateMachine::Will<Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>>
 {
 public:
-    void onEnter()
-    {
-    }
-    void update(float)
-    {
-    }
+    ReactionState();
+    void onEnter();
+    void onEnter(const ReactionAIEvent&);
+    void update(float);
+    void onLeave();
+
+private:
+    std::unique_ptr<ReactionStateMachine> reactionStateMachine_;
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -72,7 +72,8 @@ void AIController::CleanUp()
 }
 void AIController::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::OnStart, [this]() { Init(); }, MakeDependencies<CharacterController>());
+    RegisterFunction(
+        FunctionType::OnStart, [this]() { Init(); }, MakeDependencies<CharacterController>());
     RegisterFunction(FunctionType::Update, [this]() { Update(); });
 }
 void AIController::Reload()
@@ -102,9 +103,11 @@ void AIController::Init()
     impl->stateMachine_ = std::make_unique<ActionStateMachine>(AIAmbientState{}, AIChaseState{context}, AIReturnState{context},
                                                                AIAttackState{context}, AIMoveToState{context});
 
-    impl->reactionStateMachine_   = std::make_unique<ReactionStateMachine>();
-    impl->intentStateMachine_ = std::make_unique<IntentStateMachine>();
-    routineComponent_ = thisObject_.GetComponent<RoutineComponent>();
+    routineComponent_           = thisObject_.GetComponent<RoutineComponent>();
+
+
+    impl->intentStateMachine_ =
+        std::make_unique<IntentStateMachine>(RoutineState{routineComponent_}, ReactionState{}, QuestState{}, DeadState{});
 
     LOG_DEBUG << thisObject_.GetName() << " RoutineComponent " << (routineComponent_ != nullptr);
 }
