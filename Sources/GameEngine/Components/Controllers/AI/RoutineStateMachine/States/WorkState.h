@@ -10,7 +10,7 @@ namespace Components
 class RestState;
 class EatState;
 class SleepState;
-class SuspendState;
+class SuspendedState;
 class ProfessionComponent;
 
 struct RoutineContext;
@@ -20,7 +20,7 @@ class WorkState
                                        Utils::StateMachine::On<WorkStarted, Utils::StateMachine::Update>,
                                        Utils::StateMachine::On<MealStarted, Utils::StateMachine::TransitionTo<EatState>>,
                                        Utils::StateMachine::On<SleepStarted, Utils::StateMachine::TransitionTo<SleepState>>,
-                                       Utils::StateMachine::On<Suspend, Utils::StateMachine::TransitionTo<SuspendState>>,
+                                       Utils::StateMachine::On<Suspend, Utils::StateMachine::TransitionTo<SuspendedState>>,
                                        Utils::StateMachine::On<Resume, Utils::StateMachine::TransitionTo<WorkState>>,
                                        Utils::StateMachine::On<RestStarted, Utils::StateMachine::TransitionTo<RestState>>>
 {

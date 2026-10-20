@@ -14,7 +14,7 @@ class ReactionState;
 
 class QuestState
     : public Utils::StateMachine::Will<Utils::StateMachine::On<QuestEnded, Utils::StateMachine::TransitionTo<RoutineState>>,
-                                       Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeadState>>,
+                                       Utils::StateMachine::On<EntityDiedEvent, Utils::StateMachine::TransitionTo<DeadState>>,
                                        Utils::StateMachine::On<ReactionAIEvent, Utils::StateMachine::TransitionTo<ReactionState>>,
                                        Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>>
 {

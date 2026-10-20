@@ -34,5 +34,6 @@ struct Resume
 };
 
 using RoutineAIEvent = std::variant<WorkStarted, MealStarted, SleepStarted, Suspend, Resume, RestStarted>;
+
 }  // namespace Components
 }  // namespace GameEngine

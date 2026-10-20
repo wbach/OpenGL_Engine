@@ -1,13 +1,22 @@
 #include <GameEngine/Components/Controllers/AI/IntentStateMachine/IntentStateEvents.h>
 #include <GameEngine/Components/Controllers/AI/IntentStateMachine/IntentStateMachine.h>
 #include <GameEngine/Components/Controllers/AI/ReactionStateMachine/ReactionAIEvents.h>
+#include <GameEngine/Components/Controllers/AI/RoutineComponent.h>
+#include "Tests/UT/Components/BaseComponent.h"
 #include <gtest/gtest.h>
 
+using namespace GameEngine;
 using namespace GameEngine::Components;
 
-struct IntentStateMachineTests : public ::testing::Test
+struct IntentStateMachineTests : public BaseComponentTestSchould
 {
-    IntentStateMachine sut_{RoutineState{nullptr}, ReactionState{}, QuestState{}, DeadState{}};
+    RoutineComponent routineComponent_;
+    IntentStateMachine sut_;
+
+    IntentStateMachineTests() : BaseComponentTestSchould(),
+                                  routineComponent_(context_, *obj_),
+                                  sut_(RoutineState(&routineComponent_), ReactionState{}, QuestState{}, DeadState{})
+    {}
 
     template <typename State>
     void expectState()
@@ -35,7 +44,7 @@ TEST_F(IntentStateMachineTests, Routine_QuestTriggered_GoesToQuest)
 
 TEST_F(IntentStateMachineTests, Routine_DeathEvent_GoesToDead)
 {
-    handle(DeathEvent{});
+    handle(EntityDiedEvent{});
     expectState<DeadState>();
 }
 
@@ -43,6 +52,7 @@ TEST_F(IntentStateMachineTests, Routine_ReactionAIEvent_GoesToReaction)
 {
     handle(ReactionAIEvent{NoiseHeard{}});
     expectState<ReactionState>();
+    EXPECT_TRUE(routineComponent_.IsRoutineStateOfType<SuspendedState>());
 }
 
 TEST_F(IntentStateMachineTests, Routine_UnrelatedEvents_StayInRoutine)
@@ -60,10 +70,10 @@ TEST_F(IntentStateMachineTests, Quest_QuestEnded_GoesToRoutine)
     expectState<RoutineState>();
 }
 
-TEST_F(IntentStateMachineTests, Quest_DeathEvent_GoesToDead)
+TEST_F(IntentStateMachineTests, Quest_EntityDiedEvent_GoesToDead)
 {
     handle(QuestTriggered{});
-    handle(DeathEvent{});
+    handle(EntityDiedEvent{});
     expectState<DeadState>();
 }
 
@@ -88,7 +98,7 @@ TEST_F(IntentStateMachineTests, Reaction_NoIntentTransitionsYet)
 
 TEST_F(IntentStateMachineTests, Dead_IsTerminal)
 {
-    handle(DeathEvent{});
+    handle(EntityDiedEvent{});
 
     handle(QuestTriggered{});
     handle(QuestEnded{});

@@ -29,7 +29,12 @@ void RoutineState::onLeave()
 {
     if (routineComponent_)
     {
+        LOG_DEBUG << "Suspend";
         routineComponent_->HandleEvent(Suspend{});
+    }
+    else
+    {
+        LOG_WARN << "routineComponent not set";
     }
 }
 }  // namespace Components

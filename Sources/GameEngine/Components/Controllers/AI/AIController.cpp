@@ -45,7 +45,6 @@ constexpr char CSTR_TARGETING_MODE[]   = "targetingMode";
 struct AIController::Impl
 {
     std::unique_ptr<ActionStateMachine> stateMachine_;
-    std::unique_ptr<ReactionStateMachine> reactionStateMachine_;
     std::unique_ptr<IntentStateMachine> intentStateMachine_;
     std::unique_ptr<AIControllerContext> controllerContext_;
 
@@ -72,8 +71,7 @@ void AIController::CleanUp()
 }
 void AIController::ReqisterFunctions()
 {
-    RegisterFunction(
-        FunctionType::OnStart, [this]() { Init(); }, MakeDependencies<CharacterController>());
+    RegisterFunction(FunctionType::OnStart, [this]() { Init(); }, MakeDependencies<CharacterController>());
     RegisterFunction(FunctionType::Update, [this]() { Update(); });
 }
 void AIController::Reload()
@@ -103,8 +101,7 @@ void AIController::Init()
     impl->stateMachine_ = std::make_unique<ActionStateMachine>(AIAmbientState{}, AIChaseState{context}, AIReturnState{context},
                                                                AIAttackState{context}, AIMoveToState{context});
 
-    routineComponent_           = thisObject_.GetComponent<RoutineComponent>();
-
+    routineComponent_ = thisObject_.GetComponent<RoutineComponent>();
 
     impl->intentStateMachine_ =
         std::make_unique<IntentStateMachine>(RoutineState{routineComponent_}, ReactionState{}, QuestState{}, DeadState{});
@@ -168,16 +165,7 @@ void AIController::processEvent()
 }
 void AIController::handleEvent(const AIEvent& aiEvent)
 {
-    std::visit(visitor{[&](const ReactionAIEvent& event)
-                       {
-                           auto passEventToMachine = [&](const auto& e)
-                           {
-                               LOG_DEBUG << Utils::GetTypeName(e);
-                               impl->reactionStateMachine_->handle(e);
-                           };
-                           std::visit(passEventToMachine, event);
-                       },
-                       [&](const IntentAIEvent& event)
+    std::visit(visitor{[&](const IntentAIEvent& event)
                        {
                            auto passEventToMachine = [&](const auto& e)
                            {

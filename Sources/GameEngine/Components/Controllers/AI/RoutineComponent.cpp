@@ -218,7 +218,16 @@ void RoutineComponent::HandleEvent(const RoutineAIEvent& event)
 {
     if (stateMachine_)
     {
-        stateMachine_->handle(event);
+        auto passEventToMachine = [&](const auto& e)
+        {
+            LOG_DEBUG << Utils::GetTypeName(e);
+            stateMachine_->handle(e);
+        };
+        std::visit(passEventToMachine, event);
+    }
+    else
+    {
+        LOG_WARN << "No stateMachine";
     }
 }
 

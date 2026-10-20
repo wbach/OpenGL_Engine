@@ -7,6 +7,6 @@ namespace GameEngine
 {
 namespace Components
 {
-using AIEvent = std::variant<ReactionAIEvent, ActionAIEvent, IntentAIEvent>;
+using AIEvent = std::variant<ActionAIEvent, IntentAIEvent>;
 }
 }  // namespace GameEngine

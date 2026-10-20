@@ -16,10 +16,10 @@ struct QuestEnded
 struct ThreatEnded
 {
 };
-struct DeathEvent
+struct EntityDiedEvent
 {
 };
-using IntentAIEvent = std::variant<QuestTriggered, QuestEnded, ThreatEnded, DeathEvent>;
+using IntentAIEvent = std::variant<QuestTriggered, QuestEnded, ThreatEnded, EntityDiedEvent>;
 
 }  // namespace Components
 }  // namespace GameEngine

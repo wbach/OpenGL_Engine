@@ -53,6 +53,13 @@ public:
     void HandleEvent(const RoutineAIEvent&);
     void UpdateStateMachine(float);
 
+    template <typename T>
+    bool IsRoutineStateOfType() const
+    {
+        return stateMachine_ ? stateMachine_->isCurrentStateOfType<T>() : false;
+    }
+    AIBehaviorState GetCurrentBehaviorState() const { return currentBehaviorState_; }
+
 private:
     void InitializeEditorStructures();
     RoutineAIEvent CreateEvent(const RoutineStep&);

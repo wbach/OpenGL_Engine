@@ -16,7 +16,7 @@ class RoutineComponent;
 
 class RoutineState
     : public Utils::StateMachine::Will<Utils::StateMachine::On<QuestTriggered, Utils::StateMachine::TransitionTo<QuestState>>,
-                                       Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeadState>>,
+                                       Utils::StateMachine::On<EntityDiedEvent, Utils::StateMachine::TransitionTo<DeadState>>,
                                        Utils::StateMachine::On<ReactionAIEvent, Utils::StateMachine::TransitionTo<ReactionState>>,
                                        Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>>
 {
