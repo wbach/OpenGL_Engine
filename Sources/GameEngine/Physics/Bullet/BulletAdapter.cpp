@@ -113,7 +113,18 @@ BulletAdapter::BulletAdapter()
 BulletAdapter::~BulletAdapter()
 {
     LOG_DEBUG << "destructor";
-    impl_->rigidbodies.foreach ([&](auto, auto& body) { btDynamicWorld->removeRigidBody(body.btRigidbody_.get()); });
+
+    if (btDynamicWorld)
+    {
+        impl_->rigidbodies.foreach (
+            [&](auto, auto& body)
+            {
+                if (body.btRigidbody_)
+                {
+                    btDynamicWorld->removeRigidBody(body.btRigidbody_.get());
+                }
+            });
+    }
     impl_->rigidbodies.clear();
 
     EngineConf.debugParams.visualizationTerrainShapeInPhysicsDebugDraw.unsubscribe(terrainShapeVisualizationConfigParamSubId);
@@ -342,6 +353,11 @@ void BulletAdapter::SetVelocityRigidbody(const RigidbodyId& rigidBodyId, const v
 {
     if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
     {
+        if (!rigidbody->btRigidbody_)
+        {
+            LOG_ERROR << "Invalid rigidbody in SetVelocityRigidbody";
+            return;
+        }
         rigidbody->btRigidbody_->setLinearVelocity(Convert(velocity));
     }
 }
@@ -350,6 +366,11 @@ void BulletAdapter::ApplyImpulse(const RigidbodyId& rigidBodyId, const vec3& imp
 {
     if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
     {
+        if (!rigidbody->btRigidbody_)
+        {
+            LOG_ERROR << "Invalid rigidbody in ApplyImpulse";
+            return;
+        }
         rigidbody->btRigidbody_->applyCentralImpulse(Convert(impulse));
     }
 }
@@ -357,6 +378,11 @@ void BulletAdapter::IncreaseVelocityRigidbody(const RigidbodyId& rigidBodyId, co
 {
     if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
     {
+        if (!rigidbody->btRigidbody_)
+        {
+            LOG_ERROR << "Invalid rigidbody in IncreaseVelocityRigidbody";
+            return;
+        }
         const auto& v = rigidbody->btRigidbody_->getLinearVelocity();
         rigidbody->btRigidbody_->setLinearVelocity(v + Convert(velocity));
     }
@@ -365,6 +391,11 @@ std::optional<vec3> BulletAdapter::GetVelocity(const RigidbodyId& rigidBodyId)
 {
     if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
     {
+        if (!rigidbody->btRigidbody_)
+        {
+            LOG_ERROR << "Invalid rigidbody in GetVelocity";
+            return std::nullopt;
+        }
         return Convert(rigidbody->btRigidbody_->getLinearVelocity());
     }
 
@@ -374,9 +405,14 @@ void BulletAdapter::SetAngularFactor(const RigidbodyId& rigidBodyId, float value
 {
     if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
     {
+        if (!rigidbody->btRigidbody_)
+        {
+            LOG_ERROR << "Invalid rigidbody in SetAngularFactor";
+            return;
+        }
         if (compare(value, 0.f))
         {
-            /* LOG TO FIX*/ LOG_ERROR << ("DISABLE_DEACTIVATION btRigidbody_ : " + std::to_string(*rigidBodyId));
+            LOG_WARN << "DISABLE_DEACTIVATION btRigidbody_ : " << *rigidBodyId;
             rigidbody->btRigidbody_->setActivationState(DISABLE_DEACTIVATION);
         }
         rigidbody->btRigidbody_->setAngularFactor(value);
@@ -387,9 +423,14 @@ void BulletAdapter::SetAngularFactor(const RigidbodyId& rigidBodyId, const vec3&
 {
     if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
     {
+        if (!rigidbody->btRigidbody_)
+        {
+            LOG_ERROR << "Invalid rigidbody in SetAngularFactor";
+            return;
+        }
         if (compare(value.x, 0.f) and compare(value.y, 0.f) and compare(value.z, 0.f))
         {
-            /* LOG TO FIX*/ LOG_ERROR << ("DISABLE_DEACTIVATION btRigidbody_ : " + std::to_string(*rigidBodyId));
+            LOG_WARN << "DISABLE_DEACTIVATION btRigidbody_ : " << *rigidBodyId;
             rigidbody->btRigidbody_->setActivationState(DISABLE_DEACTIVATION);
         }
         rigidbody->btRigidbody_->setAngularFactor(Convert(value));
@@ -400,6 +441,11 @@ std::optional<vec3> BulletAdapter::GetAngularFactor(const RigidbodyId& rigidBody
 {
     if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
     {
+        if (!rigidbody->btRigidbody_)
+        {
+            LOG_ERROR << "Invalid rigidbody in GetAngularFactor";
+            return std::nullopt;
+        }
         return Convert(rigidbody->btRigidbody_->getAngularFactor());
     }
     return std::nullopt;
@@ -408,7 +454,7 @@ void BulletAdapter::RemoveRigidBodyImpl(const RigidbodyId& rigidBodyId)
 {
     if (not rigidBodyId)
     {
-        LOG_ERROR << "Ivalid rigidbody: " << rigidBodyId;
+        LOG_ERROR << "Invalid rigidbody: " << rigidBodyId;
         return;
     }
 
@@ -452,7 +498,7 @@ void BulletAdapter::RemoveShape(const ShapeId& shapeId)
         {
             if (not shapeId)
             {
-                LOG_ERROR << "Ivalid shapeId: " << shapeId;
+                LOG_ERROR << "Invalid shapeId: " << shapeId;
                 return;
             }
 
@@ -462,7 +508,6 @@ void BulletAdapter::RemoveShape(const ShapeId& shapeId)
                 LOG_WARN << "Shape removal without deleting rigidbody!";
             }
 
-            std::unordered_map<uint32, Rigidbody>::iterator iter;
             impl_->shapes_.erase(*shapeId);
         });
 }
@@ -476,6 +521,11 @@ void BulletAdapter::SetRotation(const RigidbodyId& rigidBodyId, const vec3& rota
         {
             if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
             {
+                if (!rigidbody->btRigidbody_)
+                {
+                    LOG_ERROR << "Invalid rigidbody in SetRotation";
+                    return;
+                }
                 rigidbody->btRigidbody_->getWorldTransform().setRotation(qt);
                 btDynamicWorld->updateSingleAabb(rigidbody->btRigidbody_.get());
             }
@@ -488,6 +538,11 @@ void BulletAdapter::SetRotation(const RigidbodyId& rigidBodyId, const Quaternion
         {
             if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
             {
+                if (!rigidbody->btRigidbody_)
+                {
+                    LOG_ERROR << "Invalid rigidbody in SetRotation";
+                    return;
+                }
                 rigidbody->btRigidbody_->getWorldTransform().setRotation(Convert(rotation));
                 btDynamicWorld->updateSingleAabb(rigidbody->btRigidbody_.get());
             }
@@ -500,6 +555,11 @@ void BulletAdapter::SetPosition(const RigidbodyId& rigidBodyId, const vec3& posi
         {
             if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
             {
+                if (!rigidbody->btRigidbody_)
+                {
+                    LOG_ERROR << "Invalid rigidbody in SetPosition";
+                    return;
+                }
                 rigidbody->btRigidbody_->getWorldTransform().setOrigin(Convert(position));
                 btDynamicWorld->updateSingleAabb(rigidbody->btRigidbody_.get());
             }
@@ -513,6 +573,11 @@ void BulletAdapter::Translate(const RigidbodyId& rigidBodyId, const vec3& vector
         {
             if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
             {
+                if (!rigidbody->btRigidbody_)
+                {
+                    LOG_ERROR << "Invalid rigidbody in Translate";
+                    return;
+                }
                 // rigidbody->btRigidbody_->translate(Convert(vector));
                 auto o = rigidbody->btRigidbody_->getWorldTransform().getOrigin();
                 rigidbody->btRigidbody_->getWorldTransform().setOrigin(o + Convert(vector));
@@ -521,22 +586,21 @@ void BulletAdapter::Translate(const RigidbodyId& rigidBodyId, const vec3& vector
         });
 }
 
-void BulletAdapter::SetRigidbodyScale(const RigidbodyId& rigidBodyId, const vec3& position)
+void BulletAdapter::SetRigidbodyScale(const RigidbodyId& rigidBodyId, const vec3& scale)
 {
     if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
     {
         auto maybeShape = impl_->shapes_.get(rigidbody->shapeId);
         if (maybeShape)
         {
-            (*maybeShape)->btShape_->setLocalScaling(Convert(position));
+            (*maybeShape)->btShape_->setLocalScaling(Convert(scale));
         }
 
-        rigidbody->btRigidbody_->getWorldTransform().setOrigin(Convert(position));
         btDynamicWorld->updateSingleAabb(rigidbody->btRigidbody_.get());
     }
 }
 
-void BulletAdapter::SetShapeScale(const ShapeId& shapeId, const vec3& position)
+void BulletAdapter::SetShapeScale(const ShapeId& shapeId, const vec3& scale)
 {
     if (not shapeId)
     {
@@ -547,7 +611,7 @@ void BulletAdapter::SetShapeScale(const ShapeId& shapeId, const vec3& position)
     auto maybeShape = impl_->shapes_.get(*shapeId);
     if (maybeShape)
     {
-        (*maybeShape)->btShape_->setLocalScaling(Convert(position));
+        (*maybeShape)->btShape_->setLocalScaling(Convert(scale));
     }
 }
 
@@ -555,6 +619,11 @@ std::optional<Quaternion> BulletAdapter::GetRotation(const RigidbodyId& rigidBod
 {
     if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
     {
+        if (!rigidbody->btRigidbody_)
+        {
+            LOG_ERROR << "Invalid rigidbody in GetRotation";
+            return std::nullopt;
+        }
         return Convert(rigidbody->btRigidbody_->getWorldTransform().getRotation());
     }
     return std::nullopt;
@@ -564,6 +633,11 @@ std::optional<common::Transform> BulletAdapter::GetTransfrom(const RigidbodyId& 
 {
     if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
     {
+        if (!rigidbody->btRigidbody_)
+        {
+            LOG_ERROR << "Invalid rigidbody in GetTransform";
+            return std::nullopt;
+        }
         return Convert(rigidbody->btRigidbody_->getWorldTransform());
     }
     return std::nullopt;
@@ -593,6 +667,11 @@ void BulletAdapter::enableVisualizatedRigidbody(const RigidbodyId& rigidBodyId)
 {
     if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
     {
+        if (!rigidbody->btRigidbody_)
+        {
+            LOG_ERROR << "Invalid rigidbody in enableVisualizatedRigidbody";
+            return;
+        }
         auto& body = *rigidbody->btRigidbody_;
         body.setCollisionFlags(body.getCollisionFlags() & (~btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT));
     }
@@ -601,6 +680,11 @@ void BulletAdapter::disableVisualizatedRigidbody(const RigidbodyId& rigidBodyId)
 {
     if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
     {
+        if (!rigidbody->btRigidbody_)
+        {
+            LOG_ERROR << "Invalid rigidbody in disableVisualizatedRigidbody";
+            return;
+        }
         auto& body = *rigidbody->btRigidbody_;
         body.setCollisionFlags(body.getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
     }
@@ -664,17 +748,36 @@ CollisionContactInfos BulletAdapter::contactTest(const Rigidbody& rigidbody)
 }
 void BulletAdapter::createWorld()
 {
+    if (btDynamicWorld)
+    {
+        LOG_WARN << "Physics world already initialized, skipping creation";
+        return;
+    }
+
     collisionConfiguration = std::make_unique<btDefaultCollisionConfiguration>();
     btDispacher            = std::make_unique<btCollisionDispatcher>(collisionConfiguration.get());
     btBroadPhase           = std::make_unique<btDbvtBroadphase>();
     btSolver               = std::make_unique<btSequentialImpulseConstraintSolver>();
     btDynamicWorld         = std::make_unique<btDiscreteDynamicsWorld>(btDispacher.get(), btBroadPhase.get(), btSolver.get(),
                                                                        collisionConfiguration.get());
+    if (!btDynamicWorld)
+    {
+        LOG_ERROR << "Failed to create physics world!";
+        return;
+    }
+
     btDynamicWorld->setGravity(btVector3(0, -10, 0));
 
     bulletDebugDrawer_ = std::make_unique<BulletDebugDrawer>();
-    bulletDebugDrawer_->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
-    btDynamicWorld->setDebugDrawer(bulletDebugDrawer_.get());
+    if (bulletDebugDrawer_)
+    {
+        bulletDebugDrawer_->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
+        btDynamicWorld->setDebugDrawer(bulletDebugDrawer_.get());
+    }
+    else
+    {
+        LOG_WARN << "Failed to create debug drawer!";
+    }
 }
 
 void BulletAdapter::clearRigidbody(const Rigidbody& rigidbody)
@@ -779,6 +882,9 @@ void BulletAdapter::checkCollisions()
     impl_->collisionContactInfoSub_.foreach (
         [this, &idToRemove](auto subId, auto& sub)
         {
+            if (not sub.first)
+                return;
+
             auto& [rigidbody, collisionDetection] = sub;
             auto result                           = contactTest(*rigidbody);
 
@@ -787,33 +893,32 @@ void BulletAdapter::checkCollisions()
             // (e.g. ground detection) are not polluted by unrelated collisions like walls.
             if (not collisionDetection.ignoredList.empty() or collisionDetection.predicate)
             {
-                result = Utils::Filter(
-                    result,
-                    [&ignoredList = collisionDetection.ignoredList,
-                     predicate    = collisionDetection.predicate](const auto& collisionInfo)
-                    {
-                        if (not ignoredList.empty())
-                        {
-                            const bool isIgnored = std::any_of(
-                                ignoredList.begin(), ignoredList.end(),
-                                [&collisionInfo](auto ignoredRbId)
-                                {
-                                    return ignoredRbId == collisionInfo.rigidbodyId1 or
-                                           ignoredRbId == collisionInfo.rigidbodyId2;
-                                });
-                            if (isIgnored)
-                            {
-                                return true;
-                            }
-                        }
+                result = Utils::Filter(result,
+                                       [&ignoredList = collisionDetection.ignoredList,
+                                        predicate    = collisionDetection.predicate](const auto& collisionInfo)
+                                       {
+                                           if (not ignoredList.empty())
+                                           {
+                                               const bool isIgnored =
+                                                   std::any_of(ignoredList.begin(), ignoredList.end(),
+                                                               [&collisionInfo](auto ignoredRbId)
+                                                               {
+                                                                   return ignoredRbId == collisionInfo.rigidbodyId1 or
+                                                                          ignoredRbId == collisionInfo.rigidbodyId2;
+                                                               });
+                                               if (isIgnored)
+                                               {
+                                                   return true;
+                                               }
+                                           }
 
-                        if (predicate)
-                        {
-                            return not predicate(collisionInfo);
-                        }
+                                           if (predicate)
+                                           {
+                                               return not predicate(collisionInfo);
+                                           }
 
-                        return false;
-                    });
+                                           return false;
+                                       });
             }
 
             auto finalCallback = [&, cd = collisionDetection]
@@ -866,6 +971,12 @@ void BulletAdapter::checkCollisions()
 }
 void BulletAdapter::stepSimulation(float deltaTime)
 {
+    if (!btDynamicWorld)
+    {
+        LOG_ERROR << "Physics world not initialized!";
+        return;
+    }
+
     std::lock_guard<std::mutex> lk(dynamicWorldMutex);
     btDynamicWorld->stepSimulation(deltaTime, 1, deltaTime);
 }

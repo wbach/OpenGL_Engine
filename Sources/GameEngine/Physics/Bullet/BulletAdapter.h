@@ -3,15 +3,6 @@
 #include <optional>
 #include "Types.h"
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-overflow"
-#endif
-
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
-
 #include <memory>
 
 #include "GameEngine/Physics/IPhysicsApi.h"
