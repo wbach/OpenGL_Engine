@@ -368,17 +368,22 @@ void CharacterController::PostStart()
 
                 auto& papi = componentContext_.physicsApi_;
 
-                for (int y = -1; y <= 1; ++y)
+                // Check for ground more reliably by testing multiple positions 
+                // and ensuring we check the normal direction
+                std::vector<vec3> testPositions;
+                // Test center position first, then spread around to make sure we don't miss ground
+                testPositions.emplace_back(0.f, capsuleRadius, 0.f);
+                testPositions.emplace_back(capsuleRadius, capsuleRadius, 0.f);
+                testPositions.emplace_back(-capsuleRadius, capsuleRadius, 0.f);
+                testPositions.emplace_back(0.f, capsuleRadius, capsuleRadius);
+                testPositions.emplace_back(0.f, capsuleRadius, -capsuleRadius);
+                
+                for (const auto& offset : testPositions)
                 {
-                    for (int x = -1; x <= 1; ++x)
+                    if (isCollision(papi, characterPosition, offset))
                     {
-                        if (isCollision(papi, characterPosition,
-                                        vec3(capsuleRadius * static_cast<float>(x), capsuleRadius,
-                                             capsuleRadius * static_cast<float>(y))))
-                        {
-                            isAwayFromGround = false;
-                            break;
-                        }
+                        isAwayFromGround = false;
+                        break;
                     }
                 }
 
@@ -426,16 +431,31 @@ void CharacterController::PostStart()
                                         const auto& characterPosition     = thisObject_.GetWorldTransform().GetPosition();
                                         const auto characterPosWithOffset = characterPosition + vec3(0, capsuleRadius, 0);
 
+                                        // Only consider a collision as ground contact if it's below the character position
+                                        // This prevents wall collisions interfering with ground detection
+                                        bool isGroundContact = false;
+                                        
                                         if (rigidbody_->GetId() == collisionInfo.rigidbodyId1)
                                         {
-                                            return (collisionInfo.pos2.y <= characterPosWithOffset.y);
+                                            isGroundContact = (collisionInfo.pos2.y <= characterPosWithOffset.y);
                                         }
                                         else
                                         {
-                                            return (collisionInfo.pos1.y <= characterPosWithOffset.y);
+                                            isGroundContact = (collisionInfo.pos1.y <= characterPosWithOffset.y);
                                         }
+                                        
+                                        // Additional check: Make sure it's a collision that could reasonably be ground
+                                        // Check if the collision normal indicates a downward surface (ground-like)
+                                        // Collision normal points from rigidbodyId2 to rigidbodyId1, so we need to consider direction
+                                        vec3 collisionNormal = collisionInfo.normal;
+                                        
+                                        // Ground typically has a normal pointing up (y > 0), so if we're hitting something
+                                        // with normal close to upward direction, it's likely ground
+                                        const float groundThreshold = 0.7f; // Adjust as needed
+                                        isGroundContact = isGroundContact && (collisionNormal.y > groundThreshold);
+                                        
+                                        return isGroundContact;
                                     }});
-
     LOG_DEBUG << "PostStart end";
 }
 void CharacterController::processEvent()
