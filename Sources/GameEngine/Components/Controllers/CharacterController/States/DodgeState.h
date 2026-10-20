@@ -35,6 +35,7 @@ public:
     void update(float);
 
 private:
+    void onEnterDodge(const std::string& animName);
     void setAnimAndSubscribeForEnd(const std::string&);
     void setAnim(const std::string&);
 
