@@ -11,8 +11,8 @@ namespace GameEngine
 {
 namespace Components
 {
-MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName, const MoveSpeed &moveSpeed,
-                             const MovmentClipNames &clips)
+MoveStateBase::MoveStateBase(FsmContext& context, const std::optional<std::string>& jointGroupName, const MoveSpeed& moveSpeed,
+                             const MovmentClipNames& clips)
     : context_{context}
     , jointGroupName_{jointGroupName}
     , animationClips_{clips}
@@ -20,8 +20,8 @@ MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::strin
 {
 }
 
-MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName, float forwardMoveSpeed,
-                             const std::string &forwardAnimName)
+MoveStateBase::MoveStateBase(FsmContext& context, const std::optional<std::string>& jointGroupName, float forwardMoveSpeed,
+                             const std::string& forwardAnimName)
     : context_{context}
     , jointGroupName_{jointGroupName}
     , animationClips_{forwardAnimName}
@@ -29,48 +29,48 @@ MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::strin
 {
 }
 
-void MoveStateBase::onEnter(const AnimationPlayEndEvent &)
+void MoveStateBase::onEnter(const AnimationPlayEndEvent&)
 {
     setCurrentAnimIfNeeded();
 }
 
-void MoveStateBase::onEnter(const CrouchChangeStateEvent &)
+void MoveStateBase::onEnter(const CrouchChangeStateEvent&)
 {
     setCurrentAnimIfNeeded();
 }
 
-void MoveStateBase::onEnter(const SprintStateChangeEvent &)
+void MoveStateBase::onEnter(const SprintStateChangeEvent&)
 {
 }
 
-void MoveStateBase::onEnter(const MoveEvent &)
+void MoveStateBase::onEnter(const MoveEvent&)
 {
     setCurrentAnimIfNeeded();
 }
 
-void MoveStateBase::onEnter(const MoveForwardEvent &)
+void MoveStateBase::onEnter(const MoveForwardEvent&)
 {
     context_.moveController.moveForwad();
 }
-void MoveStateBase::onEnter(const MoveBackwardEvent &)
+void MoveStateBase::onEnter(const MoveBackwardEvent&)
 {
     context_.moveController.moveBackward();
 }
-void MoveStateBase::onEnter(const MoveLeftEvent &)
+void MoveStateBase::onEnter(const MoveLeftEvent&)
 {
     context_.moveController.moveLeft();
 }
 
-void MoveStateBase::onEnter(const MoveRightEvent &)
+void MoveStateBase::onEnter(const MoveRightEvent&)
 {
     context_.moveController.moveRight();
 }
 
-void MoveStateBase::onEnter(const GroundDetectionEvent &)
+void MoveStateBase::onEnter(const GroundDetectionEvent&)
 {
 }
 
-void MoveStateBase::onEnter(const WalkChangeStateEvent &)
+void MoveStateBase::onEnter(const WalkChangeStateEvent&)
 {
 }
 
@@ -79,24 +79,24 @@ void MoveStateBase::postEnter()
     setCurrentAnimIfNeeded();
 }
 
-bool MoveStateBase::leaveCondition(const EndForwardMoveEvent &)
+bool MoveStateBase::leaveCondition(const EndForwardMoveEvent&)
 {
     context_.moveController.endMoveForwad();
     return shouldLeaveAndSetCurrAnimIfNot();
 }
-bool MoveStateBase::leaveCondition(const EndBackwardMoveEvent &)
+bool MoveStateBase::leaveCondition(const EndBackwardMoveEvent&)
 {
     context_.moveController.endMoveBackward();
     return shouldLeaveAndSetCurrAnimIfNot();
 }
 
-bool MoveStateBase::leaveCondition(const EndMoveLeftEvent &)
+bool MoveStateBase::leaveCondition(const EndMoveLeftEvent&)
 {
     context_.moveController.endMoveLeft();
     return shouldLeaveAndSetCurrAnimIfNot();
 }
 
-bool MoveStateBase::leaveCondition(const EndMoveRightEvent &)
+bool MoveStateBase::leaveCondition(const EndMoveRightEvent&)
 {
     context_.moveController.endMoveRight();
     return shouldLeaveAndSetCurrAnimIfNot();
@@ -106,7 +106,7 @@ void MoveStateBase::onLeave()
 {
 }
 
-void MoveStateBase::changeAnimationClips(const MovmentClipNames &clips)
+void MoveStateBase::changeAnimationClips(const MovmentClipNames& clips)
 {
     if (clips != animationClips_)
     {
@@ -128,26 +128,26 @@ bool MoveStateBase::shouldLeaveAndSetCurrAnimIfNot()
     return true;
 }
 
-void MoveStateBase::update(const MoveForwardEvent &event)
+void MoveStateBase::update(const MoveForwardEvent& event)
 {
     onEnter(event);
 }
-void MoveStateBase::update(const MoveBackwardEvent &event)
-{
-    onEnter(event);
-}
-
-void MoveStateBase::update(const MoveLeftEvent &event)
+void MoveStateBase::update(const MoveBackwardEvent& event)
 {
     onEnter(event);
 }
 
-void MoveStateBase::update(const MoveRightEvent &event)
+void MoveStateBase::update(const MoveLeftEvent& event)
 {
     onEnter(event);
 }
 
-void MoveStateBase::update(const SprintStateChangeEvent &event)
+void MoveStateBase::update(const MoveRightEvent& event)
+{
+    onEnter(event);
+}
+
+void MoveStateBase::update(const SprintStateChangeEvent& event)
 {
     onEnter(event);
 }
@@ -191,7 +191,7 @@ void MoveStateBase::setCurrentAnimIfNeeded()
     }
 }
 
-void MoveStateBase::setAnim(const std::string &clipName)
+void MoveStateBase::setAnim(const std::string& clipName)
 {
     if (clipName.empty())
     {
@@ -218,18 +218,33 @@ void MoveStateBase::moveRigidbody()
     }
 
     auto moveDirection = glm::normalize(context_.moveController.getCurrentDir());
-    auto moveSpeed     = glm::length(
-            vec3(moveSpeed_.leftRight, 0, moveDirection.z > 0.5f ? moveSpeed_.forward : moveSpeed_.backward) * moveDirection);
 
-    if (moveSpeed < 0.00001f)
+    float speed = 0.0f;
+    if (context_.moveController.isMoving(MoveController::Direction::Forward))
     {
-        return;
+        speed = moveSpeed_.forward;
+    }
+    else if (context_.moveController.isMoving(MoveController::Direction::Backward))
+    {
+        speed = moveSpeed_.backward;
+    }
+    else
+    {
+        speed = moveSpeed_.leftRight;
     }
 
-    auto &rigidbody     = context_.rigidbody;
-    auto targetVelocity = rigidbody.GetRotation() * moveDirection * moveSpeed;
-    targetVelocity.y    = rigidbody.GetVelocity().y;
-    rigidbody.SetVelocity(targetVelocity);
+    auto& rigidbody = context_.rigidbody;
+
+    vec3 worldDirection = rigidbody.GetRotation() * vec4(moveDirection, 0.0f);
+    worldDirection.y    = 0.0f;
+
+    if (glm::length(worldDirection) > 0.00001f)
+    {
+        worldDirection      = glm::normalize(worldDirection);
+        auto targetVelocity = worldDirection * speed;
+        targetVelocity.y    = rigidbody.GetVelocity().y;
+        rigidbody.SetVelocity(targetVelocity);
+    }
 }
 
 }  // namespace Components
