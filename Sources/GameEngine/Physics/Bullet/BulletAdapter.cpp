@@ -781,22 +781,38 @@ void BulletAdapter::checkCollisions()
         {
             auto& [rigidbody, collisionDetection] = sub;
             auto result                           = contactTest(*rigidbody);
-            if (not collisionDetection.ignoredList.empty())
+
+            // Utils::Filter erases elements for which the predicate returns true.
+            // Always apply ignoredList / predicate when present so contact callbacks
+            // (e.g. ground detection) are not polluted by unrelated collisions like walls.
+            if (not collisionDetection.ignoredList.empty() or collisionDetection.predicate)
             {
                 result = Utils::Filter(
                     result,
                     [&ignoredList = collisionDetection.ignoredList,
                      predicate    = collisionDetection.predicate](const auto& collisionInfo)
                     {
-                        auto iter1 = std::find_if(
-                            ignoredList.begin(), ignoredList.end(), [&collisionInfo](auto ignoredRbId)
-                            { return ignoredRbId == collisionInfo.rigidbodyId1 or ignoredRbId == collisionInfo.rigidbodyId2; });
-                        auto result = (iter1 != ignoredList.end());
-                        if (result and predicate)
+                        if (not ignoredList.empty())
                         {
-                            return predicate(collisionInfo);
+                            const bool isIgnored = std::any_of(
+                                ignoredList.begin(), ignoredList.end(),
+                                [&collisionInfo](auto ignoredRbId)
+                                {
+                                    return ignoredRbId == collisionInfo.rigidbodyId1 or
+                                           ignoredRbId == collisionInfo.rigidbodyId2;
+                                });
+                            if (isIgnored)
+                            {
+                                return true;
+                            }
                         }
-                        return result;
+
+                        if (predicate)
+                        {
+                            return not predicate(collisionInfo);
+                        }
+
+                        return false;
                     });
             }
 

@@ -339,10 +339,36 @@ bool isCollision(Physics::IPhysicsApi& physicsApi, const vec3& characterPosition
 void CharacterController::PostStart()
 {
     LOG_DEBUG << "PostStart";
-    const auto& scale  = thisObject_.GetWorldTransform().GetScale();
+    const auto& scale = thisObject_.GetWorldTransform().GetScale();
 
     auto capsuleRadius = shapeSize_ / glm::compMax(vec2(scale.x, scale.z));
-        LOG_DEBUG << "PostStart2 " << scale;
+    LOG_DEBUG << "PostStart2 " << scale;
+
+    // Shared ground filter for enter/exit so wall contacts do not count as landing/leaving ground.
+    // Bullet's m_normalWorldOnB points from body B toward A; flip when the character is body B
+    // so the normal consistently points from the other object toward the character (up for floors).
+    auto isGroundContact = [&, capsuleRadius](const Physics::CollisionContactInfo& collisionInfo)
+    {
+        const auto& characterPosition     = thisObject_.GetWorldTransform().GetPosition();
+        const auto characterPosWithOffset = characterPosition + vec3(0, capsuleRadius, 0);
+        const bool characterIsBody1       = rigidbody_->GetId() == collisionInfo.rigidbodyId1;
+
+        const float contactY = characterIsBody1 ? collisionInfo.pos2.y : collisionInfo.pos1.y;
+        if (contactY > characterPosWithOffset.y)
+        {
+            return false;
+        }
+
+        vec3 collisionNormal = collisionInfo.normal;
+        if (not characterIsBody1)
+        {
+            collisionNormal = -collisionNormal;
+        }
+
+        constexpr float groundThreshold = 0.7f;
+        return collisionNormal.y > groundThreshold;
+    };
+
     // TO DO : this subcribtion will be invalide when rigibody is removed or deactivated. Use common system in controller for
     // handle state of dependencies
     groundExitSubId = componentContext_.physicsApi_.setCollisionCallback(
@@ -368,7 +394,7 @@ void CharacterController::PostStart()
 
                 auto& papi = componentContext_.physicsApi_;
 
-                // Check for ground more reliably by testing multiple positions 
+                // Check for ground more reliably by testing multiple positions
                 // and ensuring we check the normal direction
                 std::vector<vec3> testPositions;
                 // Test center position first, then spread around to make sure we don't miss ground
@@ -377,7 +403,7 @@ void CharacterController::PostStart()
                 testPositions.emplace_back(-capsuleRadius, capsuleRadius, 0.f);
                 testPositions.emplace_back(0.f, capsuleRadius, capsuleRadius);
                 testPositions.emplace_back(0.f, capsuleRadius, -capsuleRadius);
-                
+
                 for (const auto& offset : testPositions)
                 {
                     if (isCollision(papi, characterPosition, offset))
@@ -392,8 +418,10 @@ void CharacterController::PostStart()
                     pushEventToQueue(StartFallingEvent{});
                 }
             },
+            .ignoredList = {},
+            .predicate   = isGroundContact,
         });
-        LOG_DEBUG << "PostStart2 " << scale;
+    LOG_DEBUG << "PostStart2 " << scale;
     groundEnterSubId = componentContext_.physicsApi_.setCollisionCallback(
         rigidbody_->GetId(),
         Physics::CollisionDetection{.action = Physics::CollisionDetection::Action::onEnter,
@@ -403,59 +431,12 @@ void CharacterController::PostStart()
                                     {
                                         if (not collisionInfos.empty())
                                         {
-                                            for (const auto& collisionInfo : collisionInfos)
-                                            {
-                                                if (rigidbody_->GetId() == collisionInfo.rigidbodyId1)
-                                                {
-                                                    // LOG_DEBUG << "GroundDetectionEvent collisionWith: "
-                                                    //           << collisionInfo.rigidbodyId2;
-                                                    pushEventToFrontQueue(GroundDetectionEvent{});
-                                                    impl->fsmContext->isOnAir = false;
-                                                    break;
-                                                }
-                                                else
-                                                {
-                                                    // LOG_DEBUG << "GroundDetectionEvent collisionWith: "
-                                                    //           << collisionInfo.rigidbodyId1;
-                                                    pushEventToFrontQueue(GroundDetectionEvent{});
-                                                    impl->fsmContext->isOnAir = false;
-                                                    break;
-                                                }
-                                            }
+                                            pushEventToFrontQueue(GroundDetectionEvent{});
+                                            impl->fsmContext->isOnAir = false;
                                         }
                                     },
                                     .ignoredList = {},
-                                    .predicate =
-                                        [&, capsuleRadius](const auto& collisionInfo)
-                                    {
-                                        const auto& characterPosition     = thisObject_.GetWorldTransform().GetPosition();
-                                        const auto characterPosWithOffset = characterPosition + vec3(0, capsuleRadius, 0);
-
-                                        // Only consider a collision as ground contact if it's below the character position
-                                        // This prevents wall collisions interfering with ground detection
-                                        bool isGroundContact = false;
-                                        
-                                        if (rigidbody_->GetId() == collisionInfo.rigidbodyId1)
-                                        {
-                                            isGroundContact = (collisionInfo.pos2.y <= characterPosWithOffset.y);
-                                        }
-                                        else
-                                        {
-                                            isGroundContact = (collisionInfo.pos1.y <= characterPosWithOffset.y);
-                                        }
-                                        
-                                        // Additional check: Make sure it's a collision that could reasonably be ground
-                                        // Check if the collision normal indicates a downward surface (ground-like)
-                                        // Collision normal points from rigidbodyId2 to rigidbodyId1, so we need to consider direction
-                                        vec3 collisionNormal = collisionInfo.normal;
-                                        
-                                        // Ground typically has a normal pointing up (y > 0), so if we're hitting something
-                                        // with normal close to upward direction, it's likely ground
-                                        const float groundThreshold = 0.7f; // Adjust as needed
-                                        isGroundContact = isGroundContact && (collisionNormal.y > groundThreshold);
-                                        
-                                        return isGroundContact;
-                                    }});
+                                    .predicate   = isGroundContact});
     LOG_DEBUG << "PostStart end";
 }
 void CharacterController::processEvent()
