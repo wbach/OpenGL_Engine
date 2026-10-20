@@ -36,6 +36,7 @@
 #include "LinearMath/btVector3.h"
 #include "MeshShape.h"
 #include "Rigidbodies.h"
+#include "BulletMotionState.h"
 
 namespace GameEngine
 {
@@ -43,41 +44,6 @@ namespace Physics
 {
 namespace Bullet
 {
-namespace
-{
-class BulletMotionState : public btMotionState
-{
-public:
-    BulletMotionState(GameObject& go, const btVector3& offset, std::atomic_bool& isSynchronizing)
-        : go{go}
-        , offset(offset)
-        , isSynchronizing{isSynchronizing}
-    {
-    }
-
-    void getWorldTransform(btTransform& worldTrans) const override
-    {
-        btTransform graphicTrans;
-        graphicTrans.setOrigin(Convert(go.GetWorldTransform().GetPosition()));
-        graphicTrans.setRotation(Convert(go.GetWorldTransform().GetRotation().value_));
-        worldTrans = graphicTrans * btTransform(btQuaternion::getIdentity(), offset);
-    }
-
-    void setWorldTransform(const btTransform& worldTrans) override
-    {
-        isSynchronizing   = true;
-        auto graphicTrans = worldTrans * btTransform(btQuaternion::getIdentity(), offset).inverse();
-        go.SetWorldPositionRotation(Convert(graphicTrans.getOrigin()), Convert(graphicTrans.getRotation()));
-        isSynchronizing = false;
-    }
-
-private:
-    GameObject& go;
-    btVector3 offset;
-    std::atomic_bool& isSynchronizing;
-};
-}  // namespace
-
 struct BulletAdapter::Pimpl
 {
     Rigidbodies rigidbodies;

@@ -432,6 +432,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Objects/Prefab.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/Bach/BachPhysicsAdapter.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/BaseCollider.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/Bullet/BulletAdapter.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/Bullet/BulletMotionState.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/Bullet/CollisionFlags.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/Bullet/CollisionResultCallback.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/Bullet/Container.h
