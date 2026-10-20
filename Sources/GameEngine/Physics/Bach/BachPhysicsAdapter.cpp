@@ -2,17 +2,18 @@
 
 #include <Logger/Log.h>
 #include <Types.h>
+#include <Variant.h>
 
 #include <iomanip>
 #include <optional>
 #include <type_traits>
 #include <unordered_map>
-#include <variant>
 
 #include "Common/Transform.h"
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
+
 
 namespace GameEngine
 {
@@ -38,14 +39,6 @@ struct MeshShape
 struct BoxShape
 {
 };
-
-template <class... Ts>
-struct overloaded : Ts...
-{
-    using Ts::operator()...;
-};
-template <class... Ts>
-overloaded(Ts...) -> overloaded<Ts...>;
 
 typedef std::variant<TerrainShape, SphehreShape, MeshShape, BoxShape> Shape;
 
@@ -77,7 +70,7 @@ template <typename T>
 void collision(const Shape& collisionShape, const T& shape)
 {
     std::visit(
-        overloaded{
+        visitor{
             [&shape](const SphehreShape& arg) { collision(arg, shape); },
             [&shape](const TerrainShape& arg) { collision(arg, shape); },
             [&shape](const MeshShape& arg) { collision(arg, shape); },

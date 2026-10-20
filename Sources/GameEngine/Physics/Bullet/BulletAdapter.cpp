@@ -1,4 +1,6 @@
 #include "BulletAdapter.h"
+#include "ShapeFactory.h"
+#include "GameEngine/Physics/CollisionContactInfo.h"
 
 #include <IdPool.h>
 #include <Logger/Log.h>
@@ -10,17 +12,12 @@
 
 #include <algorithm>
 #include <atomic>
-#include <bitset>
 #include <functional>
 #include <magic_enum/magic_enum.hpp>
 #include <memory>
 #include <optional>
-#include <ranges>
-#include <unordered_map>
 #include <vector>
 
-#include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
-#include "BulletCollision/CollisionShapes/btShapeHull.h"
 #include "CollisionResultCallback.h"
 #include "Container.h"
 #include "Converter.h"
@@ -28,13 +25,11 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/Bullet/Rigidbody.h"
-#include "GameEngine/Physics/CollisionContactInfo.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Physics/PhysicsApiTypes.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "LinearMath/btVector3.h"
-#include "MeshShape.h"
 #include "Rigidbodies.h"
 #include "BulletMotionState.h"
 
@@ -116,121 +111,36 @@ void BulletAdapter::DisableSimulation()
 }
 ShapeId BulletAdapter::CreateBoxColider(const PositionOffset& positionOffset, const Scale& scale, const Size& size)
 {
-    auto id = impl_->shapes_.insert(std::make_unique<Shape>(std::make_unique<btBoxShape>(Convert(size)),
-                                                            Convert(positionOffset + vec3(0.f, scale.y / 2.f, 0.f))));
-    return id;
+    return impl_->shapes_.insert(ShapeFactory::CreateBox(positionOffset, scale, size));
 }
 
 ShapeId BulletAdapter::CreateCylinderColider(const PositionOffset& positionOffset, const Scale& scale, const Size& size)
 {
-    auto id = impl_->shapes_.insert(std::make_unique<Shape>(std::make_unique<btCylinderShape>(Convert(size)),
-                                                            Convert(positionOffset + vec3(0.f, scale.y / 2.f, 0.f))));
-    return id;
+    return impl_->shapes_.insert(ShapeFactory::CreateCylinder(positionOffset, scale, size));
 }
-ShapeId BulletAdapter::CreateSphereColider(const PositionOffset& positionOffset, const Scale&, Radius radius)
+ShapeId BulletAdapter::CreateSphereColider(const PositionOffset& positionOffset, const Scale& scale, Radius radius)
 {
-    auto id = impl_->shapes_.insert(std::make_unique<Shape>(std::make_unique<btSphereShape>(radius),
-                                                            Convert(positionOffset /*+ vec3(0.f, scale.y / 2.f, 0.f)*/)));
-    return id;
+    return impl_->shapes_.insert(ShapeFactory::CreateSphere(positionOffset, scale, radius));
 }
 
 ShapeId BulletAdapter::CreateCapsuleColider(const PositionOffset& positionOffset, const Scale& scale, Radius radius, float height)
 {
-    auto id = impl_->shapes_.insert(std::make_unique<Shape>(std::make_unique<btCapsuleShape>(radius, height / 2.f),
-                                                            Convert(positionOffset + vec3(0.f, scale.y / 2.f, 0.f))));
-    return id;
+    return impl_->shapes_.insert(ShapeFactory::CreateCapsule(positionOffset, scale, radius, height));
 }
 
 ShapeId BulletAdapter::CreateTerrainColider(const PositionOffset& positionOffset, const Scale& scale, const HeightMap& heightMap)
 {
-    auto shape = std::make_unique<Shape>();
-
-    auto width  = static_cast<int>(heightMap.GetImage().width);
-    auto height = static_cast<int>(heightMap.GetImage().height);
-    std::visit(
-        visitor{
-            [&](const std::vector<uint8>& data)
-            {
-                shape->btShape_.reset(new btHeightfieldTerrainShape(width, height, &data[0], 1.f, heightMap.GetMinimumHeight(),
-                                                                    heightMap.GetMaximumHeight(), 1, PHY_UCHAR, false));
-            },
-            [&](const std::vector<float>& data)
-            {
-                shape->btShape_.reset(new btHeightfieldTerrainShape(width, height, &data[0], 1.f, heightMap.GetMinimumHeight(),
-                                                                    heightMap.GetMaximumHeight(), 1, PHY_FLOAT, false));
-            },
-            [](std::monostate) { LOG_ERROR << "Height map data is not set!."; },
-        },
-        heightMap.GetImage().getImageData());
-
-    float scaleX = scale.x / static_cast<float>(heightMap.GetImage().width - 1);
-    float scaleY = scale.z / static_cast<float>(heightMap.GetImage().height - 1);
-
-    shape->btShape_->setLocalScaling(btVector3(scaleX, scale.y, scaleY));
-
-    auto offset            = heightMap.GetMaximumHeight() * scale.y - (heightMap.GetDeltaHeight() * scale.y / 2.f);
-    shape->positionOffset_ = Convert(positionOffset + vec3(0, offset, 0));
-    shape->isTerrainShape  = true;
-    return impl_->shapes_.insert(std::move(shape));
+    return impl_->shapes_.insert(ShapeFactory::CreateTerrain(positionOffset, scale, heightMap));
 }
 ShapeId BulletAdapter::CreateMeshCollider(const PositionOffset& positionOffset, const std::vector<float>& data,
                                           const IndicesVector& indicies, const vec3& scale, bool autoOptimize)
 {
-    if (data.empty())
+    auto result = ShapeFactory::CreateMesh(positionOffset, data, indicies, scale, autoOptimize);
+    if (result)
     {
-        return std::nullopt;
+        return impl_->shapes_.insert(std::move(*result));
     }
-
-    if (not autoOptimize)
-    {
-        if (indicies.empty())
-            return std::nullopt;
-
-        auto btMesh = std::make_unique<btTriangleMesh>(true, false);
-
-        for (size_t i = 0; i < indicies.size(); i += 3)
-        {
-            if (i + 2 < indicies.size())
-            {
-                auto idx0 = indicies[i];
-                auto idx1 = indicies[i + 1];
-                auto idx2 = indicies[i + 2];
-                if (3 * idx0 + 2 < data.size() and 3 * idx1 + 2 < data.size() and 3 * idx2 + 2 < data.size())
-                {
-                    btVector3 v0(data[3 * idx0], data[3 * idx0 + 1], data[3 * idx0 + 2]);
-                    btVector3 v1(data[3 * idx1], data[3 * idx1 + 1], data[3 * idx1 + 2]);
-                    btVector3 v2(data[3 * idx2], data[3 * idx2 + 1], data[3 * idx2 + 2]);
-
-                    btMesh->addTriangle(v0, v1, v2);
-                }
-            }
-        }
-
-        auto meshShape      = std::make_unique<MeshShape>(std::move(btMesh));
-        auto btMeshShapePtr = meshShape->btMesh_.get();
-        meshShape->btShape_ = std::make_unique<btBvhTriangleMeshShape>(btMeshShapePtr, true, true);
-        meshShape->btShape_->setLocalScaling(Convert(scale));
-        meshShape->positionOffset_ = Convert(positionOffset);
-
-        return impl_->shapes_.insert(std::move(meshShape));
-    }
-    else
-    {
-        auto hullShape = std::make_unique<btConvexHullShape>();
-
-        for (size_t i = 0; i < data.size(); i += 3)
-        {
-            if (i + 2 < data.size())
-                hullShape->addPoint(btVector3(data[i], data[i + 1], data[i + 2]), false);
-        }
-
-        hullShape->optimizeConvexHull();
-        hullShape->setLocalScaling(Convert(scale));
-        hullShape->recalcLocalAabb();
-
-        return impl_->shapes_.insert(std::make_unique<Shape>(std::move(hullShape), Convert(positionOffset)));
-    }
-    return {};
+    return std::nullopt;
 }
 
 RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& gameObject, CollisionGroup group,

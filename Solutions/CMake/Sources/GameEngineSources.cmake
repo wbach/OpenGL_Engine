@@ -311,12 +311,13 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Narrative/Quests/QuestManag
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Objects/GameObject.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Objects/Prefab.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/Bach/BachPhysicsAdapter.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/Bullet/BulletAdapter.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/Bullet/BulletMotionState.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/Bullet/CollisionResultCallback.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/Bullet/Converter.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/Bullet/DebugDrawer.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/Bullet/Rigidbodies.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/Bullet/ShapeFactory.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/Bullet/BulletAdapter.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/Bullet/BulletMotionState.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/Bullet/CollisionResultCallback.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Physics/CollisionContactInfo.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Objects/Entity/ConcreteEntityRenderer.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Objects/Entity/EntityRenderer.cpp
