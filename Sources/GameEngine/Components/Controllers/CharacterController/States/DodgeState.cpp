@@ -57,10 +57,13 @@ void DodgeState::onLeave(const DodgeEndEvent&)
 {
     flushEvents();
 
-    // Damp velocity to prevent sliding after dodge ends
-    auto& rigidbody = context_.rigidbody;
-    auto currentVel = rigidbody.GetVelocity();
-    rigidbody.SetVelocity(currentVel * 0.1f);
+    if (not useRootMontion)
+    {
+        // Damp velocity to prevent sliding after dodge ends
+        auto& rigidbody = context_.rigidbody;
+        auto currentVel = rigidbody.GetVelocity();
+        rigidbody.SetVelocity(currentVel * 0.1f);
+    }
 }
 
 void DodgeState::setAnimAndSubscribeForEnd(const std::string& animName)

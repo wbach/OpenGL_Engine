@@ -1,4 +1,4 @@
-﻿#include "MoveStateBase.h"
+#include "MoveStateBase.h"
 
 #include <GLM/GLMUtils.h>
 #include <Logger/Log.h>
@@ -218,33 +218,18 @@ void MoveStateBase::moveRigidbody()
     }
 
     auto moveDirection = glm::normalize(context_.moveController.getCurrentDir());
+    auto moveSpeed     = glm::length(
+            vec3(moveSpeed_.leftRight, 0, moveDirection.z > 0.5f ? moveSpeed_.forward : moveSpeed_.backward) * moveDirection);
 
-    float speed = 0.0f;
-    if (context_.moveController.isMoving(MoveController::Direction::Forward))
+    if (moveSpeed < 0.00001f)
     {
-        speed = moveSpeed_.forward;
-    }
-    else if (context_.moveController.isMoving(MoveController::Direction::Backward))
-    {
-        speed = moveSpeed_.backward;
-    }
-    else
-    {
-        speed = moveSpeed_.leftRight;
+        return;
     }
 
-    auto& rigidbody = context_.rigidbody;
-
-    vec3 worldDirection = rigidbody.GetRotation() * vec4(moveDirection, 0.0f);
-    worldDirection.y    = 0.0f;
-
-    if (glm::length(worldDirection) > 0.00001f)
-    {
-        worldDirection      = glm::normalize(worldDirection);
-        auto targetVelocity = worldDirection * speed;
-        targetVelocity.y    = rigidbody.GetVelocity().y;
-        rigidbody.SetVelocity(targetVelocity);
-    }
+    auto& rigidbody     = context_.rigidbody;
+    auto targetVelocity = rigidbody.GetRotation() * moveDirection * moveSpeed;
+    targetVelocity.y    = rigidbody.GetVelocity().y;
+    rigidbody.SetVelocity(targetVelocity);
 }
 
 }  // namespace Components
