@@ -2,12 +2,15 @@
 #include <Utils/Fsm/Actions.h>
 
 #include "../../ReactionStateMachine/ReactionStateMachine.h"
+#include "../IntentStateEvents.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class ReactionState : public Utils::StateMachine::Will<Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>>
+class ReactionState
+    : public Utils::StateMachine::Will<Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
+                                       Utils::StateMachine::On<ThreatEnded, Utils::StateMachine::BackToPreviousState>>
 {
 public:
     ReactionState();

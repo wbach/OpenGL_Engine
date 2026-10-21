@@ -2,8 +2,9 @@
 #include <GameEngine/Components/Controllers/AI/IntentStateMachine/IntentStateMachine.h>
 #include <GameEngine/Components/Controllers/AI/ReactionStateMachine/ReactionAIEvents.h>
 #include <GameEngine/Components/Controllers/AI/RoutineComponent.h>
-#include "Tests/UT/Components/BaseComponent.h"
 #include <gtest/gtest.h>
+
+#include "Tests/UT/Components/BaseComponent.h"
 
 using namespace GameEngine;
 using namespace GameEngine::Components;
@@ -13,10 +14,12 @@ struct IntentStateMachineTests : public BaseComponentTestSchould
     RoutineComponent routineComponent_;
     IntentStateMachine sut_;
 
-    IntentStateMachineTests() : BaseComponentTestSchould(),
-                                  routineComponent_(context_, *obj_),
-                                  sut_(RoutineState(&routineComponent_), ReactionState{}, QuestState{}, DeadState{})
-    {}
+    IntentStateMachineTests()
+        : BaseComponentTestSchould()
+        , routineComponent_(context_, *obj_)
+        , sut_(RoutineState(&routineComponent_), ReactionState{}, QuestState{}, DeadState{})
+    {
+    }
 
     template <typename State>
     void expectState()
@@ -42,6 +45,15 @@ TEST_F(IntentStateMachineTests, Routine_QuestTriggered_GoesToQuest)
     expectState<QuestState>();
 }
 
+TEST_F(IntentStateMachineTests, Routine_QuestTriggered_GoesToReactionDruringQuest)
+{
+    handle(QuestTriggered{});
+    expectState<QuestState>();
+    EXPECT_TRUE(routineComponent_.IsRoutineStateOfType<SuspendedState>());
+    handle(ThreatEnded{});
+    expectState<QuestState>();
+}
+
 TEST_F(IntentStateMachineTests, Routine_DeathEvent_GoesToDead)
 {
     handle(EntityDiedEvent{});
@@ -53,6 +65,8 @@ TEST_F(IntentStateMachineTests, Routine_ReactionAIEvent_GoesToReaction)
     handle(ReactionAIEvent{NoiseHeard{}});
     expectState<ReactionState>();
     EXPECT_TRUE(routineComponent_.IsRoutineStateOfType<SuspendedState>());
+    handle(ThreatEnded{});
+    expectState<RoutineState>();
 }
 
 TEST_F(IntentStateMachineTests, Routine_UnrelatedEvents_StayInRoutine)
@@ -90,7 +104,6 @@ TEST_F(IntentStateMachineTests, Reaction_NoIntentTransitionsYet)
 
     handle(QuestTriggered{});
     handle(QuestEnded{});
-    handle(ThreatEnded{});
     handle(TargetLost{});
 
     expectState<ReactionState>();
