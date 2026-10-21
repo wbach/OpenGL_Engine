@@ -26,6 +26,7 @@ extern const std::string CSTR_ANIMATION_SPRINT;
 extern const std::string CSTR_ANIMATION_CROUCH_IDLE;
 extern const std::string CSTR_ANIMATION_DODGE;
 extern const std::string CSTR_ANIMATION_DODGE_DIVE;
+extern const std::string CSTR_DODGE_SPEED;
 extern const std::string CSTR_ANIMATION_CROUCH_MOVEMENT;
 extern const std::string CSTR_JUMP_ANIMATION;
 extern const std::string CSTR_IDLE_MAIN;

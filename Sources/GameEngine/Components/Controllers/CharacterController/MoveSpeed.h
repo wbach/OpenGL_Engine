@@ -19,7 +19,7 @@ const float DEFAULT_TURN_SPEED        = 160.f;
 const float DEFAULT_CROUCH_TURN_SPEED = 100.f;
 
 const float DEFAULT_JUMP_POWER       = 5.f;
-const float DEFAULT_DODGE_DIVE_POWER = 5.f;
+const float DEFAULT_DODGE_DIVE_POWER = 3.f;
 const float DEFAULT_DODGE_POWER      = 2.5f;
 
 struct MoveSpeed

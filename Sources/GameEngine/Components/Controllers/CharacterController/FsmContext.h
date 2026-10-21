@@ -83,6 +83,7 @@ struct FsmContext
     MoveSpeed& runSpeed;
     MoveSpeed& crouchSpeed;
     float& sprintSpeed;
+    float& dodgeSpeed;
 
     bool rotateToTarget{false};
     float rotateToTargetProgress{0.f};

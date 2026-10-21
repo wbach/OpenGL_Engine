@@ -23,6 +23,8 @@ class DodgeState : public BaseState,
 {
 public:
     DodgeState(FsmContext&);
+    ~DodgeState() override;
+
     void onEnter(const DodgeDiveEvent&);
     void onEnter(const DodgeForwardEvent&);
     void onEnter(const DodgeBackwardEvent&);
@@ -30,18 +32,20 @@ public:
     void onEnter(const DodgeRightEvent&);
 
     void onEnter(DisarmedFallingState&);
+    void onLeave();
     void onLeave(const DodgeEndEvent&);
 
     void update(float);
 
 private:
-    void onEnterDodge(const std::string& animName);
+    void onEnterDodge(const std::string& animName, const vec3& direction);
     void setAnimAndSubscribeForEnd(const std::string&);
     void setAnim(const std::string&);
+    void unsubscribeAnimation();
 
 private:
-    std::optional<float> jumpAttemptTimer;
     std::optional<IdType> dodgeAnimSubId;
+    vec3 dodgeDirection_{VECTOR_FORWARD};
     bool useRootMontion{false};
 };
 }  // namespace Components

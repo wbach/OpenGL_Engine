@@ -181,7 +181,8 @@ void CharacterController::Init()
                                               moveSpeeds_.walkSpeed,
                                               moveSpeeds_.runSpeed,
                                               moveSpeeds_.crouchSpeed,
-                                              moveSpeeds_.sprintSpeed});
+                                              moveSpeeds_.sprintSpeed,
+                                              dodgeSpeed});
         auto& context = *impl->fsmContext;
 
         // clang-format off
@@ -491,6 +492,7 @@ void CharacterController::read(const TreeNode& node)
     ::Read(node.getChild(CSTR_EQUIP_TIMESTAMP), equipTimeStamp);
     ::Read(node.getChild(CSTR_DISARM_TIMESTAMP), disarmTimeStamp);
     ::Read(node.getChild(CSTR_AIM_JOINT_NAME), aimJointName_);
+    ::Read(node.getChild(CSTR_DODGE_SPEED), dodgeSpeed);
 
     disarmedAttackClips.init();
     armedAttackClips.init();
@@ -501,6 +503,7 @@ void CharacterController::write(TreeNode& node) const
     ::write(node.addChild(CSTR_EQUIP_TIMESTAMP), equipTimeStamp);
     ::write(node.addChild(CSTR_DISARM_TIMESTAMP), disarmTimeStamp);
     ::write(node.addChild(CSTR_AIM_JOINT_NAME), aimJointName_);
+    ::write(node.addChild(CSTR_DODGE_SPEED), dodgeSpeed);
 }
 void CharacterController::pushEventToQueue(const CharacterControllerEvent& event)
 {

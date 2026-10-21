@@ -14,33 +14,40 @@ DodgeState::DodgeState(FsmContext& context)
 {
 }
 
+DodgeState::~DodgeState()
+{
+    unsubscribeAnimation();
+}
+
 void DodgeState::onEnter(const DodgeDiveEvent& event)
 {
-    onEnterDodge(context_.animClipNames.disarmed.dodgeDive);
+    onEnterDodge(context_.animClipNames.disarmed.dodgeDive, context_.moveController.getCurrentDir());
 }
 
 void DodgeState::onEnter(const DodgeForwardEvent& e)
 {
-    onEnterDodge(context_.animClipNames.disarmed.dodge.forward);
+    onEnterDodge(context_.animClipNames.disarmed.dodge.forward, VECTOR_FORWARD);
 }
 
 void DodgeState::onEnter(const DodgeBackwardEvent& e)
 {
-    onEnterDodge(context_.animClipNames.disarmed.dodge.backward);
+    onEnterDodge(context_.animClipNames.disarmed.dodge.backward, VECTOR_BACKWARD);
 }
 
 void DodgeState::onEnter(const DodgeRightEvent& e)
 {
-    onEnterDodge(context_.animClipNames.disarmed.dodge.right);
+    onEnterDodge(context_.animClipNames.disarmed.dodge.right, VECTOR_RIGHT);
 }
 
 void DodgeState::onEnter(const DodgeLeftEvent& e)
 {
-    onEnterDodge(context_.animClipNames.disarmed.dodge.left);
+    onEnterDodge(context_.animClipNames.disarmed.dodge.left, VECTOR_LEFT);
 }
 
-void DodgeState::onEnterDodge(const std::string& animName)
+void DodgeState::onEnterDodge(const std::string& animName, const vec3& direction)
 {
+    dodgeDirection_ = direction;
+
     if (auto info = context_.animator.getAnimationClipInfo(animName))
     {
         useRootMontion = info->rootMontion;
@@ -53,6 +60,11 @@ void DodgeState::onEnter(DisarmedFallingState&)
     context_.characterController.pushEventToFrontQueue(DodgeEndEvent{});
 }
 
+void DodgeState::onLeave()
+{
+    unsubscribeAnimation();
+}
+
 void DodgeState::onLeave(const DodgeEndEvent&)
 {
     flushEvents();
@@ -63,15 +75,28 @@ void DodgeState::onLeave(const DodgeEndEvent&)
         auto& rigidbody = context_.rigidbody;
         auto currentVel = rigidbody.GetVelocity();
         rigidbody.SetVelocity(currentVel * 0.1f);
+        if (glm::length(vec2(currentVel.x, currentVel.z)) > 0.001f)
+        {
+            rigidbody.SetVelocity(vec3(0.0f, currentVel.y, 0.0f));
+        }
+    }
+
+    unsubscribeAnimation();
+}
+
+void DodgeState::unsubscribeAnimation()
+{
+    if (dodgeAnimSubId)
+    {
+        return;
+        context_.animator.UnSubscribeForAnimationFrame(*dodgeAnimSubId);
+        dodgeAnimSubId.reset();
     }
 }
 
 void DodgeState::setAnimAndSubscribeForEnd(const std::string& animName)
 {
-    if (dodgeAnimSubId)
-    {
-        return;
-    }
+    unsubscribeAnimation();
 
     setAnim(animName);
     dodgeAnimSubId =
@@ -104,13 +129,14 @@ void DodgeState::update(float deltaTime)
     {
         auto& rigidbody = context_.rigidbody;
         auto currentVel = rigidbody.GetVelocity();
-        auto direction  = rigidbody.GetRotation() * VECTOR_FORWARD;
-        auto dodgeVel = direction * 5.f;
+        auto direction  = rigidbody.GetRotation() * dodgeDirection_;
+        auto dodgeVel   = direction * context_.dodgeSpeed;
 
         if (currentVel.y < dodgeVel.y)
         {
             dodgeVel.y = currentVel.y;
         }
+        dodgeVel.y = currentVel.y;
 
         rigidbody.SetVelocity(dodgeVel);
     }

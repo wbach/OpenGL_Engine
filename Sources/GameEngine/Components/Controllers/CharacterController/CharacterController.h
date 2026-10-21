@@ -40,6 +40,7 @@ public:
     float equipTimeStamp;
     float disarmTimeStamp;
     MoveSpeeds moveSpeeds_;
+    float dodgeSpeed{DEFAULT_DODGE_DIVE_POWER};
 
     VectorOfCustomStructure disarmedAttackClips;
     VectorOfCustomStructure armedAttackClips;
@@ -145,6 +146,7 @@ public:
 
         // GLOBAL
         FIELD_FLOAT(moveSpeeds_.sprintSpeed)
+        FIELD_FLOAT(dodgeSpeed)
 
         FIELD_FLOAT(equipTimeStamp)
         FIELD_FLOAT(disarmTimeStamp)

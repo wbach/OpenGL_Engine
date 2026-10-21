@@ -30,6 +30,7 @@ const std::string CSTR_ANIMATION_SPRINT          = "sprint";
 const std::string CSTR_ANIMATION_CROUCH_IDLE     = "crouchIdle";
 const std::string CSTR_ANIMATION_DODGE_DIVE      = "dodgeDive";
 const std::string CSTR_ANIMATION_DODGE           = "dodge";
+const std::string CSTR_DODGE_SPEED               = "dodgeSpeed";
 const std::string CSTR_ANIMATION_CROUCH_MOVEMENT = "crouchMovement";
 const std::string CSTR_JUMP_ANIMATION            = "jump";
 const std::string CSTR_IDLE_MAIN                 = "mainIdle";
