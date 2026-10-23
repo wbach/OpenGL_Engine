@@ -22,6 +22,8 @@ const float DEFAULT_JUMP_POWER       = 5.f;
 const float DEFAULT_DODGE_DIVE_POWER = 3.f;
 const float DEFAULT_DODGE_POWER      = 2.5f;
 
+const float DEFAULT_JUMP_ATTEMPT_TIMER_VALUE = 0.25f;
+
 struct MoveSpeed
 {
     float forward{0};

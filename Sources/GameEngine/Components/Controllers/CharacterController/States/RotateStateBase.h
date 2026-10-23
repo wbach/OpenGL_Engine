@@ -37,6 +37,8 @@ public:
     void onEnter(const EndMoveLeftEvent&);
     void onEnter(const EndMoveRightEvent&);
     void onEnter(const AimStopEvent&);
+    void onEnter(const DodgeEndEvent&);
+
     void update(float);
 
     void update(const RotateLeftEvent&);

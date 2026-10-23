@@ -143,49 +143,57 @@ TEST_F(CharacterControllerTests, DisarmedRotateState_WalkChangeStateEvent)
 TEST_F(CharacterControllerTests, DisarmedRotateState_SprintStateChangeEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<SprintStateChangeEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRotateState_EndForwardMoveEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EndForwardMoveEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRotateState_EndBackwardMoveEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EndBackwardMoveEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRotateState_EndMoveLeftEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EndMoveLeftEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRotateState_EndMoveRightEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EndMoveRightEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRotateState_JumpEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectVelocity(vec3(0, 1, 0), vec3(DEFAULT_JUMP_POWER));
+    handleEvent(JumpEvent{DEFAULT_JUMP_POWER});
+    tiggerAndExpect<JumpConfirmEvent>({sut_.animationClipsNames_.disarmed.jump});
 }
 
 TEST_F(CharacterControllerTests, DisarmedRotateState_JumpConfirmEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<JumpConfirmEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRotateState_DodgeDiveEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    tiggerAndExpect<DodgeDiveEvent>({sut_.animationClipsNames_.disarmed.dodgeDive});
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_CLIP_TIME);
+    expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.rotate.left});
 }
 
 TEST_F(CharacterControllerTests, DisarmedRotateState_DodgeForwardEvent)
@@ -215,7 +223,7 @@ TEST_F(CharacterControllerTests, DisarmedRotateState_DodgeRightEvent)
 TEST_F(CharacterControllerTests, DisarmedRotateState_DodgeEndEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<DodgeEndEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRotateState_AttackEvent)
@@ -233,13 +241,13 @@ TEST_F(CharacterControllerTests, DisarmedRotateState_EndAttackEvent)
 TEST_F(CharacterControllerTests, DisarmedRotateState_EquipEndStateEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EquipEndStateEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRotateState_DisarmEndStateEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<DisarmEndStateEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRotateState_ReloadArrowEvent)
@@ -257,7 +265,7 @@ TEST_F(CharacterControllerTests, DisarmedRotateState_AimStartEvent)
 TEST_F(CharacterControllerTests, DisarmedRotateState_AimStopEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<AimStopEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRotateState_CrouchChangeStateEvent)
@@ -275,7 +283,7 @@ TEST_F(CharacterControllerTests, DisarmedRotateState_StartFallingEvent)
 TEST_F(CharacterControllerTests, DisarmedRotateState_GroundDetectionEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<GroundDetectionEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRotateState_HurtEvent)
@@ -287,7 +295,7 @@ TEST_F(CharacterControllerTests, DisarmedRotateState_HurtEvent)
 TEST_F(CharacterControllerTests, DisarmedRotateState_AnimationPlayEndEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<AnimationPlayEndEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRotateState_ChangeAnimEvent)
@@ -305,7 +313,7 @@ TEST_F(CharacterControllerTests, DisarmedRotateState_StartDialogEvent)
 TEST_F(CharacterControllerTests, DisarmedRotateState_EndDialogEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EndDialogEvent>();
 }
 
 Quaternion caclulateTargetRotation(const vec3& toPlayer)

@@ -11,11 +11,6 @@ namespace GameEngine
 {
 namespace Components
 {
-namespace
-{
-const float DEFAULT_JUMP_ATTEMPT_TIMER_VALUE = 0.25f;
-}
-
 JumpState::JumpState(FsmContext &context)
     : BaseState{context}
 {
@@ -35,6 +30,7 @@ void JumpState::onEnter(const JumpEvent &event)
     }
     else
     {
+        LOG_DEBUG << "Timer";
         jumpAttemptTimer = DEFAULT_JUMP_ATTEMPT_TIMER_VALUE;
     }
 }

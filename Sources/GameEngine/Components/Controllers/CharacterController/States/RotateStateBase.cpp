@@ -13,8 +13,8 @@ namespace GameEngine
 {
 namespace Components
 {
-RotateStateBase::RotateStateBase(FsmContext &context, const std::optional<std::string> &jointGourpName, float rotateSpeed,
-                                 const RotateAnimationClips &rotateAnimationClips, CameraRotationPolicy cameraRotationPolicy)
+RotateStateBase::RotateStateBase(FsmContext& context, const std::optional<std::string>& jointGourpName, float rotateSpeed,
+                                 const RotateAnimationClips& rotateAnimationClips, CameraRotationPolicy cameraRotationPolicy)
     : context_{context}
     , jointGroupName_{jointGourpName}
     , rotateAnimationClips_{rotateAnimationClips}
@@ -24,38 +24,38 @@ RotateStateBase::RotateStateBase(FsmContext &context, const std::optional<std::s
 {
 }
 
-void RotateStateBase::onEnter(const AnimationPlayEndEvent &)
+void RotateStateBase::onEnter(const AnimationPlayEndEvent&)
 {
     setCurrentAnim();
 }
 
-void RotateStateBase::onEnter(const CrouchChangeStateEvent &)
+void RotateStateBase::onEnter(const CrouchChangeStateEvent&)
 {
     setCurrentAnim();
 }
 
-void RotateStateBase::onEnter(const EndAttackEvent &)
+void RotateStateBase::onEnter(const EndAttackEvent&)
 {
     setCurrentAnim();
 }
 
-void RotateStateBase::onEnter(const EquipEndStateEvent &)
+void RotateStateBase::onEnter(const EquipEndStateEvent&)
 {
     setCurrentAnim();
 }
-void RotateStateBase::onEnter(const RotateLeftEvent &e)
+void RotateStateBase::onEnter(const RotateLeftEvent& e)
 {
     update(e);
     setRotateLeftAnim();
 }
 
-void RotateStateBase::onEnter(const RotateRightEvent &e)
+void RotateStateBase::onEnter(const RotateRightEvent& e)
 {
     update(e);
     setRotateRightAnim();
 }
 
-void RotateStateBase::onEnter(const RotateTargetEvent &event)
+void RotateStateBase::onEnter(const RotateTargetEvent& event)
 {
     if (not context_.rotateToTarget or context_.targetRotation != event.target)
     {
@@ -68,32 +68,37 @@ void RotateStateBase::onEnter(const RotateTargetEvent &event)
     }
 }
 
-void RotateStateBase::onEnter(const EndForwardMoveEvent &)
+void RotateStateBase::onEnter(const EndForwardMoveEvent&)
 {
     setCurrentAnim();
 }
 
-void RotateStateBase::onEnter(const EndBackwardMoveEvent &)
+void RotateStateBase::onEnter(const EndBackwardMoveEvent&)
 {
     setCurrentAnim();
 }
 
-void RotateStateBase::onEnter(const EndMoveLeftEvent &)
+void RotateStateBase::onEnter(const EndMoveLeftEvent&)
 {
     setCurrentAnim();
 }
 
-void RotateStateBase::onEnter(const AimStopEvent &)
+void RotateStateBase::onEnter(const AimStopEvent&)
 {
     setCurrentAnim();
 }
 
-void RotateStateBase::onEnter(const DisarmEndStateEvent &)
+void RotateStateBase::onEnter(const DodgeEndEvent&)
 {
     setCurrentAnim();
 }
 
-void RotateStateBase::onEnter(const EndMoveRightEvent &)
+void RotateStateBase::onEnter(const DisarmEndStateEvent&)
+{
+    setCurrentAnim();
+}
+
+void RotateStateBase::onEnter(const EndMoveRightEvent&)
 {
     setCurrentAnim();
 }
@@ -134,19 +139,19 @@ void RotateStateBase::update(float deltaTime)
     }
 }
 
-void RotateStateBase::update(const RotateLeftEvent &)
+void RotateStateBase::update(const RotateLeftEvent&)
 {
     context_.rotateStateData_.rotateSpeed_ = fabsf(rotateSpeed_);
     context_.rotateToTarget                = false;
 }
 
-void RotateStateBase::update(const RotateRightEvent &)
+void RotateStateBase::update(const RotateRightEvent&)
 {
     context_.rotateStateData_.rotateSpeed_ = -fabsf(rotateSpeed_);
     context_.rotateToTarget                = false;
 }
 
-void RotateStateBase::update(const RotateTargetEvent &event)
+void RotateStateBase::update(const RotateTargetEvent& event)
 {
     if (not context_.rotateToTarget or context_.targetRotation != event.target)
     {
@@ -157,7 +162,7 @@ void RotateStateBase::update(const RotateTargetEvent &event)
     }
 }
 
-void RotateStateBase::update(const AimStartEvent &)
+void RotateStateBase::update(const AimStartEvent&)
 {
     if (context_.rotateStateData_.rotateSpeed_ > 0.f)
     {
@@ -228,7 +233,7 @@ void RotateStateBase::setCurrentAnimAndRotation()
     setCurrentRotation();
 }
 
-void RotateStateBase::updateAnimationClipNames(const RotateAnimationClips &rotateAnimationClips)
+void RotateStateBase::updateAnimationClipNames(const RotateAnimationClips& rotateAnimationClips)
 {
     if (rotateAnimationClips_ != rotateAnimationClips)
     {
@@ -237,7 +242,7 @@ void RotateStateBase::updateAnimationClipNames(const RotateAnimationClips &rotat
     }
 }
 
-const RotateAnimationClips &RotateStateBase::getCurrentAnimationClips() const
+const RotateAnimationClips& RotateStateBase::getCurrentAnimationClips() const
 {
     return rotateAnimationClips_;
 }
