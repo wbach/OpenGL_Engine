@@ -51,6 +51,8 @@ public:
     void onEnter(ArmedIdleState&, const WeaponStateEvent&);
     void onEnter(ArmedAttackState&, const WeaponStateEvent&);
     void onEnter(DisarmedIdleState&, const DrawArrowEvent&);
+    void onEnter(DisarmedIdleState&, const AimStartEvent&);
+    void onEnter(DisarmedIdleState&, const ReloadArrowEvent&);
     void onEnter(DisarmedAttackState&, const DrawArrowEvent&);
 
     void onEnter(DrawArrowState&, const WeaponStateEvent&);

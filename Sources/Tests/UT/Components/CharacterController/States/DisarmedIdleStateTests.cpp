@@ -282,17 +282,31 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_DisarmEndStateEvent)
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_ReloadArrowEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    tiggerAndExpect<ReloadArrowEvent>({sut_.animationClipsNames_.equip.front()}, {ADVANCED_TIME_TRANSITION_TIME});
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.aim.draw});
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_AimStartEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+
+    // First, the character must draw the arrow
+    tiggerAndExpect<AimStartEvent>({sut_.animationClipsNames_.equip.front()}, {ADVANCED_TIME_TRANSITION_TIME});
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.aim.draw});
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.aim.idle});
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_AimStopEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    expectIngoreEvent<AimStopEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_StartFallingEvent)
