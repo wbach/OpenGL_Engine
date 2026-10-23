@@ -151,3 +151,153 @@ TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_SprintStartEvent)
     expectForwardVelocity(DEFAULT_SPRINT_SPEED);
     tiggerAndExpect<SprintStateChangeEvent>({sut_.animationClipsNames_.armed.sprint});
 }
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_AttackEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_MoveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_JumpEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_JumpConfirmEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_DodgeDiveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_DodgeForwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_DodgeBackwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_DodgeLeftEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_DodgeRightEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_DodgeEndEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_EndAttackEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_EquipEndStateEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_DisarmEndStateEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_ReloadArrowEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_AimStartEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_AimStopEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_StartFallingEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_GroundDetectionEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_HurtEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_AnimationPlayEndEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_ChangeAnimEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_StartDialogEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_EndDialogEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_EndMoveLeftEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_EndMoveRightEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}

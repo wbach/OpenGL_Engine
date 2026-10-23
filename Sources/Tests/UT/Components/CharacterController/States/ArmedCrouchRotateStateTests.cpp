@@ -106,3 +106,183 @@ TEST_F(CharacterControllerTests, ArmedCrouchRotate_EndRotationEvent)
     prepareState(*this);
     tiggerAndExpect<EndRotationEvent>({sut_.animationClipsNames_.armed.posture.crouched.idle});
 }
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_MoveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_WalkChangeStateEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_SprintStateChangeEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_EndForwardMoveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_EndBackwardMoveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_EndMoveLeftEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_EndMoveRightEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_RotateRightEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_JumpEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_JumpConfirmEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_DodgeDiveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_DodgeForwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_DodgeBackwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_DodgeLeftEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_DodgeRightEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_DodgeEndEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_AttackEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_EndAttackEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_EquipEndStateEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_DisarmEndStateEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_ReloadArrowEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_AimStartEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_AimStopEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_StartFallingEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_GroundDetectionEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_HurtEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_AnimationPlayEndEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_ChangeAnimEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_StartDialogEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_EndDialogEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}

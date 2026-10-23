@@ -54,7 +54,8 @@ TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_MoveForwardEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_WALK_SPEED);
-    tiggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.armed.movement.crouch.forward});
+    tiggerAndExpect<MoveForwardEvent>(
+        {sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.armed.movement.crouch.forward});
 }
 TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_MoveBackwardEvent)
 {
@@ -69,7 +70,8 @@ TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_MoveLeftEvent)
 {
     prepareState(*this);
     expectVelocity(VECTOR_LEFT, vec3(DEFAULT_WALK_SPEED, 0.0, 0.0));
-    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.armed.movement.crouch.forward});
+    tiggerAndExpect<MoveLeftEvent>(
+        {sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.armed.movement.crouch.forward});
     expectRotationLeft(DEFAULT_MOVING_CHANGE_DIR_SPEED);
     expectRootboneRotation(VECTOR_LEFT);
 }
@@ -77,7 +79,8 @@ TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_MoveRightEvent)
 {
     prepareState(*this);
     expectVelocity(VECTOR_RIGHT, vec3(DEFAULT_WALK_SPEED, 0.0, 0.0));
-    tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.armed.movement.crouch.forward});
+    tiggerAndExpect<MoveRightEvent>(
+        {sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.armed.movement.crouch.forward});
     expectRotationLeft(DEFAULT_MOVING_CHANGE_DIR_SPEED);
     expectRootboneRotation(VECTOR_RIGHT);
 }
@@ -129,4 +132,140 @@ TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_AimStopEvent)
     expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.posture.crouched.rotate.left});
+}
+
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_MoveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_WalkChangeStateEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_SprintStateChangeEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_EndForwardMoveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_EndBackwardMoveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_EndMoveLeftEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_EndMoveRightEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_EndRotationEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_JumpEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_JumpConfirmEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_DodgeDiveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_DodgeForwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_DodgeBackwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_DodgeLeftEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_DodgeRightEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_DodgeEndEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_AttackEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_EndAttackEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_ReloadArrowEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_AimStartEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_StartFallingEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_GroundDetectionEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_HurtEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_AnimationPlayEndEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_ChangeAnimEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_StartDialogEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, CrouchRotateArmedChangeState_EndDialogEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
 }

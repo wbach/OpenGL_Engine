@@ -1,4 +1,4 @@
-#include "MoveStateBase.h"
+﻿#include "MoveStateBase.h"
 
 #include <GLM/GLMUtils.h>
 #include <Logger/Log.h>
@@ -45,7 +45,10 @@ void MoveStateBase::onEnter(const SprintStateChangeEvent&)
 
 void MoveStateBase::onEnter(const MoveEvent&)
 {
-    setCurrentAnimIfNeeded();
+    if (not context_.moveController.isMoving())
+    {
+        context_.moveController.moveForwad();
+    }
 }
 
 void MoveStateBase::onEnter(const MoveForwardEvent&)
@@ -128,6 +131,10 @@ bool MoveStateBase::shouldLeaveAndSetCurrAnimIfNot()
     return true;
 }
 
+void MoveStateBase::update(const MoveEvent& event)
+{
+    onEnter(event);
+}
 void MoveStateBase::update(const MoveForwardEvent& event)
 {
     onEnter(event);

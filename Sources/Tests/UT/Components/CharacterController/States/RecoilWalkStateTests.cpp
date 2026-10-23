@@ -146,3 +146,144 @@ TEST_F(CharacterControllerTests, RecoilWalk_ReloadArrowEventWhenRunLeftAndRight)
     expectNoMove();
     tiggerAndExpect<ReloadArrowEvent>({sut_.animationClipsNames_.aim.draw});
 }
+
+TEST_F(CharacterControllerTests, RecoilWalk_MoveEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for MoveEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_MoveRightEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for MoveRightEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_EndMoveLeftEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for EndMoveLeftEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_EndMoveRightEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for EndMoveRightEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_RotateLeftEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for RotateLeftEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_RotateRightEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for RotateRightEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_EndRotationEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for EndRotationEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_JumpEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for JumpEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_JumpConfirmEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for JumpConfirmEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_DodgeDiveEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for DodgeDiveEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_DodgeForwardEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for DodgeForwardEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_DodgeBackwardEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for DodgeBackwardEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_DodgeLeftEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for DodgeLeftEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_DodgeRightEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for DodgeRightEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_DodgeEndEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for DodgeEndEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_AttackEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for AttackEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_EndAttackEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for EndAttackEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_EquipEndStateEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for EquipEndStateEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_DisarmEndStateEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for DisarmEndStateEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_DrawArrowEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for DrawArrowEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_AimStartEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for AimStartEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_StartFallingEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for StartFallingEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_GroundDetectionEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for GroundDetectionEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_HurtEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for HurtEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_AnimationPlayEndEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for AnimationPlayEndEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_ChangeAnimEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for ChangeAnimEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_StartDialogEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for StartDialogEvent
+}
+TEST_F(CharacterControllerTests, RecoilWalk_EndDialogEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for EndDialogEvent
+}

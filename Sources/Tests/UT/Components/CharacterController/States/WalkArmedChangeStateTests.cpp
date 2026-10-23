@@ -130,3 +130,128 @@ TEST_F(CharacterControllerTests, WalkArmedChangeState_AimStopEvent)
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.movement.walk.forward});
 }
+TEST_F(CharacterControllerTests, WalkArmedChangeState_MoveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_EndForwardMoveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_EndBackwardMoveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_EndMoveLeftEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_EndMoveRightEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_EndRotationEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_JumpEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_JumpConfirmEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_DodgeDiveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_DodgeForwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_DodgeBackwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_DodgeLeftEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_DodgeRightEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_DodgeEndEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_AttackEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_EndAttackEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_ReloadArrowEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_AimStartEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_StartFallingEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_GroundDetectionEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_HurtEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_AnimationPlayEndEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_ChangeAnimEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_StartDialogEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, WalkArmedChangeState_EndDialogEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}

@@ -104,3 +104,183 @@ TEST_F(CharacterControllerTests, ArmedRotate_EndRotationEvent)
     prepareState(*this);
     tiggerAndExpect<EndRotationEvent>({sut_.animationClipsNames_.armed.posture.stand.idle});
 }
+
+TEST_F(CharacterControllerTests, ArmedRotate_MoveEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for MoveEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_WalkChangeStateEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for WalkChangeStateEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_SprintStateChangeEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for SprintStateChangeEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_EndForwardMoveEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for EndForwardMoveEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_EndBackwardMoveEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for EndBackwardMoveEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_EndMoveLeftEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for EndMoveLeftEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_EndMoveRightEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for EndMoveRightEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_RotateRightEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for RotateRightEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_JumpEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for JumpEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_JumpConfirmEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for JumpConfirmEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_DodgeDiveEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for DodgeDiveEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_DodgeForwardEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for DodgeForwardEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_DodgeBackwardEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for DodgeBackwardEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_DodgeLeftEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for DodgeLeftEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_DodgeRightEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for DodgeRightEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_DodgeEndEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for DodgeEndEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_AttackEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for AttackEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_EndAttackEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for EndAttackEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_EquipEndStateEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for EquipEndStateEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_DisarmEndStateEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for DisarmEndStateEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_ReloadArrowEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for ReloadArrowEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_AimStartEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for AimStartEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_AimStopEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for AimStopEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_StartFallingEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for StartFallingEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_GroundDetectionEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for GroundDetectionEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_HurtEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for HurtEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_AnimationPlayEndEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for AnimationPlayEndEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_ChangeAnimEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for ChangeAnimEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_StartDialogEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for StartDialogEvent
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_EndDialogEvent)
+{
+    prepareState(*this);
+    // TODO: Implement test for EndDialogEvent
+}

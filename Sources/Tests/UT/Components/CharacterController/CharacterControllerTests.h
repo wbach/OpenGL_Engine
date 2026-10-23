@@ -41,7 +41,7 @@ struct CharacterControllerTests : public BaseComponentTestSchould
     {
         LOG_DEBUG << "Current state: " << sut_.getCurrentStateName() << ", handleEvent : " << Utils::GetTypeName<Event>();
         sut_.handleEvent(event);
-        LOG_DEBUG << "After event state: " << sut_.getCurrentStateName();
+        LOG_DEBUG << "After event " << Utils::GetTypeName<Event>() << ", state: " << sut_.getCurrentStateName();
     }
 
     template <typename Event>

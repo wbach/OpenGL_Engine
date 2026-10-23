@@ -20,8 +20,8 @@ void prepareState(CharacterControllerTests& test)
     test.tiggerAndExpect<GameEngine::WalkChangeStateEvent>({test.sut_.animationClipsNames_.armed.movement.walk.forward});
     test.expectRotationLeft();
     test.tiggerAndExpect<RotateLeftEvent>({test.sut_.animationClipsNames_.armed.movement.walk.forward});
-    test.tiggerAndExpect<AttackEvent>(
-        {test.sut_.animationClipsNames_.armed.attack.front().clipsSequence.front(), test.sut_.animationClipsNames_.armed.movement.walk.forward});
+    test.tiggerAndExpect<AttackEvent>({test.sut_.animationClipsNames_.armed.attack.front().clipsSequence.front(),
+                                       test.sut_.animationClipsNames_.armed.movement.walk.forward});
 }
 }  // namespace
 
@@ -37,7 +37,7 @@ TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_EndAttackEvent
     tiggerAndExpect<EndAttackEvent>({sut_.animationClipsNames_.armed.movement.walk.forward});
 }
 
-TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_EndMoveForwardEvent)
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_EndForwardMoveEvent)
 {
     prepareState(*this);
     expectNoMove();
@@ -110,4 +110,202 @@ TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_AimStopEvent)
     expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.movement.walk.forward});
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_MoveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_MoveForwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_MoveBackwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_MoveLeftEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_MoveRightEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_WalkChangeStateEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_EndBackwardMoveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_EndMoveLeftEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_EndMoveRightEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_RotateLeftEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_RotateRightEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_RotateTargetEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_JumpEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_JumpConfirmEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_DodgeDiveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_DodgeForwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_DodgeBackwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_DodgeLeftEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_DodgeRightEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_DodgeEndEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_AttackEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_EquipEndStateEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_DisarmEndStateEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_ReloadArrowEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_AimStartEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_CrouchChangeStateEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_StartFallingEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_GroundDetectionEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_HurtEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_AnimationPlayEndEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_ChangeAnimEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_StartDialogEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndWalkAndRotateState_EndDialogEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
 }

@@ -1,10 +1,18 @@
 #include "../CharacterControllerTests.h"
 
+namespace
+{
+void prepareState(CharacterControllerTests& test)
+{
+    test.expectAnimsToBeSet({test.sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    test.tiggerAndExpect<AttackEvent>({test.sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()},
+                                      {ADVANCED_TIME_TRANSITION_TIME});
+}
+}  // namespace
+
 TEST_F(CharacterControllerTests, DisarmedAttackState_CrouchChangeStateEvent)
 {
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()},
-                                 {ADVANCED_TIME_TRANSITION_TIME});
+    prepareState(*this);
 
     tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()},
                                             {ADVANCED_TIME_TRANSITION_TIME});
@@ -14,9 +22,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_CrouchChangeStateEvent)
 }
 TEST_F(CharacterControllerTests, DisarmedAttackState_DrawArrowEvent)
 {
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()},
-                                 {ADVANCED_TIME_TRANSITION_TIME});
+    prepareState(*this);
 
     tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip.front()}, {ADVANCED_TIME_TRANSITION_TIME});
     Update(ADVANCED_TIME_CLIP_TIME);
@@ -25,10 +31,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_DrawArrowEvent)
 }
 TEST_F(CharacterControllerTests, DisarmedAttackState_AimStopDuringDrawArrowEvent)
 {
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()},
-                                 {ADVANCED_TIME_TRANSITION_TIME});
-
+    prepareState(*this);
     tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip.front()}, {ADVANCED_TIME_TRANSITION_TIME});
 
     tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.equip.front()});
@@ -39,9 +42,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_AimStopDuringDrawArrowEvent
 
 TEST_F(CharacterControllerTests, DisarmedAttackState_WeaponStateEvent)
 {
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()},
-                                 {ADVANCED_TIME_TRANSITION_TIME});
+    prepareState(*this);
 
     tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.equip.front()}, {ADVANCED_TIME_TRANSITION_TIME});
     Update(ADVANCED_TIME_CLIP_TIME);
@@ -50,9 +51,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_WeaponStateEvent)
 
 TEST_F(CharacterControllerTests, DisarmedAttackState_DeathEvent)
 {
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()},
-                                 {ADVANCED_TIME_TRANSITION_TIME});
+    prepareState(*this);
 
     tiggerAndExpect<DeathEvent>({sut_.animationClipsNames_.disarmed.posture.stand.death});
 }
@@ -100,6 +99,12 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_MoveForwardEvent_run)
     expectRootboneRotation(VECTOR_FORWARD);
 }
 
+TEST_F(CharacterControllerTests, DisarmedAttackState_MoveForwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
 TEST_F(CharacterControllerTests, DisarmedAttackState_RunBackwardEvent_idle)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
@@ -136,6 +141,12 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_MoveLeftEvent_idle)
     expectRootboneRotation(VECTOR_LEFT);
 }
 
+TEST_F(CharacterControllerTests, DisarmedAttackState_MoveLeftEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
 TEST_F(CharacterControllerTests, DisarmedAttackState_MoveRightEvent_idle)
 {
     auto& clip = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
@@ -153,6 +164,12 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_MoveRightEvent_idle)
 
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.movement.run.forward});
     expectRootboneRotation(VECTOR_RIGHT);
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_MoveRightEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackState_RotateLeftEvent)
@@ -192,9 +209,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_RotateTargetEvent)
 }
 TEST_F(CharacterControllerTests, DisarmedAttackState_EndAttackEvent)
 {
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()},
-                                 {ADVANCED_TIME_TRANSITION_TIME});
+    prepareState(*this);
     tiggerAndExpect<EndAttackEvent>({sut_.animationClipsNames_.disarmed.posture.stand.idle}, {ADVANCED_TIME_TRANSITION_TIME});
 }
 TEST_F(CharacterControllerTests, DisarmedAttackState_AttackEvent)
@@ -224,4 +239,177 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_AttackEvent)
     Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_MoveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_WalkChangeStateEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_SprintStateChangeEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_EndForwardMoveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_EndBackwardMoveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_EndMoveLeftEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_EndMoveRightEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_EndRotationEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_JumpEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_JumpConfirmEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_DodgeDiveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_DodgeForwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_DodgeBackwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_DodgeLeftEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_DodgeRightEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_DodgeEndEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_EquipEndStateEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_DisarmEndStateEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_ReloadArrowEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_AimStartEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_AimStopEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_StartFallingEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_GroundDetectionEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_HurtEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_AnimationPlayEndEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_ChangeAnimEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_StartDialogEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackState_EndDialogEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+TEST_F(CharacterControllerTests, DisarmedAttackState_MoveBackwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
 }

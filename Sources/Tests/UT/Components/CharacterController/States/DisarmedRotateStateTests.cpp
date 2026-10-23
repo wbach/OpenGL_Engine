@@ -17,8 +17,9 @@ TEST_F(CharacterControllerTests, DisarmedRotateState_DrawArrowEvent)
 {
     prepareState(*this);
     expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
-    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.armed.posture.stand.rotate.left, sut_.animationClipsNames_.equip.front()},
-                                    {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<DrawArrowEvent>(
+        {sut_.animationClipsNames_.armed.posture.stand.rotate.left, sut_.animationClipsNames_.equip.front()},
+        {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_TRANSITION_TIME});
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
     expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
@@ -30,8 +31,9 @@ TEST_F(CharacterControllerTests, DisarmedRotateState_AimStopDuringDrawArrowEvent
 {
     prepareState(*this);
     expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
-    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.armed.posture.stand.rotate.left, sut_.animationClipsNames_.equip.front()},
-                                    {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<DrawArrowEvent>(
+        {sut_.animationClipsNames_.armed.posture.stand.rotate.left, sut_.animationClipsNames_.equip.front()},
+        {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_TRANSITION_TIME});
 
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
     tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.armed.posture.stand.rotate.left},
@@ -125,6 +127,198 @@ TEST_F(CharacterControllerTests, DisarmedRotateState_EndRotationEvent)
     tiggerAndExpect<EndRotationEvent>({sut_.animationClipsNames_.disarmed.posture.stand.idle});
 }
 
+TEST_F(CharacterControllerTests, DisarmedRotateState_MoveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_MoveForwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_MoveBackwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_WalkChangeStateEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_SprintStateChangeEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_EndForwardMoveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_EndBackwardMoveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_EndMoveLeftEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_EndMoveRightEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_JumpEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_JumpConfirmEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_DodgeDiveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_DodgeForwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_DodgeBackwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_DodgeLeftEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_DodgeRightEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_DodgeEndEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_AttackEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_EndAttackEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_EquipEndStateEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_DisarmEndStateEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_ReloadArrowEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_AimStartEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_AimStopEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_CrouchChangeStateEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_StartFallingEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_GroundDetectionEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_HurtEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_AnimationPlayEndEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_ChangeAnimEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_StartDialogEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_EndDialogEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
 Quaternion caclulateTargetRotation(const vec3& toPlayer)
 {
     auto angle2 = atan2f(toPlayer.x, toPlayer.z);
@@ -156,8 +350,8 @@ TEST_F(CharacterControllerTests, DisarmedRotateState_XXX)
         auto rotation = caclulateTargetRotation(target - position);
 
         auto d = glm::dot(rotation, rotationRef);
-        /* LOG TO FIX*/  LOG_ERROR << (std::to_string(d));
-        /* LOG TO FIX*/  LOG_ERROR << (std::to_string(ToDegrees(acosf(d))));
+        /* LOG TO FIX*/ LOG_ERROR << (std::to_string(d));
+        /* LOG TO FIX*/ LOG_ERROR << (std::to_string(ToDegrees(acosf(d))));
 
         target.x += 0.1f;
     }
@@ -168,8 +362,8 @@ TEST_F(CharacterControllerTests, DisarmedRotateState_XXX)
         auto rotation = caclulateTargetRotation(target - position);
 
         auto d = glm::dot(rotation, rotationRef);
-        /* LOG TO FIX*/  LOG_ERROR << (std::to_string(d));
-        /* LOG TO FIX*/  LOG_ERROR << (std::to_string(ToDegrees(acosf(d))));
+        /* LOG TO FIX*/ LOG_ERROR << (std::to_string(d));
+        /* LOG TO FIX*/ LOG_ERROR << (std::to_string(ToDegrees(acosf(d))));
         target.x -= 0.1f;
     }
 }

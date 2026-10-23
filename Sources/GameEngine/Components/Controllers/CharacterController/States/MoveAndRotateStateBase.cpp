@@ -27,6 +27,11 @@ void MoveAndRotateStateBase::onEnter(const SprintStateChangeEvent &event)
     MoveStateBase::update(event);
 }
 
+void MoveAndRotateStateBase::onEnter(const MoveEvent &event)
+{
+    MoveStateBase::update(event);
+}
+
 void MoveAndRotateStateBase::onEnter(const MoveForwardEvent &event)
 {
     MoveStateBase::update(event);

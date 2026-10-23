@@ -166,32 +166,152 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_JumpEvent)
     }
 }
 
-// TEST_F(CharacterControllerTests, DisarmedIdleState_StartFallingEvent)
-// {
-//     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+TEST_F(CharacterControllerTests, DisarmedIdleState_MoveEvent)
+{
+    /* TODO: Implement test */
+}
 
-//     Physics::CollisionSubId collisionCallbackId{1};
-//     Physics::CollisionCallback collisionCallback;
-//     EXPECT_CALL(physicsApiMock_, setCollisionCallback(_, _))
-//         .WillOnce(DoAll(SaveArg<1>(&collisionCallback), Return(collisionCallbackId)));
+TEST_F(CharacterControllerTests, DisarmedIdleState_MoveBackwardEvent)
+{
+    /* TODO: Implement test */
+}
 
-//     tiggerAndExpect<StartFallingEvent>(sut_.animationClipsNames_.disarmed.falling);
+TEST_F(CharacterControllerTests, DisarmedIdleState_WalkChangeStateEvent)
+{
+    /* TODO: Implement test */
+}
 
-//     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).Times(0);
-//     sut_.triggerJump();
+TEST_F(CharacterControllerTests, DisarmedIdleState_SprintStateChangeEvent)
+{
+    /* TODO: Implement test */
+}
 
-//     Update(ADVANCED_TIME_TRANSITION_TIME);
-//     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.jump});
+TEST_F(CharacterControllerTests, DisarmedIdleState_EndForwardMoveEvent)
+{
+    /* TODO: Implement test */
+}
 
-//     auto rId = rigidbody_->GetId().value();
-//     Physics::CollisionContactInfo groundDetectinfo{.pos1 = vec3(0),
-//                                                    .pos2 = rigidbody_->GetParentGameObject().GetWorldTransform().GetPosition(),
-//                                                    .rigidbodyId1 = rId,
-//                                                    .rigidbodyId2 = rId + 10};
+TEST_F(CharacterControllerTests, DisarmedIdleState_EndBackwardMoveEvent)
+{
+    /* TODO: Implement test */
+}
 
-//     EXPECT_CALL(physicsApiMock_, celarCollisionCallback(collisionCallbackId));
-//     collisionCallback(groundDetectinfo);
+TEST_F(CharacterControllerTests, DisarmedIdleState_EndMoveLeftEvent)
+{
+    /* TODO: Implement test */
+}
 
-//     Update(ADVANCED_TIME_TRANSITION_TIME);
-//     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
-// }
+TEST_F(CharacterControllerTests, DisarmedIdleState_EndMoveRightEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_RotateTargetEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_EndRotationEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_JumpConfirmEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_DodgeDiveEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_DodgeForwardEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_DodgeBackwardEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_DodgeLeftEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_DodgeRightEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_DodgeEndEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_EndAttackEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_EquipEndStateEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_DisarmEndStateEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_ReloadArrowEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_AimStartEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_AimStopEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_StartFallingEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_GroundDetectionEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_HurtEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_AnimationPlayEndEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_ChangeAnimEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_StartDialogEvent)
+{
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_EndDialogEvent)
+{
+    /* TODO: Implement test */
+}

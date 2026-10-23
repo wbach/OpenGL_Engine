@@ -25,13 +25,13 @@ TEST_F(CharacterControllerTests, DrawArrowWalk_CrouchChangeStateEvent)
     tiggerAndExpect<CrouchChangeStateEvent>(
         {sut_.animationClipsNames_.aim.draw, sut_.animationClipsNames_.armed.movement.crouch.forward});
 }
-TEST_F(CharacterControllerTests, DrawArrowWalk_RotateLeft)
+TEST_F(CharacterControllerTests, DrawArrowWalk_RotateLeftEvent)
 {
     prepareState(*this);
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
     tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.aim.draw, sut_.animationClipsNames_.armed.movement.walk.forward});
 }
-TEST_F(CharacterControllerTests, DrawArrowWalk_RotateRight)
+TEST_F(CharacterControllerTests, DrawArrowWalk_RotateRightEvent)
 {
     prepareState(*this);
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
@@ -74,7 +74,7 @@ TEST_F(CharacterControllerTests, DrawArrowWalk_MoveForwardEvent)
     tiggerAndExpect<MoveForwardEvent>(
         {sut_.animationClipsNames_.aim.draw, sut_.animationClipsNames_.armed.movement.walk.forward});
 }
-TEST_F(CharacterControllerTests, DrawArrowWalk_WalkBackwardEvent)
+TEST_F(CharacterControllerTests, DrawArrowWalk_MoveBackwardEvent)
 {
     prepareState(*this);
     expectNoMove();
@@ -126,4 +126,136 @@ TEST_F(CharacterControllerTests, DrawArrowWalk_EndBackwardMoveEvent)
     tiggerAndExpect<MoveBackwardEvent>(
         {sut_.animationClipsNames_.aim.draw, sut_.animationClipsNames_.armed.movement.walk.backward});
     tiggerAndExpect<EndBackwardMoveEvent>({sut_.animationClipsNames_.aim.draw});
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_MoveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_EndMoveLeftEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_EndMoveRightEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_EndRotationEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_JumpEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_JumpConfirmEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_DodgeDiveEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_DodgeForwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_DodgeBackwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_DodgeLeftEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_DodgeRightEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_DodgeEndEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_AttackEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_EndAttackEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_EquipEndStateEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_DisarmEndStateEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_DrawArrowEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_ReloadArrowEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_AnimationPlayEndEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_ChangeAnimEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_StartDialogEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_EndDialogEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
 }

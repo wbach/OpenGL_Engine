@@ -29,6 +29,7 @@ public:
     void onEnter(const WalkChangeStateEvent &);
     void postEnter();
 
+    void update(const MoveEvent &);
     void update(const MoveForwardEvent &);
     void update(const MoveBackwardEvent &);
     void update(const MoveLeftEvent &);
