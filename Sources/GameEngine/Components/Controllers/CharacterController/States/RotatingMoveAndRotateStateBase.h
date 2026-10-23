@@ -20,6 +20,7 @@ public:
     void onEnter(const EndAttackEvent &);
     void onEnter(const SprintStateChangeEvent &);
     void onEnter(const GroundDetectionEvent &);
+    void onEnter(const MoveEvent &);
     void onEnter(const MoveForwardEvent &);
     void onEnter(const MoveBackwardEvent &);
     void onEnter(const MoveLeftEvent &);
@@ -35,6 +36,7 @@ public:
     void update(const RotateTargetEvent &);
     void update(const AttackEvent &);
     void update(const EndAttackEvent &);
+    void update(const MoveEvent &);
     void update(const MoveForwardEvent &);
     void update(const MoveBackwardEvent &);
     void update(const MoveLeftEvent &);

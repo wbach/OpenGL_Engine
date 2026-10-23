@@ -16,6 +16,7 @@ class DisarmedRotateState
           Utils::StateMachine::On<HurtEvent, Utils::StateMachine::TransitionTo<HurtState>>,
           Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<DisarmedCrouchRotateState>>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
+          Utils::StateMachine::On<MoveEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,

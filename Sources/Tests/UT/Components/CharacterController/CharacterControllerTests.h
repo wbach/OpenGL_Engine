@@ -62,11 +62,18 @@ struct CharacterControllerTests : public BaseComponentTestSchould
     }
 
     template <typename Event>
-    void expectIngoreEvent()
+    void expectIgnoreEvent()
     {
         const auto currentAnimName = animator_->getCurrentAnimationName();
-        expectNoMove();
-        expectNoRotation();
+        if (not velocityIsExpected)
+        {
+            expectNoMove();
+        }
+
+        if (not rotationIsExpected)
+        {
+            expectNoRotation();
+        }
         tiggerAndExpect<Event>({currentAnimName});
     }
 
@@ -98,6 +105,8 @@ struct CharacterControllerTests : public BaseComponentTestSchould
     AttackAnimation* disarmedAttackClip3;
 
     vec3 lastSetVelocity = vec3(0);
+    bool rotationIsExpected{false};
+    bool velocityIsExpected{false};
 
     std::pair<GameEngine::Physics::CollisionSubId, GameEngine::Physics::CollisionDetection> groundEnterSub{1, {}};
     std::pair<GameEngine::Physics::CollisionSubId, GameEngine::Physics::CollisionDetection> groundExitSub{2, {}};

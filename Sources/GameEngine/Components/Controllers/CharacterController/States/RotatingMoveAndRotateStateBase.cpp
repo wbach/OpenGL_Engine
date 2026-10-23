@@ -6,88 +6,98 @@ namespace GameEngine
 {
 namespace Components
 {
-RotatingMoveAndRotateStateBase::RotatingMoveAndRotateStateBase(FsmContext &context,
-                                                               const std::optional<std::string> &moveJointGroupName,
-                                                               const MoveSpeed &moveSpeed, const MovmentClipNames &clipnames,
-                                                               const RotateAnimationClips &rotateClips)
+RotatingMoveAndRotateStateBase::RotatingMoveAndRotateStateBase(FsmContext& context,
+                                                               const std::optional<std::string>& moveJointGroupName,
+                                                               const MoveSpeed& moveSpeed, const MovmentClipNames& clipnames,
+                                                               const RotateAnimationClips& rotateClips)
     : RotatingMoveState{context, moveJointGroupName, moveSpeed.forward, clipnames.forward}
     , RotateStateBase{context, moveJointGroupName, moveSpeed.rotate, rotateClips}
 {
 }
 
-RotatingMoveAndRotateStateBase::RotatingMoveAndRotateStateBase(FsmContext &context,
-                                                               const std::optional<std::string> &moveJointGroupName,
-                                                               float forwardSpeed, const std::string &forwardAnimName,
-                                                               float rotateSpeed, const RotateAnimationClips &rotateClips)
+RotatingMoveAndRotateStateBase::RotatingMoveAndRotateStateBase(FsmContext& context,
+                                                               const std::optional<std::string>& moveJointGroupName,
+                                                               float forwardSpeed, const std::string& forwardAnimName,
+                                                               float rotateSpeed, const RotateAnimationClips& rotateClips)
     : RotatingMoveState{context, moveJointGroupName, forwardSpeed, forwardAnimName}
     , RotateStateBase{context, moveJointGroupName, rotateSpeed, rotateClips}
 {
 }
 
-void RotatingMoveAndRotateStateBase::onEnter(const EndAttackEvent &e)
+void RotatingMoveAndRotateStateBase::onEnter(const EndAttackEvent& e)
 {
     RotateStateBase::onEnter(e);
 }
 
-void RotatingMoveAndRotateStateBase::onEnter(const SprintStateChangeEvent &event)
+void RotatingMoveAndRotateStateBase::onEnter(const SprintStateChangeEvent& event)
 {
     RotatingMoveState::update(event);
 }
 
-void RotatingMoveAndRotateStateBase::onEnter(const MoveForwardEvent &event)
+void RotatingMoveAndRotateStateBase::onEnter(const MoveEvent& event)
 {
     RotatingMoveState::update(event);
 }
 
-void RotatingMoveAndRotateStateBase::onEnter(const MoveBackwardEvent &event)
+void RotatingMoveAndRotateStateBase::onEnter(const MoveForwardEvent& event)
 {
     RotatingMoveState::update(event);
 }
 
-void RotatingMoveAndRotateStateBase::onEnter(const MoveLeftEvent &event)
+void RotatingMoveAndRotateStateBase::onEnter(const MoveBackwardEvent& event)
+{
+    RotatingMoveState::update(event);
+}
+
+void RotatingMoveAndRotateStateBase::onEnter(const MoveLeftEvent& event)
 {
     RotatingMoveState::onEnter(event);
 }
 
-void RotatingMoveAndRotateStateBase::onEnter(const MoveRightEvent &event)
+void RotatingMoveAndRotateStateBase::onEnter(const MoveRightEvent& event)
 {
     RotatingMoveState::onEnter(event);
 }
 
-void RotatingMoveAndRotateStateBase::update(const AttackEvent &event)
+void RotatingMoveAndRotateStateBase::update(const AttackEvent& event)
 {
 }
 
-void RotatingMoveAndRotateStateBase::update(const EndAttackEvent &event)
+void RotatingMoveAndRotateStateBase::update(const EndAttackEvent& event)
 {
 }
 
-void RotatingMoveAndRotateStateBase::update(const MoveLeftEvent &e)
-{
-    RotatingMoveState::update(e);
-}
-
-void RotatingMoveAndRotateStateBase::update(const MoveRightEvent &e)
+void RotatingMoveAndRotateStateBase::update(const MoveLeftEvent& e)
 {
     RotatingMoveState::update(e);
 }
 
-void RotatingMoveAndRotateStateBase::update(const MoveForwardEvent &e)
+void RotatingMoveAndRotateStateBase::update(const MoveRightEvent& e)
 {
     RotatingMoveState::update(e);
 }
 
-void RotatingMoveAndRotateStateBase::update(const MoveBackwardEvent &e)
+void RotatingMoveAndRotateStateBase::update(const MoveForwardEvent& e)
 {
     RotatingMoveState::update(e);
 }
 
-bool RotatingMoveAndRotateStateBase::leaveCondition(const EndForwardMoveEvent &e)
+void RotatingMoveAndRotateStateBase::update(const MoveBackwardEvent& e)
+{
+    RotatingMoveState::update(e);
+}
+
+void RotatingMoveAndRotateStateBase::update(const MoveEvent& e)
+{
+    RotatingMoveState::update(e);
+}
+
+bool RotatingMoveAndRotateStateBase::leaveCondition(const EndForwardMoveEvent& e)
 {
     return RotatingMoveState::leaveCondition(e);
 }
 
-bool RotatingMoveAndRotateStateBase::leaveCondition(const EndBackwardMoveEvent &e)
+bool RotatingMoveAndRotateStateBase::leaveCondition(const EndBackwardMoveEvent& e)
 {
     return RotatingMoveState::leaveCondition(e);
 }
@@ -97,42 +107,42 @@ void RotatingMoveAndRotateStateBase::onMoveInactivity()
     RotateStateBase::setCurrentAnim();
 }
 
-void RotatingMoveAndRotateStateBase::onEnter(const GroundDetectionEvent &event)
+void RotatingMoveAndRotateStateBase::onEnter(const GroundDetectionEvent& event)
 {
     RotatingMoveState::onEnter(event);
 }
 
-void RotatingMoveAndRotateStateBase::onEnter(const RotateLeftEvent &event)
+void RotatingMoveAndRotateStateBase::onEnter(const RotateLeftEvent& event)
 {
     RotateStateBase::update(event);
 }
 
-void RotatingMoveAndRotateStateBase::onEnter(const RotateRightEvent &event)
+void RotatingMoveAndRotateStateBase::onEnter(const RotateRightEvent& event)
 {
     RotateStateBase::update(event);
 }
 
-void RotatingMoveAndRotateStateBase::onEnter(const RotateTargetEvent &event)
+void RotatingMoveAndRotateStateBase::onEnter(const RotateTargetEvent& event)
 {
     RotateStateBase::update(event);
 }
 
-void RotatingMoveAndRotateStateBase::onEnter(const WalkChangeStateEvent &event)
+void RotatingMoveAndRotateStateBase::onEnter(const WalkChangeStateEvent& event)
 {
     RotatingMoveState::onEnter(event);
 }
 
-void RotatingMoveAndRotateStateBase::update(const RotateLeftEvent &event)
+void RotatingMoveAndRotateStateBase::update(const RotateLeftEvent& event)
 {
     RotateStateBase::update(event);
 }
 
-void RotatingMoveAndRotateStateBase::update(const RotateRightEvent &event)
+void RotatingMoveAndRotateStateBase::update(const RotateRightEvent& event)
 {
     RotateStateBase::update(event);
 }
 
-void RotatingMoveAndRotateStateBase::update(const RotateTargetEvent &event)
+void RotatingMoveAndRotateStateBase::update(const RotateTargetEvent& event)
 {
     RotateStateBase::update(event);
 }

@@ -60,8 +60,8 @@ CharacterControllerTests::CharacterControllerTests()
 }
 CharacterControllerTests::~CharacterControllerTests()
 {
-    //EXPECT_CALL(physicsApiMock_, RemoveShape(shapeId));
-    //EXPECT_CALL(physicsApiMock_, RemoveRigidBody(rigidbodyid));
+    // EXPECT_CALL(physicsApiMock_, RemoveShape(shapeId));
+    // EXPECT_CALL(physicsApiMock_, RemoveRigidBody(rigidbodyid));
     LOG_DEBUG << "";
 }
 void CharacterControllerTests::SetUp()
@@ -170,9 +170,9 @@ void CharacterControllerTests::initAnimations()
     clips.armed.dodge.left     = "ADL";
     clips.armed.dodge.right    = "ADR";
     clips.armed.attack         = {
-                AttackAnimation{.clipsSequence = {AnimSequence{.clipNames = {"A1"}}}, .stateType = PlayStateType::idle},
-                AttackAnimation{.clipsSequence = {AnimSequence{.clipNames = {"A2"}}}, .stateType = PlayStateType::idle},
-                AttackAnimation{.clipsSequence = {AnimSequence{.clipNames = {"A3"}}}, .stateType = PlayStateType::idle}};
+        AttackAnimation{.clipsSequence = {AnimSequence{.clipNames = {"A1"}}}, .stateType = PlayStateType::idle},
+        AttackAnimation{.clipsSequence = {AnimSequence{.clipNames = {"A2"}}}, .stateType = PlayStateType::idle},
+        AttackAnimation{.clipsSequence = {AnimSequence{.clipNames = {"A3"}}}, .stateType = PlayStateType::idle}};
 
     armedAttackClip1 = &clips.armed.attack[0];
     armedAttackClip2 = &clips.armed.attack[1];
@@ -372,6 +372,7 @@ void CharacterControllerTests::expectVelocity(const vec3& dir, const vec3& moveS
     EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, velocity))
         .Times(AtLeast(1))
         .WillRepeatedly(SaveArg<1>(&lastSetVelocity));
+    velocityIsExpected = true;
 }
 
 void CharacterControllerTests::expectForwardVelocity(float speed)
@@ -382,6 +383,7 @@ void CharacterControllerTests::expectForwardVelocity(float speed)
     EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, speed)))
         .Times(AtLeast(1))
         .WillRepeatedly(SaveArg<1>(&lastSetVelocity));
+    velocityIsExpected = true;
 }
 
 void CharacterControllerTests::expectLeftVelocity(float speed)
@@ -391,6 +393,7 @@ void CharacterControllerTests::expectLeftVelocity(float speed)
     EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(speed, 0.0, 0.0)))
         .Times(AtLeast(1))
         .WillRepeatedly(SaveArg<1>(&lastSetVelocity));
+    velocityIsExpected = true;
 }
 
 Rotation CharacterControllerTests::createRotaion(float deltaTime, float rotateSpeed)
@@ -405,6 +408,7 @@ void CharacterControllerTests::expectRotatation(float deltaTime, float rotateSpe
     /* LOG TO FIX*/ LOG_ERROR << ("Expected rotation : " + std::to_string(rotation.value_));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(rotation.value_))).Times(AtLeast(1));
+    rotationIsExpected = true;
 }
 
 void CharacterControllerTests::expectRotationLeft(float dt)
