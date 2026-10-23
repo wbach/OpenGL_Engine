@@ -61,6 +61,15 @@ struct CharacterControllerTests : public BaseComponentTestSchould
         tiggerAndExpect<Event>(event, clipNames, updateTimes);
     }
 
+    template <typename Event>
+    void expectIngoreEvent()
+    {
+        const auto currentAnimName = animator_->getCurrentAnimationName();
+        expectNoMove();
+        expectNoRotation();
+        tiggerAndExpect<Event>({currentAnimName});
+    }
+
     void expectNoMove();
     void expectNoRotation();
     void expectVelocity(const vec3& dir, const vec3& moveSpeed, const vec3& currentVelocity = vec3(0));

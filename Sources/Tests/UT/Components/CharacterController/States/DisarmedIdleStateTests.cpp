@@ -56,7 +56,7 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_MoveForwardEvent)
     expectRootboneRotation(VECTOR_FORWARD);
 }
 
-TEST_F(CharacterControllerTests, DisarmedIdleState_RunBackwardEvent)
+TEST_F(CharacterControllerTests, DisarmedIdleState_MoveBackwardEvent)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
     expectForwardVelocity(-DEFAULT_RUN_SPEED);
@@ -168,57 +168,67 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_JumpEvent)
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_MoveEvent)
 {
-    /* TODO: Implement test */
-}
-
-TEST_F(CharacterControllerTests, DisarmedIdleState_MoveBackwardEvent)
-{
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    expectForwardVelocity(DEFAULT_RUN_SPEED);
+    tiggerAndExpect<MoveEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward});
+    expectRootboneRotation(VECTOR_FORWARD);
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_WalkChangeStateEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    expectIngoreEvent<WalkChangeStateEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_SprintStateChangeEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    expectIngoreEvent<SprintStateChangeEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_EndForwardMoveEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    expectIngoreEvent<EndForwardMoveEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_EndBackwardMoveEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    expectIngoreEvent<EndBackwardMoveEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_EndMoveLeftEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    expectIngoreEvent<EndMoveLeftEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_EndMoveRightEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    expectIngoreEvent<EndMoveRightEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_RotateTargetEvent)
 {
     /* TODO: Implement test */
+
+    // expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    // expectRotationLeft();
+    // tiggerAndExpect({sut_.animationClipsNames_.disarmed.posture.stand.rotate.left}, {}, RotateTargetEvent{.target = {}});
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_EndRotationEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    expectIngoreEvent<EndRotationEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_JumpConfirmEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    expectIngoreEvent<JumpConfirmEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_DodgeDiveEvent)
@@ -248,22 +258,26 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_DodgeRightEvent)
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_DodgeEndEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    expectIngoreEvent<DodgeEndEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_EndAttackEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    expectIngoreEvent<EndAttackEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_EquipEndStateEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    expectIngoreEvent<EquipEndStateEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_DisarmEndStateEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    expectIngoreEvent<DisarmEndStateEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_ReloadArrowEvent)
@@ -288,7 +302,8 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_StartFallingEvent)
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_GroundDetectionEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    expectIngoreEvent<GroundDetectionEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_HurtEvent)
@@ -298,12 +313,14 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_HurtEvent)
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_AnimationPlayEndEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    expectIngoreEvent<AnimationPlayEndEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_ChangeAnimEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    expectIngoreEvent<ChangeAnimEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_StartDialogEvent)
@@ -313,5 +330,6 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_StartDialogEvent)
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_EndDialogEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    expectIngoreEvent<EndDialogEvent>();
 }
