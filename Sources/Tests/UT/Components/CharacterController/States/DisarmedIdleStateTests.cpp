@@ -311,7 +311,8 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_AimStopEvent)
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_StartFallingEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling});
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_GroundDetectionEvent)
@@ -322,7 +323,8 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_GroundDetectionEvent)
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_HurtEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    tiggerAndExpect<HurtEvent>({sut_.animationClipsNames_.disarmed.posture.stand.hurt});
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_AnimationPlayEndEvent)
@@ -339,7 +341,9 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_ChangeAnimEvent)
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_StartDialogEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    tiggerAndExpect({sut_.animationClipsNames_.disarmed.dialog.listen}, {ADVANCED_TIME_TRANSITION_TIME},
+                    StartDialogEvent{.role = StartDialogEvent::Role::Listener});
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_EndDialogEvent)
