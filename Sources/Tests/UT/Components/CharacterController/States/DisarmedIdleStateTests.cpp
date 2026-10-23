@@ -212,11 +212,10 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_EndMoveRightEvent)
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_RotateTargetEvent)
 {
-    /* TODO: Implement test */
-
-    // expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
-    // expectRotationLeft();
-    // tiggerAndExpect({sut_.animationClipsNames_.disarmed.posture.stand.rotate.left}, {}, RotateTargetEvent{.target = {}});
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
+    tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
+                                       {sut_.animationClipsNames_.disarmed.posture.stand.rotate.left});
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_EndRotationEvent)
@@ -233,7 +232,8 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_JumpConfirmEvent)
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_DodgeDiveEvent)
 {
-    /* TODO: Implement test */
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    tiggerAndExpect<DodgeDiveEvent>({sut_.animationClipsNames_.disarmed.dodgeDive});
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_DodgeForwardEvent)
