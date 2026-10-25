@@ -2,7 +2,7 @@
 
 #include "AttackStateBase.h"
 #include "CharacterControllerCommonDefs.h"
-#include "DisarmedStateBase.h"
+#include "Disarmed.h"
 #include "RotateStateBase.h"
 #include "RotatingMoveState.h"
 
@@ -11,7 +11,7 @@ namespace GameEngine
 namespace Components
 {
 class DisarmedAttackAndRunAndRotateState
-    : public DisarmedStateBase,
+    : public Disarmed,
       public AttackStateBase,
       public RotateStateBase,
       public RotatingMoveState,

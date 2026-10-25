@@ -8,7 +8,7 @@ namespace GameEngine
 namespace Components
 {
 AimRotateState::AimRotateState(FsmContext& context)
-    : ArmedStateBase(context.animClipNames)
+    : Armed(context.animClipNames)
     , AimStateBase(context, context.upperBodyGroupName)
     , RotateStateBase(context, context.lowerBodyGroupName, context.runSpeed.rotate,
                       context.animClipNames.armed.posture.stand.rotate, RotateStateBase::CameraRotationPolicy::none)

@@ -1,5 +1,5 @@
 #pragma once
-#include "ArmedStateBase.h"
+#include "Armed.h"
 #include "CharacterControllerCommonDefs.h"
 #include "IdleStateBase.h"
 
@@ -8,7 +8,7 @@ namespace GameEngine
 namespace Components
 {
 class ArmedIdleState
-    : public ArmedStateBase,
+    : public Armed,
       public IdleStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,

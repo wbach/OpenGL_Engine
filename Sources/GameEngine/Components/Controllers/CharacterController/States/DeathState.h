@@ -1,7 +1,7 @@
 #pragma once
-#include "ArmedStateBase.h"
+#include "Armed.h"
 #include "CharacterControllerCommonDefs.h"
-#include "DisarmedStateBase.h"
+#include "Disarmed.h"
 
 namespace GameEngine
 {
@@ -14,7 +14,7 @@ public:
     void update(float);
 
     template <typename PrevState, typename Event>
-        requires(std::derived_from<PrevState, DisarmedStateBase> or std::derived_from<PrevState, ArmedStateBase>)
+        requires(std::derived_from<PrevState, Disarmed> or std::derived_from<PrevState, Armed>)
     void onEnter(PrevState& state, const Event&)
     {
         setAnim(state.getClips().posture.stand.death);

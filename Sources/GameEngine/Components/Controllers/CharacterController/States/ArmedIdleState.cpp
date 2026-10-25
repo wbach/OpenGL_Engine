@@ -9,7 +9,7 @@ namespace Components
 {
 ArmedIdleState::ArmedIdleState(FsmContext &context)
     : BaseState(context)
-    , ArmedStateBase(context.animClipNames)
+    , Armed(context.animClipNames)
     , IdleStateBase(context, context.animClipNames.armed.posture.stand.idle)
 {
 }

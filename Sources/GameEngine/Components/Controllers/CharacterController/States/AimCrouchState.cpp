@@ -9,7 +9,7 @@ namespace Components
 {
 AimCrouchState::AimCrouchState(FsmContext& context)
     : BaseState(context)
-    , ArmedStateBase(context.animClipNames)
+    , Armed(context.animClipNames)
     , AimStateBase(context, context.upperBodyGroupName)
     , IdleStateBase(context, context.animClipNames.armed.posture.crouched.idle, context.lowerBodyGroupName)
     , context_{context}

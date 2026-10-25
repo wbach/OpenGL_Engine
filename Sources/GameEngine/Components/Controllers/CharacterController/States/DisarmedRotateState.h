@@ -1,7 +1,7 @@
 #pragma once
 #include "CharacterControllerCommonDefs.h"
 #include "DisarmedCrouchRotateState.h"
-#include "DisarmedStateBase.h"
+#include "Disarmed.h"
 #include "Fsm/actions/TransitionTo.h"
 #include "RotateStateBase.h"
 
@@ -10,7 +10,7 @@ namespace GameEngine
 namespace Components
 {
 class DisarmedRotateState
-    : public DisarmedStateBase,
+    : public Disarmed,
       public RotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,

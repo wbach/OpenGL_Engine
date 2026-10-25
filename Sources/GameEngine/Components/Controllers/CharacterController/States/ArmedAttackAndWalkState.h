@@ -1,5 +1,5 @@
 #pragma once
-#include "ArmedStateBase.h"
+#include "Armed.h"
 #include "AttackStateBase.h"
 #include "CharacterControllerCommonDefs.h"
 #include "RotatingMoveState.h"
@@ -9,7 +9,7 @@ namespace GameEngine
 namespace Components
 {
 class ArmedAttackAndWalkState
-    : public ArmedStateBase,
+    : public Armed,
       public AttackStateBase,
       public RotatingMoveState,
       public Utils::StateMachine::Will<

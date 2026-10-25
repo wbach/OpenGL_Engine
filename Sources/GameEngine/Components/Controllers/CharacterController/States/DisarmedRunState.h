@@ -1,6 +1,6 @@
 #pragma once
 #include "CharacterControllerCommonDefs.h"
-#include "DisarmedStateBase.h"
+#include "Disarmed.h"
 #include "RotatingMoveState.h"
 
 namespace GameEngine
@@ -8,7 +8,7 @@ namespace GameEngine
 namespace Components
 {
 class DisarmedRunState
-    : public DisarmedStateBase,
+    : public Disarmed,
       public RotatingMoveState,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,

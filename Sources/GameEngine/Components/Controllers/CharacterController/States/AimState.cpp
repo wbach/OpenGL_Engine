@@ -8,7 +8,7 @@ namespace GameEngine
 namespace Components
 {
 AimState::AimState(FsmContext& context)
-    : ArmedStateBase(context.animClipNames)
+    : Armed(context.animClipNames)
     , AimStateBase(context, std::nullopt)
 {
 }

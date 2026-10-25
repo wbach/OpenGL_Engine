@@ -5,11 +5,11 @@ namespace GameEngine
 {
 namespace Components
 {
-class DisarmedStateBase
+class Armed
 {
 public:
-    DisarmedStateBase(const AnimationClipsNames& c)
-        : clips(c.disarmed)
+    Armed(const AnimationClipsNames& c)
+        : clips(c.armed)
     {
     }
 

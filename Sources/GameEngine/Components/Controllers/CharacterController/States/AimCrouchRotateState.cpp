@@ -8,7 +8,7 @@ namespace GameEngine
 namespace Components
 {
 AimCrouchRotateState::AimCrouchRotateState(FsmContext& context)
-    : ArmedStateBase(context.animClipNames)
+    : Armed(context.animClipNames)
     , AimStateBase(context, context.upperBodyGroupName)
     , RotateStateBase(context, context.lowerBodyGroupName, context.runSpeed.rotate, 
                       context.animClipNames.armed.posture.crouched.rotate,
