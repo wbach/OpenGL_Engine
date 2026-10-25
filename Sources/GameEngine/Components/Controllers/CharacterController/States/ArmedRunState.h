@@ -41,6 +41,7 @@ public:
 
     using RotatingMoveState::onEnter;
     using RotatingMoveState::update;
+    using RotatingMoveState::postEnter;
 
     Utils::StateMachine::Maybe<Utils::StateMachine::TransitionTo<ArmedAttackState>,
                                Utils::StateMachine::TransitionTo<ArmedAttackAndWalkState>,

@@ -14,7 +14,7 @@ namespace GameEngine
 {
 namespace Components
 {
-AttackStateBase::AttackStateBase(FsmContext &context, const std::vector<AttackAnimation> &clipnames,
+AttackStateBase::AttackStateBase(FsmContext& context, const std::vector<AttackAnimation>& clipnames,
                                  const std::optional<std::string> jointGroupName)
     : BaseState{context}
     , attackStatesContext(context.attackStatesContext)
@@ -22,67 +22,67 @@ AttackStateBase::AttackStateBase(FsmContext &context, const std::vector<AttackAn
     , jointGroupName{jointGroupName}
 {
 }
-void AttackStateBase::onEnter(DisarmedRunState &)
+void AttackStateBase::onEnter(DisarmedRunState&)
 {
     attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::run;
 }
-void AttackStateBase::onEnter(DisarmedWalkState &)
+void AttackStateBase::onEnter(DisarmedWalkState&)
 {
     attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::walk;
 }
-void AttackStateBase::onEnter(ArmedRunState &)
+void AttackStateBase::onEnter(ArmedRunState&)
 {
     attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::run;
 }
-void AttackStateBase::onEnter(ArmedWalkState &)
+void AttackStateBase::onEnter(ArmedWalkState&)
 {
     attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::walk;
 }
-void AttackStateBase::onEnter(const AttackEvent &)
+void AttackStateBase::onEnter(const AttackEvent&)
 {
     startPlayCurrentAnimation();
 }
 
-void AttackStateBase::onEnter(const EndForwardMoveEvent &)
+void AttackStateBase::onEnter(const EndForwardMoveEvent&)
 {
     attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::idle;
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 
-void AttackStateBase::onEnter(const EndBackwardMoveEvent &)
+void AttackStateBase::onEnter(const EndBackwardMoveEvent&)
 {
     attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::idle;
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 
-void AttackStateBase::onEnter(const EndMoveLeftEvent &)
+void AttackStateBase::onEnter(const EndMoveLeftEvent&)
 {
     attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::idle;
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 
-void AttackStateBase::onEnter(const EndMoveRightEvent &)
+void AttackStateBase::onEnter(const EndMoveRightEvent&)
 {
     attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::idle;
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 
-void AttackStateBase::onEnter(const EndRotationEvent &)
+void AttackStateBase::onEnter(const EndRotationEvent&)
 {
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 
-void AttackStateBase::onEnter(const ChangeAnimEvent &event)
+void AttackStateBase::onEnter(const ChangeAnimEvent& event)
 {
     update(event);
 }
 
-void AttackStateBase::update(const AttackEvent &)
+void AttackStateBase::update(const AttackEvent&)
 {
     attackStatesContext.pendingAttacksCount = std::min(attackStatesContext.pendingAttacksCount + 1, 1u);
 }
 
-void AttackStateBase::update(const ChangeAnimEvent &event)
+void AttackStateBase::update(const ChangeAnimEvent& event)
 {
     context_.animator.ChangeAnimation(event.name, Animator::AnimationChangeType::smooth, PlayDirection::forward, jointGroupName);
 
@@ -94,18 +94,20 @@ void AttackStateBase::update(float)
 {
 }
 
-void AttackStateBase::onLeave(const EndAttackEvent &)
+void AttackStateBase::onLeave(const EndAttackEvent&)
 {
     LOG_DEBUG << magic_enum::enum_name(attackStatesContext.nextMoveState);
 
     if (attackStatesContext.nextMoveState == AttackStatesContext::NextMoveState::run or
         attackStatesContext.nextMoveState == AttackStatesContext::NextMoveState::walk)
     {
+        LOG_DEBUG << "MoveEvent";
         context_.characterController.pushEventToQueue(MoveEvent{});
     }
 
     if (attackStatesContext.nextMoveState == AttackStatesContext::NextMoveState::walk)
     {
+        LOG_DEBUG << "WalkChangeStateEvent";
         context_.characterController.pushEventToQueue(WalkChangeStateEvent{});
     }
 
@@ -128,8 +130,8 @@ const std::optional<std::pair<std::string_view, PlayStateType>> AttackStateBase:
         return {};
     }
 
-    const auto &currentAnimation = attackClipNames[attackStatesContext.currentAnimation];
-    const auto &clipsSequence    = currentAnimation.clipsSequence;
+    const auto& currentAnimation = attackClipNames[attackStatesContext.currentAnimation];
+    const auto& clipsSequence    = currentAnimation.clipsSequence;
     if (clipsSequence.empty())
     {
         LOG_DEBUG << "clipsSequence empty";
@@ -139,7 +141,7 @@ const std::optional<std::pair<std::string_view, PlayStateType>> AttackStateBase:
     return std::pair<std::string_view, PlayStateType>{clipsSequence[attackStatesContext.currentSequenceClip],
                                                       currentAnimation.stateType};
 }
-void AttackStateBase::update(const AnimationPlayEndEvent &)
+void AttackStateBase::update(const AnimationPlayEndEvent&)
 {
     if (attackStatesContext.animationSubId)
     {
@@ -153,7 +155,7 @@ void AttackStateBase::update(const AnimationPlayEndEvent &)
         LOG_DEBUG << "meleAttackComponent not found";
     }
 
-    const auto &currentSequence = attackClipNames[attackStatesContext.currentAnimation].clipsSequence;
+    const auto& currentSequence = attackClipNames[attackStatesContext.currentAnimation].clipsSequence;
     if (attackStatesContext.currentSequenceClip < currentSequence.size() - 1)
     {
         ++attackStatesContext.currentSequenceClip;
@@ -191,7 +193,7 @@ void AttackStateBase::startPlayCurrentAnimation()
 {
     if (auto clip = getCurrentAnimation())
     {
-        const auto &[clipName, stateType]    = *clip;
+        const auto& [clipName, stateType]    = *clip;
         attackStatesContext.currentPlayState = stateType;
         context_.characterController.pushEventToQueue(ChangeAnimEvent{std::string(clipName), stateType});
     }

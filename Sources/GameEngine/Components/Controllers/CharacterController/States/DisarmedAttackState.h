@@ -17,7 +17,7 @@ class DisarmedAttackState
           Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::Queue>,
-          Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::BackToPreviousState>,
+          Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,

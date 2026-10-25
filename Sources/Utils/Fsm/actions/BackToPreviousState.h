@@ -14,17 +14,16 @@ public:
     template <typename Machine, typename State, typename Event>
     void execute(Machine& machine, State& prevState, const Event& event)
     {
-        //#ifdef NOREALTIME_LOG_ENABLED
-        LOG_DEBUG << "PrevState : " << typeName<State>();
-        if (not machine.previousState.empty())
-        {
-            std::visit([](const auto& state) { LOG_DEBUG << "Entering : " << typeName(state); }, machine.previousState.back());
-        }
-        else
+        if (machine.previousState.empty())
         {
             LOG_DEBUG << "prev state empty";
+            return;
         }
-        //#endif
+
+        // #ifdef NOREALTIME_LOG_ENABLED
+        LOG_DEBUG << "PrevState : " << typeName<State>();
+        std::visit([](const auto& state) { LOG_DEBUG << "Entering : " << typeName(state); }, machine.previousState.back());
+        // #endif
 
         leave(prevState);
         leave(prevState, event);

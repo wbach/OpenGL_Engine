@@ -25,8 +25,8 @@ public:
     void onEnter(DisarmedWalkState&);
     void onEnter(ArmedRunState&);
     void onEnter(ArmedWalkState&);
-    void onEnter(const AttackEvent&);
 
+    void onEnter(const AttackEvent&);
     void onEnter(const EndRotationEvent&);
     void onEnter(const EndForwardMoveEvent&);
     void onEnter(const EndBackwardMoveEvent&);

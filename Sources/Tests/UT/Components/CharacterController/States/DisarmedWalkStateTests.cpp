@@ -18,7 +18,7 @@ void prepareState(CharacterControllerTests& test)
 }
 }  // namespace
 
-TEST_F(CharacterControllerTests, DisarmedWalkState_AttackEventWithoutMove)
+TEST_F(CharacterControllerTests, DisarmedWalkState_AttackEvent_WithoutMove)
 {
     prepareState(*this);
     expectNoMove();

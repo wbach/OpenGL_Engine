@@ -79,7 +79,6 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunState_MoveForwardEvent)
 {
     prepareState(*this);
     const auto& attackClipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
-    ;
 
     tiggerAndExpect<EndForwardMoveEvent>({attackClipName});
     expectForwardVelocity(-DEFAULT_RUN_SPEED);
