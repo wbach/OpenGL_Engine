@@ -63,8 +63,8 @@ wxGLAttributes GetWxGLAttributes()
 }
 
 #if defined(__WXGTK__) && defined(__UNIX__)
-  #include <X11/Xlib.h>
-  #include <X11/keysym.h>
+#include <X11/Xlib.h>
+#include <X11/keysym.h>
 #endif
 
 bool SafeGetKeyState(int keyCode)
@@ -89,21 +89,38 @@ bool SafeGetKeyState(int keyCode)
 
     // Mapowanie kodów wxWidgets na X11 KeySym
     KeySym keysym = NoSymbol;
-    if (keyCode >= 'A' && keyCode <= 'Z') keysym = keyCode + ('a' - 'A');
-    else if (keyCode >= 'a' && keyCode <= 'z') keysym = keyCode;
-    else {
-        switch (keyCode) {
-            case WXK_LEFT:  keysym = XK_Left; break;
-            case WXK_RIGHT: keysym = XK_Right; break;
-            case WXK_UP:    keysym = XK_Up; break;
-            case WXK_DOWN:  keysym = XK_Down; break;
-            case WXK_SPACE: keysym = XK_space; break;
-            default:        keysym = keyCode; break;
+    if (keyCode >= 'A' && keyCode <= 'Z')
+        keysym = keyCode + ('a' - 'A');
+    else if (keyCode >= 'a' && keyCode <= 'z')
+        keysym = keyCode;
+    else
+    {
+        switch (keyCode)
+        {
+            case WXK_LEFT:
+                keysym = XK_Left;
+                break;
+            case WXK_RIGHT:
+                keysym = XK_Right;
+                break;
+            case WXK_UP:
+                keysym = XK_Up;
+                break;
+            case WXK_DOWN:
+                keysym = XK_Down;
+                break;
+            case WXK_SPACE:
+                keysym = XK_space;
+                break;
+            default:
+                keysym = keyCode;
+                break;
         }
     }
 
     KeyCode xKeyCode = XKeysymToKeycode(display, keysym);
-    if (xKeyCode == 0) {
+    if (xKeyCode == 0)
+    {
         XCloseDisplay(display);
         return false;
     }
@@ -153,8 +170,8 @@ void GLCanvas::OnIdle(wxIdleEvent& event)
     if (not engine)
     {
         auto windowApiPtr         = std::make_unique<WxEditor::WxWindowApi>(vec2i{size.x, size.y},
-                                                                    [&](int x, int y)
-                                                                    {
+                                                                            [&](int x, int y)
+                                                                            {
                                                                         if (GetHandle())
                                                                         {
                                                                             WarpPointer(x, y);
@@ -191,6 +208,9 @@ void GLCanvas::OnIdle(wxIdleEvent& event)
             engine->GetSceneManager().SetActiveScene(startupSceneName);
         }
     }
+
+    RefreshWindowSize();
+
     if (engine)
     {
         engine->MainLoop();
@@ -324,6 +344,12 @@ void GLCanvas::OnSize(wxSizeEvent& event)
     if (not engine)
         return;
 
+    RefreshWindowSize();
+    event.Skip();
+}
+
+void GLCanvas::RefreshWindowSize()
+{
     int w, h;
     GetClientSize(&w, &h);
     if (h <= 0)
@@ -338,7 +364,6 @@ void GLCanvas::OnSize(wxSizeEvent& event)
     EngineConf.renderer.resolution = newSize;
 
     Refresh(false);
-    event.Skip();
 }
 
 void GLCanvas::SetCursorToCenter()
@@ -435,7 +460,7 @@ void GLCanvas::OnMouseLeftDown(wxMouseEvent& event)
     if (useMousePicker and engine->GetSceneManager().GetActiveScene() and not mousePicker and not dragGameObject)
     {
         mousePicker          = std::make_unique<GameEngine::MousePicker>(*GetScene().GetCameraManager().GetMainCamera(),
-                                                                GameEngine::MousePicker::IntersectMode::FrontOnly);
+                                                                         GameEngine::MousePicker::IntersectMode::FrontOnly);
         auto maybeGameObject = mousePicker->SelectObject(engine->GetEngineContext().GetInputManager().GetMousePosition(),
                                                          GetScene().GetGameObjects());
         if (maybeGameObject)

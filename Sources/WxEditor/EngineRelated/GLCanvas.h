@@ -75,6 +75,7 @@ private:
     void OnPaint(wxPaintEvent&);
     void OnTimer(wxTimerEvent&);
     void OnSize(wxSizeEvent&);
+    void RefreshWindowSize();
 
     void OnKeyUp(wxKeyEvent&);
     void OnKeyDown(wxKeyEvent&);
