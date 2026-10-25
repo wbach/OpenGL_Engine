@@ -8,11 +8,12 @@
 #       -e DISPLAY=$DISPLAY \
 #       -v /tmp/.X11-unix:/tmp/.X11-unix \
 #       --device /dev/dri \
-#       -v home/$USER/Documents/GitHub/OpenGL_Engine/:/home/baszek/OpenGL_Engine \
+#       -v /home/$USER/Documents/GitHub/OpenGL_Engine/:/var/fpwork/OpenGL_Engine \
+#       -v /home/$USER/piServer/:/var/fpwork/piServer \
 #       --name game-engine \
 #       dev-env
 #    Notka: -v ścieżka/host:ścieżka/docker
-# 3. Uruchom bash bezposrednio na kontenerze sudo docker exec -it game-engine /bin/bash
+# 3. Uruchom bash bezposrednio na kontenerze najpierw xhost -local, nastepnie sudo docker exec -it game-engine /bin/bash
 #    lub połącz się przez SSH: ssh -Y baszek@localhost -p 2222 (wolniejsze)
 
 FROM ubuntu:22.04
@@ -20,8 +21,17 @@ FROM ubuntu:22.04
 ARG PUB_KEY
 
 # Instalacja podstawowych narzędzi, SDL2/OpenGL, wxWidgets, fzf, distcc
-#RUN sudo add-apt-repository ppa:hrzhu/wxwidgets3.2-backport
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    software-properties-common \
+    wget \
+    ca-certificates \
+    && add-apt-repository -y universe \
+    && wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc \
+    | tee /etc/apt/trusted.gpg.d/lunarg.asc > /dev/null \
+    && wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list \
+    https://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list \
+    && apt-get update \
+    && apt-get install -y \
     openssh-server \
     build-essential \
     cmake \
@@ -68,8 +78,11 @@ RUN apt-get update && apt-get install -y \
     libwxgtk3.0-gtk3-dev \
     wget \
     clangd \
-    libshaderc-dev \
-    glslc \
+    glslang-tools \
+    glslang-dev \
+    libvulkan-dev \
+    vulkan-tools \
+    vulkan-sdk \
     && rm -rf /var/lib/apt/lists/*
 
 # Konfiguracja SSH i generowanie host keys
@@ -100,14 +113,31 @@ RUN mkdir -p /home/baszek/.ssh && \
 RUN chown -R baszek:baszek /home/baszek
 
 # Ustawienie katalogu roboczego
-WORKDIR /home/baszek
+WORKDIR /var/fpwork/
 USER baszek
 
 # Klonowanie fzf i instalacja
 RUN git clone --depth 1 https://github.com/junegunn/fzf.git /home/baszek/.fzf && \
-    /home/baszek/.fzf/install --all --no-bash --no-fish --no-zsh
+    /home/baszek/.fzf/install --all --no-fish --no-zsh
 
 USER root
+
+# Pełny home użytkownika, aliasy, historia, PATH distcc
+RUN mkdir -p /root/.ssh && \
+    echo "$PUB_KEY" >> /root/.ssh/authorized_keys && \
+    chmod 700 /root/.ssh && chmod 600 /root/.ssh/authorized_keys && \
+    echo 'export PS1="[\u@\h \W]$ "' >> /root/.bashrc && \
+    echo "alias ll='ls -alF'" >> /root/.bashrc && \
+    echo "alias kop='grep --color=auto ./ -irHne'" >> /root/.bashrc && \
+    echo "alias szukaj='find . -iname'" >> /root/.bashrc && \
+    echo "export HISTFILESIZE=-1" >> /root/.bashrc && \
+    echo "export HISTSIZE=-1" >> /root/.bashrc && \
+    echo "export HISTFILE=/root/.bash_eternal_history" >> /root/.bashrc && \
+    echo 'PROMPT_COMMAND="history -a; $PROMPT_COMMAND"' >> /root/.bashrc && \
+    echo 'export PATH="/usr/lib/distcc:$PATH"' >> /root/.bashrc
+
+RUN git clone --depth 1 https://github.com/junegunn/fzf.git /root/.fzf && \
+    /root/.fzf/install --all --no-fish --no-zsh
 
 # Domyślne polecenie – uruchomienie SSH
 CMD ["/usr/sbin/sshd", "-D"]
