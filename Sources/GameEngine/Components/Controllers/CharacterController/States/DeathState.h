@@ -21,7 +21,12 @@ public:
     }
 
     void onEnter();
+
     void onEnter(HurtState&, const DeathEvent&);
+    void onEnter(AimCrouchState&, const DeathEvent&);
+    void onEnter(AimCrouchWalkState&, const DeathEvent&);
+    void onEnter(AimCrouchRotateState&, const DeathEvent&);
+    void onEnter(AimCrouchWalkAndRotateState&, const DeathEvent&);
     void onEnter(CrouchWalkArmedChangeState&, const DeathEvent&);
     void onEnter(CrouchRotateArmedChangeState&, const DeathEvent&);
     void onEnter(CrouchWalkAndRotateArmedChangeState&, const DeathEvent&);
@@ -33,9 +38,7 @@ public:
     void onEnter(DisarmedIdleCrouchState&, const DeathEvent&);
     void onEnter(DisarmedAttackAndRunState&, const DeathEvent&);
     void onEnter(DisarmedAttackAndWalkState&, const DeathEvent&);
-    void onEnter(DisarmedAttackAndRunAndRotateState&, const DeathEvent&);
     void onEnter(DisarmedAttackAndWalkAndRotateState&, const DeathEvent&);
-    void onEnter(DisarmedAttackAndRotateState&, const DeathEvent&);
     void onEnter(IdleArmedChangeState&, const DeathEvent&);
     void onEnter(IdleCrouchArmedChangeState&, const DeathEvent&);
     void onEnter(RotateArmedChangeState&, const DeathEvent&);
@@ -57,21 +60,8 @@ public:
     void onEnter(ArmedCrouchWalkState&, const DeathEvent&);
     void onEnter(ArmedSprintState&, const DeathEvent&);
     void onEnter(ArmedSprintAndRotateState&, const DeathEvent&);
-    void onEnter(ArmedAttackAndRunState&, const DeathEvent&);
-    void onEnter(ArmedAttackAndWalkState&, const DeathEvent&);
-    void onEnter(ArmedAttackAndRotateState&, const DeathEvent&);
-    void onEnter(ArmedAttackAndRunAndRotateState&, const DeathEvent&);
-    void onEnter(ArmedAttackAndWalkAndRotateState&, const DeathEvent&);
     void onEnter(JumpState&, const DeathEvent&);
     void onEnter(DodgeState&, const DeathEvent&);
-    void onEnter(AimState&, const DeathEvent&);
-    void onEnter(AimCrouchState&, const DeathEvent&);
-    void onEnter(AimRotateState&, const DeathEvent&);
-    void onEnter(AimWalkState&, const DeathEvent&);
-    void onEnter(AimWalkAndRotateState&, const DeathEvent&);
-    void onEnter(AimCrouchWalkState&, const DeathEvent&);
-    void onEnter(AimCrouchRotateState&, const DeathEvent&);
-    void onEnter(AimCrouchWalkAndRotateState&, const DeathEvent&);
     void onEnter(RecoilState&, const DeathEvent&);
     void onEnter(RecoilCrouchState&, const DeathEvent&);
     void onEnter(RecoilCrouchWalkState&, const DeathEvent&);

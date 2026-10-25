@@ -7,14 +7,16 @@ namespace GameEngine
 {
 namespace Components
 {
-AimCrouchWalkAndRotateState::AimCrouchWalkAndRotateState(FsmContext &context)
-    : AimStateBase(context, context.upperBodyGroupName)
-    , MoveAndRotateStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.movement.crouch,
+AimCrouchWalkAndRotateState::AimCrouchWalkAndRotateState(FsmContext& context)
+    : ArmedStateBase(context.animClipNames)
+    , AimStateBase(context, context.upperBodyGroupName)
+    , MoveAndRotateStateBase{context, context.lowerBodyGroupName, context.walkSpeed, 
+                             context.animClipNames.armed.movement.crouch,
                              context.animClipNames.armed.posture.crouched.rotate}
 {
 }
 
-void AimCrouchWalkAndRotateState::onEnter(const AimStartEvent &event)
+void AimCrouchWalkAndRotateState::onEnter(const AimStartEvent& event)
 {
     AimStateBase::onEnter(event);
 }
@@ -26,17 +28,17 @@ void AimCrouchWalkAndRotateState::update(float dt)
     AimStateBase::update(dt);
 }
 
-void AimCrouchWalkAndRotateState::onLeave(const AimStopEvent &e)
+void AimCrouchWalkAndRotateState::onLeave(const AimStopEvent& e)
 {
     AimStateBase::onLeave(e);
 }
 
-void AimCrouchWalkAndRotateState::onLeave(const WeaponStateEvent &e)
+void AimCrouchWalkAndRotateState::onLeave(const WeaponStateEvent& e)
 {
     AimStateBase::onLeave(e);
 }
 
-void AimCrouchWalkAndRotateState::onLeave(const SprintStateChangeEvent &e)
+void AimCrouchWalkAndRotateState::onLeave(const SprintStateChangeEvent& e)
 {
     AimStateBase::onLeave(e);
 }

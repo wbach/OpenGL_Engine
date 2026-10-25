@@ -10,7 +10,7 @@ namespace Components
 ArmedIdleState::ArmedIdleState(FsmContext &context)
     : BaseState(context)
     , ArmedStateBase(context.animClipNames)
-    , IdleStateBase(context, clips.posture.stand.idle)
+    , IdleStateBase(context, context.animClipNames.armed.posture.stand.idle)
 {
 }
 bool ArmedIdleState::leaveCondition(const AttackEvent &)

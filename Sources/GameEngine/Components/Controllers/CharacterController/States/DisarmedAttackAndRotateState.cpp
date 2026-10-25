@@ -6,30 +6,31 @@ namespace GameEngine
 {
 namespace Components
 {
-DisarmedAttackAndRotateState::DisarmedAttackAndRotateState(FsmContext &context)
-    : AttackStateBase{context, context.animClipNames.disarmed.attack, context.upperBodyGroupName}
+DisarmedAttackAndRotateState::DisarmedAttackAndRotateState(FsmContext& context)
+    : DisarmedStateBase(context.animClipNames)
+    , AttackStateBase{context, context.animClipNames.disarmed.attack, context.upperBodyGroupName}
     , RotateStateBase{context, context.lowerBodyGroupName, context.runSpeed.rotate,
                       context.animClipNames.disarmed.posture.stand.rotate}
     , context{context}
 {
 }
 
-void DisarmedAttackAndRotateState::onEnter(const EndForwardMoveEvent &e)
+void DisarmedAttackAndRotateState::onEnter(const EndForwardMoveEvent& e)
 {
     RotateStateBase::onEnter(e);
 }
 
-void DisarmedAttackAndRotateState::onEnter(const EndMoveRightEvent &e)
+void DisarmedAttackAndRotateState::onEnter(const EndMoveRightEvent& e)
 {
     RotateStateBase::onEnter(e);
 }
 
-void DisarmedAttackAndRotateState::onEnter(const EndMoveLeftEvent &e)
+void DisarmedAttackAndRotateState::onEnter(const EndMoveLeftEvent& e)
 {
     RotateStateBase::onEnter(e);
 }
 
-void DisarmedAttackAndRotateState::onEnter(const EndBackwardMoveEvent &e)
+void DisarmedAttackAndRotateState::onEnter(const EndBackwardMoveEvent& e)
 {
     RotateStateBase::onEnter(e);
 }
@@ -39,7 +40,7 @@ void DisarmedAttackAndRotateState::update(float v)
     RotateStateBase::update(v);
 }
 
-DisarmedAttackAndRotateState::MaybeAttackStates DisarmedAttackAndRotateState::handle(const ChangeAnimEvent &event)
+DisarmedAttackAndRotateState::MaybeAttackStates DisarmedAttackAndRotateState::handle(const ChangeAnimEvent& event)
 {
     if (context.attackStatesContext.nextMoveState == AttackStatesContext::NextMoveState::idle or
         event.stateType == PlayStateType::idle)

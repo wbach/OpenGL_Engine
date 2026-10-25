@@ -1,5 +1,6 @@
 #pragma once
 #include "AimStateBase.h"
+#include "ArmedStateBase.h"
 #include "MoveStateBase.h"
 
 namespace GameEngine
@@ -7,7 +8,8 @@ namespace GameEngine
 namespace Components
 {
 class AimCrouchWalkState
-    : public AimStateBase,
+    : public ArmedStateBase,
+      public AimStateBase,
       public MoveStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
@@ -40,8 +42,8 @@ public:
 
     void onEnter(const AimStartEvent&);
 
-    using MoveStateBase::onEnter;
     using MoveStateBase::leaveCondition;
+    using MoveStateBase::onEnter;
     using MoveStateBase::update;
 
     void update(float);

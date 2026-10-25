@@ -2,6 +2,7 @@
 
 #include "AttackStateBase.h"
 #include "CharacterControllerCommonDefs.h"
+#include "DisarmedStateBase.h"
 #include "Fsm/actions/Queue.h"
 #include "RotateStateBase.h"
 
@@ -10,7 +11,8 @@ namespace GameEngine
 namespace Components
 {
 class DisarmedAttackAndRotateState
-    : public AttackStateBase,
+    : public DisarmedStateBase,
+      public AttackStateBase,
       public RotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,

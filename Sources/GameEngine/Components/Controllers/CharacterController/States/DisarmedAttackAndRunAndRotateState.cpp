@@ -7,7 +7,8 @@ namespace GameEngine
 namespace Components
 {
 DisarmedAttackAndRunAndRotateState::DisarmedAttackAndRunAndRotateState(FsmContext& context)
-    : AttackStateBase{context, context.animClipNames.disarmed.attack, context.upperBodyGroupName}
+    : DisarmedStateBase(context.animClipNames)
+    , AttackStateBase{context, context.animClipNames.disarmed.attack, context.upperBodyGroupName}
     , RotateStateBase{context, context.lowerBodyGroupName, context.runSpeed.rotate,
                       context.animClipNames.disarmed.posture.stand.rotate}
     , RotatingMoveState(context, context.lowerBodyGroupName, context.runSpeed.forward,

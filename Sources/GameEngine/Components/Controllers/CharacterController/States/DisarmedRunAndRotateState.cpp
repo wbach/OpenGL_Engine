@@ -8,7 +8,8 @@ namespace Components
 {
 DisarmedRunAndRotateState::DisarmedRunAndRotateState(FsmContext& context)
     : DisarmedStateBase(context.animClipNames)
-    , RotatingMoveAndRotateStateBase{context, std::nullopt, context.runSpeed, clips.movement.run, clips.posture.stand.rotate}
+    , RotatingMoveAndRotateStateBase{context, std::nullopt, context.runSpeed, context.animClipNames.disarmed.movement.run,
+                                     context.animClipNames.disarmed.posture.stand.rotate}
 {
 }
 }  // namespace Components

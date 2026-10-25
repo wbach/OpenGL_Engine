@@ -1,12 +1,14 @@
 #pragma once
 #include "AimStateBase.h"
+#include "ArmedStateBase.h"
 #include "CharacterControllerCommonDefs.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class AimState : public AimStateBase,
+class AimState : public ArmedStateBase,
+                 public AimStateBase,
                  public Utils::StateMachine::Will<
                      Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
                      Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,

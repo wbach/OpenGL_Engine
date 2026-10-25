@@ -1,14 +1,17 @@
 #pragma once
 #include "AimStateBase.h"
+#include "ArmedStateBase.h"
 #include "CharacterControllerCommonDefs.h"
 #include "MoveAndRotateStateBase.h"
+
 
 namespace GameEngine
 {
 namespace Components
 {
 class AimWalkAndRotateState
-    : public AimStateBase,
+    : public ArmedStateBase,
+      public AimStateBase,
       public MoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
@@ -43,8 +46,8 @@ public:
 
     void onEnter(const AimStartEvent&);
 
-    using MoveAndRotateStateBase::onEnter;
     using MoveAndRotateStateBase::leaveCondition;
+    using MoveAndRotateStateBase::onEnter;
     using MoveAndRotateStateBase::update;
 
     void update(float);

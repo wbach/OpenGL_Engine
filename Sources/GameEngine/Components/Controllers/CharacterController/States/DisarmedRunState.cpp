@@ -8,7 +8,7 @@ namespace Components
 {
 DisarmedRunState::DisarmedRunState(FsmContext& context)
     : DisarmedStateBase(context.animClipNames)
-    , RotatingMoveState{context, std::nullopt, context.runSpeed.forward, clips.movement.run.forward}
+    , RotatingMoveState{context, std::nullopt, context.runSpeed.forward, context.animClipNames.disarmed.movement.run.forward}
 {
 }
 void DisarmedRunState::onMoveInactivity()

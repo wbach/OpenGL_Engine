@@ -9,7 +9,7 @@ namespace Components
 {
 DisarmedRotateState::DisarmedRotateState(FsmContext& context)
     : DisarmedStateBase(context.animClipNames)
-    , RotateStateBase{context, std::nullopt, context.runSpeed.rotate, clips.posture.stand.rotate,
+    , RotateStateBase{context, std::nullopt, context.runSpeed.rotate, context.animClipNames.disarmed.posture.stand.rotate,
                       RotateStateBase::CameraRotationPolicy::none}
 {
 }

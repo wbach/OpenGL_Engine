@@ -1,5 +1,6 @@
 #pragma once
 #include "AimStateBase.h"
+#include "ArmedStateBase.h"
 #include "IdleStateBase.h"
 
 namespace GameEngine
@@ -7,7 +8,8 @@ namespace GameEngine
 namespace Components
 {
 class AimCrouchState
-    : public AimStateBase,
+    : public ArmedStateBase,
+      public AimStateBase,
       public IdleStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
@@ -31,24 +33,24 @@ class AimCrouchState
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedIdleCrouchState>>>
 {
 public:
-    AimCrouchState(FsmContext &);
+    AimCrouchState(FsmContext&);
 
     using AimStateBase::onEnter;
     using IdleStateBase::onEnter;
 
-    void onEnter(const EndRotationEvent &);
-    void onEnter(const EndForwardMoveEvent &);
-    void onEnter(const EndBackwardMoveEvent &);
-    void onEnter(const EndMoveLeftEvent &);
-    void onEnter(const EndMoveRightEvent &);
+    void onEnter(const EndRotationEvent&);
+    void onEnter(const EndForwardMoveEvent&);
+    void onEnter(const EndBackwardMoveEvent&);
+    void onEnter(const EndMoveLeftEvent&);
+    void onEnter(const EndMoveRightEvent&);
 
-    void onLeave(const AimStopEvent &);
-    void onLeave(const WeaponStateEvent &);
+    void onLeave(const AimStopEvent&);
+    void onLeave(const WeaponStateEvent&);
 
     void update(float);
 
 private:
-    FsmContext &context_;
+    FsmContext& context_;
 };
 }  // namespace Components
 }  // namespace GameEngine
