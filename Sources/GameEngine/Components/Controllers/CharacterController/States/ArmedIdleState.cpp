@@ -9,12 +9,13 @@ namespace Components
 {
 ArmedIdleState::ArmedIdleState(FsmContext &context)
     : BaseState(context)
-    , IdleStateBase(context, context.animClipNames.armed.posture.stand.idle)
+    , ArmedStateBase(context.animClipNames)
+    , IdleStateBase(context, clips.posture.stand.idle)
 {
 }
 bool ArmedIdleState::leaveCondition(const AttackEvent &)
 {
-    return not context_.animClipNames.armed.attack.empty();
+    return not clips.attack.empty();
 }
 bool ArmedIdleState::leaveCondition(const WeaponStateEvent &)
 {

@@ -1,6 +1,6 @@
 #pragma once
+#include "ArmedStateBase.h"
 #include "CharacterControllerCommonDefs.h"
-#include "GameEngine/Components/Animation/Animator.h"
 #include "IdleStateBase.h"
 
 namespace GameEngine
@@ -8,7 +8,8 @@ namespace GameEngine
 namespace Components
 {
 class ArmedIdleState
-    : public IdleStateBase,
+    : public ArmedStateBase,
+      public IdleStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<ArmedAttackState>>,
@@ -35,13 +36,13 @@ class ArmedIdleState
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
-    ArmedIdleState(FsmContext &);
+    ArmedIdleState(FsmContext&);
 
     using IdleStateBase::onEnter;
     using IdleStateBase::update;
 
-    bool leaveCondition(const AttackEvent &);
-    bool leaveCondition(const WeaponStateEvent &);
+    bool leaveCondition(const AttackEvent&);
+    bool leaveCondition(const WeaponStateEvent&);
 };
 }  // namespace Components
 }  // namespace GameEngine

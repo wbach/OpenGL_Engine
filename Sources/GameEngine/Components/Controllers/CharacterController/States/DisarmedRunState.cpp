@@ -6,8 +6,9 @@ namespace GameEngine
 {
 namespace Components
 {
-DisarmedRunState::DisarmedRunState(FsmContext &context)
-    : RotatingMoveState{context, std::nullopt, context.runSpeed.forward, context.animClipNames.disarmed.movement.run.forward}
+DisarmedRunState::DisarmedRunState(FsmContext& context)
+    : DisarmedStateBase(context.animClipNames)
+    , RotatingMoveState{context, std::nullopt, context.runSpeed.forward, clips.movement.run.forward}
 {
 }
 void DisarmedRunState::onMoveInactivity()
@@ -19,9 +20,9 @@ void DisarmedRunState::onMoveInactivity()
 Utils::StateMachine::Maybe<Utils::StateMachine::TransitionTo<DisarmedAttackState>,
                            Utils::StateMachine::TransitionTo<DisarmedAttackAndWalkState>,
                            Utils::StateMachine::TransitionTo<DisarmedAttackAndRunState>>
-DisarmedRunState::handle(const AttackEvent &e)
+DisarmedRunState::handle(const AttackEvent& e)
 {
-    const auto &clips = context_.animClipNames.disarmed.attack;
+    const auto& clips = context_.animClipNames.disarmed.attack;
 
     if (clips.empty())
     {

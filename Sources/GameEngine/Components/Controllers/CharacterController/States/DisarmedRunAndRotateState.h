@@ -1,4 +1,5 @@
 #pragma once
+#include "DisarmedStateBase.h"
 #include "RotatingMoveAndRotateStateBase.h"
 
 namespace GameEngine
@@ -6,7 +7,8 @@ namespace GameEngine
 namespace Components
 {
 class DisarmedRunAndRotateState
-    : public RotatingMoveAndRotateStateBase,
+    : public DisarmedStateBase,
+      public RotatingMoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
@@ -35,8 +37,8 @@ class DisarmedRunAndRotateState
 public:
     DisarmedRunAndRotateState(FsmContext&);
 
-    using RotatingMoveAndRotateStateBase::onEnter;
     using RotatingMoveAndRotateStateBase::leaveCondition;
+    using RotatingMoveAndRotateStateBase::onEnter;
     using RotatingMoveAndRotateStateBase::update;
 };
 }  // namespace Components

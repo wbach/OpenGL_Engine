@@ -9,13 +9,14 @@ namespace GameEngine
 {
 namespace Components
 {
-DisarmedIdleState::DisarmedIdleState(FsmContext &context)
+DisarmedIdleState::DisarmedIdleState(FsmContext& context)
     : BaseState(context)
-    , IdleStateBase(context, context.animClipNames.disarmed.posture.stand.idle)
+    , DisarmedStateBase(context.animClipNames)
+    , IdleStateBase(context, clips.posture.stand.idle)
 {
     setIdleAnim();
 }
-void DisarmedIdleState::onEnter(const StartDialogEvent &e)
+void DisarmedIdleState::onEnter(const StartDialogEvent& e)
 {
     context_.characterController.pushEventToQueue(e);
 }
