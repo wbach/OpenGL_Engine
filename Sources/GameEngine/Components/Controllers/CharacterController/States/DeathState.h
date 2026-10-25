@@ -1,5 +1,7 @@
 #pragma once
+#include "ArmedStateBase.h"
 #include "CharacterControllerCommonDefs.h"
+#include "DisarmedStateBase.h"
 
 namespace GameEngine
 {
@@ -10,6 +12,13 @@ class DeathState : public Utils::StateMachine::Will<Utils::StateMachine::ByDefau
 public:
     DeathState(FsmContext&);
     void update(float);
+
+    template <typename PrevState, typename Event>
+        requires(std::derived_from<PrevState, DisarmedStateBase> or std::derived_from<PrevState, ArmedStateBase>)
+    void onEnter(PrevState& state, const Event&)
+    {
+        setAnim(state.getClips().posture.stand.death);
+    }
 
     void onEnter();
     void onEnter(HurtState&, const DeathEvent&);
@@ -34,17 +43,11 @@ public:
     void onEnter(RunAndRotateArmedChangeState&, const DeathEvent&);
     void onEnter(WalkArmedChangeState&, const DeathEvent&);
     void onEnter(WalkAndRotateArmedChangeState&, const DeathEvent&);
-    void onEnter(DisarmedIdleState&, const DeathEvent&);
-    void onEnter(DisarmedRunState&, const DeathEvent&);
-    void onEnter(DisarmedRotateState&, const DeathEvent&);
     void onEnter(DisarmedCrouchRotateState&, const DeathEvent&);
-    void onEnter(DisarmedRunAndRotateState&, const DeathEvent&);
     void onEnter(DisarmedWalkState&, const DeathEvent&);
     void onEnter(DisarmedCrouchWalkState&, const DeathEvent&);
     void onEnter(DisarmedWalkAndRotateState&, const DeathEvent&);
     void onEnter(DisarmedSprintState&, const DeathEvent&);
-    void onEnter(DisarmedSprintAndRotateState&, const DeathEvent&);
-    void onEnter(ArmedIdleState&, const DeathEvent&);
     void onEnter(ArmedIdleCrouchState&, const DeathEvent&);
     void onEnter(ArmedRunState&, const DeathEvent&);
     void onEnter(ArmedRotateState&, const DeathEvent&);
