@@ -300,7 +300,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRotateState_GroundDetectionEve
 TEST_F(CharacterControllerTests, DisarmedAttackAndRotateState_HurtEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    tiggerAndExpect<HurtEvent>({sut_.animationClipsNames_.disarmed.posture.stand.hurt});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackAndRotateState_AnimationPlayEndEvent)

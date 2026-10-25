@@ -56,6 +56,14 @@ void RotateArmedChangeState::onEnter(DisarmedRotateState&, const ReloadArrowEven
     RotateStateBase::setCurrentAnim();
 }
 
+void RotateArmedChangeState::onEnter(DisarmedRotateState&, const AimStartEvent&)
+{
+    ArmedChangeStateBase::equipWeapon();
+    ArmedChangeStateBase::update(DrawArrowEvent{});
+    RotateStateBase::updateAnimationClipNames(context_.animClipNames.armed.posture.stand.rotate);
+    RotateStateBase::setCurrentAnim();
+}
+
 void RotateArmedChangeState::onEnter(DrawArrowRotateState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();

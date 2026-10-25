@@ -28,6 +28,7 @@ class DisarmedRotateState
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
           Utils::StateMachine::On<ReloadArrowEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
+          Utils::StateMachine::On<AimStartEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
           Utils::StateMachine::On<StartFallingEvent, Utils::StateMachine::TransitionTo<DisarmedFallingState>>,
           Utils::StateMachine::On<DodgeDiveEvent, Utils::StateMachine::TransitionTo<DodgeState>>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>

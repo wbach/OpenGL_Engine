@@ -48,7 +48,6 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkAndRotateState_EndRotation
     prepareState(*this);
     expectNoRotation();
     const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
-    ;
     tiggerAndExpect<EndRotationEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.walk.forward});
 }
 
@@ -56,7 +55,6 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkAndRotateState_SprintState
 {
     prepareState(*this);
     const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
-    ;
     tiggerAndExpect<SprintStateChangeEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.walk.forward});
 
     expectForwardVelocity(DEFAULT_SPRINT_SPEED);
@@ -286,7 +284,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkAndRotateState_GroundDetec
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkAndRotateState_HurtEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    tiggerAndExpect<HurtEvent>({sut_.animationClipsNames_.disarmed.posture.stand.hurt});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkAndRotateState_AnimationPlayEndEvent)

@@ -15,6 +15,7 @@ class AimCrouchRotateState
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+          Utils::StateMachine::On<HurtEvent, Utils::StateMachine::TransitionTo<HurtState>>,
           Utils::StateMachine::On<MoveEvent, Utils::StateMachine::TransitionTo<AimCrouchWalkAndRotateState>>,
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<AimCrouchWalkAndRotateState>>,
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<AimCrouchWalkAndRotateState>>,

@@ -21,6 +21,7 @@ class DisarmedAttackAndRotateState
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::RemoveFromQueue<DrawArrowEvent>>,
+          Utils::StateMachine::On<HurtEvent, Utils::StateMachine::TransitionTo<HurtState>>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
