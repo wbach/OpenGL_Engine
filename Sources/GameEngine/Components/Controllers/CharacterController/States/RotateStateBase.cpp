@@ -127,10 +127,9 @@ void RotateStateBase::update(float deltaTime)
             context_.rotateToTargetProgress = glm::clamp(context_.rotateToTargetProgress, 0.f, 1.f);
 
             auto newRotation = glm::slerp(context_.startRotation, context_.targetRotation, context_.rotateToTargetProgress);
-
             context_.rigidbody.SetRotation(newRotation);
 
-            auto dotProduct = glm::dot(context_.rigidbody.GetRotation(), context_.targetRotation);
+            auto dotProduct = glm::dot(newRotation, context_.targetRotation);
             if (std::abs(dotProduct) > 0.9999f)
             {
                 context_.characterController.pushEventToQueue(EndRotationEvent{});
@@ -207,11 +206,33 @@ void RotateStateBase::setCurrentAnim()
     }
     else
     {
-        auto d = glm::dot(context_.targetRotation, context_.startRotation);
-        if (d > 0)
-            setRotateLeftAnim();
-        else
+        const vec3 worldUp{0.0f, 1.0f, 0.0f};
+        const vec3 localForward{0.0f, 0.0f, 1.0f};
+
+        // Kierunki patrzenia przed obrotem i po obrocie.
+        auto from = context_.startRotation * localForward;
+        auto to   = context_.targetRotation * localForward;
+
+        // Rzutujemy kierunki na płaszczyznę poziomą,
+        // żeby pitch nie wpływał na animację obrotu w lewo/prawo.
+        from -= worldUp * glm::dot(from, worldUp);
+        to -= worldUp * glm::dot(to, worldUp);
+
+        from = glm::normalize(from);
+        to   = glm::normalize(to);
+
+        const auto sinAngle = glm::dot(worldUp, glm::cross(from, to));
+        const auto cosAngle = glm::clamp(glm::dot(from, to), -1.0f, 1.0f);
+        const auto angle    = std::atan2(sinAngle, cosAngle);
+
+        if (angle > 0.0f)
+        {
             setRotateRightAnim();
+        }
+        else if (angle < 0.0f)
+        {
+            setRotateLeftAnim();
+        }
     }
 }
 

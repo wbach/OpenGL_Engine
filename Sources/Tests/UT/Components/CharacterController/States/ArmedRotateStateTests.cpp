@@ -96,7 +96,7 @@ TEST_F(CharacterControllerTests, ArmedRotate_RotateTargetEvent)
 
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
     tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
-                                       {sut_.animationClipsNames_.armed.posture.stand.rotate.left});
+                                       {sut_.animationClipsNames_.armed.posture.stand.rotate.right});
 }
 
 TEST_F(CharacterControllerTests, ArmedRotate_EndRotationEvent)

@@ -105,7 +105,7 @@ TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_RotateTargetEvent)
 
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
     tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
-                                       {sut_.animationClipsNames_.disarmed.posture.crouched.rotate.left});
+                                       {sut_.animationClipsNames_.disarmed.posture.crouched.rotate.right});
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_AttackEvent)

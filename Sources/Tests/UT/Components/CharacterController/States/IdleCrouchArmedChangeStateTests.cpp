@@ -91,7 +91,7 @@ TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_RotateTargetEvent)
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
     tiggerAndExpect<RotateTargetEvent>(
         RotateTargetEvent{targetRotation.value_},
-        {sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.armed.posture.crouched.rotate.left});
+        {sut_.animationClipsNames_.equip.front(), sut_.animationClipsNames_.armed.posture.crouched.rotate.right});
 }
 // TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_DrawArrowEvent)
 //{

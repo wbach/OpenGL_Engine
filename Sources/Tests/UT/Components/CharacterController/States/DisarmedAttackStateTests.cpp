@@ -205,7 +205,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_RotateTargetEvent)
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
     tiggerAndExpect<RotateTargetEvent>(
         RotateTargetEvent{targetRotation.value_},
-        {disarmedAttackClip1->clipsSequence.front(), sut_.animationClipsNames_.disarmed.posture.stand.rotate.left});
+        {disarmedAttackClip1->clipsSequence.front(), sut_.animationClipsNames_.disarmed.posture.stand.rotate.right});
 }
 TEST_F(CharacterControllerTests, DisarmedAttackState_EndAttackEvent)
 {

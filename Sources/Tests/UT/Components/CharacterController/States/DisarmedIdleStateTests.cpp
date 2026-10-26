@@ -92,17 +92,6 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_RotateRightEvent)
     tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.disarmed.posture.stand.rotate.right});
 }
 
-TEST_F(CharacterControllerTests, DISABLED_DisarmedIdleState_RotateTargetEvent)
-{
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
-
-    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
-
-    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
-    tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
-                                       {sut_.animationClipsNames_.disarmed.posture.stand.rotate.right});
-}
-
 TEST_F(CharacterControllerTests, DisarmedIdleState_AttackEvent)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
@@ -213,9 +202,11 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_EndMoveRightEvent)
 TEST_F(CharacterControllerTests, DisarmedIdleState_RotateTargetEvent)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
     tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
-                                       {sut_.animationClipsNames_.disarmed.posture.stand.rotate.left});
+                                       {sut_.animationClipsNames_.disarmed.posture.stand.rotate.right});
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_EndRotationEvent)

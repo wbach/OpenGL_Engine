@@ -396,9 +396,10 @@ void CharacterControllerTests::expectLeftVelocity(float speed)
     velocityIsExpected = true;
 }
 
-Rotation CharacterControllerTests::createRotaion(float deltaTime, float rotateSpeed)
+Rotation CharacterControllerTests::createRotaion(float rotateSpeed, float deltaTime)
 {
-    return glm::angleAxis(glm::radians(rotateSpeed * deltaTime), glm::vec3(0.f, 1.f, 0.f));
+    const float yaw = glm::radians(rotateSpeed * deltaTime);
+    return glm::angleAxis(yaw, glm::vec3(0.f, 1.f, 0.f));
 }
 
 void CharacterControllerTests::expectRotatation(float deltaTime, float rotateSpeed)

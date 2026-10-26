@@ -118,13 +118,28 @@ TEST_F(CharacterControllerTests, DisarmedRotateState_RotateTargetEvent)
 
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
     tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
-                                       {sut_.animationClipsNames_.disarmed.posture.stand.rotate.left});
+                                       {sut_.animationClipsNames_.disarmed.posture.stand.rotate.right});
 }
 
 TEST_F(CharacterControllerTests, DisarmedRotateState_EndRotationEvent)
 {
     prepareState(*this);
     tiggerAndExpect<EndRotationEvent>({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_WaitForEndRotationEvent_RotateToTarget)
+{
+    prepareState(*this);
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+
+    const auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
+
+    tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
+                                       {sut_.animationClipsNames_.disarmed.posture.stand.rotate.right});
+
+    Update(1.f); // Duza wartosc aby napewno target zostal osiagniety
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
 }
 
 TEST_F(CharacterControllerTests, DisarmedRotateState_MoveEvent)
@@ -343,53 +358,4 @@ TEST_F(CharacterControllerTests, DisarmedRotateState_EndDialogEvent)
 {
     prepareState(*this);
     expectIgnoreEvent<EndDialogEvent>();
-}
-
-Quaternion caclulateTargetRotation(const vec3& toPlayer)
-{
-    auto angle2 = atan2f(toPlayer.x, toPlayer.z);
-    Quaternion targertRotation;
-    targertRotation.x = 0.f;
-    targertRotation.y = 1.f * sinf(angle2 / 2.f);
-    targertRotation.z = 0.f;
-    targertRotation.w = cosf(angle2 / 2.f);
-
-    return targertRotation;
-}
-
-TEST_F(CharacterControllerTests, DisarmedRotateState_XXX)
-{
-    //    context_.rotateToTargetProgress += (rotateSpeed_ * deltaTime);
-    //    context_.rotateToTargetProgress = glm::clamp(context_.rotateToTargetProgress, 0.f, 1.f);
-
-    //    auto newRotation =
-    //        glm::slerp(context_.startRotation, context_.targetRotation, context_.rotateToTargetProgress);
-
-    //    context_.rigidbody.SetRotation(newRotation);
-
-    vec3 position(0);
-    vec3 target(0, 0, -1);
-    auto rotationRef = caclulateTargetRotation(target - position);
-
-    for (int i = 0; i < 10; i++)
-    {
-        auto rotation = caclulateTargetRotation(target - position);
-
-        auto d = glm::dot(rotation, rotationRef);
-        /* LOG TO FIX*/ LOG_ERROR << (std::to_string(d));
-        /* LOG TO FIX*/ LOG_ERROR << (std::to_string(ToDegrees(acosf(d))));
-
-        target.x += 0.1f;
-    }
-
-    target = vec3(0, 0, -1);
-    for (int i = 0; i < 10; i++)
-    {
-        auto rotation = caclulateTargetRotation(target - position);
-
-        auto d = glm::dot(rotation, rotationRef);
-        /* LOG TO FIX*/ LOG_ERROR << (std::to_string(d));
-        /* LOG TO FIX*/ LOG_ERROR << (std::to_string(ToDegrees(acosf(d))));
-        target.x -= 0.1f;
-    }
 }
