@@ -1,4 +1,5 @@
 #pragma once
+#include "Crouch.h"
 #include <Utils/Fsm/Actions.h>
 
 #include "ArmedChangeStateBase.h"
@@ -9,7 +10,8 @@ namespace GameEngine
 namespace Components
 {
 class CrouchWalkArmedChangeState
-    : public ArmedChangeStateBase,
+    : public Crouch,
+      public ArmedChangeStateBase,
       public RotatingMoveState,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,

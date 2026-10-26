@@ -1,4 +1,5 @@
 #pragma once
+#include "Crouch.h"
 
 #include "DisarmedAttackAndWalkAndRotateState.h"
 #include "Fsm/actions/TransitionTo.h"
@@ -9,7 +10,8 @@ namespace GameEngine
 namespace Components
 {
 class DisarmedCrouchWalkAndRotateState
-    : public RotatingMoveAndRotateStateBase,
+    : public Crouch,
+      public RotatingMoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,

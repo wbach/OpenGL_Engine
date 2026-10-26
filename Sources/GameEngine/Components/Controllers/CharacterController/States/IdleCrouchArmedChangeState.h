@@ -1,4 +1,5 @@
 #pragma once
+#include "Crouch.h"
 #include "ArmedChangeStateBase.h"
 #include "CharacterControllerCommonDefs.h"
 #include "GameEngine/Components/Animation/Animator.h"
@@ -9,7 +10,8 @@ namespace GameEngine
 namespace Components
 {
 class IdleCrouchArmedChangeState
-    : public ArmedChangeStateBase,
+    : public Crouch,
+      public ArmedChangeStateBase,
       public IdleStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,

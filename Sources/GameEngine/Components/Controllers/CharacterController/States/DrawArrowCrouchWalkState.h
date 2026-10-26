@@ -1,4 +1,5 @@
 #pragma once
+#include "Crouch.h"
 #include "CharacterControllerCommonDefs.h"
 #include "DrawArrowStateBase.h"
 #include "MoveStateBase.h"
@@ -8,7 +9,8 @@ namespace GameEngine
 namespace Components
 {
 class DrawArrowCrouchWalkState
-    : public DrawArrowStateBase,
+    : public Crouch,
+      public DrawArrowStateBase,
       public MoveStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,

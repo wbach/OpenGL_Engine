@@ -1,13 +1,16 @@
 #pragma once
 #include "CharacterControllerCommonDefs.h"
+#include "Crouch.h"
 #include "RotateStateBase.h"
-
+#include "Armed.h"
 namespace GameEngine
 {
 namespace Components
 {
 class ArmedCrouchRotateState
-    : public RotateStateBase,
+    : public Crouch,
+      public Armed,
+      public RotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,

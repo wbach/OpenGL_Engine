@@ -1,4 +1,5 @@
 #pragma once
+#include "Crouch.h"
 #include "ArmedChangeStateBase.h"
 #include "CharacterControllerCommonDefs.h"
 #include "RotatingMoveAndRotateStateBase.h"
@@ -9,7 +10,8 @@ namespace Components
 {
 struct FsmContext;
 class CrouchWalkAndRotateArmedChangeState
-    : public ArmedChangeStateBase,
+    : public Crouch,
+      public ArmedChangeStateBase,
       public RotatingMoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,

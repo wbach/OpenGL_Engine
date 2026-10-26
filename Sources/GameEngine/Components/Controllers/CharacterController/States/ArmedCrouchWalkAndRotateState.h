@@ -1,4 +1,5 @@
 #pragma once
+#include "Crouch.h"
 #include "RotatingMoveAndRotateStateBase.h"
 
 namespace GameEngine
@@ -6,7 +7,8 @@ namespace GameEngine
 namespace Components
 {
 class ArmedCrouchWalkAndRotateState
-    : public RotatingMoveAndRotateStateBase,
+    : public Crouch,
+      public RotatingMoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,

@@ -1,4 +1,5 @@
 #pragma once
+#include "Crouch.h"
 
 #include "CharacterControllerCommonDefs.h"
 #include "MoveAndRotateStateBase.h"
@@ -9,7 +10,8 @@ namespace GameEngine
 namespace Components
 {
 class RecoilCrouchWalkAndRotateState
-    : public RecoilStateBase,
+    : public Crouch,
+      public RecoilStateBase,
       public MoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
