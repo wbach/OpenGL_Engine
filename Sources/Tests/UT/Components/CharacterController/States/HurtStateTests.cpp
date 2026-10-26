@@ -234,19 +234,20 @@ TEST_F(CharacterControllerTests, HurteState_StartFallingEvent)
 TEST_F(CharacterControllerTests, HurteState_GroundDetectionEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<GroundDetectionEvent>();
 }
 
 TEST_F(CharacterControllerTests, HurteState_HurtEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<HurtEvent>();
 }
 
 TEST_F(CharacterControllerTests, HurteState_AnimationPlayEndEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    tiggerAndExpect<AnimationPlayEndEvent>({sut_.animationClipsNames_.disarmed.posture.stand.idle},
+                                           {ADVANCED_TIME_TRANSITION_TIME});
 }
 
 TEST_F(CharacterControllerTests, HurteState_ChangeAnimEvent)

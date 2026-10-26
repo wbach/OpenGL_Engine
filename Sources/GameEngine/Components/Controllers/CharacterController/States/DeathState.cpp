@@ -1,7 +1,6 @@
 #include "DeathState.h"
 
 #include "../FsmContext.h"
-#include "GameEngine/Components/Controllers/CharacterController/States/HurtState.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 
 namespace GameEngine

@@ -275,5 +275,5 @@ TEST_F(CharacterControllerTests, DrawArrowCrouchWalkState_GroundDetectionEvent)
 TEST_F(CharacterControllerTests, DrawArrowCrouchWalkState_HurtEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    tiggerAndExpect<HurtEvent>({sut_.animationClipsNames_.armed.posture.crouched.hurt});
 }

@@ -229,7 +229,7 @@ TEST_F(CharacterControllerTests, AimCrouchState_GroundDetectionEvent)
 TEST_F(CharacterControllerTests, AimCrouchState_HurtEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    tiggerAndExpect<HurtEvent>({sut_.animationClipsNames_.armed.posture.crouched.hurt});
 }
 TEST_F(CharacterControllerTests, AimCrouchState_ChangeAnimEvent)
 {

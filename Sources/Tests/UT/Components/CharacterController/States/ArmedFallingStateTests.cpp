@@ -2,29 +2,29 @@
 
 namespace
 {
-void prepareState(CharacterControllerTests&)
+void prepareState(CharacterControllerTests& test)
 {
-    //    EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
-    //    EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
+    EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
 
-    //    test.expectAnimsToBeSet({test.sut_.animationClipsNames_.disarmed.posture.stand.idle});
-    //    test.tiggerAndExpect<WeaponStateEvent>(
-    //        {test.sut_.animationClipsNames_.armed.posture.stand.idle},
-    //        {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
-    //     test.tiggerAndExpect<StartFallingEvent>({test.sut_.animationClipsNames_.aim.draw});
+    test.expectAnimsToBeSet({test.sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    test.tiggerAndExpect<WeaponStateEvent>(
+        {test.sut_.animationClipsNames_.armed.posture.stand.idle},
+        {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
+    test.tiggerAndExpect<StartFallingEvent>({test.sut_.animationClipsNames_.armed.falling});
 }
 }  // namespace
 
 TEST_F(CharacterControllerTests, ArmedFallingState_MoveEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<MoveEvent>();
 }
 
 TEST_F(CharacterControllerTests, ArmedFallingState_MoveForwardEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<MoveForwardEvent>();
 }
 
 TEST_F(CharacterControllerTests, ArmedFallingState_MoveBackwardEvent)
@@ -234,7 +234,8 @@ TEST_F(CharacterControllerTests, ArmedFallingState_GroundDetectionEvent)
 TEST_F(CharacterControllerTests, ArmedFallingState_HurtEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    // tiggerAndExpect<HurtEvent>({sut_.animationClipsNames_.armed.posture.stand.hurt});
+    expectIgnoreEvent<HurtEvent>();  // TO DO: maybe dedicated anim for falling?
 }
 
 TEST_F(CharacterControllerTests, ArmedFallingState_AnimationPlayEndEvent)

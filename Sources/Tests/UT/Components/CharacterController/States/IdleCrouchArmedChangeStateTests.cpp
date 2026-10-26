@@ -229,7 +229,7 @@ TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_GroundDetectionEvent
 TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_HurtEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    tiggerAndExpect<HurtEvent>({sut_.animationClipsNames_.disarmed.posture.crouched.hurt});
 }
 TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_AnimationPlayEndEvent)
 {

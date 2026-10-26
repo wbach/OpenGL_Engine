@@ -1,5 +1,6 @@
 #pragma once
 #include "CharacterControllerCommonDefs.h"
+#include "Disarmed.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "GameEngine/Narrative/Dialogs/Fsm/DialogEvents.h"
 #include "IdleStateBase.h"
@@ -9,7 +10,8 @@ namespace GameEngine
 namespace Components
 {
 class DialogState
-    : public IdleStateBase,
+    : public Disarmed,
+      public IdleStateBase,
       public Utils::StateMachine::Will<Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
                                        Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
                                        Utils::StateMachine::On<StartDialogEvent, Utils::StateMachine::Update>,
@@ -17,13 +19,13 @@ class DialogState
                                        Utils::StateMachine::On<EndDialogEvent, Utils::StateMachine::BackToPreviousState>>
 {
 public:
-    DialogState(FsmContext &);
+    DialogState(FsmContext&);
 
-    void onEnter(const StartDialogEvent &);
+    void onEnter(const StartDialogEvent&);
 
     using BaseState::update;
 
-    void update(const StartDialogEvent &);
+    void update(const StartDialogEvent&);
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -265,7 +265,7 @@ TEST_F(CharacterControllerTests, RecoilWalk_GroundDetectionEvent)
 TEST_F(CharacterControllerTests, RecoilWalk_HurtEvent)
 {
     prepareState(*this);
-    // TODO: Implement test for HurtEvent
+    tiggerAndExpect<HurtEvent>({sut_.animationClipsNames_.armed.posture.stand.hurt});
 }
 TEST_F(CharacterControllerTests, RecoilWalk_AnimationPlayEndEvent)
 {
