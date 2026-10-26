@@ -1,23 +1,32 @@
 #pragma once
 #include "Armed.h"
+#include "BaseState.h"
 #include "CharacterControllerCommonDefs.h"
 #include "Disarmed.h"
+
 
 namespace GameEngine
 {
 namespace Components
 {
-class DeathState : public Utils::StateMachine::Will<Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>>
+class DeathState : public BaseState,
+                   public Utils::StateMachine::Will<Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>>
 {
 public:
     DeathState(FsmContext&);
-    void update(float);
 
     template <typename PrevState, typename Event>
-        requires(std::derived_from<PrevState, Disarmed> or std::derived_from<PrevState, Armed>)
+        requires(std::derived_from<PrevState, Disarmed>)
     void onEnter(PrevState& state, const Event&)
     {
-        setAnim(state.getClips().posture.stand.death);
+        setDisarmedRelatedClip();
+    }
+
+    template <typename PrevState, typename Event>
+        requires(std::derived_from<PrevState, Armed>)
+    void onEnter(PrevState& state, const Event&)
+    {
+        setArmedRelatedClip();
     }
 
     void onEnter();
@@ -83,9 +92,8 @@ public:
 
 private:
     void setAnim(const std::string&);
-
-private:
-    FsmContext& context_;
+    void setArmedRelatedClip();
+    void setDisarmedRelatedClip();
 };
 }  // namespace Components
 }  // namespace GameEngine

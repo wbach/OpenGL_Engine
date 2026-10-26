@@ -54,10 +54,7 @@ DrawArrowEvent
 ReloadArrowEvent
 AimStartEvent
 AimStopEvent
-CrouchChangeStateEvent
-StartFallingEvent
-GroundDetectionEvent
-HurtEvent
+CrouchChangeStateEventSources/Tests/UT/Components/CharacterController/States/RecoilCrouchRotateStateTests.cpp
 AnimationPlayEndEvent
 ChangeAnimEvent
 StartDialogEvent

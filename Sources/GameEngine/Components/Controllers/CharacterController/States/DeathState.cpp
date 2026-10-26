@@ -9,13 +9,10 @@ namespace GameEngine
 namespace Components
 {
 DeathState::DeathState(FsmContext& context)
-    : context_{context}
+    : BaseState{context}
 {
 }
 
-void DeathState::update(float)
-{
-}
 void DeathState::onEnter(AimCrouchWalkState&, const DeathEvent&)
 {
     setAnim(context_.animClipNames.armed.posture.crouched.death);
@@ -312,6 +309,16 @@ void DeathState::setAnim(const std::string& animName)
     {
         context_.animator.ChangeAnimation(animName, Animator::AnimationChangeType::smooth, PlayDirection::forward, std::nullopt);
     }
+}
+
+void DeathState::setArmedRelatedClip()
+{
+    setAnim(context_.animClipNames.armed.posture.stand.death);
+}
+
+void DeathState::setDisarmedRelatedClip()
+{
+    setAnim(context_.animClipNames.disarmed.posture.stand.death);
 }
 
 void DeathState::onEnter()

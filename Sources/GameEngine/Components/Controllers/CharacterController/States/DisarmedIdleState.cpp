@@ -11,7 +11,6 @@ namespace Components
 {
 DisarmedIdleState::DisarmedIdleState(FsmContext& context)
     : BaseState(context)
-    , Disarmed(context.animClipNames)
     , IdleStateBase(context, context.animClipNames.disarmed.posture.stand.idle)
 {
     setIdleAnim();

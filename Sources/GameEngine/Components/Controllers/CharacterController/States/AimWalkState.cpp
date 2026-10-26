@@ -8,9 +8,8 @@ namespace GameEngine
 namespace Components
 {
 AimWalkState::AimWalkState(FsmContext& context)
-    : Armed(context.animClipNames)
-    , AimStateBase(context, context.upperBodyGroupName)
-    , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, 
+    : AimStateBase(context, context.upperBodyGroupName)
+    , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed,
                     context.animClipNames.armed.movement.walk}
     , context_{context}
 {

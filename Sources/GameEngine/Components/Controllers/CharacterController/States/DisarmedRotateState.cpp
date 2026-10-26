@@ -8,8 +8,7 @@ namespace GameEngine
 namespace Components
 {
 DisarmedRotateState::DisarmedRotateState(FsmContext& context)
-    : Disarmed(context.animClipNames)
-    , RotateStateBase{context, std::nullopt, context.runSpeed.rotate, context.animClipNames.disarmed.posture.stand.rotate,
+    : RotateStateBase{context, std::nullopt, context.runSpeed.rotate, context.animClipNames.disarmed.posture.stand.rotate,
                       RotateStateBase::CameraRotationPolicy::none}
 {
 }
