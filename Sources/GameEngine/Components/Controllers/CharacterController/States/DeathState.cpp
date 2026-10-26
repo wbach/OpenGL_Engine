@@ -18,17 +18,7 @@ void DeathState::onEnter(AimCrouchWalkState&, const DeathEvent&)
     setAnim(context_.animClipNames.armed.posture.crouched.death);
 }
 
-void DeathState::onEnter(AimCrouchRotateState&, const DeathEvent&)
-{
-    setAnim(context_.animClipNames.armed.posture.crouched.death);
-}
-
 void DeathState::onEnter(AimCrouchWalkAndRotateState&, const DeathEvent&)
-{
-    setAnim(context_.animClipNames.armed.posture.crouched.death);
-}
-
-void DeathState::onEnter(AimCrouchState&, const DeathEvent&)
 {
     setAnim(context_.animClipNames.armed.posture.crouched.death);
 }
@@ -319,6 +309,16 @@ void DeathState::setArmedRelatedClip()
 void DeathState::setDisarmedRelatedClip()
 {
     setAnim(context_.animClipNames.disarmed.posture.stand.death);
+}
+
+void DeathState::setCrouchArmedRelatedClip()
+{
+    setAnim(context_.animClipNames.armed.posture.crouched.death);
+}
+
+void DeathState::setCrouchDisarmedRelatedClip()
+{
+    setAnim(context_.animClipNames.disarmed.posture.crouched.death);
 }
 
 void DeathState::onEnter()

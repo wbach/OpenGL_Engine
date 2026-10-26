@@ -1,6 +1,7 @@
 #pragma once
 #include "AimStateBase.h"
 #include "Armed.h"
+#include "Crouch.h"
 #include "MoveStateBase.h"
 
 namespace GameEngine
@@ -9,6 +10,7 @@ namespace Components
 {
 class AimCrouchWalkState
     : public Armed,
+      public Crouch,
       public AimStateBase,
       public MoveStateBase,
       public Utils::StateMachine::Will<

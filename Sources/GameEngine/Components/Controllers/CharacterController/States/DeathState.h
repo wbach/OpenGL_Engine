@@ -2,8 +2,8 @@
 #include "Armed.h"
 #include "BaseState.h"
 #include "CharacterControllerCommonDefs.h"
+#include "Crouch.h"
 #include "Disarmed.h"
-
 
 namespace GameEngine
 {
@@ -29,12 +29,24 @@ public:
         setArmedRelatedClip();
     }
 
+    template <typename PrevState, typename Event>
+        requires(std::derived_from<PrevState, Disarmed> and std::derived_from<PrevState, Crouch>)
+    void onEnter(PrevState& state, const Event&)
+    {
+        setCrouchDisarmedRelatedClip();
+    }
+
+    template <typename PrevState, typename Event>
+        requires(std::derived_from<PrevState, Armed> and std::derived_from<PrevState, Crouch>)
+    void onEnter(PrevState& state, const Event&)
+    {
+        setCrouchArmedRelatedClip();
+    }
+
     void onEnter();
 
     void onEnter(HurtState&, const DeathEvent&);
-    void onEnter(AimCrouchState&, const DeathEvent&);
     void onEnter(AimCrouchWalkState&, const DeathEvent&);
-    void onEnter(AimCrouchRotateState&, const DeathEvent&);
     void onEnter(AimCrouchWalkAndRotateState&, const DeathEvent&);
     void onEnter(CrouchWalkArmedChangeState&, const DeathEvent&);
     void onEnter(CrouchRotateArmedChangeState&, const DeathEvent&);
@@ -94,6 +106,8 @@ private:
     void setAnim(const std::string&);
     void setArmedRelatedClip();
     void setDisarmedRelatedClip();
+    void setCrouchArmedRelatedClip();
+    void setCrouchDisarmedRelatedClip();
 };
 }  // namespace Components
 }  // namespace GameEngine
