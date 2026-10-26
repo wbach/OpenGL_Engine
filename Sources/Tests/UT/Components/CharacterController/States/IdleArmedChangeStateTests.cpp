@@ -233,7 +233,7 @@ TEST_F(CharacterControllerTests, IdleArmedChangeState_AimStartEvent)
 TEST_F(CharacterControllerTests, IdleArmedChangeState_StartFallingEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling});
 }
 
 TEST_F(CharacterControllerTests, IdleArmedChangeState_GroundDetectionEvent)

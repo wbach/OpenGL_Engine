@@ -2,6 +2,7 @@
 #include "CharacterControllerCommonDefs.h"
 #include "FallingStateBase.h"
 #include "Armed.h"
+
 namespace GameEngine
 {
 namespace Components

@@ -259,3 +259,8 @@ TEST_F(CharacterControllerTests, DrawArrowWalk_EndDialogEvent)
     prepareState(*this);
     /* TODO: Implement test */
 }
+TEST_F(CharacterControllerTests, DrawArrowWalk_StartFallingEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.armed.falling});
+}

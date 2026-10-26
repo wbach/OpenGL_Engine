@@ -249,3 +249,8 @@ TEST_F(CharacterControllerTests, DrawArowCrouchState_ReloadArrowEvent)
     prepareState(*this);
     /* TODO: Implement test */
 }
+TEST_F(CharacterControllerTests, DrawArowCrouchState_StartFallingEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.armed.falling});
+}

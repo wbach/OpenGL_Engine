@@ -231,7 +231,7 @@ TEST_F(CharacterControllerTests, AimRotate_AimStartEvent)
 TEST_F(CharacterControllerTests, AimRotate_StartFallingEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.armed.falling});
 }
 TEST_F(CharacterControllerTests, AimRotate_GroundDetectionEvent)
 {

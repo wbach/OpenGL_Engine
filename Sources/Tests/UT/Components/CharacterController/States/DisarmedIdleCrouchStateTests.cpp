@@ -277,3 +277,8 @@ TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_EndDialogEvent)
     prepareState(*this);
     /* TODO: Implement test */
 }
+TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_StartFallingEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling});
+}

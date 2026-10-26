@@ -137,7 +137,7 @@ TEST_F(CharacterControllerTests, DisarmedRotateState_WaitForEndRotationEvent_Rot
     tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
                                        {sut_.animationClipsNames_.disarmed.posture.stand.rotate.right});
 
-    Update(1.f); // Duza wartosc aby napewno target zostal osiagniety
+    Update(1.f);  // Duza wartosc aby napewno target zostal osiagniety
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
 }
@@ -321,7 +321,7 @@ TEST_F(CharacterControllerTests, DisarmedRotateState_CrouchChangeStateEvent)
 TEST_F(CharacterControllerTests, DisarmedRotateState_StartFallingEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling});
 }
 
 TEST_F(CharacterControllerTests, DisarmedRotateState_GroundDetectionEvent)

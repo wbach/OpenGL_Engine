@@ -223,7 +223,7 @@ TEST_F(CharacterControllerTests, DrawArow_ReloadArrowEvent)
 TEST_F(CharacterControllerTests, DrawArow_StartFallingEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.armed.falling});
 }
 TEST_F(CharacterControllerTests, DrawArow_GroundDetectionEvent)
 {

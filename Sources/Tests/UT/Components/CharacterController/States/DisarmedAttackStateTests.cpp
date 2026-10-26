@@ -370,7 +370,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_AimStopEvent)
 TEST_F(CharacterControllerTests, DisarmedAttackState_StartFallingEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackState_GroundDetectionEvent)

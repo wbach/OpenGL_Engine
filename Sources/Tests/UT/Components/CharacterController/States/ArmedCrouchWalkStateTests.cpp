@@ -237,7 +237,7 @@ TEST_F(CharacterControllerTests, ArmedCrouchWalkState_AimStopEvent)
 TEST_F(CharacterControllerTests, ArmedCrouchWalkState_StartFallingEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.armed.falling});
 }
 
 TEST_F(CharacterControllerTests, ArmedCrouchWalkState_GroundDetectionEvent)

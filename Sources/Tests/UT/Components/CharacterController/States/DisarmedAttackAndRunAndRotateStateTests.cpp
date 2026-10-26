@@ -275,7 +275,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_CrouchChange
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_StartFallingEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_GroundDetectionEvent)

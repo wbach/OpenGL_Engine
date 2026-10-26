@@ -255,7 +255,7 @@ TEST_F(CharacterControllerTests, RecoilWalk_AimStartEvent)
 TEST_F(CharacterControllerTests, RecoilWalk_StartFallingEvent)
 {
     prepareState(*this);
-    // TODO: Implement test for StartFallingEvent
+    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.armed.falling});
 }
 TEST_F(CharacterControllerTests, RecoilWalk_GroundDetectionEvent)
 {

@@ -204,7 +204,7 @@ TEST_F(CharacterControllerTests, DisarmedFallingStateTests_CrouchChangeStateEven
 TEST_F(CharacterControllerTests, DisarmedFallingStateTests_StartFallingEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<StartFallingEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedFallingStateTests_GroundDetectionEvent)
