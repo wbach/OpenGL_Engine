@@ -2,12 +2,14 @@
 #include "AimStateBase.h"
 #include "Armed.h"
 #include "CharacterControllerCommonDefs.h"
+#include "Stand.h"
 
 namespace GameEngine
 {
 namespace Components
 {
 class AimState : public Armed,
+                 public Stand,
                  public AimStateBase,
                  public Utils::StateMachine::Will<
                      Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,

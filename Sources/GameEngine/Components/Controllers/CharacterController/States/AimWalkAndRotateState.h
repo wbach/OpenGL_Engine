@@ -3,7 +3,7 @@
 #include "Armed.h"
 #include "CharacterControllerCommonDefs.h"
 #include "MoveAndRotateStateBase.h"
-
+#include "Stand.h"
 
 namespace GameEngine
 {
@@ -11,6 +11,7 @@ namespace Components
 {
 class AimWalkAndRotateState
     : public Armed,
+      public Stand,
       public AimStateBase,
       public MoveAndRotateStateBase,
       public Utils::StateMachine::Will<

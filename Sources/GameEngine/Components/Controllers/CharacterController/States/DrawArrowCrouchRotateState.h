@@ -1,7 +1,7 @@
 #pragma once
-#include "Crouch.h"
-
+#include "Armed.h"
 #include "CharacterControllerCommonDefs.h"
+#include "Crouch.h"
 #include "DrawArrowStateBase.h"
 #include "RotateStateBase.h"
 
@@ -11,6 +11,7 @@ namespace Components
 {
 class DrawArrowCrouchRotateState
     : public Crouch,
+      public Armed,
       public DrawArrowStateBase,
       public RotateStateBase,
       public Utils::StateMachine::Will<

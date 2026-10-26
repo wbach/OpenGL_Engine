@@ -3,13 +3,14 @@
 #include "CharacterControllerCommonDefs.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "IdleStateBase.h"
-
+#include "Armed.h"
 namespace GameEngine
 {
 namespace Components
 {
 class ArmedIdleCrouchState
-    : public Crouch,
+    : public Armed,
+      public Crouch,
       public IdleStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,

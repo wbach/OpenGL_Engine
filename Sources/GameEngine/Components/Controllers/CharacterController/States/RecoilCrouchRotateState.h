@@ -1,6 +1,7 @@
 #pragma once
-#include "Crouch.h"
+#include "Armed.h"
 #include "CharacterControllerCommonDefs.h"
+#include "Crouch.h"
 #include "RecoilStateBase.h"
 #include "RotateStateBase.h"
 
@@ -10,6 +11,7 @@ namespace Components
 {
 class RecoilCrouchRotateState
     : public Crouch,
+      public Armed,
       public RecoilStateBase,
       public RotateStateBase,
       public Utils::StateMachine::Will<

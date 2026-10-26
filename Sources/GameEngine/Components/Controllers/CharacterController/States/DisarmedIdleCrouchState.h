@@ -2,13 +2,14 @@
 #include "Crouch.h"
 #include "CharacterControllerCommonDefs.h"
 #include "IdleStateBase.h"
-
+#include "Disarmed.h"
 namespace GameEngine
 {
 namespace Components
 {
 class DisarmedIdleCrouchState
-    : public Crouch,
+    : public Disarmed,
+      public Crouch,
       public IdleStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,

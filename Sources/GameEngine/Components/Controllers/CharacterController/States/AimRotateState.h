@@ -2,6 +2,7 @@
 #include "AimStateBase.h"
 #include "Armed.h"
 #include "RotateStateBase.h"
+#include "Stand.h"
 
 namespace GameEngine
 {
@@ -9,6 +10,7 @@ namespace Components
 {
 class AimRotateState
     : public Armed,
+      public Stand,
       public AimStateBase,
       public RotateStateBase,
       public Utils::StateMachine::Will<

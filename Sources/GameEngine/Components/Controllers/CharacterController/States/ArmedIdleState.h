@@ -2,6 +2,7 @@
 #include "Armed.h"
 #include "CharacterControllerCommonDefs.h"
 #include "IdleStateBase.h"
+#include "Stand.h"
 
 namespace GameEngine
 {
@@ -9,6 +10,7 @@ namespace Components
 {
 class ArmedIdleState
     : public Armed,
+      public Stand,
       public IdleStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,

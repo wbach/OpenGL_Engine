@@ -1,12 +1,16 @@
 #pragma once
 #include "RotatingMoveAndRotateStateBase.h"
+#include "Armed.h"
+#include "Stand.h"
 
 namespace GameEngine
 {
 namespace Components
 {
 class ArmedRunAndRotateState
-    : public RotatingMoveAndRotateStateBase,
+    : public Armed,
+      public Stand,
+      public RotatingMoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,

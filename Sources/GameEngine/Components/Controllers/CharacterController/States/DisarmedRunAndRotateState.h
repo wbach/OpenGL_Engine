@@ -1,13 +1,14 @@
 #pragma once
 #include "Disarmed.h"
 #include "RotatingMoveAndRotateStateBase.h"
-
+#include "Stand.h"
 namespace GameEngine
 {
 namespace Components
 {
 class DisarmedRunAndRotateState
     : public Disarmed,
+      public Stand,
       public RotatingMoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,

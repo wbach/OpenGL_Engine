@@ -5,6 +5,7 @@
 #include "Disarmed.h"
 #include "Fsm/actions/Queue.h"
 #include "RotateStateBase.h"
+#include "Stand.h"
 
 namespace GameEngine
 {
@@ -12,6 +13,7 @@ namespace Components
 {
 class DisarmedAttackAndRotateState
     : public Disarmed,
+      public Stand,
       public AttackStateBase,
       public RotateStateBase,
       public Utils::StateMachine::Will<

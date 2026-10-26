@@ -5,6 +5,7 @@
 #include "Disarmed.h"
 #include "RotateStateBase.h"
 #include "RotatingMoveState.h"
+#include "Stand.h"
 
 namespace GameEngine
 {
@@ -12,6 +13,7 @@ namespace Components
 {
 class DisarmedAttackAndRunAndRotateState
     : public Disarmed,
+      public Stand,
       public AttackStateBase,
       public RotateStateBase,
       public RotatingMoveState,

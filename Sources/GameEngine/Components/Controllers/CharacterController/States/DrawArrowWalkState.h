@@ -1,14 +1,17 @@
 #pragma once
+#include "Armed.h"
 #include "CharacterControllerCommonDefs.h"
 #include "DrawArrowStateBase.h"
 #include "MoveStateBase.h"
-
+#include "Stand.h"
 namespace GameEngine
 {
 namespace Components
 {
 class DrawArrowWalkState
     : public DrawArrowStateBase,
+      public Armed,
+      public Stand,
       public MoveStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
@@ -35,8 +38,8 @@ class DrawArrowWalkState
 public:
     DrawArrowWalkState(FsmContext&);
 
-    using MoveStateBase::onEnter;
     using MoveStateBase::leaveCondition;
+    using MoveStateBase::onEnter;
     using MoveStateBase::update;
 
     void onEnter(ArmedSprintState&, const DrawArrowEvent&);

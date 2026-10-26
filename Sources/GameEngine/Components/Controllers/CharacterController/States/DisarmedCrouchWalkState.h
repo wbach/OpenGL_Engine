@@ -1,14 +1,15 @@
 #pragma once
-#include "Crouch.h"
 #include "CharacterControllerCommonDefs.h"
+#include "Crouch.h"
+#include "Disarmed.h"
 #include "RotatingMoveState.h"
-
 namespace GameEngine
 {
 namespace Components
 {
 class DisarmedCrouchWalkState
-    : public Crouch,
+    : public Disarmed,
+      public Crouch,
       public RotatingMoveState,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,

@@ -1,15 +1,18 @@
 #pragma once
-
+#include "Disarmed.h"
 #include "DisarmedAttackAndWalkAndRotateState.h"
 #include "Fsm/actions/TransitionTo.h"
 #include "RotatingMoveAndRotateStateBase.h"
+#include "Stand.h"
 
 namespace GameEngine
 {
 namespace Components
 {
 class DisarmedWalkAndRotateState
-    : public RotatingMoveAndRotateStateBase,
+    : public Disarmed,
+      public Stand,
+      public RotatingMoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,

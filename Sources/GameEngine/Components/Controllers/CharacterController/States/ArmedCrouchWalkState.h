@@ -2,13 +2,15 @@
 #include "Crouch.h"
 #include "CharacterControllerCommonDefs.h"
 #include "RotatingMoveState.h"
+#include "Armed.h"
 
 namespace GameEngine
 {
 namespace Components
 {
 class ArmedCrouchWalkState
-    : public Crouch,
+    : public Armed,
+      public Crouch,
       public RotatingMoveState,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,

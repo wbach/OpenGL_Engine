@@ -1,8 +1,9 @@
 #pragma once
+#include "Armed.h"
 #include "CharacterControllerCommonDefs.h"
 #include "MoveStateBase.h"
 #include "RecoilStateBase.h"
-
+#include "Stand.h"
 namespace GameEngine
 {
 namespace Components
@@ -10,6 +11,8 @@ namespace Components
 class RecoilWalkState
     : public RecoilStateBase,
       public MoveStateBase,
+      public Armed,
+      public Stand,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::Update>,
@@ -35,8 +38,8 @@ class RecoilWalkState
 public:
     RecoilWalkState(FsmContext&);
 
-    using MoveStateBase::onEnter;
     using MoveStateBase::leaveCondition;
+    using MoveStateBase::onEnter;
     using MoveStateBase::update;
 
     void onEnter(const AttackEvent&);

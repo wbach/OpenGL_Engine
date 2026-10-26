@@ -1,13 +1,16 @@
 #pragma once
 #include "CharacterControllerCommonDefs.h"
+#include "Disarmed.h"
 #include "FallingStateBase.h"
-
+#include "Stand.h"
 namespace GameEngine
 {
 namespace Components
 {
 class DisarmedFallingState
-    : public FallingStateBase,
+    : public Stand,
+      public Disarmed,
+      public FallingStateBase,
       public Utils::StateMachine::Will<Utils::StateMachine::ByDefault<Utils::StateMachine::Queue>,
                                        Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Nothing>,
                                        Utils::StateMachine::On<StartFallingEvent, Utils::StateMachine::Nothing>,

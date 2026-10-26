@@ -1,7 +1,9 @@
 #pragma once
+#include "Armed.h"
 #include "CharacterControllerCommonDefs.h"
 #include "DrawArrowStateBase.h"
 #include "RotateStateBase.h"
+#include "Stand.h"
 
 namespace GameEngine
 {
@@ -9,6 +11,8 @@ namespace Components
 {
 class DrawArrowRotateState
     : public DrawArrowStateBase,
+      public Armed,
+      public Stand,
       public RotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,

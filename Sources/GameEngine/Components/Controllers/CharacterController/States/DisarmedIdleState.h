@@ -3,13 +3,14 @@
 #include "Disarmed.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "IdleStateBase.h"
-
+#include "Stand.h"
 namespace GameEngine
 {
 namespace Components
 {
 class DisarmedIdleState
     : public Disarmed,
+      public Stand,
       public IdleStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,

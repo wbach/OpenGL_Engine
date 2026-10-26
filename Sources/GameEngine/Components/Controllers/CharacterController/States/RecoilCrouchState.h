@@ -1,15 +1,16 @@
 #pragma once
-#include "Crouch.h"
+#include "Armed.h"
 #include "CharacterControllerCommonDefs.h"
+#include "Crouch.h"
 #include "IdleStateBase.h"
 #include "RecoilStateBase.h"
-
 namespace GameEngine
 {
 namespace Components
 {
 class RecoilCrouchState
     : public Crouch,
+      public Armed,
       public RecoilStateBase,
       public IdleStateBase,
       public Utils::StateMachine::Will<

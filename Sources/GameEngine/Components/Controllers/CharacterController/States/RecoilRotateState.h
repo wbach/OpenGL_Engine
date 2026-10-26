@@ -1,14 +1,17 @@
 #pragma once
+#include "Armed.h"
 #include "CharacterControllerCommonDefs.h"
 #include "RecoilStateBase.h"
 #include "RotateStateBase.h"
-
+#include "Stand.h"
 namespace GameEngine
 {
 namespace Components
 {
 class RecoilRotateState
     : public RecoilStateBase,
+      public Armed,
+      public Stand,
       public RotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,

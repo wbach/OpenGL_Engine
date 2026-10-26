@@ -1,7 +1,7 @@
 #pragma once
-#include "Crouch.h"
-
+#include "Armed.h"
 #include "CharacterControllerCommonDefs.h"
+#include "Crouch.h"
 #include "MoveAndRotateStateBase.h"
 #include "RecoilStateBase.h"
 
@@ -11,6 +11,7 @@ namespace Components
 {
 class RecoilCrouchWalkAndRotateState
     : public Crouch,
+      public Armed,
       public RecoilStateBase,
       public MoveAndRotateStateBase,
       public Utils::StateMachine::Will<
@@ -41,8 +42,8 @@ public:
 
     void onEnter(const AttackEvent&);
 
-    using MoveAndRotateStateBase::onEnter;
     using MoveAndRotateStateBase::leaveCondition;
+    using MoveAndRotateStateBase::onEnter;
     using MoveAndRotateStateBase::update;
 
     void update(float);

@@ -1,11 +1,12 @@
 #pragma once
 #include <Types.h>
-
+#include <concepts>
 #include <functional>
 #include <optional>
 
 #include "CharacterControllerCommonDefs.h"
 #include "BaseState.h"
+
 namespace GameEngine
 {
 namespace Components
@@ -45,5 +46,8 @@ private:
     std::optional<uint32> subscribeForTransitionAnimationFrame_;
     std::optional<uint32> subscribeForTransitionAnimationEnd_;
 };
+
+template <typename T>
+concept IsArmedChange = std::derived_from<T, ArmedChangeStateBase>;
 }  // namespace Components
 }  // namespace GameEngine

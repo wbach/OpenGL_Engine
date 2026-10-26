@@ -1,12 +1,15 @@
 #pragma once
+#include "Armed.h"
 #include "RotatingMoveAndRotateStateBase.h"
-
+#include "Stand.h"
 namespace GameEngine
 {
 namespace Components
 {
 class ArmedWalkAndRotateState
-    : public RotatingMoveAndRotateStateBase,
+    : public Armed,
+      public Stand,
+      public RotatingMoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
@@ -40,8 +43,8 @@ class ArmedWalkAndRotateState
 public:
     ArmedWalkAndRotateState(FsmContext &);
 
-    using RotatingMoveAndRotateStateBase::onEnter;
     using RotatingMoveAndRotateStateBase::leaveCondition;
+    using RotatingMoveAndRotateStateBase::onEnter;
     using RotatingMoveAndRotateStateBase::update;
 };
 }  // namespace Components

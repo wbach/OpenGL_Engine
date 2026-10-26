@@ -4,13 +4,17 @@
 #include "CharacterControllerCommonDefs.h"
 #include "RotateStateBase.h"
 #include "RotatingMoveState.h"
+#include "Disarmed.h"
+#include "Stand.h"
 
 namespace GameEngine
 {
 namespace Components
 {
 class DisarmedAttackAndWalkAndRotateState
-    : public AttackStateBase,
+    : public Disarmed,
+      public Stand,
+      public AttackStateBase,
       public RotateStateBase,
       public RotatingMoveState,
       public Utils::StateMachine::Will<

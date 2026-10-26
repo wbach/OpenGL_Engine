@@ -1,9 +1,7 @@
 #pragma once
-#include "Armed.h"
 #include "BaseState.h"
 #include "CharacterControllerCommonDefs.h"
-#include "Crouch.h"
-#include "Disarmed.h"
+#include "StateConcepts.h"
 
 namespace GameEngine
 {
@@ -15,70 +13,49 @@ class DeathState : public BaseState,
 public:
     DeathState(FsmContext&);
 
+    void onEnter();
+
     template <typename PrevState, typename Event>
-        requires(std::derived_from<PrevState, Disarmed>)
-    void onEnter(PrevState& state, const Event&)
+        requires IsCrouchArmedChange<PrevState>
+    void onEnter(PrevState&, const Event&)
     {
-        setDisarmedRelatedClip();
+        setArmedChangeInCrouchRelatedClip();
     }
 
     template <typename PrevState, typename Event>
-        requires(std::derived_from<PrevState, Armed>)
-    void onEnter(PrevState& state, const Event&)
+        requires IsArmedChange<PrevState>
+    void onEnter(PrevState&, const Event&)
     {
-        setArmedRelatedClip();
+        setArmedChangeRelatedClip();
     }
 
     template <typename PrevState, typename Event>
-        requires(std::derived_from<PrevState, Disarmed> and std::derived_from<PrevState, Crouch>)
-    void onEnter(PrevState& state, const Event&)
+        requires IsCrouchDisarmed<PrevState>
+    void onEnter(PrevState&, const Event&)
     {
         setCrouchDisarmedRelatedClip();
     }
 
     template <typename PrevState, typename Event>
-        requires(std::derived_from<PrevState, Armed> and std::derived_from<PrevState, Crouch>)
-    void onEnter(PrevState& state, const Event&)
+        requires IsCrouchArmed<PrevState>
+    void onEnter(PrevState&, const Event&)
     {
         setCrouchArmedRelatedClip();
     }
 
-    void onEnter();
+    template <typename PrevState, typename Event>
+        requires IsDisarmed<PrevState>
+    void onEnter(PrevState&, const Event&)
+    {
+        setDisarmedRelatedClip();
+    }
 
-    void onEnter(HurtState&, const DeathEvent&);
-    void onEnter(ArmedAttackState&, const DeathEvent&);
-    void onEnter(DisarmedAttackState&, const DeathEvent&);
-    void onEnter(DisarmedAttackAndRunState&, const DeathEvent&);
-    void onEnter(DisarmedAttackAndWalkState&, const DeathEvent&);
-    void onEnter(DisarmedAttackAndWalkAndRotateState&, const DeathEvent&);
-    void onEnter(IdleArmedChangeState&, const DeathEvent&);
-    void onEnter(RotateArmedChangeState&, const DeathEvent&);
-    void onEnter(RunArmedChangeState&, const DeathEvent&);
-    void onEnter(RunAndRotateArmedChangeState&, const DeathEvent&);
-    void onEnter(WalkArmedChangeState&, const DeathEvent&);
-    void onEnter(WalkAndRotateArmedChangeState&, const DeathEvent&);
-    void onEnter(DisarmedWalkState&, const DeathEvent&);
-    void onEnter(DisarmedWalkAndRotateState&, const DeathEvent&);
-    void onEnter(DisarmedSprintState&, const DeathEvent&);
-    void onEnter(ArmedRunState&, const DeathEvent&);
-    void onEnter(ArmedRotateState&, const DeathEvent&);
-    void onEnter(ArmedRunAndRotateState&, const DeathEvent&);
-    void onEnter(ArmedWalkState&, const DeathEvent&);
-    void onEnter(ArmedWalkAndRotateState&, const DeathEvent&);
-    void onEnter(ArmedSprintState&, const DeathEvent&);
-    void onEnter(ArmedSprintAndRotateState&, const DeathEvent&);
-    void onEnter(JumpState&, const DeathEvent&);
-    void onEnter(DodgeState&, const DeathEvent&);
-    void onEnter(RecoilState&, const DeathEvent&);
-    void onEnter(RecoilRotateState&, const DeathEvent&);
-    void onEnter(RecoilWalkState&, const DeathEvent&);
-    void onEnter(RecoilWalkAndRotateState&, const DeathEvent&);
-    void onEnter(DrawArrowState&, const DeathEvent&);
-    void onEnter(DrawArrowRotateState&, const DeathEvent&);
-    void onEnter(DrawArrowWalkState&, const DeathEvent&);
-    void onEnter(DrawArrowWalkAndRotateState&, const DeathEvent&);
-    void onEnter(DisarmedFallingState&, const DeathEvent&);
-    void onEnter(ArmedFallingState&, const DeathEvent&);
+    template <typename PrevState, typename Event>
+        requires IsArmed<PrevState>
+    void onEnter(PrevState&, const Event&)
+    {
+        setArmedRelatedClip();
+    }
 
 private:
     void setAnim(const std::string&);
@@ -86,6 +63,8 @@ private:
     void setDisarmedRelatedClip();
     void setCrouchArmedRelatedClip();
     void setCrouchDisarmedRelatedClip();
+    void setArmedChangeRelatedClip();
+    void setArmedChangeInCrouchRelatedClip();
 };
 }  // namespace Components
 }  // namespace GameEngine

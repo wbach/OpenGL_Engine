@@ -1,16 +1,17 @@
 #pragma once
 #include "CharacterControllerCommonDefs.h"
-#include "DisarmedCrouchRotateState.h"
 #include "Disarmed.h"
+#include "DisarmedCrouchRotateState.h"
 #include "Fsm/actions/TransitionTo.h"
 #include "RotateStateBase.h"
-
+#include "Stand.h"
 namespace GameEngine
 {
 namespace Components
 {
 class DisarmedRotateState
     : public Disarmed,
+      public Stand,
       public RotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,

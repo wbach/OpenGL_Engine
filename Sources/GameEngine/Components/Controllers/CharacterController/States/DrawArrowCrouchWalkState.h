@@ -1,15 +1,16 @@
 #pragma once
-#include "Crouch.h"
+#include "Armed.h"
 #include "CharacterControllerCommonDefs.h"
+#include "Crouch.h"
 #include "DrawArrowStateBase.h"
 #include "MoveStateBase.h"
-
 namespace GameEngine
 {
 namespace Components
 {
 class DrawArrowCrouchWalkState
     : public Crouch,
+      public Armed,
       public DrawArrowStateBase,
       public MoveStateBase,
       public Utils::StateMachine::Will<
@@ -37,8 +38,8 @@ class DrawArrowCrouchWalkState
 public:
     DrawArrowCrouchWalkState(FsmContext&);
 
-    using MoveStateBase::onEnter;
     using MoveStateBase::leaveCondition;
+    using MoveStateBase::onEnter;
     using MoveStateBase::update;
 
     void onEnter(ArmedSprintState&, const DrawArrowEvent&);

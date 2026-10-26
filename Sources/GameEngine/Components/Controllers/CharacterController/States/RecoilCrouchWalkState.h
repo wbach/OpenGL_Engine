@@ -1,15 +1,16 @@
 #pragma once
-#include "Crouch.h"
+#include "Armed.h"
 #include "CharacterControllerCommonDefs.h"
+#include "Crouch.h"
 #include "MoveStateBase.h"
 #include "RecoilStateBase.h"
-
 namespace GameEngine
 {
 namespace Components
 {
 class RecoilCrouchWalkState
     : public Crouch,
+      public Armed,
       public RecoilStateBase,
       public MoveStateBase,
       public Utils::StateMachine::Will<
@@ -37,8 +38,8 @@ class RecoilCrouchWalkState
 public:
     RecoilCrouchWalkState(FsmContext&);
 
-    using MoveStateBase::onEnter;
     using MoveStateBase::leaveCondition;
+    using MoveStateBase::onEnter;
     using MoveStateBase::update;
 
     void onEnter(const AttackEvent&);

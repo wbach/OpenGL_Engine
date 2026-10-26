@@ -1,5 +1,6 @@
 #pragma once
 #include "Armed.h"
+#include "Stand.h"
 #include "AttackStateBase.h"
 #include "CharacterControllerCommonDefs.h"
 #include "RotatingMoveState.h"
@@ -10,6 +11,7 @@ namespace Components
 {
 class ArmedAttackAndWalkState
     : public Armed,
+      public Stand,
       public AttackStateBase,
       public RotatingMoveState,
       public Utils::StateMachine::Will<
