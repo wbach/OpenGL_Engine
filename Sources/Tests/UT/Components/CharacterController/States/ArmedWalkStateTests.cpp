@@ -137,25 +137,25 @@ TEST_F(CharacterControllerTests, ArmedWalk_SprintStateChangeEvent)
 TEST_F(CharacterControllerTests, ArmedWalk_MoveEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<MoveEvent>();
 }
 
 TEST_F(CharacterControllerTests, ArmedWalk_EndMoveLeftEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EndMoveLeftEvent>();
 }
 
 TEST_F(CharacterControllerTests, ArmedWalk_EndMoveRightEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EndMoveRightEvent>();
 }
 
 TEST_F(CharacterControllerTests, ArmedWalk_EndRotationEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EndRotationEvent>();
 }
 
 TEST_F(CharacterControllerTests, ArmedWalk_JumpEvent)
@@ -167,7 +167,7 @@ TEST_F(CharacterControllerTests, ArmedWalk_JumpEvent)
 TEST_F(CharacterControllerTests, ArmedWalk_JumpConfirmEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<JumpConfirmEvent>();
 }
 
 TEST_F(CharacterControllerTests, ArmedWalk_DodgeDiveEvent)
@@ -215,19 +215,19 @@ TEST_F(CharacterControllerTests, ArmedWalk_AttackEvent)
 TEST_F(CharacterControllerTests, ArmedWalk_EndAttackEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EndAttackEvent>();
 }
 
 TEST_F(CharacterControllerTests, ArmedWalk_EquipEndStateEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EquipEndStateEvent>();
 }
 
 TEST_F(CharacterControllerTests, ArmedWalk_DisarmEndStateEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<DisarmEndStateEvent>();
 }
 
 TEST_F(CharacterControllerTests, ArmedWalk_ReloadArrowEvent)
@@ -245,7 +245,7 @@ TEST_F(CharacterControllerTests, ArmedWalk_AimStartEvent)
 TEST_F(CharacterControllerTests, ArmedWalk_AimStopEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<AimStopEvent>();
 }
 
 TEST_F(CharacterControllerTests, ArmedWalk_StartFallingEvent)
@@ -257,25 +257,25 @@ TEST_F(CharacterControllerTests, ArmedWalk_StartFallingEvent)
 TEST_F(CharacterControllerTests, ArmedWalk_GroundDetectionEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<GroundDetectionEvent>();
 }
 
 TEST_F(CharacterControllerTests, ArmedWalk_HurtEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    tiggerAndExpect<HurtEvent>({sut_.animationClipsNames_.armed.posture.stand.hurt});
 }
 
 TEST_F(CharacterControllerTests, ArmedWalk_AnimationPlayEndEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<AnimationPlayEndEvent>();
 }
 
 TEST_F(CharacterControllerTests, ArmedWalk_ChangeAnimEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<ChangeAnimEvent>();
 }
 
 TEST_F(CharacterControllerTests, ArmedWalk_StartDialogEvent)
@@ -297,5 +297,5 @@ TEST_F(CharacterControllerTests, ArmedWalk_StartDialogEvent)
 TEST_F(CharacterControllerTests, ArmedWalk_EndDialogEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EndDialogEvent>();
 }
