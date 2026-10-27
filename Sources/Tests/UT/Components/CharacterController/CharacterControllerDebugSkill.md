@@ -282,13 +282,13 @@ When a test mocks `GetRotation`, `SetRotation`, or related physics methods, dete
 
 Do not modify rotation logic without checking the intended behavior of the current state and related states.
 
-### 6.6 `tiggerAndExpect`
+### 6.6 `triggerAndExpect`
 
 The test suite contains a helper similar to:
 
 ```cpp
 template <typename Event>
-void tiggerAndExpect(
+void triggerAndExpect(
     const Event& event,
     const std::vector<std::string>& clipNames,
     const std::vector<float>& updateTimes = {
@@ -311,7 +311,7 @@ For debugging, mentally expand it into individual operations.
 For example:
 
 ```cpp
-tiggerAndExpect(
+triggerAndExpect(
     MoveForwardEvent{},
     {sut_.animationClipsNames_.disarmed.movement.run.forward}
 );

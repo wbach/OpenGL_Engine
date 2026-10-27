@@ -45,7 +45,7 @@ struct CharacterControllerTests : public BaseComponentTestSchould
     }
 
     template <typename Event>
-    void tiggerAndExpect(const Event& event, const std::vector<std::string>& clipNames,
+    void triggerAndExpect(const Event& event, const std::vector<std::string>& clipNames,
                          const std::vector<float>& updateTimes = {ADVANCED_TIME_TRANSITION_TIME})
     {
         handleEvent(event);
@@ -55,10 +55,10 @@ struct CharacterControllerTests : public BaseComponentTestSchould
     }
 
     template <typename Event>
-    void tiggerAndExpect(const std::vector<std::string>& clipNames,
+    void triggerAndExpect(const std::vector<std::string>& clipNames,
                          const std::vector<float>& updateTimes = {ADVANCED_TIME_TRANSITION_TIME}, const Event& event = Event{})
     {
-        tiggerAndExpect<Event>(event, clipNames, updateTimes);
+        triggerAndExpect<Event>(event, clipNames, updateTimes);
     }
 
     template <typename Event>
@@ -74,7 +74,7 @@ struct CharacterControllerTests : public BaseComponentTestSchould
         {
             expectNoRotation();
         }
-        tiggerAndExpect<Event>({currentAnimName});
+        triggerAndExpect<Event>({currentAnimName});
     }
 
     void expectNoMove();

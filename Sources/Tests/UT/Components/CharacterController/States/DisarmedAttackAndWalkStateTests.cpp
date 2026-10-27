@@ -17,10 +17,10 @@ void prepareState(CharacterControllerTests& test)
     test.expectForwardVelocity(DEFAULT_RUN_SPEED);
 
     test.expectAnimsToBeSet({test.sut_.animationClipsNames_.disarmed.posture.stand.idle});
-    test.tiggerAndExpect<MoveForwardEvent>({test.sut_.animationClipsNames_.disarmed.movement.run.forward});
+    test.triggerAndExpect<MoveForwardEvent>({test.sut_.animationClipsNames_.disarmed.movement.run.forward});
     test.expectForwardVelocity(DEFAULT_WALK_SPEED);
-    test.tiggerAndExpect<WalkChangeStateEvent>({test.sut_.animationClipsNames_.disarmed.movement.walk.forward});
-    test.tiggerAndExpect<AttackEvent>({test.sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front(),
+    test.triggerAndExpect<WalkChangeStateEvent>({test.sut_.animationClipsNames_.disarmed.movement.walk.forward});
+    test.triggerAndExpect<AttackEvent>({test.sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front(),
                                        test.sut_.animationClipsNames_.disarmed.movement.walk.forward});
 }
 }  // namespace
@@ -29,7 +29,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_CrouchChangeStateEve
 {
     prepareState(*this);
     // queue DrawArrowEvent
-    tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front(),
+    triggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front(),
                                              sut_.animationClipsNames_.disarmed.movement.walk.forward});
 
     // wait until attack finish
@@ -43,7 +43,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_DrawArrowEvent)
 {
     prepareState(*this);
     // queue DrawArrowEvent
-    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front(),
+    triggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front(),
                                      sut_.animationClipsNames_.disarmed.movement.walk.forward});
 
     // wait until attack finish
@@ -257,7 +257,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_AimStopEvent)
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_StartFallingEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling});
+    triggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_GroundDetectionEvent)
@@ -269,7 +269,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_GroundDetectionEvent
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_HurtEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<HurtEvent>({sut_.animationClipsNames_.disarmed.posture.stand.hurt});
+    triggerAndExpect<HurtEvent>({sut_.animationClipsNames_.disarmed.posture.stand.hurt});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_AnimationPlayEndEvent)

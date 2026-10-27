@@ -12,10 +12,10 @@ void prepareState(CharacterControllerTests& test)
     test.expectForwardVelocity(DEFAULT_RUN_SPEED);
 
     test.expectAnimsToBeSet({test.sut_.animationClipsNames_.disarmed.posture.stand.idle});
-    test.tiggerAndExpect<MoveForwardEvent>({test.sut_.animationClipsNames_.disarmed.movement.run.forward});
+    test.triggerAndExpect<MoveForwardEvent>({test.sut_.animationClipsNames_.disarmed.movement.run.forward});
     test.expectRotationLeft();
-    test.tiggerAndExpect<RotateLeftEvent>({test.sut_.animationClipsNames_.disarmed.movement.run.forward});
-    test.tiggerAndExpect<AttackEvent>({test.sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front(),
+    test.triggerAndExpect<RotateLeftEvent>({test.sut_.animationClipsNames_.disarmed.movement.run.forward});
+    test.triggerAndExpect<AttackEvent>({test.sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front(),
                                        test.sut_.animationClipsNames_.disarmed.movement.run.forward});
 }
 }  // namespace
@@ -23,7 +23,7 @@ void prepareState(CharacterControllerTests& test)
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_DeathEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DeathEvent>({sut_.animationClipsNames_.disarmed.posture.stand.death});
+    triggerAndExpect<DeathEvent>({sut_.animationClipsNames_.disarmed.posture.stand.death});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_AttackEvent)
@@ -35,7 +35,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_AttackEvent)
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_EndAttackEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<EndAttackEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward});
+    triggerAndExpect<EndAttackEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_EndMoveForwardEvent)
@@ -43,7 +43,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_EndMoveForwa
     prepareState(*this);
     expectNoMove();
     const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
-    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.disarmed.posture.stand.rotate.left, clipName});
+    triggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.disarmed.posture.stand.rotate.left, clipName});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_EndBackwardMoveEvent)
@@ -63,14 +63,14 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_EndRotationE
     prepareState(*this);
     expectNoRotation();
     const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
-    tiggerAndExpect<EndRotationEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.run.forward});
+    triggerAndExpect<EndRotationEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.run.forward});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_SprintStateChangeEvent)
 {
     prepareState(*this);
     const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
-    tiggerAndExpect<SprintStateChangeEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.run.forward});
+    triggerAndExpect<SprintStateChangeEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.run.forward});
 
     expectForwardVelocity(DEFAULT_SPRINT_SPEED);
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
@@ -86,7 +86,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_WeaponStateE
 {
     prepareState(*this);
     const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
-    tiggerAndExpect<GameEngine::WeaponStateEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.run.forward});
+    triggerAndExpect<GameEngine::WeaponStateEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.run.forward});
 
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
@@ -101,7 +101,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_DrawArrowEve
 {
     prepareState(*this);
     const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
-    tiggerAndExpect<GameEngine::DrawArrowEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.run.forward});
+    triggerAndExpect<GameEngine::DrawArrowEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.run.forward});
 
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
@@ -116,9 +116,9 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_AimStopEvent
 {
     prepareState(*this);
     const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
-    tiggerAndExpect<GameEngine::DrawArrowEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.run.forward});
+    triggerAndExpect<GameEngine::DrawArrowEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.run.forward});
     expectAnyRotation();
-    tiggerAndExpect<GameEngine::AimStopEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.run.forward}, {0});
+    triggerAndExpect<GameEngine::AimStopEvent>({clipName, sut_.animationClipsNames_.disarmed.movement.run.forward}, {0});
 
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
@@ -275,7 +275,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_CrouchChange
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_StartFallingEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling});
+    triggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_GroundDetectionEvent)
@@ -287,7 +287,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_GroundDetect
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_HurtEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<HurtEvent>({sut_.animationClipsNames_.disarmed.posture.stand.hurt});
+    triggerAndExpect<HurtEvent>({sut_.animationClipsNames_.disarmed.posture.stand.hurt});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_AnimationPlayEndEvent)

@@ -10,16 +10,16 @@ void prepareState(CharacterControllerTests& test)
     test.expectAnimsToBeSet({test.sut_.animationClipsNames_.disarmed.posture.stand.idle});
 
     test.expectForwardVelocity(DEFAULT_RUN_SPEED);
-    test.tiggerAndExpect<MoveForwardEvent>({test.sut_.animationClipsNames_.disarmed.movement.run.forward});
+    test.triggerAndExpect<MoveForwardEvent>({test.sut_.animationClipsNames_.disarmed.movement.run.forward});
     test.expectForwardVelocity(DEFAULT_WALK_SPEED);
-    test.tiggerAndExpect<CrouchChangeStateEvent>({test.sut_.animationClipsNames_.disarmed.movement.crouch.forward});
+    test.triggerAndExpect<CrouchChangeStateEvent>({test.sut_.animationClipsNames_.disarmed.movement.crouch.forward});
 }
 }  // namespace
 
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_DrawArrowEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DrawArrowEvent>(
+    triggerAndExpect<DrawArrowEvent>(
         {sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.equip.front()},
         {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME / 2.f});
     Update(ADVANCED_TIME_CLIP_TIME / 2.f);
@@ -30,10 +30,10 @@ TEST_F(CharacterControllerTests, DisarmedCruchWalkState_DrawArrowEvent)
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_AimStopDuringDrawArrowEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DrawArrowEvent>(
+    triggerAndExpect<DrawArrowEvent>(
         {sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.equip.front()},
         {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME / 2.f});
-    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward},
+    triggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward},
                                   {ADVANCED_TIME_CLIP_TIME / 2.f, ADVANCED_TIME_TRANSITION_TIME});
 
     // Extra check
@@ -45,7 +45,7 @@ TEST_F(CharacterControllerTests, DisarmedCruchWalkState_CrouchChangeStateEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward},
+    triggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward},
                                             {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME / 2.f});
 }
 
@@ -53,14 +53,14 @@ TEST_F(CharacterControllerTests, DisarmedCruchWalkState_MoveForwardEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_WALK_SPEED);
-    tiggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.disarmed.movement.crouch.forward});
+    triggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.disarmed.movement.crouch.forward});
 }
 
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_MoveLeftEvent)
 {
     prepareState(*this);
     expectVelocity(VECTOR_FORWARD + VECTOR_LEFT, vec3(DEFAULT_WALK_SPEED, 0.0, DEFAULT_WALK_SPEED));
-    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.disarmed.movement.crouch.forward}, {0});
+    triggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.disarmed.movement.crouch.forward}, {0});
     expectRootboneRotation(VECTOR_FORWARD + VECTOR_LEFT);
 }
 
@@ -68,45 +68,45 @@ TEST_F(CharacterControllerTests, DisarmedCruchWalkState_MoveRightEvent)
 {
     prepareState(*this);
     expectVelocity(VECTOR_FORWARD + VECTOR_RIGHT, vec3(DEFAULT_WALK_SPEED, 0.0, DEFAULT_WALK_SPEED));
-    tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.disarmed.movement.crouch.forward}, {0});
+    triggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.disarmed.movement.crouch.forward}, {0});
     expectRootboneRotation(VECTOR_FORWARD + VECTOR_RIGHT);
 }
 
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_DeathEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DeathEvent>({sut_.animationClipsNames_.disarmed.posture.crouched.death});
+    triggerAndExpect<DeathEvent>({sut_.animationClipsNames_.disarmed.posture.crouched.death});
 }
 
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_WalkChangeStateEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<WalkChangeStateEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward});
+    triggerAndExpect<WalkChangeStateEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward});
 }
 
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_WeaponStateEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<WeaponStateEvent>(
+    triggerAndExpect<WeaponStateEvent>(
         {sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.equip.front()});
 }
 
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_EndForwardMoveEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.disarmed.posture.crouched.idle});
+    triggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.disarmed.posture.crouched.idle});
 }
 
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_EndBackwardMoveEvent)
 {
     prepareState(*this);
     expectNoMove();
-    tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.disarmed.posture.crouched.idle},
+    triggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.disarmed.posture.crouched.idle},
                                        {DEFAULT_MOVING_CHANGE_DIR_SPEED});
     expectRootboneRotation(VECTOR_FORWARD);
     expectForwardVelocity(DEFAULT_WALK_SPEED);
-    tiggerAndExpect<EndBackwardMoveEvent>({sut_.animationClipsNames_.disarmed.movement.crouch.forward}, {0});
+    triggerAndExpect<EndBackwardMoveEvent>({sut_.animationClipsNames_.disarmed.movement.crouch.forward}, {0});
     expectRootboneRotation(VECTOR_FORWARD);
 }
 
@@ -114,21 +114,21 @@ TEST_F(CharacterControllerTests, DisarmedCruchWalkState_MoveBackwardEvent)
 {
     prepareState(*this);
     expectNoMove();
-    tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.disarmed.posture.crouched.idle});
+    triggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.disarmed.posture.crouched.idle});
 }
 
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_RotateLeftEvent)
 {
     prepareState(*this);
     expectRotationLeft();
-    tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.disarmed.movement.crouch.forward});
+    triggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.disarmed.movement.crouch.forward});
 }
 
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_RotateRightEvent)
 {
     prepareState(*this);
     expectRotationRight();
-    tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.disarmed.movement.crouch.forward});
+    triggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.disarmed.movement.crouch.forward});
 }
 
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_RotateTargetEvent)
@@ -137,7 +137,7 @@ TEST_F(CharacterControllerTests, DisarmedCruchWalkState_RotateTargetEvent)
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
 
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
-    tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
+    triggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
                                        {sut_.animationClipsNames_.disarmed.movement.crouch.forward});
 }
 
@@ -145,7 +145,7 @@ TEST_F(CharacterControllerTests, DisarmedCruchWalkState_SprintStateChangeEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_SPRINT_SPEED);
-    tiggerAndExpect<SprintStateChangeEvent>({sut_.animationClipsNames_.disarmed.sprint});
+    triggerAndExpect<SprintStateChangeEvent>({sut_.animationClipsNames_.disarmed.sprint});
 }
 
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_MoveEvent)
@@ -265,7 +265,7 @@ TEST_F(CharacterControllerTests, DisarmedCruchWalkState_AimStopEvent)
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_StartFallingEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling});
+    triggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling});
 }
 
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_GroundDetectionEvent)
@@ -277,7 +277,7 @@ TEST_F(CharacterControllerTests, DisarmedCruchWalkState_GroundDetectionEvent)
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_HurtEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<HurtEvent>({sut_.animationClipsNames_.disarmed.posture.crouched.hurt});
+    triggerAndExpect<HurtEvent>({sut_.animationClipsNames_.disarmed.posture.crouched.hurt});
 }
 
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_AnimationPlayEndEvent)

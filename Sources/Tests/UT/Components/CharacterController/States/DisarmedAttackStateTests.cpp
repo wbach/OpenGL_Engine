@@ -5,7 +5,7 @@ namespace
 void prepareState(CharacterControllerTests& test)
 {
     test.expectAnimsToBeSet({test.sut_.animationClipsNames_.disarmed.posture.stand.idle});
-    test.tiggerAndExpect<AttackEvent>({test.sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()},
+    test.triggerAndExpect<AttackEvent>({test.sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()},
                                       {ADVANCED_TIME_TRANSITION_TIME});
 }
 }  // namespace
@@ -14,7 +14,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_CrouchChangeStateEvent)
 {
     prepareState(*this);
 
-    tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()},
+    triggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()},
                                             {ADVANCED_TIME_TRANSITION_TIME});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -24,7 +24,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_DrawArrowEvent)
 {
     prepareState(*this);
 
-    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip.front()}, {ADVANCED_TIME_TRANSITION_TIME});
+    triggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip.front()}, {ADVANCED_TIME_TRANSITION_TIME});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.aim.draw});
@@ -32,9 +32,9 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_DrawArrowEvent)
 TEST_F(CharacterControllerTests, DisarmedAttackState_AimStopDuringDrawArrowEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip.front()}, {ADVANCED_TIME_TRANSITION_TIME});
+    triggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip.front()}, {ADVANCED_TIME_TRANSITION_TIME});
 
-    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.equip.front()});
+    triggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.equip.front()});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.posture.stand.idle});
@@ -44,7 +44,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_WeaponStateEvent)
 {
     prepareState(*this);
 
-    tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.equip.front()}, {ADVANCED_TIME_TRANSITION_TIME});
+    triggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.equip.front()}, {ADVANCED_TIME_TRANSITION_TIME});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 }
@@ -53,15 +53,15 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_DeathEvent)
 {
     prepareState(*this);
 
-    tiggerAndExpect<DeathEvent>({sut_.animationClipsNames_.disarmed.posture.stand.death});
+    triggerAndExpect<DeathEvent>({sut_.animationClipsNames_.disarmed.posture.stand.death});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackState_MoveForwardEvent_idle)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
     auto& clip = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
-    tiggerAndExpect<AttackEvent>({clip}, {ADVANCED_TIME_TRANSITION_TIME});
-    tiggerAndExpect<MoveForwardEvent>({clip}, {ADVANCED_TIME_TRANSITION_TIME});
+    triggerAndExpect<AttackEvent>({clip}, {ADVANCED_TIME_TRANSITION_TIME});
+    triggerAndExpect<MoveForwardEvent>({clip}, {ADVANCED_TIME_TRANSITION_TIME});
 
     expectNoMove();
     expectAnimsToBeSet({clip});
@@ -80,10 +80,10 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_MoveForwardEvent_walk)
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
     auto& clip = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
     sut_.animationClipsNames_.disarmed.attack.front().stateType = GameEngine::Components::PlayStateType::walk;
-    tiggerAndExpect<AttackEvent>({clip}, {ADVANCED_TIME_TRANSITION_TIME});
+    triggerAndExpect<AttackEvent>({clip}, {ADVANCED_TIME_TRANSITION_TIME});
 
     expectForwardVelocity(DEFAULT_WALK_SPEED);
-    tiggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.disarmed.movement.walk.forward, clip});
+    triggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.disarmed.movement.walk.forward, clip});
     expectRootboneRotation(VECTOR_FORWARD);
 }
 
@@ -92,10 +92,10 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_MoveForwardEvent_run)
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
     auto& clip = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
     sut_.animationClipsNames_.disarmed.attack.front().stateType = GameEngine::Components::PlayStateType::run;
-    tiggerAndExpect<AttackEvent>({clip}, {ADVANCED_TIME_TRANSITION_TIME});
+    triggerAndExpect<AttackEvent>({clip}, {ADVANCED_TIME_TRANSITION_TIME});
 
     expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward, clip});
+    triggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward, clip});
     expectRootboneRotation(VECTOR_FORWARD);
 }
 
@@ -109,8 +109,8 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_RunBackwardEvent_idle)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
     auto& clip = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
-    tiggerAndExpect<AttackEvent>({clip}, {ADVANCED_TIME_TRANSITION_TIME});
-    tiggerAndExpect<MoveBackwardEvent>({clip}, {ADVANCED_TIME_TRANSITION_TIME});
+    triggerAndExpect<AttackEvent>({clip}, {ADVANCED_TIME_TRANSITION_TIME});
+    triggerAndExpect<MoveBackwardEvent>({clip}, {ADVANCED_TIME_TRANSITION_TIME});
 
     expectNoMove();
     expectAnimsToBeSet({clip});
@@ -127,8 +127,8 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_RunBackwardEvent_idle)
 TEST_F(CharacterControllerTests, DisarmedAttackState_MoveLeftEvent_idle)
 {
     auto& clip = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
-    tiggerAndExpect<AttackEvent>({clip}, {ADVANCED_TIME_TRANSITION_TIME});
-    tiggerAndExpect<MoveLeftEvent>({clip}, {ADVANCED_TIME_TRANSITION_TIME});
+    triggerAndExpect<AttackEvent>({clip}, {ADVANCED_TIME_TRANSITION_TIME});
+    triggerAndExpect<MoveLeftEvent>({clip}, {ADVANCED_TIME_TRANSITION_TIME});
     expectNoMove();
     expectAnimsToBeSet({clip});
 
@@ -151,9 +151,9 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_MoveRightEvent_idle)
 {
     auto& clip = sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front();
     ;
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()},
+    triggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()},
                                  {ADVANCED_TIME_TRANSITION_TIME});
-    tiggerAndExpect<MoveRightEvent>({clip}, {ADVANCED_TIME_TRANSITION_TIME});
+    triggerAndExpect<MoveRightEvent>({clip}, {ADVANCED_TIME_TRANSITION_TIME});
     expectNoMove();
     expectAnimsToBeSet({clip});
 
@@ -176,10 +176,10 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_RotateLeftEvent)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
-    tiggerAndExpect<AttackEvent>({disarmedAttackClip1->clipsSequence.front()}, {ADVANCED_TIME_TRANSITION_TIME});
+    triggerAndExpect<AttackEvent>({disarmedAttackClip1->clipsSequence.front()}, {ADVANCED_TIME_TRANSITION_TIME});
 
     expectRotationLeft();
-    tiggerAndExpect<RotateLeftEvent>(
+    triggerAndExpect<RotateLeftEvent>(
         {disarmedAttackClip1->clipsSequence.front(), sut_.animationClipsNames_.disarmed.posture.stand.rotate.left});
 }
 
@@ -187,10 +187,10 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_RotateRightEvent)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
-    tiggerAndExpect<AttackEvent>({disarmedAttackClip1->clipsSequence.front()}, {ADVANCED_TIME_TRANSITION_TIME});
+    triggerAndExpect<AttackEvent>({disarmedAttackClip1->clipsSequence.front()}, {ADVANCED_TIME_TRANSITION_TIME});
 
     expectRotationRight();
-    tiggerAndExpect<RotateRightEvent>(
+    triggerAndExpect<RotateRightEvent>(
         {disarmedAttackClip1->clipsSequence.front(), sut_.animationClipsNames_.disarmed.posture.stand.rotate.right});
 }
 
@@ -198,19 +198,19 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_RotateTargetEvent)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
-    tiggerAndExpect<AttackEvent>({disarmedAttackClip1->clipsSequence.front()}, {ADVANCED_TIME_TRANSITION_TIME});
+    triggerAndExpect<AttackEvent>({disarmedAttackClip1->clipsSequence.front()}, {ADVANCED_TIME_TRANSITION_TIME});
 
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
 
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
-    tiggerAndExpect<RotateTargetEvent>(
+    triggerAndExpect<RotateTargetEvent>(
         RotateTargetEvent{targetRotation.value_},
         {disarmedAttackClip1->clipsSequence.front(), sut_.animationClipsNames_.disarmed.posture.stand.rotate.right});
 }
 TEST_F(CharacterControllerTests, DisarmedAttackState_EndAttackEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<EndAttackEvent>({sut_.animationClipsNames_.disarmed.posture.stand.idle}, {ADVANCED_TIME_TRANSITION_TIME});
+    triggerAndExpect<EndAttackEvent>({sut_.animationClipsNames_.disarmed.posture.stand.idle}, {ADVANCED_TIME_TRANSITION_TIME});
 }
 TEST_F(CharacterControllerTests, DisarmedAttackState_AttackEvent)
 {
@@ -220,17 +220,17 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_AttackEvent)
     auto& clip2                                            = sut_.animationClipsNames_.disarmed.attack[1].clipsSequence.front();
     sut_.animationClipsNames_.disarmed.attack[1].stateType = GameEngine::Components::PlayStateType::run;
 
-    tiggerAndExpect<AttackEvent>({clip1}, {ADVANCED_TIME_TRANSITION_TIME});
-    tiggerAndExpect<AttackEvent>({clip1}, {0});
+    triggerAndExpect<AttackEvent>({clip1}, {ADVANCED_TIME_TRANSITION_TIME});
+    triggerAndExpect<AttackEvent>({clip1}, {0});
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
-    tiggerAndExpect<AttackEvent>({clip2}, {0});
+    triggerAndExpect<AttackEvent>({clip2}, {0});
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
 
-    tiggerAndExpect<AttackEvent>({clip3}, {0});
+    triggerAndExpect<AttackEvent>({clip3}, {0});
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
@@ -370,7 +370,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_AimStopEvent)
 TEST_F(CharacterControllerTests, DisarmedAttackState_StartFallingEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling});
+    triggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackState_GroundDetectionEvent)
@@ -382,7 +382,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_GroundDetectionEvent)
 TEST_F(CharacterControllerTests, DisarmedAttackState_HurtEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<HurtEvent>({sut_.animationClipsNames_.disarmed.posture.stand.hurt});
+    triggerAndExpect<HurtEvent>({sut_.animationClipsNames_.disarmed.posture.stand.hurt});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackState_AnimationPlayEndEvent)

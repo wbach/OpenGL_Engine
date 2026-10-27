@@ -6,7 +6,7 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
-    test.tiggerAndExpect({test.sut_.animationClipsNames_.disarmed.posture.stand.idle}, {ADVANCED_TIME_TRANSITION_TIME},
+    test.triggerAndExpect({test.sut_.animationClipsNames_.disarmed.posture.stand.idle}, {ADVANCED_TIME_TRANSITION_TIME},
                          StartDialogEvent{.role = StartDialogEvent::Role::Waiting});
 }
 }  // namespace
@@ -15,7 +15,7 @@ TEST_F(CharacterControllerTests, DialogState_StartDialogListen)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
 
-    tiggerAndExpect({sut_.animationClipsNames_.disarmed.dialog.listen}, {ADVANCED_TIME_TRANSITION_TIME},
+    triggerAndExpect({sut_.animationClipsNames_.disarmed.dialog.listen}, {ADVANCED_TIME_TRANSITION_TIME},
                     StartDialogEvent{.role = StartDialogEvent::Role::Listener});
 }
 
@@ -23,7 +23,7 @@ TEST_F(CharacterControllerTests, DialogState_StartDialogSay)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
 
-    tiggerAndExpect({sut_.animationClipsNames_.disarmed.dialog.say}, {ADVANCED_TIME_TRANSITION_TIME},
+    triggerAndExpect({sut_.animationClipsNames_.disarmed.dialog.say}, {ADVANCED_TIME_TRANSITION_TIME},
                     StartDialogEvent{.role = StartDialogEvent::Role::Speaker});
 }
 
@@ -32,7 +32,7 @@ TEST_F(CharacterControllerTests, DialogState_StartDialogUpdateToSay)
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
     prepareState(*this);
 
-    tiggerAndExpect({sut_.animationClipsNames_.disarmed.dialog.say}, {ADVANCED_TIME_TRANSITION_TIME},
+    triggerAndExpect({sut_.animationClipsNames_.disarmed.dialog.say}, {ADVANCED_TIME_TRANSITION_TIME},
                     StartDialogEvent{.role = StartDialogEvent::Role::Speaker});
 }
 
@@ -41,9 +41,9 @@ TEST_F(CharacterControllerTests, DialogState_End)
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
     prepareState(*this);
 
-    tiggerAndExpect({sut_.animationClipsNames_.disarmed.dialog.say}, {ADVANCED_TIME_TRANSITION_TIME},
+    triggerAndExpect({sut_.animationClipsNames_.disarmed.dialog.say}, {ADVANCED_TIME_TRANSITION_TIME},
                     StartDialogEvent{.role = StartDialogEvent::Role::Speaker});
-    tiggerAndExpect({sut_.animationClipsNames_.disarmed.posture.stand.idle}, {ADVANCED_TIME_TRANSITION_TIME}, EndDialogEvent{});
+    triggerAndExpect({sut_.animationClipsNames_.disarmed.posture.stand.idle}, {ADVANCED_TIME_TRANSITION_TIME}, EndDialogEvent{});
 }
 
 TEST_F(CharacterControllerTests, DialogState_MoveEvent)
@@ -265,7 +265,7 @@ TEST_F(CharacterControllerTests, DialogState_GroundDetectionEvent)
 TEST_F(CharacterControllerTests, DialogState_HurtEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<HurtEvent>({sut_.animationClipsNames_.disarmed.posture.stand.hurt});
+    triggerAndExpect<HurtEvent>({sut_.animationClipsNames_.disarmed.posture.stand.hurt});
 }
 
 TEST_F(CharacterControllerTests, DialogState_AnimationPlayEndEvent)

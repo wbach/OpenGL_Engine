@@ -4,7 +4,7 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
-    test.tiggerAndExpect<StartFallingEvent>({test.sut_.animationClipsNames_.disarmed.falling});
+    test.triggerAndExpect<StartFallingEvent>({test.sut_.animationClipsNames_.disarmed.falling});
 }
 
 TEST_F(CharacterControllerTests, FallingStateTests_EndForwardMoveEvent)
@@ -13,12 +13,12 @@ TEST_F(CharacterControllerTests, FallingStateTests_EndForwardMoveEvent)
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     expectForwardVelocity(DEFAULT_RUN_SPEED);
 
-    tiggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward});
-    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling},
+    triggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward});
+    triggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling},
                                        {ADVANCED_TIME_TRANSITION_TIME, 0.2f, ADVANCED_TIME_TRANSITION_TIME});
-    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.disarmed.falling});
+    triggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.disarmed.falling});
     expectNoMove();
-    tiggerAndExpect<GroundDetectionEvent>({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    triggerAndExpect<GroundDetectionEvent>({sut_.animationClipsNames_.disarmed.posture.stand.idle});
 }
 TEST_F(CharacterControllerTests, FallingStateTests_DuringForwardMoveEvent)
 {
@@ -26,11 +26,11 @@ TEST_F(CharacterControllerTests, FallingStateTests_DuringForwardMoveEvent)
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     expectForwardVelocity(DEFAULT_RUN_SPEED);
 
-    tiggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward});
-    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling},
+    triggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward});
+    triggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling},
                                        {ADVANCED_TIME_TRANSITION_TIME, 0.2f, ADVANCED_TIME_TRANSITION_TIME});
     expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<GroundDetectionEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward});
+    triggerAndExpect<GroundDetectionEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward});
 }
 
 TEST_F(CharacterControllerTests, FallingStateTests_MoveEvent)

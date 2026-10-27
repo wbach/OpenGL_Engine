@@ -17,8 +17,8 @@ void prepareStateDuringRun(CharacterControllerTests& test)
 
     test.expectAnimsToBeSet({test.sut_.animationClipsNames_.disarmed.posture.stand.idle});
     test.expectForwardVelocity(DEFAULT_RUN_SPEED);
-    test.tiggerAndExpect<MoveForwardEvent>({test.sut_.animationClipsNames_.disarmed.movement.run.forward});
-    test.tiggerAndExpect<DodgeDiveEvent>({test.sut_.animationClipsNames_.disarmed.dodgeDive});
+    test.triggerAndExpect<MoveForwardEvent>({test.sut_.animationClipsNames_.disarmed.movement.run.forward});
+    test.triggerAndExpect<DodgeDiveEvent>({test.sut_.animationClipsNames_.disarmed.dodgeDive});
     test.Update(ADVANCED_TIME_TRANSITION_TIME);
 }
 void prepareStateDuringIdle(CharacterControllerTests& test)
@@ -26,7 +26,7 @@ void prepareStateDuringIdle(CharacterControllerTests& test)
     EXPECT_CALL(test.inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{0, 0}));
 
     test.expectAnimsToBeSet({test.sut_.animationClipsNames_.disarmed.posture.stand.idle});
-    test.tiggerAndExpect<DodgeDiveEvent>({test.sut_.animationClipsNames_.disarmed.dodgeDive});
+    test.triggerAndExpect<DodgeDiveEvent>({test.sut_.animationClipsNames_.disarmed.dodgeDive});
     test.Update(ADVANCED_TIME_TRANSITION_TIME);
 }
 }  // namespace
@@ -37,7 +37,7 @@ TEST_F(CharacterControllerTests, DodgeStateTest_Falling)
 
     handleEvent(StartFallingEvent{});
     Update(ADVANCED_TIME_CLIP_TIME);
-    tiggerAndExpect<GroundDetectionEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward});
+    triggerAndExpect<GroundDetectionEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward});
 }
 
 TEST_F(CharacterControllerTests, DodgeStateTest_BackToIdle)
@@ -256,7 +256,7 @@ TEST_F(CharacterControllerTests, DodgeStateTest_CrouchChangeStateEvent)
 TEST_F(CharacterControllerTests, DodgeStateTest_StartFallingEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling});
+    triggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling});
 }
 
 TEST_F(CharacterControllerTests, DodgeStateTest_GroundDetectionEvent)
