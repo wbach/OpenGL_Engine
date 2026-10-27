@@ -223,43 +223,22 @@ TEST_F(CharacterControllerTests, DisarmedRunState_AttackEventWhenRunBackward)
 TEST_F(CharacterControllerTests, DisarmedRunState_MoveEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
-}
-
-TEST_F(CharacterControllerTests, DisarmedRunState_MoveLeftEvent)
-{
-    prepareState(*this);
-    /* TODO: Implement test */
-}
-
-TEST_F(CharacterControllerTests, DisarmedRunState_MoveRightEvent)
-{
-    prepareState(*this);
-    /* TODO: Implement test */
-}
-
-TEST_F(CharacterControllerTests, DisarmedRunState_EndMoveLeftEvent)
-{
-    prepareState(*this);
-    /* TODO: Implement test */
-}
-
-TEST_F(CharacterControllerTests, DisarmedRunState_EndMoveRightEvent)
-{
-    prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<MoveEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRunState_JumpConfirmEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<JumpConfirmEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRunState_DodgeDiveEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    tiggerAndExpect<DodgeDiveEvent>({sut_.animationClipsNames_.disarmed.dodgeDive});
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.movement.run.forward});
 }
 
 TEST_F(CharacterControllerTests, DisarmedRunState_DodgeForwardEvent)
@@ -295,19 +274,19 @@ TEST_F(CharacterControllerTests, DisarmedRunState_DodgeEndEvent)
 TEST_F(CharacterControllerTests, DisarmedRunState_EndAttackEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EndAttackEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRunState_EquipEndStateEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EquipEndStateEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRunState_DisarmEndStateEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<DisarmEndStateEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRunState_ReloadArrowEvent)
@@ -331,7 +310,7 @@ TEST_F(CharacterControllerTests, DisarmedRunState_StartFallingEvent)
 TEST_F(CharacterControllerTests, DisarmedRunState_GroundDetectionEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<GroundDetectionEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRunState_HurtEvent)
@@ -343,25 +322,29 @@ TEST_F(CharacterControllerTests, DisarmedRunState_HurtEvent)
 TEST_F(CharacterControllerTests, DisarmedRunState_AnimationPlayEndEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<AnimationPlayEndEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRunState_ChangeAnimEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<ChangeAnimEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRunState_StartDialogEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectNoMove();
+    expectNoRotation();
+    tiggerAndExpect({sut_.animationClipsNames_.disarmed.dialog.listen}, {ADVANCED_TIME_TRANSITION_TIME},
+                    StartDialogEvent{.role = StartDialogEvent::Role::Listener});
+    tiggerAndExpect<EndDialogEvent>({sut_.animationClipsNames_.disarmed.posture.stand.idle}, {ADVANCED_TIME_TRANSITION_TIME});
 }
 
 TEST_F(CharacterControllerTests, DisarmedRunState_EndDialogEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EndDialogEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRunState_JumpEvent)
@@ -373,13 +356,13 @@ TEST_F(CharacterControllerTests, DisarmedRunState_JumpEvent)
 TEST_F(CharacterControllerTests, DisarmedRunState_EndRotationEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EndRotationEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRunState_AimStopEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<AimStopEvent>();
 }
 
 TEST_F(CharacterControllerTests, DisarmedRunState_EndMoveEventWhenAttackEventIsProcessing)

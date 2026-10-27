@@ -305,7 +305,11 @@ TEST_F(CharacterControllerTests, DisarmedRunAndRotateState_ChangeAnimEvent)
 TEST_F(CharacterControllerTests, DisarmedRunAndRotateState_StartDialogEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectNoMove();
+    expectNoRotation();
+    tiggerAndExpect({sut_.animationClipsNames_.disarmed.dialog.listen}, {ADVANCED_TIME_TRANSITION_TIME},
+                    StartDialogEvent{.role = StartDialogEvent::Role::Listener});
+    tiggerAndExpect<EndDialogEvent>({sut_.animationClipsNames_.disarmed.posture.stand.idle}, {ADVANCED_TIME_TRANSITION_TIME});
 }
 
 TEST_F(CharacterControllerTests, DisarmedRunAndRotateState_EndDialogEvent)

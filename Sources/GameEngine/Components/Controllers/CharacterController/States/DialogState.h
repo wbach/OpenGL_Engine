@@ -16,7 +16,7 @@ class DialogState
                                        Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
                                        Utils::StateMachine::On<StartDialogEvent, Utils::StateMachine::Update>,
                                        Utils::StateMachine::On<HurtEvent, Utils::StateMachine::TransitionTo<HurtState>>,
-                                       Utils::StateMachine::On<EndDialogEvent, Utils::StateMachine::BackToPreviousState>>
+                                       Utils::StateMachine::On<EndDialogEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>>
 {
 public:
     DialogState(FsmContext&);
