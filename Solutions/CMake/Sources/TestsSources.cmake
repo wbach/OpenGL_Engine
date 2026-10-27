@@ -30,7 +30,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterControlle
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/ArmedAttackStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/ArmedCrouchRotateStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/ArmedCrouchWalkAndRotateStateTests.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/ArmedFallingStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/ArmedIdleCrouchStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/ArmedIdleStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/ArmedRotateStateTests.cpp
@@ -52,7 +51,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterControlle
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/DisarmedAttackStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/DisarmedCrouchRotateStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/DisarmedCrouchWalkAndRotateStateTests.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/DisarmedFallingStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/DisarmedIdleCrouchStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/DisarmedIdleStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/DisarmedRotateStateTests.cpp
@@ -65,6 +63,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterControlle
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/DodgeStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/ArmedCrouchWalkStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/DisarmedCrouchWalkStateTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/RecoilWalkStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/DrawArrowCrouchRotateStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/DrawArrowCrouchStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/DrawArrowCrouchWalkAndRotateStateTests.cpp
@@ -73,9 +72,15 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterControlle
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/DrawArrowStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/DrawArrowWalkAndRotateStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/DrawArrowWalkStateTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/FallingStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/HurtStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/IdleArmedChangeStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/IdleCrouchArmedChangeStateTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/RotateArmedChangeStateTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/RunAndRotateArmedChangeStateTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/RunArmedChangeStateTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/WalkAndRotateArmedChangeStateTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/WalkArmedChangeStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/RecoilCrouchRotateStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/RecoilCrouchStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/RecoilCrouchWalkAndRotateStateTests.cpp
@@ -83,12 +88,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterControlle
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/RecoilRotateStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/RecoilStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/RecoilWalkAndRotateStateTests.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/RecoilWalkStateTests.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/RotateArmedChangeStateTests.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/RunAndRotateArmedChangeStateTests.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/RunArmedChangeStateTests.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/WalkAndRotateArmedChangeStateTests.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/States/WalkArmedChangeStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/GameObjectTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/Particles/ParticleEffectComponentTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Dialog/DialogueManagerTests.cpp

@@ -11,6 +11,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/EngineApi.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/EngineUitls.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/FileSystem/TextureSet.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Fsm/actions/BackToPreviousState.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Fsm/actions/BackToSavedState.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Fsm/actions/ByDefault.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Fsm/actions/Maybe.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Fsm/actions/Nothing.h

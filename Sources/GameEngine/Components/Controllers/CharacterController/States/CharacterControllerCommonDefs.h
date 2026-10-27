@@ -84,8 +84,8 @@ class DrawArrowWalkAndRotateState;
 class DrawArrowCrouchWalkAndRotateState;
 class DrawArrowCrouchState;
 class DrawArrowCrouchWalkState;
-class DisarmedFallingState;
-class ArmedFallingState;
+class FallingState;
+class FallingState;
 class DeathState;
 }  // namespace Components
 }  // namespace GameEngine

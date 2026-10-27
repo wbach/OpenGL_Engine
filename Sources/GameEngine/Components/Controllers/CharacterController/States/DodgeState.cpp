@@ -55,7 +55,7 @@ void DodgeState::onEnterDodge(const std::string& animName, const vec3& direction
     setAnimAndSubscribeForEnd(animName);
 }
 
-void DodgeState::onEnter(DisarmedFallingState&)
+void DodgeState::onEnter(FallingState&)
 {
     context_.characterController.pushEventToFrontQueue(DodgeEndEvent{});
 }

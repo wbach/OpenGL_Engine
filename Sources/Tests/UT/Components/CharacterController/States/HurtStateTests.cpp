@@ -8,6 +8,17 @@ void prepareState(CharacterControllerTests& test)
     test.tiggerAndExpect<HurtEvent>({test.sut_.animationClipsNames_.disarmed.posture.stand.hurt},
                                     {ADVANCED_TIME_TRANSITION_TIME});
 }
+void prepareArmedState(CharacterControllerTests& test)
+{
+    EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
+    EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+
+    test.expectAnimsToBeSet({test.sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    test.tiggerAndExpect<WeaponStateEvent>(
+        {test.sut_.animationClipsNames_.armed.posture.stand.idle},
+        {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
+    test.tiggerAndExpect<HurtEvent>({test.sut_.animationClipsNames_.armed.posture.stand.hurt}, {ADVANCED_TIME_TRANSITION_TIME});
+}
 }  // namespace
 
 TEST_F(CharacterControllerTests, HurteState_BackToPrevious)
@@ -228,7 +239,13 @@ TEST_F(CharacterControllerTests, HurteState_CrouchChangeStateEvent)
 TEST_F(CharacterControllerTests, HurteState_StartFallingEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.armed.falling}); // disarmed?
+    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling});
+}
+
+TEST_F(CharacterControllerTests, HurteState_StartFallingEvent_ArmedEntry)
+{
+    prepareArmedState(*this);
+    tiggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.armed.falling});
 }
 
 TEST_F(CharacterControllerTests, HurteState_GroundDetectionEvent)

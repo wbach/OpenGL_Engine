@@ -9,6 +9,7 @@
 #include "GameEngine/Components/Gameplay/Attack/MeleeAttackComponent.h"
 #include "Types.h"
 #include "magic_enum/magic_enum.hpp"
+#include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
 {

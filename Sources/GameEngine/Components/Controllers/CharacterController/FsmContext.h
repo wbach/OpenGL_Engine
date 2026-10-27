@@ -8,13 +8,13 @@
 #include "GameEngine/Components/Controllers/CharacterController/PlayStateType.h"
 #include "MoveController.h"
 
+namespace GameEngine
+{
 namespace Physics
 {
 class IPhysicsApi;
 }
 
-namespace GameEngine
-{
 namespace Components
 {
 struct MoveSpeed;

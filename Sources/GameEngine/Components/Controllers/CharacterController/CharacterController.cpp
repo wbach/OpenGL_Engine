@@ -259,8 +259,7 @@ void CharacterController::Init()
             DrawArrowCrouchWalkState(context),
             DrawArrowCrouchRotateState(context),
             DrawArrowCrouchWalkAndRotateState(context),
-            DisarmedFallingState(context),
-            ArmedFallingState(context),
+            FallingState(context),
             DialogState(context),
             HurtState(context),
             DeathState(context));
