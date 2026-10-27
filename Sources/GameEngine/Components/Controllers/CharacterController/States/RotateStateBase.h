@@ -63,5 +63,8 @@ protected:
     ThridPersonCameraComponent* cameraComponent_;
     CameraRotationPolicy cameraRotationPolicy_;
 };
+
+template <typename T>
+concept IsRotatingState = std::derived_from<T, RotateStateBase>;
 }  // namespace Components
 }  // namespace GameEngine

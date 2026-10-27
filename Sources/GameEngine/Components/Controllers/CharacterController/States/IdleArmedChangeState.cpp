@@ -43,11 +43,6 @@ void IdleArmedChangeState::onEnter(ArmedIdleState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
 }
-void IdleArmedChangeState::onEnter(ArmedIdleState &, const StartDialogEvent & e)
-{
-    ArmedChangeStateBase::disarmWeapon();
-    pushEventToQueue(e);
-}
 void IdleArmedChangeState::onEnter(ArmedAttackState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();

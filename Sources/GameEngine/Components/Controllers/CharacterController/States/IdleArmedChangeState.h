@@ -2,7 +2,8 @@
 #include "ArmedChangeStateBase.h"
 #include "CharacterControllerCommonDefs.h"
 #include "IdleStateBase.h"
-
+#include "MoveStateBase.h"
+#include "StateConcepts.h"
 namespace GameEngine
 {
 namespace Components
@@ -46,15 +47,22 @@ public:
     bool entryCondition(ArmedIdleState&) const;
     bool entryCondition(ArmedAttackState&) const;
 
-    void onEnter(ArmedIdleState&, const StartDialogEvent&);
+    template <typename PrevState>
+    requires IsArmed<PrevState>
+    void onEnter(PrevState&, const StartDialogEvent& e)
+    {
+        ArmedChangeStateBase::disarmWeapon();
+        pushEventToQueue(e);
+    }
+
     void onEnter(DisarmedIdleState&, const WeaponStateEvent&);
     void onEnter(DisarmedAttackState&, const WeaponStateEvent&);
-    void onEnter(ArmedIdleState&, const WeaponStateEvent&);
-    void onEnter(ArmedAttackState&, const WeaponStateEvent&);
     void onEnter(DisarmedIdleState&, const DrawArrowEvent&);
     void onEnter(DisarmedIdleState&, const AimStartEvent&);
     void onEnter(DisarmedIdleState&, const ReloadArrowEvent&);
     void onEnter(DisarmedAttackState&, const DrawArrowEvent&);
+    void onEnter(ArmedIdleState&, const WeaponStateEvent&);
+    void onEnter(ArmedAttackState&, const WeaponStateEvent&);
 
     void onEnter(DrawArrowState&, const WeaponStateEvent&);
     void onEnter(RecoilState&, const WeaponStateEvent&);

@@ -62,5 +62,8 @@ protected:
     MoveSpeed moveSpeed_;
     std::string currentAnimName_;
 };
+
+template <typename T>
+concept IsMovingState = std::derived_from<T, MoveStateBase>;
 }  // namespace Components
 }  // namespace GameEngine

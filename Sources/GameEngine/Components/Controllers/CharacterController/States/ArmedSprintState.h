@@ -19,6 +19,7 @@ class ArmedSprintState
           Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<HurtEvent, Utils::StateMachine::TransitionTo<HurtState>>,
+          Utils::StateMachine::On<StartDialogEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRunState>>,
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<RunArmedChangeState>>,

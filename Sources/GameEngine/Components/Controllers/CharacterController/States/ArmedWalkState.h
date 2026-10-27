@@ -19,6 +19,7 @@ class ArmedWalkState
           Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<HurtEvent, Utils::StateMachine::TransitionTo<HurtState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+          Utils::StateMachine::On<StartDialogEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<ArmedRunState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<WalkArmedChangeState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>,
