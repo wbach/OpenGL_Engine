@@ -20,6 +20,7 @@ class RecoilRotateState
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<HurtEvent, Utils::StateMachine::TransitionTo<HurtState>>,
+          Utils::StateMachine::On<StartDialogEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<RecoilWalkAndRotateState>>,
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<RecoilWalkAndRotateState>>,
           Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::TransitionTo<RecoilWalkAndRotateState>>,

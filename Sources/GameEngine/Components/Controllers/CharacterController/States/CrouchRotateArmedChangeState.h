@@ -16,6 +16,7 @@ class CrouchRotateArmedChangeState
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<StartDialogEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
           Utils::StateMachine::On<HurtEvent, Utils::StateMachine::TransitionTo<HurtState>>,
           Utils::StateMachine::On<EquipEndStateEvent, Utils::StateMachine::TransitionTo<ArmedCrouchRotateState>>,
           Utils::StateMachine::On<DisarmEndStateEvent, Utils::StateMachine::TransitionTo<DisarmedCrouchRotateState>>,

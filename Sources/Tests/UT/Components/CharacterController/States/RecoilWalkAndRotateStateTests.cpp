@@ -113,7 +113,8 @@ TEST_F(CharacterControllerTests, RecoilWalkAndRotate_MoveLeftEvent)
 {
     prepareState(*this);
     expectVelocity(VECTOR_FORWARD + VECTOR_LEFT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, DEFAULT_WALK_SPEED));
-    triggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.armed.movement.walk.forward, sut_.animationClipsNames_.aim.recoil});
+    triggerAndExpect<MoveLeftEvent>(
+        {sut_.animationClipsNames_.armed.movement.walk.forward, sut_.animationClipsNames_.aim.recoil});
 }
 TEST_F(CharacterControllerTests, RecoilWalkAndRotate_MoveRightEvent)
 {
@@ -262,7 +263,16 @@ TEST_F(CharacterControllerTests, RecoilWalkAndRotate_ChangeAnimEvent)
 TEST_F(CharacterControllerTests, RecoilWalkAndRotate_StartDialogEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectNoMove();
+    expectNoRotation();
+
+    triggerAndExpect({sut_.animationClipsNames_.disarm.front()}, {ADVANCED_TIME_TRANSITION_TIME},
+                     StartDialogEvent{.role = StartDialogEvent::Role::Listener});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.dialog.listen});
 }
 TEST_F(CharacterControllerTests, RecoilWalkAndRotate_EndDialogEvent)
 {

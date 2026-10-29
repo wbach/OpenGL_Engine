@@ -15,32 +15,33 @@ public:
     {
         if (not leaveCondition(prevState, event))
         {
-            #ifdef NOREALTIME_LOG_ENABLED
+#ifdef NOREALTIME_LOG_ENABLED
             LOG_DEBUG << "leaveConditions from " << typeName<State>() + " to "
                       << typeName<TargetState>() + " are not met, return";
-            #endif
+#endif
             return;
         }
 
         auto& targetState = std::get<TargetState>(machine.states);
         bool canEnter     = entryCondition(targetState) && entryCondition(targetState, prevState) &&
-                        entryCondition(targetState, prevState, event);
+                            entryCondition(targetState, prevState, event);
 
         if (not canEnter)
         {
-            #ifdef NOREALTIME_LOG_ENABLED
+#ifdef NOREALTIME_LOG_ENABLED
             LOG_DEBUG << "entryCondition from " << typeName<State>() + " to " << typeName<TargetState>() + " are not met, return";
-            #endif
+#endif
             return;
         }
 
-        //#ifdef NOREALTIME_LOG_ENABLED
+        // #ifdef NOREALTIME_LOG_ENABLED
         LOG_DEBUG << "PrevState : " << typeName<State>();
         LOG_DEBUG << "Entering : " << typeName<TargetState>();
-        //#endif
+        // #endif
 
         leave(prevState);
         leave(prevState, event);
+        postLeave(prevState);
 
         TargetState& newState = machine.template transitionTo<TargetState>();
 
@@ -57,16 +58,26 @@ private:
     {
     }
 
+    template <typename State>
+    auto leave(State& state) -> decltype(state.onLeave())
+    {
+        return state.onLeave();
+    }
     template <typename State, typename Event>
     auto leave(State& state, const Event& event) -> decltype(state.onLeave(event))
     {
         return state.onLeave(event);
     }
 
-    template <typename State>
-    auto leave(State& state) -> decltype(state.onLeave())
+    template <typename... Args>
+    void postLeave(Args&...)
     {
-        return state.onLeave();
+    }
+
+    template <typename State>
+    auto postLeave(State& state) -> decltype(state.onLeaveComplete())
+    {
+        return state.onLeaveComplete();
     }
 
     template <typename... Args>

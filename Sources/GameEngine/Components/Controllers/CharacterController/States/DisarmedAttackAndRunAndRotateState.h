@@ -33,6 +33,7 @@ class DisarmedAttackAndRunAndRotateState
           Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::Queue>,
+          Utils::StateMachine::On<StartDialogEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::RemoveFromQueue<DrawArrowEvent>>,
           Utils::StateMachine::On<HurtEvent, Utils::StateMachine::TransitionTo<HurtState>>,
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndWalkAndRotateState>>,

@@ -295,7 +295,11 @@ TEST_F(CharacterControllerTests, DisarmedCruchWalkState_ChangeAnimEvent)
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_StartDialogEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectNoMove();
+    expectNoRotation();
+
+    triggerAndExpect({sut_.animationClipsNames_.disarmed.dialog.listen}, {ADVANCED_TIME_TRANSITION_TIME},
+        StartDialogEvent{.role = StartDialogEvent::Role::Listener});
 }
 
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_EndDialogEvent)

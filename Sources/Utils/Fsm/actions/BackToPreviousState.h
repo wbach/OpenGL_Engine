@@ -27,6 +27,7 @@ public:
 
         leave(prevState);
         leave(prevState, event);
+        postLeave(prevState);
 
         machine.backToPrevious();
 
@@ -60,6 +61,17 @@ private:
     auto leave(State& state) -> decltype(state.onLeave())
     {
         return state.onLeave();
+    }
+
+    template <typename... Args>
+    void postLeave(Args&...)
+    {
+    }
+
+    template <typename State>
+    auto postLeave(State& state) -> decltype(state.onLeaveComplete())
+    {
+        return state.onLeaveComplete();
     }
 
     template <typename... Args>

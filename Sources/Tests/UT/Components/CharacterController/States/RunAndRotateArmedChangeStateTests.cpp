@@ -40,14 +40,14 @@ TEST_F(CharacterControllerTests, RunAndRotateArmedChangeState_EquipEndStateEvent
     prepareState(*this);
     expectRotationRight(ADVANCED_TIME_CLIP_TIME);
     triggerAndExpect<EquipEndStateEvent>({sut_.animationClipsNames_.armed.movement.run.forward},
-                                        {ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_CLIP_TIME});
+                                         {ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_CLIP_TIME});
 }
 TEST_F(CharacterControllerTests, RunAndRotateArmedChangeState_DisarmEndStateEvent)
 {
     prepareState(*this);
     expectRotationRight(ADVANCED_TIME_CLIP_TIME);
     triggerAndExpect<DisarmEndStateEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward},
-                                         {ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_CLIP_TIME});
+                                          {ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_CLIP_TIME});
 }
 TEST_F(CharacterControllerTests, RunAndRotateArmedChangeState_MoveForwardEvent)
 {
@@ -293,7 +293,16 @@ TEST_F(CharacterControllerTests, RunAndRotateArmedChangeState_ChangeAnimEvent)
 TEST_F(CharacterControllerTests, RunAndRotateArmedChangeState_StartDialogEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectNoMove();
+    expectNoRotation();
+
+    triggerAndExpect({sut_.animationClipsNames_.disarm.front()}, {ADVANCED_TIME_TRANSITION_TIME},
+                     StartDialogEvent{.role = StartDialogEvent::Role::Listener});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.dialog.listen});
 }
 
 TEST_F(CharacterControllerTests, RunAndRotateArmedChangeState_EndDialogEvent)

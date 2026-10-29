@@ -15,7 +15,7 @@ TEST_F(CharacterControllerTests, FallingStateTests_EndForwardMoveEvent)
 
     triggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward});
     triggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling},
-                                       {ADVANCED_TIME_TRANSITION_TIME, 0.2f, ADVANCED_TIME_TRANSITION_TIME});
+                                        {ADVANCED_TIME_TRANSITION_TIME, 0.2f, ADVANCED_TIME_TRANSITION_TIME});
     triggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.disarmed.falling});
     expectNoMove();
     triggerAndExpect<GroundDetectionEvent>({sut_.animationClipsNames_.disarmed.posture.stand.idle});
@@ -28,7 +28,7 @@ TEST_F(CharacterControllerTests, FallingStateTests_DuringForwardMoveEvent)
 
     triggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward});
     triggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling},
-                                       {ADVANCED_TIME_TRANSITION_TIME, 0.2f, ADVANCED_TIME_TRANSITION_TIME});
+                                        {ADVANCED_TIME_TRANSITION_TIME, 0.2f, ADVANCED_TIME_TRANSITION_TIME});
     expectForwardVelocity(DEFAULT_RUN_SPEED);
     triggerAndExpect<GroundDetectionEvent>({sut_.animationClipsNames_.disarmed.movement.run.forward});
 }
@@ -234,7 +234,7 @@ TEST_F(CharacterControllerTests, FallingStateTests_ChangeAnimEvent)
 TEST_F(CharacterControllerTests, FallingStateTests_StartDialogEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<StartDialogEvent>();
 }
 
 TEST_F(CharacterControllerTests, FallingStateTests_EndDialogEvent)

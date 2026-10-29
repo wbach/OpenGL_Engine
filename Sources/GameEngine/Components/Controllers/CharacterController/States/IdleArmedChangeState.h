@@ -16,6 +16,7 @@ class IdleArmedChangeState
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<HurtEvent, Utils::StateMachine::TransitionTo<HurtState>>,
+          Utils::StateMachine::On<StartDialogEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<EquipEndStateEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>,
           Utils::StateMachine::On<DisarmEndStateEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>,
           Utils::StateMachine::On<MoveEvent, Utils::StateMachine::TransitionTo<RunArmedChangeState>>,
@@ -48,11 +49,17 @@ public:
     bool entryCondition(ArmedAttackState&) const;
 
     template <typename PrevState>
-    requires IsArmed<PrevState>
+        requires IsArmed<PrevState>
     void onEnter(PrevState&, const StartDialogEvent& e)
     {
-        ArmedChangeStateBase::disarmWeapon();
-        pushEventToQueue(e);
+        update(e);
+    }
+
+    template <typename PrevState>
+        requires IsArmedChange<PrevState>
+    void onEnter(PrevState& state, const StartDialogEvent& e)
+    {
+        update(e);
     }
 
     void onEnter(DisarmedIdleState&, const WeaponStateEvent&);
@@ -71,6 +78,8 @@ public:
     void onEnter(const EndForwardMoveEvent&);
     void onEnter(const EndBackwardMoveEvent&);
     void onEnter(const EndRotationEvent&);
+
+    void update(const StartDialogEvent&);
 
     void update(float);
 

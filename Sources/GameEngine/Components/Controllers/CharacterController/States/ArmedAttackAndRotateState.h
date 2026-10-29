@@ -1,10 +1,10 @@
 #pragma once
 #include "Armed.h"
-#include "Stand.h"
 #include "AttackStateBase.h"
 #include "CharacterControllerCommonDefs.h"
 #include "Fsm/actions/Queue.h"
 #include "RotateStateBase.h"
+#include "Stand.h"
 
 namespace GameEngine
 {
@@ -24,6 +24,7 @@ class ArmedAttackAndRotateState
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<HurtEvent, Utils::StateMachine::TransitionTo<HurtState>>,
+          Utils::StateMachine::On<StartDialogEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::RemoveFromQueue<DrawArrowEvent>>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRotateState>>,
@@ -58,9 +59,10 @@ public:
 
     void update(float);
 
-    using MaybeAttackStates = Utils::StateMachine::Maybe<Utils::StateMachine::Update,
-                                                         Utils::StateMachine::TransitionTo<ArmedAttackAndRunAndRotateState>,
-                                                         Utils::StateMachine::TransitionTo<ArmedAttackAndWalkAndRotateState>>;
+    using MaybeAttackStates =
+        Utils::StateMachine::Maybe<Utils::StateMachine::Update, Utils::StateMachine::TransitionTo<IdleArmedChangeState>,
+                                   Utils::StateMachine::TransitionTo<ArmedAttackAndRunAndRotateState>,
+                                   Utils::StateMachine::TransitionTo<ArmedAttackAndWalkAndRotateState>>;
 
     MaybeAttackStates handle(const ChangeAnimEvent&);
 

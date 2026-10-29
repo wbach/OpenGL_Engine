@@ -12,6 +12,7 @@ class RecoilState : public RecoilStateBase,
                     public Stand,
                     public Utils::StateMachine::Will<
                         Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
+                        Utils::StateMachine::On<StartDialogEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
                         Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
                         Utils::StateMachine::On<HurtEvent, Utils::StateMachine::TransitionTo<HurtState>>,
                         Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::TransitionTo<RecoilWalkState>>,

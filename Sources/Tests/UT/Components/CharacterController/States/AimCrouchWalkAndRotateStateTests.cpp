@@ -74,7 +74,8 @@ TEST_F(CharacterControllerTests, AimCrouchWalkAndRotate_WeaponStateEvent)
 TEST_F(CharacterControllerTests, AimCrouchWalkAndRotate_AttackEvent)
 {
     prepareState(*this);
-    triggerAndExpect<AttackEvent>({sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.movement.crouch.forward});
+    triggerAndExpect<AttackEvent>(
+        {sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.movement.crouch.forward});
 }
 TEST_F(CharacterControllerTests, AimCrouchWalkAndRotate_AimStopEvent)
 {
@@ -298,7 +299,16 @@ TEST_F(CharacterControllerTests, AimCrouchWalkAndRotate_ChangeAnimEvent)
 TEST_F(CharacterControllerTests, AimCrouchWalkAndRotate_StartDialogEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectNoMove();
+    expectNoRotation();
+
+    triggerAndExpect({sut_.animationClipsNames_.disarm.front()}, {ADVANCED_TIME_TRANSITION_TIME},
+                     StartDialogEvent{.role = StartDialogEvent::Role::Listener});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.dialog.listen});
 }
 
 TEST_F(CharacterControllerTests, AimCrouchWalkAndRotate_EndDialogEvent)

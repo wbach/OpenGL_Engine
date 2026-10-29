@@ -16,6 +16,7 @@ class DialogState
                                        Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
                                        Utils::StateMachine::On<StartDialogEvent, Utils::StateMachine::Update>,
                                        Utils::StateMachine::On<HurtEvent, Utils::StateMachine::TransitionTo<HurtState>>,
+                                       Utils::StateMachine::On<StartFallingEvent, Utils::StateMachine::TransitionTo<FallingState>>,
                                        Utils::StateMachine::On<EndDialogEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>>
 {
 public:

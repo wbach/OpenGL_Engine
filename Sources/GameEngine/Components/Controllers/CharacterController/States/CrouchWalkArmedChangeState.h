@@ -24,6 +24,7 @@ class CrouchWalkArmedChangeState
           Utils::StateMachine::On<EquipEndStateEvent, Utils::StateMachine::TransitionTo<ArmedCrouchWalkState>>,
           Utils::StateMachine::On<DisarmEndStateEvent, Utils::StateMachine::TransitionTo<DisarmedCrouchWalkState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+          Utils::StateMachine::On<StartDialogEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<RunArmedChangeState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<IdleCrouchArmedChangeState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<IdleCrouchArmedChangeState>>,

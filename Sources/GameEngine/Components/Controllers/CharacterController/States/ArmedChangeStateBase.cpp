@@ -172,5 +172,10 @@ bool ArmedChangeStateBase::hasWeapon() const
 {
     return poseUpdater_ != nullptr or context_.gameObject.HasComponentInChild<PoseUpdater>();
 }
+bool ArmedChangeStateBase::isEquipping() const
+{
+    return context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Equip;
+}
+
 }  // namespace Components
 }  // namespace GameEngine

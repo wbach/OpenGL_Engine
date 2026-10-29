@@ -1,11 +1,12 @@
 #pragma once
 #include <Types.h>
+
 #include <concepts>
 #include <functional>
 #include <optional>
 
-#include "CharacterControllerCommonDefs.h"
 #include "BaseState.h"
+#include "CharacterControllerCommonDefs.h"
 
 namespace GameEngine
 {
@@ -22,6 +23,7 @@ public:
     void update(const DrawArrowEvent&);
     void update(const AimStopEvent&);
     void update(const SprintStateChangeEvent&);
+    bool isEquipping() const;
 
 protected:
     void equipWeapon();

@@ -317,7 +317,11 @@ TEST_F(CharacterControllerTests, DisarmedCrouchWalkAndRotateState_ChangeAnimEven
 TEST_F(CharacterControllerTests, DisarmedCrouchWalkAndRotateState_StartDialogEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectNoMove();
+    expectNoRotation();
+
+    triggerAndExpect({sut_.animationClipsNames_.disarmed.dialog.listen}, {ADVANCED_TIME_TRANSITION_TIME},
+        StartDialogEvent{.role = StartDialogEvent::Role::Listener});
 }
 
 TEST_F(CharacterControllerTests, DisarmedCrouchWalkAndRotateState_EndDialogEvent)

@@ -86,6 +86,12 @@ void IdleArmedChangeState::onEnter(const EndRotationEvent &)
 {
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
+void IdleArmedChangeState::update(const StartDialogEvent& e)
+{
+    ArmedChangeStateBase::disarmWeapon();
+    pushEventToQueue(e);
+}
+
 void IdleArmedChangeState::update(float)
 {
 }

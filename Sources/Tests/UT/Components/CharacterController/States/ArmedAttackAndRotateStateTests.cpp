@@ -107,7 +107,7 @@ TEST_F(CharacterControllerTests, ArmedAttackAndRotateState_AttackEvent)
 {
     prepareState(*this);
     triggerAndExpect<AttackEvent>({sut_.animationClipsNames_.armed.attack.front().clipsSequence.front(),
-                                  sut_.animationClipsNames_.armed.posture.stand.rotate.left});
+                                   sut_.animationClipsNames_.armed.posture.stand.rotate.left});
 
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
@@ -321,7 +321,23 @@ TEST_F(CharacterControllerTests, ArmedAttackAndRotateState_ChangeAnimEvent)
 TEST_F(CharacterControllerTests, ArmedAttackAndRotateState_StartDialogEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+
+    // Queue, start dialog after finish attack
+    triggerAndExpect({armedAttackClip1->clipsSequence.front(), sut_.animationClipsNames_.armed.posture.stand.rotate.left},
+                     {ADVANCED_TIME_TRANSITION_TIME}, StartDialogEvent{.role = StartDialogEvent::Role::Listener});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarm.front()});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+
+    expectNoMove();
+    expectNoRotation();
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.dialog.listen});
 }
 
 TEST_F(CharacterControllerTests, ArmedAttackAndRotateState_EndDialogEvent)

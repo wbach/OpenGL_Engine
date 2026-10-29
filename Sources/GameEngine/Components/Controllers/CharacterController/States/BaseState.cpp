@@ -22,4 +22,5 @@ void BaseState::flushEvents()
     }
     queue_.clear();
 }
+
 }  // namespace GameEngine::Components

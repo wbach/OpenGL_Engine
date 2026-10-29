@@ -7,259 +7,259 @@ namespace
 void prepareState(CharacterControllerTests& test)
 {
     test.triggerAndExpect({test.sut_.animationClipsNames_.disarmed.posture.stand.idle}, {ADVANCED_TIME_TRANSITION_TIME},
-                         StartDialogEvent{.role = StartDialogEvent::Role::Waiting});
+                          StartDialogEvent{.role = StartDialogEvent::Role::Waiting});
 }
 }  // namespace
 
-TEST_F(CharacterControllerTests, DialogState_StartDialogListen)
+TEST_F(CharacterControllerTests, DialogState_StartDialog_Listen)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
 
     triggerAndExpect({sut_.animationClipsNames_.disarmed.dialog.listen}, {ADVANCED_TIME_TRANSITION_TIME},
-                    StartDialogEvent{.role = StartDialogEvent::Role::Listener});
+                     StartDialogEvent{.role = StartDialogEvent::Role::Listener});
 }
 
-TEST_F(CharacterControllerTests, DialogState_StartDialogSay)
+TEST_F(CharacterControllerTests, DialogState_StartDialog_Speaker)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
 
     triggerAndExpect({sut_.animationClipsNames_.disarmed.dialog.say}, {ADVANCED_TIME_TRANSITION_TIME},
-                    StartDialogEvent{.role = StartDialogEvent::Role::Speaker});
+                     StartDialogEvent{.role = StartDialogEvent::Role::Speaker});
 }
 
-TEST_F(CharacterControllerTests, DialogState_StartDialogUpdateToSay)
-{
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
-    prepareState(*this);
-
-    triggerAndExpect({sut_.animationClipsNames_.disarmed.dialog.say}, {ADVANCED_TIME_TRANSITION_TIME},
-                    StartDialogEvent{.role = StartDialogEvent::Role::Speaker});
-}
-
-TEST_F(CharacterControllerTests, DialogState_End)
+TEST_F(CharacterControllerTests, DialogState_StartDialog_UpdateListenerToSpeaker)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
     prepareState(*this);
 
     triggerAndExpect({sut_.animationClipsNames_.disarmed.dialog.say}, {ADVANCED_TIME_TRANSITION_TIME},
-                    StartDialogEvent{.role = StartDialogEvent::Role::Speaker});
-    triggerAndExpect({sut_.animationClipsNames_.disarmed.posture.stand.idle}, {ADVANCED_TIME_TRANSITION_TIME}, EndDialogEvent{});
+                     StartDialogEvent{.role = StartDialogEvent::Role::Speaker});
+}
+
+TEST_F(CharacterControllerTests, DialogState_EndDialogEvent)
+{
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    prepareState(*this);
+
+    triggerAndExpect({sut_.animationClipsNames_.disarmed.dialog.say}, {ADVANCED_TIME_TRANSITION_TIME},
+                     StartDialogEvent{.role = StartDialogEvent::Role::Speaker});
+    triggerAndExpect<EndDialogEvent>({sut_.animationClipsNames_.disarmed.posture.stand.idle}, {ADVANCED_TIME_TRANSITION_TIME});
 }
 
 TEST_F(CharacterControllerTests, DialogState_MoveEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<MoveEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_MoveForwardEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<MoveForwardEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_MoveBackwardEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<MoveBackwardEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_MoveLeftEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<MoveLeftEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_MoveRightEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<MoveRightEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_WalkChangeStateEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<WalkChangeStateEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_SprintStateChangeEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<SprintStateChangeEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_EndForwardMoveEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EndForwardMoveEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_EndBackwardMoveEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EndBackwardMoveEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_EndMoveLeftEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EndMoveLeftEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_EndMoveRightEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EndMoveRightEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_RotateLeftEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<RotateLeftEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_RotateRightEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<RotateRightEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_RotateTargetEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<RotateTargetEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_EndRotationEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EndRotationEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_JumpEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<JumpEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_JumpConfirmEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<JumpConfirmEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_DodgeDiveEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<DodgeDiveEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_DodgeForwardEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<DodgeForwardEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_DodgeBackwardEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<DodgeBackwardEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_DodgeLeftEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<DodgeLeftEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_DodgeRightEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<DodgeRightEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_DodgeEndEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<DodgeEndEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_AttackEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<AttackEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_EndAttackEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EndAttackEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_DeathEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    triggerAndExpect<DeathEvent>({sut_.animationClipsNames_.disarmed.posture.stand.death});
 }
 
 TEST_F(CharacterControllerTests, DialogState_WeaponStateEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<WeaponStateEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_EquipEndStateEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<EquipEndStateEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_DisarmEndStateEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<DisarmEndStateEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_DrawArrowEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<DrawArrowEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_ReloadArrowEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<ReloadArrowEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_AimStartEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<AimStartEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_AimStopEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<AimStopEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_CrouchChangeStateEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<CrouchChangeStateEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_StartFallingEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    triggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling});
 }
 
 TEST_F(CharacterControllerTests, DialogState_GroundDetectionEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<GroundDetectionEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_HurtEvent)
@@ -271,22 +271,11 @@ TEST_F(CharacterControllerTests, DialogState_HurtEvent)
 TEST_F(CharacterControllerTests, DialogState_AnimationPlayEndEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<AnimationPlayEndEvent>();
 }
 
 TEST_F(CharacterControllerTests, DialogState_ChangeAnimEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
-}
-
-TEST_F(CharacterControllerTests, DialogState_StartDialogEvent)
-{
-    prepareState(*this);
-    /* TODO: Implement test */
-}
-TEST_F(CharacterControllerTests, DialogState_EndDialogEvent)
-{
-    prepareState(*this);
-    /* TODO: Implement test */
+    expectIgnoreEvent<ChangeAnimEvent>();
 }

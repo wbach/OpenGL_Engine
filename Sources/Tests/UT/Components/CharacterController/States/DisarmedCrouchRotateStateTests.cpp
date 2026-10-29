@@ -46,7 +46,7 @@ TEST_F(CharacterControllerTests, DisarmedCrouchRotateState_AimStopDuringDrawArro
 
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
     triggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.armed.posture.crouched.rotate.left},
-                                  {ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_CLIP_TIME});
+                                   {ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_CLIP_TIME});
 
     // Extra check
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
@@ -127,7 +127,7 @@ TEST_F(CharacterControllerTests, DisarmedCrouchRotateState_RotateTargetEvent)
 
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
     triggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
-                                       {sut_.animationClipsNames_.disarmed.posture.crouched.rotate.right});
+                                        {sut_.animationClipsNames_.disarmed.posture.crouched.rotate.right});
 }
 
 TEST_F(CharacterControllerTests, DisarmedCrouchRotateState_EndRotationEvent)
@@ -313,7 +313,11 @@ TEST_F(CharacterControllerTests, DisarmedCrouchRotateState_ChangeAnimEvent)
 TEST_F(CharacterControllerTests, DisarmedCrouchRotateState_StartDialogEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectNoMove();
+    expectNoRotation();
+
+    triggerAndExpect({sut_.animationClipsNames_.disarmed.dialog.listen}, {ADVANCED_TIME_TRANSITION_TIME},
+                     StartDialogEvent{.role = StartDialogEvent::Role::Listener});
 }
 
 TEST_F(CharacterControllerTests, DisarmedCrouchRotateState_EndDialogEvent)

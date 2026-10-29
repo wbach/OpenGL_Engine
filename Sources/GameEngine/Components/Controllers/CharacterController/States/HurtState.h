@@ -15,6 +15,7 @@ namespace Components
 class HurtState : public BaseState,
                   public Utils::StateMachine::Will<
                       Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
+                      Utils::StateMachine::On<StartDialogEvent, Utils::StateMachine::Queue>,
                       Utils::StateMachine::On<StartFallingEvent, Utils::StateMachine::TransitionTo<FallingState>>,
                       Utils::StateMachine::On<AnimationPlayEndEvent, Utils::StateMachine::BackToPreviousState>,
                       Utils::StateMachine::On<DeathEvent, Utils::StateMachine::Queue>>

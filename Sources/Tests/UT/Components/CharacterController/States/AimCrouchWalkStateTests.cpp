@@ -87,7 +87,8 @@ TEST_F(CharacterControllerTests, AimCrouchWalkState_WeaponStateEvent)
 TEST_F(CharacterControllerTests, AimCrouchWalkState_AttackEvent)
 {
     prepareState(*this);
-    triggerAndExpect<AttackEvent>({sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.movement.crouch.forward});
+    triggerAndExpect<AttackEvent>(
+        {sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.movement.crouch.forward});
 }
 TEST_F(CharacterControllerTests, AimCrouchWalkState_AimStopEvent)
 {
@@ -148,7 +149,8 @@ TEST_F(CharacterControllerTests, AimCrouchWalkState_MoveLeftEvent)
 {
     prepareState(*this);
     expectVelocity(VECTOR_FORWARD + VECTOR_LEFT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, DEFAULT_WALK_SPEED));
-    triggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.aim.idle});
+    triggerAndExpect<MoveLeftEvent>(
+        {sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.aim.idle});
 }
 TEST_F(CharacterControllerTests, AimCrouchWalkState_MoveRightEvent)
 {
@@ -161,7 +163,8 @@ TEST_F(CharacterControllerTests, AimCrouchWalkState_MoveLeftEventEndMoveLeft)
 {
     prepareState(*this);
     expectVelocity(VECTOR_FORWARD + VECTOR_LEFT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, DEFAULT_WALK_SPEED));
-    triggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.aim.idle});
+    triggerAndExpect<MoveLeftEvent>(
+        {sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.aim.idle});
     expectForwardVelocity(DEFAULT_WALK_SPEED);
     triggerAndExpect<EndMoveLeftEvent>(
         {sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.aim.idle});
@@ -212,7 +215,8 @@ TEST_F(CharacterControllerTests, AimCrouchWalkState_RunEndMoveLeft)
 {
     prepareState(*this);
     expectVelocity(VECTOR_LEFT + VECTOR_FORWARD, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, DEFAULT_WALK_SPEED));
-    triggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.aim.idle});
+    triggerAndExpect<MoveLeftEvent>(
+        {sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.aim.idle});
     expectForwardVelocity(DEFAULT_WALK_SPEED);
     triggerAndExpect<EndMoveLeftEvent>(
         {sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.aim.idle});
@@ -224,7 +228,8 @@ TEST_F(CharacterControllerTests, AimCrouchWalkState_MoveEndForwardWhenMoveLeft)
 {
     prepareState(*this);
     expectVelocity(VECTOR_LEFT + VECTOR_FORWARD, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, DEFAULT_WALK_SPEED));
-    triggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.aim.idle});
+    triggerAndExpect<MoveLeftEvent>(
+        {sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.aim.idle});
     expectLeftVelocity(DEFAULT_WALK_LEFT_RIGHT_SPEED);
     triggerAndExpect<EndForwardMoveEvent>(
         {sut_.animationClipsNames_.armed.movement.crouch.left, sut_.animationClipsNames_.aim.idle});
@@ -361,7 +366,16 @@ TEST_F(CharacterControllerTests, AimCrouchWalkState_ChangeAnimEvent)
 TEST_F(CharacterControllerTests, AimCrouchWalkState_StartDialogEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectNoMove();
+    expectNoRotation();
+
+    triggerAndExpect({sut_.animationClipsNames_.disarm.front()}, {ADVANCED_TIME_TRANSITION_TIME},
+                     StartDialogEvent{.role = StartDialogEvent::Role::Listener});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.dialog.listen});
 }
 
 TEST_F(CharacterControllerTests, AimCrouchWalkState_EndDialogEvent)

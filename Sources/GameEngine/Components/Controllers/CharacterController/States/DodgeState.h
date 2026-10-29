@@ -17,6 +17,7 @@ class DodgeState : public BaseState,
                        Utils::StateMachine::On<DodgeBackwardEvent, Utils::StateMachine::Nothing>,
                        Utils::StateMachine::On<DodgeLeftEvent, Utils::StateMachine::Nothing>,
                        Utils::StateMachine::On<DodgeRightEvent, Utils::StateMachine::Nothing>,
+                       Utils::StateMachine::On<StartDialogEvent, Utils::StateMachine::Queue>,
                        Utils::StateMachine::On<StartFallingEvent, Utils::StateMachine::TransitionTo<FallingState>>, // Suspicious / Copy-Paste Anomaly: DodgeState.h transitions to FallingState regardless of whether the prior state was armed or disarmed.
                        Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
                        Utils::StateMachine::On<DodgeEndEvent, Utils::StateMachine::BackToPreviousState>>

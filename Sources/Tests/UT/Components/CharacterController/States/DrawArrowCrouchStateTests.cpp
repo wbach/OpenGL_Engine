@@ -254,3 +254,17 @@ TEST_F(CharacterControllerTests, DrawArowCrouchState_StartFallingEvent)
     prepareState(*this);
     triggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.armed.falling});
 }
+TEST_F(CharacterControllerTests, DrawArowCrouchState_StartDialogEvent)
+{
+    prepareState(*this);
+    expectNoMove();
+    expectNoRotation();
+
+    triggerAndExpect({sut_.animationClipsNames_.disarm.front()}, {ADVANCED_TIME_TRANSITION_TIME},
+                     StartDialogEvent{.role = StartDialogEvent::Role::Listener});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.dialog.listen});
+}

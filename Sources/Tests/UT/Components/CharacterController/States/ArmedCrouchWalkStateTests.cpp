@@ -122,7 +122,7 @@ TEST_F(CharacterControllerTests, ArmedCrouchWalkState_RotateTargetEvent)
 
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
     triggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
-                                       {sut_.animationClipsNames_.armed.movement.crouch.forward});
+                                        {sut_.animationClipsNames_.armed.movement.crouch.forward});
 }
 
 TEST_F(CharacterControllerTests, ArmedCrouchWalkState_SprintStateChangeEvent)
@@ -267,7 +267,16 @@ TEST_F(CharacterControllerTests, ArmedCrouchWalkState_ChangeAnimEvent)
 TEST_F(CharacterControllerTests, ArmedCrouchWalkState_StartDialogEvent)
 {
     prepareState(*this);
-    /* TODO: Implement test */
+    expectNoMove();
+    expectNoRotation();
+
+    triggerAndExpect({sut_.animationClipsNames_.disarm.front()}, {ADVANCED_TIME_TRANSITION_TIME},
+                     StartDialogEvent{.role = StartDialogEvent::Role::Listener});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.dialog.listen});
 }
 
 TEST_F(CharacterControllerTests, ArmedCrouchWalkState_EndDialogEvent)
