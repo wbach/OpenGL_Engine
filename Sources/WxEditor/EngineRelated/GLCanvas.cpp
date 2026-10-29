@@ -166,47 +166,10 @@ void GLCanvas::OnIdle(wxIdleEvent& event)
 
     SetCurrent(*context);
 
-    wxSize size = GetClientSize();
     if (not engine)
     {
-        auto windowApiPtr         = std::make_unique<WxEditor::WxWindowApi>(vec2i{size.x, size.y},
-                                                                            [&](int x, int y)
-                                                                            {
-                                                                        if (GetHandle())
-                                                                        {
-                                                                            WarpPointer(x, y);
-                                                                        }
-                                                                    });
-        wxWindowApi               = windowApiPtr.get();
-        auto wxEditorSceneFactory = std::make_unique<WxEditor::WxEditorSceneFactory>();
-        wxSceneFactory            = wxEditorSceneFactory.get();
-
-        engine = std::make_unique<GameEngine::Engine>(std::make_unique<Bullet::BulletAdapter>(), std::move(wxEditorSceneFactory),
-                                                      std::make_unique<WxEditor::WxOpenGLApiWrapper>(std::move(windowApiPtr)));
-        engine->Init();
-
-        auto dlg = std::make_shared<LoadingDialog>(this, "Open scene", "Loading " + startupSceneName);
-        dlg->CenterOnParent();
-        dlg->Show();
-        engine->GetSceneManager().SetOnSceneLoadDone(
-            [this, loadingDialog = dlg]()
-            {
-                SetupCamera();
-                onStartupDone();
-                this->CallAfter([loadingDialog]() { loadingDialog->Close(); });
-            });
-
-        if (std::filesystem::exists(startupSceneName) && std::filesystem::is_regular_file(startupSceneName))
-        {
-            GameEngine::File file{startupSceneName};
-            const auto name = file.GetBaseName();
-            wxSceneFactory->AddScene(name, file);
-            engine->GetSceneManager().SetActiveScene(name);
-        }
-        else
-        {
-            engine->GetSceneManager().SetActiveScene(startupSceneName);
-        }
+        InitializeEngine();
+        LoadStartupScene();
     }
 
     RefreshWindowSize();
@@ -224,6 +187,55 @@ void GLCanvas::OnIdle(wxIdleEvent& event)
     SwapBuffers();
 
     event.RequestMore();
+}
+
+void GLCanvas::InitializeEngine()
+{
+    wxSize size = GetClientSize();
+    auto windowApiPtr = std::make_unique<WxEditor::WxWindowApi>(vec2i{static_cast<int>(size.x), static_cast<int>(size.y)},
+                                                                  [&](int x, int y)
+                                                                  {
+                                                                      if (GetHandle())
+                                                                      {
+                                                                          WarpPointer(x, y);
+                                                                      }
+                                                                  });
+    wxWindowApi = windowApiPtr.get();
+    auto wxEditorSceneFactory = std::make_unique<WxEditor::WxEditorSceneFactory>();
+    wxSceneFactory = wxEditorSceneFactory.get();
+
+    engine = std::make_unique<GameEngine::Engine>(
+        std::make_unique<Bullet::BulletAdapter>(),
+        std::move(wxEditorSceneFactory),
+        std::make_unique<WxEditor::WxOpenGLApiWrapper>(std::move(windowApiPtr))
+    );
+    engine->Init();
+}
+
+void GLCanvas::LoadStartupScene()
+{
+    auto dlg = std::make_shared<LoadingDialog>(this, "Open scene", "Loading " + startupSceneName);
+    dlg->CenterOnParent();
+    dlg->Show();
+    engine->GetSceneManager().SetOnSceneLoadDone(
+        [this, loadingDialog = dlg]()
+        {
+            SetupCamera();
+            onStartupDone();
+            this->CallAfter([loadingDialog]() { loadingDialog->Close(); });
+        });
+
+    if (std::filesystem::exists(startupSceneName) && std::filesystem::is_regular_file(startupSceneName))
+    {
+        GameEngine::File file{startupSceneName};
+        const auto name = file.GetBaseName();
+        wxSceneFactory->AddScene(name, file);
+        engine->GetSceneManager().SetActiveScene(name);
+    }
+    else
+    {
+        engine->GetSceneManager().SetActiveScene(startupSceneName);
+    }
 }
 
 GLCanvas::~GLCanvas()
@@ -447,20 +459,12 @@ void GLCanvas::OnMouseLeftUp(wxMouseEvent& event)
     ResetDragObject();
 }
 
-void GLCanvas::OnMouseLeftDown(wxMouseEvent& event)
+void GLCanvas::HandleMousePickerInteraction(wxMouseEvent& event)
 {
-    if (not engine)
-        return;
-
-    SetFocus();
-    auto& inputManager = engine->GetEngineContext().GetInputManager();
-    inputManager.AddKeyEvent(WxEditor::WX_KEY_DOWN, WxEditor::WxKeySpecialKodes::WX_MOUSE_LEFT);
-    wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{WxEditor::WxKeySpecialKodes::WX_MOUSE_LEFT}, true);
-
-    if (useMousePicker and engine->GetSceneManager().GetActiveScene() and not mousePicker and not dragGameObject)
+    if (useMousePicker && engine->GetSceneManager().GetActiveScene() && !mousePicker && !dragGameObject)
     {
-        mousePicker          = std::make_unique<GameEngine::MousePicker>(*GetScene().GetCameraManager().GetMainCamera(),
-                                                                         GameEngine::MousePicker::IntersectMode::FrontOnly);
+        mousePicker = std::make_unique<GameEngine::MousePicker>(*GetScene().GetCameraManager().GetMainCamera(),
+                                                                     GameEngine::MousePicker::IntersectMode::FrontOnly);
         auto maybeGameObject = mousePicker->SelectObject(engine->GetEngineContext().GetInputManager().GetMousePosition(),
                                                          GetScene().GetGameObjects());
         if (maybeGameObject)
@@ -477,6 +481,19 @@ void GLCanvas::OnMouseLeftDown(wxMouseEvent& event)
             }
         }
     }
+}
+
+void GLCanvas::OnMouseLeftDown(wxMouseEvent& event)
+{
+    if (not engine)
+        return;
+
+    SetFocus();
+    auto& inputManager = engine->GetEngineContext().GetInputManager();
+    inputManager.AddKeyEvent(WxEditor::WX_KEY_DOWN, WxEditor::WxKeySpecialKodes::WX_MOUSE_LEFT);
+    wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{WxEditor::WxKeySpecialKodes::WX_MOUSE_LEFT}, true);
+
+    HandleMousePickerInteraction(event);
 
     event.Skip();
 }
@@ -519,6 +536,35 @@ void GLCanvas::OnMouseMove(wxMouseEvent& evt)
     }
 }
 
+GameEngine::GameObject* GLCanvas::GetSelectedGameObjectFromTree()
+{
+    if (sceneTreeCtrl)
+    {
+        auto treeSelectedItemId = sceneTreeCtrl->GetSelection();
+        if (treeSelectedItemId.IsOk())
+        {
+            if (auto goId = sceneTreeCtrl->Get(treeSelectedItemId))
+            {
+                return GetScene().GetGameObject(*goId);
+            }
+        }
+    }
+    return nullptr;
+}
+
+void GLCanvas::RotateSelectedObject(GameEngine::GameObject* obj, int wheelRotation)
+{
+    if (obj)
+    {
+        auto currentQuat = obj->GetWorldTransform().GetRotation().value_;
+        auto direction = (wheelRotation > 0) ? -1.0f : 1.0f;
+        auto angle = glm::radians(5.0f) * direction;
+        auto rotationDelta = glm::angleAxis(angle, glm::vec3(0.0f, 1.0f, 0.0f));
+        auto newRotation = rotationDelta * currentQuat;
+        obj->SetWorldRotation(glm::normalize(newRotation));
+    }
+}
+
 void GLCanvas::OnMouseWheel(wxMouseEvent& event)
 {
     if (not engine)
@@ -528,30 +574,17 @@ void GLCanvas::OnMouseWheel(wxMouseEvent& event)
     {
         if (sceneTreeCtrl)
         {
-            GameObject* selectedGameObject{nullptr};
-            auto treeSelectedItemId = sceneTreeCtrl->GetSelection();
-            if (treeSelectedItemId.IsOk())
-            {
-                if (auto goId = sceneTreeCtrl->Get(treeSelectedItemId))
-                {
-                    selectedGameObject = GetScene().GetGameObject(*goId);
-                }
-            }
+            auto selectedGameObject = GetSelectedGameObjectFromTree();
 
             if (event.ControlDown() and selectedGameObject)
             {
-                auto currentQuat   = selectedGameObject->GetWorldTransform().GetRotation().value_;
-                auto direction     = (event.GetWheelRotation() > 0) ? -1.0f : 1.0f;
-                auto angle         = glm::radians(5.0f) * direction;
-                auto rotationDelta = glm::angleAxis(angle, glm::vec3(0.0f, 1.0f, 0.0f));
-                auto newRotation   = rotationDelta * currentQuat;
-                selectedGameObject->SetWorldRotation(glm::normalize(newRotation));
+                RotateSelectedObject(selectedGameObject, event.GetWheelRotation());
                 return;
             }
         }
 
         int rotation = event.GetWheelRotation();
-        int delta    = rotation / event.GetWheelDelta();
+        int delta = rotation / event.GetWheelDelta();
 
         auto& inputManager = engine->GetEngineContext().GetInputManager();
         if (delta > 0)

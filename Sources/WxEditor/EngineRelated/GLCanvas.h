@@ -66,6 +66,13 @@ public:
     void OnIdle(wxIdleEvent&);
 
 private:
+    void InitializeEngine();
+    void LoadStartupScene();
+
+    GameEngine::GameObject* GetSelectedGameObjectFromTree();
+    void RotateSelectedObject(GameEngine::GameObject* obj, int wheelRotation);
+    void HandleMousePickerInteraction(wxMouseEvent& event);
+
     wxGLContext* context;
     void SetCursorToCenter();
     void EmergencyKeyRelease();
