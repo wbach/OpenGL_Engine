@@ -5,9 +5,9 @@ namespace
 void prepareState(CharacterControllerTests& test)
 {
     EXPECT_CALL(test.inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{0, 0}));
-    EXPECT_CALL(test.physicsApiMock_, SetRotation(test.rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
+    test.expectAnyRotation();
     test.expectForwardVelocity(DEFAULT_WALK_SPEED);
 
     test.expectAnimsToBeSet({test.sut_.animationClipsNames_.disarmed.posture.stand.idle});
@@ -141,6 +141,12 @@ TEST_F(CharacterControllerTests, AimWalkAndRotate_SprintStateChangeEvent)
     triggerAndExpect<SprintStateChangeEvent>({sut_.animationClipsNames_.armed.sprint});
 }
 
+TEST_F(CharacterControllerTests, AimWalkAndRotate_DrawArrowEvent)
+{
+    prepareState(*this);
+    expectIgnoreEvent<DrawArrowEvent>();
+}
+
 TEST_F(CharacterControllerTests, AimWalkAndRotate_MoveLeftEvent)
 {
     prepareState(*this);
@@ -226,12 +232,6 @@ TEST_F(CharacterControllerTests, AimWalkAndRotate_EquipEndStateEvent)
 }
 
 TEST_F(CharacterControllerTests, AimWalkAndRotate_DisarmEndStateEvent)
-{
-    prepareState(*this);
-    /* TODO: Implement test */
-}
-
-TEST_F(CharacterControllerTests, AimWalkAndRotate_DrawArrowEvent)
 {
     prepareState(*this);
     /* TODO: Implement test */

@@ -273,3 +273,15 @@ TEST_F(CharacterControllerTests, DrawArrowWalk_StartFallingEvent)
     prepareState(*this);
     triggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.armed.falling});
 }
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_HurtEvent)
+{
+    prepareState(*this);
+    triggerAndExpect<HurtEvent>({sut_.animationClipsNames_.armed.posture.stand.hurt});
+}
+
+TEST_F(CharacterControllerTests, DrawArrowWalk_GroundDetectionEvent)
+{
+    prepareState(*this);
+    expectIgnoreEvent<GroundDetectionEvent>();
+}

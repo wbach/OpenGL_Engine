@@ -398,3 +398,9 @@ TEST_F(CharacterControllerTests, ArmedAttackAndRunState_EndDialogEvent)
     prepareState(*this);
     /* TODO: Implement test */
 }
+
+TEST_F(CharacterControllerTests, ArmedAttackAndRunState_EndAttackEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}

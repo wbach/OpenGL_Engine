@@ -19,7 +19,7 @@ void prepareState(CharacterControllerTests& test)
     test.expectRotationLeft();
     test.triggerAndExpect<RotateLeftEvent>({test.sut_.animationClipsNames_.armed.movement.run.forward});
     test.triggerAndExpect<AttackEvent>({test.sut_.animationClipsNames_.armed.attack.front().clipsSequence.front(),
-                                       test.sut_.animationClipsNames_.armed.movement.run.forward});
+                                        test.sut_.animationClipsNames_.armed.movement.run.forward});
 }
 }  // namespace
 
@@ -35,7 +35,7 @@ TEST_F(CharacterControllerTests, ArmedAttackAndRunAndRotateState_EndAttackEvent)
     triggerAndExpect<EndAttackEvent>({sut_.animationClipsNames_.armed.movement.run.forward});
 }
 
-TEST_F(CharacterControllerTests, ArmedAttackAndRunAndRotateState_EndMoveForwardEvent)
+TEST_F(CharacterControllerTests, ArmedAttackAndRunAndRotateState_EndForwardMoveEvent)
 {
     prepareState(*this);
     expectNoMove();
@@ -290,6 +290,24 @@ TEST_F(CharacterControllerTests, ArmedAttackAndRunAndRotateState_StartDialogEven
 }
 
 TEST_F(CharacterControllerTests, ArmedAttackAndRunAndRotateState_EndDialogEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndRunAndRotateState_AttackEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndRunAndRotateState_MoveForwardEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedAttackAndRunAndRotateState_RotateLeftEvent)
 {
     prepareState(*this);
     /* TODO: Implement test */

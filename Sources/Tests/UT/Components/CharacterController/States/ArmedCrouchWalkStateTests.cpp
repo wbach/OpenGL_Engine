@@ -284,3 +284,15 @@ TEST_F(CharacterControllerTests, ArmedCrouchWalkState_EndDialogEvent)
     prepareState(*this);
     /* TODO: Implement test */
 }
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkState_AttackEvent)
+{
+    prepareState(*this);
+    /* TODO: Implement test */
+}
+
+TEST_F(CharacterControllerTests, ArmedCrouchWalkState_EndRotationEvent)
+{
+    prepareState(*this);
+    expectIgnoreEvent<EndRotationEvent>();
+}

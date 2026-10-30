@@ -11,7 +11,7 @@ void prepareState(CharacterControllerTests& test)
 }
 }  // namespace
 
-TEST_F(CharacterControllerTests, DialogState_StartDialog_Listen)
+TEST_F(CharacterControllerTests, DialogState_StartDialogEvent_Listen)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
 
@@ -19,7 +19,7 @@ TEST_F(CharacterControllerTests, DialogState_StartDialog_Listen)
                      StartDialogEvent{.role = StartDialogEvent::Role::Listener});
 }
 
-TEST_F(CharacterControllerTests, DialogState_StartDialog_Speaker)
+TEST_F(CharacterControllerTests, DialogState_StartDialogEvent_Speaker)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
 
@@ -27,7 +27,7 @@ TEST_F(CharacterControllerTests, DialogState_StartDialog_Speaker)
                      StartDialogEvent{.role = StartDialogEvent::Role::Speaker});
 }
 
-TEST_F(CharacterControllerTests, DialogState_StartDialog_UpdateListenerToSpeaker)
+TEST_F(CharacterControllerTests, DialogState_StartDialogEvent_UpdateListenerToSpeaker)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
     prepareState(*this);

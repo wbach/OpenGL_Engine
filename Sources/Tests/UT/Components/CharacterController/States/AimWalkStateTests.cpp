@@ -390,3 +390,9 @@ TEST_F(CharacterControllerTests, AimWalk_RotateRightEvent)
     prepareState(*this);
     /* TODO: Implement test */
 }
+
+TEST_F(CharacterControllerTests, AimWalk_DrawArrowEvent)
+{
+    prepareState(*this);
+    expectIgnoreEvent<DrawArrowEvent>();
+}

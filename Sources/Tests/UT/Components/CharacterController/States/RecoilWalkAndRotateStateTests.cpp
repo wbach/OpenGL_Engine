@@ -33,13 +33,13 @@ TEST_F(CharacterControllerTests, RecoilWalkAndRotate_CrouchChangeStateEvent)
     triggerAndExpect<CrouchChangeStateEvent>(
         {sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.movement.crouch.forward});
 }
-TEST_F(CharacterControllerTests, RecoilWalkAndRotate_RotateLeft)
+TEST_F(CharacterControllerTests, RecoilWalkAndRotate_RotateLeftEvent)
 {
     prepareState(*this);
     triggerAndExpect<RotateLeftEvent>(
         {sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.movement.walk.forward});
 }
-TEST_F(CharacterControllerTests, RecoilWalkAndRotate_RotateRight)
+TEST_F(CharacterControllerTests, RecoilWalkAndRotate_RotateRightEvent)
 {
     prepareState(*this);
     triggerAndExpect<RotateRightEvent>(

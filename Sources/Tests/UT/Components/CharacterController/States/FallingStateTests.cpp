@@ -6,6 +6,7 @@ void prepareState(CharacterControllerTests& test)
 {
     test.triggerAndExpect<StartFallingEvent>({test.sut_.animationClipsNames_.disarmed.falling});
 }
+}  // namespace
 
 TEST_F(CharacterControllerTests, FallingStateTests_EndForwardMoveEvent)
 {
@@ -242,4 +243,33 @@ TEST_F(CharacterControllerTests, FallingStateTests_EndDialogEvent)
     prepareState(*this);
     /* TODO: Implement test */
 }
-}  // namespace
+
+TEST_F(CharacterControllerTests, FallingStateTests_MoveForwardEvent)
+{
+    prepareState(*this);
+    expectIgnoreEvent<MoveForwardEvent>();
+}
+
+TEST_F(CharacterControllerTests, FallingStateTests_MoveLeftEvent)
+{
+    prepareState(*this);
+    expectIgnoreEvent<MoveLeftEvent>();
+}
+
+TEST_F(CharacterControllerTests, FallingStateTests_MoveRightEvent)
+{
+    prepareState(*this);
+    expectIgnoreEvent<MoveRightEvent>();
+}
+
+TEST_F(CharacterControllerTests, FallingStateTests_RotateLeftEvent)
+{
+    prepareState(*this);
+    expectIgnoreEvent<RotateLeftEvent>();
+}
+
+TEST_F(CharacterControllerTests, FallingStateTests_RotateRightEvent)
+{
+    prepareState(*this);
+    expectIgnoreEvent<RotateRightEvent>();
+}

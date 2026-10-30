@@ -331,6 +331,7 @@ void CharacterControllerTests::Update(float time)
 void CharacterControllerTests::expectAnyRotation()
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+    rotationIsExpected = true;
 }
 
 void CharacterControllerTests::expectAnimsToBeSet(const std::vector<std::string>& names)
@@ -358,6 +359,7 @@ void CharacterControllerTests::expectNoMove()
 void CharacterControllerTests::expectNoRotation()
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(0);
+    rotationIsExpected = false;
 }
 
 void CharacterControllerTests::expectVelocity(const vec3& dir, const vec3& moveSpeed, const vec3& currentVelocity)
@@ -406,7 +408,7 @@ void CharacterControllerTests::expectRotatation(float deltaTime, float rotateSpe
 {
     auto rotation = createRotaion(rotateSpeed, deltaTime);
 
-    /* LOG TO FIX*/ LOG_ERROR << ("Expected rotation : " + std::to_string(rotation.value_));
+    LOG_ERROR << "Expected rotation : " << rotation.value_;
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(rotation.value_))).Times(AtLeast(1));
     rotationIsExpected = true;

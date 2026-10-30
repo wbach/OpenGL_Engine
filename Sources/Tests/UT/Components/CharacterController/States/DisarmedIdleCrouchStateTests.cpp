@@ -105,21 +105,21 @@ TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_RotateTargetEvent)
 
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
     triggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
-                                       {sut_.animationClipsNames_.disarmed.posture.crouched.rotate.right});
+                                        {sut_.animationClipsNames_.disarmed.posture.crouched.rotate.right});
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_AttackEvent)
 {
     prepareState(*this);
     triggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().clipsSequence.front()},
-                                 {ADVANCED_TIME_TRANSITION_TIME});
+                                  {ADVANCED_TIME_TRANSITION_TIME});
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_CrouchChangeStateEvent)
 {
     prepareState(*this);
     triggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.disarmed.posture.stand.idle},
-                                            {ADVANCED_TIME_TRANSITION_TIME});
+                                             {ADVANCED_TIME_TRANSITION_TIME});
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_MoveEvent)
@@ -273,7 +273,7 @@ TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_StartDialogEvent)
     expectNoRotation();
 
     triggerAndExpect({sut_.animationClipsNames_.disarmed.dialog.listen}, {ADVANCED_TIME_TRANSITION_TIME},
-        StartDialogEvent{.role = StartDialogEvent::Role::Listener});
+                     StartDialogEvent{.role = StartDialogEvent::Role::Listener});
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_EndDialogEvent)
@@ -285,4 +285,15 @@ TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_StartFallingEvent)
 {
     prepareState(*this);
     triggerAndExpect<StartFallingEvent>({sut_.animationClipsNames_.disarmed.falling});
+}
+TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_GroundDetectionEvent)
+{
+    prepareState(*this);
+    expectIgnoreEvent<GroundDetectionEvent>();
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_HurtEvent)
+{
+    prepareState(*this);
+    triggerAndExpect<HurtEvent>({sut_.animationClipsNames_.disarmed.posture.crouched.hurt});
 }

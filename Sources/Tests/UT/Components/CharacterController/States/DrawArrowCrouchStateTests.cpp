@@ -249,6 +249,37 @@ TEST_F(CharacterControllerTests, DrawArowCrouchState_ReloadArrowEvent)
     prepareState(*this);
     /* TODO: Implement test */
 }
+
+TEST_F(CharacterControllerTests, DrawArowCrouchState_AnimationPlayEndEvent)
+{
+    prepareState(*this);
+    expectIgnoreEvent<AnimationPlayEndEvent>();
+}
+
+TEST_F(CharacterControllerTests, DrawArowCrouchState_ChangeAnimEvent)
+{
+    prepareState(*this);
+    expectIgnoreEvent<ChangeAnimEvent>();
+}
+
+TEST_F(CharacterControllerTests, DrawArowCrouchState_EndDialogEvent)
+{
+    prepareState(*this);
+    expectIgnoreEvent<EndDialogEvent>();
+}
+
+TEST_F(CharacterControllerTests, DrawArowCrouchState_GroundDetectionEvent)
+{
+    prepareState(*this);
+    expectIgnoreEvent<GroundDetectionEvent>();
+}
+
+TEST_F(CharacterControllerTests, DrawArowCrouchState_HurtEvent)
+{
+    prepareState(*this);
+    triggerAndExpect<HurtEvent>({sut_.animationClipsNames_.armed.posture.crouched.hurt});
+}
+
 TEST_F(CharacterControllerTests, DrawArowCrouchState_StartFallingEvent)
 {
     prepareState(*this);
