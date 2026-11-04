@@ -1,3 +1,0 @@
-std::vector<std::string> brushTypes
-std::string texture
-int brushSize

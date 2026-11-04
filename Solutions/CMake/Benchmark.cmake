@@ -38,7 +38,7 @@ if(BUILD_BENCHMARK)
             OpenGLApiLib
             GraphicsApiLib
             InputLib
-            UtilsNetworkLib
+            #UtilsNetworkLib
             CommonLib
             UtilsLib
             benchmark::benchmark

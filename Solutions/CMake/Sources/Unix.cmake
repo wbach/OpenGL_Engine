@@ -1,4 +1,4 @@
-if(UNIX)
+if(UNIX AND NOT EMSCRIPTEN)
     message(STATUS "Unix : ON")
 
     # --- Include directories ---

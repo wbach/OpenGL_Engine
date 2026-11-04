@@ -86,7 +86,6 @@ endif()
 
 if(MSVC)
     set(ENGINE_COMPILE_FLAGS
-        /std:c++20
         /W3
         /permissive
         /bigobj
@@ -94,21 +93,28 @@ if(MSVC)
         /Zc:__cplusplus
     )
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+elseif(EMSCRIPTEN)
+    set(ENGINE_COMPILE_FLAGS
+        -Wall
+        -Wextra
+        -pedantic
+        -Wno-error=nontrivial-memcall
+    )
 else()
     set(ENGINE_COMPILE_FLAGS
-        -std=c++20
         -Wall
         -pedantic
         -Wdelete-incomplete
         -Wno-expansion-to-defined
         -Wno-deprecated
     )
-
-    if(WIN32)
-        add_compile_options(-O3 -Wa,-mbig-obj)
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mconsole")
-    endif()
 endif()
+
+if(WIN32)
+    add_compile_options(-O3 -Wa,-mbig-obj)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mconsole")
+endif()
+
 
 # --- Środowisko (USERROOT) ---
 if(DEFINED ENV{USERROOT})
@@ -130,7 +136,7 @@ option(BUILD_GAME                "Build avatar game" ON)
 option(BUILD_RPG_GAME_SERVER     "Build RPG game server" OFF)
 option(BUILD_WX_EDITOR           "Build wxEditor" OFF)
 option(BUILD_I386                "32bit build" OFF)
-
+option(BUILD_WEB_GPU_GAME        "Build WebGPU backend" OFF)
 
 message(STATUS "BUILD_UTILS_NETWORK_TESTS: ${BUILD_UTILS_NETWORK_TESTS}")
 message(STATUS "BUILD_WX_EDITOR: ${BUILD_WX_EDITOR}")
@@ -184,7 +190,7 @@ endif()
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/
+    #${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/glm
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/assimp/include/
@@ -217,25 +223,42 @@ function(copy_all_dlls_to_target dll_dir exe_target)
     endforeach()
 endfunction()
 
-# --- Includy plików cmake ---
+if(EMSCRIPTEN)
+    add_compile_options(-pthread)
+    add_link_options(-pthread)
+endif()
+
+# --- Platform sources ---
 include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/WindowsSources.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/Unix.cmake)
 
+# --- Wspólne biblioteki ---
 include(${CMAKE_CURRENT_SOURCE_DIR}/Utils.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/Input.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/GraphicsApi.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/DirectXApi.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/OpenGLApi.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/VulkanApi.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/NetworkUtils.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/NetworkUtilsTests.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake)
+
+# --- Silnik ---
 include(${CMAKE_CURRENT_SOURCE_DIR}/GameEngine.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/WxEditor.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/Game.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/GameServer.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/Tests.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/Benchmark.cmake)
+
+# --- Pozostałe backendy i aplikacje ---
+if(NOT BUILD_WEB_GPU_GAME)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/NetworkUtils.cmake)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/DirectXApi.cmake)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/OpenGLApi.cmake)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/VulkanApi.cmake)
+
+    include(${CMAKE_CURRENT_SOURCE_DIR}/NetworkUtilsTests.cmake)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/WxEditor.cmake)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/Game.cmake)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/GameServer.cmake)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/Tests.cmake)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/Benchmark.cmake)
+else()
+    include(${CMAKE_CURRENT_SOURCE_DIR}/WebGpuApi.cmake)
+endif()
+
+
 
 # --- Debug info ---
 message(STATUS "Build configuration:")

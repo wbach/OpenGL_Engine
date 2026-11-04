@@ -3,8 +3,8 @@ if(BUILD_GAME_ENGINE OR BUILD_GAME)
     # --- Źródła ---
     include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/GraphicsApiSources.cmake)
 
-    
-    if(MSVC)
+
+    if(MSVC OR EMSCRIPTEN)
         add_library(GraphicsApiLib STATIC ${GraphicsApiSources})
     else()
         add_library(GraphicsApiLib SHARED ${GraphicsApiSources})

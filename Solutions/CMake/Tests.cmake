@@ -38,7 +38,6 @@ if(BUILD_TESTS)
             VulkanApiLib
             GraphicsApiLib
             InputLib
-            UtilsNetworkLib
             CommonLib
             UtilsLib
             gtest

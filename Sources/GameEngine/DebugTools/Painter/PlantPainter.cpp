@@ -322,13 +322,13 @@ void PlantPainter::Generate(const File& terrainTextureFile)
         ssbos.reserve(stepsZ * stepsX);
 
         int lastLoggedProgress = -1;
-        auto startTime         = std::chrono::high_resolution_clock::now();
+        auto startTime         = std::chrono::steady_clock::now();
         auto logProgress       = [&lastLoggedProgress, stepsZ, startTime](float i)
         {
             int currentProgress = static_cast<int>((i / stepsZ) * 1000.0f);
             if (currentProgress > lastLoggedProgress)
             {
-                auto currentTime                      = std::chrono::high_resolution_clock::now();
+                auto currentTime                      = std::chrono::steady_clock::now();
                 std::chrono::duration<double> elapsed = currentTime - startTime;
 
                 double eta = (i > 0) ? (elapsed.count() / i) * (stepsZ - i) : 0.0;

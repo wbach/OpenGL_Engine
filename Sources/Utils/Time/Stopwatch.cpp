@@ -12,22 +12,22 @@ Stopwatch::Stopwatch()
 
 void Stopwatch::Reset()
 {
-    start_ = std::chrono::high_resolution_clock::now();
+    start_ = std::chrono::steady_clock::now();
 }
 
 uint64 Stopwatch::GetTimeNanoseconds() const
 {
-    auto now = std::chrono::high_resolution_clock::now();
+    auto now = std::chrono::steady_clock::now();
     return static_cast<uint64>(std::chrono::duration_cast<std::chrono::nanoseconds>(now - start_).count());
 }
 uint64 Stopwatch::GetTimeMilliseconds() const
 {
-    auto now = std::chrono::high_resolution_clock::now();
+    auto now = std::chrono::steady_clock::now();
     return static_cast<uint64>(std::chrono::duration_cast<std::chrono::milliseconds>(now - start_).count());
 }
 uint64 Stopwatch::GetTimeMicroseconds() const
 {
-    auto now = std::chrono::high_resolution_clock::now();
+    auto now = std::chrono::steady_clock::now();
     return static_cast<uint64>(std::chrono::duration_cast<std::chrono::microseconds>(now - start_).count());
 }
 std::string Stopwatch::FormatElapsed() const

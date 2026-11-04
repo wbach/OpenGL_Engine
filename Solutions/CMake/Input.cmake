@@ -4,7 +4,7 @@ if(BUILD_GAME_ENGINE OR BUILD_GAME)
     include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/InputSources.cmake)
 
     # --- Biblioteka Input ---
-    if(MSVC)
+    if(MSVC OR EMSCRIPTEN)
         add_library(InputLib STATIC ${InputSources})
     else()
         add_library(InputLib SHARED ${InputSources})
@@ -21,7 +21,7 @@ if(BUILD_GAME_ENGINE OR BUILD_GAME)
     target_include_directories(InputLib
         PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Input
-            
+
     )
 
     target_link_libraries(InputLib

@@ -1,6 +1,6 @@
 #include "BinaryConnectionMessageConverter.h"
 #include <Logger/Log.h>
-#include "UtilsNetwork/MessageFormat.h"
+//#include "UtilsNetwork/MessageFormat.h"
 #include "MessageTypes.h"
 #include "UtilsNetwork/Messages/Connection/AuthenticationMessage.h"
 #include "UtilsNetwork/Messages/Connection/ConnectionMessage.h"
@@ -19,7 +19,9 @@ BinaryConnectionMessageConverter::BinaryConnectionMessageConverter()
 
 bool BinaryConnectionMessageConverter::IsValid(IMessageFormat format, IMessageType type) const
 {
-    return format == Network::ConvertFormat(Network::MessageFormat::Binary) and type >= MESSAGE_TYPES_RANGE_LOW and type <= MESSAGE_TYPES_RANGE_HIGH;
+    // TO DO : Fix
+    //return format == Network::ConvertFormat(Network::MessageFormat::Binary) and type >= MESSAGE_TYPES_RANGE_LOW and type <= MESSAGE_TYPES_RANGE_HIGH;
+    return false;
 }
 
 std::unique_ptr<IMessage> BinaryConnectionMessageConverter::Convert(IMessageType type, const IMessageData& message)

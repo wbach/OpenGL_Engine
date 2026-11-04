@@ -3,11 +3,9 @@
 #include <GraphicsApi/IGraphicsApi.h>
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
-#include <OpenGLApi/OpenGLApi.h>
 #include <Utils/IThreadSync.h>
 #include <Utils/ThreadSubscriber.h>
 #include <Utils/Variant.h>
-#include <VulkanApi/VulkanApi.h>
 #include <signal.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
@@ -23,7 +21,61 @@
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 
-#ifdef USE_GNU
+#ifdef __EMSCRIPTEN__
+#include "WebGpuApi/WebGpuApi.h"
+#else
+#include <OpenGLApi/OpenGLApi.h>
+#include <VulkanApi/VulkanApi.h>
+#endif
+
+#if defined(_WIN32) || defined(_WIN64)
+
+#include <DirectXApi/DirectXApi.h>
+// clang-format off
+#include <windows.h>
+#include <dbghelp.h>
+#include <shlobj.h>
+// clang-format on
+
+void bt_sighandler(int nSig)
+{
+    std::stringstream out;
+    out << "print_trace: got signal " << nSig << '\n';
+
+    HANDLE hProcess = GetCurrentProcess();
+    SymInitialize(hProcess, NULL, TRUE);
+
+    void* stack[32];
+    USHORT frames = CaptureStackBackTrace(0, 32, stack, NULL);
+
+    for (USHORT i = 0; i < frames; ++i)
+    {
+        DWORD64 addr = (DWORD64)(stack[i]);
+
+        char symbolBuffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(char)];
+        PSYMBOL_INFO symbol  = reinterpret_cast<PSYMBOL_INFO>(symbolBuffer);
+        symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+        symbol->MaxNameLen   = MAX_SYM_NAME;
+
+        DWORD64 displacement = 0;
+        if (SymFromAddr(hProcess, addr, &displacement, symbol))
+        {
+            out << (std::string(symbol->Name) + " [0x" + std::to_string(symbol->Address) + "]");
+        }
+        else
+        {
+            out << ("Unknown function at [0x" + std::to_string((uintptr_t)addr) + "]");
+        }
+    }
+
+    LOG_ERROR_RAW << out.str();
+
+    SymCleanup(hProcess);
+
+    signal(nSig, SIG_DFL);
+    raise(nSig);
+}
+#elif not defined(__EMSCRIPTEN__)
 #include <cxxabi.h>
 #include <execinfo.h>
 
@@ -76,53 +128,6 @@ void bt_sighandler(int nSig)
     free(strings);
     exit(-1);
 }
-#else
-
-#include <DirectXApi/DirectXApi.h>
-// clang-format off
-#include <windows.h>
-#include <dbghelp.h>
-#include <shlobj.h>
-// clang-format on
-
-void bt_sighandler(int nSig)
-{
-    std::stringstream out;
-    out << "print_trace: got signal " << nSig << '\n';
-
-    HANDLE hProcess = GetCurrentProcess();
-    SymInitialize(hProcess, NULL, TRUE);
-
-    void* stack[32];
-    USHORT frames = CaptureStackBackTrace(0, 32, stack, NULL);
-
-    for (USHORT i = 0; i < frames; ++i)
-    {
-        DWORD64 addr = (DWORD64)(stack[i]);
-
-        char symbolBuffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(char)];
-        PSYMBOL_INFO symbol  = reinterpret_cast<PSYMBOL_INFO>(symbolBuffer);
-        symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
-        symbol->MaxNameLen   = MAX_SYM_NAME;
-
-        DWORD64 displacement = 0;
-        if (SymFromAddr(hProcess, addr, &displacement, symbol))
-        {
-            out << (std::string(symbol->Name) + " [0x" + std::to_string(symbol->Address) + "]");
-        }
-        else
-        {
-            out << ("Unknown function at [0x" + std::to_string((uintptr_t)addr) + "]");
-        }
-    }
-
-    LOG_ERROR_RAW << out.str();
-
-    SymCleanup(hProcess);
-
-    signal(nSig, SIG_DFL);
-    raise(nSig);
-}
 #endif
 namespace GameEngine
 {
@@ -139,6 +144,9 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi(std::unique_ptr<Gra
 
     std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi;
 
+#ifdef __EMSCRIPTEN__
+    graphicsApi = std::make_unique<GraphicsApi::WebGpu::WebGpuApi>();
+#else
     if (EngineConf.renderer.graphicsApi == "OpenGL")
     {
         graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
@@ -168,6 +176,7 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi(std::unique_ptr<Gra
     {
         graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
     }
+#endif
 
     graphicsApi->SetShadersFilesLocations(EngineLocalConf.files.getShaderPath());
     graphicsApi->DebugNormalMeshGeneration(EngineConf.debugParams.generateDebugNormalsMeshes);
@@ -191,7 +200,10 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
 {
     LOG_DEBUG << "Start engine.";
 
+#ifndef __EMSCRIPTEN__
     signal(SIGSEGV, bt_sighandler);
+#endif
+
     srand((unsigned)time(NULL));
 
     loggingLvlParamSub_ = EngineConf.debugParams.logLvl.subscribeForChange(
@@ -239,7 +251,8 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
         });
 
     quitApiSubId_ = engineContext_.GetGraphicsApi().GetWindowApi().SubscribeForEvent(
-        [&](const auto& event) {
+        [&](const auto& event)
+        {
             std::visit(visitor{[&](const GraphicsApi::QuitEvent&) { Quit(); }, [](const GraphicsApi::DropFileEvent&) {}}, event);
         });
 }
@@ -328,16 +341,16 @@ void Engine::ProcessEngineEvents()
 
     for (auto& event : events)
     {
-        std::visit(visitor{[&](const SetGameStateFlag& e)
-                           {
-                               engineContext_.GetGameState().setFlag(e.flag, e.value);
-                               engineContext_.GetQuestManager().onSetFlag(e.flag, e.value);
-                           },
-                           [&](const SceneStartedEvent&) { engineContext_.GetQuestManager().onSceneStarted(); },
-                           [&](const QuitEvent& e) { Quit(e); },
-                           [&](const ChangeSceneEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); },
-                           [&](const ChangeSceneConfirmEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); }},
-                   event);
+        std::visit(
+            visitor{[&](const SetGameStateFlag& e)
+                    {
+                        engineContext_.GetGameState().setFlag(e.flag, e.value);
+                        engineContext_.GetQuestManager().onSetFlag(e.flag, e.value);
+                    },
+                    [&](const SceneStartedEvent&) { engineContext_.GetQuestManager().onSceneStarted(); }, [&](const QuitEvent& e)
+                    { Quit(e); }, [&](const ChangeSceneEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); },
+                    [&](const ChangeSceneConfirmEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); }},
+            event);
     }
 }
 

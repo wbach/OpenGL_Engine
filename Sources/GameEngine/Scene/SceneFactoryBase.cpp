@@ -16,7 +16,9 @@ typedef GameEngine::Scene* (*CreateSceneFromLib)();
 
 #ifdef USE_GNU
 #include <dlfcn.h>
-#else
+#endif
+
+#if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
 #endif
 
@@ -68,19 +70,28 @@ ScenePtr SceneFactoryBase::CreateSceneBasedOnFile(const File& file)
                 File potentialyLibFile(maybeSceneFile->value_);
                 if (std::filesystem::exists(potentialyLibFile.GetAbsolutePath()))
                 {
-#ifdef USE_GNU
+                #if defined(__EMSCRIPTEN__)
+                    void* sceneLib = nullptr;
+                #elif defined(USE_GNU)
                     void* sceneLib = dlopen(potentialyLibFile.GetAbsolutePath().c_str(), RTLD_NOW);
-#else
+                #else
                     HMODULE sceneLib = LoadLibraryA(potentialyLibFile.GetAbsolutePath().string().c_str());
-#endif
+                #endif
+
+                    CreateSceneFromLib create{nullptr};
                     if (sceneLib)
                     {
                         LOG_DEBUG << "Scene lib found";
-#ifdef USE_GNU
-                        auto create = (CreateSceneFromLib)dlsym(sceneLib, "CreateScene");
-#else
-                        auto create = (CreateSceneFromLib)GetProcAddress(sceneLib, "CreateScene");
-#endif
+                #if defined(__EMSCRIPTEN__)
+                        LOG_DEBUG << "Dynamic lib not supported";
+
+                #elif defined(USE_GNU)
+
+                        create = (CreateSceneFromLib)dlsym(sceneLib, "CreateScene");
+                #else
+                        create = (CreateSceneFromLib)GetProcAddress(sceneLib, "CreateScene");
+
+                #endif
                         if (create)
                         {
                             scene = std::unique_ptr<Scene>(create());
@@ -117,12 +128,12 @@ ScenePtr SceneFactoryBase::GetScene(const std::string& name)
     {
         auto [_, method] = *iter;
         auto scene       = std::visit(visitor{[&](const CreateFunction& createFunc)
-                                        {
+                                              {
                                             auto scene = createFunc();
                                             scene->InitResources(*engineContext_);
                                             return scene;
-                                        },
-                                        [&](const File& file) { return CreateSceneBasedOnFile(file); }},
+                                              },
+                                              [&](const File& file) { return CreateSceneBasedOnFile(file); }},
                                       method);
 
         return scene;

@@ -8,7 +8,7 @@
 #include <optional>
 #include <random>
 
-#ifndef USE_GNU
+#if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
 #endif
 
@@ -134,7 +134,7 @@ std::vector<File> GetFilesInDirectory(const std::string& dirPath)
 {
     std::vector<File> result;
 
-#ifndef USE_GNU
+#ifdef _MSC_VER
     if (dirPath.empty() or dirPath == "/")
     {
         DWORD mydrives = 100;

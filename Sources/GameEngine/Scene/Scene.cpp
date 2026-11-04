@@ -88,12 +88,6 @@ Scene::~Scene()
         componentFactory_.reset();
     }
 
-    if (networkEditorInterface_)
-    {
-        LOG_DEBUG << "networkEditorInterface_.reset()";
-        networkEditorInterface_.reset();
-    }
-
     if (inputManager_)
     {
         LOG_DEBUG << "inputManager_->UnsubscribeAll()";
@@ -599,20 +593,6 @@ void Scene::PostInitialize()
 int Scene::Update(float)
 {
     return 0;
-}
-
-void Scene::RunNetworkEditorInterface()
-{
-    if (not networkEditorInterface_)
-    {
-        networkEditorInterface_ = std::make_unique<NetworkEditorInterface>(*this, *threadSync_);
-    }
-
-    networkEditorInterface_->Run();
-}
-void Scene::StopNetworkEditorInterface()
-{
-    networkEditorInterface_.reset();
 }
 std::optional<Physics::RayHit> Scene::getHeightPositionInWorld(float x, float z) const
 {

@@ -1,3 +1,4 @@
+#ifndef __EMSCRIPTEN__
 #include <Logger/Log.h>
 #include <Utils/Json/JsonReader.h>
 #include <Utils/Json/JsonWriter.h>
@@ -12,7 +13,6 @@
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Scene/SceneFactoryBase.h"
 #include "GameEngine/Scene/SceneUtils.h"
-#include "Logger/Log.h"
 #include "TreeNode.h"
 
 using namespace GameEngine;
@@ -87,3 +87,4 @@ int main(int, char**)
     Start();
     return 0;
 }
+#endif

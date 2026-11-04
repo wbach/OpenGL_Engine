@@ -24,8 +24,9 @@ BinaryMessageConverter::BinaryMessageConverter()
 
 bool BinaryMessageConverter::IsValid(Network::IMessageFormat format, Network::IMessageType type) const
 {
-    return format == Network::ConvertFormat(Network::MessageFormat::Binary) and type >= COMMON_MESSAGE_TYPE_RANGE_LOW and
-           type <= COMMON_MESSAGE_TYPE_RANGE_HIGH;
+    // return format == Network::ConvertFormat(Network::MessageFormat::Binary) and type >= COMMON_MESSAGE_TYPE_RANGE_LOW and
+    //        type <= COMMON_MESSAGE_TYPE_RANGE_HIGH;
+    return false;
 }
 
 std::unique_ptr<Network::IMessage> BinaryMessageConverter::Convert(Network::IMessageType type,

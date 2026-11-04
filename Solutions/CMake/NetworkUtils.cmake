@@ -5,7 +5,7 @@ if(BUILD_UTILS_NETWORK)
 
     # --- Biblioteka UtilsNetwork ---
 
-    if(MSVC)
+    if(MSVC OR EMSCRIPTEN)
            add_library(UtilsNetworkLib STATIC ${UtilsNetworkSources})
     else()
             add_library(UtilsNetworkLib SHARED ${UtilsNetworkSources})
@@ -13,7 +13,7 @@ if(BUILD_UTILS_NETWORK)
 
     target_compile_definitions(UtilsNetworkLib PRIVATE ENGINE_EXPORTS)
 
-    set_target_properties(UtilsNetworkLib PROPERTIES 
+    set_target_properties(UtilsNetworkLib PROPERTIES
         POSITION_INDEPENDENT_CODE ON
         WINDOWS_EXPORT_ALL_SYMBOLS TRUE
     )
@@ -28,8 +28,8 @@ if(BUILD_UTILS_NETWORK)
     )
 
     # Linkowanie z innymi bibliotekami (jeśli potrzebne)
-    target_link_libraries(UtilsNetworkLib 
-        PRIVATE 
+    target_link_libraries(UtilsNetworkLib
+        PRIVATE
             UtilsLib
     )
     if(WIN32)

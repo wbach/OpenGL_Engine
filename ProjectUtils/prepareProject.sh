@@ -31,6 +31,20 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     sources+=("$filteredFile")
 done < "$sourceFilePath"
 
+# Count source files with identical basenames.
+# Windows filenames are case-insensitive, so normalize to lowercase.
+
+declare -A sourceBaseCounts=()
+
+for cpp in "${sources[@]}"; do
+    fileName=${cpp##*/}
+    baseName=${fileName%.*}
+
+    key=$(printf '%s' "$baseName" | tr '[:upper:]' '[:lower:]')
+
+    sourceBaseCounts["$key"]=$(( ${sourceBaseCounts["$key"]:-0} + 1 ))
+done
+
 headers=()
 while IFS= read -r line || [[ -n "$line" ]]; do
     if [[ $line == "set("* ]]; then
@@ -232,7 +246,7 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <ObjectFileName>$(IntDir)%(RelativeDir)%(Filename)%(Extension)</ObjectFileName>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>'$additionalIncludesDir'%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -254,7 +268,7 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <ObjectFileName>$(IntDir)%(RelativeDir)%(Filename)%(Extension)</ObjectFileName>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>'$debug64IncludesDir'%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -285,7 +299,7 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <PreprocessorDefinitions>ENGINE_EXPORTS;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING; _CRT_SECURE_NO_WARNINGS;_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;WXUSINGDLL;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <BufferSecurityCheck>true</BufferSecurityCheck>
-      <ObjectFileName>$(IntDir)%(RelativeDir)%(Filename)%(Extension)</ObjectFileName>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
       <AdditionalOptions>/Zc:__cplusplus /bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -308,7 +322,7 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <ObjectFileName>$(IntDir)%(RelativeDir)%(Filename)%(Extension)</ObjectFileName>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
       <AdditionalOptions>/Zc:__cplusplus /bigobj /Gw /GL %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -338,7 +352,7 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <OmitFramePointers>false</OmitFramePointers>
       <MinimalRebuild>false</MinimalRebuild>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <ObjectFileName>$(IntDir)%(RelativeDir)%(Filename)%(Extension)</ObjectFileName>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <AdditionalOptions>/Zc:__cplusplus /bigobj /GL /GS /guard:cf %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -353,10 +367,33 @@ echo '<?xml version="1.0" encoding="utf-8"?>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>'
-  for cpp in "${sources[@]}"
-  do
-    echo $'    <ClCompile Include="'"$vs_s"$cpp'" />'
-  done
+for cpp in "${sources[@]}"; do
+
+    fileName=${cpp##*/}
+    baseName=${fileName%.*}
+
+    key=$(printf '%s' "$baseName" | tr '[:upper:]' '[:lower:]')
+
+    if (( sourceBaseCounts["$key"] > 1 )); then
+
+        # Generate a unique object filename based on source path.
+        hash=$(printf '%s' "$cpp" | sha256sum)
+        hash=${hash%% *}
+
+        objName="${baseName}_${hash:0:16}.obj"
+
+        printf '    <ClCompile Include="%s">\n' "$vs_s$cpp"
+        printf '      <ObjectFileName>$(IntDir)%s</ObjectFileName>\n' "$objName"
+        printf '    </ClCompile>\n'
+
+    else
+
+        # Unique source filename: use common intermediate directory.
+        printf '    <ClCompile Include="%s" />\n' "$vs_s$cpp"
+
+    fi
+
+done
   echo '  </ItemGroup>'
   echo '  <ItemGroup>'
 

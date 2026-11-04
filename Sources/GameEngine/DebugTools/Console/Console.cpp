@@ -4,6 +4,7 @@
 #include <Input/KeyCodeToCharConverter.h>
 #include <Logger/Log.h>
 #include <Types.h>
+#include <Utils/ThreadSync.h>
 
 #include <algorithm>
 #include <fstream>
@@ -37,7 +38,7 @@ Input::SingleCharType inputType{Input::SingleCharType::SMALL};
 const float WINDOW_Z_POSITION{-100.f};
 }  // namespace
 
-Console::Console(Scene &scene)
+Console::Console(Scene& scene)
     : scene_(scene)
     , window_{nullptr}
     , currentCommand_{nullptr}
@@ -63,7 +64,7 @@ void Console::ExecuteCommands()
     }
 }
 
-void Console::AddAndUpdateHistoryFileIfNeeded(const std::string &command)
+void Console::AddAndUpdateHistoryFileIfNeeded(const std::string& command)
 {
     auto iter = std::find(commandsHistory_.begin(), commandsHistory_.end(), command);
 
@@ -80,43 +81,41 @@ void Console::AddAndUpdateHistoryFileIfNeeded(const std::string &command)
     }
 
     std::ofstream file(".commandHistory");
-    for (const auto &com : commandsHistory_)
+    for (const auto& com : commandsHistory_)
         file << com << '\n';
     file.close();
 }
 
 void Console::RegisterActions()
 {
-    commandsActions_ = {{"freecam", [this](auto &p) { SetFreeCamera(p); }},
-                        {"showphysics", [this](auto &p) { SetPhysicsVisualization(p); }},
-                        {"disablefreecam", [this](auto &p) { DisableFreeCam(p); }},
-                        {"prefab", [this](auto &p) { LoadPrefab(p); }},
-                        {"pos", [this](auto &p) { PrintPosition(p); }},
-                        {"setpos", [this](auto &p) { SetPosition(p); }},
-                        {"save", [this](auto &p) { SaveScene(p); }},
-                        {"load", [this](auto &p) { LoadScene(p); }},
-                        {"select", [this](auto &p) { Select(p); }},
-                        {"reload", [this](auto &p) { ReloadScene(p); }},
-                        {"moveto", [this](auto &p) { MoveTo(p); }},
-                        {"lognow", [this](auto &p) { UseAsyncLogging(p); }},
-                        {"snap", [this](auto &p) { TakeSnapshot(p); }},
-                        {"navmesh", [this](auto &p) { ShowNawMesh(p); }},
-                        {"reloadshaders", [this](auto &p) { ReloadShaders(p); }},
-                        {"swapRenderMode", [this](auto &p) { SwapRenderMode(p); }},
-                        {"editorinterface", [this](auto &p) { EnableEditorNetworkInterface(p); }},
-                        {"editor", [this](auto &p) { EnableEditorNetworkInterface(p); }},
-                        {"help", [this](auto &p) { Help(p); }},
-                        {"timespeed", [this](auto &p) { SetTimeMulitplayer(p); }},
-                        {"camera", [this](auto &p) { CameraInfo(p); }},
-                        {"exit", [this](auto &p) { Exit(p); }},
-                        {"quit", [this](auto &p) { Exit(p); }},
-                        {"drender", [this](auto &p) { DebugRender(p); }}};
+    commandsActions_ = {{"freecam", [this](auto& p) { SetFreeCamera(p); }},
+                        {"showphysics", [this](auto& p) { SetPhysicsVisualization(p); }},
+                        {"disablefreecam", [this](auto& p) { DisableFreeCam(p); }},
+                        {"prefab", [this](auto& p) { LoadPrefab(p); }},
+                        {"pos", [this](auto& p) { PrintPosition(p); }},
+                        {"setpos", [this](auto& p) { SetPosition(p); }},
+                        {"save", [this](auto& p) { SaveScene(p); }},
+                        {"load", [this](auto& p) { LoadScene(p); }},
+                        {"select", [this](auto& p) { Select(p); }},
+                        {"reload", [this](auto& p) { ReloadScene(p); }},
+                        {"moveto", [this](auto& p) { MoveTo(p); }},
+                        {"lognow", [this](auto& p) { UseAsyncLogging(p); }},
+                        {"snap", [this](auto& p) { TakeSnapshot(p); }},
+                        {"navmesh", [this](auto& p) { ShowNawMesh(p); }},
+                        {"reloadshaders", [this](auto& p) { ReloadShaders(p); }},
+                        {"swapRenderMode", [this](auto& p) { SwapRenderMode(p); }},
+                        {"help", [this](auto& p) { Help(p); }},
+                        {"timespeed", [this](auto& p) { SetTimeMulitplayer(p); }},
+                        {"camera", [this](auto& p) { CameraInfo(p); }},
+                        {"exit", [this](auto& p) { Exit(p); }},
+                        {"quit", [this](auto& p) { Exit(p); }},
+                        {"drender", [this](auto& p) { DebugRender(p); }}};
 }
 
-void Console::CameraInfo(const Params &)
+void Console::CameraInfo(const Params&)
 {
     int index = 0;
-    for (const auto &[_, activeCameraPtr] : scene_.GetCameraManager().GetActiveCameras())
+    for (const auto& [_, activeCameraPtr] : scene_.GetCameraManager().GetActiveCameras())
     {
         PrintMsgInConsole("Active camera: " + std::to_string(index++) + ", info: ");
 
@@ -125,13 +124,13 @@ void Console::CameraInfo(const Params &)
     }
 }
 
-void Console::SetFreeCamera(const Params &)
+void Console::SetFreeCamera(const Params&)
 {
     if (firstPersonCameraId_)
         return;
 
     auto firstPersonCamera = std::make_unique<FirstPersonCamera>(*scene_.inputManager_, *scene_.displayManager_);
-    auto &cameraManager    = scene_.GetCameraManager();
+    auto& cameraManager    = scene_.GetCameraManager();
     if (auto mainCamera = cameraManager.GetMainCamera())
     {
         firstPersonCamera->SetPosition(mainCamera->GetPosition());
@@ -144,11 +143,11 @@ void Console::SetFreeCamera(const Params &)
     cameraManager.SetCameraAsMain(id);
 }
 
-void Console::DisableFreeCam(const Params &)
+void Console::DisableFreeCam(const Params&)
 {
     if (firstPersonCameraId_)
     {
-        auto &cameraManager = scene_.GetCameraManager();
+        auto& cameraManager = scene_.GetCameraManager();
         cameraManager.RemoveCamera(*firstPersonCameraId_);
         if (previousMainCamera_)
         {
@@ -159,7 +158,7 @@ void Console::DisableFreeCam(const Params &)
     }
 }
 
-void Console::AddCommand(const std::string &command)
+void Console::AddCommand(const std::string& command)
 {
     if (not IsKnownCommand(command))
     {
@@ -169,7 +168,7 @@ void Console::AddCommand(const std::string &command)
     AddCommandToExecute(command);
 }
 
-void Console::ExecuteComand(const std::string &commandWithParams)
+void Console::ExecuteComand(const std::string& commandWithParams)
 {
     AddAndUpdateHistoryFileIfNeeded(commandWithParams);
     auto command = GetCommandNameFromString(commandWithParams);
@@ -177,10 +176,10 @@ void Console::ExecuteComand(const std::string &commandWithParams)
     commandsActions_.at(command)(params);
 }
 
-GUI::Text *Console::AddOrUpdateGuiText(const std::string &command)
+GUI::Text* Console::AddOrUpdateGuiText(const std::string& command)
 {
     MoveUpTexts();
-    GUI::Text *result{nullptr};
+    GUI::Text* result{nullptr};
 
     const float textHeight = 0.05f;
 
@@ -202,7 +201,7 @@ GUI::Text *Console::AddOrUpdateGuiText(const std::string &command)
     return result;
 }
 
-void Console::PrintMsgInConsole(const std::string &msg)
+void Console::PrintMsgInConsole(const std::string& msg)
 {
     currentCommand_->setText(msg);
     currentCommand_ = AddOrUpdateGuiText("");
@@ -210,7 +209,7 @@ void Console::PrintMsgInConsole(const std::string &msg)
 
 void Console::MoveUpTexts()
 {
-    for (auto &guiText : guiTexts_)
+    for (auto& guiText : guiTexts_)
     {
         auto position = guiText->getScreenPosition();
         auto scale    = guiText->getScreenScale();
@@ -219,17 +218,17 @@ void Console::MoveUpTexts()
     }
 }
 
-bool Console::IsKnownCommand(const std::string &commandWithParams) const
+bool Console::IsKnownCommand(const std::string& commandWithParams) const
 {
     return commandsActions_.count(GetCommandNameFromString(commandWithParams)) > 0;
 }
 
-std::string Console::GetCommandNameFromString(const std::string &commandWithParams) const
+std::string Console::GetCommandNameFromString(const std::string& commandWithParams) const
 {
     return commandWithParams.substr(0, commandWithParams.find_first_of(' '));
 }
 
-void Console::AddCommandToExecute(const std::string &command)
+void Console::AddCommandToExecute(const std::string& command)
 {
     std::lock_guard<std::mutex> lk(commandsExecuteMutex_);
     commandsToExecute_.push_back(command);
@@ -258,7 +257,7 @@ void Console::CloseConsole()
     scene_.inputManager_->StashPopSubscribers();
 }
 
-void Console::LoadPrefab(const Params &params)
+void Console::LoadPrefab(const Params& params)
 {
     if (params.size() < 2)
     {
@@ -266,13 +265,13 @@ void Console::LoadPrefab(const Params &params)
         return;
     }
 
-    const auto &filename = params[0];
-    const auto &name     = params[1];
+    const auto& filename = params[0];
+    const auto& name     = params[1];
 
     GameEngine::SceneReader(scene_).loadPrefab(filename, name);
 }
 
-void Console::SetPosition(const Params &args)
+void Console::SetPosition(const Params& args)
 {
     if (args.size() < 3)
     {
@@ -377,7 +376,7 @@ void Console::SetPosition(const Params &args)
     }
 }
 
-void Console::PrintPosition(const Params &args)
+void Console::PrintPosition(const Params& args)
 {
     if (args.empty())
     {
@@ -396,7 +395,7 @@ void Console::PrintPosition(const Params &args)
     }
 }
 
-void Console::SaveScene(const Params &params)
+void Console::SaveScene(const Params& params)
 {
     if (params.empty())
     {
@@ -408,13 +407,13 @@ void Console::SaveScene(const Params &params)
     }
 }
 
-void Console::LoadScene(const Params &params)
+void Console::LoadScene(const Params& params)
 {
     if (params.empty())
         return;
 
     bool useSceneNumber{true};
-    for (const auto &c : params[0])
+    for (const auto& c : params[0])
     {
         if (not isdigit(c))
         {
@@ -441,12 +440,12 @@ void Console::LoadScene(const Params &params)
     }
 }
 
-void Console::ReloadScene(const Params &)
+void Console::ReloadScene(const Params&)
 {
     scene_.getEngineContext()->AddEngineEvent(ChangeSceneEvent(ChangeSceneEvent::Type::RELOAD_SCENE, 0));
 }
 
-void Console::UseAsyncLogging(const Params &params)
+void Console::UseAsyncLogging(const Params& params)
 {
     if (params.empty())
         return;
@@ -456,7 +455,7 @@ void Console::UseAsyncLogging(const Params &params)
     CLogger::Instance().UseAsyncLogging(use);
 }
 
-void Console::TakeSnapshot(const Params &params)
+void Console::TakeSnapshot(const Params& params)
 {
     std::string path{"../../snapshoot/"};
     if (not params.empty())
@@ -468,34 +467,17 @@ void Console::TakeSnapshot(const Params &params)
     scene_.resourceManager_->GetGpuResourceLoader().AddFunctionToCall(takeSnapshot);
 }
 
-void Console::ReloadShaders(const Params &)
+void Console::ReloadShaders(const Params&)
 {
     scene_.renderersManager_->ReloadShaders();
 }
 
-void Console::SwapRenderMode(const Params &)
+void Console::SwapRenderMode(const Params&)
 {
     scene_.renderersManager_->SwapLineFaceRender();
 }
 
-void Console::EnableEditorNetworkInterface(const Params &params)
-{
-    // need to close console for key subscribtions are stashed when console is running
-    // subscribe and unsubsribe
-
-    CloseConsole();
-
-    if (params.empty() or params[0] == "on" or params[0] == "true")
-    {
-        scene_.RunNetworkEditorInterface();
-    }
-    else
-    {
-        scene_.StopNetworkEditorInterface();
-    }
-}
-
-void Console::SetPhysicsVisualization(const Params &params)
+void Console::SetPhysicsVisualization(const Params& params)
 {
     auto state = DebugRenderer::RenderState::Physics;
     bool set   = not scene_.renderersManager_->GetDebugRenderer().IsStateEnabled(state);
@@ -509,7 +491,7 @@ void Console::SetPhysicsVisualization(const Params &params)
         set = (params[0] == "on" or params[0] == "true");
     }
 
-    auto &debugRenderer = scene_.renderersManager_->GetDebugRenderer();
+    auto& debugRenderer = scene_.renderersManager_->GetDebugRenderer();
     set ? debugRenderer.AddState(state) : debugRenderer.RemoveState(state);
 
     if (params.size() <= 1)
@@ -542,7 +524,7 @@ void Console::SetPhysicsVisualization(const Params &params)
     }
 }
 
-void Console::SetTimeMulitplayer(const Params &params)
+void Console::SetTimeMulitplayer(const Params& params)
 {
     if (params.empty())
     {
@@ -561,22 +543,22 @@ void Console::SetTimeMulitplayer(const Params &params)
     }
 }
 
-void Console::Help(const Params &)
+void Console::Help(const Params&)
 {
     LOG_DEBUG << "All commands : ";
 
-    for (const auto &command : commandsActions_)
+    for (const auto& command : commandsActions_)
     {
         LOG_DEBUG << command.first;
     }
 }
 
-void Console::Exit(const Params &)
+void Console::Exit(const Params&)
 {
     scene_.getEngineContext()->AddEngineEvent(EngineEvent{QuitEvent::ASK_QUIT});
 }
 
-Console::Params Console::GetParams(const std::string &command) const
+Console::Params Console::GetParams(const std::string& command) const
 {
     auto result = Utils::SplitString(command, ' ');
     if (result.size() > 1)
@@ -690,7 +672,7 @@ void Console::SubscribeKeys()
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, closeConsole);
 }  // namespace Debug
 
-GameObject *Console::GetGameObject(const std::string &name)
+GameObject* Console::GetGameObject(const std::string& name)
 {
     auto result = scene_.GetGameObject(name);
     if (not result)
@@ -703,7 +685,7 @@ GameObject *Console::GetGameObject(const std::string &name)
 
 void Console::PrepareConsoleWindow()
 {
-    auto &layer = scene_.GetGuiManager().createLayer(CONSOLE_LAYER_NAME);
+    auto& layer = scene_.GetGuiManager().createLayer(CONSOLE_LAYER_NAME);
 
     auto window = scene_.guiElementFactory_->createWindow(GUI::WindowStyle::BACKGROUND_ONLY);
     window->setTransform(GUI::Transform{.position = vec2(0.5, 0.75), .scale = vec2(1, 0.5f), .zValue = WINDOW_Z_POSITION});
@@ -738,7 +720,7 @@ void Console::PrepareConsoleWindow()
                                                          });
                                                  });
 }
-void Console::DebugRender(const Params &params)
+void Console::DebugRender(const Params& params)
 {
     if (params.empty())
     {
@@ -747,7 +729,7 @@ void Console::DebugRender(const Params &params)
 
     try
     {
-        auto &debugRenderer = scene_.renderersManager_->GetDebugRenderer();
+        auto& debugRenderer = scene_.renderersManager_->GetDebugRenderer();
         debugRenderer.AddTextureToRender(std::stoi(params[0]));
     }
     catch (...)
@@ -755,7 +737,7 @@ void Console::DebugRender(const Params &params)
         LOG_ERROR << "DebugRender error";
     }
 }
-void Console::Select(const Params &args)
+void Console::Select(const Params& args)
 {
     if (args.empty())
     {
@@ -766,11 +748,11 @@ void Console::Select(const Params &args)
     auto gameObject = GetGameObject(args[0]);
     if (gameObject)
     {
-        auto &debugRenderer = scene_.renderersManager_->GetDebugRenderer();
+        auto& debugRenderer = scene_.renderersManager_->GetDebugRenderer();
         debugRenderer.ViewSelection(*gameObject);
     }
 }
-void Console::MoveTo(const Params &args)
+void Console::MoveTo(const Params& args)
 {
     if (args.size() < 2)
     {
@@ -813,7 +795,7 @@ void Console::MoveTo(const Params &args)
         }
     }
 }
-void Console::ShowNawMesh(const Params &args)
+void Console::ShowNawMesh(const Params& args)
 {
     bool show{true};
     if (not args.empty())

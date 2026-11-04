@@ -121,7 +121,7 @@ void RayTracerEngine::render(const vec2ui& size, float, const File& outputFile)
 
 void RayTracerEngine::multiThreadsRun(uint32 threadsCount)
 {
-    auto startTime = std::chrono::high_resolution_clock::now();
+    auto startTime = std::chrono::steady_clock::now();
 
     std::vector<std::thread> threads;
 
@@ -139,7 +139,7 @@ void RayTracerEngine::multiThreadsRun(uint32 threadsCount)
 
     std::cout << std::endl;
 
-    auto endTime                                              = std::chrono::high_resolution_clock::now();
+    auto endTime                                              = std::chrono::steady_clock::now();
     std::chrono::duration<double, std::ratio<1, 1>> durration = endTime - startTime;
 
     std::cout << "Time : " << durration.count() << "s." << std::endl;

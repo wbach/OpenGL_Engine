@@ -1,3 +1,0 @@
-uint32 id
-uint32 parentId
-std::string name

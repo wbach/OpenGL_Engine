@@ -23,7 +23,7 @@ class CharacterInfo
         , classId_(classId)
     {
         memset(name_, 0, Network::arraySize);
-        Network::CopyToArray(name_, name);
+        //Network::CopyToArray(name_, name);
     }
 
     std::string GetName() const

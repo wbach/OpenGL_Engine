@@ -16,7 +16,7 @@ CharacterController::CharacterController(common::Transform& transform, float run
     , isGrounded(false)
     , upwardsSpeed(0.f)
 {
-    referenceTime = std::chrono::high_resolution_clock::now();
+    referenceTime = std::chrono::steady_clock::now();
 }
 
 void CharacterController::SetPosition(const glm::vec3& p)
@@ -105,7 +105,7 @@ common::Transform& CharacterController::GetTransform()
 
 float CharacterController::GetTime() const
 {
-    auto currnet = std::chrono::high_resolution_clock::now() - referenceTime;
+    auto currnet = std::chrono::steady_clock::now() - referenceTime;
     return DurationToFloatMs(currnet) / 1000.0f;
 }
 

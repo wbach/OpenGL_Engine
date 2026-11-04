@@ -52,15 +52,13 @@ static constexpr IdType INVALID_ID = std::numeric_limits<IdType>::max();
 #define ZERO_MEM(a) memset(a, 0, sizeof(a))
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
 
-// ==================== Czas ====================
-#if defined(USE_GNU) || defined(USE_MINGW)
-typedef std::chrono::_V2::system_clock::time_point Timepoint;
-#else
+#ifdef _MSC_VER
 #define not !
 #define and &&
 #define or ||
-typedef std::chrono::time_point<std::chrono::steady_clock> Timepoint;
 #endif
+
+typedef std::chrono::time_point<std::chrono::steady_clock> Timepoint;
 
 // ==================== Utils ====================
 bool compare(float, float);

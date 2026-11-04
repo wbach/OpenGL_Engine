@@ -1,12 +1,12 @@
 if(BUILD_UTILS)
     include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/UtilsSources.cmake)
 
-    if(MSVC)
-       add_library(UtilsLib STATIC ${UtilsSources})
+    if(MSVC OR EMSCRIPTEN)
+        add_library(UtilsLib STATIC ${UtilsSources})
     else()
-            add_library(UtilsLib SHARED ${UtilsSources})
+        add_library(UtilsLib SHARED ${UtilsSources})
     endif()
-    
+
     target_compile_definitions(UtilsLib PRIVATE ENGINE_EXPORTS)
 
     set_target_properties(UtilsLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
@@ -20,10 +20,11 @@ if(BUILD_UTILS)
     )
 
 
-    if(MSVC)
+    if(MSVC OR EMSCRIPTEN)
         target_link_libraries(UtilsLib
             PUBLIC
                 ${LINK_LIBS}
+                FreeImageLib
         )
     else()
         target_link_libraries(UtilsLib

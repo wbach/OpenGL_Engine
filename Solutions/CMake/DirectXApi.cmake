@@ -3,15 +3,15 @@ if(WIN32 AND (BUILD_GAME_ENGINE OR BUILD_GAME))
     # --- Źródła ---
     include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/DirectXApiSources.cmake)
 
-    # --- Biblioteka DirectXApi --- 
-    if(MSVC)
+    # --- Biblioteka DirectXApi ---
+    if(MSVC OR EMSCRIPTEN)
         add_library(DirectXApiLib STATIC ${DirectXApiSources})
     else()
         add_library(DirectXApiLib SHARED ${DirectXApiSources})
     endif()
 
     set_target_properties(DirectXApiLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
-    
+
     target_compile_definitions(DirectXApiLib PRIVATE ENGINE_EXPORTS)
 
     # Flagi kompilacji

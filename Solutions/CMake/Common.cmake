@@ -4,7 +4,7 @@ if(BUILD_COMMON)
     include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/CommonSources.cmake)
 
     # --- Biblioteka Common ---
-    if(MSVC)
+    if(MSVC OR EMSCRIPTEN)
         add_library(CommonLib STATIC ${CommonSources})
     else()
         add_library(CommonLib SHARED ${CommonSources})
@@ -13,7 +13,7 @@ if(BUILD_COMMON)
     set_target_properties(CommonLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
     target_compile_definitions(CommonLib PRIVATE ENGINE_EXPORTS)
-    
+
 
     # Flagi kompilacji (tylko dla tego targetu)
     target_compile_options(CommonLib PRIVATE ${ENGINE_COMPILE_FLAGS})
@@ -27,7 +27,6 @@ if(BUILD_COMMON)
     # Linkowanie (jeśli potrzebne)
     target_link_libraries(CommonLib
         PRIVATE
-        UtilsNetworkLib
         UtilsLib
     )
     if(WIN32)

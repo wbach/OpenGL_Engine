@@ -40,7 +40,6 @@ if(BUILD_GAME)
             VulkanApiLib
             GraphicsApiLib
             InputLib
-            UtilsNetworkLib
             CommonLib
             UtilsLib
             ${BULLET_LIBS}

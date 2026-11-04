@@ -1,0 +1,6 @@
+set(WebGpuApiIncludes
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WebGpuApi/DefaultFrameBuffer.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WebGpuApi/InputWebGpu.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WebGpuApi/WebGpuApi.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WebGpuApi/WebGpuWindowApi.h
+)

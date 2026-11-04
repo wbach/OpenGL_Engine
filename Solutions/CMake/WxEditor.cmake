@@ -43,7 +43,6 @@ if(BUILD_WX_EDITOR)
             $<$<PLATFORM_ID:Windows>:DirectXApiLib>
             GraphicsApiLib
             InputLib
-            UtilsNetworkLib
             CommonLib
             UtilsLib
             wx::base

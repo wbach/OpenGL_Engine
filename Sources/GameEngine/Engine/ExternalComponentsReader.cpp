@@ -16,8 +16,9 @@
 
 #ifdef USE_GNU
 #include <dlfcn.h>
-#else
-#define WIN32_LEAN_AND_MEAN
+#endif
+
+#if defined(_WIN32) || defined(_WIN64)
 #include <Utils/Windows.hpp>
 #endif
 
@@ -32,27 +33,7 @@ typedef const char* (*registerReadFunction)(RegisterComponentWrapper&);
 
 namespace
 {
-#ifdef USE_GNU
-using LibHandle = void*;
-inline LibHandle LoadLib(const std::string& file)
-{
-    return dlopen(file.c_str(), RTLD_NOW | RTLD_LOCAL);
-}
-inline void UnloadLib(LibHandle lib)
-{
-    if (lib)
-        dlclose(lib);
-}
-inline void* GetSymbol(LibHandle lib, const char* name)
-{
-    return dlsym(lib, name);
-}
-inline std::string LastLibError()
-{
-    const char* err = dlerror();
-    return err ? std::string(err) : std::string();
-}
-#else
+#if defined(_WIN32) || defined(_WIN64)
 using LibHandle = HMODULE;
 inline LibHandle LoadLib(const std::filesystem::path& file)
 {
@@ -80,6 +61,48 @@ inline std::string LastLibError()
     std::string msg(buf, size);
     LocalFree(buf);
     return msg;
+}
+#elif (__EMSCRIPTEN__)
+using LibHandle = void*;
+
+inline LibHandle LoadLib(const std::string&)
+{
+    return nullptr;
+}
+
+inline void UnloadLib(LibHandle)
+{
+}
+
+inline void* GetSymbol(LibHandle, const char*)
+{
+    return nullptr;
+}
+
+inline std::string LastLibError()
+{
+    return "Dynamic library loading is not supported on WebAssembly.";
+}
+
+#else
+using LibHandle = void*;
+inline LibHandle LoadLib(const std::string& file)
+{
+    return dlopen(file.c_str(), RTLD_NOW | RTLD_LOCAL);
+}
+inline void UnloadLib(LibHandle lib)
+{
+    if (lib)
+        dlclose(lib);
+}
+inline void* GetSymbol(LibHandle lib, const char* name)
+{
+    return dlsym(lib, name);
+}
+inline std::string LastLibError()
+{
+    const char* err = dlerror();
+    return err ? std::string(err) : std::string();
 }
 #endif
 

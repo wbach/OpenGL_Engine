@@ -4,7 +4,6 @@
 #include <GameEngine/Camera/CameraManager.h>
 #include <GameEngine/Components/Camera/CameraComponent.h>
 #include <GameEngine/Components/Lights/DirectionalLightComponent.h>
-#include <GameEngine/DebugTools/EditorInterface/CameraEditor.h>
 #include <GameEngine/DebugTools/MousePicker/DragObject.h>
 #include <GameEngine/DebugTools/MousePicker/MousePicker.h>
 #include <GameEngine/Objects/GameObject.h>
@@ -698,7 +697,7 @@ void GLCanvas::SetupCamera()
     auto& cameraManager = scene.GetCameraManager();
     cameraManager.LockAll();
 
-    auto cameraEditor = std::make_unique<GameEngine::CameraEditor>(*scene.getInputManager(), *scene.getDisplayManager());
+    auto cameraEditor = std::make_unique<CameraEditor>(*scene.getInputManager(), *scene.getDisplayManager());
 
     cameraEditorPtr = cameraEditor.get();
     cameraEditor->SetPosition(cameraPositionStartup);
@@ -743,11 +742,10 @@ void GLCanvas::SetCameraStartupPosition(const vec3& position, const vec3& lookAt
     cameraPositionStartup = position;
     cameraLookAtStartup   = lookAt;
 }
-GameEngine::CameraEditor* GLCanvas::GetCameraEditor()
+CameraEditor* GLCanvas::GetCameraEditor()
 {
     return cameraEditorPtr;
 }
-
 bool GLCanvas::IsSceneReady() const
 {
     return cameraEditorPtr != nullptr;

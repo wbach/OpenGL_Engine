@@ -11,10 +11,8 @@
 #include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 
-#ifndef USE_GNU
-//#ifndef USE_MINGW
+#if defined(_WIN32) || defined(_WIN64)
 #include <Utils/UndifineWindows.h>
-//#endif
 #endif
 
 namespace GameEngine

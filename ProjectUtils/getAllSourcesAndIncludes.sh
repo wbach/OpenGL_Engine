@@ -23,6 +23,7 @@ createSrc SdlApi
 createSrc DirectXApi
 createSrc OpenGLApi
 createSrc VulkanApi
+createSrc WebGpuApi
 createSrc GameEngine
 createSrc WxEditor
 createSrc Game

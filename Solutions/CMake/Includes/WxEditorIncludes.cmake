@@ -5,6 +5,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/AnimationView
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/AnimationViwerIcon.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/SkeletonPreviewDialog.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/App.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/CameraEditor.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/Clipboard.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/Commands/AddObjectCommand.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/Commands/ChangeParrentCommand.h

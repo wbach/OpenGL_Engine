@@ -8,14 +8,14 @@ class CClock
 public:
     CClock(Delta timeInterval)
         : timeInterval(timeInterval)
-        , currentTime(std::chrono::high_resolution_clock::now())
-        , prevTime(std::chrono::high_resolution_clock::now())
+        , currentTime(std::chrono::steady_clock::now())
+        , prevTime(std::chrono::steady_clock::now())
     {
     }
 
     bool OnTick()
     {
-        currentTime = std::chrono::high_resolution_clock::now();
+        currentTime = std::chrono::steady_clock::now();
 
         auto delta = currentTime - prevTime;
 

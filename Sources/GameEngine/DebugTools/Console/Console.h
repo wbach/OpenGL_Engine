@@ -72,7 +72,6 @@ private:
     void TakeSnapshot(const Params&);
     void ReloadShaders(const Params&);
     void SwapRenderMode(const Params&);
-    void EnableEditorNetworkInterface(const Params&);
     void SetPhysicsVisualization(const Params&);
     void SetTimeMulitplayer(const Params&);
     void DebugRender(const Params&);

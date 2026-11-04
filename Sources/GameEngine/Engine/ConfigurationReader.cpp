@@ -15,7 +15,9 @@
 #ifdef USE_GNU
 #include <pwd.h>
 #include <unistd.h>
-#else
+#endif
+
+#if defined(_MSC_VER)
 #include <Utils/Windows.hpp>
 #endif
 
@@ -34,22 +36,37 @@
 #include "EngineDef.h"
 #include "GameEngine/Engine/ConfigurationParams/DebugParams/LineMeshVisualizatorParams.h"
 
+#if defined(_WIN32) || defined(_WIN64)
+#include <combaseapi.h>
+#include <knownfolders.h>
+#include <shlobj.h>
+#include <windows.h>
+#endif
+
 namespace GameEngine
 {
 std::filesystem::path getGlobalConfigDirPath()
 {
-#ifdef USE_GNU
-    struct passwd* pw = getpwuid(getuid());
-    return std::filesystem::path(pw->pw_dir) / ".config" / "bengine";
-#else
-    wchar_t myDocumentsPath[1024];
-    HRESULT hr = SHGetFolderPathW(0, CSIDL_MYDOCUMENTS, 0, 0, myDocumentsPath);
+#if defined(_WIN32) || defined(_WIN64)
+    PWSTR pszPath = NULL;
+    HRESULT hr    = SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &pszPath);
     if (SUCCEEDED(hr))
     {
         char str[1024];
-        wcstombs(str, myDocumentsPath, 1023);
+        // Konwersja z formatu wchar_t* (pszPath) na char* (str)
+        wcstombs(str, pszPath, 1023);
+
+        // WAŻNE: Zwalniamy pamięć alokowaną przez system zanim wyjdziemy z funkcji
+        CoTaskMemFree(pszPath);
+
         return std::filesystem::path(str) / "bengine";
     }
+#elif defined(__EMSCRIPTEN__)
+    return std::filesystem::path("/bengine");
+#else
+    struct passwd* pw = getpwuid(getuid());
+    if (pw && pw->pw_dir)
+        return std::filesystem::path(pw->pw_dir) / ".config" / "bengine";
 #endif
     return "";
 }

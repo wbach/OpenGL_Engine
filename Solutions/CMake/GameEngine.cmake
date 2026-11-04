@@ -28,9 +28,11 @@ if(BUILD_GAME_ENGINE)
 
     if(MSVC)
 
-    else()
+    elseif(NOT EMSCRIPTEN)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=maybe-uninitialized")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-class-memaccess")
+    elseif (EMSCRIPTEN)
+        add_compile_options(-Wno-error=nontrivial-memcall)
     endif()
 
     set(BULLET_DLL_DIR "${CMAKE_CURRENT_BINARY_DIR}/lib")
@@ -59,11 +61,12 @@ if(BUILD_GAME_ENGINE)
         ${CMAKE_CURRENT_BINARY_DIR}/assimp
     )
 
+
     get_target_property(_deps assimp::assimp INTERFACE_LINK_LIBRARIES)
     message(STATUS "assimp deps: ${_deps}")
 
     include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/GameEngineSources.cmake)
-    if(MSVC)
+    if(MSVC OR EMSCRIPTEN)
         add_library(GameEngineLib STATIC ${GameEngineSources})
     else()
         add_library(GameEngineLib SHARED ${GameEngineSources})
@@ -88,19 +91,35 @@ if(BUILD_GAME_ENGINE)
         PUBLIC
             assimp::assimp
             ${BULLET_LIBS}
-            OpenGLApiLib
-            $<$<PLATFORM_ID:Windows>:DirectXApiLib>
-            VulkanApiLib
             GraphicsApiLib
             InputLib
-            UtilsNetworkLib
+            #UtilsNetworkLib
             CommonLib
             UtilsLib
             ${LINK_LIBS}
     )
 
+    if(NOT EMSCRIPTEN)
+        include_directories(
+            ../../Sources/OpenGLApi
+            ../../Sources/GraphicsApi
+        )
+
+        target_link_libraries(GameEngineLib
+            PUBLIC
+                OpenGLApiLib
+                VulkanApiLib
+        )
+    endif()
+
+    if(EMSCRIPTEN)
+        target_link_libraries(GameEngineLib PUBLIC FreeImageLib SDL2_ttfLib)
+    endif()
+
     if(WIN32)
         target_link_libraries(GameEngineLib
+            PUBLIC
+                DirectXApiLib
             PRIVATE
                 dbghelp
         )

@@ -14,7 +14,7 @@
 // clang-format on
 
 #include <GameEngine/Camera/ICamera.h>
-#include <GameEngine/DebugTools/EditorInterface/CameraEditor.h>
+#include "../CameraEditor.h"
 
 #include <memory>
 #include <string>
@@ -61,7 +61,7 @@ public:
     void EnablePicker();
     vec3 GetWorldPosFromCamera();
     void SetCameraStartupPosition(const vec3&, const vec3&);
-    GameEngine::CameraEditor* GetCameraEditor();
+    CameraEditor* GetCameraEditor();
     bool IsSceneReady() const;
     void OnIdle(wxIdleEvent&);
 
@@ -102,7 +102,7 @@ private:
 
     const std::string startupSceneName;
     SceneTreeCtrl* sceneTreeCtrl;
-    GameEngine::CameraEditor* cameraEditorPtr{nullptr};
+    CameraEditor* cameraEditorPtr{nullptr};
     OnStartupDone onStartupDone;
     WxEditor::WxWindowApi* wxWindowApi{nullptr};
     WxEditor::WxEditorSceneFactory* wxSceneFactory{nullptr};

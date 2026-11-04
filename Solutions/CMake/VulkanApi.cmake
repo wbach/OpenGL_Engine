@@ -2,7 +2,7 @@ if(BUILD_GAME_ENGINE OR BUILD_GAME)
 
     include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/VulkanApiSources.cmake)
 
-    if(MSVC)
+    if(MSVC OR EMSCRIPTEN)
         add_library(VulkanApiLib STATIC ${VulkanApiSources})
     else()
         add_library(VulkanApiLib SHARED ${VulkanApiSources})

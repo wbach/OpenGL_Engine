@@ -3,7 +3,7 @@ if(BUILD_GAME_ENGINE OR BUILD_GAME)
     # --- Źródła ---
     include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/OpenGLApiSources.cmake)
 
-    # --- Biblioteka OpenGLApi --- 
+    # --- Biblioteka OpenGLApi ---
     if(MSVC)
         add_library(OpenGLApiLib STATIC ${OpenGLApiSources})
     else()
@@ -11,7 +11,7 @@ if(BUILD_GAME_ENGINE OR BUILD_GAME)
     endif()
 
     set_target_properties(OpenGLApiLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
-    
+
     target_compile_definitions(OpenGLApiLib PRIVATE ENGINE_EXPORTS)
 
     # Flagi kompilacji (tylko dla tego targetu)

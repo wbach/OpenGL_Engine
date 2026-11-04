@@ -1,7 +1,7 @@
 #pragma once
 #include <Rotation.h>
 #include <Types.h>
-
+#include <ostream>
 #include <vector>
 
 namespace GameEngine

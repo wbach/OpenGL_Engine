@@ -103,13 +103,13 @@ void RenderAble::onSkipRender()
     {
         if (not releaseTimerStart_)
         {
-            releaseTimerStart_ = std::chrono::high_resolution_clock::now();
+            releaseTimerStart_ = std::chrono::steady_clock::now();
             return;
         }
 
         if (releaseTimerStart_)
         {
-            auto now = std::chrono::high_resolution_clock::now();
+            auto now = std::chrono::steady_clock::now();
             if (std::chrono::duration_cast<std::chrono::milliseconds>(now - *releaseTimerStart_).count() > inactivityReleaseTime)
             {
                 LOG_DEBUG << "Gui texture [GPU id: " << texture_->GetGpuObjectId() << "] inactivity timeout. Release texture";

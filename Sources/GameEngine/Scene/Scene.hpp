@@ -14,7 +14,6 @@
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentFactory.h"
 #include "GameEngine/DebugTools/Console/Console.h"
-#include "GameEngine/DebugTools/EditorInterface/NetworkEditorInterface.h"
 #include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -109,9 +108,6 @@ public:
     inline const Time& GetTime() const;
     inline IResourceManager& GetResourceManager();
 
-    void RunNetworkEditorInterface();
-    void StopNetworkEditorInterface();
-
     std::optional<Physics::RayHit> getHeightPositionInWorld(float, float) const;
 
     void SendEvent(SceneEvent&&);
@@ -203,10 +199,8 @@ private:
     std::unordered_map<IdType, std::function<void(const SceneNotifEvent&)>> eventSubscribers;
 
     std::atomic_bool start_;
-    std::unique_ptr<NetworkEditorInterface> networkEditorInterface_;
     std::unique_ptr<Debug::Console> console_;
 
-    friend class NetworkEditorInterface;
     friend class Debug::Console;
 };
 

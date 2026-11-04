@@ -17,7 +17,7 @@ public:
         : IMessage(MessageTypes::CreateCharacterReq, Network::MessageTarget::Dedicated)
     {
         memset(characterName_, 0, Network::arraySize);
-        Network::CopyToArray(characterName_, name);
+        //Network::CopyToArray(characterName_, name);
     }
     virtual std::string ToString() const override
     {

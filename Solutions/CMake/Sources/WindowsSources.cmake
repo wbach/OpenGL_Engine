@@ -1,11 +1,7 @@
+if(WIN32)
+
 include_directories(
-    ../../Sources/
-    ../../Sources/Utils
-    ../../Sources/OpenGLApi
-    ../../Sources/GraphicsApi
     ../../Tools/Windows
-    ../../Tools/common/glm
-    ../../Tools/common/rapidxml-1.13
     ../../Tools/Windows/SDL2-2.0.12/include
     ../../Tools/Windows/SDL2-2.0.12/include/SDL2
     ../../Tools/Windows/SDL2_net-2.0.1/include
@@ -42,7 +38,7 @@ set(BASE_LINK_LIBS
 
 if(MSVC)
     message(STATUS "MSVC : ON")
-    
+
     link_directories(
         ../../Tools/Windows/fbx_sdk/lib/vs2017/x64/release
         ../../Tools/Windows/GLFW3/lib-vc2015
@@ -52,13 +48,13 @@ if(MSVC)
 
 elseif(MINGW)
     message(STATUS "MINGW : ON")
-    
+
     link_directories(
         ../../Tools/Windows/GLFW3/lib-vc2015
     )
 
-    add_definitions(-DUSE_MINGW)
-
     set(LINK_LIBS ${BASE_LINK_LIBS} pthread)
+
+endif()
 
 endif()
