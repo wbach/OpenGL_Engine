@@ -1,13 +1,17 @@
 #ifdef __EMSCRIPTEN__
+
 #include <Logger/Log.h>
 #include <Utils/Json/JsonReader.h>
 #include <Utils/Json/JsonWriter.h>
 #include <emscripten.h>
 
 #include <cstdio>
+#include <exception>
 #include <filesystem>
 #include <iostream>
+#include <memory>
 #include <string>
+#include <utility>
 
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/Engine.h"
@@ -16,6 +20,7 @@
 #include "GameEngine/Scene/SceneFactoryBase.h"
 #include "GameEngine/Scene/SceneUtils.h"
 #include "TreeNode.h"
+#include "WebGpuApi/WebGpuApi.h"
 
 using namespace GameEngine;
 using namespace GameEngine::Physics;
@@ -26,107 +31,75 @@ const std::string CSTR_ROOT_NODE{"projectConfiguration"};
 const std::string CSTR_STARTUP_SCENE_NODE{"startupScene"};
 const std::string CSTR_SCENES_NODE{"scenes"};
 
+// Silnik musi istnieć przez cały czas działania aplikacji.
 std::unique_ptr<Engine> engine;
 
-void EngineMainLoop(void* arg)
-{
-    auto* gameEngine = static_cast<Engine*>(arg);
+// Obiekty oczekujące na zakończenie inicjalizacji WebGPU.
+std::unique_ptr<SceneFactoryBase> pendingSceneFactory;
 
-    if (gameEngine)
+std::unique_ptr<GraphicsApi::WebGpu::WebGpuApi> pendingWebGpuApi;
+
+std::string pendingStartupScene;
+
+// ---------------------------------------------------------
+// Główna pętla silnika
+// ---------------------------------------------------------
+
+void EngineMainLoop(void*)
+{
+    if (pendingWebGpuApi)
+        pendingWebGpuApi->ProcessEvents();
+
+    // Silnik nie jest jeszcze gotowy — czekamy na WebGPU.
+    if (!engine)
+        return;
+
+    engine->MainLoop();
+}
+
+// ---------------------------------------------------------
+// Callback wywoływany po przygotowaniu WebGPU
+// ---------------------------------------------------------
+
+void OnWebGpuContextReady(bool success)
+{
+    if (!success)
     {
-        gameEngine->MainLoop();
+        LOG_ERROR << "WebGPU device initialization failed";
+        return;
+    }
+
+    LOG_INFO << "WebGPU device is ready. Creating engine.";
+
+    try
+    {
+        engine = std::make_unique<Engine>(std::make_unique<Bullet::BulletAdapter>(), std::move(pendingSceneFactory),
+                                          std::move(pendingWebGpuApi));
+
+        // Inicjalizacja silnika i rendererów.
+        engine->Init();
+
+        // Ustawiamy scenę startową.
+        if (!pendingStartupScene.empty())
+        {
+            LOG_DEBUG << "Startup scene " << pendingStartupScene;
+
+            engine->GetSceneManager().SetActiveScene(pendingStartupScene);
+        }
+
+        LOG_INFO << "Engine initialization completed.";
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << "Engine initialization failed: " << e.what();
     }
 }
+
 }  // namespace
 
-// clang-format off
-EM_JS(void, start_webgpu, (), {
-    (async () => {
-        try {
-            const canvas = document.querySelector("canvas");
-            const adapter = await navigator.gpu.requestAdapter();
-
-            if (!adapter) {
-                throw new Error("Nie znaleziono adaptera GPU");
-            }
-
-            const device = await adapter.requestDevice();
-            const context = canvas.getContext("webgpu");
-            const format = navigator.gpu.getPreferredCanvasFormat();
-
-            context.configure({
-                device: device,
-                format: format,
-                alphaMode: "opaque"
-            });
-
-            const gpuShader = device.createShaderModule({
-                code: `
-                    @vertex
-                    fn vs(@builtin(vertex_index) i: u32)
-                        -> @builtin(position) vec4f {
-                        var positions = array<vec2f, 3>(
-                            vec2f( 0.0,  0.7),
-                            vec2f(-0.7, -0.7),
-                            vec2f( 0.7, -0.7)
-                        );
-
-                        return vec4f(positions[i], 0.0, 1.0);
-                    }
-
-                    @fragment
-                    fn fs() -> @location(0) vec4f {
-                        return vec4f(1.0, 0.2, 0.1, 1.0);
-                    }
-                `
-            });
-
-            const pipeline = device.createRenderPipeline({
-                layout: "auto",
-                vertex: {
-                    ["module"]: gpuShader,
-                    entryPoint: "vs"
-                },
-                fragment: {
-                    ["module"]: gpuShader,
-                    entryPoint: "fs",
-                    targets: [{ format: format }]
-                },
-                primitive: {
-                    topology: "triangle-list"
-                }
-            });
-
-            function render() {
-                const texture = context.getCurrentTexture();
-                const encoder = device.createCommandEncoder();
-
-                const pass = encoder.beginRenderPass({
-                    colorAttachments: [{
-                        view: texture.createView(),
-                        clearValue: { r: 0.05, g: 0.05, b: 0.08, a: 1 },
-                        loadOp: "clear",
-                        storeOp: "store"
-                    }]
-                });
-
-                pass.setPipeline(pipeline);
-                pass.draw(3);
-                pass.end();
-
-                device.queue.submit([encoder.finish()]);
-                requestAnimationFrame(render);
-            }
-
-            console.log("WebGPU: uruchamiam trójkąt!");
-            render();
-        } catch (error) {
-            console.error("Błąd WebGPU:", error);
-        }
-    })();
-});
-// clang-format off
-
+// ---------------------------------------------------------
+// Main
+// ---------------------------------------------------------
 
 int main(int argc, char* argv[])
 {
@@ -134,6 +107,10 @@ int main(int argc, char* argv[])
 
     CLogger::Instance().EnableLogs();
     CLogger::Instance().UseAsyncLogging(false);
+
+    // -----------------------------------------------------
+    // Wczytanie konfiguracji
+    // -----------------------------------------------------
 
     Utils::JsonReader jsonReader;
 
@@ -156,11 +133,14 @@ int main(int argc, char* argv[])
 
     if (!scenesNode)
     {
-        LOG_ERROR << CSTR_SCENES_NODE
-                    << " not found in project config file";
+        LOG_ERROR << CSTR_SCENES_NODE << " not found in project config file";
 
         return 1;
     }
+
+    // -----------------------------------------------------
+    // Przygotowanie SceneFactory
+    // -----------------------------------------------------
 
     auto sceneFactory = std::make_unique<SceneFactoryBase>();
 
@@ -169,15 +149,9 @@ int main(int argc, char* argv[])
         if (!sceneNode)
             continue;
 
-        LOG_DEBUG << "Add scene "
-                    << sceneNode->name()
-                    << ", "
-                    << sceneNode->value_;
+        LOG_DEBUG << "Add scene " << sceneNode->name() << ", " << sceneNode->value_;
 
-        sceneFactory->AddScene(
-            sceneNode->name(),
-            GameEngine::File{sceneNode->value_}
-        );
+        sceneFactory->AddScene(sceneNode->name(), GameEngine::File{sceneNode->value_});
     }
 
     if (sceneFactory->ScenesSize() < 1)
@@ -186,38 +160,44 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    engine = std::make_unique<Engine>(
-        std::make_unique<Bullet::BulletAdapter>(),
-        std::move(sceneFactory)
-    );
+    // -----------------------------------------------------
+    // Odczyt sceny startowej
+    // -----------------------------------------------------
 
-    engine->Init();
-
-    auto startupScene = jsonReader.Get(
-        CSTR_STARTUP_SCENE_NODE
-    );
+    auto startupScene = jsonReader.Get(CSTR_STARTUP_SCENE_NODE);
 
     if (startupScene)
     {
-        LOG_DEBUG << "Startup scene " << startupScene->value_;
-
-        engine->GetSceneManager().SetActiveScene(
-            startupScene->value_
-        );
+        pendingStartupScene = startupScene->value_;
     }
 
-    // Tymczasowy test WebGPU.
-    start_webgpu();
+    // -----------------------------------------------------
+    // Przygotowanie obiektów oczekujących na WebGPU
+    // -----------------------------------------------------
 
-    // Docelowa pętla silnika:
-    emscripten_set_main_loop_arg(
-        EngineMainLoop,
-        engine.get(),
-        0,
-        0
-    );
+    pendingSceneFactory = std::move(sceneFactory);
+
+    pendingWebGpuApi = std::make_unique<GraphicsApi::WebGpu::WebGpuApi>();
+
+    // -----------------------------------------------------
+    // Rozpoczęcie inicjalizacji WebGPU
+    // -----------------------------------------------------
+
+    LOG_INFO << "Starting WebGPU initialization.";
+
+    pendingWebGpuApi->CreateContextAsync(OnWebGpuContextReady);
+
+    // -----------------------------------------------------
+    // Uruchomienie pętli Emscripten
+    // -----------------------------------------------------
+
+    // Pętla może działać już teraz.
+    // EngineMainLoop() nie wywoła MainLoop(), dopóki engine
+    // nie zostanie utworzony w OnWebGpuContextReady().
+
+    emscripten_set_main_loop_arg(EngineMainLoop, nullptr, 0, 0);
 
     return 0;
-
 }
+
 #endif

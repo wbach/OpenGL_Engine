@@ -1,16 +1,23 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 
 #include "GraphicsApi/IGraphicsApi.h"
 
 namespace GraphicsApi::WebGpu
 {
+using ContextReadyCallback = std::function<void(bool)>;
+
 class WebGpuApi : public IGraphicsApi
 {
 public:
     WebGpuApi();
     ~WebGpuApi();
+
+    void CreateContextAsync(ContextReadyCallback);
+    void ProcessEvents();
+
     IWindowApi& GetWindowApi() override;
 
     void Init() override;
@@ -140,6 +147,8 @@ public:
     void DeleteFrameBuffer(IFrameBuffer&) override;
 
 private:
-    std::unique_ptr<IWindowApi> windowApi;
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
+    Color bgColor{0};
 };
 }  // namespace GraphicsApi::WebGpu

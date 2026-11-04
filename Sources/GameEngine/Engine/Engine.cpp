@@ -21,9 +21,7 @@
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 
-#ifdef __EMSCRIPTEN__
-#include "WebGpuApi/WebGpuApi.h"
-#else
+#ifndef __EMSCRIPTEN__
 #include <OpenGLApi/OpenGLApi.h>
 #include <VulkanApi/VulkanApi.h>
 #endif
@@ -144,9 +142,8 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi(std::unique_ptr<Gra
 
     std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi;
 
-#ifdef __EMSCRIPTEN__
-    graphicsApi = std::make_unique<GraphicsApi::WebGpu::WebGpuApi>();
-#else
+#ifndef __EMSCRIPTEN__
+
     if (EngineConf.renderer.graphicsApi == "OpenGL")
     {
         graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
@@ -178,8 +175,15 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi(std::unique_ptr<Gra
     }
 #endif
 
-    graphicsApi->SetShadersFilesLocations(EngineLocalConf.files.getShaderPath());
-    graphicsApi->DebugNormalMeshGeneration(EngineConf.debugParams.generateDebugNormalsMeshes);
+    if (graphicsApi)
+    {
+        graphicsApi->SetShadersFilesLocations(EngineLocalConf.files.getShaderPath());
+        graphicsApi->DebugNormalMeshGeneration(EngineConf.debugParams.generateDebugNormalsMeshes);
+    }
+    else
+    {
+        LOG_WARN << "No graphicsApi is set!";
+    }
     return graphicsApi;
 }
 }  // namespace
