@@ -817,7 +817,7 @@ void WebGpuApi::SetBackgroundColor(const Color& color)
 }
 const Color& WebGpuApi::GetBackgroundColor() const
 {
-    throw std::logic_error("Not implemented");
+    return bgColor;
 }
 void WebGpuApi::EnableDepthTest()
 {
