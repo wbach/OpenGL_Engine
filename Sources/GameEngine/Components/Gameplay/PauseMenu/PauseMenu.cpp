@@ -197,21 +197,20 @@ void PauseMenu::show()
     LOG_DEBUG << "PlayerInputController size : " << playerComponents.size();
     for (auto& playerComponent : playerComponents)
     {
-        // if (playerComponent->IsInitated())
-        {
-            playerComponentToRestore.insert(playerComponent);
-            playerComponent->CleanUp();
-        }
+        playerComponentToRestore.insert(playerComponent);
+        playerComponent->CleanUp();
     }
-    // scene_.getInputManager()->StashSubscribers();
-    scene_.getInputManager()->SetReleativeMouseMode(false);
-    scene_.getInputManager()->ShowCursor(true);
+
+    if (scene_.getInputManager())
+    {
+        scene_.getInputManager()->SetReleativeMouseMode(false);
+        scene_.getInputManager()->ShowCursor(true);
+    }
 
     auto mainCamera = scene_.GetCameraManager().GetMainCamera();
     if (mainCamera)
     {
         mainCamera->Lock();
-
         cameraRotationBeforeShow = mainCamera->GetRotation();
         cameraPositionBeforShow  = mainCamera->GetPosition();
     }
@@ -224,6 +223,7 @@ void PauseMenu::show()
     {
         hudLayer->activate(false);
     }
+
     subscribeKeys();
 }
 

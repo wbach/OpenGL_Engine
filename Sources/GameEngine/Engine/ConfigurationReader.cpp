@@ -65,23 +65,48 @@ std::filesystem::path getGlobalConfigDirPath()
     return std::filesystem::path("/bengine");
 #else
     struct passwd* pw = getpwuid(getuid());
-    if (pw && pw->pw_dir)
+    LOG_DEBUG << "Global config path: " << std::filesystem::path(pw->pw_dir) / ".config" / "bengine";
+    if (pw and pw->pw_dir)
+    {
         return std::filesystem::path(pw->pw_dir) / ".config" / "bengine";
+    }
 #endif
+    LOG_WARN << "Global config path not found, using current directory.";
     return "";
 }
 
 std::filesystem::path getConfigFile()
 {
-    std::string configFile("./Conf.xml");
-    if (std::filesystem::exists(configFile))
-        return configFile;
+    const std::string fileName = "UserConfig.xml";
+    if (std::filesystem::exists(fileName))
+        return fileName;
 
-    configFile = "./config.xml";
-    if (std::filesystem::exists(configFile))
-        return configFile;
+    for (const auto& entry : std::filesystem::directory_iterator("./"))
+    {
+        if (entry.is_regular_file())
+        {
+            std::string entryName = entry.path().filename().string();
 
-    return getGlobalConfigDirPath() / "Conf.xml";
+            if (entryName.length() == fileName.length())
+            {
+                bool match = true;
+                for (size_t i = 0; i < fileName.length(); ++i)
+                {
+                    if (std::tolower(entryName[i]) != std::tolower(fileName[i]))
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+                if (match)
+                {
+                    return entry.path();
+                }
+            }
+        }
+    }
+
+    return getGlobalConfigDirPath() / "UserConfig.xml";
 }
 
 void SetParamIfExist(Params::ConfigurationEnumParam<Params::Shadows::CascadeDistanceFunc>& param, const Attributes& attributes,

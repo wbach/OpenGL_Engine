@@ -356,7 +356,7 @@ void EntityRenderer::renderModel(const Components::RendererComponent& renderComp
         }
         else
         {
-            LOG_ERROR << "not meshBuffer";
+            LOG_ERROR << "not meshBuffer" << renderComponent.getParentGameObject().GetName() << ", meshId: " << mesh.GetGpuObjectId();
             continue;
         }
 
@@ -367,7 +367,7 @@ void EntityRenderer::renderModel(const Components::RendererComponent& renderComp
         }
         else
         {
-            LOG_ERROR << "not perMeshUpdateBuffer";
+            LOG_ERROR << "not perMeshUpdateBuffer " << renderComponent.getParentGameObject().GetName() << ", meshId: " << mesh.GetGpuObjectId();
             continue;
         }
 
@@ -378,13 +378,13 @@ void EntityRenderer::renderModel(const Components::RendererComponent& renderComp
         }
         else
         {
-            LOG_ERROR << "not perMeshConstantBuffer";
+            LOG_ERROR << "not perMeshConstantBuffer " << renderComponent.getParentGameObject().GetName() << ", meshId: " << mesh.GetGpuObjectId();
             continue;
         }
 
         if (not materialData)
         {
-            LOG_WARN << "Something goes wrong, material is empty. Model: " << model.GetFile().GetFilename();
+            LOG_WARN << "Something goes wrong, material is empty. Model: " << model.GetFile().GetFilename() << ", meshId: " << mesh.GetGpuObjectId();
             continue;
         }
 

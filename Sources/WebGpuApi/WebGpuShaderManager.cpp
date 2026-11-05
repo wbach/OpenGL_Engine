@@ -69,8 +69,7 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
       {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Default.frag.wgsl"}}},
     {GraphicsApi::ShaderProgramType::Particles,
      {{GraphicsApi::ShaderType::VERTEX_SHADER, "Default.vert.wgsl"},
-      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Default.frag.wgsl"}}}
-};
+      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Default.frag.wgsl"}}}};
 
 std::optional<GraphicsApi::ShadersFiles> GetSimpleForwardShaderFiles(GraphicsApi::ShaderProgramType shaderType)
 {
@@ -102,7 +101,7 @@ WebGpuShaderManager::~WebGpuShaderManager()
 
 void WebGpuShaderManager::SetDevice(WGPUDevice device, WGPUTextureFormat surfaceFormat)
 {
-    device_ = device;
+    device_        = device;
     surfaceFormat_ = surfaceFormat;
 }
 
@@ -138,7 +137,7 @@ ID WebGpuShaderManager::Create(GraphicsApi::ShaderProgramType shaderType)
     {
         for (const auto& [stage, fileName] : *files)
         {
-            const auto fullPath = std::filesystem::absolute(shadersFileLocation_ / fileName).lexically_normal();
+            const auto fullPath      = std::filesystem::absolute(shadersFileLocation_ / fileName).lexically_normal();
             const std::string source = Utils::ReadFilesWithIncludes(fullPath.string());
             if (source.empty())
             {
@@ -146,13 +145,15 @@ ID WebGpuShaderManager::Create(GraphicsApi::ShaderProgramType shaderType)
                 continue;
             }
 
+            LOG_DEBUG << "Shader source loaded for " << fileName << " (path: " << fullPath << ")";
+
             program.sources[stage] = source;
         }
     }
 
     if (program.sources.empty())
     {
-        program.sources[GraphicsApi::ShaderType::VERTEX_SHADER] = kDefaultVertexShader;
+        program.sources[GraphicsApi::ShaderType::VERTEX_SHADER]   = kDefaultVertexShader;
         program.sources[GraphicsApi::ShaderType::FRAGMENT_SHADER] = kDefaultFragmentShader;
     }
 
@@ -163,7 +164,7 @@ ID WebGpuShaderManager::Create(GraphicsApi::ShaderProgramType shaderType)
     }
 
     shaderPrograms_[shaderId] = program;
-    currentShader_ = shaderId;
+    currentShader_            = shaderId;
 
     LOG_DEBUG << "WebGPU shader successfully created. Id: " << shaderId;
     return shaderId;
@@ -307,14 +308,15 @@ void WebGpuShaderManager::Release()
 
 bool WebGpuShaderManager::CreatePipelineForProgram(WebGpuShaderProgram& program)
 {
-    auto findSource = [&](GraphicsApi::ShaderType shaderType) -> const std::string& {
+    auto findSource = [&](GraphicsApi::ShaderType shaderType) -> const std::string&
+    {
         const auto it = program.sources.find(shaderType);
         if (it != program.sources.end())
         {
             return it->second;
         }
 
-        static const std::string fallbackVertex = kDefaultVertexShader;
+        static const std::string fallbackVertex   = kDefaultVertexShader;
         static const std::string fallbackFragment = kDefaultFragmentShader;
         if (shaderType == GraphicsApi::ShaderType::VERTEX_SHADER)
         {
@@ -323,17 +325,17 @@ bool WebGpuShaderManager::CreatePipelineForProgram(WebGpuShaderProgram& program)
         return fallbackFragment;
     };
 
-    const std::string& vertexSource = findSource(GraphicsApi::ShaderType::VERTEX_SHADER);
+    const std::string& vertexSource   = findSource(GraphicsApi::ShaderType::VERTEX_SHADER);
     const std::string& fragmentSource = findSource(GraphicsApi::ShaderType::FRAGMENT_SHADER);
 
     WGPUShaderSourceWGSL vertexWgsl{};
     vertexWgsl.chain.sType = WGPUSType_ShaderSourceWGSL;
-    vertexWgsl.code = WGPUStringView{vertexSource.c_str(), vertexSource.size()};
+    vertexWgsl.code        = WGPUStringView{vertexSource.c_str(), vertexSource.size()};
 
     WGPUShaderModuleDescriptor vertexModuleDesc{};
-    vertexModuleDesc.label = WGPUStringView{"WebGPU Vertex Shader", WGPU_STRLEN};
+    vertexModuleDesc.label       = WGPUStringView{"WebGPU Vertex Shader", WGPU_STRLEN};
     vertexModuleDesc.nextInChain = &vertexWgsl.chain;
-    program.vertexModule = wgpuDeviceCreateShaderModule(device_, &vertexModuleDesc);
+    program.vertexModule         = wgpuDeviceCreateShaderModule(device_, &vertexModuleDesc);
     if (!program.vertexModule)
     {
         LOG_ERROR << "Could not create WebGPU vertex shader module.";
@@ -342,12 +344,12 @@ bool WebGpuShaderManager::CreatePipelineForProgram(WebGpuShaderProgram& program)
 
     WGPUShaderSourceWGSL fragmentWgsl{};
     fragmentWgsl.chain.sType = WGPUSType_ShaderSourceWGSL;
-    fragmentWgsl.code = WGPUStringView{fragmentSource.c_str(), fragmentSource.size()};
+    fragmentWgsl.code        = WGPUStringView{fragmentSource.c_str(), fragmentSource.size()};
 
     WGPUShaderModuleDescriptor fragmentModuleDesc{};
-    fragmentModuleDesc.label = WGPUStringView{"WebGPU Fragment Shader", WGPU_STRLEN};
+    fragmentModuleDesc.label       = WGPUStringView{"WebGPU Fragment Shader", WGPU_STRLEN};
     fragmentModuleDesc.nextInChain = &fragmentWgsl.chain;
-    program.fragmentModule = wgpuDeviceCreateShaderModule(device_, &fragmentModuleDesc);
+    program.fragmentModule         = wgpuDeviceCreateShaderModule(device_, &fragmentModuleDesc);
     if (!program.fragmentModule)
     {
         LOG_ERROR << "Could not create WebGPU fragment shader module.";
@@ -357,47 +359,48 @@ bool WebGpuShaderManager::CreatePipelineForProgram(WebGpuShaderProgram& program)
     }
 
     WGPUVertexAttribute positionAttribute{};
-    positionAttribute.format = WGPUVertexFormat_Float32x3;
-    positionAttribute.offset = 0;
+    positionAttribute.format         = WGPUVertexFormat_Float32x3;
+    positionAttribute.offset         = 0;
     positionAttribute.shaderLocation = 0;
 
     WGPUVertexAttribute uvAttribute{};
-    uvAttribute.format = WGPUVertexFormat_Float32x2;
-    uvAttribute.offset = sizeof(float) * 3;
+    uvAttribute.format         = WGPUVertexFormat_Float32x2;
+    uvAttribute.offset         = sizeof(float) * 3;
     uvAttribute.shaderLocation = 1;
 
     WGPUVertexAttribute normalAttribute{};
-    normalAttribute.format = WGPUVertexFormat_Float32x3;
-    normalAttribute.offset = sizeof(float) * 5;
+    normalAttribute.format         = WGPUVertexFormat_Float32x3;
+    normalAttribute.offset         = sizeof(float) * 5;
     normalAttribute.shaderLocation = 2;
 
     WGPUVertexAttribute tangentAttribute{};
-    tangentAttribute.format = WGPUVertexFormat_Float32x3;
-    tangentAttribute.offset = sizeof(float) * 8;
+    tangentAttribute.format         = WGPUVertexFormat_Float32x3;
+    tangentAttribute.offset         = sizeof(float) * 8;
     tangentAttribute.shaderLocation = 3;
 
     WGPUVertexAttribute weightAttribute{};
-    weightAttribute.format = WGPUVertexFormat_Float32x4;
-    weightAttribute.offset = sizeof(float) * 11;
+    weightAttribute.format         = WGPUVertexFormat_Float32x4;
+    weightAttribute.offset         = sizeof(float) * 11;
     weightAttribute.shaderLocation = 4;
 
     WGPUVertexAttribute boneIdAttribute{};
-    boneIdAttribute.format = WGPUVertexFormat_Sint32x4;
-    boneIdAttribute.offset = sizeof(float) * 15;
+    boneIdAttribute.format         = WGPUVertexFormat_Sint32x4;
+    boneIdAttribute.offset         = sizeof(float) * 15;
     boneIdAttribute.shaderLocation = 5;
 
-    WGPUVertexAttribute attributes[] = {positionAttribute, uvAttribute, normalAttribute, tangentAttribute, weightAttribute, boneIdAttribute};
+    WGPUVertexAttribute attributes[] = {positionAttribute, uvAttribute,     normalAttribute,
+                                        tangentAttribute,  weightAttribute, boneIdAttribute};
 
     WGPUVertexBufferLayout vertexLayout{};
-    vertexLayout.arrayStride = sizeof(float) * 19;
-    vertexLayout.stepMode = WGPUVertexStepMode_Vertex;
+    vertexLayout.arrayStride    = sizeof(float) * 19;
+    vertexLayout.stepMode       = WGPUVertexStepMode_Vertex;
     vertexLayout.attributeCount = 6;
-    vertexLayout.attributes = attributes;
+    vertexLayout.attributes     = attributes;
 
     WGPUBindGroupLayoutEntry bindEntries[16]{};
     for (uint32 i = 0; i < 16; ++i)
     {
-        bindEntries[i].binding = i;
+        bindEntries[i].binding    = i;
         bindEntries[i].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
 
         if (i == 5)
@@ -413,8 +416,8 @@ bool WebGpuShaderManager::CreatePipelineForProgram(WebGpuShaderProgram& program)
 
     WGPUBindGroupLayoutDescriptor bindLayoutDesc{};
     bindLayoutDesc.entryCount = 16;
-    bindLayoutDesc.entries = bindEntries;
-    program.bindGroupLayout = wgpuDeviceCreateBindGroupLayout(device_, &bindLayoutDesc);
+    bindLayoutDesc.entries    = bindEntries;
+    program.bindGroupLayout   = wgpuDeviceCreateBindGroupLayout(device_, &bindLayoutDesc);
     if (!program.bindGroupLayout)
     {
         LOG_ERROR << "Could not create WebGPU bind group layout for shader type: " << magic_enum::enum_name(program.type);
@@ -427,8 +430,8 @@ bool WebGpuShaderManager::CreatePipelineForProgram(WebGpuShaderProgram& program)
 
     WGPUPipelineLayoutDescriptor pipelineLayoutDesc{};
     pipelineLayoutDesc.bindGroupLayoutCount = 1;
-    pipelineLayoutDesc.bindGroupLayouts = &program.bindGroupLayout;
-    program.pipelineLayout = wgpuDeviceCreatePipelineLayout(device_, &pipelineLayoutDesc);
+    pipelineLayoutDesc.bindGroupLayouts     = &program.bindGroupLayout;
+    program.pipelineLayout                  = wgpuDeviceCreatePipelineLayout(device_, &pipelineLayoutDesc);
     if (!program.pipelineLayout)
     {
         LOG_ERROR << "Could not create WebGPU pipeline layout for shader type: " << magic_enum::enum_name(program.type);
@@ -442,30 +445,30 @@ bool WebGpuShaderManager::CreatePipelineForProgram(WebGpuShaderProgram& program)
     }
 
     WGPUColorTargetState colorTarget{};
-    colorTarget.format = surfaceFormat_;
+    colorTarget.format    = surfaceFormat_;
     colorTarget.writeMask = WGPUColorWriteMask_All;
 
     WGPUFragmentState fragmentState{};
-    fragmentState.module = program.fragmentModule;
-    fragmentState.entryPoint = WGPUStringView{"fs_main", WGPU_STRLEN};
+    fragmentState.module      = program.fragmentModule;
+    fragmentState.entryPoint  = WGPUStringView{"fs_main", WGPU_STRLEN};
     fragmentState.targetCount = 1;
-    fragmentState.targets = &colorTarget;
+    fragmentState.targets     = &colorTarget;
 
     WGPURenderPipelineDescriptor pipelineDescriptor{};
-    pipelineDescriptor.label = WGPUStringView{"WebGPU Shader Pipeline", WGPU_STRLEN};
-    pipelineDescriptor.layout = program.pipelineLayout;
-    pipelineDescriptor.vertex.module = program.vertexModule;
-    pipelineDescriptor.vertex.entryPoint = WGPUStringView{"vs_main", WGPU_STRLEN};
-    pipelineDescriptor.vertex.bufferCount = 1;
-    pipelineDescriptor.vertex.buffers = &vertexLayout;
-    pipelineDescriptor.primitive.topology = WGPUPrimitiveTopology_TriangleList;
-    pipelineDescriptor.primitive.stripIndexFormat = WGPUIndexFormat_Undefined;
-    pipelineDescriptor.primitive.frontFace = WGPUFrontFace_CCW;
-    pipelineDescriptor.primitive.cullMode = WGPUCullMode_None;
-    pipelineDescriptor.multisample.count = 1;
-    pipelineDescriptor.multisample.mask = 0xFFFFFFFF;
+    pipelineDescriptor.label                              = WGPUStringView{"WebGPU Shader Pipeline", WGPU_STRLEN};
+    pipelineDescriptor.layout                             = program.pipelineLayout;
+    pipelineDescriptor.vertex.module                      = program.vertexModule;
+    pipelineDescriptor.vertex.entryPoint                  = WGPUStringView{"vs_main", WGPU_STRLEN};
+    pipelineDescriptor.vertex.bufferCount                 = 1;
+    pipelineDescriptor.vertex.buffers                     = &vertexLayout;
+    pipelineDescriptor.primitive.topology                 = WGPUPrimitiveTopology_TriangleList;
+    pipelineDescriptor.primitive.stripIndexFormat         = WGPUIndexFormat_Undefined;
+    pipelineDescriptor.primitive.frontFace                = WGPUFrontFace_CCW;
+    pipelineDescriptor.primitive.cullMode                 = WGPUCullMode_None;
+    pipelineDescriptor.multisample.count                  = 1;
+    pipelineDescriptor.multisample.mask                   = 0xFFFFFFFF;
     pipelineDescriptor.multisample.alphaToCoverageEnabled = WGPU_FALSE;
-    pipelineDescriptor.fragment = &fragmentState;
+    pipelineDescriptor.fragment                           = &fragmentState;
 
     program.pipeline = wgpuDeviceCreateRenderPipeline(device_, &pipelineDescriptor);
     if (!program.pipeline)

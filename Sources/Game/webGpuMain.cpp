@@ -1,8 +1,6 @@
 #ifdef __EMSCRIPTEN__
 
 #include <Logger/Log.h>
-#include <Utils/Json/JsonReader.h>
-#include <Utils/Json/JsonWriter.h>
 #include <emscripten.h>
 
 #include <cstdio>
@@ -13,13 +11,10 @@
 #include <string>
 #include <utility>
 
+#include "Game/StartupSceneHelpers.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/Engine.h"
 #include "GameEngine/Physics/Bullet/BulletAdapter.h"
-#include "GameEngine/Resources/File.h"
-#include "GameEngine/Scene/SceneFactoryBase.h"
-#include "GameEngine/Scene/SceneUtils.h"
-#include "TreeNode.h"
 #include "WebGpuApi/WebGpuApi.h"
 
 using namespace GameEngine;
@@ -27,10 +22,6 @@ using namespace GameEngine::Physics;
 
 namespace
 {
-const std::string CSTR_ROOT_NODE{"projectConfiguration"};
-const std::string CSTR_STARTUP_SCENE_NODE{"startupScene"};
-const std::string CSTR_SCENES_NODE{"scenes"};
-
 // Silnik musi istnieć przez cały czas działania aplikacji.
 std::unique_ptr<Engine> engine;
 
@@ -112,70 +103,22 @@ int main(int argc, char* argv[])
     // Wczytanie konfiguracji
     // -----------------------------------------------------
 
-    Utils::JsonReader jsonReader;
+    const auto projectPath = Game::Startup::ResolveRuntimeProjectPath(argv[0]);
+    EngineLocalConf.files.setProjectPath(projectPath);
 
-    const std::string inputFile = "/scenes.json";
-
-    if (!jsonReader.Read(inputFile))
+    auto startupConfig = Game::Startup::LoadStartupSceneConfig(projectPath);
+    if (!startupConfig.sceneFactory)
     {
-        LOG_DEBUG << inputFile << " read failed";
-
-        if (std::filesystem::exists(inputFile))
-            return 1;
-
-        GameEngine::createScenesFile(inputFile);
         return 1;
     }
 
-    auto scenesNode = jsonReader.Get(CSTR_SCENES_NODE);
-
-    PrintTree(*jsonReader.Get());
-
-    if (!scenesNode)
-    {
-        LOG_ERROR << CSTR_SCENES_NODE << " not found in project config file";
-
-        return 1;
-    }
-
-    // -----------------------------------------------------
-    // Przygotowanie SceneFactory
-    // -----------------------------------------------------
-
-    auto sceneFactory = std::make_unique<SceneFactoryBase>();
-
-    for (const auto& sceneNode : scenesNode->getChildren())
-    {
-        if (!sceneNode)
-            continue;
-
-        LOG_DEBUG << "Add scene " << sceneNode->name() << ", " << sceneNode->value_;
-
-        sceneFactory->AddScene(sceneNode->name(), GameEngine::File{sceneNode->value_});
-    }
-
-    if (sceneFactory->ScenesSize() < 1)
-    {
-        LOG_ERROR << "Scene not available";
-        return 1;
-    }
-
-    // -----------------------------------------------------
-    // Odczyt sceny startowej
-    // -----------------------------------------------------
-
-    auto startupScene = jsonReader.Get(CSTR_STARTUP_SCENE_NODE);
-
-    if (startupScene)
-    {
-        pendingStartupScene = startupScene->value_;
-    }
+    pendingStartupScene = startupConfig.startupScene;
 
     // -----------------------------------------------------
     // Przygotowanie obiektów oczekujących na WebGPU
     // -----------------------------------------------------
 
-    pendingSceneFactory = std::move(sceneFactory);
+    pendingSceneFactory = std::move(startupConfig.sceneFactory);
 
     pendingWebGpuApi = std::make_unique<GraphicsApi::WebGpu::WebGpuApi>();
 

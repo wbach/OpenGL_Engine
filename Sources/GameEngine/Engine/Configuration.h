@@ -44,8 +44,8 @@ private:
 
 private:
     std::filesystem::path projectPath;
-    std::filesystem::path data{"../Data/"};
-    std::filesystem::path shaders{"../Sources/"};
+    std::filesystem::path data{std::filesystem::path{"Data"}};
+    std::filesystem::path shaders{std::filesystem::path{"Shaders"}};
     std::filesystem::path quests;
     std::filesystem::path loadingScreenCircleTexture{std::filesystem::path("GUI") / "aLoadingCircle.png"};
     std::filesystem::path loadingScreenBackgroundTexture{std::filesystem::path("GUI") / "dark3.png"};

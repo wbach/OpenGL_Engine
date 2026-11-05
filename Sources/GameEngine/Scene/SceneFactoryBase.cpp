@@ -47,6 +47,8 @@ ScenePtr SceneFactoryBase::Create(uint32 id)
 
 ScenePtr SceneFactoryBase::CreateSceneBasedOnFile(const File& file)
 {
+    LOG_DEBUG << "SceneFactoryBase::CreateSceneBasedOnFile " << file.GetAbsolutePath();
+
     std::string sceneName = file.GetBaseName();
     Utils::XmlReader xmlReader;
     TreeNode* sceneNode{nullptr};

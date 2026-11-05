@@ -13,12 +13,11 @@
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/ProjectPanel/ProjectPanel.h"
 
+#if defined(_MSC_VER)
 namespace
 {
 std::string DetectVSGenerator()
 {
-#ifdef _WIN32
-
     FILE* pipe = _popen("cmake --help", "r");
     if (!pipe)
         return "";
@@ -54,12 +53,6 @@ std::string DetectVSGenerator()
     }
 
     return bestGenerator;
-
-#else
-
-    return "";
-
-#endif
 }
 
 std::string getConfiguration()
@@ -71,6 +64,7 @@ std::string getConfiguration()
 #endif
 }
 }  // namespace
+#endif
 
 BuildComponentLogFrame::BuildComponentLogFrame(wxWindow* parent, ProjectPanel* projectPanel, ReloadComponents reloadComponents)
     : wxFrame(parent, wxID_ANY, "Build Log", wxDefaultPosition, wxSize(800, 600))

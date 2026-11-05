@@ -54,7 +54,7 @@ private:
     NotOwnedCameras notOwnedCameras;
     CamerasView camerasView;
     ActiveCameras activeCameras;
-    ICamera* mainCamera;
+    ICamera* mainCamera{nullptr};
 
     bool mainCameraCouldBeChanged{true};
 };

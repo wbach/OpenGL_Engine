@@ -20,7 +20,7 @@ void ProjectManager::SetProjectPath(const std::filesystem::path& path)
     lastOpenedPath               = path;
     projectEditorConfigFilePath  = GameEngine::getGlobalConfigDirPath() / "editorConfig.json";
     projectLastSessionFilePath   = projectPath / "lastSessionContext.json";
-    projectLocalConfigPath       = projectPath / "config.xml";
+    projectLocalConfigPath       = projectPath / "workSpaceConfig.xml";
     projectScenesFactoryFilePath = path / "scenes.json";
     projectScenesDirPath         = path / "Scenes";
     projectDataDirPath           = path / "Data";
