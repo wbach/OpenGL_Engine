@@ -18,6 +18,45 @@
 
 namespace GraphicsApi::WebGpu
 {
+namespace
+{
+struct WebGpuDrawCall
+{
+    uint32 programId = 0;
+    uint32 meshId = 0;
+};
+
+void DrawQueuedMesh(const WebGpuShaderManager& shaderManager, const WebGpuMeshManager& meshManager,
+                    WGPURenderPassEncoder renderPass, const WebGpuDrawCall& drawCall)
+{
+    const auto* program = shaderManager.GetProgram(drawCall.programId);
+    if (!program || !program->pipeline)
+    {
+        return;
+    }
+
+    const auto* mesh = meshManager.GetMeshResource(drawCall.meshId);
+    if (!mesh || !mesh->vertexBuffer)
+    {
+        return;
+    }
+
+    wgpuRenderPassEncoderSetPipeline(renderPass, program->pipeline);
+
+    if (mesh->hasIndices && mesh->indexBuffer)
+    {
+        wgpuRenderPassEncoderSetVertexBuffer(renderPass, 0, mesh->vertexBuffer, 0, sizeof(float) * 5u * mesh->vertexCount);
+        wgpuRenderPassEncoderSetIndexBuffer(renderPass, mesh->indexBuffer, WGPUIndexFormat_Uint32, 0, mesh->indexCount * sizeof(uint32_t));
+        wgpuRenderPassEncoderDrawIndexed(renderPass, mesh->indexCount, 1, 0, 0, 0);
+    }
+    else
+    {
+        wgpuRenderPassEncoderSetVertexBuffer(renderPass, 0, mesh->vertexBuffer, 0, sizeof(float) * 5u * mesh->vertexCount);
+        wgpuRenderPassEncoderDraw(renderPass, mesh->vertexCount, 1, 0, 0);
+    }
+}
+}  // namespace
+
 struct WebGpuApi::Impl
 {
     std::unique_ptr<IWindowApi> windowApi;
@@ -27,6 +66,7 @@ struct WebGpuApi::Impl
     WebGpuMeshManager meshManager;
     WebGpuShaderManager shaderManager;
     WebGpuFrameBufferManager frameBufferManager;
+    std::vector<WebGpuDrawCall> queuedDrawCalls;
 
     Impl()
         : windowApi{std::make_unique<WebGpuWindowApi>()}
@@ -190,7 +230,16 @@ void WebGpuApi::PrepareFrame()
 
     context.frameInProgress = true;
 
-    if (impl_->triangleRenderer.IsReady())
+    if (!impl_->queuedDrawCalls.empty())
+    {
+        for (const auto& drawCall : impl_->queuedDrawCalls)
+        {
+            DrawQueuedMesh(impl_->shaderManager, impl_->meshManager, context.frameRenderPass, drawCall);
+        }
+
+        impl_->queuedDrawCalls.clear();
+    }
+    else if (impl_->triangleRenderer.IsReady())
     {
         impl_->triangleRenderer.Draw(context.frameRenderPass);
     }
@@ -399,6 +448,7 @@ ID WebGpuApi::CreatePurePatchMeshInstanced(uint32, uint32)
 }
 ID WebGpuApi::CreateMesh(const MeshRawData& meshData, RenderType renderType)
 {
+    impl_->meshManager.SetDevice(impl_->context.device, impl_->context.queue);
     return impl_->meshManager.CreateMesh(meshData, renderType);
 }
 
@@ -422,8 +472,21 @@ void WebGpuApi::Compute(uint32, uint32, uint32)
 void WebGpuApi::RenderPurePatchedMeshInstances(uint32)
 {
 }
-void WebGpuApi::RenderMesh(uint32)
+void WebGpuApi::RenderMesh(uint32 meshId)
 {
+    const auto activeProgramId = impl_->shaderManager.GetCurrentProgramId();
+    if (meshId == 0 || activeProgramId == 0)
+    {
+        return;
+    }
+
+    const auto* mesh = impl_->meshManager.GetMeshResource(meshId);
+    if (!mesh)
+    {
+        return;
+    }
+
+    impl_->queuedDrawCalls.push_back(WebGpuDrawCall{activeProgramId, meshId});
 }
 void WebGpuApi::RenderProcedural(uint32)
 {

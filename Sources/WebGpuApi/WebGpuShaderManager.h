@@ -39,6 +39,8 @@ public:
     void UseShader(uint32 id);
     void DeleteShader(uint32 id);
     void Release();
+    uint32 GetCurrentProgramId() const;
+    const WebGpuShaderProgram* GetProgram(uint32 id) const;
 
 private:
     bool CreatePipelineForProgram(WebGpuShaderProgram& program);

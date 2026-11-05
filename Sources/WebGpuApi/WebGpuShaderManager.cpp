@@ -210,6 +210,22 @@ void WebGpuShaderManager::DeleteShader(uint32 id)
     }
 }
 
+uint32 WebGpuShaderManager::GetCurrentProgramId() const
+{
+    return currentShader_;
+}
+
+const WebGpuShaderProgram* WebGpuShaderManager::GetProgram(uint32 id) const
+{
+    const auto it = shaderPrograms_.find(id);
+    if (it == shaderPrograms_.end())
+    {
+        return nullptr;
+    }
+
+    return &it->second;
+}
+
 void WebGpuShaderManager::Release()
 {
     for (auto& [id, program] : shaderPrograms_)
