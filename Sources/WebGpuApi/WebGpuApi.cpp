@@ -98,6 +98,8 @@ void WebGpuApi::Init()
         throw std::runtime_error("WebGPU device is not ready");
     }
 
+    impl_->shaderManager.SetDevice(impl_->context.device, impl_->context.surfaceFormat);
+
     if (!impl_->triangleRenderer.IsReady())
     {
         if (!impl_->triangleRenderer.Initialize(impl_->context.device, impl_->context.surfaceFormat, impl_->context.queue))
@@ -242,6 +244,7 @@ void WebGpuApi::DeleteContext()
 {
     impl_->context.Release();
     impl_->triangleRenderer.Release();
+    impl_->shaderManager.Release();
 
     impl_->context.contextCreationStarted = false;
     impl_->context.contextReadyCallback   = {};

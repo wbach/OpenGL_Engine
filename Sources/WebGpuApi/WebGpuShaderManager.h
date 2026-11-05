@@ -4,6 +4,7 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include <webgpu/webgpu.h>
 
 #include "GraphicsApi/GraphicsApiDef.h"
 #include "GraphicsApi/ShaderFiles.h"
@@ -19,26 +20,35 @@ struct WebGpuShaderProgram
     std::string name;
     GraphicsApi::ShaderProgramType type{GraphicsApi::ShaderProgramType::Loading};
     GraphicsApi::ShadersFiles sources;
+    WGPUShaderModule vertexModule = nullptr;
+    WGPUShaderModule fragmentModule = nullptr;
+    WGPURenderPipeline pipeline = nullptr;
 };
 
 class WebGpuShaderManager
 {
 public:
     WebGpuShaderManager();
+    ~WebGpuShaderManager();
 
+    void SetDevice(WGPUDevice device, WGPUTextureFormat surfaceFormat);
     void SetShadersFilesLocations(const std::filesystem::path& path);
     void SetShaderQuaility(GraphicsApi::ShaderQuaility quality);
 
     ID Create(GraphicsApi::ShaderProgramType shaderType);
     void UseShader(uint32 id);
     void DeleteShader(uint32 id);
+    void Release();
 
 private:
+    bool CreatePipelineForProgram(WebGpuShaderProgram& program);
     std::optional<GraphicsApi::ShadersFiles> GetShaderFiles(GraphicsApi::ShaderProgramType shaderType) const;
 
 private:
     uint32 nextShaderId_ = 1;
     uint32 currentShader_ = 0;
+    WGPUDevice device_ = nullptr;
+    WGPUTextureFormat surfaceFormat_ = WGPUTextureFormat_Undefined;
     std::filesystem::path shadersFileLocation_;
     GraphicsApi::ShaderQuaility shaderQuality_{GraphicsApi::ShaderQuaility::SimpleForwardRendering};
     std::unordered_map<uint32, WebGpuShaderProgram> shaderPrograms_;
