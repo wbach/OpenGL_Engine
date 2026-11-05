@@ -31,6 +31,11 @@ struct WebGpuApi::Impl
     WGPUShaderModule triangleShaderModule = nullptr;
     WGPURenderPipeline trianglePipeline   = nullptr;
 
+    WGPUShaderModule triangleVertexBufferShaderModule = nullptr;
+    WGPURenderPipeline triangleVertexBufferPipeline   = nullptr;
+
+    WGPUBuffer triangleVertexBuffer = nullptr;
+
     bool frameInProgress = false;
 
     uint32 surfaceWidth  = 0;
@@ -155,6 +160,25 @@ struct WebGpuApi::Impl
         {
             wgpuShaderModuleRelease(triangleShaderModule);
             triangleShaderModule = nullptr;
+        }
+
+        if (triangleVertexBufferPipeline)
+        {
+            wgpuRenderPipelineRelease(triangleVertexBufferPipeline);
+            triangleVertexBufferPipeline = nullptr;
+        }
+
+        if (triangleVertexBufferShaderModule)
+        {
+            wgpuShaderModuleRelease(triangleVertexBufferShaderModule);
+            triangleVertexBufferShaderModule = nullptr;
+        }
+
+        if (triangleVertexBuffer)
+        {
+            wgpuBufferDestroy(triangleVertexBuffer);
+            wgpuBufferRelease(triangleVertexBuffer);
+            triangleVertexBuffer = nullptr;
         }
 
         ReleaseFrameResources();
@@ -336,6 +360,18 @@ struct WebGpuApi::Impl
             return;
         }
 
+        if (!self->CreateTriangleVertexBuffer())
+        {
+            self->FinishInitialization(false, "Could not create triangle vertex buffer.");
+            return;
+        }
+
+        if (!self->CreateTriangleVertexBufferPipeline())
+        {
+            self->FinishInitialization(false, "Could not create triangle vertex buffer pipeline.");
+            return;
+        }
+
         self->FinishInitialization(true);
     }
 
@@ -488,6 +524,225 @@ struct WebGpuApi::Impl
         }
 
         LOG_INFO << "Triangle render pipeline created.";
+
+        return true;
+    }
+
+    bool CreateTriangleVertexBuffer()
+    {
+        // Triangle vertices: XYZ
+        static constexpr float vertices[] = {0.0f, 0.7f, 0.0f, -0.7f, -0.65f, 0.0f, 0.7f, -0.65f, 0.0f};
+
+        WGPUBufferDescriptor descriptor{};
+
+        descriptor.label = WGPUStringView{"Triangle Vertex Buffer", WGPU_STRLEN};
+
+        descriptor.size = sizeof(vertices);
+
+        descriptor.usage = WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst;
+
+        descriptor.mappedAtCreation = WGPU_FALSE;
+
+        triangleVertexBuffer = wgpuDeviceCreateBuffer(device, &descriptor);
+
+        if (!triangleVertexBuffer)
+        {
+            LOG_ERROR << "Could not create triangle vertex buffer.";
+            return false;
+        }
+
+        // Upload vertex data.
+        wgpuQueueWriteBuffer(queue, triangleVertexBuffer, 0, vertices, sizeof(vertices));
+
+        LOG_INFO << "Triangle vertex buffer created.";
+
+        return true;
+    }
+
+    bool CreateTriangleVertexBufferPipeline()
+    {
+        // ---------------------------------------------
+        // 1. WGSL Shader Source
+        // ---------------------------------------------
+
+        static constexpr char shaderCode[] = R"WGSL(
+
+            struct VertexInput
+            {
+                @location(0) position: vec3<f32>,
+            };
+
+            @vertex
+            fn vs_main(input: VertexInput) -> @builtin(position) vec4<f32>
+            {
+                return vec4<f32>(input.position, 1.0);
+            }
+
+            @fragment
+            fn fs_main() -> @location(0) vec4<f32>
+            {
+                return vec4<f32>(
+                    0.1,
+                    0.1,
+                    0.25,
+                    1.0
+                );
+            }
+
+        )WGSL";
+
+        // ---------------------------------------------
+        // 2. Create Shader Module
+        // ---------------------------------------------
+
+        WGPUShaderSourceWGSL wgslSource{};
+
+        wgslSource.chain.sType = WGPUSType_ShaderSourceWGSL;
+        wgslSource.chain.next  = nullptr;
+
+        wgslSource.code = WGPUStringView{shaderCode, WGPU_STRLEN};
+
+        WGPUShaderModuleDescriptor shaderDescriptor{};
+
+        shaderDescriptor.nextInChain = &wgslSource.chain;
+
+        shaderDescriptor.label = WGPUStringView{"Triangle Vertex Buffer Shader", WGPU_STRLEN};
+
+        triangleVertexBufferShaderModule = wgpuDeviceCreateShaderModule(device, &shaderDescriptor);
+
+        if (!triangleVertexBufferShaderModule)
+        {
+            LOG_ERROR << "Could not create triangle vertex buffer shader.";
+
+            return false;
+        }
+
+        // ---------------------------------------------
+        // 3. Vertex Attributes
+        // ---------------------------------------------
+
+        WGPUVertexAttribute positionAttribute{};
+
+        positionAttribute.format         = WGPUVertexFormat_Float32x3;
+        positionAttribute.offset         = 0;
+        positionAttribute.shaderLocation = 0;
+
+        // ---------------------------------------------
+        // 4. Vertex Buffer Layout
+        // ---------------------------------------------
+
+        WGPUVertexBufferLayout vertexBufferLayout{};
+
+        vertexBufferLayout.arrayStride = sizeof(float) * 3;
+
+        vertexBufferLayout.stepMode = WGPUVertexStepMode_Vertex;
+
+        vertexBufferLayout.attributeCount = 1;
+
+        vertexBufferLayout.attributes = &positionAttribute;
+
+        // ---------------------------------------------
+        // 5. Vertex State
+        // ---------------------------------------------
+
+        WGPUVertexState vertexState{};
+
+        vertexState.module = triangleVertexBufferShaderModule;
+
+        vertexState.entryPoint = WGPUStringView{"vs_main", WGPU_STRLEN};
+
+        vertexState.bufferCount = 1;
+
+        vertexState.buffers = &vertexBufferLayout;
+
+        // ---------------------------------------------
+        // 6. Color Target
+        // ---------------------------------------------
+
+        WGPUColorTargetState colorTarget{};
+
+        colorTarget.format = surfaceFormat;
+
+        colorTarget.blend = nullptr;
+
+        colorTarget.writeMask = WGPUColorWriteMask_All;
+
+        // ---------------------------------------------
+        // 7. Fragment State
+        // ---------------------------------------------
+
+        WGPUFragmentState fragmentState{};
+
+        fragmentState.module = triangleVertexBufferShaderModule;
+
+        fragmentState.entryPoint = WGPUStringView{"fs_main", WGPU_STRLEN};
+
+        fragmentState.targetCount = 1;
+
+        fragmentState.targets = &colorTarget;
+
+        // ---------------------------------------------
+        // 8. Render Pipeline Descriptor
+        // ---------------------------------------------
+
+        WGPURenderPipelineDescriptor pipelineDescriptor{};
+
+        pipelineDescriptor.label = WGPUStringView{"Triangle Vertex Buffer Pipeline", WGPU_STRLEN};
+
+        // Automatic pipeline layout.
+        pipelineDescriptor.layout = nullptr;
+
+        // Vertex stage.
+        pipelineDescriptor.vertex = vertexState;
+
+        // ---------------------------------------------
+        // 9. Primitive State
+        // ---------------------------------------------
+
+        pipelineDescriptor.primitive.topology = WGPUPrimitiveTopology_TriangleList;
+
+        pipelineDescriptor.primitive.stripIndexFormat = WGPUIndexFormat_Undefined;
+
+        pipelineDescriptor.primitive.frontFace = WGPUFrontFace_CCW;
+
+        pipelineDescriptor.primitive.cullMode = WGPUCullMode_None;
+
+        pipelineDescriptor.primitive.unclippedDepth = WGPU_FALSE;
+
+        // ---------------------------------------------
+        // 10. Multisampling
+        // ---------------------------------------------
+
+        pipelineDescriptor.multisample.count = 1;
+
+        pipelineDescriptor.multisample.mask = 0xFFFFFFFF;
+
+        pipelineDescriptor.multisample.alphaToCoverageEnabled = WGPU_FALSE;
+
+        // ---------------------------------------------
+        // 11. Fragment Stage
+        // ---------------------------------------------
+
+        pipelineDescriptor.fragment = &fragmentState;
+
+        // ---------------------------------------------
+        // 12. Create Render Pipeline
+        // ---------------------------------------------
+
+        triangleVertexBufferPipeline = wgpuDeviceCreateRenderPipeline(device, &pipelineDescriptor);
+
+        if (!triangleVertexBufferPipeline)
+        {
+            LOG_ERROR << "Could not create triangle vertex buffer pipeline.";
+
+            wgpuShaderModuleRelease(triangleVertexBufferShaderModule);
+
+            triangleVertexBufferShaderModule = nullptr;
+
+            return false;
+        }
+
+        LOG_INFO << "Triangle vertex buffer pipeline created.";
 
         return true;
     }
@@ -714,16 +969,25 @@ void WebGpuApi::PrepareFrame()
     // Draw test triangle
     // ---------------------------------------------
 
-    if (api.trianglePipeline)
-    {
-        wgpuRenderPassEncoderSetPipeline(api.frameRenderPass, api.trianglePipeline);
+    // if (api.trianglePipeline)
+    // {
+    //     wgpuRenderPassEncoderSetPipeline(api.frameRenderPass, api.trianglePipeline);
 
-        wgpuRenderPassEncoderDraw(api.frameRenderPass,
-                                  3,  // Vertex count
-                                  1,  // Instance count
-                                  0,  // First vertex
-                                  0   // First instance
-        );
+    //     wgpuRenderPassEncoderDraw(api.frameRenderPass,
+    //                               3,  // Vertex count
+    //                               1,  // Instance count
+    //                               0,  // First vertex
+    //                               0   // First instance
+    //     );
+    // }
+
+    if (api.triangleVertexBufferPipeline && api.triangleVertexBuffer)
+    {
+        wgpuRenderPassEncoderSetPipeline(api.frameRenderPass, api.triangleVertexBufferPipeline);
+
+        wgpuRenderPassEncoderSetVertexBuffer(api.frameRenderPass, 0, api.triangleVertexBuffer, 0, sizeof(float) * 9);
+
+        wgpuRenderPassEncoderDraw(api.frameRenderPass, 3, 1, 0, 0);
     }
 }
 void WebGpuApi::EndFrame()
