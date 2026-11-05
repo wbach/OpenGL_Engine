@@ -38,11 +38,11 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 
 const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFiles> simpleForwardShaderFiles = {
     {GraphicsApi::ShaderProgramType::Loading,
-     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Default.vert.wgsl"},
-      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Default.frag.wgsl"}}},
+     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Common/Quad.vert.wgsl"},
+      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Game/loadingShader.frag.wgsl"}}},
     {GraphicsApi::ShaderProgramType::Texture,
-     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Default.vert.wgsl"},
-      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Default.frag.wgsl"}}},
+     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Common/Quad.vert.wgsl"},
+      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Gui/guiFragmentShader.frag.wgsl"}}},
     {GraphicsApi::ShaderProgramType::Grid,
      {{GraphicsApi::ShaderType::VERTEX_SHADER, "Default.vert.wgsl"},
       {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Default.frag.wgsl"}}},
