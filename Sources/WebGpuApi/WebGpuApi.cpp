@@ -9,6 +9,9 @@
 
 #include "DefaultFrameBuffer.h"
 #include "WebGpuContext.h"
+#include "WebGpuFrameBufferManager.h"
+#include "WebGpuMeshManager.h"
+#include "WebGpuTextureManager.h"
 #include "WebGpuTriangleRenderer.h"
 #include "WebGpuWindowApi.h"
 
@@ -19,7 +22,9 @@ struct WebGpuApi::Impl
     std::unique_ptr<IWindowApi> windowApi;
     WebGpuContext context;
     WebGpuTriangleRenderer triangleRenderer;
-    DefaultFrameBuffer defaultFrameBuffer;
+    WebGpuTextureManager textureManager;
+    WebGpuMeshManager meshManager;
+    WebGpuFrameBufferManager frameBufferManager;
 
     Impl()
         : windowApi{std::make_unique<WebGpuWindowApi>()}
@@ -297,40 +302,46 @@ uint32 WebGpuApi::BindShaderBuffer(uint32)
 void WebGpuApi::UseShader(uint32)
 {
 }
-ID WebGpuApi::CreateTexture(const Utils::Image&, TextureFilter, TextureMipmap)
+ID WebGpuApi::CreateTexture(const Utils::Image& image, TextureFilter filter, TextureMipmap mipmap)
 {
-    return {};
+    return impl_->textureManager.CreateTexture(image, filter, mipmap);
 }
-ID WebGpuApi::CreateTexture(const std::vector<Utils::Image>&, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap)
+ID WebGpuApi::CreateTexture(const std::vector<Utils::Image>& images, GraphicsApi::TextureFilter filter,
+                           GraphicsApi::TextureMipmap mipmap)
 {
-    return {};
+    return impl_->textureManager.CreateTexture(images, filter, mipmap);
 }
-ID WebGpuApi::CreateTextureStorage(TextureType, TextureFilter, int32)
+ID WebGpuApi::CreateTextureStorage(TextureType type, TextureFilter filter, int32 samples)
 {
-    return {};
+    return impl_->textureManager.CreateTextureStorage(type, filter, samples);
 }
-ID WebGpuApi::CreateCubMapTexture(const CubemapImages&)
+ID WebGpuApi::CreateCubMapTexture(const CubemapImages& cubemapImages)
 {
-    return {};
+    return impl_->textureManager.CreateCubMapTexture(cubemapImages);
 }
-std::optional<uint64_t> WebGpuApi::GetBindlessHandle(IdType)
+std::optional<uint64_t> WebGpuApi::GetBindlessHandle(IdType id)
 {
-    return {};
+    return impl_->textureManager.GetBindlessHandle(id);
 }
-void WebGpuApi::GenerateMipmaps(IdType)
+void WebGpuApi::GenerateMipmaps(IdType id)
 {
+    impl_->textureManager.GenerateMipmaps(id);
 }
-void WebGpuApi::CopyTexture(IdType, IdType, uint32, uint32)
+void WebGpuApi::CopyTexture(IdType sourceId, IdType targetId, uint32 xOffset, uint32 yOffset)
 {
+    impl_->textureManager.CopyTexture(sourceId, targetId, xOffset, yOffset);
 }
-void WebGpuApi::UpdateTexture(uint32, const vec2ui&, const Utils::Image&)
+void WebGpuApi::UpdateTexture(uint32 id, const vec2ui& offset, const Utils::Image& image)
 {
+    impl_->textureManager.UpdateTexture(id, offset, image);
 }
-void WebGpuApi::UpdateTexture(uint32, const Utils::Image&)
+void WebGpuApi::UpdateTexture(uint32 id, const Utils::Image& image)
 {
+    impl_->textureManager.UpdateTexture(id, image);
 }
-void WebGpuApi::ClearTexture(uint32, const Color&)
+void WebGpuApi::ClearTexture(uint32 id, const Color& color)
 {
+    impl_->textureManager.ClearTexture(id, color);
 }
 void WebGpuApi::EnableBlend()
 {
@@ -344,11 +355,13 @@ void WebGpuApi::EnableDepthMask()
 void WebGpuApi::DisableDepthMask()
 {
 }
-void WebGpuApi::ActiveTexture(uint32, uint32)
+void WebGpuApi::ActiveTexture(uint32 unit, uint32 textureId)
 {
+    impl_->textureManager.ActiveTexture(unit, textureId);
 }
-void WebGpuApi::ActiveTexture(uint32)
+void WebGpuApi::ActiveTexture(uint32 unit)
 {
+    impl_->textureManager.ActiveTexture(unit);
 }
 
 void WebGpuApi::DeleteObject(uint32)
@@ -376,9 +389,9 @@ ID WebGpuApi::CreatePurePatchMeshInstanced(uint32, uint32)
 {
     return {};
 }
-ID WebGpuApi::CreateMesh(const MeshRawData&, RenderType)
+ID WebGpuApi::CreateMesh(const MeshRawData& meshData, RenderType renderType)
 {
-    return {};
+    return impl_->meshManager.CreateMesh(meshData, renderType);
 }
 
 ID WebGpuApi::CreateDynamicLineMesh()
@@ -440,11 +453,13 @@ void WebGpuApi::DisableCulling()
 void WebGpuApi::SetViewPort(uint32, uint32, uint32, uint32)
 {
 }
-void WebGpuApi::BindTexture(uint32) const
+void WebGpuApi::BindTexture(uint32 textureId) const
 {
+    impl_->textureManager.BindTexture(textureId);
 }
-void WebGpuApi::BindImageTexture(uint32, TextureAccess)
+void WebGpuApi::BindImageTexture(uint32 textureId, TextureAccess access)
 {
+    impl_->textureManager.BindImageTexture(textureId, access);
 }
 ID WebGpuApi::CreateShadowMap(uint32, uint32)
 {
@@ -462,8 +477,9 @@ void WebGpuApi::SetBlendFunction(BlendFunctionType)
 void WebGpuApi::UpdateMatrixes(uint32, const std::vector<mat4>&)
 {
 }
-void WebGpuApi::UpdateMesh(uint32, const MeshRawData&, const std::set<VertexBufferObjects>&)
+void WebGpuApi::UpdateMesh(uint32 id, const MeshRawData& meshData, const std::set<VertexBufferObjects>& dirtyObjects)
 {
+    impl_->meshManager.UpdateMesh(id, meshData, dirtyObjects);
 }
 void WebGpuApi::UpdateLineMesh(uint32, const LineMesh&)
 {
@@ -487,35 +503,35 @@ mat4 WebGpuApi::PrepareMatrixToLoad(const mat4&)
 {
     return {};
 }
-std::vector<uint8> WebGpuApi::GetTextureData(uint32) const
+std::vector<uint8> WebGpuApi::GetTextureData(uint32 textureId) const
 {
-    return {};
+    return impl_->textureManager.GetTextureData(textureId);
 }
-const TextureInfo& WebGpuApi::GetTextureInfo(uint32) const
+const TextureInfo& WebGpuApi::GetTextureInfo(uint32 textureId) const
 {
-    static TextureInfo info;
-    return info;
+    return impl_->textureManager.GetTextureInfo(textureId);
 }
 void WebGpuApi::TakeSnapshot(const std::filesystem::path&) const
 {
 }
-std::optional<Utils::Image> WebGpuApi::GetImage(IdType) const
+std::optional<Utils::Image> WebGpuApi::GetImage(IdType id) const
 {
-    return {};
+    return impl_->textureManager.GetImage(id);
 }
-std::vector<Utils::Image> WebGpuApi::GetImageArray(IdType) const
+std::vector<Utils::Image> WebGpuApi::GetImageArray(IdType id) const
 {
-    return {};
+    return impl_->textureManager.GetImageArray(id);
 }
 IFrameBuffer& WebGpuApi::GetDefaultFrameBuffer()
 {
-    return impl_->defaultFrameBuffer;
+    return impl_->frameBufferManager.GetDefaultFrameBuffer();
 }
-IFrameBuffer& WebGpuApi::CreateFrameBuffer(const std::vector<FrameBuffer::Attachment>&)
+IFrameBuffer& WebGpuApi::CreateFrameBuffer(const std::vector<FrameBuffer::Attachment>& attachments)
 {
-    return impl_->defaultFrameBuffer;
+    return impl_->frameBufferManager.CreateFrameBuffer(attachments);
 }
-void WebGpuApi::DeleteFrameBuffer(IFrameBuffer&)
+void WebGpuApi::DeleteFrameBuffer(IFrameBuffer& framebuffer)
 {
+    impl_->frameBufferManager.DeleteFrameBuffer(framebuffer);
 }
 }  // namespace GraphicsApi::WebGpu

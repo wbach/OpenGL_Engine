@@ -3,6 +3,9 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WebGpuApi/DefaultFrameBuffer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WebGpuApi/InputWebGpu.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WebGpuApi/WebGpuApi.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WebGpuApi/WebGpuContext.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WebGpuApi/WebGpuFrameBufferManager.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WebGpuApi/WebGpuMeshManager.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WebGpuApi/WebGpuTextureManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WebGpuApi/WebGpuTriangleRenderer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WebGpuApi/WebGpuWindowApi.h
 )
