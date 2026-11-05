@@ -22,18 +22,18 @@ ExternalProject_Add(SDL2External
     BINARY_DIR "${SDL2_BUILD_DIR}"
 
     CMAKE_ARGS
-        -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-        -DCMAKE_BUILD_TYPE=Release
-        -DCMAKE_INSTALL_PREFIX=${SDL2_INSTALL_DIR}
-        -DCMAKE_INSTALL_LIBDIR=lib
-        -DBUILD_SHARED_LIBS=OFF
-        -DSDL_SHARED=OFF
-        -DSDL_STATIC=ON
-        -DSDL_TEST=OFF
-        -DSDL_TESTS=OFF
-        -DSDL_EXAMPLES=OFF
-        -DCMAKE_C_FLAGS=-pthread
-        -DCMAKE_CXX_FLAGS=-pthread
+        "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
+        "-DCMAKE_BUILD_TYPE=Release"
+        "-DCMAKE_INSTALL_PREFIX=${SDL2_INSTALL_DIR}"
+        "-DCMAKE_INSTALL_LIBDIR=lib"
+        "-DBUILD_SHARED_LIBS=OFF"
+        "-DSDL_SHARED=OFF"
+        "-DSDL_STATIC=ON"
+        "-DSDL_TEST=OFF"
+        "-DSDL_TESTS=OFF"
+        "-DSDL_EXAMPLES=OFF"
+        "-DCMAKE_C_FLAGS=-pthread -sMEMORY64=1"
+        "-DCMAKE_CXX_FLAGS=-pthread -sMEMORY64=1"
 
     BUILD_COMMAND
         ${CMAKE_COMMAND} --build <BINARY_DIR> --config Release

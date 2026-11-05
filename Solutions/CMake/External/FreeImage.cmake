@@ -5,14 +5,12 @@ include(ExternalProject)
 # Paths
 # ------------------------------------------------------------
 
-# Original FreeImage sources in repository.
 get_filename_component(
     FREEIMAGE_SOURCE_DIR
     "${CMAKE_CURRENT_LIST_DIR}/../../../Tools/common/FreeImage3180"
     ABSOLUTE
 )
 
-# All build files are stored inside the current build directory.
 set(FREEIMAGE_BUILD_SOURCE_DIR
     "${CMAKE_BINARY_DIR}/_deps/FreeImage-src"
 )
@@ -30,7 +28,7 @@ set(FREEIMAGE_HEADER_DIR
 )
 
 # ------------------------------------------------------------
-# Validate source directory
+# Validate
 # ------------------------------------------------------------
 
 if(NOT EXISTS "${FREEIMAGE_SOURCE_DIR}/Makefile.gnu")
@@ -45,14 +43,30 @@ if(NOT EXISTS "${FREEIMAGE_SOURCE_DIR}/Makefile.srcs")
     )
 endif()
 
+if(NOT EMSCRIPTEN)
+    message(FATAL_ERROR
+        "FreeImage WebAssembly build requires Emscripten"
+    )
+endif()
+
 message(STATUS "FreeImage source: ${FREEIMAGE_SOURCE_DIR}")
 message(STATUS "FreeImage build:  ${FREEIMAGE_BUILD_SOURCE_DIR}")
+message(STATUS "FreeImage target: WASM64")
+
+# ------------------------------------------------------------
+# Compiler flags
+# ------------------------------------------------------------
+
+set(FREEIMAGE_CFLAGS
+    "-O2 -pthread -sMEMORY64=1 -fexceptions -fvisibility=hidden -DOPJ_STATIC -DNO_LCMS -DDISABLE_PERF_MEASUREMENT -D__ANSI__ -I. -ISource -ISource/Metadata -ISource/FreeImageToolkit -ISource/LibJPEG -ISource/LibPNG -ISource/LibTIFF4 -ISource/ZLib -ISource/LibOpenJPEG -ISource/OpenEXR -ISource/OpenEXR/Half -ISource/OpenEXR/Iex -ISource/OpenEXR/IlmImf -ISource/OpenEXR/IlmThread -ISource/OpenEXR/Imath -ISource/OpenEXR/IexMath -ISource/LibRawLite -ISource/LibRawLite/dcraw -ISource/LibRawLite/internal -ISource/LibRawLite/libraw -ISource/LibRawLite/src -ISource/LibWebP -ISource/LibJXR -ISource/LibJXR/common/include -ISource/LibJXR/image/sys -ISource/LibJXR/jxrgluelib"
+)
+
+set(FREEIMAGE_CXXFLAGS
+    "-O2 -pthread -sMEMORY64=1 -fexceptions -std=c++14 -fvisibility=hidden -D__ANSI__ -I. -ISource -ISource/Metadata -ISource/FreeImageToolkit -ISource/LibJPEG -ISource/LibPNG -ISource/LibTIFF4 -ISource/ZLib -ISource/LibOpenJPEG -ISource/OpenEXR -ISource/OpenEXR/Half -ISource/OpenEXR/Iex -ISource/OpenEXR/IlmImf -ISource/OpenEXR/IlmThread -ISource/OpenEXR/Imath -ISource/OpenEXR/IexMath -ISource/LibRawLite -ISource/LibRawLite/dcraw -ISource/LibRawLite/internal -ISource/LibRawLite/libraw -ISource/LibRawLite/src -ISource/LibWebP -ISource/LibJXR -ISource/LibJXR/common/include -ISource/LibJXR/image/sys -ISource/LibJXR/jxrgluelib"
+)
 
 # ------------------------------------------------------------
 # Prepare sources script
-#
-# Generated inside build directory.
-# No additional maintained CMake file is required.
 # ------------------------------------------------------------
 
 set(FREEIMAGE_PREPARE_SCRIPT
@@ -76,10 +90,7 @@ file(MAKE_DIRECTORY "${DEST_DIR}")
 file(COPY "${SOURCE_DIR}/"
     DESTINATION "${DEST_DIR}"
 
-    # Repository metadata.
     PATTERN ".git" EXCLUDE
-
-    # Previous build artifacts.
     PATTERN "*.o" EXCLUDE
     PATTERN "*.obj" EXCLUDE
     PATTERN "*.a" EXCLUDE
@@ -88,8 +99,6 @@ file(COPY "${SOURCE_DIR}/"
     PATTERN "*.dll" EXCLUDE
     PATTERN "*.lib" EXCLUDE
     PATTERN "*.d" EXCLUDE
-
-    # Build directories.
     PATTERN "CMakeFiles" EXCLUDE
     PATTERN "build" EXCLUDE
     PATTERN "build_*" EXCLUDE
@@ -108,7 +117,6 @@ ExternalProject_Add(FreeImageExternal
 
     SOURCE_DIR "${FREEIMAGE_BUILD_SOURCE_DIR}"
 
-    # Copy clean sources into the build directory.
     DOWNLOAD_COMMAND
         ${CMAKE_COMMAND}
         "-DSOURCE_DIR=${FREEIMAGE_SOURCE_DIR}"
@@ -120,14 +128,14 @@ ExternalProject_Add(FreeImageExternal
     CONFIGURE_COMMAND ""
 
     BUILD_COMMAND
-        ${CMAKE_MAKE_PROGRAM} -f Makefile.gnu libfreeimage.a
-        CC=${CMAKE_C_COMPILER}
-        CXX=${CMAKE_CXX_COMPILER}
-        AR=${CMAKE_AR}
-
-        "CFLAGS=-O2 -pthread -fexceptions -fvisibility=hidden -DOPJ_STATIC -DNO_LCMS -DDISABLE_PERF_MEASUREMENT -D__ANSI__ -I. -ISource -ISource/Metadata -ISource/FreeImageToolkit -ISource/LibJPEG -ISource/LibPNG -ISource/LibTIFF4 -ISource/ZLib -ISource/LibOpenJPEG -ISource/OpenEXR -ISource/OpenEXR/Half -ISource/OpenEXR/Iex -ISource/OpenEXR/IlmImf -ISource/OpenEXR/IlmThread -ISource/OpenEXR/Imath -ISource/OpenEXR/IexMath -ISource/LibRawLite -ISource/LibRawLite/dcraw -ISource/LibRawLite/internal -ISource/LibRawLite/libraw -ISource/LibRawLite/src -ISource/LibWebP -ISource/LibJXR -ISource/LibJXR/common/include -ISource/LibJXR/image/sys -ISource/LibJXR/jxrgluelib"
-
-        "CXXFLAGS=-O2 -pthread -fexceptions -std=c++14 -fvisibility=hidden -D__ANSI__ -I. -ISource -ISource/Metadata -ISource/FreeImageToolkit -ISource/LibJPEG -ISource/LibPNG -ISource/LibTIFF4 -ISource/ZLib -ISource/LibOpenJPEG -ISource/OpenEXR -ISource/OpenEXR/Half -ISource/OpenEXR/Iex -ISource/OpenEXR/IlmImf -ISource/OpenEXR/IlmThread -ISource/OpenEXR/Imath -ISource/OpenEXR/IexMath -ISource/LibRawLite -ISource/LibRawLite/dcraw -ISource/LibRawLite/internal -ISource/LibRawLite/libraw -ISource/LibRawLite/src -ISource/LibWebP -ISource/LibJXR -ISource/LibJXR/common/include -ISource/LibJXR/image/sys -ISource/LibJXR/jxrgluelib"
+        ${CMAKE_MAKE_PROGRAM}
+        -f Makefile.gnu
+        libfreeimage.a
+        "CC=${CMAKE_C_COMPILER}"
+        "CXX=${CMAKE_CXX_COMPILER}"
+        "AR=${CMAKE_AR}"
+        "CFLAGS=${FREEIMAGE_CFLAGS}"
+        "CXXFLAGS=${FREEIMAGE_CXXFLAGS}"
 
     BUILD_IN_SOURCE TRUE
 

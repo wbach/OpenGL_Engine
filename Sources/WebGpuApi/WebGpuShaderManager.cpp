@@ -1,5 +1,6 @@
 #include "WebGpuShaderManager.h"
 
+#include <algorithm>
 #include <Logger/Log.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
@@ -70,6 +71,85 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
     {GraphicsApi::ShaderProgramType::Particles,
      {{GraphicsApi::ShaderType::VERTEX_SHADER, "Default.vert.wgsl"},
       {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Default.frag.wgsl"}}}};
+
+void AddOrMergeBindGroupEntry(std::vector<WGPUBindGroupLayoutEntry>& bindEntries, uint32_t binding,
+                              WGPUShaderStage visibility, const std::string& resourceText)
+{
+    auto it = std::find_if(bindEntries.begin(), bindEntries.end(), [binding](const auto& entry) {
+        return entry.binding == binding;
+    });
+
+    if (it == bindEntries.end())
+    {
+        WGPUBindGroupLayoutEntry entry{};
+        entry.binding = binding;
+        entry.visibility = visibility;
+
+        if (resourceText.find("texture_") != std::string::npos)
+        {
+            entry.texture.sampleType = WGPUTextureSampleType_Float;
+            entry.texture.viewDimension = WGPUTextureViewDimension_2D;
+        }
+        else if (resourceText.find("sampler") != std::string::npos)
+        {
+            entry.sampler.type = WGPUSamplerBindingType_Filtering;
+        }
+        else
+        {
+            entry.buffer.type = WGPUBufferBindingType_Uniform;
+            entry.buffer.minBindingSize = 0;
+        }
+
+        bindEntries.push_back(entry);
+        return;
+    }
+
+    it->visibility |= visibility;
+}
+
+std::vector<WGPUBindGroupLayoutEntry> BuildBindGroupLayoutEntries(const std::string& vertexSource,
+                                                                const std::string& fragmentSource)
+{
+    std::vector<WGPUBindGroupLayoutEntry> bindEntries;
+
+    const auto collectBindings = [&](const std::string& source, WGPUShaderStage visibility) {
+        std::size_t searchStart = 0;
+        while (true)
+        {
+            const auto bindingPos = source.find("@binding(", searchStart);
+            if (bindingPos == std::string::npos)
+            {
+                break;
+            }
+
+            const auto startParen = bindingPos + std::string("@binding(").size();
+            const auto endParen   = source.find(')', startParen);
+            if (endParen == std::string::npos)
+            {
+                break;
+            }
+
+            const auto bindingText = source.substr(startParen, endParen - startParen);
+            const auto bindingValue = std::stoul(bindingText);
+
+            const auto declarationStart = endParen + 1;
+            const auto declarationEnd   = source.find(';', declarationStart);
+            if (declarationEnd == std::string::npos)
+            {
+                break;
+            }
+
+            const auto declarationText = source.substr(declarationStart, declarationEnd - declarationStart);
+            AddOrMergeBindGroupEntry(bindEntries, static_cast<uint32_t>(bindingValue), visibility, declarationText);
+            searchStart = endParen + 1;
+        }
+    };
+
+    collectBindings(vertexSource, WGPUShaderStage_Vertex);
+    collectBindings(fragmentSource, WGPUShaderStage_Fragment);
+
+    return bindEntries;
+}
 
 std::optional<GraphicsApi::ShadersFiles> GetSimpleForwardShaderFiles(GraphicsApi::ShaderProgramType shaderType)
 {
@@ -397,26 +477,12 @@ bool WebGpuShaderManager::CreatePipelineForProgram(WebGpuShaderProgram& program)
     vertexLayout.attributeCount = 6;
     vertexLayout.attributes     = attributes;
 
-    WGPUBindGroupLayoutEntry bindEntries[16]{};
-    for (uint32 i = 0; i < 16; ++i)
-    {
-        bindEntries[i].binding    = i;
-        bindEntries[i].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
-
-        if (i == 5)
-        {
-            bindEntries[i].buffer.type = WGPUBufferBindingType_Storage;
-        }
-        else
-        {
-            bindEntries[i].buffer.type = WGPUBufferBindingType_Uniform;
-        }
-        bindEntries[i].buffer.minBindingSize = 0;
-    }
+    program.requiredBindings = BuildBindGroupLayoutEntries(vertexSource, fragmentSource);
 
     WGPUBindGroupLayoutDescriptor bindLayoutDesc{};
-    bindLayoutDesc.entryCount = 16;
-    bindLayoutDesc.entries    = bindEntries;
+    bindLayoutDesc.label      = WGPUStringView{"WebGPU BindGroupLayout", WGPU_STRLEN};
+    bindLayoutDesc.entryCount = static_cast<uint32_t>(program.requiredBindings.size());
+    bindLayoutDesc.entries    = program.requiredBindings.empty() ? nullptr : program.requiredBindings.data();
     program.bindGroupLayout   = wgpuDeviceCreateBindGroupLayout(device_, &bindLayoutDesc);
     if (!program.bindGroupLayout)
     {
@@ -429,6 +495,7 @@ bool WebGpuShaderManager::CreatePipelineForProgram(WebGpuShaderProgram& program)
     }
 
     WGPUPipelineLayoutDescriptor pipelineLayoutDesc{};
+    pipelineLayoutDesc.label                 = WGPUStringView{"WebGPU PipelineLayout", WGPU_STRLEN};
     pipelineLayoutDesc.bindGroupLayoutCount = 1;
     pipelineLayoutDesc.bindGroupLayouts     = &program.bindGroupLayout;
     program.pipelineLayout                  = wgpuDeviceCreatePipelineLayout(device_, &pipelineLayoutDesc);

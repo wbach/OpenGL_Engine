@@ -224,8 +224,14 @@ function(copy_all_dlls_to_target dll_dir exe_target)
 endfunction()
 
 if(EMSCRIPTEN)
-    add_compile_options(-pthread)
-    add_link_options(-pthread)
+    add_compile_options(
+        "-sMEMORY64=1"
+        "-pthread"
+    )
+    add_link_options(
+        "-sMEMORY64=1"
+        "-pthread"
+    )
 endif()
 
 # --- Platform sources ---

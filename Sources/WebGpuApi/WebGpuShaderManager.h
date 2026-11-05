@@ -4,6 +4,7 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include <vector>
 #include <webgpu/webgpu.h>
 
 #include "GraphicsApi/GraphicsApiDef.h"
@@ -26,6 +27,7 @@ struct WebGpuShaderProgram
     WGPUBindGroupLayout bindGroupLayout = nullptr;
     WGPURenderPipeline pipeline = nullptr;
     WGPUBindGroup bindGroup = nullptr;
+    std::vector<WGPUBindGroupLayoutEntry> requiredBindings;
 };
 
 class WebGpuShaderManager

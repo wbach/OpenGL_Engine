@@ -36,6 +36,8 @@ struct WebGpuDrawCall
 {
     uint32 programId = 0;
     uint32 meshId = 0;
+    uint32 proceduralVertexCount = 0;
+    bool isProcedural = false;
 };
 
 void DrawQueuedMesh(const WebGpuShaderManager& shaderManager, const WebGpuMeshManager& meshManager,
@@ -47,16 +49,22 @@ void DrawQueuedMesh(const WebGpuShaderManager& shaderManager, const WebGpuMeshMa
         return;
     }
 
-    const auto* mesh = meshManager.GetMeshResource(drawCall.meshId);
-    if (!mesh || !mesh->vertexBuffer)
-    {
-        return;
-    }
-
     wgpuRenderPassEncoderSetPipeline(renderPass, program->pipeline);
     if (program->bindGroup)
     {
         wgpuRenderPassEncoderSetBindGroup(renderPass, 0, program->bindGroup, 0, nullptr);
+    }
+
+    if (drawCall.isProcedural)
+    {
+        wgpuRenderPassEncoderDraw(renderPass, drawCall.proceduralVertexCount, 1, 0, 0);
+        return;
+    }
+
+    const auto* mesh = meshManager.GetMeshResource(drawCall.meshId);
+    if (!mesh || !mesh->vertexBuffer)
+    {
+        return;
     }
 
     const uint64_t vertexStrideBytes = sizeof(float) * mesh->vertexStride * mesh->vertexCount;
@@ -75,7 +83,8 @@ void DrawQueuedMesh(const WebGpuShaderManager& shaderManager, const WebGpuMeshMa
 
 void RebuildBindGroupForCurrentProgram(WebGpuShaderManager& shaderManager, WGPUDevice device,
                                       const std::unordered_map<uint32, WebGpuShaderBufferResource>& shaderBuffers,
-                                      std::unordered_map<uint32, uint32>& boundShaderBuffers)
+                                      std::unordered_map<uint32, uint32>& boundShaderBuffers,
+                                      const WebGpuTextureManager& textureManager)
 {
     const auto currentProgramId = shaderManager.GetCurrentProgramId();
     if (currentProgramId == 0)
@@ -95,23 +104,81 @@ void RebuildBindGroupForCurrentProgram(WebGpuShaderManager& shaderManager, WGPUD
         program->bindGroup = nullptr;
     }
 
-    std::vector<WGPUBindGroupEntry> entries;
-    entries.reserve(boundShaderBuffers.size());
-
-    for (const auto& [binding, bufferId] : boundShaderBuffers)
+    if (program->requiredBindings.empty())
     {
-        const auto bufferIt = shaderBuffers.find(bufferId);
-        if (bufferIt == shaderBuffers.end() || !bufferIt->second.buffer)
+        return;
+    }
+
+    std::vector<WGPUBindGroupEntry> entries;
+    entries.reserve(program->requiredBindings.size());
+
+    for (const auto& requiredBinding : program->requiredBindings)
+    {
+        const auto binding = requiredBinding.binding;
+
+        const auto bufferIt = std::find_if(boundShaderBuffers.begin(), boundShaderBuffers.end(),
+                                          [binding](const auto& item) { return item.first == binding; });
+        if (bufferIt != boundShaderBuffers.end())
         {
+            const auto shaderBufferIt = shaderBuffers.find(bufferIt->second);
+            if (shaderBufferIt == shaderBuffers.end() || !shaderBufferIt->second.buffer)
+            {
+                return;
+            }
+
+            WGPUBindGroupEntry entry{};
+            entry.binding = binding;
+            entry.buffer = shaderBufferIt->second.buffer;
+            entry.offset = 0;
+            entry.size = shaderBufferIt->second.size;
+            entries.push_back(entry);
             continue;
         }
 
-        WGPUBindGroupEntry entry{};
-        entry.binding = binding;
-        entry.buffer = bufferIt->second.buffer;
-        entry.offset = 0;
-        entry.size = bufferIt->second.size;
-        entries.push_back(entry);
+        if (requiredBinding.texture.sampleType != 0)
+        {
+            const auto textureIt = textureManager.GetActiveTextureAssignments().find(binding);
+            if (textureIt == textureManager.GetActiveTextureAssignments().end() || textureIt->second == 0)
+            {
+                return;
+            }
+
+            const auto textureView = textureManager.GetTextureView(textureIt->second);
+            const auto sampler = textureManager.GetSampler(textureIt->second);
+            if (!textureView || !sampler)
+            {
+                return;
+            }
+
+            WGPUBindGroupEntry textureEntry{};
+            textureEntry.binding = binding;
+            textureEntry.textureView = *textureView;
+            entries.push_back(textureEntry);
+            continue;
+        }
+
+        if (requiredBinding.sampler.type != 0)
+        {
+            const auto textureIt = textureManager.GetActiveTextureAssignments().find(binding - 1u);
+            if (textureIt == textureManager.GetActiveTextureAssignments().end() || textureIt->second == 0)
+            {
+                return;
+            }
+
+            const auto sampler = textureManager.GetSampler(textureIt->second);
+            if (!sampler)
+            {
+                return;
+            }
+
+            WGPUBindGroupEntry samplerEntry{};
+            samplerEntry.binding = binding;
+            samplerEntry.sampler = *sampler;
+            entries.push_back(samplerEntry);
+            continue;
+        }
+
+        return;
     }
 
     if (entries.empty())
@@ -216,6 +283,7 @@ void WebGpuApi::Init()
     }
 
     impl_->shaderManager.SetDevice(impl_->context.device, impl_->context.surfaceFormat);
+    impl_->textureManager.SetDevice(impl_->context.device, impl_->context.queue);
 
     if (!impl_->triangleRenderer.IsReady())
     {
@@ -345,6 +413,11 @@ void WebGpuApi::EndFrame()
 
     wgpuQueueSubmit(context.queue, 1, &commandBuffer);
     wgpuCommandBufferRelease(commandBuffer);
+
+    if (context.surface)
+    {
+        wgpuSurfacePresent(context.surface);
+    }
 
     context.ReleaseFrameResources();
 }
@@ -534,13 +607,15 @@ uint32 WebGpuApi::BindShaderBuffer(uint32 id)
     const auto previous = impl_->boundShaderBuffers.contains(bindLocation) ? impl_->boundShaderBuffers[bindLocation] : 0u;
     impl_->boundShaderBuffers[bindLocation] = id;
 
-    RebuildBindGroupForCurrentProgram(impl_->shaderManager, impl_->context.device, impl_->shaderBuffers, impl_->boundShaderBuffers);
+    RebuildBindGroupForCurrentProgram(impl_->shaderManager, impl_->context.device, impl_->shaderBuffers,
+                                     impl_->boundShaderBuffers, impl_->textureManager);
     return previous;
 }
 void WebGpuApi::UseShader(uint32 shaderId)
 {
     impl_->shaderManager.UseShader(shaderId);
-    RebuildBindGroupForCurrentProgram(impl_->shaderManager, impl_->context.device, impl_->shaderBuffers, impl_->boundShaderBuffers);
+    RebuildBindGroupForCurrentProgram(impl_->shaderManager, impl_->context.device, impl_->shaderBuffers,
+                                     impl_->boundShaderBuffers, impl_->textureManager);
 }
 ID WebGpuApi::CreateTexture(const Utils::Image& image, TextureFilter filter, TextureMipmap mipmap)
 {
@@ -613,6 +688,8 @@ void WebGpuApi::DeleteObject(uint32 id)
     }
 
     impl_->textureManager.DeleteTexture(id);
+    RebuildBindGroupForCurrentProgram(impl_->shaderManager, impl_->context.device, impl_->shaderBuffers,
+                                     impl_->boundShaderBuffers, impl_->textureManager);
 }
 void WebGpuApi::DeleteObject(const std::vector<uint32>& ids)
 {
@@ -636,15 +713,21 @@ void WebGpuApi::DeleteShaderBuffer(uint32 id)
         wgpuBufferRelease(it->second.buffer);
     }
 
-    for (auto& [binding, boundId] : impl_->boundShaderBuffers)
+    for (auto itBinding = impl_->boundShaderBuffers.begin(); itBinding != impl_->boundShaderBuffers.end();)
     {
-        if (boundId == id)
+        if (itBinding->second == id)
         {
-            boundId = 0;
+            itBinding = impl_->boundShaderBuffers.erase(itBinding);
+        }
+        else
+        {
+            ++itBinding;
         }
     }
 
     impl_->shaderBuffers.erase(it);
+    RebuildBindGroupForCurrentProgram(impl_->shaderManager, impl_->context.device, impl_->shaderBuffers,
+                                     impl_->boundShaderBuffers, impl_->textureManager);
 }
 void WebGpuApi::DeleteShaderBuffer(const std::vector<uint32>& ids)
 {
@@ -707,8 +790,20 @@ void WebGpuApi::RenderMesh(uint32 meshId)
 
     impl_->queuedDrawCalls.push_back(WebGpuDrawCall{activeProgramId, meshId});
 }
-void WebGpuApi::RenderProcedural(uint32)
+void WebGpuApi::RenderProcedural(uint32 count)
 {
+    if (count == 0)
+    {
+        return;
+    }
+
+    const auto activeProgramId = impl_->shaderManager.GetCurrentProgramId();
+    if (activeProgramId == 0)
+    {
+        return;
+    }
+
+    impl_->queuedDrawCalls.push_back(WebGpuDrawCall{activeProgramId, 0, count, true});
 }
 void WebGpuApi::RenderDebugNormals(uint32)
 {

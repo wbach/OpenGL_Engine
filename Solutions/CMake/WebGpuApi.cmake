@@ -73,6 +73,7 @@ if(BUILD_GAME_ENGINE AND BUILD_WEB_GPU_GAME)
         --use-port=emdawnwebgpu
         -Wno-error=nontrivial-memcall
         -sALLOW_MEMORY_GROWTH=1
+        "-sMAXIMUM_MEMORY=8GB"
         "-sFETCH=1"
         "-pthread"
         "-sPTHREAD_POOL_SIZE=6"

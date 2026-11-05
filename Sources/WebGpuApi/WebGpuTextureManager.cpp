@@ -23,6 +23,79 @@ TextureInfo MakeTextureInfo(const Utils::Image* image = nullptr)
     return info;
 }
 
+void CreateGpuTextureResource(WGPUDevice device, WGPUQueue queue, uint32 textureId, const Utils::Image& image,
+                             std::unordered_map<uint32, WebGpuTextureManager::TextureResource>& gpuTextures,
+                             const std::unordered_map<uint32, std::vector<uint8>>& rawData)
+{
+    const auto imageData = rawData.at(textureId);
+    if (imageData.empty())
+    {
+        return;
+    }
+
+    WGPUTextureDescriptor descriptor{};
+    descriptor.dimension = WGPUTextureDimension_2D;
+    descriptor.size.width = static_cast<uint32_t>(image.width);
+    descriptor.size.height = static_cast<uint32_t>(image.height);
+    descriptor.size.depthOrArrayLayers = 1;
+    descriptor.sampleCount = 1;
+    descriptor.format = WGPUTextureFormat_RGBA8Unorm;
+    descriptor.mipLevelCount = 1;
+    descriptor.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
+
+    WGPUTexture texture = wgpuDeviceCreateTexture(device, &descriptor);
+    if (!texture)
+    {
+        return;
+    }
+
+    WGPUTextureViewDescriptor viewDescriptor{};
+    viewDescriptor.label = WGPUStringView{"WebGPU Texture View", WGPU_STRLEN};
+    viewDescriptor.format = WGPUTextureFormat_RGBA8Unorm;
+    viewDescriptor.dimension = WGPUTextureViewDimension_2D;
+    viewDescriptor.aspect = WGPUTextureAspect_All;
+    viewDescriptor.baseMipLevel = 0;
+    viewDescriptor.mipLevelCount = 1;
+    viewDescriptor.baseArrayLayer = 0;
+    viewDescriptor.arrayLayerCount = 1;
+    auto view = wgpuTextureCreateView(texture, &viewDescriptor);
+
+    WGPUSamplerDescriptor samplerDescriptor{};
+    samplerDescriptor.label = WGPUStringView{"WebGPU Texture Sampler", WGPU_STRLEN};
+    samplerDescriptor.addressModeU = WGPUAddressMode_Repeat;
+    samplerDescriptor.addressModeV = WGPUAddressMode_Repeat;
+    samplerDescriptor.addressModeW = WGPUAddressMode_Repeat;
+    samplerDescriptor.magFilter = WGPUFilterMode_Linear;
+    samplerDescriptor.minFilter = WGPUFilterMode_Linear;
+    samplerDescriptor.mipmapFilter = WGPUMipmapFilterMode_Linear;
+    samplerDescriptor.maxAnisotropy = 1;
+    auto sampler = wgpuDeviceCreateSampler(device, &samplerDescriptor);
+
+    if (view && sampler)
+    {
+        WGPUTexelCopyTextureInfo destination{};
+        destination.texture = texture;
+        destination.mipLevel = 0;
+        destination.origin.x = 0;
+        destination.origin.y = 0;
+        destination.origin.z = 0;
+        destination.aspect = WGPUTextureAspect_All;
+
+        WGPUTexelCopyBufferLayout layout{};
+        layout.bytesPerRow = static_cast<uint32_t>(image.width * 4);
+        layout.rowsPerImage = static_cast<uint32_t>(image.height);
+
+        WGPUExtent3D copySize{};
+        copySize.width = static_cast<uint32_t>(image.width);
+        copySize.height = static_cast<uint32_t>(image.height);
+        copySize.depthOrArrayLayers = 1;
+
+        wgpuQueueWriteTexture(queue, &destination, imageData.data(), imageData.size(), &layout, &copySize);
+    }
+
+    gpuTextures[textureId] = {texture, view, sampler};
+}
+
 std::vector<uint8> ExtractByteData(const Utils::Image& image)
 {
     std::vector<uint8> bytes;
@@ -64,6 +137,11 @@ ID WebGpuTextureManager::CreateTexture(const Utils::Image& image, TextureFilter 
     images_[textureId]      = image;
     rawData_[textureId]     = ExtractByteData(image);
     activeTextureAssignments_[textureId] = 0;
+
+    if (device_ && queue_ && !rawData_[textureId].empty())
+    {
+        CreateGpuTextureResource(device_, queue_, textureId, image, gpuTextures_, rawData_);
+    }
 
     return textureId;
 }
@@ -234,13 +312,75 @@ std::vector<Utils::Image> WebGpuTextureManager::GetImageArray(IdType id) const
     return {};
 }
 
+const std::unordered_map<uint32, uint32>& WebGpuTextureManager::GetActiveTextureAssignments() const
+{
+    return activeTextureAssignments_;
+}
+
+std::optional<WGPUTextureView> WebGpuTextureManager::GetTextureView(uint32 textureId) const
+{
+    const auto it = gpuTextures_.find(textureId);
+    if (it == gpuTextures_.end() || !it->second.view)
+    {
+        return std::nullopt;
+    }
+
+    return it->second.view;
+}
+
+std::optional<WGPUSampler> WebGpuTextureManager::GetSampler(uint32 textureId) const
+{
+    const auto it = gpuTextures_.find(textureId);
+    if (it == gpuTextures_.end() || !it->second.sampler)
+    {
+        return std::nullopt;
+    }
+
+    return it->second.sampler;
+}
+
+void WebGpuTextureManager::SetDevice(WGPUDevice device, WGPUQueue queue)
+{
+    device_ = device;
+    queue_  = queue;
+}
+
 void WebGpuTextureManager::DeleteTexture(uint32 textureId)
 {
+    for (auto it = activeTextureAssignments_.begin(); it != activeTextureAssignments_.end();)
+    {
+        if (it->second == textureId)
+        {
+            it = activeTextureAssignments_.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    const auto it = gpuTextures_.find(textureId);
+    if (it != gpuTextures_.end())
+    {
+        if (it->second.view)
+        {
+            wgpuTextureViewRelease(it->second.view);
+        }
+        if (it->second.sampler)
+        {
+            wgpuSamplerRelease(it->second.sampler);
+        }
+        if (it->second.texture)
+        {
+            wgpuTextureRelease(it->second.texture);
+        }
+        gpuTextures_.erase(it);
+    }
+
     textureInfo_.erase(textureId);
     images_.erase(textureId);
     imageArrays_.erase(textureId);
     rawData_.erase(textureId);
-    activeTextureAssignments_.erase(textureId);
 }
 
 }  // namespace GraphicsApi::WebGpu
