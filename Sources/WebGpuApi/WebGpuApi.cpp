@@ -11,6 +11,7 @@
 #include "WebGpuContext.h"
 #include "WebGpuFrameBufferManager.h"
 #include "WebGpuMeshManager.h"
+#include "WebGpuShaderManager.h"
 #include "WebGpuTextureManager.h"
 #include "WebGpuTriangleRenderer.h"
 #include "WebGpuWindowApi.h"
@@ -24,6 +25,7 @@ struct WebGpuApi::Impl
     WebGpuTriangleRenderer triangleRenderer;
     WebGpuTextureManager textureManager;
     WebGpuMeshManager meshManager;
+    WebGpuShaderManager shaderManager;
     WebGpuFrameBufferManager frameBufferManager;
 
     Impl()
@@ -218,14 +220,16 @@ void WebGpuApi::EndFrame()
 
     context.ReleaseFrameResources();
 }
-void WebGpuApi::SetShadersFilesLocations(const std::filesystem::path&)
+void WebGpuApi::SetShadersFilesLocations(const std::filesystem::path& path)
 {
+    impl_->shaderManager.SetShadersFilesLocations(path);
 }
 void WebGpuApi::DebugNormalMeshGeneration(bool)
 {
 }
-void WebGpuApi::SetShaderQuaility(ShaderQuaility)
+void WebGpuApi::SetShaderQuaility(ShaderQuaility quality)
 {
+    impl_->shaderManager.SetShaderQuaility(quality);
 }
 void WebGpuApi::CreateContext()
 {
@@ -270,9 +274,9 @@ void WebGpuApi::EnableDepthTest()
 void WebGpuApi::DisableDepthTest()
 {
 }
-ID WebGpuApi::CreateShader(ShaderProgramType)
+ID WebGpuApi::CreateShader(ShaderProgramType shaderType)
 {
-    return {};
+    return impl_->shaderManager.Create(shaderType);
 }
 ID WebGpuApi::CreateShaderBuffer(uint32, uint32, DrawFlag)
 {
@@ -299,8 +303,9 @@ uint32 WebGpuApi::BindShaderBuffer(uint32)
 {
     return {};
 }
-void WebGpuApi::UseShader(uint32)
+void WebGpuApi::UseShader(uint32 shaderId)
 {
+    impl_->shaderManager.UseShader(shaderId);
 }
 ID WebGpuApi::CreateTexture(const Utils::Image& image, TextureFilter filter, TextureMipmap mipmap)
 {

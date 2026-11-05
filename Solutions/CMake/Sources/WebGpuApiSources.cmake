@@ -5,6 +5,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WebGpuApi/WebGpuApi.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WebGpuApi/WebGpuContext.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WebGpuApi/WebGpuFrameBufferManager.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WebGpuApi/WebGpuMeshManager.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WebGpuApi/WebGpuShaderManager.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WebGpuApi/WebGpuTextureManager.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WebGpuApi/WebGpuTriangleRenderer.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WebGpuApi/WebGpuWindowApi.cpp
