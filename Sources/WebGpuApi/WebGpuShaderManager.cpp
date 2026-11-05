@@ -366,12 +366,32 @@ bool WebGpuShaderManager::CreatePipelineForProgram(WebGpuShaderProgram& program)
     uvAttribute.offset = sizeof(float) * 3;
     uvAttribute.shaderLocation = 1;
 
-    WGPUVertexAttribute attributes[] = {positionAttribute, uvAttribute};
+    WGPUVertexAttribute normalAttribute{};
+    normalAttribute.format = WGPUVertexFormat_Float32x3;
+    normalAttribute.offset = sizeof(float) * 5;
+    normalAttribute.shaderLocation = 2;
+
+    WGPUVertexAttribute tangentAttribute{};
+    tangentAttribute.format = WGPUVertexFormat_Float32x3;
+    tangentAttribute.offset = sizeof(float) * 8;
+    tangentAttribute.shaderLocation = 3;
+
+    WGPUVertexAttribute weightAttribute{};
+    weightAttribute.format = WGPUVertexFormat_Float32x4;
+    weightAttribute.offset = sizeof(float) * 11;
+    weightAttribute.shaderLocation = 4;
+
+    WGPUVertexAttribute boneIdAttribute{};
+    boneIdAttribute.format = WGPUVertexFormat_Sint32x4;
+    boneIdAttribute.offset = sizeof(float) * 15;
+    boneIdAttribute.shaderLocation = 5;
+
+    WGPUVertexAttribute attributes[] = {positionAttribute, uvAttribute, normalAttribute, tangentAttribute, weightAttribute, boneIdAttribute};
 
     WGPUVertexBufferLayout vertexLayout{};
-    vertexLayout.arrayStride = sizeof(float) * 5;
+    vertexLayout.arrayStride = sizeof(float) * 19;
     vertexLayout.stepMode = WGPUVertexStepMode_Vertex;
-    vertexLayout.attributeCount = 2;
+    vertexLayout.attributeCount = 6;
     vertexLayout.attributes = attributes;
 
     WGPUBindGroupLayoutEntry bindEntries[16]{};
@@ -379,7 +399,15 @@ bool WebGpuShaderManager::CreatePipelineForProgram(WebGpuShaderProgram& program)
     {
         bindEntries[i].binding = i;
         bindEntries[i].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
-        bindEntries[i].buffer.type = WGPUBufferBindingType_Uniform;
+
+        if (i == 5)
+        {
+            bindEntries[i].buffer.type = WGPUBufferBindingType_Storage;
+        }
+        else
+        {
+            bindEntries[i].buffer.type = WGPUBufferBindingType_Uniform;
+        }
         bindEntries[i].buffer.minBindingSize = 0;
     }
 

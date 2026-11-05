@@ -2,7 +2,7 @@ struct MaterialData {
     color: vec4<f32>,
 };
 
-@group(0) @binding(1) var<uniform> u_material: MaterialData;
+@group(0) @binding(6) var<uniform> u_material: MaterialData;
 
 @fragment
 fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {

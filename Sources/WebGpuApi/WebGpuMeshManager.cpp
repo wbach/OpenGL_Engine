@@ -10,7 +10,7 @@ std::vector<float> BuildInterleavedVertexBuffer(const MeshRawData& meshData)
 {
     const auto vertexCount = meshData.positions_.size() / 3u;
     std::vector<float> vertices;
-    vertices.reserve(vertexCount * 5u);
+    vertices.reserve(vertexCount * 19u);
 
     for (uint32 i = 0; i < vertexCount; ++i)
     {
@@ -27,6 +27,69 @@ std::vector<float> BuildInterleavedVertexBuffer(const MeshRawData& meshData)
         }
         else
         {
+            vertices.push_back(0.0f);
+            vertices.push_back(0.0f);
+        }
+
+        const auto normalOffset = i * 3u;
+        if (normalOffset + 2u < meshData.normals_.size())
+        {
+            vertices.push_back(meshData.normals_[normalOffset]);
+            vertices.push_back(meshData.normals_[normalOffset + 1u]);
+            vertices.push_back(meshData.normals_[normalOffset + 2u]);
+        }
+        else
+        {
+            vertices.push_back(0.0f);
+            vertices.push_back(0.0f);
+            vertices.push_back(1.0f);
+        }
+
+        const auto tangentOffset = i * 3u;
+        if (tangentOffset + 2u < meshData.tangents_.size())
+        {
+            vertices.push_back(meshData.tangents_[tangentOffset]);
+            vertices.push_back(meshData.tangents_[tangentOffset + 1u]);
+            vertices.push_back(meshData.tangents_[tangentOffset + 2u]);
+        }
+        else
+        {
+            vertices.push_back(0.0f);
+            vertices.push_back(0.0f);
+            vertices.push_back(0.0f);
+        }
+
+        const auto weightOffset = i * 4u;
+        if (weightOffset + 3u < meshData.bonesWeights_.size())
+        {
+            vertices.push_back(meshData.bonesWeights_[weightOffset]);
+            vertices.push_back(meshData.bonesWeights_[weightOffset + 1u]);
+            vertices.push_back(meshData.bonesWeights_[weightOffset + 2u]);
+            vertices.push_back(meshData.bonesWeights_[weightOffset + 3u]);
+        }
+        else
+        {
+            vertices.push_back(0.0f);
+            vertices.push_back(0.0f);
+            vertices.push_back(0.0f);
+            vertices.push_back(0.0f);
+        }
+
+        const auto boneOffset = i * 4u;
+        if (boneOffset + 3u < meshData.joinIds_.size())
+        {
+            for (uint32 j = 0; j < 4u; ++j)
+            {
+                const int32_t boneId = meshData.joinIds_[boneOffset + j];
+                float bitFloat = 0.0f;
+                std::memcpy(&bitFloat, &boneId, sizeof(float));
+                vertices.push_back(bitFloat);
+            }
+        }
+        else
+        {
+            vertices.push_back(0.0f);
+            vertices.push_back(0.0f);
             vertices.push_back(0.0f);
             vertices.push_back(0.0f);
         }
@@ -49,6 +112,7 @@ ID WebGpuMeshManager::CreateMesh(const MeshRawData& meshData, RenderType renderT
     resource.meshData = meshData;
     resource.renderType = renderType;
     resource.vertexCount = static_cast<uint32>(meshData.positions_.size() / 3u);
+    resource.vertexStride = 19u;
     resource.hasIndices = !meshData.indices_.empty();
     resource.indexCount = static_cast<uint32>(meshData.indices_.size());
 
@@ -80,6 +144,7 @@ void WebGpuMeshManager::UpdateMesh(uint32 id, const MeshRawData& meshData, const
 
     it->second.meshData = meshData;
     it->second.vertexCount = static_cast<uint32>(meshData.positions_.size() / 3u);
+    it->second.vertexStride = 19u;
     it->second.hasIndices = !meshData.indices_.empty();
     it->second.indexCount = static_cast<uint32>(meshData.indices_.size());
 

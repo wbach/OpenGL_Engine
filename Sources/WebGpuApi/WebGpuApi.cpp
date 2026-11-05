@@ -50,15 +50,16 @@ void DrawQueuedMesh(const WebGpuShaderManager& shaderManager, const WebGpuMeshMa
         wgpuRenderPassEncoderSetBindGroup(renderPass, 0, program->bindGroup, 0, nullptr);
     }
 
+    const uint64_t vertexStrideBytes = sizeof(float) * mesh->vertexStride * mesh->vertexCount;
     if (mesh->hasIndices && mesh->indexBuffer)
     {
-        wgpuRenderPassEncoderSetVertexBuffer(renderPass, 0, mesh->vertexBuffer, 0, sizeof(float) * 5u * mesh->vertexCount);
+        wgpuRenderPassEncoderSetVertexBuffer(renderPass, 0, mesh->vertexBuffer, 0, vertexStrideBytes);
         wgpuRenderPassEncoderSetIndexBuffer(renderPass, mesh->indexBuffer, WGPUIndexFormat_Uint32, 0, mesh->indexCount * sizeof(uint32_t));
         wgpuRenderPassEncoderDrawIndexed(renderPass, mesh->indexCount, 1, 0, 0, 0);
     }
     else
     {
-        wgpuRenderPassEncoderSetVertexBuffer(renderPass, 0, mesh->vertexBuffer, 0, sizeof(float) * 5u * mesh->vertexCount);
+        wgpuRenderPassEncoderSetVertexBuffer(renderPass, 0, mesh->vertexBuffer, 0, vertexStrideBytes);
         wgpuRenderPassEncoderDraw(renderPass, mesh->vertexCount, 1, 0, 0);
     }
 }
@@ -83,6 +84,8 @@ struct WebGpuApi::Impl
     WebGpuShaderManager shaderManager;
     WebGpuFrameBufferManager frameBufferManager;
     std::vector<WebGpuDrawCall> queuedDrawCalls;
+    mat4 viewMatrix = mat4(1.f);
+    mat4 projectionMatrix = mat4(1.f);
 
     uint32 nextShaderBufferId = 1;
     std::unordered_map<uint32, WebGpuShaderBufferResource> shaderBuffers;
@@ -805,18 +808,20 @@ void WebGpuApi::UpdateOffset(uint32, const std::vector<vec4>&)
 void WebGpuApi::UpdateBlend(uint32, const std::vector<float>&)
 {
 }
-void WebGpuApi::LoadViewMatrix(const mat4&)
+void WebGpuApi::LoadViewMatrix(const mat4& viewMatrix)
 {
+    impl_->viewMatrix = viewMatrix;
 }
-void WebGpuApi::LoadProjectionMatrix(const mat4&)
+void WebGpuApi::LoadProjectionMatrix(const mat4& projectionMatrix)
 {
+    impl_->projectionMatrix = projectionMatrix;
 }
 void WebGpuApi::DrawLine(const vec3&, const vec3&, const vec3&)
 {
 }
-mat4 WebGpuApi::PrepareMatrixToLoad(const mat4&)
+mat4 WebGpuApi::PrepareMatrixToLoad(const mat4& matrix)
 {
-    return {};
+    return matrix;
 }
 std::vector<uint8> WebGpuApi::GetTextureData(uint32 textureId) const
 {

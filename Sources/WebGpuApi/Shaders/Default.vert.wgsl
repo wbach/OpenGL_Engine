@@ -2,7 +2,7 @@ struct FrameData {
     viewProj: mat4x4<f32>,
 };
 
-@group(0) @binding(0) var<uniform> u_frame: FrameData;
+@group(0) @binding(1) var<uniform> u_frame: FrameData;
 
 struct VertexInput {
     @location(0) position: vec3<f32>,

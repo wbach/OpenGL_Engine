@@ -19,6 +19,7 @@ struct WebGpuMeshResource
     WGPUBuffer indexBuffer = nullptr;
     uint32 vertexCount = 0;
     uint32 indexCount = 0;
+    uint32 vertexStride = 19u;
     bool hasIndices = false;
 };
 
