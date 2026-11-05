@@ -1,5 +1,5 @@
-
 (function () {
+
     Module['preRun'] = Module['preRun'] || [];
 
     Module['preRun'].push(function () {
@@ -9,14 +9,19 @@
         const PACKAGE_URL = "http://192.168.0.56:800/game.zip";
         const CHUNK_SIZE = 64 * 1024;
 
+        // Główny katalog docelowy.
+        const GAME_DIRECTORY = "/game";
+
         addRunDependency(dependency);
 
         function loadFflate() {
+
             if (globalThis.fflate) {
                 return Promise.resolve();
             }
 
             return new Promise((resolve, reject) => {
+
                 const script = document.createElement("script");
 
                 script.src = new URL(
@@ -25,6 +30,7 @@
                 ).href;
 
                 script.onload = resolve;
+
                 script.onerror = () => reject(
                     new Error("Nie można załadować fflate.js")
                 );
@@ -33,7 +39,9 @@
             });
         }
 
+        // Bezpieczna ścieżka z prefiksem /game/.
         function safePath(name) {
+
             const normalized = name.replace(/\\/g, "/");
 
             if (
@@ -42,16 +50,21 @@
                 /^[a-zA-Z]:/.test(normalized) ||
                 normalized.includes("\0")
             ) {
-                throw new Error("Nieprawidłowa ścieżka ZIP: " + name);
+                throw new Error(
+                    "Nieprawidłowa ścieżka ZIP: " + name
+                );
             }
 
             const parts = normalized.split("/");
 
             if (parts.some(p => p === "." || p === "..")) {
-                throw new Error("Niedozwolona ścieżka ZIP: " + name);
+                throw new Error(
+                    "Niedozwolona ścieżka ZIP: " + name
+                );
             }
 
-            return "/" + parts.filter(Boolean).join("/");
+            return GAME_DIRECTORY + "/" +
+                parts.filter(Boolean).join("/");
         }
 
         async function preloadGameAssets() {
@@ -59,6 +72,9 @@
             await loadFflate();
 
             console.log("BEngine: downloading game assets...");
+
+            // Utworzenie głównego katalogu gry.
+            FS.mkdirTree(GAME_DIRECTORY);
 
             const response = await fetch(PACKAGE_URL, {
                 cache: "no-cache"
@@ -85,7 +101,9 @@
             const zip = globalThis.fflate;
 
             if (!zip.Unzip || !zip.UnzipInflate) {
-                throw new Error("Brak obsługi streaming ZIP w fflate");
+                throw new Error(
+                    "Brak obsługi streaming ZIP w fflate"
+                );
             }
 
             let downloadedBytes = 0;
@@ -95,9 +113,7 @@
             let extractionError = null;
 
             // Streaming ZIP.
-            // UnzipInflate działa synchronicznie dla kolejnych fragmentów,
-            // dzięki czemu nie tworzymy kolejki nieskończonej liczby
-            // zadań w dodatkowych Workerach.
+            // UnzipInflate obsługuje kompresję DEFLATE.
 
             const unzipper = new zip.Unzip(file => {
 
@@ -110,24 +126,32 @@
 
                 try {
 
+                    const normalizedName =
+                        file.name.replace(/\\/g, "/");
+
                     const path = safePath(file.name);
 
-                    const isDirectory = file.name.endsWith("/");
+                    const isDirectory =
+                        normalizedName.endsWith("/");
 
+                    // Obsługa katalogów.
                     if (isDirectory) {
 
                         FS.mkdirTree(path);
 
                         file.ondata = (err) => {
+
                             if (err) {
                                 extractionError = err;
                             }
                         };
 
                         file.start();
+
                         return;
                     }
 
+                    // Utworzenie katalogu nadrzędnego.
                     const lastSlash = path.lastIndexOf("/");
 
                     const parent =
@@ -137,12 +161,15 @@
 
                     FS.mkdirTree(parent);
 
+                    // Otwarcie pliku do zapisu.
                     stream = FS.open(path, "w");
+
                     streamOpen = true;
 
                     file.ondata = (err, data, final) => {
 
                         if (err) {
+
                             extractionError = err;
 
                             if (streamOpen) {
@@ -176,6 +203,7 @@
                             if (final) {
 
                                 FS.close(stream);
+
                                 streamOpen = false;
 
                                 extractedFiles++;
@@ -204,7 +232,7 @@
                 }
             });
 
-            // Standardowy ZIP: DEFLATE (8) oraz STORE (0).
+            // Rejestracja obsługi DEFLATE.
             unzipper.register(zip.UnzipInflate);
 
             try {
@@ -221,9 +249,7 @@
 
                     downloadedBytes += chunk.length;
 
-                    // Dzielimy także większe fragmenty sieciowe
-                    // na mniejsze kawałki.
-
+                    // Podział większych fragmentów na kawałki 64 KB.
                     for (
                         let offset = 0;
                         offset < chunk.length;
@@ -264,7 +290,8 @@
                             "BEngine: ZIP " + percent + "% | " +
                             (downloadedBytes / 1024 / 1024).toFixed(1) +
                             " MB pobrane | " +
-                            extractedFiles + " plików rozpakowanych"
+                            extractedFiles +
+                            " plików rozpakowanych"
                         );
 
                         lastProgressTime = now;
@@ -279,23 +306,31 @@
                 }
 
             } finally {
+
                 reader.releaseLock();
             }
 
-            // Kontrola kompletności.
-            FS.stat("/config.xml");
-            FS.stat("/scenes.json");
-            FS.stat("/Data");
-            FS.stat("/Scenes");
+            // Kontrola kompletności zasobów.
+            FS.stat("/game");
+            FS.stat("/game/workSpaceConfig.xml");
+            FS.stat("/game/scenes.json");
+            FS.stat("/game/Data");
+            FS.stat("/game/Scenes");
+            FS.stat("/game/Shaders");
 
             console.log("==================================");
             console.log("BEngine: ASSETS READY");
             console.log("Files:", extractedFiles);
+
             console.log(
                 "Unpacked:",
-                (extractedBytes / 1024 / 1024 / 1024).toFixed(2),
+                (
+                    extractedBytes / 1024 / 1024 / 1024
+                ).toFixed(2),
                 "GiB"
             );
+
+            console.log("Directory:", GAME_DIRECTORY);
             console.log("==================================");
         }
 
@@ -318,5 +353,7 @@
                     "BEngine: nie udało się pobrać lub rozpakować zasobów"
                 );
             });
+
     });
+
 })();
