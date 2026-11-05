@@ -4,8 +4,11 @@
 #include <emscripten/html5.h>
 #include <webgpu/webgpu.h>
 
+#include <cstring>
+#include <limits>
 #include <stdexcept>
 #include <utility>
+#include <vector>
 
 #include "DefaultFrameBuffer.h"
 #include "WebGpuContext.h"
@@ -42,6 +45,10 @@ void DrawQueuedMesh(const WebGpuShaderManager& shaderManager, const WebGpuMeshMa
     }
 
     wgpuRenderPassEncoderSetPipeline(renderPass, program->pipeline);
+    if (program->bindGroup)
+    {
+        wgpuRenderPassEncoderSetBindGroup(renderPass, 0, program->bindGroup, 0, nullptr);
+    }
 
     if (mesh->hasIndices && mesh->indexBuffer)
     {
@@ -57,6 +64,15 @@ void DrawQueuedMesh(const WebGpuShaderManager& shaderManager, const WebGpuMeshMa
 }
 }  // namespace
 
+struct WebGpuShaderBufferResource
+{
+    WGPUBuffer buffer = nullptr;
+    uint32 bindLocation = 0;
+    uint32 size = 0;
+    bool isStorage = false;
+    std::vector<uint8_t> hostData;
+};
+
 struct WebGpuApi::Impl
 {
     std::unique_ptr<IWindowApi> windowApi;
@@ -67,6 +83,10 @@ struct WebGpuApi::Impl
     WebGpuShaderManager shaderManager;
     WebGpuFrameBufferManager frameBufferManager;
     std::vector<WebGpuDrawCall> queuedDrawCalls;
+
+    uint32 nextShaderBufferId = 1;
+    std::unordered_map<uint32, WebGpuShaderBufferResource> shaderBuffers;
+    std::unordered_map<uint32, uint32> boundShaderBuffers;
 
     Impl()
         : windowApi{std::make_unique<WebGpuWindowApi>()}
@@ -291,6 +311,19 @@ void WebGpuApi::CreateContext()
 }
 void WebGpuApi::DeleteContext()
 {
+    for (auto& [id, buffer] : impl_->shaderBuffers)
+    {
+        if (buffer.buffer)
+        {
+            wgpuBufferDestroy(buffer.buffer);
+            wgpuBufferRelease(buffer.buffer);
+            buffer.buffer = nullptr;
+        }
+        (void)id;
+    }
+    impl_->shaderBuffers.clear();
+    impl_->boundShaderBuffers.clear();
+
     impl_->context.Release();
     impl_->triangleRenderer.Release();
     impl_->shaderManager.Release();
@@ -330,34 +363,209 @@ ID WebGpuApi::CreateShader(ShaderProgramType shaderType)
 {
     return impl_->shaderManager.Create(shaderType);
 }
-ID WebGpuApi::CreateShaderBuffer(uint32, uint32, DrawFlag)
+ID WebGpuApi::CreateShaderBuffer(uint32 bindLocation, uint32 size, DrawFlag)
 {
-    return {};
+    if (!impl_->context.IsReady() || !impl_->context.device)
+    {
+        return std::nullopt;
+    }
+
+    WGPUBufferDescriptor descriptor{};
+    descriptor.label = WGPUStringView{"WebGPU Uniform Buffer", WGPU_STRLEN};
+    descriptor.size = size;
+    descriptor.usage = WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform;
+    descriptor.mappedAtCreation = WGPU_FALSE;
+
+    WGPUBuffer buffer = wgpuDeviceCreateBuffer(impl_->context.device, &descriptor);
+    if (!buffer)
+    {
+        return std::nullopt;
+    }
+
+    const auto id = impl_->nextShaderBufferId++;
+    impl_->shaderBuffers[id] = WebGpuShaderBufferResource{buffer, bindLocation, size, false, std::vector<uint8_t>(size)};
+    return id;
 }
-ID WebGpuApi::CreateShaderStorageBuffer(uint32, uint32, DrawFlag)
+ID WebGpuApi::CreateShaderStorageBuffer(uint32 bindLocation, uint32 size, DrawFlag)
 {
-    return {};
+    if (!impl_->context.IsReady() || !impl_->context.device)
+    {
+        return std::nullopt;
+    }
+
+    WGPUBufferDescriptor descriptor{};
+    descriptor.label = WGPUStringView{"WebGPU Storage Buffer", WGPU_STRLEN};
+    descriptor.size = size;
+    descriptor.usage = WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage;
+    descriptor.mappedAtCreation = WGPU_FALSE;
+
+    WGPUBuffer buffer = wgpuDeviceCreateBuffer(impl_->context.device, &descriptor);
+    if (!buffer)
+    {
+        return std::nullopt;
+    }
+
+    const auto id = impl_->nextShaderBufferId++;
+    impl_->shaderBuffers[id] = WebGpuShaderBufferResource{buffer, bindLocation, size, true, std::vector<uint8_t>(size)};
+    return id;
 }
-void WebGpuApi::UpdateShaderBuffer(uint32, void const*)
+void WebGpuApi::UpdateShaderBuffer(uint32 id, void const* buffer)
 {
+    const auto it = impl_->shaderBuffers.find(id);
+    if (it == impl_->shaderBuffers.end() || buffer == nullptr)
+    {
+        return;
+    }
+
+    auto& shaderBuffer = it->second;
+    std::memcpy(shaderBuffer.hostData.data(), buffer, shaderBuffer.size);
+    if (shaderBuffer.buffer && impl_->context.queue)
+    {
+        wgpuQueueWriteBuffer(impl_->context.queue, shaderBuffer.buffer, 0, shaderBuffer.hostData.data(), shaderBuffer.size);
+    }
 }
-void WebGpuApi::UpdateShaderStorageBuffer(uint32, void const*, uint32)
+void WebGpuApi::UpdateShaderStorageBuffer(uint32 id, void const* buffer, uint32 newSize)
 {
+    const auto it = impl_->shaderBuffers.find(id);
+    if (it == impl_->shaderBuffers.end() || buffer == nullptr)
+    {
+        return;
+    }
+
+    auto& shaderBuffer = it->second;
+    if (newSize > shaderBuffer.size)
+    {
+        shaderBuffer.size = newSize;
+        shaderBuffer.hostData.resize(newSize);
+    }
+
+    std::memcpy(shaderBuffer.hostData.data(), buffer, newSize);
+    if (shaderBuffer.buffer && impl_->context.queue)
+    {
+        wgpuQueueWriteBuffer(impl_->context.queue, shaderBuffer.buffer, 0, shaderBuffer.hostData.data(), newSize);
+    }
 }
-void* WebGpuApi::MapShaderStorageBuffer(uint32, uint32, uint32)
+void* WebGpuApi::MapShaderStorageBuffer(uint32 id, uint32 bufferSize, uint32 flags)
 {
-    return nullptr;
+    const auto it = impl_->shaderBuffers.find(id);
+    if (it == impl_->shaderBuffers.end())
+    {
+        return nullptr;
+    }
+
+    auto& shaderBuffer = it->second;
+    if (bufferSize > shaderBuffer.hostData.size())
+    {
+        shaderBuffer.hostData.resize(bufferSize);
+    }
+
+    (void)flags;
+    return shaderBuffer.hostData.data();
 }
 void WebGpuApi::UnmapShaderStorageBuffer(uint32)
 {
 }
-uint32 WebGpuApi::BindShaderBuffer(uint32)
+uint32 WebGpuApi::BindShaderBuffer(uint32 id)
 {
-    return {};
+    const auto it = impl_->shaderBuffers.find(id);
+    if (it == impl_->shaderBuffers.end())
+    {
+        return std::numeric_limits<uint32>::max();
+    }
+
+    const auto bindLocation = it->second.bindLocation;
+    const auto previous = impl_->boundShaderBuffers.contains(bindLocation) ? impl_->boundShaderBuffers[bindLocation] : 0u;
+    impl_->boundShaderBuffers[bindLocation] = id;
+
+    const auto currentProgramId = impl_->shaderManager.GetCurrentProgramId();
+    if (currentProgramId != 0)
+    {
+        auto* program = impl_->shaderManager.GetProgram(currentProgramId);
+        if (program && program->bindGroupLayout && impl_->context.device)
+        {
+            if (program->bindGroup)
+            {
+                wgpuBindGroupRelease(program->bindGroup);
+                program->bindGroup = nullptr;
+            }
+
+            std::vector<WGPUBindGroupEntry> entries;
+            entries.reserve(impl_->boundShaderBuffers.size());
+
+            for (const auto& [binding, bufferId] : impl_->boundShaderBuffers)
+            {
+                const auto bufferIt = impl_->shaderBuffers.find(bufferId);
+                if (bufferIt == impl_->shaderBuffers.end() || !bufferIt->second.buffer)
+                {
+                    continue;
+                }
+
+                WGPUBindGroupEntry entry{};
+                entry.binding = binding;
+                entry.buffer = bufferIt->second.buffer;
+                entry.offset = 0;
+                entry.size = bufferIt->second.size;
+                entries.push_back(entry);
+            }
+
+            if (!entries.empty())
+            {
+                WGPUBindGroupDescriptor descriptor{};
+                descriptor.layout = program->bindGroupLayout;
+                descriptor.entryCount = static_cast<uint32_t>(entries.size());
+                descriptor.entries = entries.data();
+                program->bindGroup = wgpuDeviceCreateBindGroup(impl_->context.device, &descriptor);
+            }
+        }
+    }
+
+    return previous;
 }
 void WebGpuApi::UseShader(uint32 shaderId)
 {
     impl_->shaderManager.UseShader(shaderId);
+
+    const auto currentProgramId = impl_->shaderManager.GetCurrentProgramId();
+    if (currentProgramId != 0)
+    {
+        auto* program = impl_->shaderManager.GetProgram(currentProgramId);
+        if (program && program->bindGroupLayout && impl_->context.device)
+        {
+            if (program->bindGroup)
+            {
+                wgpuBindGroupRelease(program->bindGroup);
+                program->bindGroup = nullptr;
+            }
+
+            std::vector<WGPUBindGroupEntry> entries;
+            entries.reserve(impl_->boundShaderBuffers.size());
+
+            for (const auto& [binding, bufferId] : impl_->boundShaderBuffers)
+            {
+                const auto bufferIt = impl_->shaderBuffers.find(bufferId);
+                if (bufferIt == impl_->shaderBuffers.end() || !bufferIt->second.buffer)
+                {
+                    continue;
+                }
+
+                WGPUBindGroupEntry entry{};
+                entry.binding = binding;
+                entry.buffer = bufferIt->second.buffer;
+                entry.offset = 0;
+                entry.size = bufferIt->second.size;
+                entries.push_back(entry);
+            }
+
+            if (!entries.empty())
+            {
+                WGPUBindGroupDescriptor descriptor{};
+                descriptor.layout = program->bindGroupLayout;
+                descriptor.entryCount = static_cast<uint32_t>(entries.size());
+                descriptor.entries = entries.data();
+                program->bindGroup = wgpuDeviceCreateBindGroup(impl_->context.device, &descriptor);
+            }
+        }
+    }
 }
 ID WebGpuApi::CreateTexture(const Utils::Image& image, TextureFilter filter, TextureMipmap mipmap)
 {
@@ -421,18 +629,54 @@ void WebGpuApi::ActiveTexture(uint32 unit)
     impl_->textureManager.ActiveTexture(unit);
 }
 
-void WebGpuApi::DeleteObject(uint32)
+void WebGpuApi::DeleteObject(uint32 id)
 {
+    if (impl_->shaderBuffers.contains(id))
+    {
+        DeleteShaderBuffer(id);
+        return;
+    }
+
+    impl_->textureManager.DeleteTexture(id);
 }
-void WebGpuApi::DeleteObject(const std::vector<uint32>&)
+void WebGpuApi::DeleteObject(const std::vector<uint32>& ids)
 {
+    for (const auto id : ids)
+    {
+        DeleteObject(id);
+    }
 }
 
-void WebGpuApi::DeleteShaderBuffer(uint32)
+void WebGpuApi::DeleteShaderBuffer(uint32 id)
 {
+    const auto it = impl_->shaderBuffers.find(id);
+    if (it == impl_->shaderBuffers.end())
+    {
+        return;
+    }
+
+    if (it->second.buffer)
+    {
+        wgpuBufferDestroy(it->second.buffer);
+        wgpuBufferRelease(it->second.buffer);
+    }
+
+    for (auto& [binding, boundId] : impl_->boundShaderBuffers)
+    {
+        if (boundId == id)
+        {
+            boundId = 0;
+        }
+    }
+
+    impl_->shaderBuffers.erase(it);
 }
-void WebGpuApi::DeleteShaderBuffer(const std::vector<uint32>&)
+void WebGpuApi::DeleteShaderBuffer(const std::vector<uint32>& ids)
 {
+    for (const auto id : ids)
+    {
+        DeleteShaderBuffer(id);
+    }
 }
 std::string WebGpuApi::GetBufferStatus()
 {

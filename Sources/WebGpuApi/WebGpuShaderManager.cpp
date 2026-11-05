@@ -38,38 +38,38 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 
 const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFiles> simpleForwardShaderFiles = {
     {GraphicsApi::ShaderProgramType::Loading,
-     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Common/Quad.vert"},
-      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Game/loadingShader.frag"}}},
+     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Default.vert.wgsl"},
+      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Default.frag.wgsl"}}},
     {GraphicsApi::ShaderProgramType::Texture,
-     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Gui/guiFragmentShader.vert"},
-      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Gui/guiFragmentShader.frag"}}},
+     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Default.vert.wgsl"},
+      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Default.frag.wgsl"}}},
     {GraphicsApi::ShaderProgramType::Grid,
-     {{GraphicsApi::ShaderType::VERTEX_SHADER, "DebugShaders/gridShader.vert"},
-      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "DebugShaders/gridShader.frag"}}},
+     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Default.vert.wgsl"},
+      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Default.frag.wgsl"}}},
     {GraphicsApi::ShaderProgramType::Line,
-     {{GraphicsApi::ShaderType::VERTEX_SHADER, "DebugShaders/lineDebugShader.vert"},
-      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "DebugShaders/lineDebugShader.frag"}}},
+     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Default.vert.wgsl"},
+      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Default.frag.wgsl"}}},
     {GraphicsApi::ShaderProgramType::DebugObject,
-     {{GraphicsApi::ShaderType::VERTEX_SHADER, "DebugShaders/debugObjectShader.vert"},
-      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "DebugShaders/debugObjectShader.frag"}}},
+     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Default.vert.wgsl"},
+      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Default.frag.wgsl"}}},
     {GraphicsApi::ShaderProgramType::DebugNormal,
-     {{GraphicsApi::ShaderType::VERTEX_SHADER, "DebugShaders/NormalShader.vert"},
-      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "DebugShaders/NormalShader.frag"}}},
+     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Default.vert.wgsl"},
+      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Default.frag.wgsl"}}},
     {GraphicsApi::ShaderProgramType::Entity,
-     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Entity/Forward/SimpleEntityShader.vert"},
-      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Entity/Forward/SimpleEntityShader.frag"}}},
+     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Entity/Forward/SimpleEntityShader.vert.wgsl"},
+      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Entity/Forward/SimpleEntityShader.frag.wgsl"}}},
     {GraphicsApi::ShaderProgramType::TerrainMesh,
-     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Terrain/Mesh/TerrainShader.vert"},
-      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Terrain/Mesh/TerrainShader.frag"}}},
+     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Default.vert.wgsl"},
+      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Default.frag.wgsl"}}},
     {GraphicsApi::ShaderProgramType::TreeLeafs,
-     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Tree/LeafShader.vert"},
-      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Tree/Forward/LeafShader.frag"}}},
+     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Default.vert.wgsl"},
+      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Default.frag.wgsl"}}},
     {GraphicsApi::ShaderProgramType::TreeLeafsCluster,
-     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Tree/LeafClusterShader.vert"},
-      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Tree/Forward/LeafClusterShader.frag"}}},
+     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Default.vert.wgsl"},
+      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Default.frag.wgsl"}}},
     {GraphicsApi::ShaderProgramType::Particles,
-     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Particles/Forward/ParticlesShader.vert"},
-      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Particles/Forward/ParticlesShader.frag"}}}
+     {{GraphicsApi::ShaderType::VERTEX_SHADER, "Default.vert.wgsl"},
+      {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Default.frag.wgsl"}}}
 };
 
 std::optional<GraphicsApi::ShadersFiles> GetSimpleForwardShaderFiles(GraphicsApi::ShaderProgramType shaderType)
@@ -108,7 +108,7 @@ void WebGpuShaderManager::SetDevice(WGPUDevice device, WGPUTextureFormat surface
 
 void WebGpuShaderManager::SetShadersFilesLocations(const std::filesystem::path& path)
 {
-    shadersFileLocation_ = path / "GLSL";
+    shadersFileLocation_ = path / "WebGpuApi" / "Shaders";
     LOG_DEBUG << "WebGPU shader path: " << shadersFileLocation_;
 }
 
@@ -188,19 +188,40 @@ void WebGpuShaderManager::DeleteShader(uint32 id)
         return;
     }
 
+    if (it->second.bindGroup)
+    {
+        wgpuBindGroupRelease(it->second.bindGroup);
+        it->second.bindGroup = nullptr;
+    }
+
     if (it->second.pipeline)
     {
         wgpuRenderPipelineRelease(it->second.pipeline);
+        it->second.pipeline = nullptr;
+    }
+
+    if (it->second.pipelineLayout)
+    {
+        wgpuPipelineLayoutRelease(it->second.pipelineLayout);
+        it->second.pipelineLayout = nullptr;
+    }
+
+    if (it->second.bindGroupLayout)
+    {
+        wgpuBindGroupLayoutRelease(it->second.bindGroupLayout);
+        it->second.bindGroupLayout = nullptr;
     }
 
     if (it->second.vertexModule)
     {
         wgpuShaderModuleRelease(it->second.vertexModule);
+        it->second.vertexModule = nullptr;
     }
 
     if (it->second.fragmentModule)
     {
         wgpuShaderModuleRelease(it->second.fragmentModule);
+        it->second.fragmentModule = nullptr;
     }
 
     shaderPrograms_.erase(it);
@@ -213,6 +234,17 @@ void WebGpuShaderManager::DeleteShader(uint32 id)
 uint32 WebGpuShaderManager::GetCurrentProgramId() const
 {
     return currentShader_;
+}
+
+WebGpuShaderProgram* WebGpuShaderManager::GetProgram(uint32 id)
+{
+    const auto it = shaderPrograms_.find(id);
+    if (it == shaderPrograms_.end())
+    {
+        return nullptr;
+    }
+
+    return &it->second;
 }
 
 const WebGpuShaderProgram* WebGpuShaderManager::GetProgram(uint32 id) const
@@ -230,10 +262,28 @@ void WebGpuShaderManager::Release()
 {
     for (auto& [id, program] : shaderPrograms_)
     {
+        if (program.bindGroup)
+        {
+            wgpuBindGroupRelease(program.bindGroup);
+            program.bindGroup = nullptr;
+        }
+
         if (program.pipeline)
         {
             wgpuRenderPipelineRelease(program.pipeline);
             program.pipeline = nullptr;
+        }
+
+        if (program.pipelineLayout)
+        {
+            wgpuPipelineLayoutRelease(program.pipelineLayout);
+            program.pipelineLayout = nullptr;
+        }
+
+        if (program.bindGroupLayout)
+        {
+            wgpuBindGroupLayoutRelease(program.bindGroupLayout);
+            program.bindGroupLayout = nullptr;
         }
 
         if (program.vertexModule)
@@ -316,11 +366,52 @@ bool WebGpuShaderManager::CreatePipelineForProgram(WebGpuShaderProgram& program)
     uvAttribute.offset = sizeof(float) * 3;
     uvAttribute.shaderLocation = 1;
 
+    WGPUVertexAttribute attributes[] = {positionAttribute, uvAttribute};
+
     WGPUVertexBufferLayout vertexLayout{};
     vertexLayout.arrayStride = sizeof(float) * 5;
     vertexLayout.stepMode = WGPUVertexStepMode_Vertex;
     vertexLayout.attributeCount = 2;
-    vertexLayout.attributes = &positionAttribute;
+    vertexLayout.attributes = attributes;
+
+    WGPUBindGroupLayoutEntry bindEntries[16]{};
+    for (uint32 i = 0; i < 16; ++i)
+    {
+        bindEntries[i].binding = i;
+        bindEntries[i].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+        bindEntries[i].buffer.type = WGPUBufferBindingType_Uniform;
+        bindEntries[i].buffer.minBindingSize = 0;
+    }
+
+    WGPUBindGroupLayoutDescriptor bindLayoutDesc{};
+    bindLayoutDesc.entryCount = 16;
+    bindLayoutDesc.entries = bindEntries;
+    program.bindGroupLayout = wgpuDeviceCreateBindGroupLayout(device_, &bindLayoutDesc);
+    if (!program.bindGroupLayout)
+    {
+        LOG_ERROR << "Could not create WebGPU bind group layout for shader type: " << magic_enum::enum_name(program.type);
+        wgpuShaderModuleRelease(program.fragmentModule);
+        program.fragmentModule = nullptr;
+        wgpuShaderModuleRelease(program.vertexModule);
+        program.vertexModule = nullptr;
+        return false;
+    }
+
+    WGPUPipelineLayoutDescriptor pipelineLayoutDesc{};
+    pipelineLayoutDesc.bindGroupLayoutCount = 1;
+    pipelineLayoutDesc.bindGroupLayouts = &program.bindGroupLayout;
+    program.pipelineLayout = wgpuDeviceCreatePipelineLayout(device_, &pipelineLayoutDesc);
+    if (!program.pipelineLayout)
+    {
+        LOG_ERROR << "Could not create WebGPU pipeline layout for shader type: " << magic_enum::enum_name(program.type);
+        wgpuBindGroupLayoutRelease(program.bindGroupLayout);
+        program.bindGroupLayout = nullptr;
+        wgpuShaderModuleRelease(program.fragmentModule);
+        program.fragmentModule = nullptr;
+        wgpuShaderModuleRelease(program.vertexModule);
+        program.vertexModule = nullptr;
+        return false;
+    }
 
     WGPUColorTargetState colorTarget{};
     colorTarget.format = surfaceFormat_;
@@ -334,7 +425,7 @@ bool WebGpuShaderManager::CreatePipelineForProgram(WebGpuShaderProgram& program)
 
     WGPURenderPipelineDescriptor pipelineDescriptor{};
     pipelineDescriptor.label = WGPUStringView{"WebGPU Shader Pipeline", WGPU_STRLEN};
-    pipelineDescriptor.layout = nullptr;
+    pipelineDescriptor.layout = program.pipelineLayout;
     pipelineDescriptor.vertex.module = program.vertexModule;
     pipelineDescriptor.vertex.entryPoint = WGPUStringView{"vs_main", WGPU_STRLEN};
     pipelineDescriptor.vertex.bufferCount = 1;

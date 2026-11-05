@@ -22,7 +22,10 @@ struct WebGpuShaderProgram
     GraphicsApi::ShadersFiles sources;
     WGPUShaderModule vertexModule = nullptr;
     WGPUShaderModule fragmentModule = nullptr;
+    WGPUPipelineLayout pipelineLayout = nullptr;
+    WGPUBindGroupLayout bindGroupLayout = nullptr;
     WGPURenderPipeline pipeline = nullptr;
+    WGPUBindGroup bindGroup = nullptr;
 };
 
 class WebGpuShaderManager
@@ -40,6 +43,7 @@ public:
     void DeleteShader(uint32 id);
     void Release();
     uint32 GetCurrentProgramId() const;
+    WebGpuShaderProgram* GetProgram(uint32 id);
     const WebGpuShaderProgram* GetProgram(uint32 id) const;
 
 private:
