@@ -7,6 +7,7 @@
 
 #include "BufferType.h"
 #include "VulkanShaderBuffer.h"
+#include "PipelineConfig.h"
 
 namespace GraphicsApi::Vulkan
 {
@@ -36,5 +37,6 @@ struct VulkanProgram
     VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
     VkPipelineLayout layout                   = VK_NULL_HANDLE;
     VkPipeline pipeline                       = VK_NULL_HANDLE;
+    PipelineConfig pipelineConfig;
 };
 }  // namespace GraphicsApi::Vulkan

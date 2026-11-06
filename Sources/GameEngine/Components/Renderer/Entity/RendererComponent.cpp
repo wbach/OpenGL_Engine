@@ -308,7 +308,8 @@ void RendererComponent::CreatePerObjectUpdateBuffer(const Mesh& mesh)
 
     auto& graphicsApi = componentContext_.graphicsApi_;
 
-    auto bufferPtr = std::make_unique<ShaderBufferObject<PerObjectUpdate>>(graphicsApi, PER_OBJECT_UPDATE_BIND_LOCATION);
+    auto bufferPtr = std::make_unique<ShaderBufferObject<PerObjectUpdate>>(graphicsApi, PER_OBJECT_UPDATE_BIND_LOCATION,
+                                                                           GraphicsApi::DrawFlag::Static);
     auto& buffer   = *bufferPtr.get();
     perObjectUpdateBuffer_.insert({mesh.GetGpuObjectId(), std::move(bufferPtr)});
 
@@ -329,9 +330,9 @@ void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
         return;
     }
 
-    auto bufferPtr = std::make_unique<ShaderBufferObject<PerObjectConstants>>(componentContext_.graphicsApi_,
-                                                                              PER_OBJECT_CONSTANTS_BIND_LOCATION);
-    auto& buffer   = *bufferPtr.get();
+    auto bufferPtr = std::make_unique<ShaderBufferObject<PerObjectConstants>>(
+        componentContext_.graphicsApi_, PER_OBJECT_CONSTANTS_BIND_LOCATION, GraphicsApi::DrawFlag::Static);
+    auto& buffer = *bufferPtr.get();
 
     perObjectConstantsBuffer_.insert({mesh.GetGpuObjectId(), std::move(bufferPtr)});
 

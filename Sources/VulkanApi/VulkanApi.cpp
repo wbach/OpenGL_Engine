@@ -19,6 +19,114 @@ namespace GraphicsApi::Vulkan
 {
 namespace
 {
+
+VkDescriptorType GetDescriptorType(BufferType type)
+{
+    switch (type)
+    {
+        case BufferType::StaticPerObject:
+            return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
+        case BufferType::DynamicPerFrame:
+            return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+    }
+
+    return VK_DESCRIPTOR_TYPE_MAX_ENUM;
+}
+bool ValidateDrawCallBufferBindings(const VulkanContext& vkContext, const VulkanProgram& program, const VulkanDrawCall& drawCall)
+{
+    bool valid = true;
+
+    for (const auto& [binding, shaderBuffer] : drawCall.boundShaderBuffers)
+    {
+        const auto& descriptorBindings = program.pipelineConfig.descriptorBindings;
+        // Find binding in current program configuration.
+        const auto configIt =
+            std::find_if(descriptorBindings.begin(), descriptorBindings.end(),
+                         [binding](const DescriptorBindingConfig& config) { return config.binding == binding; });
+
+        if (configIt == descriptorBindings.end())
+        {
+            LOG_ERROR << "ShaderBuffer binding mismatch!"
+                      << " Program: " << drawCall.programId << ", Binding: " << binding << " is not declared in PipelineConfig.";
+
+            valid = false;
+            continue;
+        }
+
+        // Currently we support one buffer per binding.
+        if (configIt->descriptorCount != 1)
+        {
+            LOG_ERROR << "Unsupported descriptorCount!"
+                      << " Program: " << drawCall.programId << ", Binding: " << binding
+                      << ", Count: " << configIt->descriptorCount;
+
+            valid = false;
+            continue;
+        }
+
+        // Check descriptor type.
+        const VkDescriptorType actualType = GetDescriptorType(shaderBuffer.type);
+
+        if (configIt->descriptorType != actualType)
+        {
+            LOG_ERROR << "ShaderBuffer descriptor type mismatch!"
+                      << " Program: " << drawCall.programId << ", Binding: " << binding
+                      << ", Expected: " << configIt->descriptorType << ", Actual: " << actualType
+                      << ", BufferType: " << static_cast<int>(shaderBuffer.type);
+
+            valid = false;
+        }
+
+        // Check logical binding consistency.
+        if (shaderBuffer.bindLocation != binding)
+        {
+            LOG_ERROR << "ShaderBuffer bindLocation mismatch!"
+                      << " Program: " << drawCall.programId << ", Map binding: " << binding
+                      << ", Buffer bindLocation: " << shaderBuffer.bindLocation;
+
+            valid = false;
+        }
+
+        // Check Vulkan handle.
+        if (shaderBuffer.buffer == VK_NULL_HANDLE)
+        {
+            LOG_ERROR << "ShaderBuffer contains NULL VkBuffer!"
+                      << " Program: " << drawCall.programId << ", Binding: " << binding;
+
+            valid = false;
+        }
+
+        // Check dynamic buffer allocation.
+        if (shaderBuffer.type == BufferType::DynamicPerFrame)
+        {
+            const auto& dUbo = vkContext.globalDynamicUBO;
+
+            const VkDeviceSize offset = shaderBuffer.dynamicOffset;
+            const VkDeviceSize size   = shaderBuffer.size;
+
+            if (dUbo.alignment != 0 && offset % dUbo.alignment != 0)
+            {
+                LOG_ERROR << "Dynamic UBO alignment error!"
+                          << " Program: " << drawCall.programId << ", Binding: " << binding << ", Offset: " << offset
+                          << ", Alignment: " << dUbo.alignment;
+
+                valid = false;
+            }
+
+            if (offset > dUbo.totalSize || size > dUbo.totalSize - offset)
+            {
+                LOG_ERROR << "Dynamic UBO range out of bounds!"
+                          << " Program: " << drawCall.programId << ", Binding: " << binding << ", Offset: " << offset
+                          << ", Size: " << size << ", Total: " << dUbo.totalSize;
+
+                valid = false;
+            }
+        }
+    }
+
+    return valid;
+}
 bool AcquireNextSwapChainImage(VulkanContext& vkContext, uint32& imageIndex)
 {
     VkResult result = vkAcquireNextImageKHR(vkContext.device, vkContext.swapChain, UINT64_MAX, vkContext.imageAvailableSemaphore,
@@ -535,6 +643,12 @@ VkDescriptorSet PrepareDrawCallDescriptorSet(VulkanContext& context, VkDescripto
 void ExecuteDrawCall(VulkanContext& vkContext, VkCommandBuffer commandBuffer, VkDescriptorPool descriptorPool,
                      const VulkanProgram& program, const VulkanDrawCall& drawCall)
 {
+    if (!ValidateDrawCallBufferBindings(vkContext, program, drawCall))
+    {
+        LOG_ERROR << "Skipping invalid DrawCall. Program: " << drawCall.programId;
+        return;
+    }
+
     // 1. Prepare descriptor set
     auto drawCallSet =
         PrepareDrawCallDescriptorSet(vkContext, descriptorPool, program.descriptorSetLayout, drawCall.boundShaderBuffers);
@@ -545,7 +659,7 @@ void ExecuteDrawCall(VulkanContext& vkContext, VkCommandBuffer commandBuffer, Vk
     // 2. Prepare dynamic offsets
     std::vector<uint32> dynamicOffsets;
 
-    constexpr uint32 totalBindingsCount = 12;
+    const auto totalBindingsCount = program.pipelineConfig.descriptorBindings.size();
 
     for (uint32 i = 0; i < totalBindingsCount; ++i)
     {
@@ -890,9 +1004,9 @@ ID VulkanApi::CreateShader(ShaderProgramType type)
 {
     return shaderManager_.Create(type);
 }
-ID VulkanApi::CreateShaderBuffer(uint32 bindLocation, uint32 size, GraphicsApi::DrawFlag /*flag*/)
+ID VulkanApi::CreateShaderBuffer(uint32 bindLocation, uint32 size, GraphicsApi::DrawFlag flag)
 {
-    auto flag = GetDrawFlagByBindLocation(bindLocation);
+    // auto flag = GetDrawFlagByBindLocation(bindLocation);
     if (flag == DrawFlag::Static)
     {
         VulkanShaderBuffer shaderBuffer{};
@@ -1340,15 +1454,34 @@ void VulkanApi::RenderPurePatchedMeshInstances(uint32)
 {
 }
 
-std::map<uint32, VulkanShaderBuffer> VulkanApi::createBufferBindingForDrawCall(const RenderState& renderState)
+std::map<uint32, VulkanShaderBuffer> VulkanApi::createBufferBindingForDrawCall(const VulkanProgram& program,
+                                                                               const RenderState& renderState)
 {
     std::map<uint32, VulkanShaderBuffer> result;
+    const auto& descriptorBindings = program.pipelineConfig.descriptorBindings;
+
     for (const auto& [bindLocation, bufferId] : renderState.boundShaderBuffers)
     {
+        auto descriptorIt = std::find_if(descriptorBindings.begin(), descriptorBindings.end(),
+                                         [bindLocation](const auto& binding) { return binding.binding == bindLocation; });
+
+        if (descriptorIt == descriptorBindings.end())
+        {
+            continue;  // Skip if the bind location is not part of the program's descriptor bindings
+        }
+
         auto bufferIt = vkContext.shaderBuffers.find(bufferId);
 
         if (bufferIt == vkContext.shaderBuffers.end())
             continue;
+
+        if (GetDescriptorType(bufferIt->second.type) != descriptorIt->descriptorType)
+        {
+            LOG_ERROR << "Error: Shader buffer type mismatch for bind location " << bindLocation
+                      << ". Expected descriptor type: " << static_cast<uint32>(descriptorIt->descriptorType)
+                      << ", but got buffer type: " << static_cast<uint32>(GetDescriptorType(bufferIt->second.type)) << ".\n";
+            return {};
+        }
 
         result.emplace(bindLocation, bufferIt->second);
     }
@@ -1369,9 +1502,10 @@ void VulkanApi::RenderMesh(uint32 meshId)
     {
         VulkanDrawCall drawCall{.programId          = vkContext.currentRenderState.activeProgramId,
                                 .drawCommand        = VulkanMeshDraw{meshId},
-                                .boundShaderBuffers = createBufferBindingForDrawCall(vkContext.currentRenderState)};
+                                .boundShaderBuffers = createBufferBindingForDrawCall(it->second, vkContext.currentRenderState)};
 
-        vkContext.pendingDrawCalls.push_back(drawCall);
+        if (not drawCall.boundShaderBuffers.empty())
+            vkContext.pendingDrawCalls.push_back(drawCall);
     }
     else
     {
@@ -1387,8 +1521,9 @@ void VulkanApi::RenderProcedural(uint32 count)
     {
         VulkanDrawCall drawCall{.programId          = vkContext.currentRenderState.activeProgramId,
                                 .drawCommand        = VulkanProceduralDraw{count},
-                                .boundShaderBuffers = createBufferBindingForDrawCall(vkContext.currentRenderState)};
-        vkContext.pendingDrawCalls.push_back(drawCall);
+                                .boundShaderBuffers = createBufferBindingForDrawCall(it->second, vkContext.currentRenderState)};
+        if (not drawCall.boundShaderBuffers.empty())
+            vkContext.pendingDrawCalls.push_back(drawCall);
     }
 }
 void VulkanApi::RenderDebugNormals(uint32)

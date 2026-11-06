@@ -223,7 +223,7 @@ void TerrainMeshRendererComponent::createBoundingBoxes()
 ShaderBufferObject<PerObjectUpdate> &TerrainMeshRendererComponent::CreatePerObjectBuffer(GraphicsApi::IGraphicsApi &graphicsApi)
 {
     perObjectUpdateBuffer_.push_back(
-        std::make_unique<ShaderBufferObject<PerObjectUpdate>>(graphicsApi, PER_OBJECT_UPDATE_BIND_LOCATION));
+        std::make_unique<ShaderBufferObject<PerObjectUpdate>>(graphicsApi, PER_OBJECT_UPDATE_BIND_LOCATION, GraphicsApi::DrawFlag::Static));
     return *perObjectUpdateBuffer_.back();
 }
 

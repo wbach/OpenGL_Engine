@@ -100,25 +100,25 @@ bool CreatePipelineLayout(VulkanContext& context, VulkanProgram& newProgram)
 }
 
 bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
-                            const VkPipelineShaderStageCreateInfo* shaderStages, const PipelineConfig& pipelineConfig)
+                            const VkPipelineShaderStageCreateInfo* shaderStages)
 {
-    LOG_DEBUG << pipelineConfig.shaders.at(ShaderType::VERTEX_SHADER)
-              << ", topology = " << magic_enum::enum_name(pipelineConfig.topology);
+    LOG_DEBUG << newProgram.pipelineConfig.shaders.at(ShaderType::VERTEX_SHADER)
+              << ", topology = " << magic_enum::enum_name(newProgram.pipelineConfig.topology);
 
     VkVertexInputBindingDescription bindingDescription{};
     bindingDescription.binding   = 0;
-    bindingDescription.stride    = pipelineConfig.vertexLayout.stride;
+    bindingDescription.stride    = newProgram.pipelineConfig.vertexLayout.stride;
     bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
     std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
-    for (const auto& attr : pipelineConfig.vertexLayout.attributes)
+    for (const auto& attr : newProgram.pipelineConfig.vertexLayout.attributes)
     {
         attributeDescriptions.push_back({attr.location, 0, attr.format, attr.offset});
     }
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    if (pipelineConfig.vertexLayout.attributes.empty())
+    if (newProgram.pipelineConfig.vertexLayout.attributes.empty())
     {
         vertexInputInfo.vertexBindingDescriptionCount   = 0;
         vertexInputInfo.pVertexBindingDescriptions      = nullptr;
@@ -129,7 +129,7 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     {
         vertexInputInfo.vertexBindingDescriptionCount   = 1;
         vertexInputInfo.pVertexBindingDescriptions      = &bindingDescription;
-        vertexInputInfo.vertexAttributeDescriptionCount = pipelineConfig.vertexLayout.attributes.size();
+        vertexInputInfo.vertexAttributeDescriptionCount = newProgram.pipelineConfig.vertexLayout.attributes.size();
         vertexInputInfo.pVertexAttributeDescriptions    = attributeDescriptions.data();
     }
 
@@ -137,9 +137,9 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     inputAssembly.sType                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     inputAssembly.pNext                  = nullptr;
     inputAssembly.flags                  = 0;
-    inputAssembly.primitiveRestartEnable = pipelineConfig.primitiveRestartEnable ? VK_TRUE : VK_FALSE;
+    inputAssembly.primitiveRestartEnable = newProgram.pipelineConfig.primitiveRestartEnable ? VK_TRUE : VK_FALSE;
 
-    switch (pipelineConfig.topology)
+    switch (newProgram.pipelineConfig.topology)
     {
         case Topology::TriangleList:
             inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -203,9 +203,9 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     colorBlending.pAttachments    = &colorBlendAttachment;
 
     std::vector<VkDescriptorSetLayoutBinding> bindings;
-    bindings.reserve(pipelineConfig.descriptorBindings.size());
+    bindings.reserve(newProgram.pipelineConfig.descriptorBindings.size());
 
-    for (const auto& config : pipelineConfig.descriptorBindings)
+    for (const auto& config : newProgram.pipelineConfig.descriptorBindings)
     {
         VkDescriptorSetLayoutBinding binding{};
 
@@ -407,6 +407,7 @@ ID VulkanShaderManager::Create(ShaderProgramType type)
     VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
     VulkanProgram newProgram{};
+    newProgram.pipelineConfig = *maybePiplineConfig;
 
     if (!CreatePipelineLayout(vkContext_, newProgram))
     {
@@ -414,7 +415,7 @@ ID VulkanShaderManager::Create(ShaderProgramType type)
         return {};
     }
 
-    if (!CreateGraphicsPipeline(vkContext_, newProgram, shaderStages, *maybePiplineConfig))
+    if (!CreateGraphicsPipeline(vkContext_, newProgram, shaderStages))
     {
         vkDestroyPipelineLayout(vkContext_.device, newProgram.layout, nullptr);
         DestroyShaderModules(vkContext_, vertModule, fragModule);

@@ -11,13 +11,72 @@ namespace GraphicsApi::Vulkan
 {
 namespace
 {
+
+const uint32 PER_APP_BIND_LOCATION              = 0;
+const uint32 PER_FRAME_BIND_LOCATION            = 1;
+const uint32 PER_OBJECT_CONSTANTS_BIND_LOCATION = 2;
+const uint32 PER_OBJECT_UPDATE_BIND_LOCATION    = 3;  // PER_TERRAIN_BIND_LOCATION
+const uint32 PER_POSE_UPDATE_BIND_LOCATION      = 4;  // PER_NODE_LOCATION
+const uint32 PER_INSTANCES_BIND_LOCATION        = 5;
+const uint32 PER_MESH_OBJECT_BIND_LOCATION      = 6;
+const uint32 SHADOW_BUFFER_BIND_LOCATION        = 7;
+const uint32 WATER_TILE_BIND_LOCATION           = 8;
+const uint32 DIRECTIONAL_LIGHTS_BIND_LOCATION   = 9;
+const uint32 POINT_LIGHTS_BIND_LOCATION         = 10;
+const uint32 SPOT_LIGHTS_BIND_LOCATION          = 11;
+
 const std::unordered_map<GraphicsApi::ShaderProgramType, PipelineConfig> pipelineConfigurations = {
     {GraphicsApi::ShaderProgramType::Loading,
      {{{GraphicsApi::ShaderType::VERTEX_SHADER, "Common/Quad.vert"},
        {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Game/loadingShader.frag"}}}},
     {GraphicsApi::ShaderProgramType::Entity,
-     {{{GraphicsApi::ShaderType::VERTEX_SHADER, "Entity/Forward/SimpleEntityShader.vert"},
-       {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Entity/Forward/SimpleEntityShader.frag"}}}},
+     PipelineConfig{.shaders  = ShadersFiles{{GraphicsApi::ShaderType::VERTEX_SHADER, "Entity/Forward/SimpleEntityShader.vert"},
+                                            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Entity/Forward/SimpleEntityShader.frag"}},
+                    .topology = Topology::TriangleList,
+                    .polygonMode            = PolygonMode::Fill,
+                    .cullMode               = CullMode::Back,
+                    .depthTestEnable        = true,
+                    .depthWriteEnable       = true,
+                    .blendEnable            = false,
+                    .primitiveRestartEnable = false,
+                    .vertexLayout           = GetDefaultVertexLayout(),
+                    .descriptorBindings =
+                        {// 0 - PER_APP
+                         {.binding         = PER_APP_BIND_LOCATION,
+                          .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                          .descriptorCount = 1,
+                          .stageFlags      = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT},
+
+                         // 1 - PER_FRAME
+                         {.binding         = PER_FRAME_BIND_LOCATION,
+                          .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                          .descriptorCount = 1,
+                          .stageFlags      = VK_SHADER_STAGE_VERTEX_BIT},
+
+                         // 2 - PER_OBJECT_CONSTANTS
+                         {.binding         = PER_OBJECT_CONSTANTS_BIND_LOCATION,
+                          .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                          .descriptorCount = 1,
+                          .stageFlags      = VK_SHADER_STAGE_VERTEX_BIT},
+
+                         // 3 - PER_OBJECT_UPDATE
+                         {.binding         = PER_OBJECT_UPDATE_BIND_LOCATION,
+                          .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                          .descriptorCount = 1,
+                          .stageFlags      = VK_SHADER_STAGE_VERTEX_BIT},
+
+                         // 4 - PER_POSE_UPDATE
+                         {.binding         = PER_POSE_UPDATE_BIND_LOCATION,
+                          .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                          .descriptorCount = 1,
+                          .stageFlags      = VK_SHADER_STAGE_VERTEX_BIT},
+
+                         {.binding         = PER_MESH_OBJECT_BIND_LOCATION,  // perMaterial
+                          .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                          .descriptorCount = 1,
+                          .stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT}}
+
+     }},
     {GraphicsApi::ShaderProgramType::InstancesEntity,
      {{{GraphicsApi::ShaderType::VERTEX_SHADER, "Entity/Forward/InstancesSimpleEntityShader.vert"},
        {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Entity/Forward/SimpleEntityShader.frag"}}}},
@@ -137,16 +196,41 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, PipelineConfig> pipelin
       PolygonMode::Fill,
       CullMode::Back}},
     {GraphicsApi::ShaderProgramType::TerrainMesh,
-     PipelineConfig{
-         .shaders          = ShadersFiles{{GraphicsApi::ShaderType::VERTEX_SHADER, "Terrain/Mesh/Forward/TerrainShader.vert"},
-                                 {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Terrain/Mesh/Forward/TerrainShader.frag"}},
-         .topology         = Topology::TriangleStrip,
-         .polygonMode      = PolygonMode::Fill,
-         .cullMode         = CullMode::Back,
-         .depthTestEnable  = true,
-         .depthWriteEnable = true,
-         .blendEnable      = false,
-         .primitiveRestartEnable = false}},
+     PipelineConfig{.shaders =
+                        ShadersFiles{{GraphicsApi::ShaderType::VERTEX_SHADER, "Terrain/Mesh/Forward/TerrainShader.vert"},
+                                     {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Terrain/Mesh/Forward/TerrainShader.frag"}},
+                    .topology               = Topology::TriangleStrip,
+                    .polygonMode            = PolygonMode::Fill,
+                    .cullMode               = CullMode::Back,
+                    .depthTestEnable        = true,
+                    .depthWriteEnable       = true,
+                    .blendEnable            = false,
+                    .primitiveRestartEnable = false,
+                    .vertexLayout           = GetDefaultVertexLayout(),
+                    .descriptorBindings =
+                        {// 0 - PER_APP
+                         {.binding         = PER_APP_BIND_LOCATION,
+                          .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                          .descriptorCount = 1,
+                          .stageFlags      = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT},
+
+                         // 1 - PER_FRAME
+                         {.binding         = PER_FRAME_BIND_LOCATION,
+                          .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                          .descriptorCount = 1,
+                          .stageFlags      = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT},
+
+                         // 3 - PER_OBJECT_UPDATE
+                         {.binding         = PER_OBJECT_UPDATE_BIND_LOCATION,
+                          .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                          .descriptorCount = 1,
+                          .stageFlags      = VK_SHADER_STAGE_VERTEX_BIT},
+
+                         // 6 - PER_MESH_OBJECT - PerTerrainTexturesBuffer
+                         {.binding         = PER_MESH_OBJECT_BIND_LOCATION,
+                          .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                          .descriptorCount = 1,
+                          .stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT}}}},
     {GraphicsApi::ShaderProgramType::Water,
      {{{GraphicsApi::ShaderType::VERTEX_SHADER, "Water/simpleWater.vert"},
        {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Water/simpleWater.frag"}},
@@ -177,7 +261,7 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, PipelineConfig> pipelin
        {GraphicsApi::ShaderType::GEOMETRY_SHADER, "DebugShaders/NormalShader.geom"},
        {GraphicsApi::ShaderType::FRAGMENT_SHADER, "DebugShaders/NormalShader.frag"}}}}};
 
-}
+}  // namespace
 
 std::optional<PipelineConfig> GetSimpleForwardShaderFiles(GraphicsApi::ShaderProgramType shaderType)
 {

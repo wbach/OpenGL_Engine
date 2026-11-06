@@ -39,7 +39,7 @@ void SkeletonData::createBuffer()
         return;
     }
 
-    buffer           = std::make_unique<ShaderBufferObject<PerPoseUpdate>>(api_, PER_POSE_UPDATE_BIND_LOCATION);
+    buffer           = std::make_unique<ShaderBufferObject<PerPoseUpdate>>(api_, PER_POSE_UPDATE_BIND_LOCATION, GraphicsApi::DrawFlag::Static);
     auto& bufferData = buffer->GetData();
     bufferData.bonesTransforms.fill(mat4(1.f));
     gpuLoader_.get().AddObjectToGpuLoadingPass(*buffer);
