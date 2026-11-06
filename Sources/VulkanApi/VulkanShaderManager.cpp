@@ -3,6 +3,7 @@
 #include <Logger/Log.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+#include <algorithm>
 #include <vector>
 
 #include "GraphicsApi/ShaderProgramType.h"
@@ -12,6 +13,7 @@
 #include "VulkanApi/PipelineConfig.h"
 #include "VulkanShaderCompiler.h"
 #include "magic_enum/magic_enum.hpp"
+
 namespace GraphicsApi::Vulkan
 {
 namespace
@@ -200,44 +202,40 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     colorBlending.attachmentCount = 1;
     colorBlending.pAttachments    = &colorBlendAttachment;
 
-    const auto globalStages           = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-    const uint32_t totalBindingsCount = 12;
-    auto bindings                     = std::vector<VkDescriptorSetLayoutBinding>(totalBindingsCount);
+    std::vector<VkDescriptorSetLayoutBinding> bindings;
+    bindings.reserve(pipelineConfig.descriptorBindings.size());
 
-    for (uint32_t i = 0; i < totalBindingsCount; ++i)
+    for (const auto& config : pipelineConfig.descriptorBindings)
     {
-        bindings[i].binding            = i;
-        bindings[i].descriptorCount    = 1;
-        bindings[i].stageFlags         = globalStages;
-        bindings[i].pImmutableSamplers = nullptr;
+        VkDescriptorSetLayoutBinding binding{};
 
-        auto it = pipelineConfig.bufferLayout.find(i);
-        if (it != pipelineConfig.bufferLayout.end() && it->second == GraphicsApi::DrawFlag::Dynamic)
-        {
-            bindings[i].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-        }
-        else
-        {
-            bindings[i].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        }
+        binding.binding            = config.binding;
+        binding.descriptorType     = config.descriptorType;
+        binding.descriptorCount    = config.descriptorCount;
+        binding.stageFlags         = config.stageFlags;
+        binding.pImmutableSamplers = nullptr;
+
+        bindings.push_back(binding);
     }
 
-    VkDescriptorSetLayoutCreateInfo descriptorLayoutInfo{};
-    descriptorLayoutInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    descriptorLayoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-    descriptorLayoutInfo.pBindings    = bindings.data();
-    LOG_DEBUG << "vkCreateDescriptorSetLayout";
-    if (vkCreateDescriptorSetLayout(context.device, &descriptorLayoutInfo, nullptr, &newProgram.descriptorSetLayout) !=
-        VK_SUCCESS)
+    std::ranges::sort(bindings, {}, &VkDescriptorSetLayoutBinding::binding);
+
+    VkDescriptorSetLayoutCreateInfo layoutInfo{};
+
+    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+
+    layoutInfo.bindingCount = static_cast<uint32>(bindings.size());
+
+    layoutInfo.pBindings = bindings.empty() ? nullptr : bindings.data();
+
+    if (vkCreateDescriptorSetLayout(context.device, &layoutInfo, nullptr, &newProgram.descriptorSetLayout) != VK_SUCCESS)
     {
-        LOG_ERROR << "Error: Failed to create Descriptor Set Layout for Program!\n";
+        LOG_ERROR << "Failed to create Descriptor Set Layout!";
         return false;
     }
 
-    std::vector<VkDescriptorPoolSize> poolSizes = {
-        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 12u * 1000u},
-        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 12u * 1000u}
-    };
+    std::vector<VkDescriptorPoolSize> poolSizes = {{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 12u * 1000u},
+                                                   {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 12u * 1000u}};
 
     VkDescriptorPoolCreateInfo poolInfo{};
     poolInfo.sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -264,7 +262,7 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges    = nullptr;
     LOG_DEBUG << "vkCreatePipelineLayout";
-    if (vkCreatePipelineLayout(context.device, &pipelineLayoutInfo, nullptr, &newProgram.layout)  != VK_SUCCESS)
+    if (vkCreatePipelineLayout(context.device, &pipelineLayoutInfo, nullptr, &newProgram.layout) != VK_SUCCESS)
     {
         LOG_ERROR << "Error: Failed to create Pipeline Layout!\n";
         return false;

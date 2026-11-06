@@ -18,25 +18,81 @@ const uint32 POINT_LIGHTS_BIND_LOCATION         = 10;
 const uint32 SPOT_LIGHTS_BIND_LOCATION          = 11;
 }  // namespace
 
-std::unordered_map<uint32_t, GraphicsApi::DrawFlag> GetDefaultBufferLayout()
+std::vector<DescriptorBindingConfig> GetDefaultDescriptorBindings()
 {
-    std::unordered_map<uint32_t, GraphicsApi::DrawFlag> layout;
+    constexpr auto globalStages = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    layout[PER_APP_BIND_LOCATION]              = GraphicsApi::DrawFlag::Static;
-    layout[PER_OBJECT_CONSTANTS_BIND_LOCATION] = GraphicsApi::DrawFlag::Static;
-    layout[PER_MESH_OBJECT_BIND_LOCATION]      = GraphicsApi::DrawFlag::Static;
-    layout[WATER_TILE_BIND_LOCATION]           = GraphicsApi::DrawFlag::Static;
+    return {// 0 - PER_APP
+            {.binding         = PER_APP_BIND_LOCATION,
+             .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+             .descriptorCount = 1,
+             .stageFlags      = globalStages},
 
-    layout[PER_FRAME_BIND_LOCATION]          = GraphicsApi::DrawFlag::Dynamic;
-    layout[PER_OBJECT_UPDATE_BIND_LOCATION]  = GraphicsApi::DrawFlag::Static;
-    layout[PER_POSE_UPDATE_BIND_LOCATION]    = GraphicsApi::DrawFlag::Dynamic;
-    layout[PER_INSTANCES_BIND_LOCATION]      = GraphicsApi::DrawFlag::Dynamic;
-    layout[SHADOW_BUFFER_BIND_LOCATION]      = GraphicsApi::DrawFlag::Dynamic;
-    layout[DIRECTIONAL_LIGHTS_BIND_LOCATION] = GraphicsApi::DrawFlag::Dynamic;
-    layout[POINT_LIGHTS_BIND_LOCATION]       = GraphicsApi::DrawFlag::Dynamic;
-    layout[SPOT_LIGHTS_BIND_LOCATION]        = GraphicsApi::DrawFlag::Dynamic;
+            // 1 - PER_FRAME
+            {.binding         = PER_FRAME_BIND_LOCATION,
+             .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+             .descriptorCount = 1,
+             .stageFlags      = globalStages},
 
-    return layout;
+            // 2 - PER_OBJECT_CONSTANTS
+            {.binding         = PER_OBJECT_CONSTANTS_BIND_LOCATION,
+             .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+             .descriptorCount = 1,
+             .stageFlags      = globalStages},
+
+            // 3 - PER_OBJECT_UPDATE
+            {.binding         = PER_OBJECT_UPDATE_BIND_LOCATION,
+             .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+             .descriptorCount = 1,
+             .stageFlags      = globalStages},
+
+            // 4 - PER_POSE_UPDATE
+            {.binding         = PER_POSE_UPDATE_BIND_LOCATION,
+             .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+             .descriptorCount = 1,
+             .stageFlags      = globalStages},
+
+            // 5 - PER_INSTANCES
+            {.binding         = PER_INSTANCES_BIND_LOCATION,
+             .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+             .descriptorCount = 1,
+             .stageFlags      = globalStages},
+
+            // 6 - PER_MESH_OBJECT
+            {.binding         = PER_MESH_OBJECT_BIND_LOCATION,
+             .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+             .descriptorCount = 1,
+             .stageFlags      = globalStages},
+
+            // 7 - SHADOW
+            {.binding         = SHADOW_BUFFER_BIND_LOCATION,
+             .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+             .descriptorCount = 1,
+             .stageFlags      = globalStages},
+
+            // 8 - WATER_TILE
+            {.binding         = WATER_TILE_BIND_LOCATION,
+             .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+             .descriptorCount = 1,
+             .stageFlags      = globalStages},
+
+            // 9 - DIRECTIONAL_LIGHTS
+            {.binding         = DIRECTIONAL_LIGHTS_BIND_LOCATION,
+             .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+             .descriptorCount = 1,
+             .stageFlags      = globalStages},
+
+            // 10 - POINT_LIGHTS
+            {.binding         = POINT_LIGHTS_BIND_LOCATION,
+             .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+             .descriptorCount = 1,
+             .stageFlags      = globalStages},
+
+            // 11 - SPOT_LIGHTS
+            {.binding         = SPOT_LIGHTS_BIND_LOCATION,
+             .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+             .descriptorCount = 1,
+             .stageFlags      = globalStages}};
 }
 VertexLayout GetDefaultVertexLayout()
 {
@@ -57,7 +113,7 @@ GraphicsApi::DrawFlag GetDrawFlagByBindLocation(uint32 bindLocation)
     switch (bindLocation)
     {
         case PER_FRAME_BIND_LOCATION:           // 1
-    //    case PER_OBJECT_UPDATE_BIND_LOCATION:   // 3
+                                                //    case PER_OBJECT_UPDATE_BIND_LOCATION:   // 3
         case PER_POSE_UPDATE_BIND_LOCATION:     // 4
         case PER_INSTANCES_BIND_LOCATION:       // 5
         case SHADOW_BUFFER_BIND_LOCATION:       // 7
@@ -65,7 +121,6 @@ GraphicsApi::DrawFlag GetDrawFlagByBindLocation(uint32 bindLocation)
         case POINT_LIGHTS_BIND_LOCATION:        // 10
         case SPOT_LIGHTS_BIND_LOCATION:         // 11
             return GraphicsApi::DrawFlag::Dynamic;
-
 
         default:
             return GraphicsApi::DrawFlag::Static;

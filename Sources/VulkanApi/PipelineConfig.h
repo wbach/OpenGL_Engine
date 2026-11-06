@@ -47,22 +47,33 @@ struct VertexLayout
     std::vector<VertexAttribute> attributes;
 };
 
+struct DescriptorBindingConfig
+{
+    uint32 binding = 0;
+
+    VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
+    uint32 descriptorCount = 1;
+
+    VkShaderStageFlags stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
+};
+
 VertexLayout GetDefaultVertexLayout();
-std::unordered_map<uint32_t, GraphicsApi::DrawFlag> GetDefaultBufferLayout();
+std::vector<DescriptorBindingConfig> GetDefaultDescriptorBindings();
 GraphicsApi::DrawFlag GetDrawFlagByBindLocation(uint32);
 
 struct PipelineConfig
 {
     GraphicsApi::ShadersFiles shaders;
-    Topology topology                                                = Topology::TriangleList;
-    PolygonMode polygonMode                                          = PolygonMode::Fill;
-    CullMode cullMode                                                = CullMode::Back;
-    bool depthTestEnable                                             = true;
-    bool depthWriteEnable                                            = true;
-    bool blendEnable                                                 = false;
-    bool primitiveRestartEnable                                      = false;
-    VertexLayout vertexLayout                                        = GetDefaultVertexLayout();
-    std::unordered_map<uint32_t, GraphicsApi::DrawFlag> bufferLayout = GetDefaultBufferLayout();
+    Topology topology                                       = Topology::TriangleList;
+    PolygonMode polygonMode                                 = PolygonMode::Fill;
+    CullMode cullMode                                       = CullMode::Back;
+    bool depthTestEnable                                    = true;
+    bool depthWriteEnable                                   = true;
+    bool blendEnable                                        = false;
+    bool primitiveRestartEnable                             = false;
+    VertexLayout vertexLayout                               = GetDefaultVertexLayout();
+    std::vector<DescriptorBindingConfig> descriptorBindings = GetDefaultDescriptorBindings();
 };
 
 }  // namespace GraphicsApi::Vulkan
