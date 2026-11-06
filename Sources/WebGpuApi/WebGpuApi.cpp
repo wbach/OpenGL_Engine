@@ -38,10 +38,109 @@ struct WebGpuDrawCall
     uint32 meshId = 0;
     uint32 proceduralVertexCount = 0;
     bool isProcedural = false;
+    std::unordered_map<uint32, uint32> boundShaderBuffers;
+    std::unordered_map<uint32, uint32> activeTextureAssignments;
 };
 
+WGPUBindGroup CreateBindGroupForState(const WebGpuShaderProgram& program, WGPUDevice device,
+                                      const std::unordered_map<uint32, WebGpuShaderBufferResource>& shaderBuffers,
+                                      const std::unordered_map<uint32, uint32>& boundShaderBuffers,
+                                      const std::unordered_map<uint32, uint32>& activeTextureAssignments,
+                                      const WebGpuTextureManager& textureManager)
+{
+    if (!program.bindGroupLayout || !device || program.requiredBindings.empty())
+    {
+        return nullptr;
+    }
+
+    std::vector<WGPUBindGroupEntry> entries;
+    entries.reserve(program.requiredBindings.size());
+
+    for (const auto& requiredBinding : program.requiredBindings)
+    {
+        const auto binding = requiredBinding.binding;
+
+        if (requiredBinding.buffer.type != WGPUBufferBindingType_Undefined)
+        {
+            const auto bufferIt = boundShaderBuffers.find(binding);
+            if (bufferIt == boundShaderBuffers.end())
+            {
+                continue;
+            }
+
+            const auto shaderBufferIt = shaderBuffers.find(bufferIt->second);
+            if (shaderBufferIt == shaderBuffers.end() || !shaderBufferIt->second.buffer)
+            {
+                return nullptr;
+            }
+
+            WGPUBindGroupEntry entry{};
+            entry.binding = binding;
+            entry.buffer = shaderBufferIt->second.buffer;
+            entry.offset = 0;
+            entry.size = shaderBufferIt->second.size;
+            entries.push_back(entry);
+            continue;
+        }
+
+        if (requiredBinding.texture.sampleType != WGPUTextureSampleType_Undefined)
+        {
+            const auto textureIt = activeTextureAssignments.find(binding);
+            if (textureIt == activeTextureAssignments.end() || textureIt->second == 0)
+            {
+                continue;
+            }
+
+            const auto textureView = textureManager.GetTextureView(textureIt->second);
+            if (!textureView)
+            {
+                continue;
+            }
+
+            WGPUBindGroupEntry textureEntry{};
+            textureEntry.binding = binding;
+            textureEntry.textureView = *textureView;
+            entries.push_back(textureEntry);
+            continue;
+        }
+
+        if (requiredBinding.sampler.type != WGPUSamplerBindingType_Undefined)
+        {
+            const auto textureIt = activeTextureAssignments.find(binding - 1u);
+            if (textureIt == activeTextureAssignments.end() || textureIt->second == 0)
+            {
+                continue;
+            }
+
+            const auto sampler = textureManager.GetSampler(textureIt->second);
+            if (!sampler)
+            {
+                continue;
+            }
+
+            WGPUBindGroupEntry samplerEntry{};
+            samplerEntry.binding = binding;
+            samplerEntry.sampler = *sampler;
+            entries.push_back(samplerEntry);
+        }
+    }
+
+    if (entries.empty())
+    {
+        return nullptr;
+    }
+
+    WGPUBindGroupDescriptor descriptor{};
+    descriptor.layout = program.bindGroupLayout;
+    descriptor.entryCount = static_cast<uint32_t>(entries.size());
+    descriptor.entries = entries.data();
+    return wgpuDeviceCreateBindGroup(device, &descriptor);
+}
+
 void DrawQueuedMesh(const WebGpuShaderManager& shaderManager, const WebGpuMeshManager& meshManager,
-                    WGPURenderPassEncoder renderPass, const WebGpuDrawCall& drawCall)
+                    WGPUDevice device, WGPURenderPassEncoder renderPass, const WebGpuDrawCall& drawCall,
+                    const std::unordered_map<uint32, WebGpuShaderBufferResource>& shaderBuffers,
+                    const WebGpuTextureManager& textureManager)
 {
     const auto* program = shaderManager.GetProgram(drawCall.programId);
     if (!program || !program->pipeline)
@@ -50,20 +149,32 @@ void DrawQueuedMesh(const WebGpuShaderManager& shaderManager, const WebGpuMeshMa
     }
 
     wgpuRenderPassEncoderSetPipeline(renderPass, program->pipeline);
-    if (program->bindGroup)
+
+    WGPUBindGroup bindGroup = CreateBindGroupForState(*program, device, shaderBuffers,
+                                                     drawCall.boundShaderBuffers, drawCall.activeTextureAssignments,
+                                                     textureManager);
+    if (bindGroup)
     {
-        wgpuRenderPassEncoderSetBindGroup(renderPass, 0, program->bindGroup, 0, nullptr);
+        wgpuRenderPassEncoderSetBindGroup(renderPass, 0, bindGroup, 0, nullptr);
     }
 
     if (drawCall.isProcedural)
     {
         wgpuRenderPassEncoderDraw(renderPass, drawCall.proceduralVertexCount, 1, 0, 0);
+        if (bindGroup)
+        {
+            wgpuBindGroupRelease(bindGroup);
+        }
         return;
     }
 
     const auto* mesh = meshManager.GetMeshResource(drawCall.meshId);
     if (!mesh || !mesh->vertexBuffer)
     {
+        if (bindGroup)
+        {
+            wgpuBindGroupRelease(bindGroup);
+        }
         return;
     }
 
@@ -71,13 +182,19 @@ void DrawQueuedMesh(const WebGpuShaderManager& shaderManager, const WebGpuMeshMa
     if (mesh->hasIndices && mesh->indexBuffer)
     {
         wgpuRenderPassEncoderSetVertexBuffer(renderPass, 0, mesh->vertexBuffer, 0, vertexStrideBytes);
-        wgpuRenderPassEncoderSetIndexBuffer(renderPass, mesh->indexBuffer, WGPUIndexFormat_Uint32, 0, mesh->indexCount * sizeof(uint32_t));
+        wgpuRenderPassEncoderSetIndexBuffer(renderPass, mesh->indexBuffer, WGPUIndexFormat_Uint32, 0,
+                                            mesh->indexCount * sizeof(uint32_t));
         wgpuRenderPassEncoderDrawIndexed(renderPass, mesh->indexCount, 1, 0, 0, 0);
     }
     else
     {
         wgpuRenderPassEncoderSetVertexBuffer(renderPass, 0, mesh->vertexBuffer, 0, vertexStrideBytes);
         wgpuRenderPassEncoderDraw(renderPass, mesh->vertexCount, 1, 0, 0);
+    }
+
+    if (bindGroup)
+    {
+        wgpuBindGroupRelease(bindGroup);
     }
 }
 
@@ -104,93 +221,8 @@ void RebuildBindGroupForCurrentProgram(WebGpuShaderManager& shaderManager, WGPUD
         program->bindGroup = nullptr;
     }
 
-    if (program->requiredBindings.empty())
-    {
-        return;
-    }
-
-    std::vector<WGPUBindGroupEntry> entries;
-    entries.reserve(program->requiredBindings.size());
-
-    for (const auto& requiredBinding : program->requiredBindings)
-    {
-        const auto binding = requiredBinding.binding;
-
-        const auto bufferIt = std::find_if(boundShaderBuffers.begin(), boundShaderBuffers.end(),
-                                          [binding](const auto& item) { return item.first == binding; });
-        if (bufferIt != boundShaderBuffers.end())
-        {
-            const auto shaderBufferIt = shaderBuffers.find(bufferIt->second);
-            if (shaderBufferIt == shaderBuffers.end() || !shaderBufferIt->second.buffer)
-            {
-                return;
-            }
-
-            WGPUBindGroupEntry entry{};
-            entry.binding = binding;
-            entry.buffer = shaderBufferIt->second.buffer;
-            entry.offset = 0;
-            entry.size = shaderBufferIt->second.size;
-            entries.push_back(entry);
-            continue;
-        }
-
-        if (requiredBinding.texture.sampleType != 0)
-        {
-            const auto textureIt = textureManager.GetActiveTextureAssignments().find(binding);
-            if (textureIt == textureManager.GetActiveTextureAssignments().end() || textureIt->second == 0)
-            {
-                return;
-            }
-
-            const auto textureView = textureManager.GetTextureView(textureIt->second);
-            const auto sampler = textureManager.GetSampler(textureIt->second);
-            if (!textureView || !sampler)
-            {
-                return;
-            }
-
-            WGPUBindGroupEntry textureEntry{};
-            textureEntry.binding = binding;
-            textureEntry.textureView = *textureView;
-            entries.push_back(textureEntry);
-            continue;
-        }
-
-        if (requiredBinding.sampler.type != 0)
-        {
-            const auto textureIt = textureManager.GetActiveTextureAssignments().find(binding - 1u);
-            if (textureIt == textureManager.GetActiveTextureAssignments().end() || textureIt->second == 0)
-            {
-                return;
-            }
-
-            const auto sampler = textureManager.GetSampler(textureIt->second);
-            if (!sampler)
-            {
-                return;
-            }
-
-            WGPUBindGroupEntry samplerEntry{};
-            samplerEntry.binding = binding;
-            samplerEntry.sampler = *sampler;
-            entries.push_back(samplerEntry);
-            continue;
-        }
-
-        return;
-    }
-
-    if (entries.empty())
-    {
-        return;
-    }
-
-    WGPUBindGroupDescriptor descriptor{};
-    descriptor.layout = program->bindGroupLayout;
-    descriptor.entryCount = static_cast<uint32_t>(entries.size());
-    descriptor.entries = entries.data();
-    program->bindGroup = wgpuDeviceCreateBindGroup(device, &descriptor);
+    program->bindGroup = CreateBindGroupForState(*program, device, shaderBuffers, boundShaderBuffers,
+                                                textureManager.GetActiveTextureAssignments(), textureManager);
 }
 }  // namespace
 
@@ -379,7 +411,8 @@ void WebGpuApi::PrepareFrame()
     {
         for (const auto& drawCall : impl_->queuedDrawCalls)
         {
-            DrawQueuedMesh(impl_->shaderManager, impl_->meshManager, context.frameRenderPass, drawCall);
+            DrawQueuedMesh(impl_->shaderManager, impl_->meshManager, context.device, context.frameRenderPass, drawCall,
+                           impl_->shaderBuffers, impl_->textureManager);
         }
 
         impl_->queuedDrawCalls.clear();
@@ -788,7 +821,12 @@ void WebGpuApi::RenderMesh(uint32 meshId)
         return;
     }
 
-    impl_->queuedDrawCalls.push_back(WebGpuDrawCall{activeProgramId, meshId});
+    WebGpuDrawCall drawCall{};
+    drawCall.programId = activeProgramId;
+    drawCall.meshId = meshId;
+    drawCall.boundShaderBuffers = impl_->boundShaderBuffers;
+    drawCall.activeTextureAssignments = impl_->textureManager.GetActiveTextureAssignments();
+    impl_->queuedDrawCalls.push_back(drawCall);
 }
 void WebGpuApi::RenderProcedural(uint32 count)
 {
@@ -803,7 +841,13 @@ void WebGpuApi::RenderProcedural(uint32 count)
         return;
     }
 
-    impl_->queuedDrawCalls.push_back(WebGpuDrawCall{activeProgramId, 0, count, true});
+    WebGpuDrawCall drawCall{};
+    drawCall.programId = activeProgramId;
+    drawCall.proceduralVertexCount = count;
+    drawCall.isProcedural = true;
+    drawCall.boundShaderBuffers = impl_->boundShaderBuffers;
+    drawCall.activeTextureAssignments = impl_->textureManager.GetActiveTextureAssignments();
+    impl_->queuedDrawCalls.push_back(drawCall);
 }
 void WebGpuApi::RenderDebugNormals(uint32)
 {
