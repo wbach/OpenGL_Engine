@@ -45,6 +45,7 @@ Renderer::~Renderer()
 
 void Renderer::Init()
 {
+    LOG_DEBUG << "Gui Renderer CreateShaderBuffer";
     auto id =
         graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(ElementBuffer), GraphicsApi::DrawFlag::Dynamic);
     if (not id)

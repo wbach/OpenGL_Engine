@@ -75,7 +75,8 @@ struct VulkanContext
     Color backgroundColor{0.9f, 0.0f, 0.0f, 1.0f};
 
     std::unordered_map<IdType, VulkanProgram> programs;
-    Utils::IdPool programsPoolId;    // zalezy nam na zachowaniu kolejnosci wstawiania shader bufferow, bo wlasnie w tej kolejnosci beda one wiazane do descriptor setu
+    Utils::IdPool programsPoolId;  // zalezy nam na zachowaniu kolejnosci wstawiania shader bufferow, bo wlasnie w tej kolejnosci
+                                   // beda one wiazane do descriptor setu
 
     std::unordered_map<IdType, VulkanMesh> meshes;
     Utils::IdPool meshesPoolId;
@@ -92,5 +93,7 @@ struct VulkanContext
     GraphicsApi::Vulkan::DynamicUniformBuffer globalDynamicUBO;
 
     uint32 activeStaticAllocationsCount = 0;
+
+    std::vector<VulkanDrawCall> pendingDrawCalls;
 };
 }  // namespace GraphicsApi::Vulkan

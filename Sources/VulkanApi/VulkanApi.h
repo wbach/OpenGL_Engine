@@ -116,6 +116,7 @@ private:
     void RenderFrame(uint32);
     void RecreateSwapChain();
     void InitializeDynamicUniformBuffer(uint32);
+    std::map<uint32, VulkanShaderBuffer> createBufferBindingForDrawCall(const RenderState&);
 
 private:
     VulkanContext vkContext;

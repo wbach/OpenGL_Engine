@@ -2,13 +2,10 @@
 #include <Types.h>
 #include <vulkan/vulkan.h>
 
+#include "BufferType.h"
+
 namespace GraphicsApi::Vulkan
 {
-enum class BufferType
-{
-    StaticPerObject,
-    DynamicPerFrame
-};
 struct VulkanShaderBuffer
 {
     BufferType type{BufferType::StaticPerObject};

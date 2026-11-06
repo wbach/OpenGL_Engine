@@ -1,8 +1,12 @@
 #pragma once
 #include <Types.h>
 #include <vulkan/vulkan.h>
+
 #include <map>
 #include <variant>
+
+#include "BufferType.h"
+#include "VulkanShaderBuffer.h"
 
 namespace GraphicsApi::Vulkan
 {
@@ -15,10 +19,14 @@ struct VulkanMeshDraw
 {
     IdType id{0};
 };
+
+using VulkanShaderBufferBindings = std::map<uint32, VulkanShaderBuffer>;
+
 struct VulkanDrawCall
 {
+    uint32 programId{0};
     std::variant<VulkanMeshDraw, VulkanProceduralDraw> drawCommand;
-    std::map<uint32, uint32> boundShaderBuffers;
+    VulkanShaderBufferBindings boundShaderBuffers;
 };
 
 struct VulkanProgram
@@ -28,7 +36,5 @@ struct VulkanProgram
     VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
     VkPipelineLayout layout                   = VK_NULL_HANDLE;
     VkPipeline pipeline                       = VK_NULL_HANDLE;
-
-    std::vector<VulkanDrawCall> drawCalls;
 };
 }  // namespace GraphicsApi::Vulkan
