@@ -2268,6 +2268,15 @@ std::vector<Utils::Image> OpenGLApi::GetImageArray(IdType id) const
 
     return {};
 }
+GraphicsApi::ClipSpaceOrigin OpenGLApi::GetClipSpaceOrigin() const
+{
+    return GraphicsApi::ClipSpaceOrigin::LowerLeft;
+}
+GraphicsApi::ClipSpaceDepth OpenGLApi::GetClipSpaceDepth() const
+{
+    return GraphicsApi::ClipSpaceDepth::NegativeOneToOne;
+}
+
 void OpenGLApi::DebugNormalMeshGeneration(bool v)
 {
     debugNormalMeshGeneration = v;

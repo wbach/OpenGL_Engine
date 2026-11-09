@@ -83,6 +83,110 @@ bool CreateShaderModules(VulkanContext& context, const std::vector<uint32_t>& ve
     return true;
 }
 
+VkPolygonMode ToVkPolygonMode(PolygonMode mode)
+{
+    switch (mode)
+    {
+        case PolygonMode::Fill:
+            return VK_POLYGON_MODE_FILL;
+
+        case PolygonMode::Line:
+            return VK_POLYGON_MODE_LINE;
+
+        case PolygonMode::Point:
+            return VK_POLYGON_MODE_POINT;
+
+        default:
+            return VK_POLYGON_MODE_FILL;
+    }
+}
+
+VkCullModeFlags ToVkCullMode(CullMode mode)
+{
+    switch (mode)
+    {
+        case CullMode::None:
+            return VK_CULL_MODE_NONE;
+
+        case CullMode::Front:
+            return VK_CULL_MODE_FRONT_BIT;
+
+        case CullMode::Back:
+            return VK_CULL_MODE_BACK_BIT;
+
+        case CullMode::FrontAndBack:
+            return VK_CULL_MODE_FRONT_AND_BACK;
+
+        default:
+            return VK_CULL_MODE_BACK_BIT;
+    }
+}
+
+VkFrontFace ToVkFrontFace(FrontFace frontFace)
+{
+    switch (frontFace)
+    {
+        case FrontFace::Clockwise:
+            return VK_FRONT_FACE_CLOCKWISE;
+
+        case FrontFace::CounterClockwise:
+            return VK_FRONT_FACE_COUNTER_CLOCKWISE;
+
+        default:
+            return VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    }
+}
+
+VkCompareOp ToVkCompareOp(CompareOp op)
+{
+    switch (op)
+    {
+        case CompareOp::Never:
+            return VK_COMPARE_OP_NEVER;
+        case CompareOp::Less:
+            return VK_COMPARE_OP_LESS;
+        case CompareOp::Equal:
+            return VK_COMPARE_OP_EQUAL;
+        case CompareOp::LessOrEqual:
+            return VK_COMPARE_OP_LESS_OR_EQUAL;
+        case CompareOp::Greater:
+            return VK_COMPARE_OP_GREATER;
+        case CompareOp::NotEqual:
+            return VK_COMPARE_OP_NOT_EQUAL;
+        case CompareOp::GreaterOrEqual:
+            return VK_COMPARE_OP_GREATER_OR_EQUAL;
+        case CompareOp::Always:
+            return VK_COMPARE_OP_ALWAYS;
+    }
+
+    // Niepoprawna wartość enuma.
+    return VK_COMPARE_OP_MAX_ENUM;
+}
+
+std::optional<VkPrimitiveTopology> ToVkPrimitiveTopology(Topology topology)
+{
+    switch (topology)
+    {
+        case Topology::TriangleList:
+            return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+
+        case Topology::TriangleStrip:
+            return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+            // case Topology::PointList:
+            //     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+            //     break;
+            // case Topology::LineList:
+            //     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+            //     break;
+            // case Topology::PatchList:
+            //     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
+            //     break;
+        default:
+            return std::nullopt;
+            //     return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    }
+}
+
 bool CreatePipelineLayout(VulkanContext& context, VulkanProgram& newProgram)
 {
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
@@ -102,23 +206,25 @@ bool CreatePipelineLayout(VulkanContext& context, VulkanProgram& newProgram)
 bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
                             const VkPipelineShaderStageCreateInfo* shaderStages)
 {
+    const auto& pipelineConfig = newProgram.pipelineConfig;
+
     LOG_DEBUG << newProgram.pipelineConfig.shaders.at(ShaderType::VERTEX_SHADER)
-              << ", topology = " << magic_enum::enum_name(newProgram.pipelineConfig.topology);
+              << ", topology = " << magic_enum::enum_name(pipelineConfig.inputAssembly.topology);
 
     VkVertexInputBindingDescription bindingDescription{};
     bindingDescription.binding   = 0;
-    bindingDescription.stride    = newProgram.pipelineConfig.vertexLayout.stride;
+    bindingDescription.stride    = pipelineConfig.vertexLayout.stride;
     bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
     std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
-    for (const auto& attr : newProgram.pipelineConfig.vertexLayout.attributes)
+    for (const auto& attr : pipelineConfig.vertexLayout.attributes)
     {
         attributeDescriptions.push_back({attr.location, 0, attr.format, attr.offset});
     }
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    if (newProgram.pipelineConfig.vertexLayout.attributes.empty())
+    if (pipelineConfig.vertexLayout.attributes.empty())
     {
         vertexInputInfo.vertexBindingDescriptionCount   = 0;
         vertexInputInfo.pVertexBindingDescriptions      = nullptr;
@@ -129,39 +235,25 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     {
         vertexInputInfo.vertexBindingDescriptionCount   = 1;
         vertexInputInfo.pVertexBindingDescriptions      = &bindingDescription;
-        vertexInputInfo.vertexAttributeDescriptionCount = newProgram.pipelineConfig.vertexLayout.attributes.size();
+        vertexInputInfo.vertexAttributeDescriptionCount = pipelineConfig.vertexLayout.attributes.size();
         vertexInputInfo.pVertexAttributeDescriptions    = attributeDescriptions.data();
     }
 
-    VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-    inputAssembly.sType                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    inputAssembly.pNext                  = nullptr;
-    inputAssembly.flags                  = 0;
-    inputAssembly.primitiveRestartEnable = newProgram.pipelineConfig.primitiveRestartEnable ? VK_TRUE : VK_FALSE;
+    const auto& inputAssemblyConfig = pipelineConfig.inputAssembly;
+    const auto topology             = ToVkPrimitiveTopology(inputAssemblyConfig.topology);
 
-    switch (newProgram.pipelineConfig.topology)
+    if (not topology)
     {
-        case Topology::TriangleList:
-            inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-            break;
-        case Topology::TriangleStrip:
-            inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
-            break;
-            // case Topology::PointList:
-            //     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
-            //     break;
-            // case Topology::LineList:
-            //     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
-            //     break;
-            // case Topology::PatchList:
-            //     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
-            //     break;
-
-        default:
-            inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        LOG_ERROR << "Error: Unsupported topology type: " << magic_enum::enum_name(inputAssemblyConfig.topology) << "\n";
+        return false;
     }
 
-    LOG_DEBUG << "inputAssembly.topology " << inputAssembly.topology;
+    VkPipelineInputAssemblyStateCreateInfo inputAssembly{
+        .sType                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
+        .topology               = *topology,
+        .primitiveRestartEnable = inputAssemblyConfig.primitiveRestartEnable ? VK_TRUE : VK_FALSE,
+    };
+
     std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
     VkPipelineDynamicStateCreateInfo dynamicState{};
@@ -176,15 +268,19 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     viewportState.scissorCount  = 1;
     viewportState.pScissors     = nullptr;
 
-    VkPipelineRasterizationStateCreateInfo rasterizer{};
-    rasterizer.sType                   = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-    rasterizer.depthClampEnable        = VK_FALSE;
-    rasterizer.rasterizerDiscardEnable = VK_FALSE;
-    rasterizer.polygonMode             = VK_POLYGON_MODE_FILL;
-    rasterizer.lineWidth               = 1.0f;
-    rasterizer.cullMode                = VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace               = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-    rasterizer.depthBiasEnable         = VK_FALSE;
+    const auto& config = pipelineConfig.rasterization;
+    VkPipelineRasterizationStateCreateInfo rasterizer{
+        .sType                   = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
+        .depthClampEnable        = config.depthClampEnable ? VK_TRUE : VK_FALSE,
+        .rasterizerDiscardEnable = config.rasterizerDiscardEnable ? VK_TRUE : VK_FALSE,
+        .polygonMode             = ToVkPolygonMode(config.polygonMode),
+        .cullMode                = ToVkCullMode(config.cullMode),
+        .frontFace               = ToVkFrontFace(config.frontFace),
+        .depthBiasEnable         = config.depthBiasEnable ? VK_TRUE : VK_FALSE,
+        .depthBiasConstantFactor = config.depthBiasConstantFactor,
+        .depthBiasClamp          = config.depthBiasClamp,
+        .depthBiasSlopeFactor    = config.depthBiasSlopeFactor,
+        .lineWidth               = config.lineWidth};
 
     VkPipelineMultisampleStateCreateInfo multisampling{};
     multisampling.sType                = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
@@ -203,9 +299,9 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     colorBlending.pAttachments    = &colorBlendAttachment;
 
     std::vector<VkDescriptorSetLayoutBinding> bindings;
-    bindings.reserve(newProgram.pipelineConfig.descriptorBindings.size());
+    bindings.reserve(pipelineConfig.descriptorBindings.size());
 
-    for (const auto& config : newProgram.pipelineConfig.descriptorBindings)
+    for (const auto& config : pipelineConfig.descriptorBindings)
     {
         VkDescriptorSetLayoutBinding binding{};
 
@@ -283,15 +379,29 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     pipelineInfo.renderPass          = context.renderPass;
     pipelineInfo.subpass             = 0;
 
-    VkPipelineDepthStencilStateCreateInfo depthStencil{.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
-                                                       .depthTestEnable       = VK_TRUE,
-                                                       .depthWriteEnable      = VK_TRUE,
-                                                       .depthCompareOp        = VK_COMPARE_OP_LESS,
-                                                       .depthBoundsTestEnable = VK_FALSE,
-                                                       .stencilTestEnable     = VK_FALSE};
-    // if (pipelineConfig.depthTestEnable)
+    const auto& depthConfig = pipelineConfig.depthStencil;
+    VkPipelineDepthStencilStateCreateInfo depthStencil{
+        .sType                 = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+        .pNext                 = nullptr,
+        .flags                 = 0,
+        .depthTestEnable       = depthConfig.depthTestEnable ? VK_TRUE : VK_FALSE,
+        .depthWriteEnable      = depthConfig.depthWriteEnable ? VK_TRUE : VK_FALSE,
+        .depthCompareOp        = ToVkCompareOp(depthConfig.depthCompareOp),
+        .depthBoundsTestEnable = VK_FALSE,
+        .stencilTestEnable     = VK_FALSE,
+        .front                 = {},
+        .back                  = {},
+        .minDepthBounds        = 0.0f,
+        .maxDepthBounds        = 1.0f,
+    };
+
+    if (depthConfig.depthTestEnable or depthConfig.depthWriteEnable)
     {
         pipelineInfo.pDepthStencilState = &depthStencil;
+    }
+    else
+    {
+        pipelineInfo.pDepthStencilState = nullptr;
     }
 
     LOG_DEBUG << "vkCreateGraphicsPipelines";
@@ -315,7 +425,7 @@ void DestroyShaderModules(VulkanContext& context, VkShaderModule vertModule, VkS
     {
         vkDestroyShaderModule(context.device, vertModule, nullptr);
     }
-}
+}  // namespace
 }  // namespace
 
 VulkanShaderManager::VulkanShaderManager(VulkanContext& vkContext)

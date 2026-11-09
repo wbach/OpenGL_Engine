@@ -1,7 +1,9 @@
 #include "PerspectiveProjection.h"
 
 #include <Logger/Log.h>
+
 #include <memory>
+
 #include "GameEngine/Engine/Configuration.h"
 
 namespace GameEngine

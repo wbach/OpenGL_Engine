@@ -1686,4 +1686,13 @@ std::optional<uint64_t> VulkanApi::GetBindlessHandle(IdType)
 {
     return {};
 }
+GraphicsApi::ClipSpaceOrigin VulkanApi::GetClipSpaceOrigin() const
+{
+    return GraphicsApi::ClipSpaceOrigin::UpperLeft;
+}
+GraphicsApi::ClipSpaceDepth VulkanApi::GetClipSpaceDepth() const
+{
+    return GraphicsApi::ClipSpaceDepth::ZeroToOne;
+}
+
 }  // namespace GraphicsApi::Vulkan

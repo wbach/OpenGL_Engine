@@ -1378,4 +1378,13 @@ std::optional<uint64_t> DirectXApi::GetBindlessHandle(IdType)
 {
     return {};
 }
+GraphicsApi::ClipSpaceOrigin DirectXApi::GetClipSpaceOrigin() const
+{
+    return GraphicsApi::ClipSpaceOrigin::UpperLeft;
+}
+GraphicsApi::ClipSpaceDepth DirectXApi::GetClipSpaceDepth() const
+{
+    return GraphicsApi::ClipSpaceDepth::ZeroToOne;
+}
+
 }  // namespace GraphicsApi::Dx11

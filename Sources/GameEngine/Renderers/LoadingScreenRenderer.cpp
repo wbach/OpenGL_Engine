@@ -9,7 +9,7 @@
 
 namespace GameEngine
 {
-LoadingScreenRenderer::LoadingScreenRenderer(GraphicsApi::IGraphicsApi &api, Texture &bgTexture, Texture &circleTexture)
+LoadingScreenRenderer::LoadingScreenRenderer(GraphicsApi::IGraphicsApi& api, Texture& bgTexture, Texture& circleTexture)
     : graphicsApi_(api)
     , shader_(api, GraphicsApi::ShaderProgramType::Loading)
     , circleTexture(circleTexture)
@@ -51,6 +51,7 @@ void LoadingScreenRenderer::render()
     graphicsApi_.DisableBlend();
     shader_.Stop();
     timer_.EndFrame();
+    graphicsApi_.EndFrame();
 }
 
 void LoadingScreenRenderer::reloadShaders()
@@ -87,7 +88,7 @@ void LoadingScreenRenderer::prepareRender()
     }
 }
 
-void LoadingScreenRenderer::renderQuad(const GraphicsApi::ID &bufferId, const GraphicsApi::ID &textureId) const
+void LoadingScreenRenderer::renderQuad(const GraphicsApi::ID& bufferId, const GraphicsApi::ID& textureId) const
 {
     if (not bufferId)
         return;
@@ -116,7 +117,14 @@ void LoadingScreenRenderer::CreateBuffers()
     {
         circleBufferId_ = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate),
                                                           GraphicsApi::DrawFlag::Static);
-        circleMatrix_   = Utils::CreateTransformationMatrix(vec3(0.81, -0.75, -0.1), DegreesVec3(0), vec3(0.1f));
+
+        vec3 circlePosition(0.81, -0.75, 0.1);
+
+        if (graphicsApi_.GetClipSpaceDepth() == GraphicsApi::ClipSpaceDepth::NegativeOneToOne)
+        {
+            circlePosition.z = -0.1f;
+        }
+        circleMatrix_ = Utils::CreateTransformationMatrix(circlePosition, DegreesVec3(0), vec3(0.1f));
 
         PerObjectUpdate perObjectUpdate_;
         perObjectUpdate_.TransformationMatrix = graphicsApi_.PrepareMatrixToLoad(circleMatrix_);

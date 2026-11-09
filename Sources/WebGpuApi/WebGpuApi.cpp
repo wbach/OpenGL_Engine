@@ -1008,4 +1008,13 @@ void WebGpuApi::DeleteFrameBuffer(IFrameBuffer& framebuffer)
 {
     impl_->frameBufferManager.DeleteFrameBuffer(framebuffer);
 }
+GraphicsApi::ClipSpaceOrigin WebGpuApi::GetClipSpaceOrigin() const
+{
+    return GraphicsApi::ClipSpaceOrigin::UpperLeft;
+}
+GraphicsApi::ClipSpaceDepth WebGpuApi::GetClipSpaceDepth() const
+{
+    return GraphicsApi::ClipSpaceDepth::ZeroToOne;
+}
+
 }  // namespace GraphicsApi::WebGpu

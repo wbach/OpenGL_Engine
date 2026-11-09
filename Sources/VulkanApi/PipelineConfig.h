@@ -9,7 +9,6 @@
 
 namespace GraphicsApi::Vulkan
 {
-
 enum class Topology
 {
     TriangleList,
@@ -32,6 +31,35 @@ enum class CullMode
     Front,
     Back,
     FrontAndBack
+};
+
+enum class FrontFace
+{
+    Clockwise,
+    CounterClockwise
+};
+
+enum class CompareOp
+{
+    Never,
+    Less,
+    Equal,
+    LessOrEqual,
+    Greater,
+    NotEqual,
+    GreaterOrEqual,
+    Always
+};
+
+struct ColorBlendConfig
+{
+    bool blendEnable = false;
+};
+
+struct InputAssemblyConfig
+{
+    Topology topology           = Topology::TriangleList;
+    bool primitiveRestartEnable = false;
 };
 
 struct VertexAttribute
@@ -58,6 +86,37 @@ struct DescriptorBindingConfig
     VkShaderStageFlags stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
 };
 
+struct RasterizationConfig
+{
+    PolygonMode polygonMode = PolygonMode::Fill;
+    CullMode cullMode = CullMode::Back;
+
+    FrontFace frontFace = FrontFace::CounterClockwise;
+
+    bool depthClampEnable = false;
+    bool rasterizerDiscardEnable = false;
+
+    bool depthBiasEnable = false;
+
+    float depthBiasConstantFactor = 0.0f;
+    float depthBiasClamp = 0.0f;
+    float depthBiasSlopeFactor = 0.0f;
+
+    float lineWidth = 1.0f;
+};
+
+struct DepthStencilConfig
+{
+    bool depthTestEnable  = true;
+    bool depthWriteEnable = true;
+
+    CompareOp depthCompareOp = CompareOp::Less;
+
+    bool depthBoundsTestEnable = false;
+
+    bool stencilTestEnable = false;
+};
+
 VertexLayout GetDefaultVertexLayout();
 std::vector<DescriptorBindingConfig> GetDefaultDescriptorBindings();
 GraphicsApi::DrawFlag GetDrawFlagByBindLocation(uint32);
@@ -65,14 +124,13 @@ GraphicsApi::DrawFlag GetDrawFlagByBindLocation(uint32);
 struct PipelineConfig
 {
     GraphicsApi::ShadersFiles shaders;
-    Topology topology                                       = Topology::TriangleList;
-    PolygonMode polygonMode                                 = PolygonMode::Fill;
-    CullMode cullMode                                       = CullMode::Back;
-    bool depthTestEnable                                    = true;
-    bool depthWriteEnable                                   = true;
-    bool blendEnable                                        = false;
-    bool primitiveRestartEnable                             = false;
-    VertexLayout vertexLayout                               = GetDefaultVertexLayout();
+
+    InputAssemblyConfig inputAssembly;
+    RasterizationConfig rasterization;
+    DepthStencilConfig depthStencil;
+    ColorBlendConfig colorBlend;
+
+    VertexLayout vertexLayout = GetDefaultVertexLayout();
     std::vector<DescriptorBindingConfig> descriptorBindings = GetDefaultDescriptorBindings();
 };
 

@@ -58,7 +58,7 @@ void IntroRenderer::Init()
     if (not perUpdateObjectBuffer_)
     {
         perUpdateObjectBuffer_ = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate),
-                                                                 GraphicsApi::DrawFlag::Dynamic);
+                                                                 GraphicsApi::DrawFlag::Static);
 
         PerObjectUpdate perObjectUpdate;
         perObjectUpdate.TransformationMatrix = graphicsApi_.PrepareMatrixToLoad(mat4(1.f));
@@ -78,6 +78,7 @@ void IntroRenderer::RenderThis()
 
     graphicsApi_.RenderProcedural(6);
     shader_.Stop();
+    graphicsApi_.EndFrame();
 }
 void IntroRenderer::CleanUp()
 {

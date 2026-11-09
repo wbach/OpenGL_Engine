@@ -110,6 +110,8 @@ public:
     IFrameBuffer& GetDefaultFrameBuffer() override;
     IFrameBuffer& CreateFrameBuffer(const std::vector<FrameBuffer::Attachment>&) override;
     void DeleteFrameBuffer(IFrameBuffer&) override;
+    GraphicsApi::ClipSpaceOrigin GetClipSpaceOrigin() const override;
+    GraphicsApi::ClipSpaceDepth GetClipSpaceDepth() const override;
 
 private:
     void InitRendering();

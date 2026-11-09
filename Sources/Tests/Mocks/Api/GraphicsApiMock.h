@@ -106,6 +106,8 @@ public:
     MOCK_METHOD(IFrameBuffer&, CreateFrameBuffer, (const std::vector<FrameBuffer::Attachment>&), (override));
     MOCK_METHOD(void, DeleteFrameBuffer, (IFrameBuffer&), (override));
     MOCK_METHOD(std::optional<uint64_t>, GetBindlessHandle, (IdType), (override));
+    MOCK_METHOD(ClipSpaceOrigin, GetClipSpaceOrigin, (), (const override));
+    MOCK_METHOD(ClipSpaceDepth, GetClipSpaceDepth, (), (const override));
 };
 
 }  // namespace GraphicsApi

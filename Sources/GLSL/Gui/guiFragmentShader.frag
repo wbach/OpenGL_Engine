@@ -16,9 +16,15 @@ layout (std140, binding=6) uniform ElementBuffer
 
 void main(void)
 {
+    #ifdef IS_VULKAN
+    // tymczasowo , az nie bedize tekstur
+    outColor = vec4(textureCoords, 0.0, 1.0);
+    return;
+    #endif
+
     vec4 sampledColor = vec4(0.0);
-   
-    if (elementBuffer.params.x > 0.5) 
+
+    if (elementBuffer.params.x > 0.5)
     {
         sampledColor = texture(guiTexture, textureCoords) * elementBuffer.textureColor;
     }
@@ -29,7 +35,7 @@ void main(void)
     vec3 finalRGB = (sampledColor.rgb * sampledColor.a) + (bgColor.rgb * bgWeight);
 
     float finalAlpha = clamp(sampledColor.a + bgColor.a, 0.0, 1.0);
-    if (finalAlpha > 0.0) 
+    if (finalAlpha > 0.0)
     {
         finalRGB /= finalAlpha;
     }

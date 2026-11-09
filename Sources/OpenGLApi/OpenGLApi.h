@@ -141,6 +141,9 @@ public:
     std::optional<Utils::Image> GetImage(IdType) const override;
     std::vector<Utils::Image> GetImageArray(IdType) const override;
 
+    GraphicsApi::ClipSpaceOrigin GetClipSpaceOrigin() const override;
+    GraphicsApi::ClipSpaceDepth GetClipSpaceDepth() const override;
+
 private:
     void TakeTextureSnapshot(uint32 id, const GraphicsApi::TextureInfo& textureInfo, const std::filesystem::path& path) const;
     void TakeTextureArraySnapshot(uint32 id, const GraphicsApi::TextureInfo& textureInfo, const std::filesystem::path& path) const;
