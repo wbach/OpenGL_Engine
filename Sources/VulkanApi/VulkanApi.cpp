@@ -490,7 +490,7 @@ void TransitionImageLayout(VulkanContext& vkContext, VkImage image, [[maybe_unus
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image               = image,
         .subresourceRange    = {
-               .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1}};
+            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1}};
 
     VkPipelineStageFlags sourceStage;
     VkPipelineStageFlags destinationStage;
@@ -658,29 +658,14 @@ void ExecuteDrawCall(VulkanContext& vkContext, VkCommandBuffer commandBuffer, Vk
 
     // 2. Prepare dynamic offsets
     std::vector<uint32> dynamicOffsets;
+    dynamicOffsets.reserve(drawCall.boundShaderBuffers.size());
 
-    const auto totalBindingsCount = program.pipelineConfig.descriptorBindings.size();
-
-    for (uint32 i = 0; i < totalBindingsCount; ++i)
+    for (const auto& [binding, shaderBuffer] : drawCall.boundShaderBuffers)
     {
-        if (GetDrawFlagByBindLocation(i) != GraphicsApi::DrawFlag::Dynamic)
-            continue;
-
-        uint32 offset = 0;
-
-        auto boundIt = drawCall.boundShaderBuffers.find(i);
-
-        if (boundIt != drawCall.boundShaderBuffers.end())
+        if (shaderBuffer.type == BufferType::DynamicPerFrame)
         {
-            const auto& shaderBuffer = boundIt->second;
-
-            if (shaderBuffer.type == BufferType::DynamicPerFrame)
-            {
-                offset = shaderBuffer.dynamicOffset;
-            }
+            dynamicOffsets.push_back(shaderBuffer.dynamicOffset);
         }
-
-        dynamicOffsets.push_back(offset);
     }
 
     // 3. Bind descriptor set
@@ -688,35 +673,38 @@ void ExecuteDrawCall(VulkanContext& vkContext, VkCommandBuffer commandBuffer, Vk
                             static_cast<uint32>(dynamicOffsets.size()), dynamicOffsets.empty() ? nullptr : dynamicOffsets.data());
 
     // 4. Execute draw command
-    std::visit(
-        visitor{[&](const VulkanMeshDraw& meshDraw)
-                {
-                    const auto meshIt = vkContext.meshes.find(meshDraw.id);
+    std::visit(visitor{[&](const VulkanMeshDraw& meshDraw)
+                       {
+                           const auto meshIt = vkContext.meshes.find(meshDraw.id);
 
-                    if (meshIt == vkContext.meshes.end())
-                        return;
+                           if (meshIt == vkContext.meshes.end())
+                               return;
 
-                    const auto& mesh = meshIt->second;
+                           const auto& mesh = meshIt->second;
 
-                    VkBuffer vertexBuffers[] = {mesh.vertexBuffer};
+                           VkBuffer vertexBuffers[] = {mesh.vertexBuffer};
 
-                    VkDeviceSize offsets[] = {0};
+                           VkDeviceSize offsets[] = {0};
 
-                    vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+                           vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
-                    if (mesh.useIndices && mesh.indexBuffer != VK_NULL_HANDLE)
-                    {
-                        vkCmdBindIndexBuffer(commandBuffer, mesh.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+                           if (mesh.useIndices && mesh.indexBuffer != VK_NULL_HANDLE)
+                           {
+                               vkCmdBindIndexBuffer(commandBuffer, mesh.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-                        vkCmdDrawIndexed(commandBuffer, static_cast<uint32>(mesh.meshData.indices_.size()), 1, 0, 0, 0);
-                    }
-                    else
-                    {
-                        vkCmdDraw(commandBuffer, mesh.vertexCount, 1, 0, 0);
-                    }
-                },
-                [&](const VulkanProceduralDraw& proceduralDraw) { vkCmdDraw(commandBuffer, proceduralDraw.count, 1, 0, 0); }},
-        drawCall.drawCommand);
+                               vkCmdDrawIndexed(commandBuffer, static_cast<uint32>(mesh.meshData.indices_.size()), 1, 0, 0, 0);
+                           }
+                           else
+                           {
+                               vkCmdDraw(commandBuffer, mesh.vertexCount, 1, 0, 0);
+                           }
+                       },
+                       [&](const VulkanProceduralDraw& proceduralDraw)
+                       {
+                           LOG_DEBUG << "Try VulkanProceduralDraw, program:" << drawCall.programId << ", count: " << proceduralDraw.count;
+                           vkCmdDraw(commandBuffer, proceduralDraw.count, 1, 0, 0);
+                       }},
+               drawCall.drawCommand);
 }
 
 void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer, uint32 imageIndex)
@@ -738,6 +726,7 @@ void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer, ui
 
     VkPipeline currentPipeline = VK_NULL_HANDLE;
 
+    LOG_DEBUG << "";
     for (auto& [programId, program] : vkContext.programs)
     {
         if (imageIndex >= program.descriptorPools.size())
@@ -768,6 +757,7 @@ void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer, ui
             currentPipeline = program.pipeline;
         }
 
+        LOG_DEBUG << "Try ExecuteDrawCall";
         ExecuteDrawCall(vkContext, commandBuffer, currentPool, program, drawCall);
     }
 }
@@ -1467,13 +1457,18 @@ std::map<uint32, VulkanShaderBuffer> VulkanApi::createBufferBindingForDrawCall(c
 
         if (descriptorIt == descriptorBindings.end())
         {
+            LOG_DEBUG << "Skipping bind location " << bindLocation << " as it is not part of the program's descriptor bindings.";
             continue;  // Skip if the bind location is not part of the program's descriptor bindings
         }
 
         auto bufferIt = vkContext.shaderBuffers.find(bufferId);
 
         if (bufferIt == vkContext.shaderBuffers.end())
+        {
+            LOG_WARN << "Warning: Shader buffer with ID " << bufferId << " not found for bind location " << bindLocation
+                     << ". Skipping this binding.\n";
             continue;
+        }
 
         if (GetDescriptorType(bufferIt->second.type) != descriptorIt->descriptorType)
         {
@@ -1483,6 +1478,8 @@ std::map<uint32, VulkanShaderBuffer> VulkanApi::createBufferBindingForDrawCall(c
             return {};
         }
 
+        LOG_DEBUG << "Binding shader buffer ID " << bufferId << " to bind location " << bindLocation
+                  << " with descriptor type: " << static_cast<uint32>(descriptorIt->descriptorType) << ".";
         result.emplace(bindLocation, bufferIt->second);
     }
     return result;
