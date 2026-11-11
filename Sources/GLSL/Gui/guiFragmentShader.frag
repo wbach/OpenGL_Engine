@@ -4,7 +4,13 @@ layout(location = 0) in vec2 textureCoords;
 
 layout(location = 0) out vec4 outColor;
 
-layout(binding = 0) uniform sampler2D guiTexture;
+#ifdef IS_VULKAN
+    #define SAMPLER(set_, binding_) layout(set = set_, binding = binding_)
+#else
+    #define SAMPLER(set_, binding_) layout(binding = binding_)
+#endif
+
+SAMPLER(1, 0) uniform sampler2D guiTexture;
 
 layout (std140, binding=6) uniform ElementBuffer
 {

@@ -19,6 +19,39 @@ namespace GraphicsApi::Vulkan
 {
 namespace
 {
+void CopyBufferToImage(const VulkanContext& context, VkBuffer buffer, VkImage image, const VkBufferImageCopy& region)
+{
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool        = context.commandPool;
+    allocInfo.commandBufferCount = 1;
+
+    VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
+
+    vkAllocateCommandBuffers(context.device, &allocInfo, &commandBuffer);
+
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+    vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+    vkEndCommandBuffer(commandBuffer);
+
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers    = &commandBuffer;
+
+    vkQueueSubmit(context.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+
+    vkQueueWaitIdle(context.graphicsQueue);
+
+    vkFreeCommandBuffers(context.device, context.commandPool, 1, &commandBuffer);
+}
 
 VkDescriptorType GetDescriptorType(BufferType type)
 {
@@ -875,34 +908,32 @@ void ExecuteDrawCall(VulkanContext& vkContext, VkCommandBuffer commandBuffer, Vk
                             static_cast<uint32>(dynamicOffsets.size()), dynamicOffsets.empty() ? nullptr : dynamicOffsets.data());
 
     // 4. Execute draw command
-    std::visit(visitor{[&](const VulkanMeshDraw& meshDraw)
-                       {
-                           const auto meshIt = vkContext.meshes.find(meshDraw.id);
+    std::visit(
+        visitor{[&](const VulkanMeshDraw& meshDraw)
+                {
+                    const auto meshIt = vkContext.meshes.find(meshDraw.id);
 
-                           if (meshIt == vkContext.meshes.end())
-                               return;
+                    if (meshIt == vkContext.meshes.end())
+                        return;
 
-                           const auto& mesh         = meshIt->second;
-                           VkBuffer vertexBuffers[] = {mesh.vertexBuffer};
-                           VkDeviceSize offsets[]   = {0};
+                    const auto& mesh         = meshIt->second;
+                    VkBuffer vertexBuffers[] = {mesh.vertexBuffer};
+                    VkDeviceSize offsets[]   = {0};
 
-                           vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+                    vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
-                           if (mesh.useIndices && mesh.indexBuffer != VK_NULL_HANDLE)
-                           {
-                               vkCmdBindIndexBuffer(commandBuffer, mesh.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-                               vkCmdDrawIndexed(commandBuffer, static_cast<uint32>(mesh.meshData.indices_.size()), 1, 0, 0, 0);
-                           }
-                           else
-                           {
-                               vkCmdDraw(commandBuffer, mesh.vertexCount, 1, 0, 0);
-                           }
-                       },
-                       [&](const VulkanProceduralDraw& proceduralDraw)
-                       {
-                           vkCmdDraw(commandBuffer, proceduralDraw.count, 1, 0, 0);
-                       }},
-               drawCall.drawCommand);
+                    if (mesh.useIndices && mesh.indexBuffer != VK_NULL_HANDLE)
+                    {
+                        vkCmdBindIndexBuffer(commandBuffer, mesh.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+                        vkCmdDrawIndexed(commandBuffer, static_cast<uint32>(mesh.meshData.indices_.size()), 1, 0, 0, 0);
+                    }
+                    else
+                    {
+                        vkCmdDraw(commandBuffer, mesh.vertexCount, 1, 0, 0);
+                    }
+                },
+                [&](const VulkanProceduralDraw& proceduralDraw) { vkCmdDraw(commandBuffer, proceduralDraw.count, 1, 0, 0); }},
+        drawCall.drawCommand);
 }
 
 void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer, uint32 imageIndex)
@@ -1313,7 +1344,7 @@ uint32 VulkanApi::BindShaderBuffer(uint32 id)
     auto bufIt = vkContext.shaderBuffers.find(id);
     if (bufIt == vkContext.shaderBuffers.end())
     {
-        //LOG_ERROR << "Error: Cannot bind shader buffer. Buffer ID " << id << " not found!\n";
+        // LOG_ERROR << "Error: Cannot bind shader buffer. Buffer ID " << id << " not found!\n";
         return std::numeric_limits<uint32>::max();
     }
 
@@ -1325,23 +1356,38 @@ void VulkanApi::UseShader(uint32 shaderId)
 {
     if (vkContext.programs.find(shaderId) == vkContext.programs.end())
     {
-        //LOG_ERROR << "Attempt to activate a non-existent shader/pipeline with ID: " << shaderId << "\n";
+        // LOG_ERROR << "Attempt to activate a non-existent shader/pipeline with ID: " << shaderId << "\n";
         return;
     }
 
     vkContext.currentRenderState.activeProgramId = shaderId;
 }
-ID VulkanApi::CreateTexture(const Utils::Image& image, [[maybe_unused]] TextureFilter filter,
-                            [[maybe_unused]] TextureMipmap mipmap)
-{
-    VkDeviceSize imageSize = image.width * image.height * 4;
 
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
+GraphicsApi::ID VulkanApi::CreateTexture(const Utils::Image& image, [[maybe_unused]] TextureFilter filter,
+                                         [[maybe_unused]] TextureMipmap mipmap)
+{
+    constexpr VkDeviceSize bytesPerPixel = 4;
+
+    const VkDeviceSize rowSize = static_cast<VkDeviceSize>(image.width) * bytesPerPixel;
+
+    const VkDeviceSize pitch = image.pitch.value_or(static_cast<size_t>(rowSize));
+
+    // Walidacja danych źródłowych.
+    if (image.width == 0 || image.height == 0 || pitch < rowSize || pitch % bytesPerPixel != 0)
+    {
+        return {};
+    }
+
+    const VkDeviceSize imageSize = pitch * image.height;
+
+    VkBuffer stagingBuffer             = VK_NULL_HANDLE;
+    VkDeviceMemory stagingBufferMemory = VK_NULL_HANDLE;
+
     CreateBuffer(vkContext, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
-    void* data{nullptr};
+    void* data = nullptr;
+
     if (vkMapMemory(vkContext.device, stagingBufferMemory, 0, imageSize, 0, &data) != VK_SUCCESS)
     {
         vkDestroyBuffer(vkContext.device, stagingBuffer, nullptr);
@@ -1349,52 +1395,66 @@ ID VulkanApi::CreateTexture(const Utils::Image& image, [[maybe_unused]] TextureF
         return {};
     }
 
+    // Kopiujemy oryginalne dane wraz z paddingiem między wierszami.
     std::memcpy(data, image.getRawDataPtr(), static_cast<size_t>(imageSize));
+
     vkUnmapMemory(vkContext.device, stagingBufferMemory);
 
     VulkanTexture texture;
 
-    /*TO DO:
-        Format SRGB jest odpowiedni dla typowych tekstur kolorystycznych, np.:
-        - diffuse/albedo;
-        - base color;
-        - tekstury kolorystyczne UI.
-        Natomiast dla map przechowujących dane, np.:
-        - normal maps;
-        - roughness;
-        - metallic;
-        - displacement;
-        VK_FORMAT_R8G8B8A8_UNORM
-    */
-    if (not CreateImage(vkContext, image.width, image.height, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
-                        VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                        texture.image, texture.memory))
+    constexpr VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
+
+    if (!CreateImage(vkContext, image.width, image.height, format, VK_IMAGE_TILING_OPTIMAL,
+                     VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                     texture.image, texture.memory))
     {
         vkDestroyBuffer(vkContext.device, stagingBuffer, nullptr);
         vkFreeMemory(vkContext.device, stagingBufferMemory, nullptr);
         return {};
     }
 
-    TransitionImageLayout(vkContext, texture.image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
-                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    CopyBufferToImage(vkContext, stagingBuffer, texture.image, static_cast<uint32>(image.width),
-                      static_cast<uint32>(image.height));
-    TransitionImageLayout(vkContext, texture.image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+    TransitionImageLayout(vkContext, texture.image, format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+    // Pitch wyrażony w pikselach, nie bajtach.
+    VkBufferImageCopy region{};
+
+    region.bufferOffset      = 0;
+    region.bufferRowLength   = static_cast<uint32>(pitch / bytesPerPixel);
+    region.bufferImageHeight = 0;
+
+    region.imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+    region.imageSubresource.mipLevel       = 0;
+    region.imageSubresource.baseArrayLayer = 0;
+    region.imageSubresource.layerCount     = 1;
+
+    region.imageOffset = {0, 0, 0};
+    region.imageExtent = {image.width, image.height, 1};
+
+    // Wykonanie kopiowania.
+    // Wymaga funkcji CopyBufferToImage przyjmującej VkBufferImageCopy.
+    CopyBufferToImage(vkContext, stagingBuffer, texture.image, region);
+
+    TransitionImageLayout(vkContext, texture.image, format, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                           VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     vkDestroyBuffer(vkContext.device, stagingBuffer, nullptr);
     vkFreeMemory(vkContext.device, stagingBufferMemory, nullptr);
 
-    texture.imageView = CreateImageView(vkContext.device, texture.image, VK_FORMAT_R8G8B8A8_SRGB);
+    texture.imageView = CreateImageView(vkContext.device, texture.image, format);
+
     if (texture.imageView == VK_NULL_HANDLE)
     {
+        vkDestroyImage(vkContext.device, texture.image, nullptr);
+        vkFreeMemory(vkContext.device, texture.memory, nullptr);
         return {};
     }
 
     texture.sampler = CreateTextureSampler(vkContext);
+
     if (texture.sampler == VK_NULL_HANDLE)
     {
         vkDestroyImageView(vkContext.device, texture.imageView, nullptr);
+
         vkDestroyImage(vkContext.device, texture.image, nullptr);
         vkFreeMemory(vkContext.device, texture.memory, nullptr);
         return {};
@@ -1405,6 +1465,7 @@ ID VulkanApi::CreateTexture(const Utils::Image& image, [[maybe_unused]] TextureF
 
     return textureId;
 }
+
 ID VulkanApi::CreateTexture(const std::vector<Utils::Image>&, TextureFilter, TextureMipmap)
 {
     return 0;
@@ -1702,7 +1763,8 @@ std::map<uint32, VulkanShaderBuffer> VulkanApi::createBufferBindingForDrawCall(c
 
         if (descriptorIt == descriptorBindings.end())
         {
-            //LOG_DEBUG << "Skipping bind location " << bindLocation << " as it is not part of the program's descriptor bindings.";
+            // LOG_DEBUG << "Skipping bind location " << bindLocation << " as it is not part of the program's descriptor
+            // bindings.";
             continue;
         }
 
