@@ -20,10 +20,10 @@ public:
             return;
         }
 
-        // #ifdef NOREALTIME_LOG_ENABLED
+#ifdef NOREALTIME_LOG_ENABLED
         LOG_DEBUG << "Prev saved state : " << typeName<State>();
         std::visit([](const auto& state) { LOG_DEBUG << "Entering : " << typeName(state); }, machine.savedState.value());
-        // #endif
+#endif
 
         leave(prevState);
         leave(prevState, event);

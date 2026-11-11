@@ -667,7 +667,6 @@ std::vector<VkDescriptorSet> PrepareDrawCallDescriptorSets(VulkanContext& contex
                     found->descriptorCount != it->descriptorCount)
                 {
                     LOG_ERROR << "Ambiguous descriptor binding: " << binding;
-
                     return descriptorBindings.end();
                 }
             }
@@ -721,8 +720,8 @@ std::vector<VkDescriptorSet> PrepareDrawCallDescriptorSets(VulkanContext& contex
 
         if (configIt == descriptorBindings.end())
         {
-            LOG_WARN << "Texture descriptor configuration not found. "
-                     << "Binding: " << binding;
+            // LOG_WARN << "Texture descriptor configuration not found. "
+            //          << "Binding: " << binding;
             continue;
         }
 
@@ -799,8 +798,6 @@ std::vector<VkDescriptorSet> PrepareDrawCallDescriptorSets(VulkanContext& contex
                                              .pBufferInfo     = &bufferInfos.back()};
 
         descriptorWrites.push_back(descriptorWrite);
-
-        LOG_DEBUG << "Buffer descriptor: set=" << config.set << ", binding=" << binding;
     }
 
     // Write texture descriptors.
@@ -811,8 +808,8 @@ std::vector<VkDescriptorSet> PrepareDrawCallDescriptorSets(VulkanContext& contex
 
         if (configIt == descriptorBindings.end())
         {
-            LOG_WARN << "Skipping texture not supported by pipeline. "
-                     << "Binding: " << binding;
+            // LOG_WARN << "Skipping texture not supported by pipeline. "
+            //          << "Binding: " << binding;
             continue;
         }
 
@@ -833,8 +830,6 @@ std::vector<VkDescriptorSet> PrepareDrawCallDescriptorSets(VulkanContext& contex
                                              .pImageInfo      = &imageInfos.back()};
 
         descriptorWrites.push_back(descriptorWrite);
-
-        LOG_DEBUG << "Texture descriptor: set=" << config.set << ", binding=" << binding << ", textureId=" << textureId;
     }
 
     if (not descriptorWrites.empty())
@@ -848,7 +843,7 @@ std::vector<VkDescriptorSet> PrepareDrawCallDescriptorSets(VulkanContext& contex
 void ExecuteDrawCall(VulkanContext& vkContext, VkCommandBuffer commandBuffer, VkDescriptorPool descriptorPool,
                      const VulkanProgram& program, const VulkanDrawCall& drawCall)
 {
-    if (!ValidateDrawCallBufferBindings(vkContext, program, drawCall))
+    if (not ValidateDrawCallBufferBindings(vkContext, program, drawCall))
     {
         LOG_ERROR << "Skipping invalid DrawCall. Program: " << drawCall.programId;
         return;
@@ -874,8 +869,6 @@ void ExecuteDrawCall(VulkanContext& vkContext, VkCommandBuffer commandBuffer, Vk
         }
     }
 
-    LOG_DEBUG << "Executing DrawCall. Program: " << drawCall.programId << ", DescriptorSets: " << drawCallSets.size()
-              << ", DynamicOffsets: " << dynamicOffsets.size();
     // 3. Bind descriptor set
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program.layout, 0,
                             static_cast<uint32>(drawCallSets.size()), drawCallSets.data(),
@@ -907,8 +900,6 @@ void ExecuteDrawCall(VulkanContext& vkContext, VkCommandBuffer commandBuffer, Vk
                        },
                        [&](const VulkanProceduralDraw& proceduralDraw)
                        {
-                           LOG_DEBUG << "Try VulkanProceduralDraw, program:" << drawCall.programId
-                                     << ", count: " << proceduralDraw.count;
                            vkCmdDraw(commandBuffer, proceduralDraw.count, 1, 0, 0);
                        }},
                drawCall.drawCommand);
@@ -933,7 +924,6 @@ void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer, ui
 
     VkPipeline currentPipeline = VK_NULL_HANDLE;
 
-    LOG_DEBUG << "";
     for (auto& [programId, program] : vkContext.programs)
     {
         if (imageIndex >= program.descriptorPools.size())
@@ -955,8 +945,6 @@ void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer, ui
             continue;
 
         auto currentPool = program.descriptorPools[imageIndex];
-
-        // Bind pipeline only when it changes.
         if (currentPipeline != program.pipeline)
         {
             vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program.pipeline);
@@ -964,7 +952,6 @@ void RecordDrawCalls(VulkanContext& vkContext, VkCommandBuffer commandBuffer, ui
             currentPipeline = program.pipeline;
         }
 
-        LOG_DEBUG << "Try ExecuteDrawCall";
         ExecuteDrawCall(vkContext, commandBuffer, currentPool, program, drawCall);
     }
 }
@@ -1326,7 +1313,7 @@ uint32 VulkanApi::BindShaderBuffer(uint32 id)
     auto bufIt = vkContext.shaderBuffers.find(id);
     if (bufIt == vkContext.shaderBuffers.end())
     {
-        LOG_ERROR << "Error: Cannot bind shader buffer. Buffer ID " << id << " not found!\n";
+        //LOG_ERROR << "Error: Cannot bind shader buffer. Buffer ID " << id << " not found!\n";
         return std::numeric_limits<uint32>::max();
     }
 
@@ -1338,7 +1325,7 @@ void VulkanApi::UseShader(uint32 shaderId)
 {
     if (vkContext.programs.find(shaderId) == vkContext.programs.end())
     {
-        LOG_ERROR << "Attempt to activate a non-existent shader/pipeline with ID: " << shaderId << "\n";
+        //LOG_ERROR << "Attempt to activate a non-existent shader/pipeline with ID: " << shaderId << "\n";
         return;
     }
 
@@ -1715,8 +1702,8 @@ std::map<uint32, VulkanShaderBuffer> VulkanApi::createBufferBindingForDrawCall(c
 
         if (descriptorIt == descriptorBindings.end())
         {
-            LOG_DEBUG << "Skipping bind location " << bindLocation << " as it is not part of the program's descriptor bindings.";
-            continue;  // Skip if the bind location is not part of the program's descriptor bindings
+            //LOG_DEBUG << "Skipping bind location " << bindLocation << " as it is not part of the program's descriptor bindings.";
+            continue;
         }
 
         if (descriptorIt->descriptorType != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER &&
@@ -1724,8 +1711,6 @@ std::map<uint32, VulkanShaderBuffer> VulkanApi::createBufferBindingForDrawCall(c
             descriptorIt->descriptorType != VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC &&
             descriptorIt->descriptorType != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC)
         {
-            // LOG_ERROR << "Error: Unsupported descriptor type for bind location " << bindLocation
-            //           << ". Only uniform and storage buffers are supported.\n";
             continue;
         }
 
@@ -1733,21 +1718,19 @@ std::map<uint32, VulkanShaderBuffer> VulkanApi::createBufferBindingForDrawCall(c
 
         if (bufferIt == vkContext.shaderBuffers.end())
         {
-            LOG_WARN << "Warning: Shader buffer with ID " << bufferId << " not found for bind location " << bindLocation
-                     << ". Skipping this binding.\n";
+            // LOG_WARN << "Warning: Shader buffer with ID " << bufferId << " not found for bind location " << bindLocation
+            //          << ". Skipping this binding.\n";
             continue;
         }
 
         if (GetDescriptorType(bufferIt->second.type) != descriptorIt->descriptorType)
         {
-            LOG_ERROR << "Error: Shader buffer type mismatch for bind location " << bindLocation
-                      << ". Expected descriptor type: " << static_cast<uint32>(descriptorIt->descriptorType)
-                      << ", but got buffer type: " << static_cast<uint32>(GetDescriptorType(bufferIt->second.type)) << ".\n";
+            // LOG_ERROR << "Error: Shader buffer type mismatch for bind location " << bindLocation
+            //           << ". Expected descriptor type: " << static_cast<uint32>(descriptorIt->descriptorType)
+            //           << ", but got buffer type: " << static_cast<uint32>(GetDescriptorType(bufferIt->second.type)) << ".\n";
             return {};
         }
 
-        LOG_DEBUG << "Binding shader buffer ID " << bufferId << " to bind location " << bindLocation
-                  << " with descriptor type: " << static_cast<uint32>(descriptorIt->descriptorType) << ".";
         result.emplace(bindLocation, bufferIt->second);
     }
     return result;
@@ -1776,8 +1759,8 @@ void VulkanApi::RenderMesh(uint32 meshId)
         }
         else
         {
-            LOG_WARN << "Warning: No shader buffers bound for the active program ID ("
-                     << vkContext.currentRenderState.activeProgramId << "). Draw call will be skipped.\n";
+            // LOG_WARN << "Warning: No shader buffers bound for the active program ID ("
+            //          << vkContext.currentRenderState.activeProgramId << "). Draw call will be skipped.\n";
         }
     }
     else
@@ -1798,13 +1781,12 @@ void VulkanApi::RenderProcedural(uint32 count)
                                 .boundTextures      = vkContext.currentRenderState.boundTextures};
         if (not drawCall.boundShaderBuffers.empty())
         {
-            LOG_DEBUG << "Bound texture units for procedural draw call: " << drawCall.boundTextures.size();
             vkContext.pendingDrawCalls.push_back(drawCall);
         }
         else
         {
-            LOG_WARN << "Warning: No shader buffers bound for the active program ID ("
-                     << vkContext.currentRenderState.activeProgramId << "). Draw call will be skipped.\n";
+            // LOG_WARN << "Warning: No shader buffers bound for the active program ID ("
+            //          << vkContext.currentRenderState.activeProgramId << "). Draw call will be skipped.\n";
         }
     }
 }

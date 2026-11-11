@@ -40,7 +40,7 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, PipelineConfig> pipelin
                     .colorBlend             = ColorBlendConfig{.blendEnable            = true},
                     .vertexLayout           = {},
                     .descriptorBindings     = {
-                                                {.set            = 0,
+                                                {.set            = 1,
                                                 .binding         = 0,
                                                 .descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                                 .descriptorCount = 1,

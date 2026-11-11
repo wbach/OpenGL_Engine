@@ -24,7 +24,7 @@ public:
 
         auto& targetState = std::get<TargetState>(machine.states);
         bool canEnter     = entryCondition(targetState) && entryCondition(targetState, prevState) &&
-                            entryCondition(targetState, prevState, event);
+                        entryCondition(targetState, prevState, event);
 
         if (not canEnter)
         {
@@ -34,10 +34,10 @@ public:
             return;
         }
 
-        // #ifdef NOREALTIME_LOG_ENABLED
+#ifdef NOREALTIME_LOG_ENABLED
         LOG_DEBUG << "PrevState : " << typeName<State>();
         LOG_DEBUG << "Entering : " << typeName<TargetState>();
-        // #endif
+#endif
 
         leave(prevState);
         leave(prevState, event);
