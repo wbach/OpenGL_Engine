@@ -416,18 +416,31 @@ VkCommandBuffer BeginSingleTimeCommands(VulkanContext& vkContext)
                                              .commandBufferCount = 1};
 
     VkCommandBuffer commandBuffer;
-    vkAllocateCommandBuffers(vkContext.device, &allocInfo, &commandBuffer);
+    if (vkAllocateCommandBuffers(vkContext.device, &allocInfo, &commandBuffer) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Error: Failed to allocate command buffer.\n";
+        return VK_NULL_HANDLE;
+    }
 
     VkCommandBufferBeginInfo beginInfo = {.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
                                           .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
 
-    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+    if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Error: Failed to begin command buffer.\n";
+        return VK_NULL_HANDLE;
+    }
+
     return commandBuffer;
 }
 
 void EndSingleTimeCommands(VulkanContext& vkContext, VkCommandBuffer commandBuffer)
 {
-    vkEndCommandBuffer(commandBuffer);
+    if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Error: Failed to end command buffer.\n";
+        return;
+    }
 
     VkSubmitInfo submitInfo = {
         .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO, .commandBufferCount = 1, .pCommandBuffers = &commandBuffer};
@@ -490,7 +503,7 @@ void TransitionImageLayout(VulkanContext& vkContext, VkImage image, [[maybe_unus
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image               = image,
         .subresourceRange    = {
-            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1}};
+               .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1}};
 
     VkPipelineStageFlags sourceStage;
     VkPipelineStageFlags destinationStage;
@@ -571,65 +584,257 @@ bool UploadBufferData(VulkanContext& vkContext, VkBuffer buffer, VkDeviceMemory 
     return true;
 }
 
-VkDescriptorSet PrepareDrawCallDescriptorSet(VulkanContext& context, VkDescriptorPool pool, VkDescriptorSetLayout layout,
-                                             const std::map<uint32, VulkanShaderBuffer>& boundBuffers)
+VkSampler CreateTextureSampler(VulkanContext& context)
 {
-    VkDescriptorSet drawCallSet{VK_NULL_HANDLE};
+    VkSamplerCreateInfo samplerInfo{};
+    samplerInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    samplerInfo.magFilter               = VK_FILTER_LINEAR;
+    samplerInfo.minFilter               = VK_FILTER_LINEAR;
+    samplerInfo.addressModeU            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.addressModeV            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.addressModeW            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.anisotropyEnable        = VK_FALSE;
+    samplerInfo.maxAnisotropy           = 1.0f;
+    samplerInfo.borderColor             = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+    samplerInfo.unnormalizedCoordinates = VK_FALSE;
+    samplerInfo.compareEnable           = VK_FALSE;
+    samplerInfo.compareOp               = VK_COMPARE_OP_ALWAYS;
+    samplerInfo.mipmapMode              = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    samplerInfo.mipLodBias              = 0.0f;
+    samplerInfo.minLod                  = 0.0f;
+    samplerInfo.maxLod                  = 0.0f;
 
-    VkDescriptorSetAllocateInfo allocInfo{};
-    allocInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorPool     = pool;
-    allocInfo.descriptorSetCount = 1u;
-    allocInfo.pSetLayouts        = &layout;
-
-    if (vkAllocateDescriptorSets(context.device, &allocInfo, &drawCallSet) != VK_SUCCESS)
+    VkSampler sampler = VK_NULL_HANDLE;
+    if (vkCreateSampler(context.device, &samplerInfo, nullptr, &sampler) != VK_SUCCESS)
     {
-        LOG_ERROR << "Error: Failed to allocate dynamic VkDescriptorSet for DrawCall!\n";
+        LOG_ERROR << "Error: Failed to create VkSampler for texture!\n";
         return VK_NULL_HANDLE;
     }
 
-    std::vector<VkWriteDescriptorSet> descriptorWrites{};
-    std::vector<VkDescriptorBufferInfo> bufferInfos{};
-    bufferInfos.reserve(boundBuffers.size());
+    return sampler;
+}
 
-    for (auto const& [bindLocation, shaderBuffer] : boundBuffers)
+std::vector<VkDescriptorSet> PrepareDrawCallDescriptorSets(VulkanContext& context, VkDescriptorPool pool,
+                                                           const std::vector<VkDescriptorSetLayout>& layouts,
+                                                           const PipelineConfig& pipelineConfig,
+                                                           const std::map<uint32, VulkanShaderBuffer>& boundBuffers,
+                                                           const std::map<uint32, IdType>& boundTextures)
+{
+    const auto& descriptorBindings = pipelineConfig.descriptorBindings;
+
+    if (layouts.empty())
     {
-        VkDescriptorBufferInfo bufferInfo{};
-
-        if (shaderBuffer.type == BufferType::DynamicPerFrame)
+        if (!boundBuffers.empty() || !boundTextures.empty())
         {
-            // Dla dynamicznego UBO bierzemy globalny bufor (bo nasz wirtualny ma poprawnie przypisany uchwyt z dUbo w Create)
-            bufferInfo.buffer = shaderBuffer.buffer;
-            bufferInfo.offset = 0;  // BARDZO WAŻNE: Dla dynamicznych UBO offset w strukturze info zawsze wynosi 0!
-            bufferInfo.range  = shaderBuffer.size;  // Rozmiar pojedynczego okienka danych
-        }
-        else
-        {
-            bufferInfo.buffer = shaderBuffer.buffer;
-            bufferInfo.offset = 0;
-            bufferInfo.range  = shaderBuffer.size;
+            LOG_ERROR << "Resources provided, but no descriptor layouts exist!";
         }
 
-        bufferInfos.push_back(bufferInfo);
-
-        VkWriteDescriptorSet descriptorWrite{};
-        descriptorWrite.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrite.dstSet          = drawCallSet;
-        descriptorWrite.dstBinding      = bindLocation;
-        descriptorWrite.dstArrayElement = 0;
-
-        // Zależnie od typu bufora ustawiamy odpowiedni typ deskryptora
-        descriptorWrite.descriptorType = (shaderBuffer.type == BufferType::DynamicPerFrame)
-                                             ? VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC
-                                             : VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-
-        descriptorWrite.descriptorCount = 1;
-        descriptorWrites.push_back(descriptorWrite);
+        return {};
     }
 
-    for (auto i = size_t{0u}; i < descriptorWrites.size(); ++i)
+    if (pool == VK_NULL_HANDLE)
     {
-        descriptorWrites[i].pBufferInfo = &bufferInfos[i];
+        LOG_ERROR << "Invalid descriptor pool!";
+        return {};
+    }
+
+    // Validate layouts.
+    for (uint32 set = 0; set < layouts.size(); ++set)
+    {
+        if (layouts[set] == VK_NULL_HANDLE)
+        {
+            LOG_ERROR << "Invalid descriptor set layout: " << set;
+            return {};
+        }
+    }
+
+    // Find descriptor configuration by binding and type.
+    // Binding must identify exactly one set for a given resource type.
+    auto findBindingConfig = [&](uint32 binding, auto typePredicate)
+    {
+        auto found = descriptorBindings.end();
+
+        for (auto it = descriptorBindings.begin(); it != descriptorBindings.end(); ++it)
+        {
+            if (it->binding != binding || !typePredicate(it->descriptorType))
+            {
+                continue;
+            }
+
+            if (found != descriptorBindings.end())
+            {
+                if (found->set != it->set || found->descriptorType != it->descriptorType ||
+                    found->descriptorCount != it->descriptorCount)
+                {
+                    LOG_ERROR << "Ambiguous descriptor binding: " << binding;
+
+                    return descriptorBindings.end();
+                }
+            }
+            else
+            {
+                found = it;
+            }
+        }
+
+        return found;
+    };
+
+    // Validate buffers.
+    for (const auto& [binding, shaderBuffer] : boundBuffers)
+    {
+        auto configIt = findBindingConfig(
+            binding, [](VkDescriptorType type)
+            { return type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER || type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC; });
+
+        if (configIt == descriptorBindings.end())
+        {
+            LOG_ERROR << "Buffer descriptor configuration not found. "
+                      << "Binding: " << binding;
+            return {};
+        }
+
+        if (configIt->set >= layouts.size())
+        {
+            LOG_ERROR << "Invalid descriptor set: " << configIt->set;
+            return {};
+        }
+
+        if (configIt->descriptorCount != 1)
+        {
+            LOG_ERROR << "Buffer descriptorCount must be 1. Binding: " << binding;
+            return {};
+        }
+
+        if (shaderBuffer.buffer == VK_NULL_HANDLE || shaderBuffer.size == 0)
+        {
+            LOG_ERROR << "Invalid shader buffer. Binding: " << binding;
+            return {};
+        }
+    }
+
+    // Validate textures.
+    for (const auto& [binding, textureId] : boundTextures)
+    {
+        auto configIt =
+            findBindingConfig(binding, [](VkDescriptorType type) { return type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; });
+
+        if (configIt == descriptorBindings.end())
+        {
+            LOG_WARN << "Texture descriptor configuration not found. "
+                     << "Binding: " << binding;
+            continue;
+        }
+
+        if (configIt->set >= layouts.size())
+        {
+            LOG_ERROR << "Invalid descriptor set: " << configIt->set;
+            return {};
+        }
+
+        if (configIt->descriptorCount != 1)
+        {
+            LOG_ERROR << "Texture descriptorCount must be 1. Binding: " << binding;
+            return {};
+        }
+
+        auto textureIt = context.textures.find(textureId);
+
+        if (textureIt == context.textures.end())
+        {
+            LOG_ERROR << "Texture not found: " << textureId;
+            return {};
+        }
+
+        const auto& texture = textureIt->second;
+
+        if (texture.imageView == VK_NULL_HANDLE || texture.sampler == VK_NULL_HANDLE)
+        {
+            LOG_ERROR << "Invalid texture resources: " << textureId;
+            return {};
+        }
+    }
+
+    // Allocate all descriptor sets.
+    std::vector<VkDescriptorSet> descriptorSets(layouts.size());
+    VkDescriptorSetAllocateInfo allocInfo{.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+                                          .descriptorPool     = pool,
+                                          .descriptorSetCount = static_cast<uint32>(layouts.size()),
+                                          .pSetLayouts        = layouts.data()};
+
+    if (vkAllocateDescriptorSets(context.device, &allocInfo, descriptorSets.data()) != VK_SUCCESS)
+    {
+        LOG_ERROR << "Failed to allocate DrawCall descriptor sets!";
+        return {};
+    }
+
+    // Prepare descriptor writes.
+    std::vector<VkWriteDescriptorSet> descriptorWrites;
+    std::vector<VkDescriptorBufferInfo> bufferInfos;
+    std::vector<VkDescriptorImageInfo> imageInfos;
+
+    descriptorWrites.reserve(boundBuffers.size() + boundTextures.size());
+
+    bufferInfos.reserve(boundBuffers.size());
+    imageInfos.reserve(boundTextures.size());
+
+    // Write buffer descriptors.
+    for (const auto& [binding, shaderBuffer] : boundBuffers)
+    {
+        auto configIt = findBindingConfig(
+            binding, [](VkDescriptorType type)
+            { return type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER or type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC; });
+
+        const auto& config = *configIt;
+
+        VkDescriptorBufferInfo bufferInfo{.buffer = shaderBuffer.buffer, .offset = 0, .range = shaderBuffer.size};
+        bufferInfos.push_back(bufferInfo);
+
+        VkWriteDescriptorSet descriptorWrite{.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+                                             .dstSet          = descriptorSets[config.set],
+                                             .dstBinding      = binding,
+                                             .dstArrayElement = 0,
+                                             .descriptorCount = config.descriptorCount,
+                                             .descriptorType  = config.descriptorType,
+                                             .pBufferInfo     = &bufferInfos.back()};
+
+        descriptorWrites.push_back(descriptorWrite);
+
+        LOG_DEBUG << "Buffer descriptor: set=" << config.set << ", binding=" << binding;
+    }
+
+    // Write texture descriptors.
+    for (const auto& [binding, textureId] : boundTextures)
+    {
+        auto configIt =
+            findBindingConfig(binding, [](VkDescriptorType type) { return type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; });
+
+        if (configIt == descriptorBindings.end())
+        {
+            LOG_WARN << "Skipping texture not supported by pipeline. "
+                     << "Binding: " << binding;
+            continue;
+        }
+
+        const auto& config  = *configIt;
+        const auto& texture = context.textures.at(textureId);
+
+        VkDescriptorImageInfo imageInfo{
+            .sampler = texture.sampler, .imageView = texture.imageView, .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
+
+        imageInfos.push_back(imageInfo);
+
+        VkWriteDescriptorSet descriptorWrite{.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+                                             .dstSet          = descriptorSets[config.set],
+                                             .dstBinding      = binding,
+                                             .dstArrayElement = 0,
+                                             .descriptorCount = config.descriptorCount,
+                                             .descriptorType  = config.descriptorType,
+                                             .pImageInfo      = &imageInfos.back()};
+
+        descriptorWrites.push_back(descriptorWrite);
+
+        LOG_DEBUG << "Texture descriptor: set=" << config.set << ", binding=" << binding << ", textureId=" << textureId;
     }
 
     if (not descriptorWrites.empty())
@@ -637,7 +842,7 @@ VkDescriptorSet PrepareDrawCallDescriptorSet(VulkanContext& context, VkDescripto
         vkUpdateDescriptorSets(context.device, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }
 
-    return drawCallSet;
+    return descriptorSets;
 }
 
 void ExecuteDrawCall(VulkanContext& vkContext, VkCommandBuffer commandBuffer, VkDescriptorPool descriptorPool,
@@ -650,10 +855,11 @@ void ExecuteDrawCall(VulkanContext& vkContext, VkCommandBuffer commandBuffer, Vk
     }
 
     // 1. Prepare descriptor set
-    auto drawCallSet =
-        PrepareDrawCallDescriptorSet(vkContext, descriptorPool, program.descriptorSetLayout, drawCall.boundShaderBuffers);
+    auto drawCallSets =
+        PrepareDrawCallDescriptorSets(vkContext, descriptorPool, program.descriptorSetLayouts, program.pipelineConfig,
+                                      drawCall.boundShaderBuffers, drawCall.boundTextures);
 
-    if (drawCallSet == VK_NULL_HANDLE)
+    if (drawCallSets.empty())
         return;
 
     // 2. Prepare dynamic offsets
@@ -668,8 +874,11 @@ void ExecuteDrawCall(VulkanContext& vkContext, VkCommandBuffer commandBuffer, Vk
         }
     }
 
+    LOG_DEBUG << "Executing DrawCall. Program: " << drawCall.programId << ", DescriptorSets: " << drawCallSets.size()
+              << ", DynamicOffsets: " << dynamicOffsets.size();
     // 3. Bind descriptor set
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program.layout, 0, 1, &drawCallSet,
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program.layout, 0,
+                            static_cast<uint32>(drawCallSets.size()), drawCallSets.data(),
                             static_cast<uint32>(dynamicOffsets.size()), dynamicOffsets.empty() ? nullptr : dynamicOffsets.data());
 
     // 4. Execute draw command
@@ -680,18 +889,15 @@ void ExecuteDrawCall(VulkanContext& vkContext, VkCommandBuffer commandBuffer, Vk
                            if (meshIt == vkContext.meshes.end())
                                return;
 
-                           const auto& mesh = meshIt->second;
-
+                           const auto& mesh         = meshIt->second;
                            VkBuffer vertexBuffers[] = {mesh.vertexBuffer};
-
-                           VkDeviceSize offsets[] = {0};
+                           VkDeviceSize offsets[]   = {0};
 
                            vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
                            if (mesh.useIndices && mesh.indexBuffer != VK_NULL_HANDLE)
                            {
                                vkCmdBindIndexBuffer(commandBuffer, mesh.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-
                                vkCmdDrawIndexed(commandBuffer, static_cast<uint32>(mesh.meshData.indices_.size()), 1, 0, 0, 0);
                            }
                            else
@@ -701,7 +907,8 @@ void ExecuteDrawCall(VulkanContext& vkContext, VkCommandBuffer commandBuffer, Vk
                        },
                        [&](const VulkanProceduralDraw& proceduralDraw)
                        {
-                           LOG_DEBUG << "Try VulkanProceduralDraw, program:" << drawCall.programId << ", count: " << proceduralDraw.count;
+                           LOG_DEBUG << "Try VulkanProceduralDraw, program:" << drawCall.programId
+                                     << ", count: " << proceduralDraw.count;
                            vkCmdDraw(commandBuffer, proceduralDraw.count, 1, 0, 0);
                        }},
                drawCall.drawCommand);
@@ -988,6 +1195,8 @@ void VulkanApi::DisableDepthTest()
 void VulkanApi::PrepareFrame()
 {
     vkContext.pendingDrawCalls.clear();
+    vkContext.currentRenderState.boundTextures.clear();
+    vkContext.currentRenderState.boundShaderBuffers.clear();
     vkContext.globalDynamicUBO.currentOffset = 0;
 }
 ID VulkanApi::CreateShader(ShaderProgramType type)
@@ -1138,8 +1347,6 @@ void VulkanApi::UseShader(uint32 shaderId)
 ID VulkanApi::CreateTexture(const Utils::Image& image, [[maybe_unused]] TextureFilter filter,
                             [[maybe_unused]] TextureMipmap mipmap)
 {
-    // return {};
-
     VkDeviceSize imageSize = image.width * image.height * 4;
 
     VkBuffer stagingBuffer;
@@ -1147,12 +1354,31 @@ ID VulkanApi::CreateTexture(const Utils::Image& image, [[maybe_unused]] TextureF
     CreateBuffer(vkContext, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
-    void* data;
-    vkMapMemory(vkContext.device, stagingBufferMemory, 0, imageSize, 0, &data);
+    void* data{nullptr};
+    if (vkMapMemory(vkContext.device, stagingBufferMemory, 0, imageSize, 0, &data) != VK_SUCCESS)
+    {
+        vkDestroyBuffer(vkContext.device, stagingBuffer, nullptr);
+        vkFreeMemory(vkContext.device, stagingBufferMemory, nullptr);
+        return {};
+    }
+
     std::memcpy(data, image.getRawDataPtr(), static_cast<size_t>(imageSize));
     vkUnmapMemory(vkContext.device, stagingBufferMemory);
 
     VulkanTexture texture;
+
+    /*TO DO:
+        Format SRGB jest odpowiedni dla typowych tekstur kolorystycznych, np.:
+        - diffuse/albedo;
+        - base color;
+        - tekstury kolorystyczne UI.
+        Natomiast dla map przechowujących dane, np.:
+        - normal maps;
+        - roughness;
+        - metallic;
+        - displacement;
+        VK_FORMAT_R8G8B8A8_UNORM
+    */
     if (not CreateImage(vkContext, image.width, image.height, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
                         VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                         texture.image, texture.memory))
@@ -1173,9 +1399,17 @@ ID VulkanApi::CreateTexture(const Utils::Image& image, [[maybe_unused]] TextureF
     vkFreeMemory(vkContext.device, stagingBufferMemory, nullptr);
 
     texture.imageView = CreateImageView(vkContext.device, texture.image, VK_FORMAT_R8G8B8A8_SRGB);
-
     if (texture.imageView == VK_NULL_HANDLE)
     {
+        return {};
+    }
+
+    texture.sampler = CreateTextureSampler(vkContext);
+    if (texture.sampler == VK_NULL_HANDLE)
+    {
+        vkDestroyImageView(vkContext.device, texture.imageView, nullptr);
+        vkDestroyImage(vkContext.device, texture.image, nullptr);
+        vkFreeMemory(vkContext.device, texture.memory, nullptr);
         return {};
     }
 
@@ -1223,11 +1457,35 @@ void VulkanApi::EnableDepthMask()
 void VulkanApi::DisableDepthMask()
 {
 }
-void VulkanApi::ActiveTexture(uint32, uint32)
+void VulkanApi::ActiveTexture(uint32 unit, uint32 textureId)
 {
+    vkContext.currentRenderState.activeTextureUnit = unit;
+
+    if (textureId == 0u)
+    {
+        vkContext.currentRenderState.boundTextures.erase(unit);
+        return;
+    }
+
+    vkContext.currentRenderState.boundTextures[unit] = textureId;
 }
-void VulkanApi::ActiveTexture(uint32)
+void VulkanApi::ActiveTexture(uint32 unit)
 {
+    vkContext.currentRenderState.activeTextureUnit = unit;
+}
+void VulkanApi::BindTexture(uint32 textureId) const
+{
+    if (textureId == 0u)
+        return;
+
+    vkContext.currentRenderState.boundTextures[vkContext.currentRenderState.activeTextureUnit] = textureId;
+}
+void VulkanApi::BindImageTexture(uint32 textureId, TextureAccess)
+{
+    if (textureId == 0u)
+        return;
+
+    vkContext.currentRenderState.boundTextures[vkContext.currentRenderState.activeTextureUnit] = textureId;
 }
 void VulkanApi::DeleteObject(uint32)
 {
@@ -1461,6 +1719,16 @@ std::map<uint32, VulkanShaderBuffer> VulkanApi::createBufferBindingForDrawCall(c
             continue;  // Skip if the bind location is not part of the program's descriptor bindings
         }
 
+        if (descriptorIt->descriptorType != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER &&
+            descriptorIt->descriptorType != VK_DESCRIPTOR_TYPE_STORAGE_BUFFER &&
+            descriptorIt->descriptorType != VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC &&
+            descriptorIt->descriptorType != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC)
+        {
+            // LOG_ERROR << "Error: Unsupported descriptor type for bind location " << bindLocation
+            //           << ". Only uniform and storage buffers are supported.\n";
+            continue;
+        }
+
         auto bufferIt = vkContext.shaderBuffers.find(bufferId);
 
         if (bufferIt == vkContext.shaderBuffers.end())
@@ -1499,10 +1767,18 @@ void VulkanApi::RenderMesh(uint32 meshId)
     {
         VulkanDrawCall drawCall{.programId          = vkContext.currentRenderState.activeProgramId,
                                 .drawCommand        = VulkanMeshDraw{meshId},
-                                .boundShaderBuffers = createBufferBindingForDrawCall(it->second, vkContext.currentRenderState)};
+                                .boundShaderBuffers = createBufferBindingForDrawCall(it->second, vkContext.currentRenderState),
+                                .boundTextures      = vkContext.currentRenderState.boundTextures};
 
         if (not drawCall.boundShaderBuffers.empty())
+        {
             vkContext.pendingDrawCalls.push_back(drawCall);
+        }
+        else
+        {
+            LOG_WARN << "Warning: No shader buffers bound for the active program ID ("
+                     << vkContext.currentRenderState.activeProgramId << "). Draw call will be skipped.\n";
+        }
     }
     else
     {
@@ -1518,9 +1794,18 @@ void VulkanApi::RenderProcedural(uint32 count)
     {
         VulkanDrawCall drawCall{.programId          = vkContext.currentRenderState.activeProgramId,
                                 .drawCommand        = VulkanProceduralDraw{count},
-                                .boundShaderBuffers = createBufferBindingForDrawCall(it->second, vkContext.currentRenderState)};
+                                .boundShaderBuffers = createBufferBindingForDrawCall(it->second, vkContext.currentRenderState),
+                                .boundTextures      = vkContext.currentRenderState.boundTextures};
         if (not drawCall.boundShaderBuffers.empty())
+        {
+            LOG_DEBUG << "Bound texture units for procedural draw call: " << drawCall.boundTextures.size();
             vkContext.pendingDrawCalls.push_back(drawCall);
+        }
+        else
+        {
+            LOG_WARN << "Warning: No shader buffers bound for the active program ID ("
+                     << vkContext.currentRenderState.activeProgramId << "). Draw call will be skipped.\n";
+        }
     }
 }
 void VulkanApi::RenderDebugNormals(uint32)
@@ -1557,12 +1842,6 @@ void VulkanApi::DisableCulling()
 {
 }
 void VulkanApi::SetViewPort(uint32, uint32, uint32, uint32)
-{
-}
-void VulkanApi::BindTexture(uint32) const
-{
-}
-void VulkanApi::BindImageTexture(uint32, TextureAccess)
 {
 }
 ID VulkanApi::CreateShadowMap(uint32, uint32)

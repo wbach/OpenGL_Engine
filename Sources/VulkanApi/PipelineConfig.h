@@ -51,9 +51,53 @@ enum class CompareOp
     Always
 };
 
+enum class BlendFactor
+{
+    Zero,
+    One,
+
+    SrcColor,
+    OneMinusSrcColor,
+    DstColor,
+    OneMinusDstColor,
+
+    SrcAlpha,
+    OneMinusSrcAlpha,
+    DstAlpha,
+    OneMinusDstAlpha,
+
+    ConstantColor,
+    OneMinusConstantColor,
+    ConstantAlpha,
+    OneMinusConstantAlpha
+};
+
+enum class BlendOperation
+{
+    Add,
+    Subtract,
+    ReverseSubtract,
+    Min,
+    Max
+};
+
 struct ColorBlendConfig
 {
-    bool blendEnable = false;
+    bool blendEnable              = false;
+    BlendFactor srcColorFactor    = BlendFactor::SrcAlpha;
+    BlendFactor dstColorFactor    = BlendFactor::OneMinusSrcAlpha;
+    BlendOperation colorOperation = BlendOperation::Add;
+
+    // Alpha
+    BlendFactor srcAlphaFactor    = BlendFactor::One;
+    BlendFactor dstAlphaFactor    = BlendFactor::OneMinusSrcAlpha;
+    BlendOperation alphaOperation = BlendOperation::Add;
+
+    // Color write mask
+    bool writeRed   = true;
+    bool writeGreen = true;
+    bool writeBlue  = true;
+    bool writeAlpha = true;
 };
 
 struct InputAssemblyConfig
@@ -77,30 +121,28 @@ struct VertexLayout
 
 struct DescriptorBindingConfig
 {
+    uint32 set = 0;
     uint32 binding = 0;
-
     VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-
     uint32 descriptorCount = 1;
-
     VkShaderStageFlags stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
 };
 
 struct RasterizationConfig
 {
     PolygonMode polygonMode = PolygonMode::Fill;
-    CullMode cullMode = CullMode::Back;
+    CullMode cullMode       = CullMode::Back;
 
     FrontFace frontFace = FrontFace::CounterClockwise;
 
-    bool depthClampEnable = false;
+    bool depthClampEnable        = false;
     bool rasterizerDiscardEnable = false;
 
     bool depthBiasEnable = false;
 
     float depthBiasConstantFactor = 0.0f;
-    float depthBiasClamp = 0.0f;
-    float depthBiasSlopeFactor = 0.0f;
+    float depthBiasClamp          = 0.0f;
+    float depthBiasSlopeFactor    = 0.0f;
 
     float lineWidth = 1.0f;
 };
@@ -130,7 +172,7 @@ struct PipelineConfig
     DepthStencilConfig depthStencil;
     ColorBlendConfig colorBlend;
 
-    VertexLayout vertexLayout = GetDefaultVertexLayout();
+    VertexLayout vertexLayout                               = GetDefaultVertexLayout();
     std::vector<DescriptorBindingConfig> descriptorBindings = GetDefaultDescriptorBindings();
 };
 

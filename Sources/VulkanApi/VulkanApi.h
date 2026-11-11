@@ -121,7 +121,7 @@ private:
     std::map<uint32, VulkanShaderBuffer> createBufferBindingForDrawCall(const VulkanProgram&, const RenderState&);
 
 private:
-    VulkanContext vkContext;
+    mutable VulkanContext vkContext;
     std::unique_ptr<SdlVulkanApi> windowApi_;
     VulkanShaderManager shaderManager_;
 

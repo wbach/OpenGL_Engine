@@ -18,6 +18,77 @@ namespace GraphicsApi::Vulkan
 {
 namespace
 {
+std::optional<VkBlendFactor> ToVkBlendFactor(BlendFactor factor)
+{
+    switch (factor)
+    {
+        case BlendFactor::Zero:
+            return VK_BLEND_FACTOR_ZERO;
+
+        case BlendFactor::One:
+            return VK_BLEND_FACTOR_ONE;
+
+        case BlendFactor::SrcColor:
+            return VK_BLEND_FACTOR_SRC_COLOR;
+
+        case BlendFactor::OneMinusSrcColor:
+            return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
+
+        case BlendFactor::DstColor:
+            return VK_BLEND_FACTOR_DST_COLOR;
+
+        case BlendFactor::OneMinusDstColor:
+            return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
+
+        case BlendFactor::SrcAlpha:
+            return VK_BLEND_FACTOR_SRC_ALPHA;
+
+        case BlendFactor::OneMinusSrcAlpha:
+            return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+
+        case BlendFactor::DstAlpha:
+            return VK_BLEND_FACTOR_DST_ALPHA;
+
+        case BlendFactor::OneMinusDstAlpha:
+            return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+
+        case BlendFactor::ConstantColor:
+            return VK_BLEND_FACTOR_CONSTANT_COLOR;
+
+        case BlendFactor::OneMinusConstantColor:
+            return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
+
+        case BlendFactor::ConstantAlpha:
+            return VK_BLEND_FACTOR_CONSTANT_ALPHA;
+
+        case BlendFactor::OneMinusConstantAlpha:
+            return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA;
+    }
+
+    return std::nullopt;
+}
+std::optional<VkBlendOp> ToVkBlendOperation(BlendOperation operation)
+{
+    switch (operation)
+    {
+        case BlendOperation::Add:
+            return VK_BLEND_OP_ADD;
+
+        case BlendOperation::Subtract:
+            return VK_BLEND_OP_SUBTRACT;
+
+        case BlendOperation::ReverseSubtract:
+            return VK_BLEND_OP_REVERSE_SUBTRACT;
+
+        case BlendOperation::Min:
+            return VK_BLEND_OP_MIN;
+
+        case BlendOperation::Max:
+            return VK_BLEND_OP_MAX;
+    }
+
+    return std::nullopt;
+}
 VkShaderModule CreateShaderModule(VulkanContext& context, const std::vector<uint32_t>& code)
 {
     VkShaderModuleCreateInfo createInfo{};
@@ -203,6 +274,99 @@ bool CreatePipelineLayout(VulkanContext& context, VulkanProgram& newProgram)
     return true;
 }
 
+bool CreateDescriptorSetLayouts(VulkanContext& context, VulkanProgram& program)
+{
+    using BindingMap = std::map<uint32, VkDescriptorSetLayoutBinding>;
+
+    std::map<uint32, BindingMap> bindingsBySet;
+
+    uint32 maxSet    = 0;
+    bool hasBindings = false;
+
+    // Group bindings by descriptor set.
+    for (const auto& config : program.pipelineConfig.descriptorBindings)
+    {
+        hasBindings = true;
+        maxSet      = std::max(maxSet, config.set);
+
+        auto& setBindings = bindingsBySet[config.set];
+
+        auto it = setBindings.find(config.binding);
+
+        if (it != setBindings.end())
+        {
+            // Same binding must have the same descriptor type/count.
+            if (it->second.descriptorType != config.descriptorType || it->second.descriptorCount != config.descriptorCount)
+            {
+                LOG_ERROR << "Conflicting descriptor binding: set=" << config.set << ", binding=" << config.binding;
+
+                return false;
+            }
+
+            // Merge shader stages.
+            it->second.stageFlags |= config.stageFlags;
+            continue;
+        }
+
+        VkDescriptorSetLayoutBinding binding{};
+
+        binding.binding            = config.binding;
+        binding.descriptorType     = config.descriptorType;
+        binding.descriptorCount    = config.descriptorCount;
+        binding.stageFlags         = config.stageFlags;
+        binding.pImmutableSamplers = nullptr;
+
+        setBindings.emplace(config.binding, binding);
+    }
+
+    program.descriptorSetLayouts.clear();
+
+    if (!hasBindings)
+        return true;
+
+    // Preserve set indices, including empty intermediate sets.
+    program.descriptorSetLayouts.resize(static_cast<size_t>(maxSet) + 1, VK_NULL_HANDLE);
+
+    for (uint32 set = 0; set <= maxSet; ++set)
+    {
+        std::vector<VkDescriptorSetLayoutBinding> bindings;
+
+        auto setIt = bindingsBySet.find(set);
+
+        if (setIt != bindingsBySet.end())
+        {
+            bindings.reserve(setIt->second.size());
+
+            for (const auto& [bindingIndex, binding] : setIt->second)
+            {
+                bindings.push_back(binding);
+            }
+        }
+
+        VkDescriptorSetLayoutCreateInfo layoutInfo{.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+                                                   .bindingCount = static_cast<uint32>(bindings.size()),
+                                                   .pBindings    = bindings.empty() ? nullptr : bindings.data()};
+
+        if (vkCreateDescriptorSetLayout(context.device, &layoutInfo, nullptr, &program.descriptorSetLayouts[set]) != VK_SUCCESS)
+        {
+            LOG_ERROR << "Failed to create descriptor set layout: " << set;
+
+            for (auto layout : program.descriptorSetLayouts)
+            {
+                if (layout != VK_NULL_HANDLE)
+                    vkDestroyDescriptorSetLayout(context.device, layout, nullptr);
+            }
+
+            program.descriptorSetLayouts.clear();
+            return false;
+        }
+
+        LOG_DEBUG << "Created DescriptorSetLayout: set=" << set << ", bindings=" << bindings.size();
+    }
+
+    return true;
+}
+
 bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
                             const VkPipelineShaderStageCreateInfo* shaderStages)
 {
@@ -288,9 +452,34 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
     VkPipelineColorBlendAttachmentState colorBlendAttachment{};
+    const auto& blendConfig = pipelineConfig.colorBlend;
+
+    const auto srcColorFactor = ToVkBlendFactor(blendConfig.srcColorFactor);
+    const auto dstColorFactor = ToVkBlendFactor(blendConfig.dstColorFactor);
+    const auto colorOperation = ToVkBlendOperation(blendConfig.colorOperation);
+
+    const auto srcAlphaFactor = ToVkBlendFactor(blendConfig.srcAlphaFactor);
+    const auto dstAlphaFactor = ToVkBlendFactor(blendConfig.dstAlphaFactor);
+    const auto alphaOperation = ToVkBlendOperation(blendConfig.alphaOperation);
+
+    if (!srcColorFactor || !dstColorFactor || !colorOperation || !srcAlphaFactor || !dstAlphaFactor || !alphaOperation)
+    {
+        LOG_ERROR << "Invalid color blend configuration!";
+        return false;
+    }
+
+    colorBlendAttachment.blendEnable         = blendConfig.blendEnable ? VK_TRUE : VK_FALSE;
+    colorBlendAttachment.srcColorBlendFactor = *srcColorFactor;
+    colorBlendAttachment.dstColorBlendFactor = *dstColorFactor;
+    colorBlendAttachment.colorBlendOp        = *colorOperation;
+
+    colorBlendAttachment.srcAlphaBlendFactor = *srcAlphaFactor;
+    colorBlendAttachment.dstAlphaBlendFactor = *dstAlphaFactor;
+    colorBlendAttachment.alphaBlendOp        = *alphaOperation;
+
     colorBlendAttachment.colorWriteMask =
-        VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-    colorBlendAttachment.blendEnable = VK_FALSE;
+        (blendConfig.writeRed ? VK_COLOR_COMPONENT_R_BIT : 0) | (blendConfig.writeGreen ? VK_COLOR_COMPONENT_G_BIT : 0) |
+        (blendConfig.writeBlue ? VK_COLOR_COMPONENT_B_BIT : 0) | (blendConfig.writeAlpha ? VK_COLOR_COMPONENT_A_BIT : 0);
 
     VkPipelineColorBlendStateCreateInfo colorBlending{};
     colorBlending.sType           = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
@@ -298,40 +487,12 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
     colorBlending.attachmentCount = 1;
     colorBlending.pAttachments    = &colorBlendAttachment;
 
-    std::vector<VkDescriptorSetLayoutBinding> bindings;
-    bindings.reserve(pipelineConfig.descriptorBindings.size());
-
-    for (const auto& config : pipelineConfig.descriptorBindings)
-    {
-        VkDescriptorSetLayoutBinding binding{};
-
-        binding.binding            = config.binding;
-        binding.descriptorType     = config.descriptorType;
-        binding.descriptorCount    = config.descriptorCount;
-        binding.stageFlags         = config.stageFlags;
-        binding.pImmutableSamplers = nullptr;
-
-        bindings.push_back(binding);
-    }
-
-    std::ranges::sort(bindings, {}, &VkDescriptorSetLayoutBinding::binding);
-
-    VkDescriptorSetLayoutCreateInfo layoutInfo{};
-
-    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-
-    layoutInfo.bindingCount = static_cast<uint32>(bindings.size());
-
-    layoutInfo.pBindings = bindings.empty() ? nullptr : bindings.data();
-
-    if (vkCreateDescriptorSetLayout(context.device, &layoutInfo, nullptr, &newProgram.descriptorSetLayout) != VK_SUCCESS)
-    {
-        LOG_ERROR << "Failed to create Descriptor Set Layout!";
+    if (not CreateDescriptorSetLayouts(context, newProgram))
         return false;
-    }
 
     std::vector<VkDescriptorPoolSize> poolSizes = {{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 12u * 1000u},
-                                                   {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 12u * 1000u}};
+                                                   {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 12u * 1000u},
+                                                   {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 12u * 1000u}};
 
     VkDescriptorPoolCreateInfo poolInfo{};
     poolInfo.sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -351,16 +512,16 @@ bool CreateGraphicsPipeline(VulkanContext& context, VulkanProgram& newProgram,
         }
     }
 
-    VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-    pipelineLayoutInfo.sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount         = 1;
-    pipelineLayoutInfo.pSetLayouts            = &newProgram.descriptorSetLayout;
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
-    pipelineLayoutInfo.pPushConstantRanges    = nullptr;
-    LOG_DEBUG << "vkCreatePipelineLayout";
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo{
+        .sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+        .setLayoutCount         = static_cast<uint32_t>(newProgram.descriptorSetLayouts.size()),
+        .pSetLayouts            = newProgram.descriptorSetLayouts.empty() ? nullptr : newProgram.descriptorSetLayouts.data(),
+        .pushConstantRangeCount = 0,
+        .pPushConstantRanges    = nullptr};
+
     if (vkCreatePipelineLayout(context.device, &pipelineLayoutInfo, nullptr, &newProgram.layout) != VK_SUCCESS)
     {
-        LOG_ERROR << "Error: Failed to create Pipeline Layout!\n";
+        LOG_ERROR << "Failed to create Pipeline Layout!";
         return false;
     }
 

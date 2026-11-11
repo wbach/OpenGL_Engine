@@ -6,10 +6,10 @@ layout(location = 0) out vec4 FragColor;
 
 void main()
 {
-#ifdef IS_VULKAN
-    // tymczasowo , az nie bedize tekstur
-    FragColor = vec4(textureCoords, 0.0, 1.0);
-#else
+// #ifdef IS_VULKAN
+//     // tymczasowo , az nie bedize tekstur
+//     FragColor = vec4(textureCoords, 0.0, 1.0);
+// #else
     FragColor = texture(modelTexture, textureCoords);
-#endif
+//#endif
 }

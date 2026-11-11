@@ -105,6 +105,10 @@ void Renderer::render()
         {
             graphicsApi_.ActiveTexture(0, *subscriber->getTextureId());
         }
+        else
+        {
+            graphicsApi_.ActiveTexture(0, 0);
+        }
 
         graphicsApi_.RenderProcedural(6);
 

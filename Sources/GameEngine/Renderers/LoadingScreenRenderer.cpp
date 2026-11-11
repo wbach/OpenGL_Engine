@@ -95,6 +95,8 @@ void LoadingScreenRenderer::renderQuad(const GraphicsApi::ID& bufferId, const Gr
 
     if (textureId)
         graphicsApi_.ActiveTexture(0, *textureId);
+    else
+        graphicsApi_.ActiveTexture(0, 0);
 
     graphicsApi_.BindShaderBuffer(*bufferId);
     graphicsApi_.RenderProcedural(6);

@@ -22,11 +22,17 @@ void VulkanContext::ClearResources()
                 program.layout = VK_NULL_HANDLE;
             }
 
-            if (program.descriptorSetLayout != VK_NULL_HANDLE)
+            for (VkDescriptorSetLayout layout : program.descriptorSetLayouts)
             {
-                vkDestroyDescriptorSetLayout(device, program.descriptorSetLayout, nullptr);
-                program.descriptorSetLayout = VK_NULL_HANDLE;
+                vkDestroyDescriptorSetLayout(device, layout, nullptr);
             }
+            program.descriptorSetLayouts.clear();
+            for (VkDescriptorPool pool : program.descriptorPools)
+            {
+                vkDestroyDescriptorPool(device, pool, nullptr);
+            }
+            program.descriptorPools.clear();
+            program.descriptorSets.clear();
         }
         programs.clear();
 
