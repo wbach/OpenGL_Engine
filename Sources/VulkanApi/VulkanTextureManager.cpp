@@ -273,13 +273,40 @@ GraphicsApi::ID VulkanTextureManager::CreateTexture(const Utils::Image& image, [
 void VulkanTextureManager::DeleteTexture(IdType id)
 {
     auto iter = textures.find(id);
-    if (iter != textures.end())
+    if (iter == textures.end())
     {
-        // TO DO: vk remove
-
-        textures.erase(iter);
-        texturesPoolId.releaseId(id);
+        LOG_WARN << "Texture with id " << id << " does not exist!";
+        return;
     }
+
+    auto& texture = iter->second;
+
+    if (texture.sampler != VK_NULL_HANDLE)
+    {
+        vkDestroySampler(context.device, texture.sampler, nullptr);
+        texture.sampler = VK_NULL_HANDLE;
+    }
+
+    if (texture.imageView != VK_NULL_HANDLE)
+    {
+        vkDestroyImageView(context.device, texture.imageView, nullptr);
+        texture.imageView = VK_NULL_HANDLE;
+    }
+
+    if (texture.image != VK_NULL_HANDLE)
+    {
+        vkDestroyImage(context.device, texture.image, nullptr);
+        texture.image = VK_NULL_HANDLE;
+    }
+
+    if (texture.memory != VK_NULL_HANDLE)
+    {
+        vkFreeMemory(context.device, texture.memory, nullptr);
+        texture.memory = VK_NULL_HANDLE;
+    }
+
+    textures.erase(iter);
+    texturesPoolId.releaseId(id);
 }
 const VulkanTextureManager::Textures VulkanTextureManager::GetTextures() const
 {
