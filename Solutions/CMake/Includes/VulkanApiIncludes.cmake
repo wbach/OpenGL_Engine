@@ -1,4 +1,5 @@
 set(VulkanApiIncludes
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/BufferType.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/DefaultFrameBuffer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/InputSDL.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/PipelineConfig.h
@@ -11,5 +12,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanProgram.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanShaderBuffer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanShaderCompiler.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanShaderManager.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanUtils.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanContext.hpp
 )
