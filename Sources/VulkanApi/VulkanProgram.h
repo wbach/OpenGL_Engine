@@ -7,7 +7,8 @@
 
 #include "BufferType.h"
 #include "PipelineConfig.h"
-#include "VulkanShaderBuffer.h"
+#include "VulkanTypes.h"
+
 
 namespace GraphicsApi::Vulkan
 {
@@ -21,9 +22,7 @@ struct VulkanMeshDraw
     IdType id{0};
 };
 
-using VulkanShaderBufferBindings = std::map<uint32, VulkanShaderBuffer>;
-using VulkanTextureBindings      = std::map<uint32, IdType>;
-using VulkanDrawCommand          = std::variant<VulkanMeshDraw, VulkanProceduralDraw>;
+using VulkanDrawCommand = std::variant<VulkanMeshDraw, VulkanProceduralDraw>;
 
 struct VulkanDrawCall
 {

@@ -19,14 +19,13 @@ public:
 private:
     bool BeginRenderPass(VkCommandBuffer, uint32);
     std::vector<VkDescriptorSet> PrepareDrawCallDescriptorSets(VkDescriptorPool, const std::vector<VkDescriptorSetLayout>&,
-                                                               const PipelineConfig&, const std::map<uint32, VulkanShaderBuffer>&,
-                                                               const std::map<uint32, IdType>&);
+                                                               const PipelineConfig&, const VulkanShaderBufferBindings&,
+                                                               const VulkanTextureBindings&);
     void ExecuteDrawCall(VkCommandBuffer, VkDescriptorPool, const VulkanProgram&, const VulkanDrawCall&);
     void RecordDrawCalls(VkCommandBuffer, uint32);
     bool EndRenderPass(VkCommandBuffer);
-    bool ValidateDrawCallBufferBindings(const VulkanProgram&, const VulkanDrawCall&);
     bool SubmitCommandBuffer(VkCommandBuffer);
-    std::map<uint32, VulkanShaderBuffer> createBufferBindingForDrawCall(const VulkanProgram&);
+    void FilterDrawCallForProgram(const VulkanProgram&, VulkanDrawCall&) const;
 
 public:
     RenderState currentRenderState;

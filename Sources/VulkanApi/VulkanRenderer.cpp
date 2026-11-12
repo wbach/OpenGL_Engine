@@ -8,6 +8,42 @@
 
 namespace GraphicsApi::Vulkan
 {
+namespace
+{
+const auto isBufferDescriptorType(VkDescriptorType type)
+{
+    return type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER || type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC ||
+           type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER || type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
+};
+template <typename TypePredicate>
+const DescriptorBindingConfig* FindDescriptorBindingConfig(const std::vector<DescriptorBindingConfig>& bindings, uint32 binding,
+                                                           TypePredicate&& typePredicate)
+{
+    const DescriptorBindingConfig* found = nullptr;
+
+    for (const auto& config : bindings)
+    {
+        if (config.binding != binding || !typePredicate(config.descriptorType))
+        {
+            continue;
+        }
+
+        if (found == nullptr)
+        {
+            found = &config;
+            continue;
+        }
+
+        if (found->set != config.set || found->descriptorType != config.descriptorType ||
+            found->descriptorCount != config.descriptorCount)
+        {
+            return nullptr;
+        }
+    }
+
+    return found;
+}
+}  // namespace
 VulkanRenderer::VulkanRenderer(VulkanContext& context, VulkanTextureManager& textureManager)
     : context(context)
     , textureManager(textureManager)
@@ -16,8 +52,8 @@ VulkanRenderer::VulkanRenderer(VulkanContext& context, VulkanTextureManager& tex
 void VulkanRenderer::PrepareFrame()
 {
     pendingDrawCalls.clear();
-    currentRenderState.boundTextures.clear();
-    currentRenderState.boundShaderBuffers.clear();
+    currentRenderState.boundTextures.fill(INVALID_ID);
+    currentRenderState.boundShaderBuffers.fill(VulkanShaderBuffer{});
 }
 void VulkanRenderer::RenderFrame(ImageIndex imageIndex)
 {
@@ -50,20 +86,12 @@ void VulkanRenderer::DrawCall(VulkanDrawCommand drawCommand)
 
     if (it != context.programs.end())
     {
-        auto bufferBindings = createBufferBindingForDrawCall(it->second);
+        // auto bufferBindings = createBufferBindingForDrawCall(it->second);
 
-        if (not bufferBindings.empty())
-        {
-            pendingDrawCalls.push_back(VulkanDrawCall{.programId          = currentRenderState.activeProgramId,
-                                                      .drawCommand        = drawCommand,
-                                                      .boundShaderBuffers = std::move(bufferBindings),
-                                                      .boundTextures      = currentRenderState.boundTextures});
-        }
-        else
-        {
-            // LOG_WARN << "Warning: No shader buffers bound for the active program ID ("
-            //          << vkContext.currentRenderState.activeProgramId << "). Draw call will be skipped.\n";
-        }
+        pendingDrawCalls.push_back(VulkanDrawCall{.programId          = currentRenderState.activeProgramId,
+                                                  .drawCommand        = drawCommand,
+                                                  .boundShaderBuffers = currentRenderState.boundShaderBuffers,
+                                                  .boundTextures      = currentRenderState.boundTextures});
     }
     else
     {
@@ -88,9 +116,11 @@ bool VulkanRenderer::BeginRenderPass(VkCommandBuffer commandBuffer, uint32 image
     vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
     return true;
 }
-std::vector<VkDescriptorSet> VulkanRenderer::PrepareDrawCallDescriptorSets(
-    VkDescriptorPool pool, const std::vector<VkDescriptorSetLayout>& layouts, const PipelineConfig& pipelineConfig,
-    const std::map<uint32, VulkanShaderBuffer>& boundBuffers, const std::map<uint32, IdType>& boundTextures)
+std::vector<VkDescriptorSet> VulkanRenderer::PrepareDrawCallDescriptorSets(VkDescriptorPool pool,
+                                                                           const std::vector<VkDescriptorSetLayout>& layouts,
+                                                                           const PipelineConfig& pipelineConfig,
+                                                                           const VulkanShaderBufferBindings& boundBuffers,
+                                                                           const VulkanTextureBindings& boundTextures)
 {
     const auto& descriptorBindings = pipelineConfig.descriptorBindings;
     const auto& textures           = textureManager.GetTextures();
@@ -101,7 +131,6 @@ std::vector<VkDescriptorSet> VulkanRenderer::PrepareDrawCallDescriptorSets(
         {
             LOG_ERROR << "Resources provided, but no descriptor layouts exist!";
         }
-
         return {};
     }
 
@@ -129,7 +158,7 @@ std::vector<VkDescriptorSet> VulkanRenderer::PrepareDrawCallDescriptorSets(
 
         for (auto it = descriptorBindings.begin(); it != descriptorBindings.end(); ++it)
         {
-            if (it->binding != binding || !typePredicate(it->descriptorType))
+            if (it->binding != binding or not typePredicate(it->descriptorType))
             {
                 continue;
             }
@@ -151,80 +180,6 @@ std::vector<VkDescriptorSet> VulkanRenderer::PrepareDrawCallDescriptorSets(
 
         return found;
     };
-
-    // Validate buffers.
-    for (const auto& [binding, shaderBuffer] : boundBuffers)
-    {
-        auto configIt = findBindingConfig(
-            binding, [](VkDescriptorType type)
-            { return type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER || type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC; });
-
-        if (configIt == descriptorBindings.end())
-        {
-            LOG_ERROR << "Buffer descriptor configuration not found. "
-                      << "Binding: " << binding;
-            return {};
-        }
-
-        if (configIt->set >= layouts.size())
-        {
-            LOG_ERROR << "Invalid descriptor set: " << configIt->set;
-            return {};
-        }
-
-        if (configIt->descriptorCount != 1)
-        {
-            LOG_ERROR << "Buffer descriptorCount must be 1. Binding: " << binding;
-            return {};
-        }
-
-        if (shaderBuffer.buffer == VK_NULL_HANDLE || shaderBuffer.size == 0)
-        {
-            LOG_ERROR << "Invalid shader buffer. Binding: " << binding;
-            return {};
-        }
-    }
-
-    // Validate textures.
-    for (const auto& [binding, textureId] : boundTextures)
-    {
-        auto configIt =
-            findBindingConfig(binding, [](VkDescriptorType type) { return type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; });
-
-        if (configIt == descriptorBindings.end())
-        {
-            // LOG_WARN << "Texture descriptor configuration not found. "
-            //          << "Binding: " << binding;
-            continue;
-        }
-
-        if (configIt->set >= layouts.size())
-        {
-            LOG_ERROR << "Invalid descriptor set: " << configIt->set;
-            return {};
-        }
-
-        if (configIt->descriptorCount != 1)
-        {
-            LOG_ERROR << "Texture descriptorCount must be 1. Binding: " << binding;
-            return {};
-        }
-
-        auto textureIt = textures.find(textureId);
-        if (textureIt == textures.end())
-        {
-            LOG_ERROR << "Texture not found: " << textureId;
-            return {};
-        }
-
-        const auto& texture = textureIt->second;
-
-        if (texture.imageView == VK_NULL_HANDLE || texture.sampler == VK_NULL_HANDLE)
-        {
-            LOG_ERROR << "Invalid texture resources: " << textureId;
-            return {};
-        }
-    }
 
     // Allocate all descriptor sets.
     std::vector<VkDescriptorSet> descriptorSets(layouts.size());
@@ -250,11 +205,20 @@ std::vector<VkDescriptorSet> VulkanRenderer::PrepareDrawCallDescriptorSets(
     imageInfos.reserve(boundTextures.size());
 
     // Write buffer descriptors.
-    for (const auto& [binding, shaderBuffer] : boundBuffers)
+    uint32 bindingIter = 0;
+    for (const auto& shaderBuffer : boundBuffers)
     {
-        auto configIt = findBindingConfig(
-            binding, [](VkDescriptorType type)
-            { return type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER or type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC; });
+        auto binding = bindingIter++;
+
+        if (shaderBuffer.size == 0)
+            continue;
+
+        auto configIt = findBindingConfig(binding, isBufferDescriptorType);
+
+        if (configIt == descriptorBindings.end())
+        {
+            continue;
+        }
 
         const auto& config = *configIt;
 
@@ -273,15 +237,18 @@ std::vector<VkDescriptorSet> VulkanRenderer::PrepareDrawCallDescriptorSets(
     }
 
     // Write texture descriptors.
-    for (const auto& [binding, textureId] : boundTextures)
+    bindingIter = 0;
+    for (const auto& textureId : boundTextures)
     {
+        auto binding = bindingIter++;
+        if (textureId == INVALID_ID)
+            continue;
+
         auto configIt =
             findBindingConfig(binding, [](VkDescriptorType type) { return type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; });
 
         if (configIt == descriptorBindings.end())
         {
-            // LOG_WARN << "Skipping texture not supported by pipeline. "
-            //          << "Binding: " << binding;
             continue;
         }
 
@@ -311,108 +278,9 @@ std::vector<VkDescriptorSet> VulkanRenderer::PrepareDrawCallDescriptorSets(
 
     return descriptorSets;
 }
-bool VulkanRenderer::ValidateDrawCallBufferBindings(const VulkanProgram& program, const VulkanDrawCall& drawCall)
-{
-    bool valid = true;
-
-    for (const auto& [binding, shaderBuffer] : drawCall.boundShaderBuffers)
-    {
-        const auto& descriptorBindings = program.pipelineConfig.descriptorBindings;
-        const auto configIt =
-            std::find_if(descriptorBindings.begin(), descriptorBindings.end(),
-                         [binding](const DescriptorBindingConfig& config) { return config.binding == binding; });
-
-        if (configIt == descriptorBindings.end())
-        {
-            LOG_ERROR << "ShaderBuffer binding mismatch!"
-                      << " Program: " << drawCall.programId << ", Binding: " << binding << " is not declared in PipelineConfig.";
-
-            valid = false;
-            continue;
-        }
-
-        // Currently we support one buffer per binding.
-        if (configIt->descriptorCount != 1)
-        {
-            LOG_ERROR << "Unsupported descriptorCount!"
-                      << " Program: " << drawCall.programId << ", Binding: " << binding
-                      << ", Count: " << configIt->descriptorCount;
-
-            valid = false;
-            continue;
-        }
-
-        // Check descriptor type.
-        const VkDescriptorType actualType = GetDescriptorType(shaderBuffer.type);
-
-        if (configIt->descriptorType != actualType)
-        {
-            LOG_ERROR << "ShaderBuffer descriptor type mismatch!"
-                      << " Program: " << drawCall.programId << ", Binding: " << binding
-                      << ", Expected: " << configIt->descriptorType << ", Actual: " << actualType
-                      << ", BufferType: " << static_cast<int>(shaderBuffer.type);
-
-            valid = false;
-        }
-
-        // Check logical binding consistency.
-        if (shaderBuffer.bindLocation != binding)
-        {
-            LOG_ERROR << "ShaderBuffer bindLocation mismatch!"
-                      << " Program: " << drawCall.programId << ", Map binding: " << binding
-                      << ", Buffer bindLocation: " << shaderBuffer.bindLocation;
-
-            valid = false;
-        }
-
-        // Check Vulkan handle.
-        if (shaderBuffer.buffer == VK_NULL_HANDLE)
-        {
-            LOG_ERROR << "ShaderBuffer contains NULL VkBuffer!"
-                      << " Program: " << drawCall.programId << ", Binding: " << binding;
-
-            valid = false;
-        }
-
-        // Check dynamic buffer allocation.
-        if (shaderBuffer.type == BufferType::DynamicPerFrame)
-        {
-            const auto& dUbo = context.globalDynamicUBO;
-
-            const VkDeviceSize offset = shaderBuffer.dynamicOffset;
-            const VkDeviceSize size   = shaderBuffer.size;
-
-            if (dUbo.alignment != 0 && offset % dUbo.alignment != 0)
-            {
-                LOG_ERROR << "Dynamic UBO alignment error!"
-                          << " Program: " << drawCall.programId << ", Binding: " << binding << ", Offset: " << offset
-                          << ", Alignment: " << dUbo.alignment;
-
-                valid = false;
-            }
-
-            if (offset > dUbo.totalSize || size > dUbo.totalSize - offset)
-            {
-                LOG_ERROR << "Dynamic UBO range out of bounds!"
-                          << " Program: " << drawCall.programId << ", Binding: " << binding << ", Offset: " << offset
-                          << ", Size: " << size << ", Total: " << dUbo.totalSize;
-
-                valid = false;
-            }
-        }
-    }
-
-    return valid;
-}
 void VulkanRenderer::ExecuteDrawCall(VkCommandBuffer commandBuffer, VkDescriptorPool descriptorPool, const VulkanProgram& program,
                                      const VulkanDrawCall& drawCall)
 {
-    if (not ValidateDrawCallBufferBindings(program, drawCall))
-    {
-        LOG_ERROR << "Skipping invalid DrawCall. Program: " << drawCall.programId;
-        return;
-    }
-
     // 1. Prepare descriptor set
     auto drawCallSets = PrepareDrawCallDescriptorSets(descriptorPool, program.descriptorSetLayouts, program.pipelineConfig,
                                                       drawCall.boundShaderBuffers, drawCall.boundTextures);
@@ -424,7 +292,7 @@ void VulkanRenderer::ExecuteDrawCall(VkCommandBuffer commandBuffer, VkDescriptor
     std::vector<uint32> dynamicOffsets;
     dynamicOffsets.reserve(drawCall.boundShaderBuffers.size());
 
-    for (const auto& [binding, shaderBuffer] : drawCall.boundShaderBuffers)
+    for (const auto& shaderBuffer : drawCall.boundShaderBuffers)
     {
         if (shaderBuffer.type == BufferType::DynamicPerFrame)
         {
@@ -467,17 +335,14 @@ void VulkanRenderer::ExecuteDrawCall(VkCommandBuffer commandBuffer, VkDescriptor
 }
 void VulkanRenderer::RecordDrawCalls(VkCommandBuffer commandBuffer, uint32 imageIndex)
 {
-    VkViewport viewport{};
-    viewport.x        = 0.0f;
-    viewport.y        = static_cast<float>(context.swapChainExtent.height);
-    viewport.width    = static_cast<float>(context.swapChainExtent.width);
-    viewport.height   = -static_cast<float>(context.swapChainExtent.height);
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
+    VkViewport viewport{.x        = 0.0f,
+                        .y        = static_cast<float>(context.swapChainExtent.height),
+                        .width    = static_cast<float>(context.swapChainExtent.width),
+                        .height   = -static_cast<float>(context.swapChainExtent.height),
+                        .minDepth = 0.0f,
+                        .maxDepth = 1.0f};
 
-    VkRect2D scissor{};
-    scissor.offset = {.x = 0, .y = 0};
-    scissor.extent = context.swapChainExtent;
+    VkRect2D scissor{.offset = {.x = 0, .y = 0}, .extent = context.swapChainExtent};
 
     vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
@@ -492,7 +357,7 @@ void VulkanRenderer::RecordDrawCalls(VkCommandBuffer commandBuffer, uint32 image
         vkResetDescriptorPool(context.device, program.descriptorPools[imageIndex], 0);
     }
 
-    for (const auto& drawCall : pendingDrawCalls)
+    for (auto& drawCall : pendingDrawCalls)
     {
         auto programIt = context.programs.find(drawCall.programId);
 
@@ -501,8 +366,12 @@ void VulkanRenderer::RecordDrawCalls(VkCommandBuffer commandBuffer, uint32 image
 
         auto& program = programIt->second;
 
+        if (program.descriptorSetLayouts.empty())
+            continue;
         if (imageIndex >= program.descriptorPools.size())
             continue;
+
+        FilterDrawCallForProgram(program, drawCall);
 
         auto currentPool = program.descriptorPools[imageIndex];
         if (currentPipeline != program.pipeline)
@@ -546,50 +415,49 @@ bool VulkanRenderer::SubmitCommandBuffer(VkCommandBuffer commandBuffer)
 
     return true;
 }
-std::map<uint32, VulkanShaderBuffer> VulkanRenderer::createBufferBindingForDrawCall(const VulkanProgram& program)
+void VulkanRenderer::FilterDrawCallForProgram(const VulkanProgram& program, VulkanDrawCall& drawCall) const
 {
-    std::map<uint32, VulkanShaderBuffer> result;
     const auto& descriptorBindings = program.pipelineConfig.descriptorBindings;
+    const auto& descriptorSetLayouts = program.descriptorSetLayouts;
 
-    for (const auto& [bindLocation, bufferId] : currentRenderState.boundShaderBuffers)
+    for (uint32 binding = 0; binding < drawCall.boundShaderBuffers.size(); ++binding)
     {
-        auto descriptorIt = std::find_if(descriptorBindings.begin(), descriptorBindings.end(),
-                                         [bindLocation](const auto& binding) { return binding.binding == bindLocation; });
+        auto& shaderBuffer = drawCall.boundShaderBuffers[binding];
 
-        if (descriptorIt == descriptorBindings.end())
+        if (shaderBuffer.size == 0)
+            continue;
+
+        const auto descriptorType = GetDescriptorType(shaderBuffer.type);
+
+        if (shaderBuffer.buffer == VK_NULL_HANDLE || !isBufferDescriptorType(descriptorType))
         {
-            // LOG_DEBUG << "Skipping bind location " << bindLocation << " as it is not part of the program's descriptor
-            // bindings.";
+            shaderBuffer = {};
             continue;
         }
 
-        if (descriptorIt->descriptorType != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER &&
-            descriptorIt->descriptorType != VK_DESCRIPTOR_TYPE_STORAGE_BUFFER &&
-            descriptorIt->descriptorType != VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC &&
-            descriptorIt->descriptorType != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC)
+        const auto* config = FindDescriptorBindingConfig(descriptorBindings, binding, isBufferDescriptorType);
+
+        if (config == nullptr || config->set >= descriptorSetLayouts.size() || config->descriptorCount != 1 ||
+            config->descriptorType != descriptorType)
         {
-            continue;
+            shaderBuffer = {};
         }
-
-        auto bufferIt = context.shaderBuffers.find(bufferId);
-
-        if (bufferIt == context.shaderBuffers.end())
-        {
-            // LOG_WARN << "Warning: Shader buffer with ID " << bufferId << " not found for bind location " << bindLocation
-            //          << ". Skipping this binding.\n";
-            continue;
-        }
-
-        if (GetDescriptorType(bufferIt->second.type) != descriptorIt->descriptorType)
-        {
-            // LOG_ERROR << "Error: Shader buffer type mismatch for bind location " << bindLocation
-            //           << ". Expected descriptor type: " << static_cast<uint32>(descriptorIt->descriptorType)
-            //           << ", but got buffer type: " << static_cast<uint32>(GetDescriptorType(bufferIt->second.type)) << ".\n";
-            return {};
-        }
-
-        result.emplace(bindLocation, bufferIt->second);
     }
-    return result;
+
+    for (uint32 binding = 0; binding < drawCall.boundTextures.size(); ++binding)
+    {
+        auto& textureId = drawCall.boundTextures[binding];
+
+        if (textureId == INVALID_ID)
+            continue;
+
+        const auto* config = FindDescriptorBindingConfig(
+            descriptorBindings, binding, [](VkDescriptorType type) { return type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; });
+
+        if (config == nullptr || config->set >= descriptorSetLayouts.size() || config->descriptorCount != 1)
+        {
+            textureId = INVALID_ID;
+        }
+    }
 }
 }  // namespace GraphicsApi::Vulkan

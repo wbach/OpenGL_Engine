@@ -329,8 +329,8 @@ uint32 VulkanApi::BindShaderBuffer(uint32 id)
     }
 
     const auto bindLocation                                             = bufIt->second.bindLocation;
-    vulkanRenderer_.currentRenderState.boundShaderBuffers[bindLocation] = id;
-    return bufIt->second.bindLocation;
+    vulkanRenderer_.currentRenderState.boundShaderBuffers[bindLocation] = bufIt->second;
+    return bindLocation;
 }
 void VulkanApi::UseShader(uint32 shaderId)
 {
@@ -393,7 +393,7 @@ void VulkanApi::ActiveTexture(uint32 unit, uint32 textureId)
 
     if (textureId == 0u)
     {
-        vulkanRenderer_.currentRenderState.boundTextures.erase(unit);
+        vulkanRenderer_.currentRenderState.boundTextures[unit] = INVALID_ID;
         return;
     }
 
@@ -667,7 +667,8 @@ void VulkanApi::RenderPoints(uint32)
 }
 void VulkanApi::RenderQuad()
 {
-    RenderMesh(quadMeshId.value_or(0));
+    if (quadMeshId.has_value())
+        RenderMesh(*quadMeshId);
 }
 void VulkanApi::RenderQuadTs()
 {
