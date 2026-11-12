@@ -9,7 +9,6 @@
 #include "PipelineConfig.h"
 #include "VulkanShaderBuffer.h"
 
-
 namespace GraphicsApi::Vulkan
 {
 struct VulkanProceduralDraw
@@ -24,11 +23,12 @@ struct VulkanMeshDraw
 
 using VulkanShaderBufferBindings = std::map<uint32, VulkanShaderBuffer>;
 using VulkanTextureBindings      = std::map<uint32, IdType>;
+using VulkanDrawCommand          = std::variant<VulkanMeshDraw, VulkanProceduralDraw>;
 
 struct VulkanDrawCall
 {
     uint32 programId{0};
-    std::variant<VulkanMeshDraw, VulkanProceduralDraw> drawCommand;
+    VulkanDrawCommand drawCommand;
     VulkanShaderBufferBindings boundShaderBuffers;
     VulkanTextureBindings boundTextures;
 };

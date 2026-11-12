@@ -165,9 +165,7 @@ void VulkanApi::DisableDepthTest()
 }
 void VulkanApi::PrepareFrame()
 {
-    vkContext.pendingDrawCalls.clear();
-    vkContext.currentRenderState.boundTextures.clear();
-    vkContext.currentRenderState.boundShaderBuffers.clear();
+    vulkanRenderer_.PrepareFrame();
     vkContext.globalDynamicUBO.currentOffset = 0;
 }
 ID VulkanApi::CreateShader(ShaderProgramType type)
@@ -299,7 +297,7 @@ uint32 VulkanApi::BindShaderBuffer(uint32 id)
     }
 
     const auto bindLocation                                       = bufIt->second.bindLocation;
-    vkContext.currentRenderState.boundShaderBuffers[bindLocation] = id;
+    vulkanRenderer_.currentRenderState.boundShaderBuffers[bindLocation] = id;
     return bufIt->second.bindLocation;
 }
 void VulkanApi::UseShader(uint32 shaderId)
@@ -310,7 +308,7 @@ void VulkanApi::UseShader(uint32 shaderId)
         return;
     }
 
-    vkContext.currentRenderState.activeProgramId = shaderId;
+    vulkanRenderer_.currentRenderState.activeProgramId = shaderId;
 }
 
 GraphicsApi::ID VulkanApi::CreateTexture(const Utils::Image& image, TextureFilter filter, TextureMipmap mipmap)
@@ -359,33 +357,33 @@ void VulkanApi::DisableDepthMask()
 }
 void VulkanApi::ActiveTexture(uint32 unit, uint32 textureId)
 {
-    vkContext.currentRenderState.activeTextureUnit = unit;
+    vulkanRenderer_.currentRenderState.activeTextureUnit = unit;
 
     if (textureId == 0u)
     {
-        vkContext.currentRenderState.boundTextures.erase(unit);
+        vulkanRenderer_.currentRenderState.boundTextures.erase(unit);
         return;
     }
 
-    vkContext.currentRenderState.boundTextures[unit] = textureId;
+    vulkanRenderer_.currentRenderState.boundTextures[unit] = textureId;
 }
 void VulkanApi::ActiveTexture(uint32 unit)
 {
-    vkContext.currentRenderState.activeTextureUnit = unit;
+    vulkanRenderer_.currentRenderState.activeTextureUnit = unit;
 }
 void VulkanApi::BindTexture(uint32 textureId) const
 {
     if (textureId == 0u)
         return;
 
-    vkContext.currentRenderState.boundTextures[vkContext.currentRenderState.activeTextureUnit] = textureId;
+  //  vulkanRenderer_.currentRenderState.boundTextures[vulkanRenderer_.currentRenderState.activeTextureUnit] = textureId;
 }
 void VulkanApi::BindImageTexture(uint32 textureId, TextureAccess)
 {
     if (textureId == 0u)
         return;
 
-    vkContext.currentRenderState.boundTextures[vkContext.currentRenderState.activeTextureUnit] = textureId;
+   // vulkanRenderer_.currentRenderState.boundTextures[vulkanRenderer_.currentRenderState.activeTextureUnit] = textureId;
 }
 void VulkanApi::DeleteObject(uint32)
 {
@@ -603,54 +601,6 @@ void VulkanApi::RenderPurePatchedMeshInstances(uint32)
 {
 }
 
-std::map<uint32, VulkanShaderBuffer> VulkanApi::createBufferBindingForDrawCall(const VulkanProgram& program,
-                                                                               const RenderState& renderState)
-{
-    std::map<uint32, VulkanShaderBuffer> result;
-    const auto& descriptorBindings = program.pipelineConfig.descriptorBindings;
-
-    for (const auto& [bindLocation, bufferId] : renderState.boundShaderBuffers)
-    {
-        auto descriptorIt = std::find_if(descriptorBindings.begin(), descriptorBindings.end(),
-                                         [bindLocation](const auto& binding) { return binding.binding == bindLocation; });
-
-        if (descriptorIt == descriptorBindings.end())
-        {
-            // LOG_DEBUG << "Skipping bind location " << bindLocation << " as it is not part of the program's descriptor
-            // bindings.";
-            continue;
-        }
-
-        if (descriptorIt->descriptorType != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER &&
-            descriptorIt->descriptorType != VK_DESCRIPTOR_TYPE_STORAGE_BUFFER &&
-            descriptorIt->descriptorType != VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC &&
-            descriptorIt->descriptorType != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC)
-        {
-            continue;
-        }
-
-        auto bufferIt = vkContext.shaderBuffers.find(bufferId);
-
-        if (bufferIt == vkContext.shaderBuffers.end())
-        {
-            // LOG_WARN << "Warning: Shader buffer with ID " << bufferId << " not found for bind location " << bindLocation
-            //          << ". Skipping this binding.\n";
-            continue;
-        }
-
-        if (GetDescriptorType(bufferIt->second.type) != descriptorIt->descriptorType)
-        {
-            // LOG_ERROR << "Error: Shader buffer type mismatch for bind location " << bindLocation
-            //           << ". Expected descriptor type: " << static_cast<uint32>(descriptorIt->descriptorType)
-            //           << ", but got buffer type: " << static_cast<uint32>(GetDescriptorType(bufferIt->second.type)) << ".\n";
-            return {};
-        }
-
-        result.emplace(bindLocation, bufferIt->second);
-    }
-    return result;
-}
-
 void VulkanApi::RenderMesh(uint32 meshId)
 {
     if (vkContext.meshes.find(meshId) == vkContext.meshes.end())
@@ -659,51 +609,11 @@ void VulkanApi::RenderMesh(uint32 meshId)
         return;
     }
 
-    auto it = vkContext.programs.find(vkContext.currentRenderState.activeProgramId);
-
-    if (it != vkContext.programs.end())
-    {
-        VulkanDrawCall drawCall{.programId          = vkContext.currentRenderState.activeProgramId,
-                                .drawCommand        = VulkanMeshDraw{meshId},
-                                .boundShaderBuffers = createBufferBindingForDrawCall(it->second, vkContext.currentRenderState),
-                                .boundTextures      = vkContext.currentRenderState.boundTextures};
-
-        if (not drawCall.boundShaderBuffers.empty())
-        {
-            vkContext.pendingDrawCalls.push_back(drawCall);
-        }
-        else
-        {
-            // LOG_WARN << "Warning: No shader buffers bound for the active program ID ("
-            //          << vkContext.currentRenderState.activeProgramId << "). Draw call will be skipped.\n";
-        }
-    }
-    else
-    {
-        LOG_ERROR << "Error: The active shader ID (" << vkContext.currentRenderState.activeProgramId
-                  << ") does not exist in the Vulkan context!\n";
-    }
+    vulkanRenderer_.DrawCall(VulkanMeshDraw{meshId});
 }
 void VulkanApi::RenderProcedural(uint32 count)
 {
-    auto it = vkContext.programs.find(vkContext.currentRenderState.activeProgramId);
-
-    if (it != vkContext.programs.end())
-    {
-        VulkanDrawCall drawCall{.programId          = vkContext.currentRenderState.activeProgramId,
-                                .drawCommand        = VulkanProceduralDraw{count},
-                                .boundShaderBuffers = createBufferBindingForDrawCall(it->second, vkContext.currentRenderState),
-                                .boundTextures      = vkContext.currentRenderState.boundTextures};
-        if (not drawCall.boundShaderBuffers.empty())
-        {
-            vkContext.pendingDrawCalls.push_back(drawCall);
-        }
-        else
-        {
-            // LOG_WARN << "Warning: No shader buffers bound for the active program ID ("
-            //          << vkContext.currentRenderState.activeProgramId << "). Draw call will be skipped.\n";
-        }
-    }
+    vulkanRenderer_.DrawCall(VulkanProceduralDraw{count});
 }
 void VulkanApi::RenderDebugNormals(uint32)
 {

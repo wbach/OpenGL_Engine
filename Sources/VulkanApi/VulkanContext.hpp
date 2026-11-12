@@ -21,13 +21,6 @@ struct VulkanTexture
     VkImageView imageView = VK_NULL_HANDLE;
     VkSampler sampler     = VK_NULL_HANDLE;
 };
-struct RenderState
-{
-    uint32 activeProgramId   = 0u;
-    uint32 activeTextureUnit = 0u;
-    std::map<uint32, uint32> boundShaderBuffers;
-    std::map<uint32, uint32> boundTextures;
-};
 
 struct DynamicUniformBuffer
 {
@@ -93,13 +86,9 @@ struct VulkanContext
     std::unordered_map<IdType, VulkanShaderBuffer> shaderBuffers;
     Utils::IdPool shaderBuffersPoolId;
 
-    RenderState currentRenderState;
-
     IdType globalDynamicUBOId = 0u;
     GraphicsApi::Vulkan::DynamicUniformBuffer globalDynamicUBO;
 
     uint32 activeStaticAllocationsCount = 0;
-
-    std::vector<VulkanDrawCall> pendingDrawCalls;
 };
 }  // namespace GraphicsApi::Vulkan
