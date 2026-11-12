@@ -29,6 +29,5 @@ private:
     VulkanBufferManager& bufferManager;
 
     Textures textures;
-    Utils::IdPool texturesPoolId;
 };
 }  // namespace GraphicsApi::Vulkan

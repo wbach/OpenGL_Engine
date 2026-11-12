@@ -18,6 +18,7 @@ public:
 
     void SetShadersFilesLocations(const std::filesystem::path& path);
     ID Create(ShaderProgramType type);
+    void Delete(IdType);
 
 private:
     VulkanContext& vkContext_;

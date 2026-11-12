@@ -33,14 +33,56 @@ struct DynamicUniformBuffer
     uint32 alignment      = 0u;
 };
 
-struct VulkanContext
+enum class ObjectType
 {
-    VulkanContext()
-        : programsPoolId(1)
-        , meshesPoolId(1)
-        , shaderBuffersPoolId(1)
+    TEXTURE_2D,
+    TEXTURE_2D_ARRAY,
+    TEXTURE_CUBE_MAP,
+    FRAME_BUFFER,
+    RENDER_BUFFER,
+    SHADER_PROGRAM,
+    SHADER_BUFFER,
+    MESH
+};
+
+class VulkanIdPool
+{
+public:
+    VulkanIdPool()
+        : objectsIdPool(1)
     {
     }
+    IdType AccquireNewId(ObjectType type)
+    {
+        auto newID = objectsIdPool.getId();
+        createdObjectIds.insert({newID, type});
+        return newID;
+    }
+
+    std::optional<ObjectType> GetObjectType(IdType id)
+    {
+        auto iter = createdObjectIds.find(id);
+        if (iter != createdObjectIds.end())
+        {
+            return iter->second;
+        }
+
+        return std::nullopt;
+    }
+
+    void ReleaseId(IdType id)
+    {
+        objectsIdPool.releaseId(id);
+        createdObjectIds.erase(id);
+    }
+
+private:
+    Utils::IdPool objectsIdPool;
+    std::unordered_map<IdType, ObjectType> createdObjectIds;
+};
+
+struct VulkanContext
+{
     void ClearResources();
 
     VkInstance instance             = VK_NULL_HANDLE;
@@ -77,18 +119,14 @@ struct VulkanContext
     Color backgroundColor{0.9f, 0.0f, 0.0f, 1.0f};
 
     std::unordered_map<IdType, VulkanProgram> programs;
-    Utils::IdPool programsPoolId;  // zalezy nam na zachowaniu kolejnosci wstawiania shader bufferow, bo wlasnie w tej kolejnosci
-                                   // beda one wiazane do descriptor setu
 
     std::unordered_map<IdType, VulkanMesh> meshes;
-    Utils::IdPool meshesPoolId;
-
     std::unordered_map<IdType, VulkanShaderBuffer> shaderBuffers;
-    Utils::IdPool shaderBuffersPoolId;
-
     IdType globalDynamicUBOId = 0u;
     GraphicsApi::Vulkan::DynamicUniformBuffer globalDynamicUBO;
 
     uint32 activeStaticAllocationsCount = 0;
+
+    VulkanIdPool idPool;
 };
 }  // namespace GraphicsApi::Vulkan

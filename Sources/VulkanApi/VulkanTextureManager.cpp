@@ -10,7 +10,6 @@ namespace GraphicsApi::Vulkan
 VulkanTextureManager::VulkanTextureManager(VulkanContext& context, VulkanBufferManager& bufferManager)
     : context(context)
     , bufferManager(bufferManager)
-    , texturesPoolId(1)
 {
 }
 bool VulkanTextureManager::CreateImage(uint32 width, uint32 height, VkFormat format, VkImageTiling tiling,
@@ -265,9 +264,8 @@ GraphicsApi::ID VulkanTextureManager::CreateTexture(const Utils::Image& image, [
         return {};
     }
 
-    const auto textureId = texturesPoolId.getId();
+    const auto textureId = context.idPool.AccquireNewId(ObjectType::TEXTURE_2D);
     textures[textureId]  = std::move(texture);
-
     return textureId;
 }
 void VulkanTextureManager::DeleteTexture(IdType id)
@@ -306,7 +304,7 @@ void VulkanTextureManager::DeleteTexture(IdType id)
     }
 
     textures.erase(iter);
-    texturesPoolId.releaseId(id);
+    context.idPool.ReleaseId(id);
 }
 const VulkanTextureManager::Textures VulkanTextureManager::GetTextures() const
 {

@@ -695,11 +695,59 @@ ID VulkanShaderManager::Create(ShaderProgramType type)
 
     DestroyShaderModules(vkContext_, vertModule, fragModule);
 
-    const auto programId           = vkContext_.programsPoolId.getId();
+    const auto programId           = vkContext_.idPool.AccquireNewId(ObjectType::SHADER_PROGRAM);
     vkContext_.programs[programId] = std::move(newProgram);
 
     LOG_DEBUG << "Success: Shader and GPU pipeline state compiled successfully. Registered VulkanProgram with ID: " << programId;
 
     return programId;
+}
+void VulkanShaderManager::Delete(IdType id)
+{
+    auto iter = vkContext_.programs.find(id);
+
+    if (iter == vkContext_.programs.end())
+    {
+        LOG_WARN << "Shader program with ID " << id << " does not exist!";
+        return;
+    }
+
+    auto& program = iter->second;
+    if (program.pipeline != VK_NULL_HANDLE)
+    {
+        vkDestroyPipeline(vkContext_.device, program.pipeline, nullptr);
+        program.pipeline = VK_NULL_HANDLE;
+    }
+
+    if (program.layout != VK_NULL_HANDLE)
+    {
+        vkDestroyPipelineLayout(vkContext_.device, program.layout, nullptr);
+        program.layout = VK_NULL_HANDLE;
+    }
+
+    for (auto& pool : program.descriptorPools)
+    {
+        if (pool != VK_NULL_HANDLE)
+        {
+            vkDestroyDescriptorPool(vkContext_.device, pool, nullptr);
+            pool = VK_NULL_HANDLE;
+        }
+    }
+
+    program.descriptorPools.clear();
+    for (auto& layout : program.descriptorSetLayouts)
+    {
+        if (layout != VK_NULL_HANDLE)
+        {
+            vkDestroyDescriptorSetLayout(vkContext_.device, layout, nullptr);
+            layout = VK_NULL_HANDLE;
+        }
+    }
+
+    program.descriptorSetLayouts.clear();
+
+    vkContext_.programs.erase(iter);
+    vkContext_.idPool.ReleaseId(id);
+    LOG_DEBUG << "Successfully deleted Vulkan shader program with ID: " << id;
 }
 }  // namespace GraphicsApi::Vulkan
