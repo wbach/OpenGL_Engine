@@ -11,6 +11,7 @@
 #include "VulkanMesh.h"
 #include "VulkanProgram.h"
 #include "VulkanShaderBuffer.h"
+#include "VulkanIdPool.h"
 
 namespace GraphicsApi::Vulkan
 {
@@ -32,55 +33,6 @@ struct DynamicUniformBuffer
     uint32 dynamicOffset  = 0u;
     uint32 alignment      = 0u;
 };
-
-enum class ObjectType
-{
-    TEXTURE_2D,
-    TEXTURE_2D_ARRAY,
-    TEXTURE_CUBE_MAP,
-    FRAME_BUFFER,
-    RENDER_BUFFER,
-    SHADER_PROGRAM,
-    SHADER_BUFFER,
-    MESH
-};
-
-class VulkanIdPool
-{
-public:
-    VulkanIdPool()
-        : objectsIdPool(1)
-    {
-    }
-    IdType AccquireNewId(ObjectType type)
-    {
-        auto newID = objectsIdPool.getId();
-        createdObjectIds.insert({newID, type});
-        return newID;
-    }
-
-    std::optional<ObjectType> GetObjectType(IdType id)
-    {
-        auto iter = createdObjectIds.find(id);
-        if (iter != createdObjectIds.end())
-        {
-            return iter->second;
-        }
-
-        return std::nullopt;
-    }
-
-    void ReleaseId(IdType id)
-    {
-        objectsIdPool.releaseId(id);
-        createdObjectIds.erase(id);
-    }
-
-private:
-    Utils::IdPool objectsIdPool;
-    std::unordered_map<IdType, ObjectType> createdObjectIds;
-};
-
 struct VulkanContext
 {
     void ClearResources();

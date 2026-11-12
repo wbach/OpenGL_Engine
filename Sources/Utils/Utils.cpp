@@ -4,6 +4,7 @@
 #include <cctype>
 #include <fstream>
 #include <stdexcept>
+#include <execinfo.h>
 
 #include "FileSystem/FileSystemUtils.hpp"
 #include "Logger/Log.h"
@@ -279,17 +280,17 @@ std::unordered_map<std::string, std::string> parseArguments(int argc, char* argv
 
         if (arg.rfind("--", 0) == 0)
         {
-            std::string key = arg.substr(2); 
+            std::string key = arg.substr(2);
             std::string value;
 
             if (i + 1 < argc && std::string(argv[i + 1]).rfind("--", 0) != 0)
             {
                 value = argv[i + 1];
-                ++i; 
+                ++i;
             }
             else
             {
-                value = "true"; 
+                value = "true";
             }
 
             args[key] = value;
@@ -347,5 +348,49 @@ uint32_t HashString(std::string_view str)
         hash *= 16777619u;
     }
     return (hash == 0) ? 1u : hash;
+}
+std::string RetrieveCallStack()
+{
+    constexpr int maxFrames = 32;
+
+    void* frames[maxFrames];
+    const int frameCount = backtrace(frames, maxFrames);
+
+    char** symbols = backtrace_symbols(frames, frameCount);
+
+    if (!symbols)
+    {
+        return "Unable to retrieve call stack";
+    }
+
+    std::ostringstream result;
+
+    for (int i = 0; i < frameCount; ++i)
+    {
+        std::string symbol = symbols[i];
+
+        const auto begin = symbol.find('(');
+        const auto end   = symbol.find('+', begin);
+
+        if (begin != std::string::npos && end != std::string::npos)
+        {
+            const auto mangledName = symbol.substr(begin + 1, end - begin - 1);
+
+            int status          = 0;
+            char* demangledName = abi::__cxa_demangle(mangledName.c_str(), nullptr, nullptr, &status);
+
+            if (status == 0 && demangledName)
+            {
+                symbol.replace(begin + 1, end - begin - 1, demangledName);
+            }
+
+            std::free(demangledName);
+        }
+
+        result << "\n  #" << i << " " << symbol;
+    }
+
+    std::free(symbols);
+    return result.str();
 }
 }  // namespace Utils

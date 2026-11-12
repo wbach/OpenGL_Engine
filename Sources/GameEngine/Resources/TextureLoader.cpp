@@ -111,7 +111,8 @@ void TextureLoader::UpdateTexture(GeneralTexture*& texture, const std::string& n
 {
     if (not textures_.empty())
     {
-        auto iter = std::find_if(textures_.begin(), textures_.end(), [id = texture->GetGpuObjectId()](const auto& texture)
+        auto iter = std::find_if(textures_.begin(), textures_.end(),
+                                 [id = texture->GetGpuObjectId()](const auto& texture)
                                  { return (texture.second.resource_->GetGpuObjectId() == id); });
 
         texture = CreateTexture(newName, iter->second.resource_->getTextureParameters(), texture->MoveImage());
@@ -133,6 +134,8 @@ GeneralTexture* TextureLoader::LoadTexture(const FileHandle& fileHandle, const T
                                       const auto& memoryImage = memoryImagesIter->second;
                                       return LoadTexture(m.name, memoryImage.data, memoryImage.length, params);
                                   }
+                                  GeneralTexture* ptr{nullptr};
+                                  return ptr;
                               },
                               [this, &params](const File& file)
                               {
@@ -295,7 +298,8 @@ void TextureLoader::DeleteTexture(Texture& texture)
 {
     std::lock_guard<std::mutex> lk(textureMutex_);
 
-    auto iter = std::find_if(textures_.begin(), textures_.end(), [id = texture.GetGpuObjectId()](const auto& texture)
+    auto iter = std::find_if(textures_.begin(), textures_.end(),
+                             [id = texture.GetGpuObjectId()](const auto& texture)
                              { return (texture.second.resource_->GetGpuObjectId() == id); });
 
     if (iter != textures_.end())

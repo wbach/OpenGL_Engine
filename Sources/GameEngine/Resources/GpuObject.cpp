@@ -11,12 +11,10 @@ namespace GameEngine
 {
 namespace
 {
-std::mutex mutexId;
 Utils::IdPool idPool;
 
 auto getId()
 {
-    std::lock_guard<std::mutex> lk(mutexId);
     return idPool.getId();
 }
 }  // namespace
@@ -32,7 +30,6 @@ GpuObject::~GpuObject()
     if (id_ != INVALID_ID)
     {
         //LOG_DEBUG << "GpuObject destroyed. Id=" << id_;
-        std::lock_guard<std::mutex> lk(mutexId);
         idPool.releaseId(id_);
     }
     else
@@ -55,15 +52,12 @@ GpuObject& GpuObject::operator=(GpuObject&& other) noexcept
     {
         if (id_ != INVALID_ID)
         {
-            std::lock_guard<std::mutex> lk(mutexId);
             idPool.releaseId(id_);
         }
 
         graphicsObjectId_ = std::move(other.graphicsObjectId_);
         id_               = other.id_;
-
         //LOG_DEBUG << "GpuObject move-assigned. Id=" << id_;
-
         other.graphicsObjectId_.reset();
         other.id_ = INVALID_ID;
     }

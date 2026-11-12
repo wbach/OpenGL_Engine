@@ -264,7 +264,7 @@ GraphicsApi::ID VulkanTextureManager::CreateTexture(const Utils::Image& image, [
         return {};
     }
 
-    const auto textureId = context.idPool.AccquireNewId(ObjectType::TEXTURE_2D);
+    const auto textureId = context.idPool.AccquireNewId(VulkanObjectType::TEXTURE_2D);
     textures[textureId]  = std::move(texture);
     return textureId;
 }

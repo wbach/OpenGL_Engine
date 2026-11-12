@@ -695,7 +695,7 @@ ID VulkanShaderManager::Create(ShaderProgramType type)
 
     DestroyShaderModules(vkContext_, vertModule, fragModule);
 
-    const auto programId           = vkContext_.idPool.AccquireNewId(ObjectType::SHADER_PROGRAM);
+    const auto programId           = vkContext_.idPool.AccquireNewId(VulkanObjectType::SHADER_PROGRAM);
     vkContext_.programs[programId] = std::move(newProgram);
 
     LOG_DEBUG << "Success: Shader and GPU pipeline state compiled successfully. Registered VulkanProgram with ID: " << programId;

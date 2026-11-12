@@ -228,7 +228,7 @@ ID VulkanApi::CreateShaderBuffer(uint32 bindLocation, uint32 size, GraphicsApi::
             return {};
         }
 
-        const auto bufferId               = vkContext.idPool.AccquireNewId(ObjectType::SHADER_BUFFER);
+        const auto bufferId               = vkContext.idPool.AccquireNewId(VulkanObjectType::SHADER_BUFFER);
         vkContext.shaderBuffers[bufferId] = std::move(shaderBuffer);
 
         vkContext.activeStaticAllocationsCount++;
@@ -247,7 +247,7 @@ ID VulkanApi::CreateShaderBuffer(uint32 bindLocation, uint32 size, GraphicsApi::
                                      .bindLocation  = bindLocation,
                                      .dynamicOffset = 0};
 
-    const auto virtualId               = vkContext.idPool.AccquireNewId(ObjectType::SHADER_BUFFER);
+    const auto virtualId               = vkContext.idPool.AccquireNewId(VulkanObjectType::SHADER_BUFFER);
     vkContext.shaderBuffers[virtualId] = std::move(virtualBuffer);
 
     LOG_DEBUG << "Created Vulkan Dynamic UBO ID: " << virtualId << ", size: " << size << " bytes"
@@ -424,14 +424,14 @@ void VulkanApi::DeleteObject(uint32 id)
         LOG_DEBUG << "Delete object of type : " << magic_enum::enum_name(*type) << ", ID: " << id;
         switch (*type)
         {
-            case ObjectType::TEXTURE_2D:
-                // textureManager_.DeleteTexture(id);
+            case VulkanObjectType::TEXTURE_2D:
+                textureManager_.DeleteTexture(id);
                 break;
-            case ObjectType::SHADER_BUFFER:
+            case VulkanObjectType::SHADER_BUFFER:
                 DeleteShaderBufferImpl(vkContext, id);
                 break;
-            case ObjectType::SHADER_PROGRAM:
-               // shaderManager_.Delete(id);
+            case VulkanObjectType::SHADER_PROGRAM:
+                // shaderManager_.Delete(id);
                 break;
 
             default:
@@ -481,7 +481,7 @@ ID VulkanApi::CreateMesh(const MeshRawData& meshData, RenderType renderType)
     mesh.vertexCount = static_cast<uint32>(meshData.positions_.size() / 3u);
     mesh.useIndices  = not meshData.indices_.empty();
 
-    const auto meshId = vkContext.idPool.AccquireNewId(ObjectType::MESH);
+    const auto meshId = vkContext.idPool.AccquireNewId(VulkanObjectType::MESH);
 
     if (not meshData.positions_.empty())
     {
@@ -779,7 +779,7 @@ void VulkanApi::InitializeDynamicUniformBuffer(uint32 sizeInBytes)
     bufferManager_.CreateBuffer(dUbo.totalSize, usage, memProps, dUbo.buffer, dUbo.memory);
     vkMapMemory(vkContext.device, dUbo.memory, 0, dUbo.totalSize, 0, &dUbo.mappedData);
 
-    vkContext.globalDynamicUBOId = vkContext.idPool.AccquireNewId(ObjectType::SHADER_BUFFER);
+    vkContext.globalDynamicUBOId = vkContext.idPool.AccquireNewId(VulkanObjectType::SHADER_BUFFER);
 
     LOG_DEBUG << "Initialized Global Dynamic UBO with total size: " << dUbo.totalSize << " bytes, alignment: " << dUbo.alignment
               << " bytes, and assigned ID: " << vkContext.globalDynamicUBOId;
