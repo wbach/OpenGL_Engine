@@ -10,7 +10,9 @@
 #include "VulkanApi/VulkanContext.hpp"
 #include "VulkanContext.hpp"
 #include "VulkanShaderManager.h"
-
+#include "VulkanBufferManager.h"
+#include "VulkanTextureManager.h"
+#include "VulkanRenderer.h"
 namespace GraphicsApi::Vulkan
 {
 class SdlVulkanApi;
@@ -123,7 +125,10 @@ private:
 private:
     mutable VulkanContext vkContext;
     std::unique_ptr<SdlVulkanApi> windowApi_;
+    VulkanBufferManager bufferManager_;
     VulkanShaderManager shaderManager_;
+    VulkanTextureManager textureManager_;
+    VulkanRenderer vulkanRenderer_;
 
     TextureInfo dummyTextureInfo{};
     DefaultFrameBuffer dummyFrameBuffer;

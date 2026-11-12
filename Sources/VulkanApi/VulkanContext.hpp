@@ -46,7 +46,6 @@ struct VulkanContext
         : programsPoolId(1)
         , meshesPoolId(1)
         , shaderBuffersPoolId(1)
-        , texturesPoolId(1)
     {
     }
     void ClearResources();
@@ -93,9 +92,6 @@ struct VulkanContext
 
     std::unordered_map<IdType, VulkanShaderBuffer> shaderBuffers;
     Utils::IdPool shaderBuffersPoolId;
-
-    std::unordered_map<IdType, VulkanTexture> textures;
-    Utils::IdPool texturesPoolId;
 
     RenderState currentRenderState;
 
