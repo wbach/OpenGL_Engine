@@ -4,7 +4,24 @@
 #include <cctype>
 #include <fstream>
 #include <stdexcept>
+#include <mutex>
+
+#if defined(_WIN32) || defined(_WIN64)
+#include <Windows.h>
+#include <DbgHelp.h>
+#include <sstream>
+#include <string>
+#include <cstdlib>
+
+#pragma comment(lib, "Dbghelp.lib")
+
+#if defined(__GNUC__) || defined(__clang__)
+#include <cxxabi.h>
+#endif
+
+#else
 #include <execinfo.h>
+#endif
 
 #include "FileSystem/FileSystemUtils.hpp"
 #include "Logger/Log.h"
@@ -349,6 +366,76 @@ uint32_t HashString(std::string_view str)
     }
     return (hash == 0) ? 1u : hash;
 }
+
+#if defined(_WIN32) || defined(_WIN64)
+std::string RetrieveCallStack()
+{
+    constexpr int maxFrames = 32;
+
+    void* frames[maxFrames];
+
+    static std::once_flag initFlag;
+    static bool symbolsInitialized = false;
+
+    std::call_once(initFlag,
+                   []()
+                   {
+                       symbolsInitialized = SymInitialize(GetCurrentProcess(), nullptr, TRUE) == TRUE;
+
+                       if (symbolsInitialized)
+                       {
+                           SymSetOptions(SymGetOptions() | SYMOPT_LOAD_LINES | SYMOPT_UNDNAME);
+                       }
+                   });
+
+    if (!symbolsInitialized)
+    {
+        return "Unable to initialize symbol handler";
+    }
+
+    const USHORT frameCount = CaptureStackBackTrace(0, maxFrames, frames, nullptr);
+
+    HANDLE process = GetCurrentProcess();
+
+    std::ostringstream result;
+
+    // Buffer for SYMBOL_INFO and symbol name.
+    char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME] = {};
+
+    auto* symbol = reinterpret_cast<SYMBOL_INFO*>(buffer);
+
+    symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+    symbol->MaxNameLen   = MAX_SYM_NAME;
+
+    for (USHORT i = 0; i < frameCount; ++i)
+    {
+        DWORD64 address = reinterpret_cast<DWORD64>(frames[i]);
+
+        result << "\n  #" << i << " ";
+
+        if (SymFromAddr(process, address, nullptr, symbol))
+        {
+            result << symbol->Name << " + 0x" << std::hex << (address - symbol->Address) << std::dec;
+        }
+        else
+        {
+            result << "0x" << std::hex << address << std::dec;
+        }
+
+        IMAGEHLP_LINE64 line = {};
+        line.SizeOfStruct    = sizeof(IMAGEHLP_LINE64);
+
+        DWORD displacement = 0;
+
+        if (SymGetLineFromAddr64(process, address, &displacement, &line))
+        {
+            result << " (" << line.FileName << ":" << line.LineNumber << ")";
+        }
+    }
+
+    return result.str();
+}
+#else
 std::string RetrieveCallStack()
 {
     constexpr int maxFrames = 32;
@@ -393,4 +480,5 @@ std::string RetrieveCallStack()
     std::free(symbols);
     return result.str();
 }
+#endif
 }  // namespace Utils
