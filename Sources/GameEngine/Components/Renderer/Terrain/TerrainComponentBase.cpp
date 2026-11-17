@@ -473,11 +473,15 @@ void TerrainComponentBase::LoadTerrainConfiguration(const File &heightmapFile)
     Utils::JsonReader jsonReader;
     if (jsonReader.Read(metaFile.GetAbsolutePath()))
     {
-        vec3 terrainSize{0};
-        float terrainYOffset{0.f};
+        vec3 terrainScale{0};
+        // float terrainYOffset{0.f};
+
+        float minElevation{0.f};
+        float maxElevation{0.f};
+
         if (auto widthNode = jsonReader.Get("width_m"))
         {
-            Read(*widthNode, terrainSize.x);
+            Read(*widthNode, terrainScale.x);
         }
         else
         {
@@ -485,40 +489,43 @@ void TerrainComponentBase::LoadTerrainConfiguration(const File &heightmapFile)
         }
         if (auto depthNode = jsonReader.Get("depth_m"))
         {
-            Read(*depthNode, terrainSize.z);
+            Read(*depthNode, terrainScale.z);
         }
         else
         {
             LOG_WARN << "depth_m not found, meta file read error" << metaFile;
         }
-        if (auto elevationRangeNode = jsonReader.Get("elevation_range_m"))
-        {
-            Read(*elevationRangeNode, terrainSize.y);
-        }
-        else
-        {
-            LOG_WARN << "elevation_range_m not found, meta file read error" << metaFile;
-        }
+
         if (auto minElevationRangeNode = jsonReader.Get("min_elevation_m"))
         {
-            Read(*minElevationRangeNode, terrainYOffset);
+            Read(*minElevationRangeNode, minElevation);
         }
         else
         {
             LOG_WARN << "min_elevation_m not found, meta file read error" << metaFile;
         }
 
-        if (terrainSize.x > 0 and terrainSize.y > 0 and terrainSize.z > 0)
+        if (auto minElevationRangeNode = jsonReader.Get("max_elevation_m"))
         {
-            LOG_DEBUG << "Meta file for terrain found. File " << metaFile << "\n"
-                      << "TerrainSize: " << terrainSize << ", y offset: " << terrainYOffset;
-
-            thisObject_.SetWorldScale(terrainSize);
-            //TO DO: offset y
+            Read(*minElevationRangeNode, maxElevation);
         }
         else
         {
-            LOG_WARN << "terrainSize value error, during meta file reading" << metaFile << ", terrainSize: " << terrainSize;
+            LOG_WARN << "max_elevation_m not found, meta file read error" << metaFile;
+        }
+
+        if (terrainScale.x > 0 and terrainScale.z > 0)
+        {
+            terrainScale.y = maxElevation - minElevation;
+            LOG_DEBUG << "Meta file for terrain found. File " << metaFile << "\n"
+                      << "TerrainScale: " << terrainScale << ", y offset: " << minElevation;
+
+            thisObject_.SetWorldScale(terrainScale);
+            // TO DO: offset y terrainYOffset = minElevation;
+        }
+        else
+        {
+            LOG_WARN << "terrainSize value error, during meta file reading" << metaFile << ", terrainScale: " << terrainScale;
         }
     }
 }
