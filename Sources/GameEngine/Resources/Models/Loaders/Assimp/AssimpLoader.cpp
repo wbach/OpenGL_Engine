@@ -687,7 +687,7 @@ Animation::KeyFrame& AssimpLoader::getFrameByTimeStamp(Animation::AnimationClip&
 
 void AssimpLoader::readAdditionInfoFile(const File& file)
 {
-    auto additionInfoFile = file.CreateFileWithExtension("xml");
+    auto additionInfoFile = file.GetDerivedFileWithExtension("xml");
     if (additionInfoFile.exist())
     {
         Utils::XmlReader xmlReader;

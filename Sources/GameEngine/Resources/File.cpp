@@ -145,7 +145,7 @@ std::string File::GetFilename() const
     return pathStr.substr(lastSlash + 1);
 }
 
-File File::CreateFileWithExtension(const std::string &extension) const
+File File::GetDerivedFileWithExtension(const std::string &extension) const
 {
     File f(*this);
     f.ChangeExtension(extension);

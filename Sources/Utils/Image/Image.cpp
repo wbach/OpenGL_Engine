@@ -71,29 +71,59 @@ public:
     {
     }
 
-    bool operator()(std::vector<uint8>& data) const
+    template <typename T>
+    bool operator()(std::vector<T>& data) const
     {
         if (startIndex + (channels - 1) < data.size())
         {
+            auto getValue = [&](uint8 channelIdx) -> T {
+                if constexpr (std::is_same_v<T, uint8>)
+                {
+                    switch (channelIdx)
+                    {
+                        case 0: return color.r();
+                        case 1: return color.g();
+                        case 2: return color.b();
+                        case 3: return color.a();
+                        default: return 0;
+                    }
+                }
+                else if constexpr (std::is_same_v<T, uint16>)
+                {
+                    switch (channelIdx)
+                    {
+                        case 0: return color.r16();
+                        case 1: return color.g16();
+                        case 2: return color.b16();
+                        case 3: return color.a16();
+                        default: return 0;
+                    }
+                }
+                else
+                {
+                    return color.value[channelIdx];
+                }
+            };
+
             switch (channels)
             {
                 case 1:
-                    data[startIndex] = color.r();
+                    data[startIndex] = getValue(0);
                     break;
                 case 2:
-                    data[startIndex]     = color.r();
-                    data[startIndex + 1] = color.g();
+                    data[startIndex]     = getValue(0);
+                    data[startIndex + 1] = getValue(1);
                     break;
                 case 3:
-                    data[startIndex]     = color.r();
-                    data[startIndex + 1] = color.g();
-                    data[startIndex + 2] = color.b();
+                    data[startIndex]     = getValue(0);
+                    data[startIndex + 1] = getValue(1);
+                    data[startIndex + 2] = getValue(2);
                     break;
                 case 4:
-                    data[startIndex]     = color.r();
-                    data[startIndex + 1] = color.g();
-                    data[startIndex + 2] = color.b();
-                    data[startIndex + 3] = color.a();
+                    data[startIndex]     = getValue(0);
+                    data[startIndex + 1] = getValue(1);
+                    data[startIndex + 2] = getValue(2);
+                    data[startIndex + 3] = getValue(3);
                     break;
             }
             return true;
@@ -101,38 +131,7 @@ public:
         return false;
     }
 
-    bool operator()(std::vector<float>& data) const
-    {
-        if (startIndex + (channels - 1) < data.size())
-        {
-            switch (channels)
-            {
-                case 1:
-                    data[startIndex] = color.value.x;
-                    break;
-                case 2:
-                    data[startIndex]     = color.value.x;
-                    data[startIndex + 1] = color.value.y;
-                    break;
-                case 3:
-                    data[startIndex]     = color.value.x;
-                    data[startIndex + 1] = color.value.y;
-                    data[startIndex + 2] = color.value.z;
-                    break;
-                case 4:
-                    data[startIndex]     = color.value.x;
-                    data[startIndex + 1] = color.value.y;
-                    data[startIndex + 2] = color.value.z;
-                    data[startIndex + 3] = color.value.w;
-                    break;
-            }
-            return true;
-        }
-        return false;
-    }
-
-    template <class T>
-    bool operator()(const T&) const
+    bool operator()(std::monostate) const
     {
         return false;
     }
@@ -152,37 +151,20 @@ public:
     {
     }
 
-    std::optional<Color> operator()(const std::vector<uint8>& data) const
+    template <typename T>
+    std::optional<Color> operator()(const std::vector<T>& data) const
     {
         if (startIndex + (channels - 1) < data.size())
         {
+            T zero = T(0);
             switch (channels)
             {
                 case 1:
-                    return Color(data[startIndex], 0, 0, 0);
+                    return Color(data[startIndex], zero, zero, zero);
                 case 2:
-                    return Color(data[startIndex], data[startIndex + 1], 0, 0);
+                    return Color(data[startIndex], data[startIndex + 1], zero, zero);
                 case 3:
-                    return Color(data[startIndex], data[startIndex + 1], data[startIndex + 2], 0);
-                case 4:
-                    return Color(data[startIndex], data[startIndex + 1], data[startIndex + 2], data[startIndex + 3]);
-            }
-        }
-        return std::nullopt;
-    }
-
-    std::optional<Color> operator()(const std::vector<float>& data) const
-    {
-        if (startIndex + (channels - 1) < data.size())
-        {
-            switch (channels)
-            {
-                case 1:
-                    return Color(data[startIndex], 0.f, 0.f, 0.f);
-                case 2:
-                    return Color(data[startIndex], data[startIndex + 1], 0.f, 0.f);
-                case 3:
-                    return Color(data[startIndex], data[startIndex + 1], data[startIndex + 2], 0.f);
+                    return Color(data[startIndex], data[startIndex + 1], data[startIndex + 2], zero);
                 case 4:
                     return Color(data[startIndex], data[startIndex + 1], data[startIndex + 2], data[startIndex + 3]);
             }

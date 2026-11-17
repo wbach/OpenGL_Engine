@@ -31,7 +31,7 @@ bool TerrainMeshLoader::ParseFile(const File& file)
         return false;
     }
 
-    auto terrainConfig = TerrainConfiguration::ReadFromFile(file.CreateFileWithExtension("terrainConfig"));
+    auto terrainConfig = TerrainConfiguration::ReadFromFile(file.GetDerivedFileWithExtension("terrainConfig"));
     auto partsCount    = terrainConfig.GetPartsCount();
     model_             = createModel(*heightMap, partsCount);
     textureLoader_.DeleteTexture(*heightMap);

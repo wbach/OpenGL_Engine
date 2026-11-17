@@ -34,7 +34,7 @@ public:
     std::string GetExtension() const;
     bool HasExtension() const;
     std::string GetFilename() const;
-    File CreateFileWithExtension(const std::string&) const;
+    File GetDerivedFileWithExtension(const std::string&) const;
     void ChangeFileName(const std::string&);
     void ChangeBaseName(const std::string&);
     void AddSuffixToBaseName(const std::string&);

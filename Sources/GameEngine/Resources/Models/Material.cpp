@@ -130,7 +130,7 @@ Material ParseMaterial(const File& file, ITextureLoader& texLoader)
 
 void SaveMaterial(const Material& material, const File& requestedFile)
 {
-    auto file = requestedFile.HasExtension() ? requestedFile : requestedFile.CreateFileWithExtension("material");
+    auto file = requestedFile.HasExtension() ? requestedFile : requestedFile.GetDerivedFileWithExtension("material");
     auto root = std::make_unique<TreeNode>("Material");
 
     auto vec4ToNode = [](const std::string& name, const vec4& v)

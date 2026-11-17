@@ -417,6 +417,19 @@ struct ENGINE_API Color
                 static_cast<float>(a) / 255.f)
     {
     }
+    Color(uint16 v)
+        : Color(v, v, v, v)
+    {
+    }
+    Color(uint16 r, uint16 g, uint16 b)
+        : Color(r, g, b, static_cast<uint16>(65535))
+    {
+    }
+    Color(uint16 r, uint16 g, uint16 b, uint16 a)
+        : value(static_cast<float>(r) / 65535.f, static_cast<float>(g) / 65535.f, static_cast<float>(b) / 65535.f,
+                static_cast<float>(a) / 65535.f)
+    {
+    }
     Color(float r, float g, float b)
         : Color(r, g, b, 1.f)
     {
@@ -441,6 +454,22 @@ struct ENGINE_API Color
     void a(uint8 a)
     {
         value.w = static_cast<float>(a) / 255.f;
+    }
+    void r(uint16 r)
+    {
+        value.x = static_cast<float>(r) / 65535.f;
+    }
+    void g(uint16 g)
+    {
+        value.y = static_cast<float>(g) / 65535.f;
+    }
+    void b(uint16 b)
+    {
+        value.z = static_cast<float>(b) / 65535.f;
+    }
+    void a(uint16 a)
+    {
+        value.w = static_cast<float>(a) / 65535.f;
     }
     void r(float r)
     {
@@ -488,6 +517,23 @@ struct ENGINE_API Color
     uint8 a() const
     {
         return static_cast<uint8>(value.w * 255.f);
+    }
+
+    uint16 r16() const
+    {
+        return static_cast<uint16>(value.x * 65535.f);
+    }
+    uint16 g16() const
+    {
+        return static_cast<uint16>(value.y * 65535.f);
+    }
+    uint16 b16() const
+    {
+        return static_cast<uint16>(value.z * 65535.f);
+    }
+    uint16 a16() const
+    {
+        return static_cast<uint16>(value.w * 65535.f);
     }
 
     vec3ui rgb() const

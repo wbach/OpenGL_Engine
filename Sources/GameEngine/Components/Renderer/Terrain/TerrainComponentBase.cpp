@@ -5,6 +5,7 @@
 #include <Rotation.h>
 #include <Types.h>
 #include <Utils/Image/ImageUtils.h>
+#include <Utils/Json/JsonReader.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
@@ -118,7 +119,7 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
     float step = 1.f / static_cast<float>(heightmapResultuion);
 
     auto outputFile =
-        requestedOutputfile.has_value() ? requestedOutputfile.value() : objectFile.CreateFileWithExtension("terrain");
+        requestedOutputfile.has_value() ? requestedOutputfile.value() : objectFile.GetDerivedFileWithExtension("terrain");
 
     if (not outputFile.HasExtension())
     {
@@ -463,9 +464,63 @@ GraphicsApi::ID TerrainComponentBase::getPerTerrainTexturesBufferId() const
     return std::nullopt;
 }
 
-void TerrainComponentBase::LoadTerrainConfiguration(const File &terrainConfigFile)
+void TerrainComponentBase::LoadTerrainConfiguration(const File &heightmapFile)
 {
-    config_ = TerrainConfiguration::ReadFromFile(terrainConfigFile.CreateFileWithExtension("terrainConfig"));
+    auto configFile = heightmapFile.GetDerivedFileWithExtension("terrainConfig");
+    auto metaFile   = heightmapFile.GetDerivedFileWithExtension("json");
+    config_         = TerrainConfiguration::ReadFromFile(configFile);
+
+    Utils::JsonReader jsonReader;
+    if (jsonReader.Read(metaFile.GetAbsolutePath()))
+    {
+        vec3 terrainSize{0};
+        float terrainYOffset{0.f};
+        if (auto widthNode = jsonReader.Get("width_m"))
+        {
+            Read(*widthNode, terrainSize.x);
+        }
+        else
+        {
+            LOG_WARN << "width_m not found, meta file read error" << metaFile;
+        }
+        if (auto depthNode = jsonReader.Get("depth_m"))
+        {
+            Read(*depthNode, terrainSize.z);
+        }
+        else
+        {
+            LOG_WARN << "depth_m not found, meta file read error" << metaFile;
+        }
+        if (auto elevationRangeNode = jsonReader.Get("elevation_range_m"))
+        {
+            Read(*elevationRangeNode, terrainSize.y);
+        }
+        else
+        {
+            LOG_WARN << "elevation_range_m not found, meta file read error" << metaFile;
+        }
+        if (auto minElevationRangeNode = jsonReader.Get("min_elevation_m"))
+        {
+            Read(*minElevationRangeNode, terrainYOffset);
+        }
+        else
+        {
+            LOG_WARN << "min_elevation_m not found, meta file read error" << metaFile;
+        }
+
+        if (terrainSize.x > 0 and terrainSize.y > 0 and terrainSize.z > 0)
+        {
+            LOG_DEBUG << "Meta file for terrain found. File " << metaFile << "\n"
+                      << "TerrainSize: " << terrainSize << ", y offset: " << terrainYOffset;
+
+            thisObject_.SetWorldScale(terrainSize);
+            //TO DO: offset y
+        }
+        else
+        {
+            LOG_WARN << "terrainSize value error, during meta file reading" << metaFile << ", terrainSize: " << terrainSize;
+        }
+    }
 }
 
 void TerrainComponentBase::SetTexture(TerrainTextureType type, Texture *texture)

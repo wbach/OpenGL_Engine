@@ -375,7 +375,7 @@ void SaveHeightMap(const HeightMap& heightmap, const File& outfile)
                image.getImageData());
     fclose(fp);
 
-    Utils::SaveImage(image, outfile.CreateFileWithExtension("png").GetAbsolutePath().string());
+    Utils::SaveImage(image, outfile.GetDerivedFileWithExtension("png").GetAbsolutePath().string());
 }
 
 uint8 GetBlendValue(const vec3& normal, const vec2& thresholds)
