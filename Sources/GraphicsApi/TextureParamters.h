@@ -11,7 +11,11 @@ enum class TextureType
     FLOAT_TEXTURE_3D,
     FLOAT_TEXTURE_4D,
     SHADOW_MAP,
-    U8_RGBA
+    U8_RGBA,
+    U8_RED,
+    U16_RED,
+    U16_RG,
+    U16_RGBA
 };
 
 enum class TextureFilter

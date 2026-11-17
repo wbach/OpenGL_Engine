@@ -4,7 +4,6 @@
 #include <Utils/Variant.h>
 #include <btBulletDynamicsCommon.h>
 
-
 #include <memory>
 #include <optional>
 #include <vector>
@@ -58,6 +57,11 @@ std::unique_ptr<Shape> ShapeFactory::CreateTerrain(const PositionOffset& positio
             {
                 shape->btShape_.reset(new btHeightfieldTerrainShape(width, height, &data[0], 1.f, heightMap.GetMinimumHeight(),
                                                                     heightMap.GetMaximumHeight(), 1, PHY_UCHAR, false));
+            },
+            [&](const std::vector<uint16>& data)
+            {
+                shape->btShape_.reset(new btHeightfieldTerrainShape(width, height, &data[0], 1.f, heightMap.GetMinimumHeight(),
+                                                                    heightMap.GetMaximumHeight(), 1, PHY_SHORT, false));
             },
             [&](const std::vector<float>& data)
             {

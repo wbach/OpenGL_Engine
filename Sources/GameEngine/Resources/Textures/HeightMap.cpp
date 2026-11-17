@@ -113,6 +113,11 @@ bool HeightMap::UpdateMaximumHeight()
                            maximumHeight = static_cast<float>(*std::max_element(data.begin(), data.end()) / 255.f);
                            minimumHeight = static_cast<float>(*std::min_element(data.begin(), data.end()) / 255.f);
                        },
+                       [&](const std::vector<uint16>& data)
+                       {
+                           maximumHeight = static_cast<float>(*std::max_element(data.begin(), data.end())) / 65535.f;
+                           minimumHeight = static_cast<float>(*std::min_element(data.begin(), data.end())) / 65535.f;
+                       },
                        [&](const std::vector<float>& data)
                        {
                            maximumHeight = *std::max_element(data.begin(), data.end());

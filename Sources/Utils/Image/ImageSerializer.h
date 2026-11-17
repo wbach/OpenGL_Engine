@@ -22,6 +22,7 @@ void serialize(S& s, Image& obj)
 
     s.ext(obj.data_, bitsery::ext::StdVariant{[](S& s, std::monostate&) {},
                                               [](S& s, std::vector<uint8_t>& v) { s.container1b(v, MAX_CONTAINERSIZE); },
+                                              [](S& s, std::vector<uint16_t>& v) { s.container2b(v, MAX_CONTAINERSIZE); },
                                               [](S& s, std::vector<float>& v) { s.container4b(v, MAX_CONTAINERSIZE); }});
 }
 

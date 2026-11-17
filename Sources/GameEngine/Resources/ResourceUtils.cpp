@@ -121,6 +121,40 @@ std::optional<Utils::Image> ReadFile(const File& file, const TextureParameters& 
         return {};
     }
 
+    FREE_IMAGE_TYPE imageType = FreeImage_GetImageType(image);
+
+    if (imageType == FIT_UINT16)
+    {
+        Utils::Image resultImage;
+        resultImage.width  = FreeImage_GetWidth(image);
+        resultImage.height = FreeImage_GetHeight(image);
+        resultImage.setChannels(1);
+
+        size_t totalPixels = resultImage.width * resultImage.height;
+        WORD* pixels16     = (WORD*)FreeImage_GetBits(image);
+        std::vector<uint16> data16;
+        data16.resize(totalPixels);
+
+        uint32 width  = resultImage.width;
+        uint32 height = resultImage.height;
+        for (uint32 y = 0; y < height; ++y)
+        {
+            for (uint32 x = 0; x < width; ++x)
+            {
+                // Przykładowe odwrócenie osi Y (jeśli silnik tego wymaga):
+                // data16[y * width + x] = pixels16[(height - 1 - y) * width + x];
+                // Bez odwracania:
+                data16[y * width + x] = pixels16[y * width + x];
+            }
+        }
+
+        resultImage.moveData(std::move(data16));
+        FreeImage_Unload(image);
+        LOG_DEBUG << "File: " << file.GetBaseName() << " loaded as 16-bit Heightmap. Size: " << resultImage.width << "x"
+                  << resultImage.height;
+        return std::move(resultImage);
+    }
+
     image = resizeImageIfisLimited(image, params.sizeLimit);
     flipImageIfRequest(image, params.flipMode);
     image = convertTo32bppIfDifferent(image);
@@ -216,6 +250,20 @@ std::vector<float> ConvertHeightData(const std::vector<uint8>& data)
     return output;
 }
 
+std::vector<float> ConvertHeightData(const std::vector<uint16>& data)
+{
+    std::vector<float> output;
+    output.reserve(data.size());
+
+    for (auto val : data)
+    {
+        float normalized = static_cast<float>(val) / 65535.0f;
+        output.push_back(normalized);
+    }
+
+    return output;
+}
+
 void CreateHeightMap(const File& in, const File& out, const vec3& scale)
 {
     auto fp = fopen(out.GetAbsolutePath().string().c_str(), "wb+");
@@ -244,6 +292,11 @@ void CreateHeightMap(const File& in, const File& out, const vec3& scale)
     fwrite(&header, sizeof(HeightMapHeader), 1, fp);
 
     std::visit(visitor{[&](const std::vector<uint8>& inputData)
+                       {
+                           auto data = ConvertHeightData(inputData);
+                           fwrite(&data[0], sizeof(float), size, fp);
+                       },
+                       [&](const std::vector<uint16>& inputData)
                        {
                            auto data = ConvertHeightData(inputData);
                            fwrite(&data[0], sizeof(float), size, fp);
@@ -308,6 +361,11 @@ void SaveHeightMap(const HeightMap& heightmap, const File& outfile)
     auto size = header.width * header.height;
     fwrite(&header, sizeof(HeightMapHeader), 1, fp);
     std::visit(visitor{[&](const std::vector<uint8>& inputData)
+                       {
+                           auto data = ConvertHeightData(inputData);
+                           fwrite(&data[0], sizeof(float), size, fp);
+                       },
+                       [&](const std::vector<uint16>& inputData)
                        {
                            auto data = ConvertHeightData(inputData);
                            fwrite(&data[0], sizeof(float), size, fp);
@@ -406,6 +464,7 @@ void GenerateBlendMap(const vec3& terrainScale, const HeightMap& heightMap, cons
                            Utils::SaveImage(data, vec3ui(image.size(), image.getChannelsCount()),
                                             file.GetAbsolutePath().string() + "_alpha1_preview_scaled", vec2(4));
                        },
+                       [&](std::vector<uint16> data) { LOG_WARN << ("GenerateBlendMapImage for uint16 not implemented"); },
                        [&](const std::vector<float>&) { LOG_WARN << ("GenerateBlendMapImage for floats not implemented"); },
                        [](std::monostate) { LOG_ERROR << ("Data not set!"); }},
                image.getImageData());

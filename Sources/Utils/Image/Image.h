@@ -8,7 +8,7 @@
 
 namespace Utils
 {
-typedef std::variant<std::monostate, std::vector<uint8>, std::vector<float>> ImageData;
+typedef std::variant<std::monostate, std::vector<uint8>, std::vector<uint16>, std::vector<float>> ImageData;
 
 class ENGINE_API Image
 {

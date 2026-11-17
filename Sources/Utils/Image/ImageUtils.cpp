@@ -55,6 +55,52 @@ void SaveImage(const std::vector<uint8>& data, const vec3ui& size, const std::fi
     FreeImage_Unload(bitmap);
 }
 
+void SaveImage16(const std::vector<uint16>& data, const vec3ui& size, const std::filesystem::path& outputFilePath,
+                 const std::optional<vec2>& scale)
+{
+    // Tworzymy 16-bitowy obraz FreeImage w skali szarości (FIT_UINT16)
+    FIBITMAP* dib = FreeImage_AllocateT(FIT_UINT16, size.x, size.y, 16);
+    if (!dib)
+    {
+        LOG_ERROR << "Failed to allocate 16-bit image for saving: " << outputFilePath;
+        return;
+    }
+
+    // Kopiujemy dane z wektora do bufora FreeImage (uwzględniając ewentualny układ wierszy Top-Down / Bottom-Up)
+    for (uint32 y = 0; y < size.y; ++y)
+    {
+        // FreeImage domyślnie oczekuje układu od dołu do góry (Bottom-Up) w plikach
+        WORD* bits = (WORD*)FreeImage_GetScanLine(dib, size.y - 1 - y);
+        for (uint32 x = 0; x < size.x; ++x)
+        {
+            bits[x] = data[y * size.x + x];
+        }
+    }
+
+    std::string ext = outputFilePath.extension().string();
+    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+
+    FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
+    if (ext == "png")
+        fif = FIF_PNG;
+    else if (ext == "tif" || ext == "tiff")
+        fif = FIF_TIFF;
+    else
+        fif = FIF_PNG;  // domyślnie PNG
+
+    // Zapisujemy obraz
+    if (FreeImage_Save(fif, dib, outputFilePath.string().c_str(), 0))
+    {
+        LOG_DEBUG << "Successfully saved 16-bit image to: " << outputFilePath;
+    }
+    else
+    {
+        LOG_ERROR << "Failed to save 16-bit image to: " << outputFilePath;
+    }
+
+    FreeImage_Unload(dib);
+}
+
 void SaveImage32FEXR(const std::vector<float>& data, const vec3ui& size, const std::string& filename)
 {
     FreeImage_Initialise();
@@ -263,50 +309,58 @@ void SaveImage(const Image& image, const std::filesystem::path& outputFilePath, 
 {
     LOG_DEBUG << "Try save to file image. outputFilePath = " << outputFilePath << ", size = " << scale;
 
-    std::visit(visitor{[&](std::vector<uint8> data)
-                       { SaveImage(data, vec3ui(image.size(), image.getChannelsCount()), outputFilePath, scale); },
-                       [&](const std::vector<float>& data)
-                       {
-                           std::string ext = outputFilePath.extension().string();
-                           std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+    std::visit(
+        visitor{[&](std::vector<uint8> data)
+                {
+                    LOG_DEBUG << "SaveImage for uint8 image";
+                    SaveImage(data, vec3ui(image.size(), image.getChannelsCount()), outputFilePath, scale);
+                },
+                [&](std::vector<uint16> data)
+                {
+                    LOG_DEBUG << "SaveImage for uint16 16-bit grayscale image";
+                    SaveImage16(data, vec3ui(image.size().x, image.size().y, image.getChannelsCount()), outputFilePath, scale);
+                },
+                [&](const std::vector<float>& data)
+                {
+                    std::string ext = outputFilePath.extension().string();
+                    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
-                           if (image.getChannelsCount() == 1 and ext == "png")
-                           {
-                               LOG_DEBUG << "SaveImage for floats, converting to uint8 image";
+                    if (image.getChannelsCount() == 1 and ext == "png")
+                    {
+                        LOG_DEBUG << "SaveImage for floats, converting to uint8 image";
 
-                               float min = data.front();
-                               float max = data.front();
-                               for (auto value : data)
-                               {
-                                   if (value < min)
-                                       min = value;
+                        float min = data.front();
+                        float max = data.front();
+                        for (auto value : data)
+                        {
+                            if (value < min)
+                                min = value;
 
-                                   if (value > max)
-                                       max = value;
-                               }
+                            if (value > max)
+                                max = value;
+                        }
 
-                               std::vector<uint8> udata;
-                               udata.reserve(data.size() * 4);
+                        std::vector<uint8> udata;
+                        udata.reserve(data.size() * 4);
 
-                               for (auto value : data)
-                               {
-                                   auto normalized = static_cast<uint8>((value - min) / (max - min) * 255);
-                                   udata.push_back(normalized);
-                                   udata.push_back(normalized);
-                                   udata.push_back(normalized);
-                                   udata.push_back(255);
-                               }
+                        for (auto value : data)
+                        {
+                            auto normalized = static_cast<uint8>((value - min) / (max - min) * 255);
+                            udata.push_back(normalized);
+                            udata.push_back(normalized);
+                            udata.push_back(normalized);
+                            udata.push_back(255);
+                        }
 
-                               SaveImage(udata, vec3ui(image.size(), image.getChannelsCount()), outputFilePath, scale);
-                           }
-                           else
-                           {
-                               SaveImage(data, vec3ui(image.size().x, image.size().y, image.getChannelsCount()), outputFilePath,
-                                         scale);
-                           }
-                       },
-                       [](std::monostate) { LOG_ERROR << "Data not set!"; }},
-               image.getImageData());
+                        SaveImage(udata, vec3ui(image.size(), image.getChannelsCount()), outputFilePath, scale);
+                    }
+                    else
+                    {
+                        SaveImage(data, vec3ui(image.size().x, image.size().y, image.getChannelsCount()), outputFilePath, scale);
+                    }
+                },
+                [](std::monostate) { LOG_ERROR << "Data not set!"; }},
+        image.getImageData());
 }
 
 template <class T>

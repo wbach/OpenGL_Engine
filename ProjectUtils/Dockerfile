@@ -83,6 +83,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libvulkan-dev \
     vulkan-tools \
     vulkan-sdk \
+    gdal-bin \
+    libgdal-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Konfiguracja SSH i generowanie host keys

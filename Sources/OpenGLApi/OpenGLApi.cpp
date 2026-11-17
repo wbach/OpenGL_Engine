@@ -151,37 +151,56 @@ void GL_APIENTRY OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLen
     LOG_ERROR << "Message: " << message;
     LOG_ERROR << "ID: " << id;
 
-    auto getSourceString = [](GLenum source) -> std::string {
+    auto getSourceString = [](GLenum source) -> std::string
+    {
         switch (source)
         {
-            case GL_DEBUG_SOURCE_API:           return "API";
-            case GL_DEBUG_SOURCE_WINDOW_SYSTEM: return "Window System";
-            case GL_DEBUG_SOURCE_SHADER_COMPILER: return "Shader Compiler";
-            case GL_DEBUG_SOURCE_THIRD_PARTY:    return "Third Party";
-            case GL_DEBUG_SOURCE_APPLICATION:    return "Application";
-            default:                               return "Other";
+            case GL_DEBUG_SOURCE_API:
+                return "API";
+            case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+                return "Window System";
+            case GL_DEBUG_SOURCE_SHADER_COMPILER:
+                return "Shader Compiler";
+            case GL_DEBUG_SOURCE_THIRD_PARTY:
+                return "Third Party";
+            case GL_DEBUG_SOURCE_APPLICATION:
+                return "Application";
+            default:
+                return "Other";
         }
     };
 
-    auto getTypeString = [](GLenum type) -> std::string {
+    auto getTypeString = [](GLenum type) -> std::string
+    {
         switch (type)
         {
-            case GL_DEBUG_TYPE_ERROR:             return "Error";
-            case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "Deprecated Behaviour";
-            case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: return "Undefined Behaviour";
-            case GL_DEBUG_TYPE_PORTABILITY:       return "Portability";
-            case GL_DEBUG_TYPE_PERFORMANCE:       return "Performance";
-            default:                                return "Other";
+            case GL_DEBUG_TYPE_ERROR:
+                return "Error";
+            case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+                return "Deprecated Behaviour";
+            case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+                return "Undefined Behaviour";
+            case GL_DEBUG_TYPE_PORTABILITY:
+                return "Portability";
+            case GL_DEBUG_TYPE_PERFORMANCE:
+                return "Performance";
+            default:
+                return "Other";
         }
     };
 
-    auto getSeverityString = [](GLenum severity) -> std::string {
+    auto getSeverityString = [](GLenum severity) -> std::string
+    {
         switch (severity)
         {
-            case GL_DEBUG_SEVERITY_HIGH:   return "HIGH";
-            case GL_DEBUG_SEVERITY_MEDIUM: return "MEDIUM";
-            case GL_DEBUG_SEVERITY_LOW:    return "LOW";
-            default:                        return "NOTIFICATION";
+            case GL_DEBUG_SEVERITY_HIGH:
+                return "HIGH";
+            case GL_DEBUG_SEVERITY_MEDIUM:
+                return "MEDIUM";
+            case GL_DEBUG_SEVERITY_LOW:
+                return "LOW";
+            default:
+                return "NOTIFICATION";
         }
     };
 
@@ -631,7 +650,8 @@ void OpenGLApi::TakeSnapshot(const std::filesystem::path& path) const
     }
 }
 
-void OpenGLApi::TakeTextureSnapshot(uint32 id, const GraphicsApi::TextureInfo& textureInfo, const std::filesystem::path& path) const
+void OpenGLApi::TakeTextureSnapshot(uint32 id, const GraphicsApi::TextureInfo& textureInfo,
+                                    const std::filesystem::path& path) const
 {
     auto resultData = GetTextureData(id);
 
@@ -642,7 +662,8 @@ void OpenGLApi::TakeTextureSnapshot(uint32 id, const GraphicsApi::TextureInfo& t
     Utils::SaveImage(resultData, textureInfo.size, folderPath / fileName);
 }
 
-void OpenGLApi::TakeTextureArraySnapshot(uint32 id, const GraphicsApi::TextureInfo& textureInfo, const std::filesystem::path& path) const
+void OpenGLApi::TakeTextureArraySnapshot(uint32 id, const GraphicsApi::TextureInfo& textureInfo,
+                                         const std::filesystem::path& path) const
 {
     auto resultData = GetTextureData(id);
 
@@ -654,8 +675,7 @@ void OpenGLApi::TakeTextureArraySnapshot(uint32 id, const GraphicsApi::TextureIn
 
     for (size_t layer = 0; layer < numLayers; ++layer)
     {
-        std::vector<uint8> layerData(resultData.begin() + (layer * layerSize),
-                                      resultData.begin() + ((layer + 1) * layerSize));
+        std::vector<uint8> layerData(resultData.begin() + (layer * layerSize), resultData.begin() + ((layer + 1) * layerSize));
 
         auto fileName = "layer_" + std::to_string(layer) + ".png";
         Utils::SaveImage(layerData, textureInfo.size, (fullPath / fileName).string());
@@ -665,8 +685,7 @@ void OpenGLApi::TakeTextureArraySnapshot(uint32 id, const GraphicsApi::TextureIn
 
 void OpenGLApi::TakeFrameBufferSnapshot(uint32 id, IFrameBuffer& framebuffer, const std::filesystem::path& path) const
 {
-    const std::filesystem::path fullPath =
-        path / "FrameBuffersTextures" / ("FrameBuffer_" + std::to_string(framebuffer.GetId()));
+    const std::filesystem::path fullPath = path / "FrameBuffersTextures" / ("FrameBuffer_" + std::to_string(framebuffer.GetId()));
 
     Utils::CreateDirectories(fullPath);
     framebuffer.TakeSnapshot(fullPath);
@@ -717,10 +736,10 @@ void OpenGLApi::CreateDebugNormalMesh(uint32 rid, const GraphicsApi::MeshRawData
     if (not meshRawData.positions_.empty() and not meshRawData.normals_.empty())
     {
         DebugNormalMesh dm;
-        dm.id_ = rid;
+        dm.id_       = rid;
         dm.position_ = meshRawData.positions_;
-        dm.normal_ = meshRawData.normals_;
-        dm.tangent_ = meshRawData.tangents_;
+        dm.normal_   = meshRawData.normals_;
+        dm.tangent_  = meshRawData.tangents_;
 
         UpdateDebugNormalMeshBuffers(rid, dm);
     }
@@ -729,7 +748,7 @@ void OpenGLApi::CreateDebugNormalMesh(uint32 rid, const GraphicsApi::MeshRawData
 void OpenGLApi::UpdateDebugNormalMeshBuffers(uint32 rid, const DebugNormalMesh& dm)
 {
     impl_->debugNormalsMesh_[rid] = dm;
-    auto& current_dm = impl_->debugNormalsMesh_[rid];
+    auto& current_dm              = impl_->debugNormalsMesh_[rid];
 
     if (not current_dm.id_)
     {
@@ -757,18 +776,15 @@ void OpenGLApi::UpdateDebugNormalMeshBuffers(uint32 rid, const DebugNormalMesh& 
         obj.vertexCount = static_cast<GLsizei>(current_dm.position_.size());
 
         glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::POSITION]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * current_dm.position_.size(), &current_dm.position_[0],
-                     GL_STREAM_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * current_dm.position_.size(), &current_dm.position_[0], GL_STREAM_DRAW);
         obj.sizeInBytes += sizeof(float) * current_dm.position_.size();
 
         glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::NORMAL]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * current_dm.normal_.size(), &current_dm.normal_[0],
-                     GL_STREAM_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * current_dm.normal_.size(), &current_dm.normal_[0], GL_STREAM_DRAW);
         obj.sizeInBytes += sizeof(float) * current_dm.normal_.size();
 
         glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::TANGENT]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * current_dm.tangent_.size(), &current_dm.tangent_[0],
-                     GL_STREAM_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * current_dm.tangent_.size(), &current_dm.tangent_[0], GL_STREAM_DRAW);
         obj.sizeInBytes += sizeof(float) * current_dm.tangent_.size();
 
         allocatedBytes(obj.sizeInBytes - sizeInBytesBeforeUpdate);
@@ -1116,7 +1132,7 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const Utils::Image& image, GraphicsApi:
         LOG_DEBUG << errorString;
         return {};
     }
-    GraphicsApi::TextureType type{GraphicsApi::TextureType ::U8_RGBA};
+    GraphicsApi::TextureType type{GraphicsApi::TextureType::U8_RGBA};
     uint32 dataTypeSize = 0;
     auto channels       = image.getChannelsCount();
     std::visit(
@@ -1130,7 +1146,27 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const Utils::Image& image, GraphicsApi:
                         dataTypeSize = sizeof(uint8) * 4;
                         break;
                     default:
-                        LOG_ERROR << "Not implmented.";
+                        LOG_ERROR << "Not implemented.";
+                }
+            },
+            [&](const std::vector<uint16>&)
+            {
+                switch (channels)
+                {
+                    case 1:
+                        type         = GraphicsApi::TextureType::U16_RED; // lub odpowiednik w Twoim enumie dla 16-bit
+                        dataTypeSize = sizeof(uint16);       // 2 bajty na jeden kanał
+                        break;
+                    case 2:
+                        type         = GraphicsApi::TextureType::U16_RG;
+                        dataTypeSize = sizeof(uint16) * 2;
+                        break;
+                    case 4:
+                        type         = GraphicsApi::TextureType::U16_RGBA;
+                        dataTypeSize = sizeof(uint16) * 4;
+                        break;
+                    default:
+                        LOG_ERROR << "Not implemented channels for uint16 texture.";
                 }
             },
             [&](const std::vector<float>&)
@@ -1154,9 +1190,8 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const Utils::Image& image, GraphicsApi:
                         dataTypeSize = sizeof(float) * 4;
                         break;
                     default:
-                        LOG_ERROR << "Not implmented.";
+                        LOG_ERROR << "Not implemented.";
                 }
-                dataTypeSize = sizeof(float);
             },
             [](std::monostate) { LOG_ERROR << "Image data not set!"; },
         },
@@ -1212,6 +1247,42 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const std::vector<Utils::Image>& images
                                glFormat         = GL_RGBA;
                                glDataType       = GL_UNSIGNED_BYTE;
                                pixelSize        = sizeof(uint8) * 4;
+                           }
+                           else if (channels == 1)
+                           {
+                               type             = GraphicsApi::TextureType::U8_RED;
+                               glInternalFormat = GL_R8;
+                               glFormat         = GL_RED;
+                               glDataType       = GL_UNSIGNED_BYTE;
+                               pixelSize        = sizeof(uint8) * 1;
+                           }
+                       },
+                       [&](const std::vector<uint16>&)
+                       {
+                           glDataType = GL_UNSIGNED_SHORT;
+                           switch (channels)
+                           {
+                               case 1:
+                                   type             = GraphicsApi::TextureType::U16_RED;
+                                   glInternalFormat = GL_R16;
+                                   glFormat         = GL_RED;
+                                   pixelSize        = sizeof(uint16) * 1;
+                                   break;
+                               case 2:
+                                   type             = GraphicsApi::TextureType::U16_RG;
+                                   glInternalFormat = GL_RG16;
+                                   glFormat         = GL_RG;
+                                   pixelSize        = sizeof(uint16) * 2;
+                                   break;
+                               case 4:
+                                   type             = GraphicsApi::TextureType::U16_RGBA;
+                                   glInternalFormat = GL_RGBA16;
+                                   glFormat         = GL_RGBA;
+                                   pixelSize        = sizeof(uint16) * 4;
+                                   break;
+                               default:
+                                   LOG_ERROR << "Unsupported number of channels for uint16 texture: " << channels;
+                                   break;
                            }
                        },
                        [&](const std::vector<float>&)

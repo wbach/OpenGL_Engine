@@ -124,6 +124,7 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
     {
         outputFile.ChangeExtension("terrain");
     }
+
     auto heightMap = componentContext_.resourceManager_.GetTextureLoader().CreateHeightMap(
         outputFile, vec2ui(heightmapResultuion), heightMapParameters_);
 
@@ -417,7 +418,6 @@ void TerrainComponentBase::LoadHeightMap(const File &file)
     if (texture)
     {
         LOG_DEBUG << texture->GetImage();
-        ;
         SetTexture(TerrainTextureType::heightmap, texture);
         heightMap_ = static_cast<HeightMap *>(texture);
     }
