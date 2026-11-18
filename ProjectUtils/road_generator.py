@@ -20,18 +20,12 @@ Wyjście:
       tile_x001_z000.obj
       ...
       manifest.json
+      Roads.prefab.xml
 
-Każdy OBJ jest jednym modelem/kafelkiem. W jego obrębie obiekty OBJ (o)
-są grupowane według klasy materiału. Silnik może zaimportować je jako
-oddzielne meshe. Zachowanie podziału obiektów zależy od ustawień Assimp.
-
-Układ współrzędnych:
-    X = wschód
-    Y = wysokość
-    Z = północ
-    środek mapy = (0, 0)
-    zakres XY mapy = [-radius, +radius]
-    heightmap row_order = north_to_south
+Układ współrzędnych w OBJ:
+    Lokalny dla każdego kafelka (środek kafelka to 0,0,0), co zapobiega
+    problemom z precyzją zmiennoprzecinkową i widocznością w edytorach (np. Blender).
+    UV są ciągłe w skali całej mapy.
 """
 
 import argparse
@@ -93,7 +87,6 @@ def log(msg):
 def parse_width(tags, highway):
     value = tags.get("width")
     if value:
-        # OSM zwykle zapisuje szerokość jako "4.5" lub "4.5 m".
         cleaned = value.lower().replace(",", ".").replace("meters", "").replace("meter", "").replace("m", "").strip()
         try:
             width = float(cleaned)
@@ -124,7 +117,7 @@ def load_heightmap(raw_path, metadata_path):
     if meta["encoding"] != "normalized_uint16":
         raise ValueError("Obsługiwane jest wyłącznie encoding=normalized_uint16.")
     if meta["endianness"] != "little":
-        raise ValueError("Obsługiwany jest wyłącznie little-endian.")
+        raise ValueError("Obsługiwane jest wyłącznie little-endian.")
 
     width = int(meta["heightmap_width"])
     height = int(meta["heightmap_height"])
@@ -148,7 +141,6 @@ def sample_elevation(data, meta, x, z):
     px = float(meta["pixel_size_x_m"])
     pz = float(meta["pixel_size_z_m"])
 
-    # Współrzędne indeksowe względem środków pikseli.
     col = (x + radius) / px - 0.5
     row = (radius - z) / pz - 0.5
     col = min(max(col, 0.0), w - 1.0)
@@ -171,14 +163,10 @@ def sample_elevation(data, meta, x, z):
 
 
 def fetch_osm_roads(meta, timeout, include_paths):
-    """Pobiera drogi z Overpass dla geograficznego bbox otaczającego mapę."""
     lat = float(meta["center_lat"])
     lon = float(meta["center_lon"])
     radius = float(meta["radius_km"]) * 1000.0
 
-    # Bbox z zapasem. Dla niewielkich polskich obszarów przybliżenie
-    # stopniowe jest wystarczające do pobrania, geometria jest potem
-    # dokładnie transformowana i przycinana w AEQD.
     dlat = radius / 110540.0
     dlon = radius / max(1.0, 111320.0 * math.cos(math.radians(lat)))
     south, west = lat - dlat, lon - dlon
@@ -209,7 +197,6 @@ def fetch_osm_roads(meta, timeout, include_paths):
 
 
 def densify_coords(coords, spacing):
-    """Wstawia punkty pośrednie, aby ograniczyć długość segmentu."""
     if len(coords) < 2:
         return coords
     result = [coords[0]]
@@ -239,10 +226,8 @@ def polygon_parts(geom):
 
 
 def triangulate_polygon(poly):
-    """Triangulacja z odrzuceniem trójkątów leżących poza polygonem."""
     result = []
     for tri in triangulate(poly):
-        # Reprezentatywny punkt zabezpiecza przed trójkątami poza obrysem.
         if poly.covers(tri):
             coords = list(tri.exterior.coords)[:3]
             if len(coords) == 3:
@@ -266,11 +251,86 @@ def write_mtl(path):
             f.write("illum 2\n\n")
 
 
-def write_obj(path, mtl_name, groups, uv_scale, elevation_offset):
+def write_prefab_xml(out_dir, manifest):
+    """
+    Zapisuje prefab XML dla silnika gry.
+    Root: <prefab> z id=333
+    Children: <gameObject> dla każdego kafelka z RendererComponent.
+    """
+    tile_size = manifest["tile_size_m"]
+    radius_km = float(manifest.get("radius_km", 0))
+
+    prefab_path = out_dir / "Roads.prefab.xml"
+    with open(prefab_path, "w", encoding="utf-8") as f:
+        f.write('<prefab layer="1" tag="" id="333" name="Roads">\n')
+        f.write("  <localTransform>\n")
+        f.write("    <position z=\"0.000000\" y=\"0.000000\" x=\"0.000000\"/>\n")
+        f.write("    <rotation z=\"0.000000\" y=\"-0.000000\" x=\"0.000000\"/>\n")
+        f.write("    <scale z=\"1.000000\" y=\"1.000000\" x=\"1.000000\"/>\n")
+        f.write("  </localTransform>\n")
+        f.write("  <components count=\"0\"/>\n")
+        f.write("  <children>\n")
+
+        base_id = 334
+        for idx, tile in enumerate(manifest["tiles"]):
+            tx = tile["x"]
+            tz = tile["z"]
+            tile_id = base_id + idx
+
+            # Środek kafelka w świecie (zgodny z pozycją transformacji GameObjectu)
+            min_x, min_z, max_x, max_z = tile["bounds_xz_m"]
+            pos_x = min_x + (max_x - min_x) * 0.5
+            pos_z = min_z + (max_z - min_z) * 0.5
+
+            filename = tile["file"]
+            f.write(f"    <gameObject layer=\"1\" tag=\"\" id=\"{tile_id}\" name=\"tile_x{tx:03d}_z{tz:03d}\">\n")
+            f.write("      <localTransform>\n")
+            f.write(f"        <position z=\"{pos_z:.6f}\" y=\"0.000000\" x=\"{pos_x:.6f}\"/>\n")
+            f.write("        <rotation z=\"0.000000\" y=\"-0.000000\" x=\"0.000000\"/>\n")
+            f.write("        <scale z=\"1.000000\" y=\"1.000000\" x=\"1.000000\"/>\n")
+            f.write("      </localTransform>\n")
+            f.write("      <components count=\"1\">\n")
+            f.write("        <component tag=\"\" active=\"true\" type=\"RendererComponent\">\n")
+            f.write("          <textureIndex>0</textureIndex>\n")
+            f.write("          <modelNormalization>false</modelNormalization>\n")
+            f.write("          <meshOptimize>false</meshOptimize>\n")
+            f.write("          <modelFileNames>\n")
+            f.write("            <modelFileName>\n")
+            f.write("              <fileName/>\n")
+            f.write("              <lvlOfDetail>2</lvlOfDetail>\n")
+            f.write("            </modelFileName>\n")
+            f.write("            <modelFileName>\n")
+            f.write("              <fileName/>\n")
+            f.write("              <lvlOfDetail>1</lvlOfDetail>\n")
+            f.write("            </modelFileName>\n")
+            f.write("            <modelFileName>\n")
+            f.write(f"              <fileName>{filename}</fileName>\n")
+            f.write("              <lvlOfDetail>0</lvlOfDetail>\n")
+            f.write("            </modelFileName>\n")
+            f.write("          </modelFileNames>\n")
+            f.write("          <materials>\n")
+            f.write("            <material>\n")
+            f.write("              <name>noName</name>\n")
+            f.write("              <fileName/>\n")
+            f.write("            </material>\n")
+            f.write("          </materials>\n")
+            f.write("          <primitives>\n")
+            f.write("            <primitive>Cube</primitive>\n")
+            f.write("          </primitives>\n")
+            f.write("        </component>\n")
+            f.write("      </components>\n")
+            f.write("    </gameObject>\n")
+
+        f.write("  </children>\n")
+        f.write("</prefab>\n")
+    log(f"Zapisano prefab XML: {prefab_path.name}")
+
+
+def write_obj(path, mtl_name, groups, uv_scale, elevation_offset, tile_center_x, tile_center_z):
     """
     groups: material -> list of triangles, każdy trójkąt to 3 punkty (x,z).
-    Wierzchołki są celowo współdzielone tylko w obrębie obiektu/materialu
-    przez prosty cache współrzędnych.
+    Współrzędne wierzchołków (v) są lokalne względem środka kafelka,
+    natomiast UV (vt) są liczone globalnie dla zachowania ciągłości tekstur.
     """
     with open(path, "w", encoding="utf-8") as f:
         f.write("# Generated by OSM Road Mesh Generator\n")
@@ -297,9 +357,16 @@ def write_obj(path, mtl_name, groups, uv_scale, elevation_offset):
                     idx = vertex_map.get(key)
                     if idx is None:
                         y = sample_elevation(HEIGHT_DATA, HEIGHT_META, x, z) + elevation_offset
+
+                        # Przeliczenie na współrzędne lokalne kafelka
+                        local_x = x - tile_center_x
+                        local_z = z - tile_center_z
+
                         idx = len(vertices) + 1
                         vertex_map[key] = idx
-                        vertices.append((x, y, z))
+                        vertices.append((local_x, y, local_z))
+
+                        # UV na bazie globalnych współrzędnych
                         texcoords.append((x / uv_scale, z / uv_scale))
                     face_indices.append(idx)
                 faces.append(face_indices)
@@ -348,7 +415,6 @@ def main():
 
     elements = fetch_osm_roads(meta, args.overpass_timeout, args.include_paths)
 
-    # Bufory geometrii dróg są przycinane do zasięgu mapy, a potem do kafelków.
     roads = []
     skipped = 0
     for element in elements:
@@ -372,8 +438,6 @@ def main():
             continue
 
         width = parse_width(tags, highway)
-        # cap_style=2 (flat), join_style=2 (mitre); ograniczenie mitre
-        # zapobiega bardzo długim ostrym narożnikom.
         surface = line.buffer(width / 2.0, cap_style=2, join_style=2, mitre_limit=2.0)
         surface = surface.intersection(world)
         if surface.is_empty:
@@ -400,6 +464,7 @@ def main():
         "axis": {"x": "east", "y": "up", "z": "north"},
         "center_lat": meta["center_lat"],
         "center_lon": meta["center_lon"],
+        "radius_km": meta["radius_km"],
         "tile_size_m": args.tile_size,
         "heightmap_raw": str(Path(args.heightmap).name),
         "heightmap_metadata": str(Path(args.metadata).name),
@@ -410,8 +475,6 @@ def main():
     total_triangles = 0
     for tz in range(tile_count):
         for tx in range(tile_count):
-            # Kafelki indeksowane od południowego-zachodu; współrzędne
-            # modelu nadal są względem środka mapy.
             min_x = -radius + tx * args.tile_size
             min_z = -radius + tz * args.tile_size
             max_x = min(min_x + args.tile_size, radius)
@@ -433,11 +496,16 @@ def main():
             if tri_count == 0:
                 continue
 
+            # Wyznaczenie środka kafelka w układzie świata
+            center_x = min_x + (max_x - min_x) * 0.5
+            center_z = min_z + (max_z - min_z) * 0.5
+
             filename = f"tile_x{tx:03d}_z{tz:03d}.obj"
             obj_path = out_dir / filename
             write_obj(
                 obj_path, "roads.mtl", groups,
-                args.uv_scale, args.elevation_offset
+                args.uv_scale, args.elevation_offset,
+                center_x, center_z
             )
             total_triangles += tri_count
             manifest["tiles"].append({
@@ -451,8 +519,15 @@ def main():
 
     manifest["total_tiles"] = len(manifest["tiles"])
     manifest["total_triangles"] = total_triangles
-    with open(out_dir / "manifest.json", "w", encoding="utf-8") as f:
+
+    # Zapis pliku manifestu
+    manifest_path = out_dir / "manifest.json"
+    with open(manifest_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
+    log(f"Zapisano manifest: {manifest_path.name}")
+
+    # DODANE: Wywołanie zapisu prefaba XML po zakończeniu eksportu
+    write_prefab_xml(out_dir, manifest)
 
     log("\n========== GOTOWE ==========")
     log(f"Kafelki/model: {len(manifest['tiles'])}")
