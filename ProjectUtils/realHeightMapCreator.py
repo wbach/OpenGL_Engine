@@ -612,6 +612,9 @@ def main():
             keep_zero_elevation=args.keep_zero_elevation,
         )
 
+        # Odwrócenie osi X w tablicy wysokości, żeby pasowało do dróg i silnika
+        destination = np.fliplr(destination)
+
         save_heightmap(
             destination=destination,
             center_lat=args.lat,
