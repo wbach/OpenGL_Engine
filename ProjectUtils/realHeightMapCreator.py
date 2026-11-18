@@ -133,6 +133,38 @@ def fetch_tile(wcs, coverage_id, bbox, resolution_m, output_format, timeout_retr
     raise RuntimeError(f"Nie udało się pobrać kafelka: {last_error}")
 
 
+def fill_missing_with_neighbor_mean(array, positions, max_radius=5):
+    """Wypełnia wskazane piksele średnią z poprawnych pikseli w sąsiedztwie.
+
+    Każdy przebieg korzysta z kopii danych sprzed uzupełniania, więc nowo
+    interpolowane wartości nie wpływają na średnią kolejnych braków.
+    Zwraca listę (row, col, radius) oraz pozycje, których nie udało się wypełnić.
+    """
+    source = array.copy()
+    pending = list(positions)
+    filled = []
+
+    for radius in (1, 2, 3, max_radius):
+        if not pending:
+            break
+        still_pending = []
+        for row, col in pending:
+            r0 = max(0, row - radius)
+            r1 = min(array.shape[0], row + radius + 1)
+            c0 = max(0, col - radius)
+            c1 = min(array.shape[1], col + radius + 1)
+            patch = source[r0:r1, c0:c1]
+            valid = np.isfinite(patch)
+            if np.any(valid):
+                array[row, col] = float(np.mean(patch[valid], dtype=np.float64))
+                filled.append((row, col, radius))
+            else:
+                still_pending.append((row, col))
+        pending = still_pending
+
+    return filled, pending
+
+
 def download_and_reproject(
     wcs,
     coverage_id,
@@ -169,6 +201,8 @@ def download_and_reproject(
 
     windows = list(make_tile_windows(width_px, height_px, tile_px))
     total_tiles = len(windows)
+    tile_diagnostics = []
+    pixel_diagnostics = []
 
     log("\nParametry pobierania kafelkowego:")
     log(f"  Obszar: {world_size_m:.1f} x {world_size_m:.1f} m")
@@ -254,36 +288,124 @@ def download_and_reproject(
                     init_dest_nodata=True,
                 )
 
+        # Najpierw sprawdzamy braki w pojedynczym kafelku i próbujemy
+        # uzupełnić je średnią z poprawnych pikseli tego samego kafelka.
+        missing_rows, missing_cols = np.where(~np.isfinite(tile_destination))
+        missing_before = len(missing_rows)
+        local_positions = list(zip(missing_rows.tolist(), missing_cols.tolist()))
+        local_filled, local_pending = fill_missing_with_neighbor_mean(
+            tile_destination, local_positions, max_radius=5
+        )
+
         destination[row0:row1, col0:col1] = tile_destination
 
-        tile_valid = np.isfinite(tile_destination)
-        valid_count = int(np.count_nonzero(tile_valid))
+        for local_row, local_col, radius in local_filled:
+            pixel_diagnostics.append({
+                "tile": index,
+                "row": row0 + local_row,
+                "column": col0 + local_col,
+                "method": "neighbor_mean_within_tile",
+                "radius_px": radius,
+            })
+
+        # Braki bez lokalnych sąsiadów zapamiętujemy do drugiego przebiegu,
+        # kiedy dostępne będą już również dane z sąsiednich kafelków.
+        for local_row, local_col in local_pending:
+            pixel_diagnostics.append({
+                "tile": index,
+                "row": row0 + local_row,
+                "column": col0 + local_col,
+                "method": "pending_global_neighbor_mean",
+            })
+
+        tile_diagnostics.append({
+            "tile": index,
+            "row_start": row0,
+            "row_end": row1,
+            "column_start": col0,
+            "column_end": col1,
+            "missing_before_fill": missing_before,
+            "filled_within_tile": len(local_filled),
+            "pending_for_global_fill": len(local_pending),
+        })
+
+        valid_after_tile = int(np.count_nonzero(np.isfinite(tile_destination)))
         tile_count = tile_destination.size
         log(
             f"  Odebrano {len(tile_bytes) / 1024 / 1024:.2f} MB; "
-            f"poprawne piksele kafelka: {valid_count:,}/{tile_count:,}"
+            f"braki wykryte: {missing_before}; "
+            f"uzupełniono średnią sąsiadów w kafelku: {len(local_filled)}; "
+            f"pozostało do sprawdzenia globalnie: {len(local_pending)}; "
+            f"poprawne po naprawie: {valid_after_tile:,}/{tile_count:,}"
         )
 
-    valid = np.isfinite(destination)
-    valid_count = int(np.count_nonzero(valid))
+    # Drugi przebieg: braki, których nie dało się uzupełnić w kafelku,
+    # sprawdzamy w większym sąsiedztwie już złożonej heightmapy.
+    pending_global = [
+        (item["row"], item["column"])
+        for item in pixel_diagnostics
+        if item["method"] == "pending_global_neighbor_mean"
+    ]
+    global_filled, still_missing = fill_missing_with_neighbor_mean(
+        destination, pending_global, max_radius=10
+    )
+    global_radius = {(r, c): radius for r, c, radius in global_filled}
+
+    for item in pixel_diagnostics:
+        key = (item["row"], item["column"])
+        if key in global_radius:
+            item["method"] = "neighbor_mean_across_tiles"
+            item["radius_px"] = global_radius[key]
+
+    # Ostateczny fallback zapewnia zapis pełnej mapy. Powinien być użyty
+    # wyłącznie wtedy, gdy w promieniu 10 pikseli nie ma żadnej próbki.
+    fallback_value = None
+    if still_missing:
+        valid_values = destination[np.isfinite(destination)]
+        if valid_values.size == 0:
+            raise RuntimeError("Nie ma żadnych poprawnych wysokości do utworzenia heightmapy.")
+        fallback_value = float(np.mean(valid_values, dtype=np.float64))
+        for row, col in still_missing:
+            destination[row, col] = fallback_value
+            pixel_diagnostics.append({
+                "tile": None,
+                "row": row,
+                "column": col,
+                "method": "global_map_mean_fallback",
+                "radius_px": None,
+            })
+
+    valid_count = int(np.count_nonzero(np.isfinite(destination)))
     total_count = destination.size
-    missing_count = total_count - valid_count
+    remaining_count = total_count - valid_count
+    original_missing = sum(item["missing_before_fill"] for item in tile_diagnostics)
+    filled_local = sum(item["filled_within_tile"] for item in tile_diagnostics)
+    filled_global = len(global_filled)
+    fallback_count = len(still_missing)
 
-    log("\nPodsumowanie pokrycia:")
-    log(f"  Poprawne piksele: {valid_count:,}/{total_count:,}")
-    log(f"  Brakujące piksele: {missing_count:,}")
+    log("\nPodsumowanie pokrycia i napraw:")
+    log(f"  Braki wykryte w kafelkach: {original_missing:,}")
+    log(f"  Uzupełnione średnią sąsiadów w kafelku: {filled_local:,}")
+    log(f"  Uzupełnione średnią sąsiadów z innych kafelków: {filled_global:,}")
+    log(f"  Uzupełnione średnią całej mapy (fallback): {fallback_count:,}")
+    log(f"  Braki po naprawie: {remaining_count:,}")
+    log(f"  Poprawne piksele końcowe: {valid_count:,}/{total_count:,}")
 
-    if missing_count:
-        missing_pct = 100.0 * missing_count / total_count
-        # raise RuntimeError(
-        #     f"Po pobraniu kafelków nadal brakuje {missing_count:,} "
-        #     f"pikseli ({missing_pct:.2f}% obszaru). "
-        #     "Nie zapisuję niekompletnej heightmapy. "
-        #     "Może to oznaczać brak danych NMT w części obszaru "
-        #     "albo obszary NoData zwracane przez usługę."
-        # )
+    diagnostics = {
+        "original_missing_pixels": original_missing,
+        "filled_within_tile": filled_local,
+        "filled_across_tiles": filled_global,
+        "filled_with_global_map_mean": fallback_count,
+        "remaining_missing_pixels": remaining_count,
+        "tiles": tile_diagnostics,
+        "pixels": pixel_diagnostics,
+        "global_fallback_value_m": fallback_value,
+    }
 
-    return destination, local_crs, width_px, height_px, pixel_x, pixel_z
+    return (
+        destination, local_crs, width_px, height_px, pixel_x, pixel_z,
+        diagnostics,
+    )
 
 
 def save_heightmap(
@@ -298,6 +420,7 @@ def save_heightmap(
     pixel_z,
     keep_zero_elevation,
     tile_size_m,
+    diagnostics,
 ):
     valid = np.isfinite(destination)
     if not np.any(valid):
@@ -355,12 +478,48 @@ def save_heightmap(
         "download_method": "WCS tiled requests",
         "tile_size_m": tile_size_m,
         "zero_treated_as_nodata": not keep_zero_elevation,
+        "gap_repair": {
+            "original_missing_pixels": diagnostics["original_missing_pixels"],
+            "filled_within_tile": diagnostics["filled_within_tile"],
+            "filled_across_tiles": diagnostics["filled_across_tiles"],
+            "filled_with_global_map_mean": diagnostics["filled_with_global_map_mean"],
+            "remaining_missing_pixels": diagnostics["remaining_missing_pixels"],
+        },
     }
 
     json_path = output_prefix + ".json"
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(metadata, f, indent=4, ensure_ascii=False)
     log(f"Zapisano JSON: {json_path}")
+
+    report_path = output_prefix + "_report.txt"
+    with open(report_path, "w", encoding="utf-8") as report:
+        report.write("RAPORT KONTROLI HEIGHTMAPY\n")
+        report.write("===========================\n\n")
+        report.write(f"Braki wykryte przed naprawą: {diagnostics['original_missing_pixels']}\n")
+        report.write(f"Uzupełnione średnią sąsiadów w kafelku: {diagnostics['filled_within_tile']}\n")
+        report.write(f"Uzupełnione średnią sąsiadów z innych kafelków: {diagnostics['filled_across_tiles']}\n")
+        report.write(f"Uzupełnione średnią całej mapy (fallback): {diagnostics['filled_with_global_map_mean']}\n")
+        report.write(f"Braki po naprawie: {diagnostics['remaining_missing_pixels']}\n")
+        if diagnostics["global_fallback_value_m"] is not None:
+            report.write(f"Wartość awaryjna [m]: {diagnostics['global_fallback_value_m']:.3f}\n")
+        report.write("\nKAFELKI, W KTÓRYCH WYKRYTO BRAKI\n--------------------------------\n")
+        for tile in diagnostics["tiles"]:
+            if tile["missing_before_fill"]:
+                report.write(
+                    f"Kafelek {tile['tile']}: rows={tile['row_start']}:{tile['row_end']}, "
+                    f"cols={tile['column_start']}:{tile['column_end']}; "
+                    f"braki={tile['missing_before_fill']}, "
+                    f"naprawione lokalnie={tile['filled_within_tile']}, "
+                    f"pozostałe do naprawy globalnej={tile['pending_for_global_fill']}\n"
+                )
+        report.write("\nLOKALIZACJE I METODY UZUPEŁNIENIA\n---------------------------------\n")
+        for item in diagnostics["pixels"]:
+            report.write(
+                f"tile={item['tile']}, row={item['row']}, col={item['column']}, "
+                f"method={item['method']}, radius_px={item.get('radius_px')}\n"
+            )
+    log(f"Zapisano raport diagnostyczny: {report_path}")
 
     log("\n========== GOTOWE ==========")
     log(f"Heightmap: {width_px} x {height_px}")
@@ -439,6 +598,7 @@ def main():
             _height_px,
             pixel_x,
             pixel_z,
+            diagnostics,
         ) = download_and_reproject(
             wcs=wcs,
             coverage_id=coverage_id,
@@ -464,6 +624,7 @@ def main():
             pixel_z=pixel_z,
             keep_zero_elevation=args.keep_zero_elevation,
             tile_size_m=args.tile_size,
+            diagnostics=diagnostics,
         )
 
     except Exception as error:
