@@ -77,17 +77,25 @@ void TerrainMeshLoader::CreateAsSingleTerrain(Model& model, TerrainHeightTools& 
                              Material());
     auto heightMapResolution = tools.getHeightMapResolution();
 
-    ReserveMeshData(newMesh, heightMapResolution);
+    const uint32 vertexCount = (heightMapResolution - 1) / resolutionDivideFactor + 1;
+
+    ReserveMeshData(newMesh, vertexCount);
     CreateTerrainVertexes(tools, newMesh, 0, 0, heightMapResolution, heightMapResolution, resolutionDivideFactor);
-    CreateIndicies(newMesh, static_cast<IndicesDataType>(heightMapResolution / resolutionDivideFactor));
+    CreateIndicies(newMesh, static_cast<IndicesDataType>(vertexCount));
     model.AddMesh(std::move(newMesh));
 }
 
 void TerrainMeshLoader::CreatePartial(Model& model, TerrainHeightTools& tools, uint32 partsCount, uint32 resolutionDivideFactor)
 {
-    auto heightMapResolution = tools.getHeightMapResolution();
-    auto partialSize         = heightMapResolution / partsCount;
-    //    auto rest                = heightMapResolution - (partsCount * partialSize);
+    if (partsCount == 0 || resolutionDivideFactor == 0)
+    {
+        LOG_ERROR << "Invalid terrain parts count or resolution divider.";
+        return;
+    }
+
+    auto heightMapResolution      = tools.getHeightMapResolution();
+    const uint32 intervals        = heightMapResolution - 1;
+    const uint32 intervalsPerPart = (intervals / partsCount / resolutionDivideFactor) * resolutionDivideFactor;
 
     vec3 modelBoundingBoxMin(-0.5f, std::numeric_limits<float>::max(), -0.5f);
     vec3 modelBoundingBoxMax(0.5f, -std::numeric_limits<float>::max(), 0.5f);
@@ -98,14 +106,16 @@ void TerrainMeshLoader::CreatePartial(Model& model, TerrainHeightTools& tools, u
         {
             GameEngine::Mesh newMesh(GraphicsApi::RenderType::TRIAGNLE_STRIP, textureLoader_.GetGraphicsApi());
 
-            uint32 startX = i * partialSize;
-            uint32 startY = j * partialSize;
-            uint32 endX   = (i + 1) * partialSize + 1;
-            uint32 endY   = (j + 1) * partialSize + 1;
+            const uint32 startX       = i * intervalsPerPart;
+            const uint32 startY       = j * intervalsPerPart;
+            const uint32 endX         = (i == partsCount - 1) ? heightMapResolution : startX + intervalsPerPart + 1;
+            const uint32 endY         = (j == partsCount - 1) ? heightMapResolution : startY + intervalsPerPart + 1;
+            const uint32 vertexCountX = (endX - 1 - startX) / resolutionDivideFactor + 1;
+            const uint32 vertexCountY = (endY - 1 - startY) / resolutionDivideFactor + 1;
 
-            ReserveMeshData(newMesh, partialSize + 1);
+            ReserveMeshData(newMesh, std::max(vertexCountX, vertexCountY));
             CreateTerrainVertexes(tools, newMesh, startX, startY, endX, endY, resolutionDivideFactor);
-            CreateIndicies(newMesh, static_cast<IndicesDataType>(partialSize / resolutionDivideFactor + 1));
+            CreateIndicies(newMesh, static_cast<IndicesDataType>(vertexCountX));
 
             auto boundingBox = newMesh.getBoundingBox();
 
