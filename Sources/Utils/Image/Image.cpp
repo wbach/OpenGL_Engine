@@ -10,12 +10,8 @@ namespace Utils
 {
 struct ImageDataPtrVisitor
 {
-    const void* operator()(const std::vector<uint8>& input) const
-    {
-        return &input[0];
-    }
-
-    const void* operator()(const std::vector<float>& input) const
+    template<typename T>
+    const void* operator()(const std::vector<T>& input) const
     {
         return &input[0];
     }
@@ -28,12 +24,8 @@ struct ImageDataPtrVisitor
 
 struct ImageDataIsEmptyVisitor
 {
-    bool operator()(const std::vector<uint8>& input) const
-    {
-        return input.empty();
-    }
-
-    bool operator()(const std::vector<float>& input) const
+    template<typename T>
+    bool operator()(const std::vector<T>& input) const
     {
         return input.empty();
     }
@@ -46,12 +38,8 @@ struct ImageDataIsEmptyVisitor
 
 struct ImageDataClearVisitor
 {
-    void operator()(std::vector<uint8>& input) const
-    {
-        input.clear();
-    }
-
-    void operator()(std::vector<float>& input) const
+    template<typename T>
+    void operator()(std::vector<T>& input) const
     {
         input.clear();
     }

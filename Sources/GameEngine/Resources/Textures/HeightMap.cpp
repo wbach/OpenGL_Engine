@@ -19,6 +19,8 @@ HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, const TextureParame
         LOG_WARN << "Height map shouldbe one channel float data, but is : " << image.getChannelsCount();
     }
 
+    LOG_DEBUG << "Converting data type if needed";
+    image_.convertDataType<float>();
     UpdateMaximumHeight();
 }
 
@@ -108,22 +110,25 @@ bool HeightMap::UpdateMaximumHeight()
     auto maximumHeight{0.f};
     auto minimumHeight{0.f};
 
-    std::visit(visitor{[&](const std::vector<uint8>& data)
-                       {
-                           maximumHeight = static_cast<float>(*std::max_element(data.begin(), data.end()) / 255.f);
-                           minimumHeight = static_cast<float>(*std::min_element(data.begin(), data.end()) / 255.f);
-                       },
-                       [&](const std::vector<uint16>& data)
-                       {
-                           maximumHeight = static_cast<float>(*std::max_element(data.begin(), data.end())) / 65535.f;
-                           minimumHeight = static_cast<float>(*std::min_element(data.begin(), data.end())) / 65535.f;
-                       },
-                       [&](const std::vector<float>& data)
+    // after convert data type to float, onnly
+    // std::visit(visitor{[&](const std::vector<uint8>& data)
+    //                    {
+    //                        maximumHeight = static_cast<float>(*std::max_element(data.begin(), data.end()) / 255.f);
+    //                        minimumHeight = static_cast<float>(*std::min_element(data.begin(), data.end()) / 255.f);
+    //                    },
+    //                    [&](const std::vector<uint16>& data)
+    //                    {
+    //                        maximumHeight = static_cast<float>(*std::max_element(data.begin(), data.end())) / 65535.f;
+    //                        minimumHeight = static_cast<float>(*std::min_element(data.begin(), data.end())) / 65535.f;
+    //                    },
+
+    std::visit(visitor{[&](const std::vector<float>& data)
                        {
                            maximumHeight = *std::max_element(data.begin(), data.end());
                            minimumHeight = *std::min_element(data.begin(), data.end());
                        },
-                       [](std::monostate) { LOG_ERROR << "Image data not set!."; }},
+                       [](std::monostate) { LOG_ERROR << "Image data not set!."; },
+                       [](const auto&) { LOG_WARN << "Data should be converted to float type"; }},
                image_.getImageData());
 
     if (not compare(maximumHeight_, maximumHeight) or not compare(minimumHeight_, minimumHeight))

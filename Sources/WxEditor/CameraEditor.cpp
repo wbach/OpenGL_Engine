@@ -15,7 +15,7 @@ using namespace GameEngine;
 
 namespace
 {
-const float defaultCamSpeed         = 10.f;
+const float defaultCamSpeed         = 100.f;
 const float defaultCamRotationSpeed = 0.25f;
 const float defaultOrthoDistance    = 20.f;
 }  // namespace

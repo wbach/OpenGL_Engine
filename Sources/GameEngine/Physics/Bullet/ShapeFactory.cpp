@@ -4,6 +4,7 @@
 #include <Utils/Variant.h>
 #include <btBulletDynamicsCommon.h>
 
+#include <algorithm>
 #include <memory>
 #include <optional>
 #include <vector>
@@ -49,23 +50,41 @@ std::unique_ptr<Shape> ShapeFactory::CreateTerrain(const PositionOffset& positio
 {
     auto shape = std::make_unique<Shape>();
 
-    auto width  = static_cast<int>(heightMap.GetImage().width);
-    auto height = static_cast<int>(heightMap.GetImage().height);
+    float scaleY = scale.y;
+    auto width   = static_cast<int>(heightMap.GetImage().width);
+    auto height  = static_cast<int>(heightMap.GetImage().height);
+
+    if (heightMap.GetImage().empty())
+    {
+        LOG_WARN << "CreateTerrain error, heightmap image data is empty";
+        return nullptr;
+    }
+
     std::visit(
         visitor{
             [&](const std::vector<uint8>& data)
             {
-                shape->btShape_.reset(new btHeightfieldTerrainShape(width, height, &data[0], 1.f, heightMap.GetMinimumHeight(),
+                scaleY /= 255.f;
+                shape->btShape_.reset(new btHeightfieldTerrainShape(width, height, data.data(), 1.f, heightMap.GetMinimumHeight(),
                                                                     heightMap.GetMaximumHeight(), 1, PHY_UCHAR, false));
             },
             [&](const std::vector<uint16>& data)
             {
-                shape->btShape_.reset(new btHeightfieldTerrainShape(width, height, &data[0], 1.f, heightMap.GetMinimumHeight(),
+                scaleY /= 65535.f;
+
+                auto maxIt = std::ranges::max_element(data);
+                if (*maxIt > std::numeric_limits<int16_t>::max())
+                {
+                    LOG_WARN << "Height map value too high, Bullet doesn't support USHORT data type";
+                }
+
+                shape->btShape_.reset(new btHeightfieldTerrainShape(width, height, data.data(), 1.f, heightMap.GetMinimumHeight(),
                                                                     heightMap.GetMaximumHeight(), 1, PHY_SHORT, false));
             },
             [&](const std::vector<float>& data)
             {
-                shape->btShape_.reset(new btHeightfieldTerrainShape(width, height, &data[0], 1.f, heightMap.GetMinimumHeight(),
+                LOG_DEBUG << "";
+                shape->btShape_.reset(new btHeightfieldTerrainShape(width, height, data.data(), 1.f, heightMap.GetMinimumHeight(),
                                                                     heightMap.GetMaximumHeight(), 1, PHY_FLOAT, false));
             },
             [](std::monostate) { LOG_ERROR << "Height map data is not set!."; },
@@ -73,15 +92,11 @@ std::unique_ptr<Shape> ShapeFactory::CreateTerrain(const PositionOffset& positio
         heightMap.GetImage().getImageData());
 
     float scaleX = scale.x / static_cast<float>(heightMap.GetImage().width - 1);
-    float scaleY = scale.z / static_cast<float>(heightMap.GetImage().height - 1);
+    float scaleZ = scale.z / static_cast<float>(heightMap.GetImage().height - 1);
 
-    LOG_DEBUG << "HeightMap : " << heightMap.GetImage();
-    LOG_DEBUG << "HeightMap GetDeltaHeight : " << heightMap.GetDeltaHeight();
-    LOG_DEBUG << "HeightMap GetDeltaHeight : " << heightMap.GetMaximumHeight();
+    shape->btShape_->setLocalScaling(btVector3(scaleX, scaleY, scaleZ));
 
-    shape->btShape_->setLocalScaling(btVector3(scaleX, scale.y, scaleY));
-
-    auto offset            = heightMap.GetMaximumHeight() * scale.y - (heightMap.GetDeltaHeight() * scale.y / 2.f);
+    auto offset            = heightMap.GetMaximumHeight() * scaleY - (heightMap.GetDeltaHeight() * scaleY / 2.f);
     shape->positionOffset_ = Convert(positionOffset + vec3(0, offset, 0));
     shape->isTerrainShape  = true;
     return shape;

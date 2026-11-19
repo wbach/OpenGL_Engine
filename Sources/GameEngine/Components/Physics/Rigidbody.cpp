@@ -77,7 +77,7 @@ void Rigidbody::Reload()
 
 void Rigidbody::RemoveRigidbody()
 {
-    LOG_DEBUG << thisObject_.GetName() << ", Is init : " << rigidBodyId_.has_value();
+    LOG_DEBUG << "[" << thisObject_.GetName() << "] Is init : " << rigidBodyId_.has_value();
 
     if (worldTransformSubscriptionId_)
     {
@@ -91,7 +91,7 @@ void Rigidbody::RemoveRigidbody()
         rigidBodyId_.reset();
     }
 
-    LOG_DEBUG << "Done";
+    LOG_DEBUG << "[" << thisObject_.GetName() << "] Done.";
 }
 
 void Rigidbody::ReqisterFunctions()
@@ -103,21 +103,22 @@ void Rigidbody::CreateRigidbody()
 {
     if (rigidBodyId_)
     {
-        LOG_DEBUG << "Already created";
+        LOG_DEBUG << "[" << thisObject_.GetName() << "] Already created";
         return;
     }
 
     if (not collisionShape_)
     {
-        LOG_WARN << "Collision shape not set. Try find new one";
+        LOG_WARN << "[" << thisObject_.GetName() << "] Collision shape not set. Try find new one";
         collisionShape_ = GetCollisionShape();
-        return;
+        if (not collisionShape_)
+            return;
     }
     auto maybeShapeId = collisionShape_->GetCollisionShapeId();
 
     if (not maybeShapeId)
     {
-        LOG_ERROR << "Shape not initilized!";
+        LOG_ERROR << "[" << thisObject_.GetName() << "] Shape not initilized!";
         return;
     }
 
@@ -128,7 +129,7 @@ void Rigidbody::CreateRigidbody()
                                                                  mass, isSynchronizingWitPhysicsApi_);
     if (not rigidBodyId_)
     {
-        LOG_ERROR << "create rigidbody error.";
+        LOG_ERROR << "[" << thisObject_.GetName() << "] create rigidbody error.";
         return;
     }
 
@@ -165,7 +166,7 @@ void Rigidbody::Init()
 
     if (not collisionShape_)
     {
-        LOG_ERROR << "Can not create Rigidbody without shape.";
+        LOG_ERROR << "[" << thisObject_.GetName() << "] Can not create Rigidbody without shape.";
         return;
     }
 
@@ -417,7 +418,7 @@ CollisionShape* Rigidbody::GetCollisionShape()
     auto shapeTypeIter = nameToTypeMap_.find(collisionShapeName);
     if (shapeTypeIter == nameToTypeMap_.end())
     {
-        LOG_ERROR << "Shape name " << collisionShapeName << " not found in nameToTypeMap";
+        LOG_ERROR << "[" << thisObject_.GetName() << "] Shape name " << collisionShapeName << " not found in nameToTypeMap";
         return nullptr;
     }
 
@@ -435,7 +436,7 @@ CollisionShape* Rigidbody::GetCollisionShape()
         return pair.second;
     }
 
-    LOG_ERROR << thisObject_.GetName() << ". Shape type (" << collisionShapeName << ") is not found.";
+    LOG_ERROR << "[" << thisObject_.GetName() << "] Shape type (" << collisionShapeName << ") is not found.";
     return nullptr;
 }
 void Rigidbody::read(const TreeNode& node)
