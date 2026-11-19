@@ -28,6 +28,11 @@ build*
 .commandHistory
 *.zip
 *.pyc
+*.png
+*.raw
+*.json
+*.mtl
+*.prefab
 output*
 
 ## Ignore Visual Studio temporary files, build results, and

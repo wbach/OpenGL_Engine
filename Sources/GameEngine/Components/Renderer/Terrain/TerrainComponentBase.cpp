@@ -282,7 +282,7 @@ void TerrainComponentBase::RemoveTexture(const File &file)
 void TerrainComponentBase::LoadTextureImpl(const TerrainTexture &terrainTexture)
 {
     TextureParameters textureParams;
-    textureParams.flipMode = TextureFlip::VERTICAL;
+    textureParams.flipMode = TextureFlip::NONE;
     textureParams.mimap    = GraphicsApi::TextureMipmap::LINEAR;
     textureParams.filter   = GraphicsApi::TextureFilter::LINEAR;
 

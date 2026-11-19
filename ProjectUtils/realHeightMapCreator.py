@@ -492,35 +492,6 @@ def save_heightmap(
         json.dump(metadata, f, indent=4, ensure_ascii=False)
     log(f"Zapisano JSON: {json_path}")
 
-    report_path = output_prefix + "_report.txt"
-    with open(report_path, "w", encoding="utf-8") as report:
-        report.write("RAPORT KONTROLI HEIGHTMAPY\n")
-        report.write("===========================\n\n")
-        report.write(f"Braki wykryte przed naprawą: {diagnostics['original_missing_pixels']}\n")
-        report.write(f"Uzupełnione średnią sąsiadów w kafelku: {diagnostics['filled_within_tile']}\n")
-        report.write(f"Uzupełnione średnią sąsiadów z innych kafelków: {diagnostics['filled_across_tiles']}\n")
-        report.write(f"Uzupełnione średnią całej mapy (fallback): {diagnostics['filled_with_global_map_mean']}\n")
-        report.write(f"Braki po naprawie: {diagnostics['remaining_missing_pixels']}\n")
-        if diagnostics["global_fallback_value_m"] is not None:
-            report.write(f"Wartość awaryjna [m]: {diagnostics['global_fallback_value_m']:.3f}\n")
-        report.write("\nKAFELKI, W KTÓRYCH WYKRYTO BRAKI\n--------------------------------\n")
-        for tile in diagnostics["tiles"]:
-            if tile["missing_before_fill"]:
-                report.write(
-                    f"Kafelek {tile['tile']}: rows={tile['row_start']}:{tile['row_end']}, "
-                    f"cols={tile['column_start']}:{tile['column_end']}; "
-                    f"braki={tile['missing_before_fill']}, "
-                    f"naprawione lokalnie={tile['filled_within_tile']}, "
-                    f"pozostałe do naprawy globalnej={tile['pending_for_global_fill']}\n"
-                )
-        report.write("\nLOKALIZACJE I METODY UZUPEŁNIENIA\n---------------------------------\n")
-        for item in diagnostics["pixels"]:
-            report.write(
-                f"tile={item['tile']}, row={item['row']}, col={item['column']}, "
-                f"method={item['method']}, radius_px={item.get('radius_px')}\n"
-            )
-    log(f"Zapisano raport diagnostyczny: {report_path}")
-
     log("\n========== GOTOWE ==========")
     log(f"Heightmap: {width_px} x {height_px}")
     log(f"World: {world_size_m:.1f} x {world_size_m:.1f} m")

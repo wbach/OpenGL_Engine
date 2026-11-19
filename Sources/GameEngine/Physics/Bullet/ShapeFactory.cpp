@@ -75,6 +75,10 @@ std::unique_ptr<Shape> ShapeFactory::CreateTerrain(const PositionOffset& positio
     float scaleX = scale.x / static_cast<float>(heightMap.GetImage().width - 1);
     float scaleY = scale.z / static_cast<float>(heightMap.GetImage().height - 1);
 
+    LOG_DEBUG << "HeightMap : " << heightMap.GetImage();
+    LOG_DEBUG << "HeightMap GetDeltaHeight : " << heightMap.GetDeltaHeight();
+    LOG_DEBUG << "HeightMap GetDeltaHeight : " << heightMap.GetMaximumHeight();
+
     shape->btShape_->setLocalScaling(btVector3(scaleX, scale.y, scaleY));
 
     auto offset            = heightMap.GetMaximumHeight() * scale.y - (heightMap.GetDeltaHeight() * scale.y / 2.f);

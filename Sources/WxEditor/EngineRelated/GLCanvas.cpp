@@ -190,24 +190,21 @@ void GLCanvas::OnIdle(wxIdleEvent& event)
 
 void GLCanvas::InitializeEngine()
 {
-    wxSize size = GetClientSize();
-    auto windowApiPtr = std::make_unique<WxEditor::WxWindowApi>(vec2i{static_cast<int>(size.x), static_cast<int>(size.y)},
-                                                                  [&](int x, int y)
-                                                                  {
-                                                                      if (GetHandle())
-                                                                      {
-                                                                          WarpPointer(x, y);
-                                                                      }
-                                                                  });
-    wxWindowApi = windowApiPtr.get();
+    wxSize size               = GetClientSize();
+    auto windowApiPtr         = std::make_unique<WxEditor::WxWindowApi>(vec2i{static_cast<int>(size.x), static_cast<int>(size.y)},
+                                                                        [&](int x, int y)
+                                                                        {
+                                                                    if (GetHandle())
+                                                                    {
+                                                                        WarpPointer(x, y);
+                                                                    }
+                                                                        });
+    wxWindowApi               = windowApiPtr.get();
     auto wxEditorSceneFactory = std::make_unique<WxEditor::WxEditorSceneFactory>();
-    wxSceneFactory = wxEditorSceneFactory.get();
+    wxSceneFactory            = wxEditorSceneFactory.get();
 
-    engine = std::make_unique<GameEngine::Engine>(
-        std::make_unique<Bullet::BulletAdapter>(),
-        std::move(wxEditorSceneFactory),
-        std::make_unique<WxEditor::WxOpenGLApiWrapper>(std::move(windowApiPtr))
-    );
+    engine = std::make_unique<GameEngine::Engine>(std::make_unique<Bullet::BulletAdapter>(), std::move(wxEditorSceneFactory),
+                                                  std::make_unique<WxEditor::WxOpenGLApiWrapper>(std::move(windowApiPtr)));
     engine->Init();
 }
 
@@ -366,11 +363,15 @@ void GLCanvas::RefreshWindowSize()
     if (h <= 0)
         h = 1;
 
-    SetCurrent(*context);
-
     vec2ui newSize{static_cast<uint32>(w), static_cast<uint32>(h)};
-    LOG_DEBUG << "Window resized to: " << newSize;
+    if (newSize.x == EngineConf.window.size->x and EngineConf.window.size->y == newSize.y and
+        newSize.x == EngineConf.renderer.resolution->x and EngineConf.renderer.resolution->y == newSize.y)
+    {
+        return;
+    }
 
+    SetCurrent(*context);
+    LOG_DEBUG << "Window resized to: " << newSize;
     EngineConf.window.size         = newSize;
     EngineConf.renderer.resolution = newSize;
 
@@ -462,8 +463,8 @@ void GLCanvas::HandleMousePickerInteraction(wxMouseEvent& event)
 {
     if (useMousePicker && engine->GetSceneManager().GetActiveScene() && !mousePicker && !dragGameObject)
     {
-        mousePicker = std::make_unique<GameEngine::MousePicker>(*GetScene().GetCameraManager().GetMainCamera(),
-                                                                     GameEngine::MousePicker::IntersectMode::FrontOnly);
+        mousePicker          = std::make_unique<GameEngine::MousePicker>(*GetScene().GetCameraManager().GetMainCamera(),
+                                                                         GameEngine::MousePicker::IntersectMode::FrontOnly);
         auto maybeGameObject = mousePicker->SelectObject(engine->GetEngineContext().GetInputManager().GetMousePosition(),
                                                          GetScene().GetGameObjects());
         if (maybeGameObject)
@@ -555,11 +556,11 @@ void GLCanvas::RotateSelectedObject(GameEngine::GameObject* obj, int wheelRotati
 {
     if (obj)
     {
-        auto currentQuat = obj->GetWorldTransform().GetRotation().value_;
-        auto direction = (wheelRotation > 0) ? -1.0f : 1.0f;
-        auto angle = glm::radians(5.0f) * direction;
+        auto currentQuat   = obj->GetWorldTransform().GetRotation().value_;
+        auto direction     = (wheelRotation > 0) ? -1.0f : 1.0f;
+        auto angle         = glm::radians(5.0f) * direction;
         auto rotationDelta = glm::angleAxis(angle, glm::vec3(0.0f, 1.0f, 0.0f));
-        auto newRotation = rotationDelta * currentQuat;
+        auto newRotation   = rotationDelta * currentQuat;
         obj->SetWorldRotation(glm::normalize(newRotation));
     }
 }
@@ -583,7 +584,7 @@ void GLCanvas::OnMouseWheel(wxMouseEvent& event)
         }
 
         int rotation = event.GetWheelRotation();
-        int delta = rotation / event.GetWheelDelta();
+        int delta    = rotation / event.GetWheelDelta();
 
         auto& inputManager = engine->GetEngineContext().GetInputManager();
         if (delta > 0)
