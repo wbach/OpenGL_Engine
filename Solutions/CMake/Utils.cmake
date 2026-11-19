@@ -35,6 +35,7 @@ if(BUILD_UTILS)
     endif()
 
     if(WIN32)
+        target_link_libraries(UtilsLib PUBLIC dbghelp)
         copy_dll_to_build_dir(UtilsLib)
     endif()
 
