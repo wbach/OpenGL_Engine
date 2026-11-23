@@ -342,19 +342,43 @@ std::string RemovePolishSigns(const std::string& input)
 std::string Demangle(const char* name)
 {
 #if defined(__GNUG__)
-    int status         = 0;
-    auto demangled_ptr = abi::__cxa_demangle(name, nullptr, nullptr, &status);
+    int status = 0;
+    char* demangled_ptr = abi::__cxa_demangle(name, nullptr, nullptr, &status);
 
-    if (status == 0 and demangled_ptr)
+    if (status == 0 && demangled_ptr != nullptr)
     {
         std::string result(demangled_ptr);
         std::free(demangled_ptr);
         return result;
     }
-    return name;
-#else
-    return name;
 #endif
+    return name ? std::string(name) : std::string{};
+}
+std::string_view StripOuterNamespace(std::string_view full)
+{
+    int angle_depth = 0;
+
+    for (std::size_t i = full.size(); i-- > 0;)
+    {
+        const char c = full[i];
+        if (c == '>')
+        {
+            ++angle_depth;
+        }
+        else if (c == '<')
+        {
+            if (angle_depth > 0)
+            {
+                --angle_depth;
+            }
+        }
+        else if (angle_depth == 0 && c == ':' && i > 0 && full[i - 1] == ':')
+        {
+            return full.substr(i + 1);
+        }
+    }
+
+    return full;
 }
 uint32_t HashString(std::string_view str)
 {

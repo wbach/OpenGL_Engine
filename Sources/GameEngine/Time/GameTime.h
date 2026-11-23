@@ -1,6 +1,8 @@
 #pragma once
 #include <math.h>
 
+#include <ostream>
+
 namespace GameEngine
 {
 inline float CalculateTime(int hour, int minute)
@@ -13,9 +15,9 @@ class GameTime
 public:
     struct HourMinuteSecond
     {
-        int hour;
-        int minute;
-        int second;
+        int hour{0};
+        int minute{0};
+        int second{0};
     };
 
     using DeltaTime = float;
@@ -25,7 +27,7 @@ public:
     virtual ~GameTime() = default;
 
     virtual void Update(DeltaTime);
-    virtual void SetTime(Time);
+    virtual void SetTime(Time time);
 
     float GetHours() const;
     float GetMinutes() const;
@@ -35,46 +37,22 @@ public:
     float GetDeltaGameTime() const;
     HourMinuteSecond GetHourMinuteSecond() const;
 
+    void SetHourMinuteSecond(const HourMinuteSecond& hms);
+    void SetHour(float hours);
+    void SetMinute(float minutes);
+    void SetSecond(float seconds);
+    void SetDayLengthInSeconds(float seconds);
+
+private:
+    float WrapNormalized(float);
+
 protected:
     Time currentTime_;
     DeltaTime deltaTime_;
     DeltaTime deltaGameTime_;
+    float dayLengthSeconds_;
 };
 
-inline GameTime::HourMinuteSecond GameTime::GetHourMinuteSecond() const
-{
-    int totalSeconds = static_cast<int>(GetSeconds());
-    int hour         = totalSeconds / 3600;
-    int minute       = (totalSeconds % 3600) / 60;
-    int second       = totalSeconds % 60;
-    return {hour, minute, second};
-}
-inline float GameTime::GetHours() const
-{
-    return currentTime_ * 24.f;
-}
-inline float GameTime::GetMinutes() const
-{
-    return currentTime_ * 24.f * 60.f;
-}
-inline float GameTime::GetSeconds() const
-{
-    return currentTime_ * 24.f * 60.f * 60.f;
-}
-inline float GameTime::GetTime() const
-{
-    return currentTime_;
-}
-inline float GameTime::GetDeltaTime() const
-{
-    return deltaTime_;
-}
-inline float GameTime::GetDeltaGameTime() const
-{
-    return deltaGameTime_;
-}
-inline void GameTime::SetTime(GameTime::Time time)
-{
-    currentTime_ = time;
-}
+std::ostream& operator<<(std::ostream&, const GameTime&);
+std::ostream& operator<<(std::ostream&, const GameTime::HourMinuteSecond&);
 }  // namespace GameEngine

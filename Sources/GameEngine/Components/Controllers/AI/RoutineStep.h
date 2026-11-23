@@ -11,7 +11,7 @@ struct RoutineStep
 {
     int startHour   = 0;
     int startMinute = 0;
-    AIBehaviorState behaviorState{AIBehaviorState::None};
+    AIBehaviorState behaviorState{AIBehaviorState::Work};
     vec3 targetPosition{0.f};
 
     int GetMinutesFromStartOfDay() const;

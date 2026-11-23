@@ -74,19 +74,13 @@ const typename Map::mapped_type* GetKey(const Map& map, const Key& key)
 }
 
 std::string Demangle(const char*);
+std::string_view StripOuterNamespace(std::string_view);
 
 template <typename T>
 std::string GetTypeName()
 {
-    auto full = Demangle(typeid(T).name());
-
-    auto pos = full.rfind("::");
-    if (pos != std::string::npos)
-    {
-        full = full.substr(pos + 2);
-    }
-
-    return full;
+    const std::string full = Demangle(typeid(T).name());
+    return std::string(StripOuterNamespace(full));
 }
 
 template <typename T>

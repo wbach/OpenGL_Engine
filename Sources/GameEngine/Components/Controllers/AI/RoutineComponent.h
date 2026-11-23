@@ -11,6 +11,7 @@
 
 namespace GameEngine
 {
+class GameTime;
 namespace Components
 {
 
@@ -47,7 +48,7 @@ public:
     }
     void AddStep(const RoutineStep& step);
 
-    std::optional<RoutineStep> UpdateAndGetCurrentStep(const vec2i&);
+    std::optional<RoutineStep> UpdateAndGetCurrentStep(const GameTime&);
 
     void InitializeStateMachine();
     void HandleEvent(const RoutineAIEvent&);
@@ -58,11 +59,15 @@ public:
     {
         return stateMachine_ ? stateMachine_->isCurrentStateOfType<T>() : false;
     }
-    AIBehaviorState GetCurrentBehaviorState() const { return currentBehaviorState_; }
+    AIBehaviorState GetCurrentBehaviorState() const
+    {
+        return currentBehaviorState_;
+    }
 
 private:
     void InitializeEditorStructures();
     RoutineAIEvent CreateEvent(const RoutineStep&);
+    void SortRoutineSteps();
 
 private:
     std::vector<RoutineStep> schedule_;
@@ -72,7 +77,7 @@ private:
     vec3 debugTargetPosition_;
 
     std::unique_ptr<RoutineStateMachine> stateMachine_;
-    AIBehaviorState currentBehaviorState_{AIBehaviorState::None};
+    AIBehaviorState currentBehaviorState_{AIBehaviorState::Work};
     RoutineContext context;
 };
 }  // namespace Components

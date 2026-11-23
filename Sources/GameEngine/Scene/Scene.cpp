@@ -198,6 +198,7 @@ void Scene::FullUpdate(float deltaTime)
     if (start_.load())
     {
         Update(deltaTime);
+        dayNightCycle.Update(deltaTime);
         componentController_.Update();
     }
 

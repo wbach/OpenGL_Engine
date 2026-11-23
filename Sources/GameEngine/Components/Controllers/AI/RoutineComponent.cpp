@@ -118,9 +118,6 @@ RoutineAIEvent RoutineComponent::CreateEvent(const RoutineStep& step)
 
         case AIBehaviorState::Rest:
             return RestStarted{};
-
-        case AIBehaviorState::None:
-            break;
     }
 
     throw std::runtime_error("Unknown routine behavior");
@@ -156,17 +153,26 @@ void RoutineComponent::Update()
         return;
     }
 
-    const auto currentTime = componentContext_.scene_.GetDayNightCycle().GetCurrentHour();
+    const auto currentStep = UpdateAndGetCurrentStep(componentContext_.scene_.GetDayNightCycle());
 
-    const auto currentStep = UpdateAndGetCurrentStep(currentTime);
-
-    if (currentStep and currentStep->behaviorState != AIBehaviorState::None and
-        currentStep->behaviorState == currentBehaviorState_)
+    if (currentStep)
     {
-        currentBehaviorState_ = currentStep->behaviorState;
-        stateMachine_->handle(CreateEvent(*currentStep));
+        if (currentStep->behaviorState != currentBehaviorState_)
+        {
+            currentBehaviorState_ = currentStep->behaviorState;
+
+            auto event = CreateEvent(*currentStep);
+            std::visit(
+                [&](auto e)
+                {
+                    LOG_DEBUG << "Handle event: " << Utils::GetTypeName(e);
+                    stateMachine_->handle(e);
+                },
+                event);
+        }
     }
 
+    LOG_DEBUG << "Update";
     std::visit([&](auto statePtr) { statePtr->update(componentContext_.time_.deltaTime); }, stateMachine_->currentState);
 }
 void RoutineComponent::RegisterProfession(ProfessionComponent& component)
@@ -178,6 +184,7 @@ void RoutineComponent::RegisterProfession(ProfessionComponent& component)
 void RoutineComponent::AddStep(const RoutineStep& step)
 {
     schedule_.push_back(step);
+    SortRoutineSteps();
     routineSteps_.init();
 }
 
@@ -186,32 +193,41 @@ int RoutineStep::GetMinutesFromStartOfDay() const
     return (startHour * 60) + startMinute;
 }
 
-std::optional<RoutineStep> RoutineComponent::UpdateAndGetCurrentStep(const vec2i& currentHourAndMinutes)
+std::optional<RoutineStep> RoutineComponent::UpdateAndGetCurrentStep(const GameTime& gameTime)
 {
-    int currentGlobalMinutes = (currentHourAndMinutes.x * 60) + currentHourAndMinutes.y;
+    auto currentGlobalMinutes = static_cast<int>(gameTime.GetMinutes());
 
     if (schedule_.empty())
     {
+        LOG_DEBUG << "schedule_ is empty";
         return std::nullopt;
     }
 
-    std::sort(schedule_.begin(), schedule_.end(), [](const RoutineStep& a, const RoutineStep& b)
-              { return a.GetMinutesFromStartOfDay() < b.GetMinutesFromStartOfDay(); });
-
-    RoutineStep foundStep = schedule_.back();
-
-    for (auto it = schedule_.rbegin(); it != schedule_.rend(); ++it)
+    std::optional<RoutineStep> result;
+    for (const auto& step : schedule_)
     {
-        if (currentGlobalMinutes >= it->GetMinutesFromStartOfDay())
+        if (currentGlobalMinutes >= step.GetMinutesFromStartOfDay())
         {
-            foundStep = *it;
-            break;
+            result = step;
         }
     }
 
-    debugTargetPosition_ = foundStep.targetPosition;
+    if (currentGlobalMinutes < schedule_.front().GetMinutesFromStartOfDay())
+    {
+        for (auto it = schedule_.rbegin(); it != schedule_.rend(); ++it)
+        {
+            if (it->GetMinutesFromStartOfDay() <= currentGlobalMinutes)
+            {
+                result = *it;
+                break;
+            }
+        }
+    }
 
-    return foundStep;
+    if (result)
+        debugTargetPosition_ = result->targetPosition;
+
+    return result;
 }
 
 void RoutineComponent::HandleEvent(const RoutineAIEvent& event)
@@ -244,6 +260,7 @@ void RoutineComponent::read(const TreeNode& node)
         Components::Read(*snode, schedule_);
     }
 
+    SortRoutineSteps();
     routineSteps_.init();
 }
 
@@ -255,5 +272,11 @@ void RoutineComponent::write(TreeNode& node) const
     }
 }
 
+void RoutineComponent::SortRoutineSteps()
+{
+    std::sort(schedule_.begin(), schedule_.end(),
+              [](const RoutineStep& a, const RoutineStep& b)
+              { return a.GetMinutesFromStartOfDay() < b.GetMinutesFromStartOfDay(); });
+}
 }  // namespace Components
 }  // namespace GameEngine
