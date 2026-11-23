@@ -132,3 +132,42 @@ TEST_F(AIControllerTests, Routine_SleepToWork)
     AdvanceToTime(WORK_START);
     ASSERT_EQ(routine_->GetCurrentBehaviorState(), AIBehaviorState::Work);
 }
+
+TEST_F(AIControllerTests, FullDayCycle_AllFourStates)
+{
+    routine_->AddStep(RoutineStep{.startHour = 12, .startMinute = 0, .behaviorState = AIBehaviorState::Eat});
+    routine_->AddStep(RoutineStep{.startHour = 14, .startMinute = 0, .behaviorState = AIBehaviorState::Rest});
+
+    SetHour(GameTime::HourMinuteSecond{.hour = 21, .minute = 59, .second = 59});
+    ASSERT_EQ(routine_->GetCurrentBehaviorState(), AIBehaviorState::Work);
+
+    AdvanceToTime(GameTime::HourMinuteSecond{.hour = 22, .minute = 0});
+    ASSERT_EQ(routine_->GetCurrentBehaviorState(), AIBehaviorState::Sleep);
+
+    AdvanceToTime(GameTime::HourMinuteSecond{.hour = 6, .minute = 0});
+    ASSERT_EQ(routine_->GetCurrentBehaviorState(), AIBehaviorState::Work);
+
+    AdvanceToTime(GameTime::HourMinuteSecond{.hour = 12, .minute = 0});
+    ASSERT_EQ(routine_->GetCurrentBehaviorState(), AIBehaviorState::Eat);
+
+    AdvanceToTime(GameTime::HourMinuteSecond{.hour = 14, .minute = 0});
+    ASSERT_EQ(routine_->GetCurrentBehaviorState(), AIBehaviorState::Rest);
+
+    AdvanceToTime(GameTime::HourMinuteSecond{.hour = 22, .minute = 0});
+    ASSERT_EQ(routine_->GetCurrentBehaviorState(), AIBehaviorState::Sleep);
+}
+
+TEST_F(AIControllerTests, Jump_DailyCycleContinuity)
+{
+    routine_->AddStep(RoutineStep{.startHour = 12, .startMinute = 0, .behaviorState = AIBehaviorState::Eat});
+    routine_->AddStep(RoutineStep{.startHour = 14, .startMinute = 0, .behaviorState = AIBehaviorState::Rest});
+
+    SetHour(GameTime::HourMinuteSecond{.hour = 21, .minute = 59, .second = 59});
+    ASSERT_EQ(routine_->GetCurrentBehaviorState(), AIBehaviorState::Work);
+
+    AdvanceToTime(GameTime::HourMinuteSecond{.hour = 22, .minute = 0});
+    ASSERT_EQ(routine_->GetCurrentBehaviorState(), AIBehaviorState::Sleep);
+
+    AdvanceToTime(GameTime::HourMinuteSecond{.hour = 14, .minute = 0});
+    ASSERT_EQ(routine_->GetCurrentBehaviorState(), AIBehaviorState::Rest);
+}
