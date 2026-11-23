@@ -6,6 +6,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Camera/CameraFrustrumTests.cp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/ComponentControllerTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/AIController/AIControllerTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/AIController/IntentStateMachineTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/AIController/RoutineStateMachineTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/Animations/AnimationStateFixture.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/Animations/AnimationTransitionTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/Animations/AnimationTransitionToMixedTests.cpp

@@ -1,4 +1,5 @@
 set(VulkanApiIncludes
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanShaderBuffer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/BufferType.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/DefaultFrameBuffer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/InputSDL.h
@@ -7,6 +8,11 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/RenderState.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/SdlKeyConverter.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/SdlVulkanApi.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/SimpleForwardShaderFiles.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanShaderCompiler.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanShaderManager.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanTextureManager.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanTypes.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanUtils.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanApi.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanBufferManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanIdPool.h
@@ -14,10 +20,5 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanMesh.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanObjectType.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanProgram.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanRenderer.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanShaderBuffer.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanShaderCompiler.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanShaderManager.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanTextureManager.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanUtils.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanContext.hpp
 )

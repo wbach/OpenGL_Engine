@@ -5,13 +5,13 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/PipelineConfig.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/SdlKeyConverter.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/SdlVulkanApi.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/SimpleForwardShaderFiles.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanShaderCompiler.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanShaderManager.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanTextureManager.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanUtils.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanApi.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanBufferManager.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanContext.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanIdPool.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanRenderer.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanShaderCompiler.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanShaderManager.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanTextureManager.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/VulkanApi/VulkanUtils.cpp
 )
