@@ -1,3 +1,5 @@
+#include <GameEngine/Components/Controllers/AI/AIController.h>
+#include <GameEngine/Components/Controllers/AI/IntentStateMachine/IntentContext.h>
 #include <GameEngine/Components/Controllers/AI/IntentStateMachine/IntentStateEvents.h>
 #include <GameEngine/Components/Controllers/AI/IntentStateMachine/IntentStateMachine.h>
 #include <GameEngine/Components/Controllers/AI/ReactionStateMachine/ReactionAIEvents.h>
@@ -12,12 +14,16 @@ using namespace GameEngine::Components;
 struct IntentStateMachineTests : public BaseComponentTestSchould
 {
     RoutineComponent routineComponent_;
+    AIController controller_;
+    IntentContext intentContext_;
     IntentStateMachine sut_;
 
     IntentStateMachineTests()
         : BaseComponentTestSchould()
         , routineComponent_(context_, *obj_)
-        , sut_(RoutineState(&routineComponent_), ReactionState{}, QuestState{}, DeadState{})
+        , controller_(context_, *obj_)
+        , intentContext_{.routineComponent = &routineComponent_, .gameObject = *obj_, .controller = controller_}
+        , sut_(RoutineState(&routineComponent_), ReactionState{intentContext_}, QuestState{}, DeadState{})
     {
     }
 

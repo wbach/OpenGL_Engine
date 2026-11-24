@@ -93,9 +93,9 @@ public:
     template <typename Event, typename Machine>
     void handleBy(const Event& event, Machine& machine)
     {
-        #ifdef NOREALTIME_LOG_ENABLED
+#ifdef NOREALTIME_LOG_ENABLED
         LOG_DEBUG << "Handle event : " << typeName<Event>();
-        #endif
+#endif
         auto passEventToState = [&machine, &event](auto statePtr)
         {
             auto action = statePtr->handle(event);
@@ -119,6 +119,18 @@ public:
     std::string getCurrentStateName() const
     {
         return getStateName(currentState);
+    }
+
+    template <typename State>
+    const State& getState() const
+    {
+        return std::get<State>(states);
+    }
+
+    template <typename State>
+    State& getState()
+    {
+        return std::get<State>(states);
     }
 
 private:

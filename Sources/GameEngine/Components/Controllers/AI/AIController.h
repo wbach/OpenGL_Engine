@@ -74,11 +74,13 @@ private:
     bool hasTarget{false};
     HealthComponent* currentTargetHealthComponent{nullptr};
     CharacterStatsComponent* myStats{nullptr};
-    RoutineComponent* routineComponent_{nullptr};
 
 private:
     struct Impl;
     std::unique_ptr<Impl> impl;
+
+public:
+    const Impl& getImpl() const;
 
 public:
     void read(const TreeNode&) override;

@@ -2,31 +2,47 @@
 
 #include <Utils/Utils.h>
 
+#include "../IntentContext.h"
+
 namespace GameEngine
 {
 namespace Components
 {
-ReactionState::ReactionState()
+ReactionState::ReactionState(IntentContext& intentContext)
+    : reactionStateContext_{
+          new ReactionStateContext{.gameObject = intentContext.gameObject, .controller = intentContext.controller}}
 {
-    reactionStateMachine_ = std::make_unique<ReactionStateMachine>();
+    reactionStateMachine_ = std::make_unique<ReactionStateMachine>(
+        PassiveState{}, SuspiciousState{}, CombatState{*reactionStateContext_}, SurrenderedState{}, PanicState{}, RetreatState{});
+}
+ReactionState::~ReactionState()
+{
 }
 void ReactionState::onEnter()
 {
 }
-void ReactionState::onEnter(const ReactionAIEvent& event)
+void ReactionState::onEnter(const ReactionAIEvent& reactionEvent)
 {
-    auto passEventToMachine = [&](const auto& e)
-    {
-        LOG_DEBUG << Utils::GetTypeName(e);
-        reactionStateMachine_->handle(e);
-    };
-    std::visit(passEventToMachine, event);
+    handleEvent(reactionEvent);
 }
 void ReactionState::update(float)
 {
 }
 void ReactionState::onLeave()
 {
+}
+void ReactionState::update(const ReactionAIEvent& reactionEvent)
+{
+    handleEvent(reactionEvent);
+}
+void ReactionState::handleEvent(const ReactionAIEvent& reactionEvent)
+{
+    auto passEventToMachine = [&](const auto& event)
+    {
+        LOG_DEBUG << Utils::GetTypeName(event);
+        reactionStateMachine_->handle(event);
+    };
+    std::visit(passEventToMachine, reactionEvent);
 }
 }  // namespace Components
 }  // namespace GameEngine

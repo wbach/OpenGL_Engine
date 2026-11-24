@@ -4,6 +4,7 @@ if(BUILD_WX_EDITOR)
     set(wxUSE_GRAPHICS_DIRECT2D OFF CACHE BOOL "" FORCE)
     set(wxUSE_DIRECT2D OFF CACHE BOOL "" FORCE)
     set(wxUSE_MANIFEST ON CACHE BOOL "" FORCE)
+    set(wxUSE_LIBWEBP builtin CACHE STRING "" FORCE)
 
     #find_package(wxWidgets REQUIRED gl core base)
     #include(${wxWidgets_USE_FILE})

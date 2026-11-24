@@ -1,10 +1,13 @@
 #include <GameEngine/Components/Controllers/AI/AIController.h>
 #include <GameEngine/Components/Controllers/AI/Professions/ScoutProfessionComponent.h>
+#include <GameEngine/Components/Controllers/AI/ReactionStateMachine/States/CombatState.h>
 #include <GameEngine/Components/Controllers/AI/RoutineComponent.h>
 #include <GameEngine/Components/Controllers/CharacterController/CharacterController.h>
 #include <GameEngine/Components/Gameplay/CharacterStats/CharacterStatsComponent.h>
 #include <GameEngine/Components/Gameplay/HealthComponent.h>
 #include <GameEngine/Time/DayNightCycle.h>
+
+#include <GameEngine/Components/Controllers/AI/AIControllerImpl.inl>
 
 #include "Tests/UT/Components/BaseComponent.h"
 
@@ -44,6 +47,12 @@ struct AIControllerTests : public BaseComponentTestSchould
         componentController_.CallFunctions(FunctionType::Awake);
         componentController_.CallFunctions(FunctionType::LateAwake);
         componentController_.CallFunctions(FunctionType::OnStart);
+
+        const auto& impl = sut_.getImpl();
+        reactionState    = &impl.intentStateMachine_->getState<ReactionState>();
+
+        EXPECT_TRUE(routine_->IsRoutineStateOfType<WorkState>());
+        EXPECT_TRUE(reactionState->isCurrentStateOfType<PassiveState>());
     }
 
     void SimulateTimeSteps(int steps)
@@ -117,6 +126,7 @@ struct AIControllerTests : public BaseComponentTestSchould
     AIController sut_;
     CharacterStatsComponent* stats_{nullptr};
     RoutineComponent* routine_{nullptr};
+    ReactionState* reactionState{nullptr};
     ScoutProfessionComponent* profession_{nullptr};
 };
 
@@ -164,10 +174,37 @@ TEST_F(AIControllerTests, Jump_DailyCycleContinuity)
 
     SetHour(GameTime::HourMinuteSecond{.hour = 21, .minute = 59, .second = 59});
     ASSERT_EQ(routine_->GetCurrentBehaviorState(), AIBehaviorState::Work);
+    EXPECT_TRUE(routine_->IsRoutineStateOfType<WorkState>());
 
     AdvanceToTime(GameTime::HourMinuteSecond{.hour = 22, .minute = 0});
     ASSERT_EQ(routine_->GetCurrentBehaviorState(), AIBehaviorState::Sleep);
+    EXPECT_TRUE(routine_->IsRoutineStateOfType<SleepState>());
 
     AdvanceToTime(GameTime::HourMinuteSecond{.hour = 14, .minute = 0});
     ASSERT_EQ(routine_->GetCurrentBehaviorState(), AIBehaviorState::Rest);
+    EXPECT_TRUE(routine_->IsRoutineStateOfType<RestState>());
+}
+
+TEST_F(AIControllerTests, InterruptRoutineByDamageTakenEventAndBackWhenTargetLost)
+{
+    routine_->AddStep(RoutineStep{.startHour = 12, .startMinute = 0, .behaviorState = AIBehaviorState::Eat});
+    routine_->AddStep(RoutineStep{.startHour = 14, .startMinute = 0, .behaviorState = AIBehaviorState::Rest});
+
+    SetHour(GameTime::HourMinuteSecond{.hour = 20, .minute = 13, .second = 59});
+    SimulateTimeSteps(1);
+
+    ASSERT_EQ(routine_->GetCurrentBehaviorState(), AIBehaviorState::Rest);
+    EXPECT_TRUE(routine_->IsRoutineStateOfType<RestState>());
+
+    sut_.pushEventToQueue(DamageTaken{});
+    SimulateTimeSteps(1);
+
+    EXPECT_TRUE(routine_->IsRoutineStateOfType<SuspendedState>());
+    EXPECT_TRUE(reactionState->isCurrentStateOfType<CombatState>());
+
+    sut_.pushEventToQueue(TargetLost{});
+    SimulateTimeSteps(1);
+
+    EXPECT_TRUE(routine_->IsRoutineStateOfType<RestState>());
+    EXPECT_TRUE(reactionState->isCurrentStateOfType<PassiveState>());
 }

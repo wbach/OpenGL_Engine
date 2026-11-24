@@ -10,7 +10,7 @@ namespace Components
 class PanicState;
 class RetreatState;
 class PassiveState;
-
+class ReactionStateContext;
 class CombatState
     : public Utils::StateMachine::Will<Utils::StateMachine::On<LowHealthReached, Utils::StateMachine::TransitionTo<RetreatState>>,
                                        Utils::StateMachine::On<MoraleBroken, Utils::StateMachine::TransitionTo<PanicState>>,
@@ -20,12 +20,16 @@ class CombatState
                                        Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>>
 {
 public:
-    void onEnter()
-    {
-    }
-    void update(float)
-    {
-    }
+    CombatState(ReactionStateContext&);
+
+    void onEnter();
+    void update(float);
+
+    void onLeave(const TargetLost&);
+    void onLeave(const ThreatCleared&);
+
+private:
+    ReactionStateContext& reactionStateContext;
 };
 }  // namespace Components
 }  // namespace GameEngine

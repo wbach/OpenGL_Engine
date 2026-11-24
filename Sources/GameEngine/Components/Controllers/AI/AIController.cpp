@@ -1,7 +1,6 @@
 #include "AIController.h"
 
 #include <Logger/Log.h>
-#include <Utils/Blackboard.h>
 #include <Utils/TreeNodeReadFunctions.h>
 #include <Utils/TreeNodeWriteFunctions.h>
 #include <Utils/Variant.h>
@@ -10,7 +9,7 @@
 #include <memory>
 
 #include "AIControllerContext.h"
-#include "ActionStateMachine/ActionStateMachine.h"
+#include "AIControllerImpl.inl"
 #include "Blackboard.h"
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
@@ -27,7 +26,6 @@
 #include "GameEngine/Scene/Navigation/NavigationManager.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Time/DayNightCycle.h"
-#include "IntentStateMachine/IntentStateMachine.h"
 #include "ReactionStateMachine/ReactionStateMachine.h"
 #include "RoutineComponent.h"
 #include "Utils.h"
@@ -42,19 +40,6 @@ namespace
 constexpr char CSTR_DETECTION_RADIUS[] = "detectionRadius";
 constexpr char CSTR_TARGETING_MODE[]   = "targetingMode";
 }  // namespace
-struct AIController::Impl
-{
-    std::unique_ptr<ActionStateMachine> stateMachine_;
-    std::unique_ptr<IntentStateMachine> intentStateMachine_;
-    std::unique_ptr<AIControllerContext> controllerContext_;
-
-    Utils::Blackboard blackboard_;
-
-    void CleanUp()
-    {
-        stateMachine_.reset();
-    }
-};
 
 REGISTER_COMPONENT(AIController)
 
@@ -71,7 +56,8 @@ void AIController::CleanUp()
 }
 void AIController::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::OnStart, [this]() { Init(); }, MakeDependencies<CharacterController>());
+    RegisterFunction(
+        FunctionType::OnStart, [this]() { Init(); }, MakeDependencies<CharacterController>());
     RegisterFunction(FunctionType::Update, [this]() { Update(); });
 }
 void AIController::Reload()
@@ -101,12 +87,13 @@ void AIController::Init()
     impl->stateMachine_ = std::make_unique<ActionStateMachine>(AIAmbientState{}, AIChaseState{context}, AIReturnState{context},
                                                                AIAttackState{context}, AIMoveToState{context});
 
-    routineComponent_ = thisObject_.GetComponent<RoutineComponent>();
+    impl->intentContext_.reset(new IntentContext{
+        .routineComponent = thisObject_.GetComponent<RoutineComponent>(), .gameObject = thisObject_, .controller = *this});
 
-    impl->intentStateMachine_ =
-        std::make_unique<IntentStateMachine>(RoutineState{routineComponent_}, ReactionState{}, QuestState{}, DeadState{});
+    impl->intentStateMachine_ = std::make_unique<IntentStateMachine>(
+        RoutineState{impl->intentContext_->routineComponent}, ReactionState{*impl->intentContext_}, QuestState{}, DeadState{});
 
-    LOG_DEBUG << thisObject_.GetName() << " RoutineComponent " << (routineComponent_ != nullptr);
+    LOG_DEBUG << thisObject_.GetName() << " RoutineComponent " << (impl->intentContext_->routineComponent != nullptr);
 }
 void AIController::read(const TreeNode& input)
 {
@@ -174,6 +161,7 @@ void AIController::handleEvent(const AIEvent& aiEvent)
                            };
                            std::visit(passEventToMachine, event);
                        },
+                       [&](const ReactionAIEvent& event) { impl->intentStateMachine_->handle(event); },
                        [&](const ActionAIEvent& event)
                        {
                            auto passEventToMachine = [&](const auto& e)
@@ -278,6 +266,11 @@ bool AIController::isHostile(const CharacterStatsComponent& targetStats) const
 float AIController::getAttackRadius() const
 {
     return 1.0f;
+}
+
+const AIController::Impl& AIController::getImpl() const
+{
+    return *impl;
 }
 }  // namespace Components
 }  // namespace GameEngine
