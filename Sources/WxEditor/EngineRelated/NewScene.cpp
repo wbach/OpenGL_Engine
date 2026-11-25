@@ -16,6 +16,7 @@ NewScene::NewScene()
 }
 int NewScene::Initialize()
 {
+    Scene::Initialize();
     addPrimitive(PrimitiveType::Plane, vec3(0.f, 0.f, 0.f), vec3(10.f, 1.f, 10.f));
     addPrimitive(PrimitiveType::Cube, vec3(0.f, 1.0f, 0.f));
     addDefaultLight();
@@ -47,12 +48,5 @@ void NewScene::addDefalutCamera()
     defaultSceneCamera->SetWorldPosition(vec3(2, 2, 2));
     cameraComponent.LookAt(vec3(0));
     AddGameObject(std::move(defaultSceneCamera));
-}
-void NewScene::PostInitialize()
-{
-}
-int NewScene::Update(float)
-{
-    return 0;
 }
 }  // namespace WxEditor

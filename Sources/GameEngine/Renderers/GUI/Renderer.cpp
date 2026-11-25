@@ -80,7 +80,12 @@ void Renderer::render()
 
     for (auto& subscriber : subscribers_)
     {
-        if (not subscriber or not subscriber->isActive())
+        if (not subscriber)
+        {
+            continue;
+        }
+
+        if (not subscriber->isActive())
         {
             subscriber->onSkipRender();
             continue;

@@ -8,18 +8,15 @@ GameTime::GameTime()
     : currentTime_(0.5f)
     , deltaTime_(0.f)
     , deltaGameTime_(0.f)
-    , dayLengthSeconds_{600.f}
+    , dayLengthSeconds_{7200.f}
 {
 }
 
 void GameTime::Update(DeltaTime dt)
 {
-    const auto dtSeconds     = dt / 1000.0f;
-    const auto cycleProgress = dtSeconds / dayLengthSeconds_;
+    currentTime_ = WrapNormalized(currentTime_ + dt / dayLengthSeconds_);
 
-    currentTime_ = WrapNormalized(currentTime_ + cycleProgress);
-
-    deltaGameTime_ = dtSeconds;
+    deltaGameTime_ = dt;
     deltaTime_     = dt;
 }
 void GameTime::SetTime(Time time)
@@ -61,7 +58,7 @@ GameTime::HourMinuteSecond GameTime::GetHourMinuteSecond() const
 void GameTime::SetHourMinuteSecond(const HourMinuteSecond& hms)
 {
     auto totalSeconds = hms.hour * 3600 + hms.minute * 60 + hms.second;
-    currentTime_     = static_cast<Time>(totalSeconds) / (24.0f * 3600.0f);
+    currentTime_      = static_cast<Time>(totalSeconds) / (24.0f * 3600.0f);
 }
 void GameTime::SetHour(float hours)
 {
@@ -97,13 +94,31 @@ float GameTime::WrapNormalized(float t)
 std::ostream& operator<<(std::ostream& os, const GameTime& gameTime)
 {
     const auto& hms = gameTime.GetHourMinuteSecond();
-    os << hms;
+    os << "Current time: " << hms;
+    return os;
+}
+
+int hourminutes_index()
+{
+    static const int index = std::ios_base::xalloc();
+    return index;
+}
+std::ostream& hourminutes(std::ostream& os)
+{
+    os.iword(hourminutes_index()) = 1;
     return os;
 }
 std::ostream& operator<<(std::ostream& os, const GameTime::HourMinuteSecond& hms)
 {
-    os << "Current time: " << (hms.hour < 10 ? "0" : "") << hms.hour << ":" << (hms.minute < 10 ? "0" : "") << hms.minute << ":"
-       << (hms.second < 10 ? "0" : "") << hms.second;
+    const bool shortFormat        = os.iword(hourminutes_index()) == 1;
+    os.iword(hourminutes_index()) = 0;
+
+    os << std::setfill('0') << std::setw(2) << hms.hour << ":" << std::setw(2) << hms.minute;
+
+    if (not shortFormat)
+    {
+        os << ":" << std::setw(2) << hms.second;
+    }
     return os;
 }
 }  // namespace GameEngine

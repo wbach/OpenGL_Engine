@@ -201,6 +201,8 @@ private:
     std::atomic_bool start_;
     std::unique_ptr<Debug::Console> console_;
 
+    GUI::Text* hourGuiText_{nullptr};
+
     friend class Debug::Console;
 };
 

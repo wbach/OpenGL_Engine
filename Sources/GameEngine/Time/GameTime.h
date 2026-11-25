@@ -53,6 +53,7 @@ protected:
     float dayLengthSeconds_;
 };
 
+std::ostream& hourminutes(std::ostream&);
 std::ostream& operator<<(std::ostream&, const GameTime&);
 std::ostream& operator<<(std::ostream&, const GameTime::HourMinuteSecond&);
 }  // namespace GameEngine

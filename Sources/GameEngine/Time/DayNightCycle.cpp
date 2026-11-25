@@ -206,15 +206,6 @@ void DayNightCycle::SetDirectionalLight(Components::DirectionalLightComponent* l
     UpdateSunLight();
 }
 
-const vec2i DayNightCycle::GetCurrentHour() const
-{
-    int hour = static_cast<int>(GetHours());
-
-    int minutes = static_cast<int>(currentTime_ * 24.f * 60.f - (hour * 60.f));
-
-    return vec2i(hour, minutes);
-}
-
 bool DayNightCycle::IsDay() const
 {
     return (currentTime_ > dayStart && currentTime_ <= dayEnd);

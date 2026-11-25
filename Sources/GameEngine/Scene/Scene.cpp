@@ -107,7 +107,7 @@ Scene::~Scene()
 
 void Scene::InitResources(EngineContext& context)
 {
-    LOG_DEBUG << "";
+    LOG_DEBUG << name;
     engineContext     = &context;
     graphicsApi_      = &context.GetGraphicsApi();
     inputManager_     = &context.GetInputManager();
@@ -122,7 +122,9 @@ void Scene::InitResources(EngineContext& context)
     if (not resourceManager_)
     {
         LOG_ERROR << "resourceManager  creation error!";
+        return;
     }
+
     GUI::ElementFactory::EntryParameters guiFactoryParams{*inputManager_, *resourceManager_, renderersManager_->GetGuiRenderer()};
     guiElementFactory_ = std::make_unique<GUI::ElementFactory>(guiFactoryParams);
     guiManager_        = std::make_unique<GUI::Manager>(*inputManager_);
@@ -591,6 +593,22 @@ const CameraManager& Scene::GetCameraManager() const
 
 int Scene::Initialize()
 {
+    LOG_DEBUG << "Initialize : " << name;
+    if (guiElementFactory_ and guiManager_)
+    {
+        LOG_DEBUG << "Create hour text";
+
+        std::stringstream hour;
+        hour << hourminutes << dayNightCycle.GetHourMinuteSecond();
+        auto text = guiElementFactory_->createText(hour.str());
+        text->setScreenScale(vec2{0.1, 0.05});
+        text->setScreenPostion(vec2{0.94, 0.97});
+        // text->setTextureColor(Color{0.1f, 0.1f, 0.1f, 1.f});
+        text->render.align = GUI::HorizontalAlign::RIGHT;
+
+        hourGuiText_ = text.get();
+        guiManager_->add(std::move(text));
+    }
     return 0;
 }
 void Scene::PostInitialize()
@@ -598,6 +616,13 @@ void Scene::PostInitialize()
 }
 int Scene::Update(float)
 {
+    if (hourGuiText_)
+    {
+        std::stringstream hour;
+        hour << hourminutes << dayNightCycle.GetHourMinuteSecond();
+        hourGuiText_->setText(hour.str());
+        hourGuiText_->activate(true);
+    }
     return 0;
 }
 std::optional<Physics::RayHit> Scene::getHeightPositionInWorld(float x, float z) const

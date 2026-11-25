@@ -22,7 +22,6 @@ public:
     void CalculateBlendFactor();
     void SetDirectionalLight(Components::DirectionalLightComponent*);
 
-    const vec2i GetCurrentHour() const;
     bool IsDay() const;
     bool IsNight() const;
     bool IsMorning() const;
