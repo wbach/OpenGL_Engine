@@ -9,8 +9,11 @@ namespace GameEngine
 namespace Components
 {
 ReactionState::ReactionState(IntentContext& intentContext)
-    : reactionStateContext_{
-          new ReactionStateContext{.gameObject = intentContext.gameObject, .controller = intentContext.controller}}
+    : reactionStateContext_{new ReactionStateContext{.gameObject          = intentContext.gameObject,
+                                                     .controller          = intentContext.controller,
+                                                     .navigationManager   = intentContext.navigationManager,
+                                                     .characterController = intentContext.characterController,
+                                                     .currentPath         = intentContext.currentPath}}
 {
     reactionStateMachine_ = std::make_unique<ReactionStateMachine>(
         PassiveState{}, SuspiciousState{}, CombatState{*reactionStateContext_}, SurrenderedState{}, PanicState{}, RetreatState{});
@@ -34,6 +37,10 @@ void ReactionState::onLeave()
 void ReactionState::update(const ReactionAIEvent& reactionEvent)
 {
     handleEvent(reactionEvent);
+}
+void ReactionState::update(const CombatStateEvent& combatStateEvent)
+{
+    reactionStateMachine_->handle(combatStateEvent);
 }
 void ReactionState::handleEvent(const ReactionAIEvent& reactionEvent)
 {

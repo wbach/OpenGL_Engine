@@ -81,7 +81,6 @@ void AIStateBase::startMoveTo(const vec3& targetPosition, AIMoveType moveType)
     vec3 startPos    = context_.gameObject.GetWorldTransform().GetPosition();
 
     context_.currentPath = navManager.CalculatePath(context_.gameObject, startPos, targetPosition);
-
     if (context_.currentPath.empty())
     {
         LOG_WARN << context_.gameObject.GetName()

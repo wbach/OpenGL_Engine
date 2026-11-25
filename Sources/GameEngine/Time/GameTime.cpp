@@ -97,7 +97,7 @@ float GameTime::WrapNormalized(float t)
 std::ostream& operator<<(std::ostream& os, const GameTime& gameTime)
 {
     const auto& hms = gameTime.GetHourMinuteSecond();
-    os << "Current time: " << hms;
+    os << hms;
     return os;
 }
 std::ostream& operator<<(std::ostream& os, const GameTime::HourMinuteSecond& hms)

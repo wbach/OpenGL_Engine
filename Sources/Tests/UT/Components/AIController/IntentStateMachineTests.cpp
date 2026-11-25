@@ -4,6 +4,7 @@
 #include <GameEngine/Components/Controllers/AI/IntentStateMachine/IntentStateMachine.h>
 #include <GameEngine/Components/Controllers/AI/ReactionStateMachine/ReactionAIEvents.h>
 #include <GameEngine/Components/Controllers/AI/RoutineComponent.h>
+#include <GameEngine/Components/Controllers/CharacterController/CharacterController.h>
 #include <gtest/gtest.h>
 
 #include "Tests/UT/Components/BaseComponent.h"
@@ -13,16 +14,27 @@ using namespace GameEngine::Components;
 
 struct IntentStateMachineTests : public BaseComponentTestSchould
 {
+    NavigationManager navigationManager;
     RoutineComponent routineComponent_;
     AIController controller_;
+    CharacterController characterController_;
     IntentContext intentContext_;
     IntentStateMachine sut_;
 
+    std::vector<vec3> currentPath;
+
     IntentStateMachineTests()
         : BaseComponentTestSchould()
+        , navigationManager{physicsApiMock_}
         , routineComponent_(context_, *obj_)
         , controller_(context_, *obj_)
-        , intentContext_{.routineComponent = &routineComponent_, .gameObject = *obj_, .controller = controller_}
+        , characterController_(context_, *obj_)
+        , intentContext_{.routineComponent    = &routineComponent_,
+                         .gameObject          = *obj_,
+                         .controller          = controller_,
+                         .navigationManager   = navigationManager,
+                         .characterController = characterController_,
+                         .currentPath         = currentPath}
         , sut_(RoutineState(&routineComponent_), ReactionState{intentContext_}, QuestState{}, DeadState{})
     {
     }

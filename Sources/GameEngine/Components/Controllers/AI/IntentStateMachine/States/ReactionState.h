@@ -3,7 +3,9 @@
 
 #include "../../ReactionStateMachine/ReactionStateContext.h"
 #include "../../ReactionStateMachine/ReactionStateMachine.h"
+#include "../../ReactionStateMachine/States/CombatState/CombatStateEvents.h"
 #include "../IntentStateEvents.h"
+
 namespace GameEngine
 {
 namespace Components
@@ -12,6 +14,7 @@ struct IntentContext;
 class ReactionState
     : public Utils::StateMachine::Will<Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
                                        Utils::StateMachine::On<ReactionAIEvent, Utils::StateMachine::Update>,
+                                       Utils::StateMachine::On<CombatStateEvent, Utils::StateMachine::Update>,
                                        Utils::StateMachine::On<ThreatEnded, Utils::StateMachine::BackToPreviousState>>
 {
 public:
@@ -23,6 +26,7 @@ public:
     void onEnter(const ReactionAIEvent&);
     void update(float);
     void update(const ReactionAIEvent&);
+    void update(const CombatStateEvent&);
     void onLeave();
 
     template <typename... T>

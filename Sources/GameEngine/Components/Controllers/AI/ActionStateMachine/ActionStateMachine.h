@@ -2,8 +2,6 @@
 #include <Utils/Fsm/Fsm.h>
 
 #include "States/AIAmbientState.h"
-#include "States/AIAttackState.h"
-#include "States/AIChaseState.h"
 #include "States/AIMoveToState.h"
 #include "States/AIReturnState.h"
 
@@ -15,9 +13,7 @@ namespace Components
 using ActionStateMachine =
     Utils::StateMachine::Fsm<
                             AIAmbientState,
-                            AIChaseState,
                             AIReturnState,
-                            AIAttackState,
                             AIMoveToState
                             >;
 }

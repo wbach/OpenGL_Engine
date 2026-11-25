@@ -96,6 +96,24 @@ TextTypeParams GetTextureTypeParams(GraphicsApi::TextureType type)
         params.dataType       = GL_UNSIGNED_BYTE;
         params.internalFormat = GL_RGBA8;
     }
+    else if (type == GraphicsApi::TextureType::U16_RED)
+    {
+        params.format         = GL_RED;
+        params.dataType       = GL_UNSIGNED_SHORT;
+        params.internalFormat = GL_R16;
+    }
+    else if (type == GraphicsApi::TextureType::U16_RG)
+    {
+        params.format         = GL_RG;
+        params.dataType       = GL_UNSIGNED_SHORT;
+        params.internalFormat = GL_RG16;
+    }
+    else if (type == GraphicsApi::TextureType::U16_RGBA)
+    {
+        params.format         = GL_RGBA;
+        params.dataType       = GL_UNSIGNED_SHORT;
+        params.internalFormat = GL_RGBA16;
+    }
     else if (type == GraphicsApi::TextureType::FLOAT_TEXTURE_3D)
     {
         params.format         = GL_RGB;
@@ -1149,13 +1167,13 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const Utils::Image& image, GraphicsApi:
                         LOG_ERROR << "Not implemented.";
                 }
             },
-            [&](const std::vector<uint16>&)
+            [&](const std::vector<uint16>& data)
             {
                 switch (channels)
                 {
                     case 1:
-                        type         = GraphicsApi::TextureType::U16_RED; // lub odpowiednik w Twoim enumie dla 16-bit
-                        dataTypeSize = sizeof(uint16);       // 2 bajty na jeden kanał
+                        type         = GraphicsApi::TextureType::U16_RED;  // lub odpowiednik w Twoim enumie dla 16-bit
+                        dataTypeSize = sizeof(uint16);                     // 2 bajty na jeden kanał
                         break;
                     case 2:
                         type         = GraphicsApi::TextureType::U16_RG;

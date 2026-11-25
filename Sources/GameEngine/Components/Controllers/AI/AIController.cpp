@@ -19,9 +19,6 @@
 #include "GameEngine/Components/Controllers/AI/ReactionStateMachine/ReactionStateMachine.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
-#include "GameEngine/Components/Gameplay/CharacterStats/CharacterStatsComponent.h"
-#include "GameEngine/Components/Gameplay/HealthComponent.h"
-#include "GameEngine/Narrative/FactionManager.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Navigation/NavigationManager.h"
 #include "GameEngine/Scene/Scene.hpp"
@@ -35,11 +32,6 @@ namespace GameEngine
 {
 namespace Components
 {
-namespace
-{
-constexpr char CSTR_DETECTION_RADIUS[] = "detectionRadius";
-constexpr char CSTR_TARGETING_MODE[]   = "targetingMode";
-}  // namespace
 
 REGISTER_COMPONENT(AIController)
 
@@ -72,7 +64,6 @@ void AIController::Init()
         LOG_DEBUG << "CharacterController not found";
         return;
     }
-    myStats = thisObject_.GetComponent<CharacterStatsComponent>();
 
     impl->controllerContext_.reset(
         new AIControllerContext{.gameObject          = thisObject_,
@@ -84,11 +75,14 @@ void AIController::Init()
 
     LOG_DEBUG << "Create fsm";
     auto& context       = *impl->controllerContext_;
-    impl->stateMachine_ = std::make_unique<ActionStateMachine>(AIAmbientState{}, AIChaseState{context}, AIReturnState{context},
-                                                               AIAttackState{context}, AIMoveToState{context});
+    impl->stateMachine_ = std::make_unique<ActionStateMachine>(AIAmbientState{}, AIReturnState{context}, AIMoveToState{context});
 
-    impl->intentContext_.reset(new IntentContext{
-        .routineComponent = thisObject_.GetComponent<RoutineComponent>(), .gameObject = thisObject_, .controller = *this});
+    impl->intentContext_.reset(new IntentContext{.routineComponent    = thisObject_.GetComponent<RoutineComponent>(),
+                                                 .gameObject          = thisObject_,
+                                                 .controller          = *this,
+                                                 .navigationManager   = componentContext_.navigationManager,
+                                                 .characterController = *characterController,
+                                                 .currentPath         = impl->controllerContext_->currentPath});
 
     impl->intentStateMachine_ = std::make_unique<IntentStateMachine>(
         RoutineState{impl->intentContext_->routineComponent}, ReactionState{*impl->intentContext_}, QuestState{}, DeadState{});
@@ -97,14 +91,10 @@ void AIController::Init()
 }
 void AIController::read(const TreeNode& input)
 {
-    ::Read(input.getChild(CSTR_DETECTION_RADIUS), detectionRadius);
-    ::Read(input.getChild(CSTR_TARGETING_MODE), targetingMode);
 }
 
 void AIController::write(TreeNode& node) const
 {
-    ::write(node.addChild(CSTR_DETECTION_RADIUS), detectionRadius);
-    ::write(node.addChild(CSTR_TARGETING_MODE), targetingMode);
 }
 void AIController::Update()
 {
@@ -121,8 +111,6 @@ void AIController::Update()
         std::visit([&](auto statePtr) { statePtr->update(componentContext_.time_.deltaTime); },
                    impl->stateMachine_->currentState);
     }
-
-    runPerceptionCheck();
 }
 void AIController::processEvent()
 {
@@ -162,6 +150,7 @@ void AIController::handleEvent(const AIEvent& aiEvent)
                            std::visit(passEventToMachine, event);
                        },
                        [&](const ReactionAIEvent& event) { impl->intentStateMachine_->handle(event); },
+                       [&](const CombatStateEvent& event) { impl->intentStateMachine_->handle(event); },
                        [&](const ActionAIEvent& event)
                        {
                            auto passEventToMachine = [&](const auto& e)
@@ -184,90 +173,14 @@ const std::vector<vec3>& AIController::getCurrentPath() const
     static std::vector<vec3> result;
     return result;
 };
-void AIController::runPerceptionCheck()
-{
-    if (hasTarget and currentTargetHealthComponent)
-    {
-        float distance = glm::distance(currentTargetHealthComponent->GetParentGameObject().GetWorldTransform().GetPosition(),
-                                       thisObject_.GetWorldTransform().GetPosition());
-
-        if (distance > (detectionRadius * 1.2f))
-        {
-            hasTarget                    = false;
-            currentTargetHealthComponent = nullptr;
-            LOG_DEBUG << "TargetLostEvent ";
-            pushEventToQueue(TargetLostEvent{});
-            return;
-        }
-    }
-
-    const auto target = getClosestTarget(detectionRadius);
-
-    if (target and not hasTarget)
-    {
-        hasTarget                    = true;
-        currentTargetHealthComponent = target;
-        pushEventToQueue(TargetSpottedEvent{target->GetParentGameObject()});
-    }
-    else if (target and hasTarget and target != currentTargetHealthComponent)
-    {
-        currentTargetHealthComponent = target;
-        pushEventToQueue(TargetSpottedEvent{target->GetParentGameObject()});
-    }
-    else if (not target and hasTarget)
-    {
-        hasTarget                    = false;
-        currentTargetHealthComponent = nullptr;
-        LOG_DEBUG << "TargetLostEvent ";
-        pushEventToQueue(TargetLostEvent{});
-    }
-}
-HealthComponent* AIController::getClosestTarget(float radius)
-{
-    HealthComponent* result{nullptr};
-    auto all = componentContext_.componentController_.GetAllActiveComponentsOfType<HealthComponent>();
-
-    auto minDistance{radius};
-    for (auto& hpComponent : all)
-    {
-        const auto& targetObject = hpComponent->GetParentGameObject();
-        if (targetObject.GetId() == thisObject_.GetId())
-        {
-            continue;
-        }
-
-        auto targetStats = targetObject.GetComponent<CharacterStatsComponent>();
-        if (not targetStats)
-            continue;
-
-        if (not isHostile(*targetStats))
-        {
-            continue;
-        }
-
-        auto distance = glm::distance(hpComponent->GetParentGameObject().GetWorldTransform().GetPosition(),
-                                      thisObject_.GetWorldTransform().GetPosition());
-        if (distance < minDistance)
-        {
-            minDistance = distance;
-            result      = hpComponent;
-        }
-    }
-    return result;
-}
-bool AIController::isHostile(const CharacterStatsComponent& targetStats) const
-{
-    if (not myStats)
-        return false;
-
-    const auto attitude = componentContext_.factionManager.getAttitude(myStats->general.faction, targetStats.general.faction);
-    return attitude == Attitude::Hostile;
-}
-float AIController::getAttackRadius() const
+float AIController::getMeleAttackRadius() const
 {
     return 1.0f;
 }
-
+std::optional<float> AIController::getRangeAttackRadius() const
+{
+    return std::nullopt;
+}
 const AIController::Impl& AIController::getImpl() const
 {
     return *impl;

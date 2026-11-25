@@ -30,6 +30,7 @@ public:
 
 private:
     void UpdateDynamicObjects();
+    std::vector<vec3> CalculatePathImpl(const vec3&, const vec3&);
 
 private:
     struct DynamicObjectInfo

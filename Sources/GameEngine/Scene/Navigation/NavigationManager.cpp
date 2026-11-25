@@ -30,7 +30,7 @@ NavigationManager::NavigationManager(Physics::IPhysicsApi& physicsApi)
 std::vector<vec3> NavigationManager::CalculatePath(const vec3& start, const vec3& end)
 {
     std::lock_guard lk(providerMutex);
-    return navigationProvider ? navigationProvider->CalculatePath(start, end) : std::vector<vec3>{};
+    return CalculatePathImpl(start, end);
 }
 std::vector<vec3> NavigationManager::CalculatePath(const GameObject& gameObject, const vec3& start, const vec3& end)
 {
@@ -40,7 +40,7 @@ std::vector<vec3> NavigationManager::CalculatePath(const GameObject& gameObject,
     if (iter != dynamicObjects.end())
         return navigationProvider ? navigationProvider->CalculatePath(start, end, iter->second.grids) : std::vector<vec3>{};
 
-    return CalculatePath(start, end);
+    return CalculatePathImpl(start, end);
 }
 void NavigationManager::Update(const SceneNotifEvent& event)
 {
@@ -251,4 +251,9 @@ void NavigationManager::UpdateDynamicObjects()
         }
     }
 }
+std::vector<vec3> NavigationManager::CalculatePathImpl(const vec3& start, const vec3& end)
+{
+    return navigationProvider ? navigationProvider->CalculatePath(start, end) : std::vector<vec3>{};
+}
+
 }  // namespace GameEngine

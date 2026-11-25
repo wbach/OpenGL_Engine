@@ -8,13 +8,11 @@ namespace GameEngine
 namespace Components
 {
 class AIAmbientState;
-class AIChaseState;
 
 class AIReturnState
     : public AIStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-          Utils::StateMachine::On<TargetSpottedEvent, Utils::StateMachine::TransitionTo<AIChaseState>>,
           Utils::StateMachine::On<NavigationPathCompletedEvent, Utils::StateMachine::TransitionTo<AIAmbientState>>>
 {
 public:

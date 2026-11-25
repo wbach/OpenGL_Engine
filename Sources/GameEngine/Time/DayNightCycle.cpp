@@ -191,8 +191,6 @@ void DayNightCycle::CalculateBlendFactor()
     {
         dayNightBlendFactor = 0.f;
     }
-    auto h = GetHourMinuteSecond();
-    LOG_DEBUG << h.hour << ":" << h.minute << ", dayNightBlendFactor: " << dayNightBlendFactor;
 }
 
 void DayNightCycle::SetDirectionalLight(Components::DirectionalLightComponent* light)

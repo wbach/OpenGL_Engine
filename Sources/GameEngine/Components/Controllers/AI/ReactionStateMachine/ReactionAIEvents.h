@@ -5,19 +5,18 @@
 
 namespace GameEngine
 {
+class GameObject;
 namespace Components
 {
 struct DamageTaken
 {
+    GameObject* target{nullptr};
     int damageAmount{0};
-    uint64_t attackerId{0};  // Kto nas zaatakował
-    // opcjonalnie: Vector3 hitDirection;
 };
 
 struct TargetSpotted
 {
-    uint64_t targetId{0};
-    bool isImmediateThreat{true};  // Czy od razu atakuje, czy tylko grozi
+    GameObject* target{nullptr};
 };
 
 struct NoiseHeard
@@ -55,7 +54,7 @@ struct ScheduleUpdated
 };
 
 using ReactionAIEvent = std::variant<DamageTaken, TargetSpotted, NoiseHeard, TargetLost, LowHealthReached, MoraleBroken,
-                                      PathBlocked, ThreatCleared, ScheduleUpdated>;
+                                     PathBlocked, ThreatCleared, ScheduleUpdated>;
 
 }  // namespace Components
 }  // namespace GameEngine

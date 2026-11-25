@@ -165,14 +165,12 @@ void RoutineComponent::Update()
             std::visit(
                 [&](auto e)
                 {
-                    LOG_DEBUG << "Handle event: " << Utils::GetTypeName(e);
                     stateMachine_->handle(e);
                 },
                 event);
         }
     }
 
-    LOG_DEBUG << "Update";
     std::visit([&](auto statePtr) { statePtr->update(componentContext_.time_.deltaTime); }, stateMachine_->currentState);
 }
 void RoutineComponent::RegisterProfession(ProfessionComponent& component)

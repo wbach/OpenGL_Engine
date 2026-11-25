@@ -7,8 +7,9 @@ namespace Components
 {
 class RoutineComponent;
 class AIController;
-
+class CharacterStatsComponent;
 class ProfessionComponent : public ComponentCore
+
 {
 public:
     ProfessionComponent(const ComponentType&, ComponentContext&, GameObject&);
@@ -19,6 +20,7 @@ public:
 protected:
     RoutineComponent* routineComponent{nullptr};
     AIController* controller{nullptr};
+    CharacterStatsComponent* characterStats{nullptr};
 };
 }  // namespace Components
 }  // namespace GameEngine

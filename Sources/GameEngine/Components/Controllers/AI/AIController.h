@@ -19,26 +19,6 @@ class ProfessionComponent;
 DECLARE_COMPONENT(AIController)
 {
 public:
-    enum class AITargetingMode
-    {
-        None,
-        AttackEverythingExceptSameRace,
-        AttackOnlyHumans,
-        HumanStandard,
-        GuildStrict,
-        CustomWhiteBlackList
-    };
-
-    float detectionRadius = 5.0f;
-    AITargetingMode targetingMode{AITargetingMode::None};
-
-    // clang-format off
-    BEGIN_FIELDS()
-        FIELD_ENUM(targetingMode)
-        FIELD_FLOAT(detectionRadius)
-    END_FIELDS()
-    // clang-format on
-
     using EventQueue = std::deque<AIEvent>;
 
     AIController(ComponentContext&, GameObject&);
@@ -59,21 +39,16 @@ public:
     }
 
     const std::vector<vec3>& getCurrentPath() const;
-    float getAttackRadius() const;
+    float getMeleAttackRadius() const;
+    std::optional<float> getRangeAttackRadius() const;
 
 private:
     void handleEvent(const AIEvent&);
     void processEvent();
-    void runPerceptionCheck();
-    HealthComponent* getClosestTarget(float);
-    bool isHostile(const CharacterStatsComponent&) const;
 
 private:
     EventQueue eventQueue;
     std::mutex eventQueueMutex;
-    bool hasTarget{false};
-    HealthComponent* currentTargetHealthComponent{nullptr};
-    CharacterStatsComponent* myStats{nullptr};
 
 private:
     struct Impl;

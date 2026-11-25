@@ -1,16 +1,18 @@
 #include "ScoutProfessionComponent.h"
 
 #include <Common/Transform.h>
-#include <GameEngine/Components/Controllers/AI/AIController.h>
-#include <GameEngine/Components/Controllers/AI/AIControllerEvents.h>
-#include <GameEngine/Objects/GameObject.h>
+#include <Logger/Log.h>
 #include <Utils/TreeNodeReadFunctions.h>
 #include <Utils/TreeNodeWriteFunctions.h>
 
 #include <cmath>
 #include <cstdlib>
 
-#include "Logger/Log.h"
+#include "GameEngine/Components/Controllers/AI/AIController.h"
+#include "GameEngine/Components/Controllers/AI/AIControllerEvents.h"
+#include "GameEngine/Components/Gameplay/CharacterStats/CharacterStatsComponent.h"
+#include "GameEngine/Narrative/FactionManager.h"
+#include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
 {
@@ -22,6 +24,8 @@ constexpr char CSTR_PATROL_RADIUS[]      = "patrolRadius";
 constexpr char CSTR_ARRIVAL_THRESHOLD[]  = "arrivalThreshold";
 constexpr char CSTR_MAX_PATROL_TIME[]    = "maxPatrolTime";
 constexpr char CSTR_SPAWNPOS_AS_ORIGIN[] = "useSpawnPositionAsOrgin";
+constexpr char CSTR_DETECTION_RADIUS[]   = "detectionRadius";
+constexpr char CSTR_TARGETING_MODE[]     = "targetingMode";
 }  // namespace
 
 REGISTER_COMPONENT(ScoutProfessionComponent)
@@ -71,6 +75,8 @@ void ScoutProfessionComponent::ExecuteWork(const vec3& targetPosition)
         controller->pushEventToQueue(MoveToTargetEvent{.targetPosition = currentPatrolTarget_, .moveType = AIMoveType::WALK});
         LOG_DEBUG << thisObject_.GetName() << " currentPatrolTarget_ : " << currentPatrolTarget_;
     }
+
+    runPerceptionCheck();
 }
 
 void ScoutProfessionComponent::GenerateNewPatrolTarget(const vec3& origin)
@@ -110,6 +116,14 @@ void ScoutProfessionComponent::GenerateNewPatrolTarget(const vec3& origin)
     hasActiveTarget_     = true;
 }
 
+void ScoutProfessionComponent::runPerceptionCheck()
+{
+    if (const auto target = getClosestTarget(detectionRadius))
+    {
+        controller->pushEventToQueue(TargetSpotted{});
+    }
+}
+
 bool ScoutProfessionComponent::HasReachedTarget(const vec3& currentPosition, const vec3& targetPosition) const
 {
     const float distanceSquared = glm::distance(currentPosition, targetPosition);
@@ -122,6 +136,8 @@ void ScoutProfessionComponent::read(const TreeNode& input)
     ::Read(input.getChild(CSTR_ARRIVAL_THRESHOLD), arrivalThreshold);
     ::Read(input.getChild(CSTR_SPAWNPOS_AS_ORIGIN), useSpawnPositionAsOrgin);
     ::Read(input.getChild(CSTR_MAX_PATROL_TIME), maxPatrolTime);
+    ::Read(input.getChild(CSTR_DETECTION_RADIUS), detectionRadius);
+    ::Read(input.getChild(CSTR_TARGETING_MODE), targetingMode);
 }
 void ScoutProfessionComponent::write(TreeNode& node) const
 {
@@ -129,7 +145,53 @@ void ScoutProfessionComponent::write(TreeNode& node) const
     ::write(node.addChild(CSTR_ARRIVAL_THRESHOLD), arrivalThreshold);
     ::write(node.addChild(CSTR_SPAWNPOS_AS_ORIGIN), useSpawnPositionAsOrgin);
     ::write(node.addChild(CSTR_MAX_PATROL_TIME), maxPatrolTime);
+    ::write(node.addChild(CSTR_DETECTION_RADIUS), detectionRadius);
+    ::write(node.addChild(CSTR_TARGETING_MODE), targetingMode);
 }
 
+CharacterStatsComponent* ScoutProfessionComponent::getClosestTarget(float radius)
+{
+    CharacterStatsComponent* result{nullptr};
+    auto all = componentContext_.componentController_.GetAllActiveComponentsOfType<CharacterStatsComponent>();
+
+    auto minDistance{radius};
+    for (auto& characterStatsComponent : all)
+    {
+        const auto& targetObject = characterStatsComponent->GetParentGameObject();
+        if (targetObject.GetId() == thisObject_.GetId())
+        {
+            continue;
+        }
+
+        auto targetStats = targetObject.GetComponent<CharacterStatsComponent>();
+        if (not targetStats)
+            continue;
+
+        if (not isHostile(*targetStats))
+        {
+            continue;
+        }
+
+        auto distance =
+            glm::distance(targetObject.GetWorldTransform().GetPosition(), thisObject_.GetWorldTransform().GetPosition());
+        if (distance < minDistance)
+        {
+            minDistance = distance;
+            result      = characterStatsComponent;
+        }
+    }
+    return result;
+}
+bool ScoutProfessionComponent::isHostile(const CharacterStatsComponent& targetStats) const
+{
+    if (not characterStats)
+    {
+        return false;
+    }
+
+    const auto attitude =
+        componentContext_.factionManager.getAttitude(characterStats->general.faction, targetStats.general.faction);
+    return attitude == Attitude::Hostile;
+}
 }  // namespace Components
 }  // namespace GameEngine

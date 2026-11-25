@@ -39,8 +39,9 @@ void GeneralTexture::GpuLoadingPass()
         return;
     }
 
+    LOG_DEBUG << "CreateTexture file_: " << file_;
     graphicsObjectId_ = graphicsApi_.CreateTexture(image_, paramters_.filter, paramters_.mimap);
-
+    LOG_DEBUG << "CreateTexture done for file_: " << file_;
     if (graphicsObjectId_)
     {
         isGpuAtual = true;

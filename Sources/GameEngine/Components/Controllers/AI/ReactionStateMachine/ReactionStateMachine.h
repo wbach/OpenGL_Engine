@@ -3,7 +3,7 @@
 
 #include "States/PassiveState.h"
 #include "States/SuspiciousState.h"
-#include "States/CombatState.h"
+#include "States/CombatState/CombatState.h"
 #include "States/SurrenderedState.h"
 #include "States/PanicState.h"
 #include "States/RetreatState.h"

@@ -508,6 +508,11 @@ void Scene::AddGameObject(std::unique_ptr<GameObject> object, GameObject* parent
     }
     else
     {
+        if (not rootGameObject_)
+        {
+            LOG_WARN << "Root game object is not set!";
+            return;
+        }
         AddGameObjectEvent event{.parentGameObject = rootGameObject_->GetId(), .gameObject = std::move(object)};
         SendEvent(std::move(event));
     }

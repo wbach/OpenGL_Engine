@@ -338,6 +338,11 @@ bool isCollision(Physics::IPhysicsApi& physicsApi, const vec3& characterPosition
 
 void CharacterController::PostStart()
 {
+    if (not rigidbody_)
+    {
+        return;
+    }
+
     LOG_DEBUG << "PostStart";
     const auto& scale = thisObject_.GetWorldTransform().GetScale();
 
@@ -423,20 +428,19 @@ void CharacterController::PostStart()
         });
     LOG_DEBUG << "PostStart2 " << scale;
     groundEnterSubId = componentContext_.physicsApi_.setCollisionCallback(
-        rigidbody_->GetId(),
-        Physics::CollisionDetection{.action = Physics::CollisionDetection::Action::onEnter,
-                                    .type   = Physics::CollisionDetection::Type::repeat,
-                                    .callback =
-                                        [&](const auto& collisionInfos)
-                                    {
-                                        if (not collisionInfos.empty())
-                                        {
-                                            pushEventToFrontQueue(GroundDetectionEvent{});
-                                            impl->fsmContext->isOnAir = false;
-                                        }
-                                    },
-                                    .ignoredList = {},
-                                    .predicate   = isGroundContact});
+        rigidbody_->GetId(), Physics::CollisionDetection{.action = Physics::CollisionDetection::Action::onEnter,
+                                                         .type   = Physics::CollisionDetection::Type::repeat,
+                                                         .callback =
+                                                             [&](const auto& collisionInfos)
+                                                         {
+                                                             if (not collisionInfos.empty())
+                                                             {
+                                                                 pushEventToFrontQueue(GroundDetectionEvent{});
+                                                                 impl->fsmContext->isOnAir = false;
+                                                             }
+                                                         },
+                                                         .ignoredList = {},
+                                                         .predicate   = isGroundContact});
     LOG_DEBUG << "PostStart end";
 }
 void CharacterController::processEvent()
@@ -467,6 +471,12 @@ void CharacterController::processEvent()
 }
 void CharacterController::Update()
 {
+    if (not impl->stateMachine_)
+    {
+        LOG_WARN << "State machine is not ready!";
+        return;
+    }
+
     processEvent();
 
     if (impl->stateMachine_ and rigidbody_ and rigidbody_->IsReady())
@@ -477,6 +487,11 @@ void CharacterController::Update()
 }
 void CharacterController::handleEvent(const CharacterControllerEvent& event)
 {
+    if (not impl->stateMachine_)
+    {
+        LOG_WARN << "State machine is not ready!";
+        return;
+    }
     auto passEventToMachine = [&](const auto& e) { impl->stateMachine_->handle(e); };
     std::visit(passEventToMachine, event);
     notifyEvent(event);

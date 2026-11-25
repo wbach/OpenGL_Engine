@@ -1,10 +1,9 @@
-#include "AIChaseState.h"
+#include "ChaseState.h"
 
-#include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
 
+#include "../CombatStateEvents.h"
 #include "GameEngine/Components/Controllers/AI/AIController.h"
-#include "GameEngine/Components/Controllers/AI/AIControllerContext.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -14,40 +13,41 @@ namespace GameEngine
 {
 namespace Components
 {
-AIChaseState::AIChaseState(AIControllerContext& context)
-    : context_{context}
+ChaseState::ChaseState(CombatStateContext& combatStateContext)
+    : combatStateContext{combatStateContext}
 {
 }
-void AIChaseState::onEnter(const TargetSpottedEvent& event)
+void ChaseState::onEnter()
 {
-    LOG_DEBUG << context_.gameObject.GetName() << " spot " << event.target.GetName();
-    target = &event.target;
-    context_.currentPath.clear();
 }
-void AIChaseState::update(float deltaTime)
+void ChaseState::onEnter(const TargetOutOfRange& event)
+{
+    target = event.target;
+}
+void ChaseState::update(float deltaTime)
 {
     if (not target)
     {
-        context_.controller.pushEventToQueue(TargetLostEvent{});
+        combatStateContext.controller.pushEventToQueue(TargetLost{});
         return;
     }
 
-    const auto currentPos = context_.gameObject.GetWorldTransform().GetPosition();
+    const auto currentPos = combatStateContext.gameObject.GetWorldTransform().GetPosition();
     const auto targetPos  = target->GetWorldTransform().GetPosition();
 
     const auto distance = glm::distance(currentPos, targetPos);
 
-    if (distance <= context_.controller.getAttackRadius())
+    if (distance <= combatStateContext.controller.getMeleAttackRadius())
     {
         LOG_DEBUG << "InAttack range";
-        context_.controller.pushEventToQueue(TargetInAttackRangeEvent{.target = *target});
+        combatStateContext.controller.pushEventToQueue(TargetInMeleeRangeEvent{.target = target});
         return;
     }
-    auto& currentPath = context_.currentPath;
+    auto& currentPath = combatStateContext.currentPath;
 
     pathUpdateTimer_ -= deltaTime;
 
-    if (not context_.navigationManager.Raycast(currentPos, targetPos))
+    if (not combatStateContext.navigationManager.Raycast(currentPos, targetPos))
     {
         currentPath.clear();
         moveTo(targetPos);
@@ -55,7 +55,7 @@ void AIChaseState::update(float deltaTime)
     else if (pathUpdateTimer_ <= 0.f)
     {
         pathUpdateTimer_ = (distance > 20.f) ? 0.6f : 0.3f;
-        currentPath      = context_.navigationManager.CalculatePath(currentPos, targetPos);
+        currentPath      = combatStateContext.navigationManager.CalculatePath(currentPos, targetPos);
 
         if (currentPath.size() > 1 and glm::distance(currentPos, currentPath[0]) < 0.5f)
         {
@@ -84,20 +84,12 @@ void AIChaseState::update(float deltaTime)
         }
     }
 }
-void AIChaseState::onLeave()
+void ChaseState::moveTo(const vec3& targetPos)
 {
-    if (isMoving)
-        context_.characterController.pushEventToQueue(EndForwardMoveEvent{});
-
-    target   = nullptr;
-    isMoving = false;
-}
-void AIChaseState::moveTo(const vec3& targetPos)
-{
-    context_.characterController.pushEventToQueue(MoveForwardEvent{});
+    combatStateContext.characterController.pushEventToQueue(MoveForwardEvent{});
     isMoving = true;
 
-    const auto currentPos = context_.gameObject.GetWorldTransform().GetPosition();
+    const auto currentPos = combatStateContext.gameObject.GetWorldTransform().GetPosition();
 
     auto direction = targetPos - currentPos;
     direction.y    = 0.0f;
@@ -105,13 +97,8 @@ void AIChaseState::moveTo(const vec3& targetPos)
     if (glm::length(direction) > 0.0001f)
     {
         auto targetRotation = Utils::calculateTargetRotation(glm::normalize(direction));
-        context_.characterController.pushEventToQueue(RotateTargetEvent{targetRotation});
+        combatStateContext.characterController.pushEventToQueue(RotateTargetEvent{targetRotation});
     }
-}
-void AIChaseState::onEnter()
-{
-    pathUpdateTimer_ = -1.f;
-    isMoving         = false;
 }
 }  // namespace Components
 }  // namespace GameEngine
