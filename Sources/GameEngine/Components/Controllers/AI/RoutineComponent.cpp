@@ -103,6 +103,7 @@ void RoutineComponent::InitializeEditorStructures()
     };
     routineSteps_.initElements = [this, initElements](std::vector<CustomStructure>& out) { initElements(out, schedule_); };
 }
+
 RoutineAIEvent RoutineComponent::CreateEvent(const RoutineStep& step)
 {
     switch (step.behaviorState)
@@ -119,7 +120,9 @@ RoutineAIEvent RoutineComponent::CreateEvent(const RoutineStep& step)
         case AIBehaviorState::Rest:
             return RestStarted{};
     }
-
+LOG_ERROR << "Invalid behaviorState: "
+          << static_cast<int>(step.behaviorState);
+    LOG_ERROR << "state: " << magic_enum::enum_name(step.behaviorState);
     throw std::runtime_error("Unknown routine behavior");
 }
 
@@ -150,29 +153,26 @@ void RoutineComponent::Update()
 {
     if (!stateMachine_)
     {
+        LOG_WARN << "stateMachine_ not set";
         return;
     }
 
     const auto currentStep = UpdateAndGetCurrentStep(componentContext_.scene_.GetDayNightCycle());
 
-    if (currentStep)
+    if (currentStep && currentStep->behaviorState != currentBehaviorState_)
     {
-        if (currentStep->behaviorState != currentBehaviorState_)
-        {
-            currentBehaviorState_ = currentStep->behaviorState;
+        LOG_DEBUG << "Behavior change: " << magic_enum::enum_name(currentStep->behaviorState);
 
-            auto event = CreateEvent(*currentStep);
-            std::visit(
-                [&](auto e)
-                {
-                    stateMachine_->handle(e);
-                },
-                event);
-        }
+        currentBehaviorState_ = currentStep->behaviorState;
+
+        auto event = CreateEvent(*currentStep);
+
+        std::visit([&](auto e) { stateMachine_->handle(e); }, event);
     }
 
     std::visit([&](auto statePtr) { statePtr->update(componentContext_.time_.deltaTime); }, stateMachine_->currentState);
 }
+
 void RoutineComponent::RegisterProfession(ProfessionComponent& component)
 {
     LOG_DEBUG << "RegisterProfession: " << component.GetTypeName() << " " << thisObject_.GetName();
@@ -186,46 +186,40 @@ void RoutineComponent::AddStep(const RoutineStep& step)
     routineSteps_.init();
 }
 
+void RoutineComponent::ClearSteps()
+{
+    schedule_.clear();
+    routineSteps_.init();
+}
+
 int RoutineStep::GetMinutesFromStartOfDay() const
 {
     return (startHour * 60) + startMinute;
 }
 
-std::optional<RoutineStep> RoutineComponent::UpdateAndGetCurrentStep(const GameTime& gameTime)
+std::optional<RoutineStep> RoutineComponent::UpdateAndGetCurrentStep(
+    const GameTime& gameTime)
 {
-    auto currentGlobalMinutes = static_cast<int>(gameTime.GetMinutes());
-
     if (schedule_.empty())
-    {
-        LOG_DEBUG << "schedule_ is empty";
         return std::nullopt;
-    }
 
-    std::optional<RoutineStep> result;
-    for (const auto& step : schedule_)
-    {
-        if (currentGlobalMinutes >= step.GetMinutesFromStartOfDay())
-        {
-            result = step;
-        }
-    }
+    const int currentMinutes =
+        static_cast<int>(gameTime.GetMinutes()) % 1440;
 
-    if (currentGlobalMinutes < schedule_.front().GetMinutesFromStartOfDay())
-    {
-        for (auto it = schedule_.rbegin(); it != schedule_.rend(); ++it)
-        {
-            if (it->GetMinutesFromStartOfDay() <= currentGlobalMinutes)
-            {
-                result = *it;
-                break;
-            }
-        }
-    }
+    auto it = std::ranges::upper_bound(
+        schedule_,
+        currentMinutes,
+        {},
+        &RoutineStep::GetMinutesFromStartOfDay);
 
-    if (result)
-        debugTargetPosition_ = result->targetPosition;
+    if (it == schedule_.begin())
+        it = schedule_.end();
 
-    return result;
+    --it;
+
+    debugTargetPosition_ = it->targetPosition;
+
+    return *it;
 }
 
 void RoutineComponent::HandleEvent(const RoutineAIEvent& event)
@@ -272,7 +266,7 @@ void RoutineComponent::write(TreeNode& node) const
 
 void RoutineComponent::SortRoutineSteps()
 {
-    std::sort(schedule_.begin(), schedule_.end(),
+ std::sort(schedule_.begin(), schedule_.end(),
               [](const RoutineStep& a, const RoutineStep& b)
               { return a.GetMinutesFromStartOfDay() < b.GetMinutesFromStartOfDay(); });
 }

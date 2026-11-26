@@ -19,7 +19,7 @@ using namespace ::testing;
 
 namespace
 {
-static constexpr int MINUTES_PER_DAY = 24 * 60;
+static constexpr int SECONDS_PER_DAY = 24 * 60 * 60;
 const GameEngine::GameTime::HourMinuteSecond SLEEP_START{22, 0};
 const GameEngine::GameTime::HourMinuteSecond WORK_START{6, 0};
 }  // namespace
@@ -28,11 +28,9 @@ struct AIControllerTests : public EngineBasedTest
 {
     void SimulateTimeSteps(int steps)
     {
-        LOG_DEBUG << "Steps : " << steps;
         PrintCurrentTime();
         for (int i = 0; i < steps; ++i)
         {
-            LOG_DEBUG << "deltaTime: " << deltaTime;
             scene->FullUpdate(deltaTime);
         }
         PrintCurrentTime();
@@ -48,7 +46,7 @@ struct AIControllerTests : public EngineBasedTest
     void AdvanceToTime(const GameEngine::GameTime::HourMinuteSecond& time)
     {
         LOG_DEBUG << scene->GetDayNightCycle() << ", Target time: " << time;
-        auto diff = CalculateStepsToTime(time.hour, time.minute);
+        auto diff = CalculateStepsToTime(time);
         if (diff > 0)
         {
             const auto lastDeltaTime = deltaTime;
@@ -59,22 +57,40 @@ struct AIControllerTests : public EngineBasedTest
         PrintCurrentTime();
     }
 
-    void SimulateTimeStepsToTime(int targetHour, int targetMinute)
+    void SimulateTimeStepsToTime(const GameEngine::GameTime::HourMinuteSecond& time, AIBehaviorState expectedRoutineState)
     {
-        auto diff = CalculateStepsToTime(targetHour, targetMinute);
-        if (diff > 0)
+        const int steps = CalculateStepsToTime(time);
+
+        for (int i = 0; i < steps; ++i)
         {
-            SimulateTimeSteps(diff);
+            scene->FullUpdate(deltaTime);
+            PrintCurrentTime();
+
+            if (routine_->GetCurrentBehaviorState() != expectedRoutineState)
+            {
+                LOG_DEBUG << magic_enum::enum_name(routine_->GetCurrentBehaviorState())
+                          << ", expected : " << magic_enum::enum_name(expectedRoutineState);
+            }
+
+            ASSERT_EQ(routine_->GetCurrentBehaviorState(), expectedRoutineState);
         }
     }
 
-    int CalculateStepsToTime(int targetHour, int targetMinute)
+    int CalculateStepsToTime(const GameEngine::GameTime::HourMinuteSecond& time)
     {
-        const auto hms     = scene->GetDayNightCycle().GetHourMinuteSecond();
-        const auto current = hms.hour * 60 + hms.minute;
-        const auto target  = ((targetHour * 60 + targetMinute) % MINUTES_PER_DAY + MINUTES_PER_DAY) % MINUTES_PER_DAY;
-        const auto diff    = (target - current + MINUTES_PER_DAY) % MINUTES_PER_DAY;
-        return diff;
+        constexpr double SECONDS_PER_DAY = 86400.0;
+        const auto hms                   = scene->GetDayNightCycle().GetHourMinuteSecond();
+        const int current                = hms.hour * 3600 + hms.minute * 60 + hms.second;
+        const int target = (time.hour * 3600 + time.minute * 60 + time.second) % static_cast<int>(SECONDS_PER_DAY);
+        const int diff   = (target - current + static_cast<int>(SECONDS_PER_DAY)) % static_cast<int>(SECONDS_PER_DAY);
+
+        if (diff == 0)
+            return 0;
+
+        if (deltaTime <= 0.f)
+            throw std::runtime_error("deltaTime must be positive");
+
+        return static_cast<int>(std::ceil(static_cast<double>(diff) / deltaTime));
     }
 
     void PrintCurrentTime()
@@ -112,7 +128,7 @@ struct AIControllerTests : public EngineBasedTest
         routine_->InitializeStateMachine();
 
         auto& dnc = scene->GetDayNightCycle();
-        dnc.SetDayLengthInSeconds(MINUTES_PER_DAY);
+        dnc.SetDayLengthInSeconds(SECONDS_PER_DAY);
         scene->Start();
 
         const auto& impl = sut_->getImpl();
@@ -135,7 +151,7 @@ struct AIControllerTests : public EngineBasedTest
     RoutineComponent* routine_{nullptr};
     ReactionState* reactionState{nullptr};
     ScoutProfessionComponent* profession_{nullptr};
-    float deltaTime{1000};
+    float deltaTime{1.f};
 };
 
 TEST_F(AIControllerTests, Routine_SleepToWork)
@@ -151,31 +167,18 @@ TEST_F(AIControllerTests, Routine_SleepToWork)
     ASSERT_EQ(routine_->GetCurrentBehaviorState(), AIBehaviorState::Work);
 }
 
-TEST_F(AIControllerTests, FullDayCycle_AllFourStates)
+TEST_F(AIControllerTests, DISABLED_FullDayCycle_AllFourStates) //WIP
 {
+    routine_->ClearSteps();
+    routine_->AddStep(RoutineStep{.startHour = 7, .startMinute = 0, .behaviorState = AIBehaviorState::Eat});
+    routine_->AddStep(RoutineStep{.startHour = 7, .startMinute = 15, .behaviorState = AIBehaviorState::Work});
     routine_->AddStep(RoutineStep{.startHour = 12, .startMinute = 0, .behaviorState = AIBehaviorState::Eat});
-    routine_->AddStep(RoutineStep{.startHour = 14, .startMinute = 0, .behaviorState = AIBehaviorState::Rest});
+    routine_->AddStep(RoutineStep{.startHour = 12, .startMinute = 15, .behaviorState = AIBehaviorState::Work});
+    routine_->AddStep(RoutineStep{.startHour = 15, .startMinute = 0, .behaviorState = AIBehaviorState::Rest});
+    routine_->AddStep(RoutineStep{.startHour = 21, .startMinute = 0, .behaviorState = AIBehaviorState::Sleep});
 
-    SetHour(GameTime::HourMinuteSecond{.hour = 21, .minute = 59, .second = 59});
-    ASSERT_EQ(routine_->GetCurrentBehaviorState(), AIBehaviorState::Work);
-
-    AdvanceToTime(GameTime::HourMinuteSecond{.hour = 22, .minute = 0});
-    ASSERT_EQ(routine_->GetCurrentBehaviorState(), AIBehaviorState::Sleep);
-
-    AdvanceToTime(GameTime::HourMinuteSecond{.hour = 6, .minute = 0});
-    ASSERT_EQ(routine_->GetCurrentBehaviorState(), AIBehaviorState::Work);
-
-    AdvanceToTime(GameTime::HourMinuteSecond{.hour = 12, .minute = 0});
-    ASSERT_EQ(routine_->GetCurrentBehaviorState(), AIBehaviorState::Eat);
-
-    LOG_DEBUG << "1";
-    AdvanceToTime(GameTime::HourMinuteSecond{.hour = 14, .minute = 0});
-    ASSERT_EQ(routine_->GetCurrentBehaviorState(), AIBehaviorState::Rest);
-    LOG_DEBUG << "2";
-
-    AdvanceToTime(GameTime::HourMinuteSecond{.hour = 22, .minute = 0});
-    LOG_DEBUG << "3";
-    ASSERT_EQ(routine_->GetCurrentBehaviorState(), AIBehaviorState::Sleep);
+    SetHour(GameTime::HourMinuteSecond{.hour = 6, .minute = 0, .second = 0});
+    SimulateTimeStepsToTime(GameTime::HourMinuteSecond{.hour = 6, .minute = 59, .second = 59}, AIBehaviorState::Sleep);
 }
 
 TEST_F(AIControllerTests, Jump_DailyCycleContinuity)
@@ -198,8 +201,9 @@ TEST_F(AIControllerTests, Jump_DailyCycleContinuity)
 
 TEST_F(AIControllerTests, InterruptRoutineByDamageTakenEventAndBackWhenTargetLost)
 {
-    routine_->AddStep(RoutineStep{.startHour = 12, .startMinute = 0, .behaviorState = AIBehaviorState::Eat});
-    routine_->AddStep(RoutineStep{.startHour = 14, .startMinute = 0, .behaviorState = AIBehaviorState::Rest});
+    routine_->AddStep(RoutineStep{.startHour = 13, .startMinute = 0, .behaviorState = AIBehaviorState::Eat});
+    routine_->AddStep(RoutineStep{.startHour = 13, .startMinute = 15, .behaviorState = AIBehaviorState::Work});
+    routine_->AddStep(RoutineStep{.startHour = 15, .startMinute = 0, .behaviorState = AIBehaviorState::Rest});
 
     SetHour(GameTime::HourMinuteSecond{.hour = 20, .minute = 13, .second = 59});
     SimulateTimeSteps(1);

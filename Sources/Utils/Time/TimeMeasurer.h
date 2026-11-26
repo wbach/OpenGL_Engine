@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <functional>
 #include <vector>
+
+#include "DeltaTime.h"
 #include "EngineApi.h"
 
 namespace Utils
@@ -12,9 +14,6 @@ namespace Time
 class ENGINE_API CTimeMeasurer
 {
 public:
-    using int64  = std::int64_t;
-    using uint32 = std::uint32_t;
-
     using Clock     = std::chrono::steady_clock;
     using Timepoint = Clock::time_point;
     using Callback  = std::function<void()>;
@@ -23,7 +22,7 @@ public:
     CTimeMeasurer(uint32 lockFps, uint32 frequency = 1000);
     ~CTimeMeasurer();
 
-    double GetDeltaTime() const;
+    DeltaTime GetDeltaTime() const;
     void setLockFps(uint32 lockFps);
 
     int64 GetFps() const;
@@ -48,11 +47,11 @@ private:
 
     uint32 lockFps_{0};
 
-    int64 frequency_{0};       // ns
-    int64 frameTime_{0};       // ns
-    int64 periodTime_{0};      // ns
-    int64 lockframeTime_{0};   // ns
-    int64 deltaTime_{0};       // ns
+    int64 frequency_{0};      // ns
+    int64 frameTime_{0};      // ns
+    int64 periodTime_{0};     // ns
+    int64 lockframeTime_{0};  // ns
+    DeltaTime deltaTime_;
 
     std::chrono::nanoseconds frameDuration_{};
 
@@ -61,5 +60,5 @@ private:
 
     std::vector<Callback> callbacks_;
 };
-} // namespace Time
-} // namespace Utils
+}  // namespace Time
+}  // namespace Utils

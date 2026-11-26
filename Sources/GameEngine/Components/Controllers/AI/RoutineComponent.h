@@ -46,7 +46,8 @@ public:
     {
         return schedule_;
     }
-    void AddStep(const RoutineStep& step);
+    void AddStep(const RoutineStep&);
+    void ClearSteps();
 
     std::optional<RoutineStep> UpdateAndGetCurrentStep(const GameTime&);
 
