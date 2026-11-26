@@ -3,6 +3,7 @@
 #include <functional>
 #include "Mutex.hpp"
 #include "Types.h"
+#include <Utils/Time/DeltaTime.h>
 
 namespace Utils
 {
@@ -25,7 +26,7 @@ public:
     Worker(Worker&&)      = delete;
 
     void AddTask(std::function<void()> task, std::function<void()> callback);
-    void Work(float);
+    void Work(const Time::DeltaTime&);
 
     uint32 id_;
 

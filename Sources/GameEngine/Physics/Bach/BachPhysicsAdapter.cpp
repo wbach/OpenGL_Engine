@@ -134,7 +134,7 @@ BachPhysicsAdapter::~BachPhysicsAdapter()
 {
     LOG_DEBUG << "destructor";
 }
-void BachPhysicsAdapter::Simulate(float)
+void BachPhysicsAdapter::Simulate(const Utils::Time::DeltaTime&)
 {
     if (not impl_->enableSimulation_)
     {

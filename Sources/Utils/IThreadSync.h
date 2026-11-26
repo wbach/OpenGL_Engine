@@ -1,5 +1,6 @@
 #pragma once
 #include "Types.h"
+#include <Utils/Time/DeltaTime.h>
 
 namespace Utils
 {
@@ -8,7 +9,7 @@ namespace Thread
 class Worker;
 class ThreadSubscriber;
 
-typedef std::function<void(float deltaTime)> FrameFunc;
+typedef std::function<void(const Time::DeltaTime&)> FrameFunc;
 
 class IThreadSync
 {

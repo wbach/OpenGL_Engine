@@ -19,7 +19,7 @@ public:
     SlopeHeightPainter(TerrainPainter::Dependencies&&, std::unique_ptr<IBrush>);
     ~SlopeHeightPainter() override;
 
-    void Apply(Texture& texture, const vec2ui& paintedPoint, const Influance& influancePoint, DeltaTime deltaTime) override;
+    void Apply(Texture& texture, const vec2ui& paintedPoint, const Influance& influancePoint, Utils::Time::DeltaTime deltaTime) override;
 
 private:
     void OnClick();

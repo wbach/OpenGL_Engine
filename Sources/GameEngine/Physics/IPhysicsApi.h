@@ -65,7 +65,7 @@ class IPhysicsApi
 {
 public:
     virtual ~IPhysicsApi()                                                                          = default;
-    virtual void Simulate(float)                                                                    = 0;
+    virtual void Simulate(const Utils::Time::DeltaTime&)                                            = 0;
     virtual const GraphicsApi::LineMesh& DebugDraw(const vec3&)                                     = 0;
     virtual void EnableSimulation()                                                                 = 0;
     virtual void DisableSimulation()                                                                = 0;

@@ -177,7 +177,7 @@ TEST_F(EntityRendererShould, RenderSingleObject)
     scene->Start();
     auto go = AddGameObject();
     go->SetWorldPosition(vec3(10));
-    scene->FullUpdate(0.1f);  // Apply object addition etc
+    scene->FullUpdate(Utils::Time::DeltaTime(static_cast<int64>(0.1f * Utils::Time::DeltaTime::NANOSECONDS_PER_SECOND)));  // Apply object addition etc
     EXPECT_CALL(*graphicsApi, CreateMesh(_, _)).WillRepeatedly(Return(GraphicsApi::ID(IdPool.getId())));
     LoadAllGpuTask();
 
@@ -272,7 +272,7 @@ TEST_F(EntityRendererShould, ParallelAddRemove)
                         scene->RemoveGameObject(*maybeGo->first);
                     }
                 }
-                scene->FullUpdate(0.1f);
+                scene->FullUpdate(Utils::Time::DeltaTime(static_cast<int64>(0.1f * Utils::Time::DeltaTime::NANOSECONDS_PER_SECOND)));
                 std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int>(getRandomFloat() * 1000)));
             }
             removeStop = true;

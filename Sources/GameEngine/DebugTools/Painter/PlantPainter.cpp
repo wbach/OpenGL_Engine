@@ -190,7 +190,7 @@ PlantPainter::PlantPainter(Dependencies&& dependencies, const File& plantTexture
 PlantPainter::~PlantPainter()
 {
 }
-void PlantPainter::Paint(const DeltaTime&)
+void PlantPainter::Paint(const Utils::Time::DeltaTime&)
 {
     auto mousePosition      = dependencies.inputManager.GetMousePosition();
     auto lmouseKeyIsPressed = dependencies.inputManager.GetMouseKey(KeyCodes::LMOUSE);

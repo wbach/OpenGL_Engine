@@ -8,6 +8,14 @@ namespace Utils::Thread
 class IThreadSync;
 }
 
+namespace Utils
+{
+namespace Time
+{
+class DeltaTime;
+}
+}
+
 namespace GameEngine
 {
 static const std::string PAINTER_THREAD_NAME{"PainterUpdate"};
@@ -26,7 +34,7 @@ public:
     }
 
 protected:
-    virtual void Paint(const DeltaTime&) = 0;
+    virtual void Paint(const Utils::Time::DeltaTime&) = 0;
     void StartThread();
 
 protected:

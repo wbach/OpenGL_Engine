@@ -8,6 +8,7 @@
 #include "GameEngine/DebugTools/Painter/HeightPainter.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "IBrush.h"
+#include <Utils/Time/DeltaTime.h>
 
 namespace GameEngine
 {
@@ -25,7 +26,7 @@ SmoothingHeightPainter::~SmoothingHeightPainter()
 {
 }
 void SmoothingHeightPainter::Apply(Texture& texture, const vec2ui& paintedPoint, const Influance& influancePoint,
-                                   DeltaTime deltaTime)
+                                   Utils::Time::DeltaTime deltaTime)
 {
     try
     {

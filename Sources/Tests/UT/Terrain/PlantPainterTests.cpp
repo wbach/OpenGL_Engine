@@ -138,7 +138,7 @@ TEST_F(PlantPainterShould, PaintInTheMiddle)
 
     EXPECT_CALL(inputManagerMock, GetMousePosition()).WillRepeatedly(Return(vec2(0.f)));
     EXPECT_CALL(inputManagerMock, GetMouseKey(KeyCodes::LMOUSE)).WillRepeatedly(Return(true));
-    const float deltaTime = 1.0f;
+    const Utils::Time::DeltaTime deltaTime{static_cast<int64>(1.0f * Utils::Time::DeltaTime::NANOSECONDS_PER_SECOND)};
     threads_.at(PAINTER_THREAD_NAME)(deltaTime);
 
     // GrassRendererComponent should be implicit added

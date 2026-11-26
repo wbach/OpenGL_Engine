@@ -34,7 +34,7 @@ public:
     BulletAdapter();
     ~BulletAdapter() override;
 
-    void Simulate(float) override;
+    void Simulate(const Utils::Time::DeltaTime&) override;
     const GraphicsApi::LineMesh& DebugDraw(const vec3&) override;
     void EnableSimulation() override;
     void DisableSimulation() override;
@@ -85,7 +85,7 @@ private:
     void executeTasks();
     CollisionContactInfos contactTest(const Rigidbody&);
     void checkCollisions();
-    void stepSimulation(float);
+    void stepSimulation(const Utils::Time::DeltaTime&);
 
 private:
     std::unique_ptr<BulletDebugDrawer> bulletDebugDrawer_;

@@ -8,6 +8,7 @@
 #include <GameEngine/Components/Physics/CapsuleShape.h>
 #include <GameEngine/Components/Physics/Rigidbody.h>
 #include <GameEngine/Time/DayNightCycle.h>
+#include <Utils/Time/DeltaTime.h>
 
 #include <GameEngine/Components/Controllers/AI/AIControllerImpl.inl>
 
@@ -31,7 +32,7 @@ struct AIControllerTests : public EngineBasedTest
         PrintCurrentTime();
         for (int i = 0; i < steps; ++i)
         {
-            scene->FullUpdate(deltaTime);
+            scene->FullUpdate(Utils::Time::DeltaTime(static_cast<int64>(deltaTime * Utils::Time::DeltaTime::NANOSECONDS_PER_SECOND)));
         }
         PrintCurrentTime();
     }
@@ -63,7 +64,7 @@ struct AIControllerTests : public EngineBasedTest
 
         for (int i = 0; i < steps; ++i)
         {
-            scene->FullUpdate(deltaTime);
+            scene->FullUpdate(Utils::Time::DeltaTime(static_cast<int64>(deltaTime * Utils::Time::DeltaTime::NANOSECONDS_PER_SECOND)));
             PrintCurrentTime();
 
             if (routine_->GetCurrentBehaviorState() != expectedRoutineState)

@@ -22,6 +22,6 @@ Painter::~Painter()
 }
 void Painter::StartThread()
 {
-    threadSubId = threadSync_.Subscribe([&](float deltaTime) { Paint(deltaTime); }, PAINTER_THREAD_NAME, 30);
+    threadSubId = threadSync_.Subscribe([&](const Utils::Time::DeltaTime& deltaTime) { Paint(deltaTime); }, PAINTER_THREAD_NAME, 30);
 }
 }  // namespace GameEngine

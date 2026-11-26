@@ -4,6 +4,14 @@
 #include <memory>
 #include <mutex>
 
+namespace Utils
+{
+namespace Time
+{
+class DeltaTime;
+}
+}
+
 namespace GraphicsApi
 {
 class IGraphicsApi;
@@ -27,7 +35,7 @@ public:
     void StartActiveScene();
     void Reset();
     void Set(ScenePtr);
-    void UpdateScene(float);
+    void UpdateScene(const Utils::Time::DeltaTime&);
 
 private:
     ISceneFactory& sceneFactory_;

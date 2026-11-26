@@ -13,7 +13,7 @@ class BachPhysicsAdapter : public IPhysicsApi
 public:
     BachPhysicsAdapter();
     ~BachPhysicsAdapter();
-    void Simulate(float) override;
+    void Simulate(const Utils::Time::DeltaTime&) override;
     const GraphicsApi::LineMesh& DebugDraw(const vec3&) override;
     void EnableSimulation() override;
     void DisableSimulation() override;

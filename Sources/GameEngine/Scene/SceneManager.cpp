@@ -133,7 +133,7 @@ void SceneManager::Reset()
 
 void SceneManager::UpdateScene(float dt)
 {
-    sceneWrapper_.UpdateScene(dt);
+    sceneWrapper_.UpdateScene(Utils::Time::DeltaTime(static_cast<int64>(dt * Utils::Time::DeltaTime::NANOSECONDS_PER_SECOND)));
 }
 
 void SceneManager::LoadNextScene()
@@ -177,7 +177,7 @@ void SceneManager::StartUpdateThreadIfNeeded()
     {
         LOG_DEBUG << "Starting scene update thread";
         updateSceneThreadId_ = engineContext_.GetThreadSync().Subscribe(
-            [this](float deltaTime) { sceneWrapper_.UpdateScene(deltaTime); }, "UpdateScene", EngineConf.renderer.fpsLimt);
+            [this](const Utils::Time::DeltaTime& deltaTime) { sceneWrapper_.UpdateScene(deltaTime); }, "UpdateScene", EngineConf.renderer.fpsLimt);
         isRunning_ = true;
     }
     else

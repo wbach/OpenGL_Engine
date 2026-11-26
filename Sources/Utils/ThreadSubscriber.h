@@ -11,12 +11,12 @@ namespace Utils
 {
 namespace Thread
 {
-typedef std::function<void(float deltaTime)> frameFunc;
+typedef std::function<void(const Time::DeltaTime&)> FrameFunc;
 
 class ThreadSubscriber
 {
 public:
-    ThreadSubscriber(const std::string& label, frameFunc func, MeasurementHandler&, uint32);
+    ThreadSubscriber(const std::string& label, FrameFunc func, MeasurementHandler&, uint32);
     ThreadSubscriber(const ThreadSubscriber& s) = delete;
     ~ThreadSubscriber();
 
@@ -30,7 +30,7 @@ public:
 
 private:
     MeasurementValue& measurementValue_;
-    frameFunc func;
+    FrameFunc func;
     std::thread thread;
     std::atomic_bool isRunning;
     Time::CTimeMeasurer timeMeasurer;

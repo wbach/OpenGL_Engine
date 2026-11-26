@@ -11,7 +11,7 @@ public:
     FlattenHeightPainter(TerrainPainter::Dependencies&&, std::unique_ptr<IBrush>);
     ~FlattenHeightPainter() override;
 
-    void Apply(Texture& texture, const vec2ui& paintedPoint, const Influance& influancePoint, DeltaTime deltaTime) override;
+    void Apply(Texture& texture, const vec2ui& paintedPoint, const Influance& influancePoint, Utils::Time::DeltaTime deltaTime) override;
 
 private:
     IdType keySubId;

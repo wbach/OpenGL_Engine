@@ -135,7 +135,7 @@ TEST_F(ShapeAndRigidbodyTests, StabilityTestAddRemoveManyObjects)
             while (isrunning)
             {
 
-                scene->FullUpdate(0.1f);
+                scene->FullUpdate(Utils::Time::DeltaTime(static_cast<int64>(0.1f * Utils::Time::DeltaTime::NANOSECONDS_PER_SECOND)));
                 std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int>(getRandomFloat() * 100.f)));
             }
         });

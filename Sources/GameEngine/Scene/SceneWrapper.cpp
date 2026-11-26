@@ -30,13 +30,13 @@ void SceneWrapper::Set(ScenePtr scene)
     activeScene = std::move(scene);
 }
 
-void SceneWrapper::UpdateScene(float dt)
+void SceneWrapper::UpdateScene(const Utils::Time::DeltaTime& deltaTime)
 {
     std::lock_guard<std::mutex> lk(sceneMutex);
     if (not activeScene)
         return;
 
-    activeScene->FullUpdate(dt);
+    activeScene->FullUpdate(deltaTime);
 }
 
 Scene* SceneWrapper::Get()

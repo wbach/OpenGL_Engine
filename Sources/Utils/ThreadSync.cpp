@@ -23,7 +23,7 @@ ThreadSync::~ThreadSync()
     Stop();
 }
 
-uint32 ThreadSync::Subscribe(frameFunc func, const std::string& label, uint32 fpsLimit)
+uint32 ThreadSync::Subscribe(FrameFunc func, const std::string& label, uint32 fpsLimit)
 {
     auto id = idPool_++;
     subscribers.emplace(std::piecewise_construct, std::forward_as_tuple(id), std::forward_as_tuple(label, func, measurementHandler_, fpsLimit));
@@ -85,7 +85,7 @@ Worker& ThreadSync::AddWorker()
 {
     workers_.emplace_back();
     auto& worker = workers_.back();
-    worker.id_   = Subscribe([&worker](float dt) { worker.Work(dt); }, "Worker");
+    worker.id_   = Subscribe([&worker](const Time::DeltaTime& dt) { worker.Work(dt); }, "Worker");
     return worker;
 }
 

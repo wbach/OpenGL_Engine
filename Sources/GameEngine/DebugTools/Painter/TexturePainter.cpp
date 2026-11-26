@@ -175,7 +175,7 @@ bool TexturePainter::PreparePaint(TerrainPoint& point)
     return currentPaintingContext != nullptr;
 }
 
-void TexturePainter::Apply(Texture&, const vec2ui& paintedPoint, const Influance& influancePoint, DeltaTime deltaTime)
+void TexturePainter::Apply(Texture&, const vec2ui& paintedPoint, const Influance& influancePoint, Utils::Time::DeltaTime deltaTime)
 {
     if (not currentPaintingContext)
         return;
@@ -187,7 +187,7 @@ void TexturePainter::Apply(Texture&, const vec2ui& paintedPoint, const Influance
 
     size_t idx = (paintedPoint.x + paintedPoint.y * access.width) * access.channels;
 
-    const float paintSpeed = glm::clamp(influancePoint.influance * deltaTime, 0.0f, 1.0f);
+    const float paintSpeed = glm::clamp(influancePoint.influance * deltaTime.GetSecondsFloat(), 0.0f, 1.0f);
 
     for (uint8 c = 0; c < access.channels; ++c)
     {

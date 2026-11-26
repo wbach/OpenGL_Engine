@@ -234,7 +234,7 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
 
     engineContext_.GetPhysicsApi().DisableSimulation();
     physicsThreadId_ = engineContext_.GetThreadSync().Subscribe(
-        [this](float deltaTime)
+        [this](const Utils::Time::DeltaTime& deltaTime)
         {
             auto tm = engineContext_.GetDisplayManager().GetTimeMultiplayer();
             engineContext_.GetPhysicsApi().Simulate(deltaTime * tm);

@@ -6,6 +6,7 @@
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "IBrush.h"
 #include "Influance.h"
+#include <Utils/Time/DeltaTime.h>
 
 namespace GameEngine
 {
@@ -17,7 +18,7 @@ HeightPainter::~HeightPainter()
 {
     LOG_DEBUG << "";
 }
-void HeightPainter::Apply(Texture& texture, const vec2ui& paintedPoint, const Influance& influancePoint, DeltaTime deltaTime)
+void HeightPainter::Apply(Texture& texture, const vec2ui& paintedPoint, const Influance& influancePoint, Utils::Time::DeltaTime deltaTime)
 {
     try
     {
@@ -35,7 +36,7 @@ void HeightPainter::Apply(Texture& texture, const vec2ui& paintedPoint, const In
             return;
         }
 
-        auto newHeight = *currentHeightOpt + (influancePoint.influance * deltaTime);
+        auto newHeight = *currentHeightOpt + (influancePoint.influance * deltaTime.GetSecondsFloat());
         heightmap.SetHeight(paintedPoint, newHeight);
     }
     catch (const std::bad_cast& e)

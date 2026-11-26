@@ -9,7 +9,7 @@ public:
     HeightPainter(TerrainPainter::Dependencies&&, std::unique_ptr<IBrush>);
     ~HeightPainter() override;
 
-    void Apply(Texture&, const vec2ui&, const Influance&, DeltaTime) override;
+    void Apply(Texture&, const vec2ui&, const Influance&, Utils::Time::DeltaTime) override;
     void UpdateTexture(Components::TerrainRendererComponent&) override;
     void RecalculateTerrainNormals();
 };

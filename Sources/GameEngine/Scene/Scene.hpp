@@ -58,7 +58,7 @@ public:
     void InitResources(EngineContext&);
     void Init();
     void PostInit();
-    void FullUpdate(float deltaTime);
+    void FullUpdate(const Utils::Time::DeltaTime& deltaTime);
     void PostUpdate();
     void Start();
     void Stop();

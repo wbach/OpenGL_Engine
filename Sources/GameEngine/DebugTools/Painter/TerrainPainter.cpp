@@ -40,7 +40,7 @@ void TerrainPainter::CreateInfulanceForBrushSizeInTextureSpace(const vec3& terra
 
     brush_->createInfluance(textureSize.x % 2 == 0, stepX, stepZ);
 }
-void TerrainPainter::Paint(const DeltaTime& deltaTime)
+void TerrainPainter::Paint(const Utils::Time::DeltaTime& deltaTime)
 {
     // GetMousePointOnTerrain rozszeczyc o detekcje terranu poprzez bounding box , na ktory klilamy aby mozna bylo przchodzi
     // dynamicznie pomiedzy terenami.

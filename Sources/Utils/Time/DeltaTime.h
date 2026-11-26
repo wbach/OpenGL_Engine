@@ -9,22 +9,33 @@ class DeltaTime
 {
 public:
     static constexpr double NANOSECONDS_PER_SECOND = 1'000'000'000.0;
-    constexpr DeltaTime()                          = default;
 
+    constexpr DeltaTime() = default;
     explicit DeltaTime(int64 nanoseconds) noexcept
+        : deltaTime_{nanoseconds}
+        , deltaTimeDouble_{static_cast<double>(nanoseconds) / NANOSECONDS_PER_SECOND}
+        , deltaTimeFloat_{static_cast<float>(deltaTimeDouble_)}
     {
-        *this = nanoseconds;
     }
 
     DeltaTime& operator=(int64 nanoseconds) noexcept
     {
-        deltaTime_ = nanoseconds;
-
+        deltaTime_           = nanoseconds;
         const double seconds = static_cast<double>(nanoseconds) / NANOSECONDS_PER_SECOND;
-
-        deltaTimeDouble_ = seconds;
-        deltaTimeFloat_  = static_cast<float>(seconds);
+        deltaTimeDouble_     = seconds;
+        deltaTimeFloat_      = static_cast<float>(seconds);
         return *this;
+    }
+
+    DeltaTime operator*(float multiplier) const noexcept
+    {
+        const auto scaledNanoseconds = static_cast<int64>(std::llround(static_cast<double>(deltaTime_) * multiplier));
+        return DeltaTime{scaledNanoseconds};
+    }
+
+    friend DeltaTime operator*(float multiplier, const DeltaTime& dt) noexcept
+    {
+        return dt * multiplier;
     }
 
     int64 GetNanoseconds() const noexcept
@@ -40,26 +51,6 @@ public:
     float GetSecondsFloat() const noexcept
     {
         return deltaTimeFloat_;
-    }
-
-    float operator*(float value) const noexcept
-    {
-        return deltaTimeFloat_ * value;
-    }
-
-    double operator*(double value) const noexcept
-    {
-        return deltaTimeDouble_ * value;
-    }
-
-    friend float operator*(float value, const DeltaTime& dt) noexcept
-    {
-        return dt * value;
-    }
-
-    friend double operator*(double value, const DeltaTime& dt) noexcept
-    {
-        return dt * value;
     }
 
 private:

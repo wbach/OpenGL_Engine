@@ -17,6 +17,13 @@ namespace Input
 {
 class InputManager;
 }
+namespace Utils
+{
+namespace Time
+{
+class DeltaTime;
+}
+}
 
 namespace GameEngine
 {
@@ -54,7 +61,7 @@ public:
     PlantPainter(Dependencies&&, const File&, std::unique_ptr<IBrush>, PaintMode, const Color&, const vec3&, float, float, float);
     ~PlantPainter() override;
 
-    void Paint(const DeltaTime&) override;
+    void Paint(const Utils::Time::DeltaTime&) override;
     void Generate(const File&);
     void Generate(const std::optional<IdType>&);
 

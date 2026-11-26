@@ -6,11 +6,19 @@
 #include "Types.h"
 #include "gmock/gmock.h"
 
+namespace Utils
+{
+namespace Time
+{
+class DeltaTime;
+}
+}
+
 namespace GameEngine
 {
 struct PhysicsApiMock : public Physics::IPhysicsApi
 {
-    MOCK_METHOD1(Simulate, void(float));
+    MOCK_METHOD1(Simulate, void(const Utils::Time::DeltaTime&));
     MOCK_METHOD1(DebugDraw, const GraphicsApi::LineMesh&(const vec3&));
     MOCK_METHOD0(EnableSimulation, void());
     MOCK_METHOD0(DisableSimulation, void());

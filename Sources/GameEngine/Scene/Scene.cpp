@@ -172,7 +172,7 @@ void Scene::PostInit()
 {
 }
 
-void Scene::FullUpdate(float deltaTime)
+void Scene::FullUpdate(const Utils::Time::DeltaTime& deltaTime)
 {
     if (inputManager_)
     {
@@ -181,7 +181,7 @@ void Scene::FullUpdate(float deltaTime)
 
     if (guiManager_)
     {
-        guiManager_->update(deltaTime);
+        guiManager_->update(deltaTime.GetSecondsFloat());
     }
 
     if (debugOverlay_)
@@ -190,7 +190,7 @@ void Scene::FullUpdate(float deltaTime)
     }
     if (displayManager_)
     {
-        time_.deltaTime = deltaTime;
+        time_.deltaTime = deltaTime.GetSecondsFloat();
     }
     if (console_)
     {
@@ -199,12 +199,12 @@ void Scene::FullUpdate(float deltaTime)
 
     if (start_.load())
     {
-        Update(deltaTime);
-        dayNightCycle.Update(deltaTime);
+        Update(deltaTime.GetSecondsFloat());
+        dayNightCycle.Update(deltaTime.GetSecondsFloat());
         componentController_.Update();
     }
 
-    tweenManager.Update(deltaTime);
+    tweenManager.Update(deltaTime.GetSecondsFloat());
 
     if (dialogueManager_)
     {

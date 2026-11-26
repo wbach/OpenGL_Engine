@@ -6,7 +6,7 @@ namespace Utils
 {
 namespace Thread
 {
-ThreadSubscriber::ThreadSubscriber(const std::string& label, frameFunc func, MeasurementHandler& measurementHandler,
+ThreadSubscriber::ThreadSubscriber(const std::string& label, FrameFunc func, MeasurementHandler& measurementHandler,
                                    uint32 fpsLimit)
     : measurementValue_(measurementHandler.AddNewMeasurment(label + "Fps"))
     , func(func)
@@ -48,7 +48,7 @@ void ThreadSubscriber::Update()
     while (isRunning.load())
     {
         timeMeasurer.StartFrame();
-        float deltaTime = timeMeasurer.GetDeltaTime().GetSecondsFloat();
+        const auto& deltaTime = timeMeasurer.GetDeltaTime();
         func(deltaTime * timeMultiplayer_);
         timeMeasurer.EndFrame();
     }

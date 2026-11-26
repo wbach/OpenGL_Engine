@@ -14,6 +14,13 @@ namespace Input
 {
 class InputManager;
 }
+namespace Utils
+{
+namespace Time
+{
+class DeltaTime;
+}
+}
 
 namespace GameEngine
 {
@@ -42,12 +49,12 @@ public:
     TerrainPainter(Dependencies&, std::unique_ptr<IBrush>, TerrainTextureType);
     ~TerrainPainter() override;
 
-    virtual void Apply(Texture&, const vec2ui&, const Influance&, DeltaTime) = 0;
+    virtual void Apply(Texture&, const vec2ui&, const Influance&, Utils::Time::DeltaTime) = 0;
     virtual bool PreparePaint(TerrainPoint&);
     virtual void UpdateTexture(Components::TerrainRendererComponent&);
 
     void CreateInfulanceForBrushSizeInTextureSpace(const vec3& terrainScale, const vec2ui& textureSize);
-    void Paint(const DeltaTime& deltaTime) override;
+    void Paint(const Utils::Time::DeltaTime& deltaTime) override;
     std::optional<vec2ui> GetPaintendPoint(const TerrainPoint& terrainPoint, const Influance& point);
     vec2ui ConvertToPixelSpace(const TerrainPoint& terrainPoint);
     bool IsInRange(const Utils::Image& image, const vec2ui& pixel);

@@ -95,7 +95,7 @@ void BulletAdapter::EnableSimulation()
     simualtePhysics_ = true;
 }
 
-void BulletAdapter::Simulate(float deltaTime)
+void BulletAdapter::Simulate(const Utils::Time::DeltaTime& deltaTime)
 {
     executeTasks();
 
@@ -845,7 +845,7 @@ void BulletAdapter::checkCollisions()
         impl_->collisionContactInfoSub_.erase(id);
     }
 }
-void BulletAdapter::stepSimulation(float deltaTime)
+void BulletAdapter::stepSimulation(const Utils::Time::DeltaTime& deltaTime)
 {
     if (!btDynamicWorld)
     {
@@ -854,7 +854,7 @@ void BulletAdapter::stepSimulation(float deltaTime)
     }
 
     std::lock_guard<std::mutex> lk(dynamicWorldMutex);
-    btDynamicWorld->stepSimulation(deltaTime, 1, deltaTime);
+    btDynamicWorld->stepSimulation(deltaTime.GetSecondsFloat(), 1, deltaTime.GetSecondsFloat());
 }
 const GraphicsApi::LineMesh& BulletAdapter::DebugDraw(const vec3& cameraPos)
 {

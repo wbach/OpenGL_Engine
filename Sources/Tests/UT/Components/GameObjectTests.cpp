@@ -227,7 +227,7 @@ TEST_F(GameObjectTestSchould, AddObjectToScene)
     EXPECT_FALSE(test.onStartCalled);
     EXPECT_FALSE(test.onPostStartCalled);
 
-    scene->FullUpdate(0.1f);
+    scene->FullUpdate(Utils::Time::DeltaTime(static_cast<int64>(0.1f * Utils::Time::DeltaTime::NANOSECONDS_PER_SECOND)));
     scene->PostUpdate();
 
     EXPECT_FALSE(test.onUpdateCalled);
@@ -264,7 +264,7 @@ TEST_F(GameObjectTestSchould, AddObjectToStartedScene)
     EXPECT_FALSE(test.onUpdateCalled);
     EXPECT_FALSE(test.onPostUpdateCalled);
 
-    scene->FullUpdate(0.1f);
+    scene->FullUpdate(Utils::Time::DeltaTime(static_cast<int64>(0.1f * Utils::Time::DeltaTime::NANOSECONDS_PER_SECOND)));
     scene->PostUpdate();
 
     EXPECT_TRUE(test.onUpdateCalled);

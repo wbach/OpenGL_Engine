@@ -18,7 +18,7 @@ void Worker::AddTask(std::function<void()> task, std::function<void()> callback)
     }
 }
 
-void Worker::Work(float)
+void Worker::Work(const Time::DeltaTime&)
 {
     processingFirstList_.store(true);
     {
