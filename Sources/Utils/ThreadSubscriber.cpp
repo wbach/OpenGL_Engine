@@ -48,7 +48,7 @@ void ThreadSubscriber::Update()
     while (isRunning.load())
     {
         timeMeasurer.StartFrame();
-        float deltaTime = static_cast<float>(timeMeasurer.GetDeltaTime());
+        float deltaTime = timeMeasurer.GetDeltaTime().GetSecondsFloat();
         func(deltaTime * timeMultiplayer_);
         timeMeasurer.EndFrame();
     }

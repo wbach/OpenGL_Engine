@@ -121,7 +121,7 @@ void DisplayManager::ProcessEvents()
 void DisplayManager::UpdateWindow()
 {
     graphicsApi_.EndFrame();
-    time_.deltaTimeNoModified = static_cast<float>(timeMeasurer_.GetDeltaTime());
+    time_.deltaTimeNoModified = timeMeasurer_.GetDeltaTime().GetSecondsFloat();
     time_.deltaTime           = time_.deltaTimeNoModified * timeMultiplayer_;
 }
 

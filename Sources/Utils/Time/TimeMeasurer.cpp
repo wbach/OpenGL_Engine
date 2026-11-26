@@ -11,7 +11,7 @@ namespace Time
 using Clock       = std::chrono::steady_clock;
 using Nanoseconds = std::chrono::nanoseconds;
 
-static constexpr CTimeMeasurer::int64 E9 = 1'000'000'000;
+static constexpr int64 E9 = 1'000'000'000;
 
 CTimeMeasurer::CTimeMeasurer()
     : CTimeMeasurer(60u, 1000u)
@@ -43,9 +43,9 @@ CTimeMeasurer::CTimeMeasurer(uint32 lockFps, uint32 frequency)
 
 CTimeMeasurer::~CTimeMeasurer() = default;
 
-double CTimeMeasurer::GetDeltaTime() const
+DeltaTime CTimeMeasurer::GetDeltaTime() const
 {
-    return deltaTime_ / 1e9;
+    return deltaTime_;
 }
 
 void CTimeMeasurer::setLockFps(uint32 lockFps)
@@ -69,7 +69,7 @@ void CTimeMeasurer::clearCallbacks()
     callbacks_.clear();
 }
 
-CTimeMeasurer::int64 CTimeMeasurer::CalculateTime(const Timepoint& t1, const Timepoint& t2) const
+int64 CTimeMeasurer::CalculateTime(const Timepoint& t1, const Timepoint& t2) const
 {
     return std::chrono::duration_cast<Nanoseconds>(t1 - t2).count();
 }
@@ -94,7 +94,7 @@ void CTimeMeasurer::EndFrame()
     Lock();
 }
 
-CTimeMeasurer::int64 CTimeMeasurer::GetFps() const
+int64 CTimeMeasurer::GetFps() const
 {
     return fps_;
 }
@@ -107,7 +107,7 @@ void CTimeMeasurer::RunCallbacks() const
 
 void CTimeMeasurer::CalculateFpsAndCallIfTimeElapsed()
 {
-    periodTime_ += deltaTime_;
+    periodTime_ += deltaTime_.GetNanoseconds();
     ++frameCount_;
 
     if (periodTime_ < frequency_)
